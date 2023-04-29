@@ -5,6 +5,7 @@ class RollResponseFormatterService
 {
     constructor({
         authorId,
+        exceptionalOn = 5,
         extraSuccesses = 0,
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
@@ -13,6 +14,7 @@ class RollResponseFormatterService
     } = {})
     {
         this.authorId = authorId;
+        this.exceptionalOn = exceptionalOn || 5;
         this.extraSuccesses = extraSuccesses || 0;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
@@ -96,6 +98,11 @@ class RollResponseFormatterService
             results.push('rote');
         }
 
+        if (this.exceptionalOn && this.exceptionalOn !== 5)
+        {
+            results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(this.exceptionalOn)}`);
+        }
+
         if (this.extraSuccesses)
         {
             results.push(`${this.extraSuccesses} extra successes`);
@@ -126,15 +133,24 @@ class RollResponseFormatterService
         }, ' with');
     }
 
+    getSuccessesAsSingularOrPlural()
+    {
+        if (this.numOfSuccessesWithExtraSuccesses !== 1)
+        {
+            return 'successes';
+        }
+
+        return 'success';
+    }
+
     getResponse()
     {
-        const successesSingularOrPlural = (this.numOfSuccessesWithExtraSuccesses !== 1)
-            ? 'successes'
-            : 'success';
-        
+        const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(this.numOfSuccessesWithExtraSuccesses)
+
         const successesText = Text.bold(`${this.numOfSuccessesWithExtraSuccesses} ${successesSingularOrPlural}`);
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.withParametersString} and got ${successesText}. ${this.diceString}`;
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.withParametersString}.`
+            + `\n\n${successesText}\n${this.diceString}`;
     }
 }
 
