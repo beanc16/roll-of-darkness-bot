@@ -1,5 +1,4 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
-const { Text } = require('@beanc16/discordjs-helpers');
 const rollConstants = require('../constants/roll');
 const DiceService = require('../services/DiceService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
@@ -43,13 +42,25 @@ class Roll extends BaseSlashCommand
                 option.setName('rote');
                 option.setDescription('Failed rolls are rerolled once (default: false)');
                 return option;
+            })
+            .addBooleanOption(function (option)
+            {
+                option.setName('secret');
+                option.setDescription('Makes a temporary roll message that only you can see (default: false)');
+                return option;
             });
     }
 
     async run(interaction)
     {
+        // Get initial parameter result
+        const isSecret = interaction.options.getBoolean('secret') || false;
+
         // Send message to show the command was received
-        await interaction.deferReply({ fetchReply: true });
+        await interaction.deferReply({
+            ephemeral: isSecret,
+            fetchReply: true,
+        });
 
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
