@@ -4,9 +4,14 @@ const defaultParams = {
     rerollOnGreaterThanOrEqualTo: 10,
     successOnGreaterThanOrEqualTo: 8,
     isRote: false,
+    isAdvancedAction: false,
 };
 
 const rerollsEnum = {
+    ten_again: {
+        number: 10,
+        display: '10again',
+    },
     nine_again: {
         number: 9,
         display: '9again',
