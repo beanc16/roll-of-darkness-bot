@@ -15,7 +15,6 @@ const bot = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
-		//GatewayIntentBits.MessageContent,
 	],
 });
 bot.login(process.env.TOKEN);
