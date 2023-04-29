@@ -27,7 +27,7 @@ async function handler(bot, interaction)
 			ephemeral: true,
 		});
 	}
-};
+}
 
 
 

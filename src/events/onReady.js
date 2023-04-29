@@ -8,7 +8,7 @@ function handler()
 		: "";
 
 	logger.info(`${process.env.APPLICATION_NAME}${devStr} has connected.`);
-};
+}
 
 
 
