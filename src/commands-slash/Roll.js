@@ -1,4 +1,5 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
+const options = require('./options/roll');
 const rollConstants = require('../constants/roll');
 const DiceService = require('../services/DiceService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
@@ -9,55 +10,12 @@ class Roll extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            // TODO: Put these options into a new file somewhere else later
-            .addIntegerOption(function (option)
-            {
-                option.setName('number_of_dice');
-                option.setDescription('The number of dice to roll (default: 1)');
-                option.setMinValue(1);
-                option.setMaxValue(100);
-                return option;
-            })
-            .addStringOption(function (option)
-            {
-                option.setName('rerolls');
-                option.setDescription('The minimum value that dice reroll on (default: reroll 10s)');
-                option.addChoices(
-                    {
-                        name: '9again',
-                        value: 'nine_again',
-                    },
-                    {
-                        name: '8again',
-                        value: 'eight_again',
-                    },
-                    {
-                        name: 'noagain',
-                        value: 'no_again',
-                    },
-                );
-                return option;
-            })
-            .addBooleanOption(function (option)
-            {
-                option.setName('rote');
-                option.setDescription('Failed rolls are rerolled once (default: false)');
-                return option;
-            })
-            .addIntegerOption(function (option)
-            {
-                option.setName('extra_successes');
-                option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
-                option.setMinValue(1);
-                option.setMaxValue(100);
-                return option;
-            })
-            .addBooleanOption(function (option)
-            {
-                option.setName('secret');
-                option.setDescription('Makes a temporary roll message that only you can see (default: false)');
-                return option;
-            });
+            .addIntegerOption(options.numberOfDice)
+            .addStringOption(options.rerolls)
+            .addBooleanOption(options.rote)
+            .addIntegerOption(options.exceptionalOn)
+            .addIntegerOption(options.extraSuccesses)
+            .addBooleanOption(options.secret);
     }
 
     async run(interaction)
@@ -75,6 +33,7 @@ class Roll extends BaseSlashCommand
         const numberOfDice = interaction.options.getInteger('number_of_dice');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
+        const exceptionalOn = interaction.options.getInteger('exceptional_on');
         const extraSuccesses = interaction.options.getInteger('extra_successes');
 
         // Convert parameters to necessary inputs for service calls
@@ -92,6 +51,7 @@ class Roll extends BaseSlashCommand
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
+            exceptionalOn,
             extraSuccesses,
             isRote,
             numberOfDice,
