@@ -26,7 +26,7 @@ class RollResponseFormatterService
             return this._numOfSuccesses;
         }
 
-        const successDice = this.results.flat().filter((result) => result >= 8);
+        const successDice = this.results.flat().filter((result) => result.number >= 8);
         this._numOfSuccesses = successDice.length;
 
         return this._numOfSuccesses;
@@ -47,12 +47,22 @@ class RollResponseFormatterService
                 acc += ', ';
             }
 
-            acc += `${result[0]}`;
+            acc += `${result[0].number}`;
 
             // Add parenthesis around dice that were re-rolled
             for (let i = 1; i < result.length; i++)
             {
-                acc += ` (${result[i]})`;
+                // Format as rote
+                if (result[i].isRote)
+                {
+                    acc += ` R:${result[i].number}`;
+                }
+
+                // Format as reroll
+                else
+                {
+                    acc += ` (${result[i].number})`;
+                }
             }
 
             return acc;

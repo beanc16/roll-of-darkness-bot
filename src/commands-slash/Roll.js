@@ -13,7 +13,7 @@ class Roll extends BaseSlashCommand
             .addIntegerOption(function (option)
             {
                 option.setName('number_of_dice');
-                option.setDescription('The number of dice to roll');
+                option.setDescription('The number of dice to roll (default: 1)');
                 option.setMinValue(1);
                 option.setMaxValue(100);
                 return option;
@@ -37,6 +37,12 @@ class Roll extends BaseSlashCommand
                     },
                 );
                 return option;
+            })
+            .addBooleanOption(function (option)
+            {
+                option.setName('rote');
+                option.setDescription('Failed rolls are rerolled once (default: false)');
+                return option;
             });
     }
 
@@ -48,6 +54,7 @@ class Roll extends BaseSlashCommand
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
         const rerollsKey = interaction.options.getString('rerolls');
+        const isRote = interaction.options.getBoolean('rote');
 
         // TODO: Make a service for converting enums to necessary outputs later
         // Convert parameters to necessary inputs for service calls
@@ -57,6 +64,7 @@ class Roll extends BaseSlashCommand
         const diceService = new DiceService({
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
+            isRote,
         });
         const results = diceService.roll();
 
