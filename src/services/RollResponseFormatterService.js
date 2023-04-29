@@ -5,12 +5,18 @@ class RollResponseFormatterService
 {
     constructor({
         authorId,
+        extraSuccesses = 0,
+        isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
+        rerollsDisplay,
         results = [],
     } = {})
     {
         this.authorId = authorId;
+        this.extraSuccesses = extraSuccesses || 0;
+        this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
+        this.rerollsDisplay = rerollsDisplay;
         this.results = results || [];
     }
 
@@ -30,6 +36,11 @@ class RollResponseFormatterService
         this._numOfSuccesses = successDice.length;
 
         return this._numOfSuccesses;
+    }
+
+    get numOfSuccessesWithExtraSuccesses()
+    {
+        return this.numOfSuccesses + this.extraSuccesses;
     }
 
     get diceString()
@@ -71,15 +82,59 @@ class RollResponseFormatterService
         return this._diceString;
     }
 
+    get withParametersString()
+    {
+        const results = [];
+
+        if (this.rerollsDisplay)
+        {
+            results.push(this.rerollsDisplay);
+        }
+
+        if (this.isRote)
+        {
+            results.push('rote');
+        }
+
+        if (this.extraSuccesses)
+        {
+            results.push(`${this.extraSuccesses} extra successes`);
+        }
+
+        if (results.length === 0)
+        {
+            return '';
+        }
+
+        return results.reduce(function (acc, result, index)
+        {
+            // Add commas between results (after the first result) if there's 3 or more results
+            if (index !== 0 && results.length >= 3)
+            {
+                acc += ',';
+            }
+
+            // Add "and" between results on the last result if there's 2 or more results
+            if (index === results.length - 1 && results.length >= 2)
+            {
+                acc += ' and';
+            }
+
+            acc += ` ${result}`;
+
+            return acc;
+        }, ' with');
+    }
+
     getResponse()
     {
-        const successesSingularOrPlural = (this.numOfSuccesses !== 1)
+        const successesSingularOrPlural = (this.numOfSuccessesWithExtraSuccesses !== 1)
             ? 'successes'
             : 'success';
         
-        const successesText = Text.bold(`${this.numOfSuccesses} ${successesSingularOrPlural}`);
+        const successesText = Text.bold(`${this.numOfSuccessesWithExtraSuccesses} ${successesSingularOrPlural}`);
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice and got ${successesText}. ${this.diceString}`;
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.withParametersString} and got ${successesText}. ${this.diceString}`;
     }
 }
 

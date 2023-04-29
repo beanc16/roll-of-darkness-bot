@@ -9,6 +9,7 @@ class Roll extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            // TODO: Put these options into a new file somewhere else later
             .addIntegerOption(function (option)
             {
                 option.setName('number_of_dice');
@@ -43,6 +44,14 @@ class Roll extends BaseSlashCommand
                 option.setDescription('Failed rolls are rerolled once (default: false)');
                 return option;
             })
+            .addIntegerOption(function (option)
+            {
+                option.setName('extra_successes');
+                option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
+                option.setMinValue(1);
+                option.setMaxValue(100);
+                return option;
+            })
             .addBooleanOption(function (option)
             {
                 option.setName('secret');
@@ -66,9 +75,11 @@ class Roll extends BaseSlashCommand
         const numberOfDice = interaction.options.getInteger('number_of_dice');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
+        const extraSuccesses = interaction.options.getInteger('extra_successes');
 
         // Convert parameters to necessary inputs for service calls
-        const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey];
+        const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey]?.number;
+        const rerollsDisplay = rollConstants.rerollsEnum[rerollsKey]?.display;
 
         // Roll the dice
         const diceService = new DiceService({
@@ -81,7 +92,10 @@ class Roll extends BaseSlashCommand
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
+            extraSuccesses,
+            isRote,
             numberOfDice,
+            rerollsDisplay,
             results,
         });
         await interaction.editReply(
