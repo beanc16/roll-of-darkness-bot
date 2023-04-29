@@ -2,6 +2,7 @@ const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const { Text } = require('@beanc16/discordjs-helpers');
 const rollConstants = require('../constants/roll');
 const DiceService = require('../services/DiceService');
+const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
 class Roll extends BaseSlashCommand
 {
@@ -31,35 +32,14 @@ class Roll extends BaseSlashCommand
         const diceService = new DiceService({ count: numberOfDice });
         const results = diceService.roll();
 
-        // TODO: Make a service out of formatting the command output to a string
-        const authorPing = Text.Ping.user(interaction.user.id);
-        const numOfSuccesses = results.flat().filter((result) => result >= 8).length;
-
-        const diceString = results.reduce(function (acc, result)
-        {
-            // Add commas to the end of the previous success except for the first
-            if (acc !== '')
-            {
-                acc += ', ';
-            }
-
-            acc += `${result[0]}`;
-
-            // Add parenthesis around dice that were rolled after an explosion
-            for (let i = 1; i < result.length; i++)
-            {
-                acc += ` (${result[i]})`;
-            }
-
-            return acc;
-        }, '');
-
+        // Response
+        const rollResponseFormatterService = new RollResponseFormatterService({
+            authorId: interaction.user.id,
+            numberOfDice,
+            results,
+        });
         await interaction.editReply(
-            `${authorPing} rolled ${numberOfDice || rollConstants.defaultParams.count} dice and got ${Text.bold(`${numOfSuccesses} ${
-                (numOfSuccesses !== 1)
-                ? 'successes'
-                : 'success'
-            }`)}. ${diceString}`
+            rollResponseFormatterService.getResponse()
         );
     }
 
