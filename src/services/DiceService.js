@@ -12,9 +12,9 @@ class DiceService
         rerollOnGreaterThanOrEqualTo = defaultParams.rerollOnGreaterThanOrEqualTo,
     } = defaultParams)
     {
-        this.sides = sides;
-        this.count = count;
-        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo;
+        this.sides = sides || defaultParams.sides;
+        this.count = count || defaultParams.count;
+        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || defaultParams.rerollOnGreaterThanOrEqualTo;
     }
 
     roll()
