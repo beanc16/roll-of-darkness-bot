@@ -1,29 +1,23 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
+const diceService = require('../services/DiceService');
+const DiceService = require('../services/DiceService');
 
 class Roll extends BaseSlashCommand
 {
     async run(interaction)
     {
         // Send message to show the command was received
-        const deferredMessage = await interaction.deferReply({
+        await interaction.deferReply({
             ephemeral: true,
             fetchReply: true,
         });
 
-        // Calculate latencies
-        const uptime = Math.round(interaction.client.uptime / 60000);
-        const websocketHeartbeat = interaction.client.ws.ping;
-        const roundtripLatency = deferredMessage.createdTimestamp - interaction.createdTimestamp;
-
-        // Set up latency messages
-        const latencyMessages = [
-            `⬆️ Uptime: ${uptime} minutes ⬆️`,
-            `💗 Websocket heartbeat: ${websocketHeartbeat}ms 💗`,
-            `🚗 Roundtrip Latency: ${roundtripLatency}ms 🚗`,
-        ];
+        // Roll the dice
+        const diceService = new DiceService({ count: 6 });
+        const results = diceService.roll();
 
         // Update message
-        await interaction.editReply(latencyMessages.join('\n'));
+        await interaction.editReply(results.flat().join(', '));
     }
 
     get description()
