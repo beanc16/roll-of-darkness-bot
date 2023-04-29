@@ -56,7 +56,6 @@ class Roll extends BaseSlashCommand
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
 
-        // TODO: Make a service for converting enums to necessary outputs later
         // Convert parameters to necessary inputs for service calls
         const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey];
 
