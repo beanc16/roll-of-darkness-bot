@@ -8,6 +8,7 @@ class DiceService
         rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         isRote = rollConstants.defaultParams.isRote,
+        isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
     } = rollConstants.defaultParams)
     {
         this.sides = sides || rollConstants.defaultParams.sides;
@@ -15,9 +16,22 @@ class DiceService
         this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
+        this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
     }
 
     roll()
+    {
+        const dicepools = [this.rollDicepool()];
+
+        if (this.isAdvancedAction)
+        {
+            dicepools.push(this.rollDicepool());
+        }
+
+        return dicepools;
+    }
+
+    rollDicepool()
     {
         const rolls = [];
 
