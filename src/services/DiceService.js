@@ -1,20 +1,16 @@
-const defaultParams = {
-    sides: 10,
-    count: 1,
-    rerollOnGreaterThanOrEqualTo: 10,
-};
+const rollConstants = require('../constants/roll');
 
 class DiceService
 {
     constructor({
-        sides = defaultParams.sides,
-        count = defaultParams.count,
-        rerollOnGreaterThanOrEqualTo = defaultParams.rerollOnGreaterThanOrEqualTo,
-    } = defaultParams)
+        sides = rollConstants.defaultParams.sides,
+        count = rollConstants.defaultParams.count,
+        rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
+    } = rollConstants.defaultParams)
     {
-        this.sides = sides || defaultParams.sides;
-        this.count = count || defaultParams.count;
-        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || defaultParams.rerollOnGreaterThanOrEqualTo;
+        this.sides = sides || rollConstants.defaultParams.sides;
+        this.count = count || rollConstants.defaultParams.count;
+        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
     }
 
     roll()
