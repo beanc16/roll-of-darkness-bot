@@ -15,6 +15,7 @@ class Roll extends BaseSlashCommand
             .addBooleanOption(options.rote)
             .addIntegerOption(options.exceptionalOn)
             .addIntegerOption(options.extraSuccesses)
+            .addBooleanOption(options.advancedAction)
             .addBooleanOption(options.secret);
     }
 
@@ -34,6 +35,7 @@ class Roll extends BaseSlashCommand
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
         const exceptionalOn = interaction.options.getInteger('exceptional_on');
+        const isAdvancedAction = interaction.options.getBoolean('advanced_action');
         const extraSuccesses = interaction.options.getInteger('extra_successes');
 
         // Convert parameters to necessary inputs for service calls
@@ -45,6 +47,7 @@ class Roll extends BaseSlashCommand
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
             isRote,
+            isAdvancedAction,
         });
         const results = diceService.roll();
 
@@ -53,6 +56,7 @@ class Roll extends BaseSlashCommand
             authorId: interaction.user.id,
             exceptionalOn,
             extraSuccesses,
+            isAdvancedAction,
             isRote,
             numberOfDice,
             rerollsDisplay,
