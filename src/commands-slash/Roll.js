@@ -17,6 +17,26 @@ class Roll extends BaseSlashCommand
                 option.setMinValue(1);
                 option.setMaxValue(100);
                 return option;
+            })
+            .addStringOption(function (option)
+            {
+                option.setName('rerolls');
+                option.setDescription('The minimum value that dice reroll on (default: reroll 10s)');
+                option.addChoices(
+                    {
+                        name: '9again',
+                        value: 'nine_again',
+                    },
+                    {
+                        name: '8again',
+                        value: 'eight_again',
+                    },
+                    {
+                        name: 'noagain',
+                        value: 'no_again',
+                    },
+                );
+                return option;
             });
     }
 
@@ -27,9 +47,17 @@ class Roll extends BaseSlashCommand
 
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
+        const rerollsKey = interaction.options.getString('rerolls');
+
+        // TODO: Make a service for converting enums to necessary outputs later
+        // Convert parameters to necessary inputs for service calls
+        const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey];
 
         // Roll the dice
-        const diceService = new DiceService({ count: numberOfDice });
+        const diceService = new DiceService({
+            count: numberOfDice,
+            rerollOnGreaterThanOrEqualTo,
+        });
         const results = diceService.roll();
 
         // Response
