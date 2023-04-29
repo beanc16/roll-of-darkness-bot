@@ -10,8 +10,12 @@ const numberOfDice = function (option)
 const rerolls = function (option)
 {
     option.setName('rerolls');
-    option.setDescription('The minimum value that dice reroll on (default: reroll 10s)');
+    option.setDescription('The minimum value that dice reroll on (default: 10again)');
     option.addChoices(
+        {
+            name: '10again',
+            value: 'ten_again',
+        },
         {
             name: '9again',
             value: 'nine_again',
@@ -31,7 +35,7 @@ const rerolls = function (option)
 const rote = function (option)
 {
     option.setName('rote');
-    option.setDescription('Failed rolls are rerolled once (default: false)');
+    option.setDescription('Failed rolls are rerolled once (default: False)');
     return option;
 }
 
@@ -49,7 +53,14 @@ const extraSuccesses = function (option)
     option.setName('extra_successes');
     option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
     option.setMinValue(1);
-    option.setMaxValue(100);
+    option.setMaxValue(30);
+    return option;
+};
+
+const advancedAction = function (option)
+{
+    option.setName('advanced_action');
+    option.setDescription('Roll the dice pool twice, take the higher result (default: False)');
     return option;
 };
 
@@ -68,5 +79,6 @@ module.exports = {
     rote,
     exceptionalOn,
     extraSuccesses,
+    advancedAction,
     secret,
 };
