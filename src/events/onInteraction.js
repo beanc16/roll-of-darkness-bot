@@ -1,6 +1,6 @@
 const { Events } = require('discord.js');
 const { logger } = require("@beanc16/logger");
-const SlashCommandsContainer = require('../models/SlashCommandsContainer');
+const SlashCommandsContainer = require('../slash-command-helpers/SlashCommandsContainer');
 
 
 
