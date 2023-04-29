@@ -7,6 +7,7 @@ class RollResponseFormatterService
         authorId,
         exceptionalOn = 5,
         extraSuccesses = 0,
+        isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
@@ -16,6 +17,7 @@ class RollResponseFormatterService
         this.authorId = authorId;
         this.exceptionalOn = exceptionalOn || 5;
         this.extraSuccesses = extraSuccesses || 0;
+        this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
@@ -27,32 +29,20 @@ class RollResponseFormatterService
         return Text.Ping.user(this.authorId);
     }
 
-    get numOfSuccesses()
+    getNumOfSuccesses(dicepoolIndex)
     {
-        if (this._numOfSuccesses)
-        {
-            return this._numOfSuccesses;
-        }
-
-        const successDice = this.results.flat().filter((result) => result.number >= 8);
-        this._numOfSuccesses = successDice.length;
-
-        return this._numOfSuccesses;
+        const successDice = this.results[dicepoolIndex].flat().filter((result) => result.number >= 8);
+        return successDice.length;
     }
 
-    get numOfSuccessesWithExtraSuccesses()
+    getNumOfSuccessesWithExtraSuccesses(dicepoolIndex)
     {
-        return this.numOfSuccesses + this.extraSuccesses;
+        return this.getNumOfSuccesses(dicepoolIndex) + this.extraSuccesses;
     }
 
-    get diceString()
+    getDiceString(dicepoolIndex)
     {
-        if (this._diceString)
-        {
-            return this._diceString;
-        }
-
-        this._diceString = this.results.reduce(function (acc, result)
+        const diceString = this.results[dicepoolIndex].reduce(function (acc, result)
         {
             // Add commas to the end of the previous success (except for the first roll)
             if (acc !== '')
@@ -81,16 +71,21 @@ class RollResponseFormatterService
             return acc;
         }, '');
 
-        return this._diceString;
+        return diceString;
     }
 
-    get withParametersString()
+    getWithParametersString(dicepoolIndex)
     {
         const results = [];
 
-        if (this.rerollsDisplay)
+        if (this.rerollsDisplay !== rollConstants.rerollsEnum.ten_again.display)
         {
             results.push(this.rerollsDisplay);
+        }
+
+        if (this.isAdvancedAction)
+        {
+            results.push('advanced action');
         }
 
         if (this.isRote)
@@ -100,7 +95,7 @@ class RollResponseFormatterService
 
         if (this.exceptionalOn && this.exceptionalOn !== 5)
         {
-            results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(this.exceptionalOn)}`);
+            results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(dicepoolIndex)}`);
         }
 
         if (this.extraSuccesses)
@@ -133,9 +128,16 @@ class RollResponseFormatterService
         }, ' with');
     }
 
-    getSuccessesAsSingularOrPlural()
+    getSuccessesAsSingularOrPlural(dicepoolIndex, {
+        includeExtraSuccesses = true,
+    } = {})
     {
-        if (this.numOfSuccessesWithExtraSuccesses !== 1)
+        if (includeExtraSuccesses && this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex) !== 1)
+        {
+            return 'successes';
+        }
+
+        else if (!includeExtraSuccesses && this.getNumOfSuccesses(dicepoolIndex) !== 1)
         {
             return 'successes';
         }
@@ -143,14 +145,55 @@ class RollResponseFormatterService
         return 'success';
     }
 
+    getDicepoolResponse(dicepoolIndex)
+    {
+        const totalNumOfSuccesses = this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex);
+        const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(dicepoolIndex)
+        const successesText = Text.bold(`${totalNumOfSuccesses} ${successesSingularOrPlural}`);
+
+        return {
+            totalNumOfSuccesses,
+            response: `\n\n${successesText}\n${this.getDiceString(dicepoolIndex)}`,
+        };
+    }
+
     getResponse()
     {
-        const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(this.numOfSuccessesWithExtraSuccesses)
+        const highestDicepool = {
+            index: -1,
+            totalNumOfSuccesses: -1,
+        };
+        const responseObjs = this.results.map((_, index) =>
+        {
+            const response = this.getDicepoolResponse(index);
 
-        const successesText = Text.bold(`${this.numOfSuccessesWithExtraSuccesses} ${successesSingularOrPlural}`);
+            if (response.totalNumOfSuccesses > highestDicepool.totalNumOfSuccesses)
+            {
+                highestDicepool.totalNumOfSuccesses = response.totalNumOfSuccesses;
+                highestDicepool.index = index;
+            }
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.withParametersString}.`
-            + `\n\n${successesText}\n${this.diceString}`;
+            return response;
+        });
+
+        const responsesStr = responseObjs.reduce(function (acc, responseObj, index)
+        {
+            if (highestDicepool.index === index)
+            {
+                acc += responseObj.response;
+            }
+
+            else
+            {
+                acc += `~~${responseObj.response}~~`;
+                //acc += Text.StrikeThrough(responseObj.response);
+            }
+
+            return acc;
+        }, '');
+
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}.`
+            + responsesStr;
     }
 }
 
