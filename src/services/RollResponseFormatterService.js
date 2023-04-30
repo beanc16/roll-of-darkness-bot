@@ -12,6 +12,7 @@ class RollResponseFormatterService
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
         results = [],
+        successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
     } = {})
     {
         this.authorId = authorId;
@@ -22,6 +23,7 @@ class RollResponseFormatterService
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
         this.results = results || [];
+        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.default.successOnGreaterThanOrEqualTo;
     }
 
     get authorPing()
@@ -31,7 +33,7 @@ class RollResponseFormatterService
 
     getNumOfSuccesses(dicepoolIndex)
     {
-        const successDice = this.results[dicepoolIndex].flat().filter((result) => result.number >= 8);
+        const successDice = this.results[dicepoolIndex].flat().filter((result) => result.number >= this.successOnGreaterThanOrEqualTo);
         return successDice.length;
     }
 
@@ -139,7 +141,7 @@ class RollResponseFormatterService
             return 'successes';
         }
 
-        else if (numToTestInstead !== 1)
+        else if (numToTestInstead && numToTestInstead !== 1)
         {
             return 'successes';
         }
