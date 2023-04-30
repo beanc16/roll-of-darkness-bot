@@ -8,7 +8,8 @@ async function handler(bot, interaction)
 {
 	if (!interaction.isChatInputCommand()) return;
 
-	const slashCommand = SlashCommandsContainer.getCommand(interaction.commandName);
+	const slashCommand = SlashCommandsContainer.getCommand(interaction.commandName)
+		|| SlashCommandsContainer.getGuildCommand(interaction.commandName);
 	if (!slashCommand)
 	{
 		logger.error(`No command named ${interaction.commandName} was found.`);
