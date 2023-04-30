@@ -1,14 +1,11 @@
 const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
+const { defaultFlavorTextResults } = require('../constants/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
 const flavorTextSingleton = require('../models/flavorTextSingleton');
+const { logger } = require('@beanc16/logger');
 
 class FlavorTextService
 {
-    constructor()
-    {
-        this.rollOfDarknessApi = new RollOfDarknessApi();
-    }
-
     get categories()
     {
         return this._categories;
@@ -33,7 +30,11 @@ class FlavorTextService
          *      }]
          *  }
          */
-        const unparsedCategories = await this.rollOfDarknessApi.categories.get();
+        const {
+            data: {
+                categories: unparsedCategories = [],
+            } = {},
+        } = await RollOfDarknessApi.categories.get();
 
         const parsedCategories = unparsedCategories.reduce(function (acc, category)
         {
@@ -77,10 +78,39 @@ class FlavorTextService
          *      ]
          *  }
          */
-        return await this.rollOfDarknessApi.flavorText.get({
-            splat,
-            categories,
-        });
+        try
+        {
+            const {
+                data: {
+                    flavor_texts: results = [],
+                } = {},
+            } = await RollOfDarknessApi.flavorText.get({
+                splat,
+                categories,
+            });
+
+            if (results?.length > 0)
+            {
+                flavorTextSingleton.push({
+                    keys: [
+                        splat,
+                        ...categories,
+                    ],
+                    results,
+                });
+                return results;
+            }
+
+            else
+            {
+                return defaultFlavorTextResults;
+            }
+        }
+        catch (err)
+        {
+            logger.error('Error getting flavor text', err);
+            return defaultFlavorTextResults;
+        }
     }
 }
 

@@ -29,7 +29,7 @@ class CategoriesSingleton
 
     get(key)
     {
-        return this.getAll()[key];
+        return this.getAll()[key]?.category;
     }
 
     set(categoriesEnum = {})

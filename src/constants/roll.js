@@ -30,9 +30,14 @@ const rerollsEnum = {
     },
 };
 
+const defaultFlavorTextResults = [
+    '#blamejoel',
+];
+
 
 
 module.exports = {
+    defaultFlavorTextResults,
     defaultParams,
     rerollsEnum,
 };

@@ -1,7 +1,9 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const options = require('./options/roll');
 const rollConstants = require('../constants/roll');
+const categoriesSingleton = require('../models/categoriesSingleton');
 const DiceService = require('../services/DiceService');
+const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
 class Roll extends BaseSlashCommand
@@ -11,6 +13,7 @@ class Roll extends BaseSlashCommand
         super();
         this._slashCommandData
             .addIntegerOption(options.numberOfDice)
+            // TODO: Add splat parameter
             .addStringOption(options.rerolls)
             .addBooleanOption(options.rote)
             .addIntegerOption(options.exceptionalOn)
@@ -50,6 +53,14 @@ class Roll extends BaseSlashCommand
             isAdvancedAction,
         });
         const results = diceService.roll();
+
+        // Flavor text
+        const flavorTextService = new FlavorTextService();
+        await flavorTextService.getFlavorText({
+            // TODO: Add splat support
+            splat: categoriesSingleton.get('GENERAL'),
+            // TODO: Add categories based on roll results success status
+        });
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({

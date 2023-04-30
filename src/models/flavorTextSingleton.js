@@ -9,7 +9,7 @@ class FlavorTextSingleton
 
     get notInitialized()
     {
-        return (!this.getAll() || this.getAll().length || this.getAll().length === 0);
+        return (!this.getAll() || this.getAll()?.length === 0);
     }
 
     getAll()
