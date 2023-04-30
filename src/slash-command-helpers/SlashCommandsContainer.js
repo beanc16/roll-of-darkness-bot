@@ -27,8 +27,12 @@ class SlashCommandsContainer
         const guildCommandsDirPath = appRootPath.resolve("./src/commands-slash/guild-commands");
 
         // Get all files and directories in the commands folder.
-        const files = fs.readdirSync(commandsDirPath);
-        const guildCommandFiles = fs.readdirSync(guildCommandsDirPath);
+        const files = (fs.existsSync(commandsDirPath))
+            ? fs.readdirSync(commandsDirPath)
+            : [];
+        const guildCommandFiles = (fs.existsSync(guildCommandsDirPath))
+            ? fs.readdirSync(guildCommandsDirPath)
+            : [];
 
         // Initialize each command.
         files.forEach((fileName) =>
