@@ -1,7 +1,7 @@
 function numberOfDice(option)
 {
     option.setName('number_of_dice');
-    option.setDescription('The number of dice to roll (default: 1)');
+    option.setDescription('The number of dice to roll');
     option.setMinValue(1);
     option.setMaxValue(50);
     option.setRequired(true);
