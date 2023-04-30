@@ -29,5 +29,5 @@ jobs:
       - name: Register Slash Commands
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
-          CLIENT_ID: ${{ secret.BOT_CLIENT_ID }}
+          CLIENT_ID: ${{ secrets.BOT_CLIENT_ID }}
         run: npm run register-slash-commands
