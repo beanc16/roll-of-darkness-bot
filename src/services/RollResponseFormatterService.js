@@ -78,7 +78,7 @@ class RollResponseFormatterService
     {
         const results = [];
 
-        if (this.rerollsDisplay !== rollConstants.rerollsEnum.ten_again.display)
+        if (this.rerollsDisplay && this.rerollsDisplay !== rollConstants.rerollsEnum.ten_again.display)
         {
             results.push(this.rerollsDisplay);
         }
@@ -95,7 +95,9 @@ class RollResponseFormatterService
 
         if (this.exceptionalOn && this.exceptionalOn !== 5)
         {
-            results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(dicepoolIndex)}`);
+            results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(dicepoolIndex, {
+                numToTestInstead: this.exceptionalOn,
+            })}`);
         }
 
         if (this.extraSuccesses)
@@ -129,15 +131,15 @@ class RollResponseFormatterService
     }
 
     getSuccessesAsSingularOrPlural(dicepoolIndex, {
-        includeExtraSuccesses = true,
+        numToTestInstead,
     } = {})
     {
-        if (includeExtraSuccesses && this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex) !== 1)
+        if (!numToTestInstead && this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex) !== 1)
         {
             return 'successes';
         }
 
-        else if (!includeExtraSuccesses && this.getNumOfSuccesses(dicepoolIndex) !== 1)
+        else if (numToTestInstead !== 1)
         {
             return 'successes';
         }

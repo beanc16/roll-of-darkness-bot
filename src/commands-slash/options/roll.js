@@ -3,7 +3,7 @@ const numberOfDice = function (option)
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll (default: 1)');
     option.setMinValue(1);
-    option.setMaxValue(100);
+    option.setMaxValue(50);
     return option;
 };
 
