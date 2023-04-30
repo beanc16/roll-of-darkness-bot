@@ -53,6 +53,17 @@ class Roll extends BaseSlashCommand
             isAdvancedAction,
         });
         const results = diceService.roll();
+        
+        // TODO: Abstract this some container for all dice pools later and make it better
+        const biggestResult = results.reduce(function (acc, cur)
+        {
+            if (cur.numOfSuccesses > acc.numOfSuccesses)
+            {
+                acc = cur;
+            }
+
+            return acc;
+        }, results[0]);
 
         // Flavor text
         const flavorTextService = new FlavorTextService();
@@ -60,7 +71,9 @@ class Roll extends BaseSlashCommand
         const flavorTexts = await flavorTextService.getFlavorText({
             // TODO: Add splat support
             splat: categoriesSingleton.get('GENERAL'),
-            // TODO: Add categories based on roll results success status
+            categories: [
+                biggestResult.successStatus,
+            ],
         });
 
         const rerollOnGreaterThanOrEqualToNoAgain = rollConstants.rerollsEnum[

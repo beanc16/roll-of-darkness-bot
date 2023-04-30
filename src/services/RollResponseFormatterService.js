@@ -5,7 +5,7 @@ class RollResponseFormatterService
 {
     constructor({
         authorId,
-        exceptionalOn = 5,
+        exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         extraSuccesses = 0,
         flavorText = rollConstants.defaultFlavorTextResults,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
@@ -17,7 +17,7 @@ class RollResponseFormatterService
     } = {})
     {
         this.authorId = authorId;
-        this.exceptionalOn = exceptionalOn || 5;
+        this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.extraSuccesses = extraSuccesses || 0;
         this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
@@ -33,15 +33,9 @@ class RollResponseFormatterService
         return Text.Ping.user(this.authorId);
     }
 
-    getNumOfSuccesses(dicepoolIndex)
-    {
-        const successDice = this.results[dicepoolIndex].flat().filter((result) => result.number >= this.successOnGreaterThanOrEqualTo);
-        return successDice.length;
-    }
-
     getNumOfSuccessesWithExtraSuccesses(dicepoolIndex)
     {
-        return this.getNumOfSuccesses(dicepoolIndex) + this.extraSuccesses;
+        return this.results[dicepoolIndex].numOfSuccesses + this.extraSuccesses;
     }
 
     getDiceString(dicepoolIndex)

@@ -1,4 +1,6 @@
 const rollConstants = require('../constants/roll');
+const categoriesSingleton = require('../models/categoriesSingleton');
+const DicePool = require('../models/DicePool');
 
 class DiceService
 {
@@ -7,6 +9,7 @@ class DiceService
         count = rollConstants.defaultParams.count,
         rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
+        exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
     } = rollConstants.defaultParams)
@@ -15,6 +18,7 @@ class DiceService
         this.count = count || rollConstants.defaultParams.count;
         this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
+        this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
     }
@@ -33,15 +37,18 @@ class DiceService
 
     rollDicepool()
     {
-        const rolls = [];
+        const dicePool = new DicePool({
+            exceptionalOn: this.exceptionalOn,
+            successOnGreaterThanOrEqualTo: this.successOnGreaterThanOrEqualTo,
+        });
 
         for (let i = 0; i < this.count; i++)
         {
             const result = this.rollOne();
-            rolls.push(result);
+            dicePool.push(result);
         }
 
-        return rolls;
+        return dicePool;
     }
 
     rollOne({
@@ -54,9 +61,21 @@ class DiceService
         // Get a random integer between 1 and sides (inclusive)
         const randomDecimal = Math.random() * this.sides;
         const randomInteger = Math.floor(randomDecimal) + 1;
+
+        // Determine the success status
+        // TODO: Make class that handles this at the dicepool level instead
+        /*
+        const successStatus = (randomInteger >= this.exceptionalOn)
+            ? categoriesSingleton.get('EXCEPTIONAL_SUCCESS')
+            : (randomInteger >= this.successOnGreaterThanOrEqualTo)
+            ? categoriesSingleton.get('SUCCESS')
+            : categoriesSingleton.get('FAILURE');
+        */
+
         rolls.push({
             number: randomInteger,
             isRote,
+            //successStatus,
         });
 
         if (randomInteger >= this.rerollOnGreaterThanOrEqualTo)

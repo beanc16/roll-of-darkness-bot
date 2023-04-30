@@ -3,6 +3,7 @@ const defaultParams = {
     count: 1,
     rerollOnGreaterThanOrEqualTo: 10,
     successOnGreaterThanOrEqualTo: 8,
+    exceptionalOn: 5,
     isRote: false,
     isAdvancedAction: false,
 };
