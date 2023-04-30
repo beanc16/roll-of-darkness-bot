@@ -7,6 +7,7 @@ class RollResponseFormatterService
         authorId,
         exceptionalOn = 5,
         extraSuccesses = 0,
+        flavorText = rollConstants.defaultFlavorTextResults,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
@@ -18,6 +19,7 @@ class RollResponseFormatterService
         this.authorId = authorId;
         this.exceptionalOn = exceptionalOn || 5;
         this.extraSuccesses = extraSuccesses || 0;
+        this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
@@ -196,7 +198,7 @@ class RollResponseFormatterService
             return acc;
         }, '');
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}.`
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}. ${this.flavorText}`
             + responsesStr;
     }
 }

@@ -57,15 +57,15 @@ class FlavorTextService
         }
 
         // Get the cached flavor text if it exists
-        const flavorText = flavorTextSingleton.get({
+        const flavorTexts = flavorTextSingleton.get({
             keys: [
                 splat,
                 ...categories,
             ],
         });
-        if (flavorText?.length > 0)
+        if (flavorTexts?.length > 0)
         {
-            return flavorText;
+            return flavorTexts;
         }
 
         // Get the flavor text from the API

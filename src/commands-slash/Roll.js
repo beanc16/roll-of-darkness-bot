@@ -56,17 +56,32 @@ class Roll extends BaseSlashCommand
 
         // Flavor text
         const flavorTextService = new FlavorTextService();
-        await flavorTextService.getFlavorText({
+        // TODO: Convert to getRandomFlavorText function in FlavorTextService
+        const flavorTexts = await flavorTextService.getFlavorText({
             // TODO: Add splat support
             splat: categoriesSingleton.get('GENERAL'),
             // TODO: Add categories based on roll results success status
         });
+
+        const rerollOnGreaterThanOrEqualToNoAgain = rollConstants.rerollsEnum[
+            rollConstants.rerollsEnum.no_again.key
+        ]?.number;
+        const flavorTextRandomizerService = new DiceService({
+            count: 1,
+            sides: flavorTexts.length,
+            rerollOnGreaterThanOrEqualTo: rerollOnGreaterThanOrEqualToNoAgain,
+        });
+
+        // Subtract 1 from index since dice won't roll 0 but index starts at 0
+        const flavorTextIndex = flavorTextRandomizerService.rollOne()[0].number - 1;
+        const flavorText = flavorTexts[flavorTextIndex];
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
             exceptionalOn,
             extraSuccesses,
+            flavorText,
             isAdvancedAction,
             isRote,
             numberOfDice,

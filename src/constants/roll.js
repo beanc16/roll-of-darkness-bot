@@ -31,7 +31,7 @@ const rerollsEnum = {
 };
 
 const defaultFlavorTextResults = [
-    '#blamejoel',
+    '#blamejoel.',
 ];
 
 
