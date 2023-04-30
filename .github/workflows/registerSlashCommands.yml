@@ -32,4 +32,8 @@ jobs:
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
           CLIENT_ID: ${{ secrets.BOT_CLIENT_ID }}
+          APPLICATION_NAME: ${{ vars.APPLICATION_NAME }}
+          LOGGLY_TOKEN: ${{ secrets.LOGGLY_TOKEN }}
+          LOGGLY_SUBDOMAIN: ${{ secrets.LOGGLY_SUBDOMAIN }}
+          LOGGING_DISCORD_WEBHOOK: ${{ secrets.LOGGING_DISCORD_WEBHOOK }}
         run: npm run register-slash-commands
