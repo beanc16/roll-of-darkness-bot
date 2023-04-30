@@ -1,13 +1,14 @@
-const numberOfDice = function (option)
+function numberOfDice(option)
 {
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll (default: 1)');
     option.setMinValue(1);
     option.setMaxValue(50);
+    option.setRequired(true);
     return option;
 };
 
-const rerolls = function (option)
+function rerolls(option)
 {
     option.setName('rerolls');
     option.setDescription('The minimum value that dice reroll on (default: 10again)');
@@ -32,14 +33,14 @@ const rerolls = function (option)
     return option;
 };
 
-const rote = function (option)
+function rote(option)
 {
     option.setName('rote');
     option.setDescription('Failed rolls are rerolled once (default: False)');
     return option;
 }
 
-const exceptionalOn = function (option)
+function exceptionalOn(option)
 {
     option.setName('exceptional_on');
     option.setDescription('The number of successes it takes to get an exceptional success (default: 5)');
@@ -48,7 +49,7 @@ const exceptionalOn = function (option)
     return option;
 };
 
-const extraSuccesses = function (option)
+function extraSuccesses(option)
 {
     option.setName('extra_successes');
     option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
@@ -57,14 +58,14 @@ const extraSuccesses = function (option)
     return option;
 };
 
-const advancedAction = function (option)
+function advancedAction(option)
 {
     option.setName('advanced_action');
     option.setDescription('Roll the dice pool twice, take the higher result (default: False)');
     return option;
 };
 
-const secret = function (option)
+function secret(option)
 {
     option.setName('secret');
     option.setDescription('Makes a temporary roll message that only you can see (default: false)');
