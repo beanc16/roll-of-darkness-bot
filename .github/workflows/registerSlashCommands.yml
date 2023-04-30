@@ -1,0 +1,33 @@
+name: Register Slash Commands
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [
+      main
+    ]
+
+jobs:
+  register-slash-commands:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [
+          18
+        ]
+    
+    name: Register Slash Commands
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install
+        run: npm install
+      - name: Register Slash Commands
+        env:
+          TOKEN: ${{ secrets.BOT_TOKEN }}
+          CLIENT_ID: ${{ secret.BOT_CLIENT_ID }}
+        run: npm run register-slash-commands
