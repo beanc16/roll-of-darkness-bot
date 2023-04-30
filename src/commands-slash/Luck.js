@@ -1,6 +1,5 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const options = require('./options/roll');
-const rollConstants = require('../constants/roll');
 const DiceService = require('../services/DiceService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 

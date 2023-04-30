@@ -1,5 +1,4 @@
 const rollConstants = require('../constants/roll');
-const categoriesSingleton = require('../models/categoriesSingleton');
 const DicePool = require('../models/DicePool');
 
 class DiceService

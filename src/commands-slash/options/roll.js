@@ -6,7 +6,7 @@ function numberOfDice(option)
     option.setMaxValue(50);
     option.setRequired(true);
     return option;
-};
+}
 
 function splat(option)
 {
@@ -24,7 +24,7 @@ function splat(option)
         },
     );
     return option;
-};
+}
 
 function rerolls(option)
 {
@@ -49,7 +49,7 @@ function rerolls(option)
         },
     );
     return option;
-};
+}
 
 function rote(option)
 {
@@ -65,7 +65,7 @@ function exceptionalOn(option)
     option.setMinValue(1);
     option.setMaxValue(10);
     return option;
-};
+}
 
 function extraSuccesses(option)
 {
@@ -74,21 +74,21 @@ function extraSuccesses(option)
     option.setMinValue(1);
     option.setMaxValue(30);
     return option;
-};
+}
 
 function advancedAction(option)
 {
     option.setName('advanced_action');
     option.setDescription('Roll the dice pool twice, take the higher result (default: False)');
     return option;
-};
+}
 
 function secret(option)
 {
     option.setName('secret');
     option.setDescription('Makes a temporary roll message that only you can see (default: false)');
     return option;
-};
+}
 
 
 
