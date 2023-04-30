@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Install
+        env:
+          GITHUB_PRIVATE_PACKAGES_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
         run: npm install
       - name: Register Slash Commands
         env:
