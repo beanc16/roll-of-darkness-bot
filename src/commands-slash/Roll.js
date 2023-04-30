@@ -13,7 +13,7 @@ class Roll extends BaseSlashCommand
         super();
         this._slashCommandData
             .addIntegerOption(options.numberOfDice)
-            // TODO: Add splat parameter
+            .addStringOption(options.splat)
             .addStringOption(options.rerolls)
             .addBooleanOption(options.rote)
             .addIntegerOption(options.exceptionalOn)
@@ -35,6 +35,8 @@ class Roll extends BaseSlashCommand
 
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
+        // TODO: Make this default splat 
+        const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
         const exceptionalOn = interaction.options.getInteger('exceptional_on');
@@ -69,8 +71,7 @@ class Roll extends BaseSlashCommand
         const flavorTextService = new FlavorTextService();
         // TODO: Convert to getRandomFlavorText function in FlavorTextService
         const flavorTexts = await flavorTextService.getFlavorText({
-            // TODO: Add splat support
-            splat: categoriesSingleton.get('GENERAL'),
+            splat,
             categories: [
                 biggestResult.successStatus,
             ],

@@ -8,6 +8,24 @@ function numberOfDice(option)
     return option;
 };
 
+function splat(option)
+{
+    option.setName('splat');
+    option.setDescription('The supernatural splat to get flavor text for (default: General)');
+    // TODO: Make this use results from the API instead
+    option.addChoices(
+        {
+            name: 'General',
+            value: 'general',
+        },
+        {
+            name: 'Geist',
+            value: 'geist',
+        },
+    );
+    return option;
+};
+
 function rerolls(option)
 {
     option.setName('rerolls');
@@ -76,6 +94,7 @@ function secret(option)
 
 module.exports = {
     numberOfDice,
+    splat,
     rerolls,
     rote,
     exceptionalOn,

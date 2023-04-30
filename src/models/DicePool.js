@@ -40,7 +40,7 @@ class DicePool
             return categoriesSingleton.get('EXCEPTIONAL_SUCCESS');
         }
         
-        else if (this.numOfSuccesses >= this._successOnGreaterThanOrEqualTo)
+        else if (this.numOfSuccesses > 0)
         {
             return categoriesSingleton.get('SUCCESS');
         }
