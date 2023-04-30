@@ -127,8 +127,13 @@ class SlashCommandsContainer
 
     static async registerAllCommands({ guildId } = {})
     {
-        const registeredGlobalSlashCommandData = await this.registerGlobalCommands();
-        const registeredGuildSlashCommandData = await this.registerGuildCommands({ guildId });
+        const [
+            registeredGlobalSlashCommandData,
+            registeredGuildSlashCommandData,
+        ] = await Promise.all([
+            this.registerGlobalCommands(),
+            this.registerGuildCommands({ guildId }),
+        ])
 
         return {
             registeredGlobalSlashCommandData,
