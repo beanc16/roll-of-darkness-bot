@@ -39,6 +39,8 @@ class Chance extends BaseSlashCommand
         });
         const results = diceService.roll();
 
+        // TODO: Add flavor text
+
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
