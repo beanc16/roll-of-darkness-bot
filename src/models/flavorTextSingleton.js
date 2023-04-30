@@ -47,7 +47,7 @@ class FlavorTextSingleton
             });
         });
 
-        return result;
+        return result?.results;
     }
 
     set(flavorTexts = [])
