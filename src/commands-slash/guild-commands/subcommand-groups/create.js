@@ -5,6 +5,7 @@ function create(subcommandGroup)
     subcommandGroup.setName('create');
     subcommandGroup.setDescription('Add data to the database');
     subcommandGroup.addSubcommand(subcommands.category)
+    subcommandGroup.addSubcommand(subcommands.flavorText)
     return subcommandGroup;
 }
 

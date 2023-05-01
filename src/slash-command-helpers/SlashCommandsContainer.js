@@ -83,20 +83,24 @@ class SlashCommandsContainer
         return SlashCommandsContainer._guildCommands[commandName];
     }
 
-    static getAllCommandsData()
+    static async getAllCommandsData()
     {
         const slashCommands = Object.values(SlashCommandsContainer._slashCommands);
-        return slashCommands.map((slashCommand) => {
+        const promises = slashCommands.map(async (slashCommand) => {
+            await slashCommand.init();
             return slashCommand.slashCommandData;
         });
+        return await Promise.all(promises);
     }
 
-    static getAllGuildCommandsData()
+    static async getAllGuildCommandsData()
     {
         const guildCommands = Object.values(SlashCommandsContainer._guildCommands);
-        return guildCommands.map((guildCommand) => {
+        const promises = guildCommands.map(async (guildCommand) => {
+            await guildCommand.init();
             return guildCommand.slashCommandData;
         });
+        return await Promise.all(promises);
     }
 
     static addCommand({
@@ -143,7 +147,7 @@ class SlashCommandsContainer
 
     static async registerGlobalCommands()
     {
-        const allCommandsData = SlashCommandsContainer.getAllCommandsData();
+        const allCommandsData = await SlashCommandsContainer.getAllCommandsData();
         if (Object.keys(allCommandsData).length > 0)
         {
             logger.info(`Starting refresh of ${allCommandsData.length} global slash (/) commands`);
@@ -158,7 +162,7 @@ class SlashCommandsContainer
 
     static async registerGuildCommands({ guildId } = {})
     {
-        const guildCommandsData = SlashCommandsContainer.getAllGuildCommandsData();
+        const guildCommandsData = await SlashCommandsContainer.getAllGuildCommandsData();
         if (Object.keys(guildCommandsData).length > 0)
         {
             logger.info(`Starting refresh of ${guildCommandsData.length} guild slash (/) commands`);

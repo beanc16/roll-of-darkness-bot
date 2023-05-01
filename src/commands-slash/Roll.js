@@ -13,13 +13,22 @@ class Roll extends BaseSlashCommand
         super();
         this._slashCommandData
             .addIntegerOption(options.roll.numberOfDice)
-            .addStringOption(options.roll.splat)
             .addStringOption(options.roll.rerolls)
             .addBooleanOption(options.roll.rote)
             .addIntegerOption(options.roll.exceptionalOn)
             .addIntegerOption(options.roll.extraSuccesses)
             .addBooleanOption(options.roll.advancedAction)
             .addBooleanOption(options.roll.secret);
+    }
+
+    async init()
+    {
+        if (!this._isInitialized)
+        {
+            this._slashCommandData
+                .addStringOption(options.roll.splat);
+            await super.init();
+        }
     }
 
     async run(interaction)

@@ -14,9 +14,9 @@ class FlavorTextService
 
     async getCategories()
     {
-        if (categoriesSingleton.get()?.length > 0)
+        if (categoriesSingleton.getAll()?.length > 0)
         {
-            return categoriesSingleton.get();
+            return categoriesSingleton.getAll();
         }
 
         /*
@@ -44,7 +44,7 @@ class FlavorTextService
         }, {});
 
         categoriesSingleton.set(parsedCategories);
-        return categoriesSingleton.get();
+        return categoriesSingleton.getAll();
     }
 
     async getFlavorText({

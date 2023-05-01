@@ -27,6 +27,20 @@ class CategoriesSingleton
         return this._singleton.get() || {};
     }
 
+    getAllAsStringOptionChoices()
+    {
+        const unparsedCategoriesArray = Object.values(this.getAll()) || [];
+        const parsedCategoriesArray = unparsedCategoriesArray.map(function (category)
+        {
+            return {
+                name: category.category,
+                value: category.key.toLowerCase(),
+            };
+        });
+
+        return parsedCategoriesArray;
+    }
+
     get(key)
     {
         return this.getAll()[key]?.category;

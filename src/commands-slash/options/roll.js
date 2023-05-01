@@ -1,3 +1,5 @@
+const categoriesSingleton = require('../../models/categoriesSingleton');
+
 function numberOfDice(option)
 {
     option.setName('number_of_dice');
@@ -12,16 +14,8 @@ function splat(option)
 {
     option.setName('splat');
     option.setDescription('The supernatural splat to get flavor text for (default: General)');
-    // TODO: Make this use results from the API instead
     option.addChoices(
-        {
-            name: 'General',
-            value: 'general',
-        },
-        {
-            name: 'Geist',
-            value: 'geist',
-        },
+        ...categoriesSingleton.getAllAsStringOptionChoices(),
     );
     return option;
 }
