@@ -1,5 +1,6 @@
 const { Text } = require('@beanc16/discordjs-helpers');
 const rollConstants = require('../constants/roll');
+const DicePoolGroup = require('../models/DicePoolGroup');
 
 class RollResponseFormatterService
 {
@@ -12,7 +13,7 @@ class RollResponseFormatterService
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
-        results = [],
+        dicePoolGroup = new DicePoolGroup(),
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
     } = {})
     {
@@ -24,7 +25,7 @@ class RollResponseFormatterService
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
-        this.results = results || [];
+        this.dicePoolGroup = dicePoolGroup || new DicePoolGroup();
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.default.successOnGreaterThanOrEqualTo;
     }
 
@@ -35,12 +36,12 @@ class RollResponseFormatterService
 
     getNumOfSuccessesWithExtraSuccesses(dicepoolIndex)
     {
-        return this.results[dicepoolIndex].numOfSuccesses + this.extraSuccesses;
+        return this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex) + this.extraSuccesses;
     }
 
     getDiceString(dicepoolIndex)
     {
-        const diceString = this.results[dicepoolIndex].reduce(function (acc, result)
+        const diceString = this.dicePoolGroup.get(dicepoolIndex).reduce(function (acc, result)
         {
             // Add commas to the end of the previous success (except for the first roll)
             if (acc !== '')
@@ -163,7 +164,7 @@ class RollResponseFormatterService
             index: -1,
             totalNumOfSuccesses: -1,
         };
-        const responseObjs = this.results.map((_, index) =>
+        const responseObjs = this.dicePoolGroup.map((_, index) =>
         {
             const response = this.getDicepoolResponse(index);
 

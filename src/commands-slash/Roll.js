@@ -54,18 +54,8 @@ class Roll extends BaseSlashCommand
             isRote,
             isAdvancedAction,
         });
-        const results = diceService.roll();
-        
-        // TODO: Abstract this some container for all dice pools later and make it better
-        const biggestResult = results.reduce(function (acc, cur)
-        {
-            if (cur.numOfSuccesses > acc.numOfSuccesses)
-            {
-                acc = cur;
-            }
-
-            return acc;
-        }, results[0]);
+        const dicePoolGroup = diceService.roll();
+        const biggestResult = dicePoolGroup.getBiggestResult();
 
         // Flavor text
         const flavorTextService = new FlavorTextService();
@@ -86,7 +76,7 @@ class Roll extends BaseSlashCommand
             isRote,
             numberOfDice,
             rerollsDisplay,
-            results,
+            dicePoolGroup,
         });
         await interaction.editReply(
             rollResponseFormatterService.getResponse()

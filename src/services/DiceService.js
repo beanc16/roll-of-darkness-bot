@@ -1,4 +1,5 @@
 const rollConstants = require('../constants/roll');
+const DicePoolGroup = require('../models/DicePoolGroup');
 const DicePool = require('../models/DicePool');
 
 class DiceService
@@ -24,14 +25,16 @@ class DiceService
 
     roll()
     {
-        const dicepools = [this.rollDicepool()];
+        const dicePoolGroup = new DicePoolGroup({
+            dicepool: this.rollDicepool(),
+        });
 
         if (this.isAdvancedAction)
         {
-            dicepools.push(this.rollDicepool());
+            dicePoolGroup.push(this.rollDicepool());
         }
 
-        return dicepools;
+        return dicePoolGroup;
     }
 
     rollDicepool()
