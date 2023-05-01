@@ -1,6 +1,6 @@
 const options = require('./options');
 
-function category(subcommand)
+function createCategory(subcommand)
 {
     subcommand.setName('category');
     subcommand.setDescription('Create category');
@@ -11,4 +11,4 @@ function category(subcommand)
 
 
 
-module.exports = category;
+module.exports = createCategory;

@@ -1,9 +1,13 @@
-const category = require('./category');
-const flavorText = require('./flavorText');
+const getAllCategories = require('./getAllCategories');
+const getAllFlavorTexts = require('./getAllFlavorTexts');
+const createCategory = require('./createCategory');
+const createFlavorText = require('./createFlavorText');
 
 
 
 module.exports = {
-    category,
-    flavorText,
+    getAllCategories,
+    getAllFlavorTexts,
+    createCategory,
+    createFlavorText,
 };

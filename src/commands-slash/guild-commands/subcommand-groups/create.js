@@ -4,8 +4,8 @@ function create(subcommandGroup)
 {
     subcommandGroup.setName('create');
     subcommandGroup.setDescription('Add data to the database');
-    subcommandGroup.addSubcommand(subcommands.category)
-    subcommandGroup.addSubcommand(subcommands.flavorText)
+    subcommandGroup.addSubcommand(subcommands.createCategory);
+    subcommandGroup.addSubcommand(subcommands.createFlavorText);
     return subcommandGroup;
 }
 

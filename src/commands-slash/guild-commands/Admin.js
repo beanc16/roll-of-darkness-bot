@@ -2,6 +2,7 @@ const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
 const subcommandsGroups = require('./subcommand-groups');
 const categoriesSingleton = require('../../models/categoriesSingleton');
+const JsonPrettifierService = require('../../services/JsonPrettifierService');
 
 class Admin extends BaseSlashCommand
 {
@@ -10,6 +11,7 @@ class Admin extends BaseSlashCommand
         if (!this._isInitialized)
         {
             this._slashCommandData
+                .addSubcommandGroup(subcommandsGroups.getAll)
                 .addSubcommandGroup(subcommandsGroups.create);
             await super.init();
         }
@@ -23,13 +25,49 @@ class Admin extends BaseSlashCommand
         // TODO: If it isn't one of the developers of this bot running the command, say that only the developers can use this command.
 
         // Get parameter results
-        const createSubcommandGroup = interaction.options.getSubcommandGroup('create');
+        const subcommandGroup = interaction.options.getSubcommandGroup('get_all')
+            || interaction.options.getSubcommandGroup('create');
         const subcommand = interaction.options.getSubcommand('category')
             || interaction.options.getSubcommand('flavor_text');
 
         let responseMessage;
 
-        if (createSubcommandGroup === 'create')
+        if (subcommandGroup === 'get_all')
+        {
+            const jsonPrettifierService = new JsonPrettifierService();
+
+            if (subcommand === 'category')
+            {
+                const {
+                    data: {
+                        categories = [],
+                    } = {},
+                } = await RollOfDarknessApi.categories.get();
+
+                responseMessage = jsonPrettifierService.getArrayOfObjectsAsString(
+                    categories
+                );
+            }
+
+            // TODO: Get all flavor texts
+            else if (subcommand === 'flavor_text')
+            {
+                const {
+                    data: {
+                        flavor_texts: flavorTexts = [],
+                    } = {},
+                } = await RollOfDarknessApi.flavorText.get({
+                    splat: '',
+                    categories: [],
+                });
+
+                responseMessage = jsonPrettifierService.getArrayOfStringsAsString(
+                    flavorTexts
+                );
+            }
+        }
+
+        else if (subcommandGroup === 'create')
         {
             if (subcommand === 'category')
             {

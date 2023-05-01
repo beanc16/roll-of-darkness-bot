@@ -1,6 +1,6 @@
 const options = require('./options');
 
-function flavorText(subcommand)
+function createFlavorText(subcommand)
 {
     subcommand.setName('flavor_text');
     subcommand.setDescription('Create flavor text');
@@ -13,4 +13,4 @@ function flavorText(subcommand)
 
 
 
-module.exports = flavorText;
+module.exports = createFlavorText;
