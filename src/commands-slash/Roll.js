@@ -54,20 +54,20 @@ class Roll extends BaseSlashCommand
             isAdvancedAction,
         });
         const dicePoolGroup = diceService.roll();
-        const biggestResult = dicePoolGroup.getBiggestResult();
 
         // Flavor text
         const flavorTextService = new FlavorTextService();
         const flavorText = await flavorTextService.getRandomFlavorText({
             splat,
             categories: [
-                biggestResult.successStatus,
+                dicePoolGroup.getBiggestResult().successStatus,
             ],
         });
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
+            dicePoolGroup,
             exceptionalOn,
             extraSuccesses,
             flavorText,
@@ -75,7 +75,6 @@ class Roll extends BaseSlashCommand
             isRote,
             numberOfDice,
             rerollsDisplay,
-            dicePoolGroup,
         });
         await interaction.editReply(
             rollResponseFormatterService.getResponse()

@@ -6,6 +6,7 @@ class RollResponseFormatterService
 {
     constructor({
         authorId,
+        dicePoolGroup = new DicePoolGroup(),
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         extraSuccesses = 0,
         flavorText = rollConstants.defaultFlavorTextResults,
@@ -13,11 +14,11 @@ class RollResponseFormatterService
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
-        dicePoolGroup = new DicePoolGroup(),
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
     } = {})
     {
         this.authorId = authorId;
+        this.dicePoolGroup = dicePoolGroup || new DicePoolGroup();
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.extraSuccesses = extraSuccesses || 0;
         this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
@@ -25,7 +26,6 @@ class RollResponseFormatterService
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
-        this.dicePoolGroup = dicePoolGroup || new DicePoolGroup();
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.default.successOnGreaterThanOrEqualTo;
     }
 

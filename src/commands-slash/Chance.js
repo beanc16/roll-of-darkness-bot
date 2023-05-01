@@ -1,7 +1,9 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const options = require('./options/roll');
 const rollConstants = require('../constants/roll');
+const categoriesSingleton = require('../models/categoriesSingleton');
 const DiceService = require('../services/DiceService');
+const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
 class Chance extends BaseSlashCommand
@@ -10,6 +12,7 @@ class Chance extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            .addStringOption(options.splat)
             .addBooleanOption(options.secret);
     }
 
@@ -26,6 +29,7 @@ class Chance extends BaseSlashCommand
 
         // Get parameter results
         const numberOfDice = 1;
+        const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
         const rerollsKey = rollConstants.rerollsEnum.no_again.key;
 
         // Convert parameters to necessary inputs for service calls
@@ -37,15 +41,23 @@ class Chance extends BaseSlashCommand
             rerollOnGreaterThanOrEqualTo,
             successOnGreaterThanOrEqualTo: 10,
         });
-        const results = diceService.roll();
+        const dicePoolGroup = diceService.roll();
 
-        // TODO: Add flavor text
+        // Flavor text
+        const flavorTextService = new FlavorTextService();
+        const flavorText = await flavorTextService.getRandomFlavorText({
+            splat,
+            categories: [
+                dicePoolGroup.getBiggestResult().successStatus,
+            ],
+        });
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
+            dicePoolGroup,
+            flavorText,
             numberOfDice,
-            results,
             successOnGreaterThanOrEqualTo: 10,
         });
         await interaction.editReply(

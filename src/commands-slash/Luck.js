@@ -1,6 +1,8 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const options = require('./options/roll');
+const categoriesSingleton = require('../models/categoriesSingleton');
 const DiceService = require('../services/DiceService');
+const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
 class Luck extends BaseSlashCommand
@@ -9,12 +11,14 @@ class Luck extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            .addStringOption(options.splat)
             .addBooleanOption(options.secret);
     }
 
     async run(interaction)
     {
         // Get initial parameter result
+        const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
         const isSecret = interaction.options.getBoolean('secret') || false;
 
         // Send message to show the command was received
@@ -30,15 +34,23 @@ class Luck extends BaseSlashCommand
         const diceService = new DiceService({
             count: numberOfDice,
         });
-        const results = diceService.roll();
+        const dicePoolGroup = diceService.roll();
 
-        // TODO: Add flavor text
+        // Flavor text
+        const flavorTextService = new FlavorTextService();
+        const flavorText = await flavorTextService.getRandomFlavorText({
+            splat,
+            categories: [
+                dicePoolGroup.getBiggestResult().successStatus,
+            ],
+        });
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
+            dicePoolGroup,
+            flavorText,
             numberOfDice,
-            results,
         });
         await interaction.editReply(
             rollResponseFormatterService.getResponse()
