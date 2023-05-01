@@ -40,12 +40,24 @@ jobs:
 
   notify-discord:
     runs-on: ubuntu-latest
+    needs: [
+      register-slash-commands,
+    ]
     name: Notify Discord
     steps:
-      - name: Notify Discord
+      - name: Notify Discord on Success
+        if: success()
         uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
         with:
           args:
-            '{{ EVENT_PAYLOAD.repository.full_name }} has registered slash commands'
+            '✅ {{ EVENT_PAYLOAD.repository.full_name }} successfully registered slash commands'
+      - name: Notify Discord on Failure
+        if: failure()
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
+        with:
+          args:
+            '❌ {{ EVENT_PAYLOAD.repository.full_name }} failed to registered slash commands'
