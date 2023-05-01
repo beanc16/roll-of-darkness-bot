@@ -49,7 +49,6 @@ class Admin extends BaseSlashCommand
                 );
             }
 
-            // TODO: Get all flavor texts
             else if (subcommand === 'flavor_text')
             {
                 const {
