@@ -1,7 +1,8 @@
 const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
-const { defaultFlavorTextResults } = require('../constants/roll');
+const rollConstants = require('../constants/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
 const flavorTextSingleton = require('../models/flavorTextSingleton');
+const DiceService = require('../services/DiceService');
 const { logger } = require('@beanc16/logger');
 
 class FlavorTextService
@@ -103,14 +104,38 @@ class FlavorTextService
 
             else
             {
-                return defaultFlavorTextResults;
+                return rollConstants.defaultFlavorTextResults;
             }
         }
         catch (err)
         {
             logger.error('Error getting flavor text', err);
-            return defaultFlavorTextResults;
+            return rollConstants.defaultFlavorTextResults;
         }
+    }
+
+    async getRandomFlavorText({
+        splat = categoriesSingleton.get('GENERAL'),
+        categories = [],
+    } = {})
+    {
+        const flavorTexts = await this.getFlavorText({
+            splat,
+            categories,
+        });
+
+        const rerollOnGreaterThanOrEqualToNoAgain = rollConstants.rerollsEnum[
+            rollConstants.rerollsEnum.no_again.key
+        ]?.number;
+        const flavorTextRandomizerService = new DiceService({
+            count: 1,
+            sides: flavorTexts.length,
+            rerollOnGreaterThanOrEqualTo: rerollOnGreaterThanOrEqualToNoAgain,
+        });
+
+        // Subtract 1 from index since dice won't roll 0 but index starts at 0
+        const flavorTextIndex = flavorTextRandomizerService.rollOne()[0].number - 1;
+        return flavorTexts[flavorTextIndex];
     }
 }
 
