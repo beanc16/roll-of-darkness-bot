@@ -3,7 +3,6 @@ const categoriesSingleton = require('./categoriesSingleton');
 
 class DicePool
 {
-    // TODO: Investigate message formatter service for what functions might be necessary to implement for that
     constructor({
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
