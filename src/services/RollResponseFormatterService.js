@@ -101,7 +101,9 @@ class RollResponseFormatterService
 
         if (this.extraSuccesses)
         {
-            results.push(`${this.extraSuccesses} extra successes`);
+            results.push(`${this.extraSuccesses} extra ${this.getSuccessesAsSingularOrPlural(dicepoolIndex, { 
+                numToTestInstead: this.extraSuccesses,
+            })}`);
         }
 
         if (results.length === 0)
