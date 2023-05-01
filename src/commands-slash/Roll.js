@@ -35,7 +35,6 @@ class Roll extends BaseSlashCommand
 
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
-        // TODO: Make this default splat 
         const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
