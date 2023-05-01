@@ -20,6 +20,8 @@ class Admin extends BaseSlashCommand
         // Send message to show the command was received
         await interaction.deferReply({ fetchReply: true });
 
+        // TODO: If it isn't one of the developers of this bot running the command, say that only the developers can use this command.
+
         // Get parameter results
         const createSubcommandGroup = interaction.options.getSubcommandGroup('create');
         const subcommand = interaction.options.getSubcommand('category')
