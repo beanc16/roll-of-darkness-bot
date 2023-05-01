@@ -3,7 +3,6 @@ const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
 const subcommandsGroups = require('./subcommand-groups');
 const categoriesSingleton = require('../../models/categoriesSingleton');
 
-// TODO: Delete this from global command scope, move it to guild command scope
 class Admin extends BaseSlashCommand
 {
     async init()
