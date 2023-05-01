@@ -65,19 +65,10 @@ class DiceService
         const randomInteger = Math.floor(randomDecimal) + 1;
 
         // Determine the success status
-        // TODO: Make class that handles this at the dicepool level instead
-        /*
-        const successStatus = (randomInteger >= this.exceptionalOn)
-            ? categoriesSingleton.get('EXCEPTIONAL_SUCCESS')
-            : (randomInteger >= this.successOnGreaterThanOrEqualTo)
-            ? categoriesSingleton.get('SUCCESS')
-            : categoriesSingleton.get('FAILURE');
-        */
 
         rolls.push({
             number: randomInteger,
             isRote,
-            //successStatus,
         });
 
         if (randomInteger >= this.rerollOnGreaterThanOrEqualTo)
