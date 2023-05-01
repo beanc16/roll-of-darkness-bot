@@ -1,17 +1,16 @@
-const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
+const SplatSlashCommand = require('./base-commands/SplatSlashCommand');
 const options = require('./options/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
 const DiceService = require('../services/DiceService');
 const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
-class Luck extends BaseSlashCommand
+class Luck extends SplatSlashCommand
 {
     constructor()
     {
         super();
         this._slashCommandData
-            .addStringOption(options.splat)
             .addBooleanOption(options.secret);
     }
 

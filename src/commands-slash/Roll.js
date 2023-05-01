@@ -1,4 +1,4 @@
-const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
+const SplatSlashCommand = require('./base-commands/SplatSlashCommand');
 const options = require('./options');
 const rollConstants = require('../constants/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
@@ -6,7 +6,7 @@ const DiceService = require('../services/DiceService');
 const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
 
-class Roll extends BaseSlashCommand
+class Roll extends SplatSlashCommand
 {
     constructor()
     {
@@ -19,16 +19,6 @@ class Roll extends BaseSlashCommand
             .addIntegerOption(options.roll.extraSuccesses)
             .addBooleanOption(options.roll.advancedAction)
             .addBooleanOption(options.roll.secret);
-    }
-
-    async init()
-    {
-        if (!this._isInitialized)
-        {
-            this._slashCommandData
-                .addStringOption(options.roll.splat);
-            await super.init();
-        }
     }
 
     async run(interaction)
