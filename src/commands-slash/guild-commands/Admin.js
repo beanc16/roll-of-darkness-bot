@@ -24,7 +24,6 @@ class Admin extends BaseSlashCommand
         const createSubcommandGroup = interaction.options.getSubcommandGroup('create');
         const subcommand = interaction.options.getSubcommand('category')
             || interaction.options.getSubcommand('flavor_text');
-        console.log('\n subcommand:', subcommand);
 
         let responseMessage;
 
@@ -66,11 +65,7 @@ class Admin extends BaseSlashCommand
                     ] : []),
                 ];
 
-                console.log('\n flavorText:', flavorText);
-                console.log('\n diceCount:', diceCount);
-                console.log('\n categories:', categories);
-
-                // TODO: Remove this later when Joel has validation
+                // TODO: Remove this later when validation is added to the API
                 if (flavorText && diceCount !== null && categories.length > 0)
                 {
                     const {
