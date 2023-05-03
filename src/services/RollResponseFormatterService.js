@@ -1,8 +1,9 @@
 const { Text } = require('@beanc16/discordjs-helpers');
 const rollConstants = require('../constants/roll');
 const DicePoolGroup = require('../models/DicePoolGroup');
+const ResponseFormatterService = require('./ResponseFormatterService');
 
-class RollResponseFormatterService
+class RollResponseFormatterService extends ResponseFormatterService
 {
     constructor({
         authorId,
@@ -17,7 +18,9 @@ class RollResponseFormatterService
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
     } = {})
     {
-        this.authorId = authorId;
+        super({
+            authorId,
+        });
         this.dicePoolGroup = dicePoolGroup || new DicePoolGroup();
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.extraSuccesses = extraSuccesses || 0;
@@ -27,11 +30,6 @@ class RollResponseFormatterService
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.default.successOnGreaterThanOrEqualTo;
-    }
-
-    get authorPing()
-    {
-        return Text.Ping.user(this.authorId);
     }
 
     getNumOfSuccessesWithExtraSuccesses(dicepoolIndex)
