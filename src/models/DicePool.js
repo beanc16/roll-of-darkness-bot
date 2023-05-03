@@ -6,11 +6,13 @@ class DicePool
     constructor({
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
+        canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
     } = {})
     {
         this._rolls = [];
         this._exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this._successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
+        this._canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure;
     }
 
     get rolls()
@@ -42,6 +44,17 @@ class DicePool
         else if (this.numOfSuccesses > 0)
         {
             return categoriesSingleton.get('SUCCESS');
+        }
+
+        else if (
+            this._canBeDramaticFailure
+            && this.rolls?.length === 1
+            && this.rolls[0]
+            && this.rolls[0]?.length === 1
+            && this.rolls[0][0]?.number === 1
+        )
+        {
+            return categoriesSingleton.get('DRAMATIC_FAILURE');
         }
 
         return categoriesSingleton.get('FAILURE');

@@ -10,6 +10,7 @@ class DiceService
         rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
+        canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
     } = rollConstants.defaultParams)
@@ -19,6 +20,7 @@ class DiceService
         this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
+        this.canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
     }
@@ -42,6 +44,7 @@ class DiceService
         const dicePool = new DicePool({
             exceptionalOn: this.exceptionalOn,
             successOnGreaterThanOrEqualTo: this.successOnGreaterThanOrEqualTo,
+            canBeDramaticFailure: this.canBeDramaticFailure,
         });
 
         for (let i = 0; i < this.count; i++)

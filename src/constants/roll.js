@@ -4,6 +4,7 @@ const defaultParams = {
     rerollOnGreaterThanOrEqualTo: 10,
     successOnGreaterThanOrEqualTo: 8,
     exceptionalOn: 5,
+    canBeDramaticFailure: false,
     isRote: false,
     isAdvancedAction: false,
 };
