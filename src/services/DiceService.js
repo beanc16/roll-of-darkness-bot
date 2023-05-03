@@ -67,8 +67,6 @@ class DiceService
         const randomDecimal = Math.random() * this.sides;
         const randomInteger = Math.floor(randomDecimal) + 1;
 
-        // Determine the success status
-
         rolls.push({
             number: randomInteger,
             isRote,
