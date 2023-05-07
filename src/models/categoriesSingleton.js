@@ -29,12 +29,18 @@ class CategoriesSingleton
 
     getAllAsStringOptionChoices({
         type,
+        notType,
     } = {})
     {
         const unparsedCategoriesArray = Object.values(this.getAll()) || [];
         const parsedCategoriesArray = unparsedCategoriesArray.reduce(function (acc, category)
         {
-            if (type && category.type !== type)
+            if (
+                // Don't include categories that aren't type
+                (type && category.type !== type)
+                // Don't include categories that are notType
+                || (notType && category.type === notType)
+            )
             {
                 return acc;
             }
