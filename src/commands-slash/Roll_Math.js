@@ -101,6 +101,11 @@ class Roll_Math extends BaseRollCommand
             }
         }
     }
+
+    get description()
+    {
+        return `Roll a dice pool of d10s.`;
+    }
 }
 
 
