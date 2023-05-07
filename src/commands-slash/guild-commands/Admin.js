@@ -12,6 +12,7 @@ class Admin extends BaseSlashCommand
         {
             this._slashCommandData
                 .addSubcommandGroup(subcommandsGroups.getAll)
+                .addSubcommandGroup(subcommandsGroups.get)
                 .addSubcommandGroup(subcommandsGroups.create);
             await super.init();
         }
@@ -63,6 +64,44 @@ class Admin extends BaseSlashCommand
                 responseMessage = jsonPrettifierService.getArrayOfStringsAsString(
                     flavorTexts
                 );
+            }
+        }
+
+        else if (subcommandGroup === 'get')
+        {
+            const jsonPrettifierService = new JsonPrettifierService();
+
+            if (subcommand === 'flavor_text')
+            {
+                const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
+                const category1 = interaction.options.getString('category1');
+                const category2 = interaction.options.getString('category2');
+
+                const categories = [
+                    ...(category1 ? [
+                        categoriesSingleton.get(category1.toUpperCase())
+                    ] : []),
+                    ...(category2 ? [
+                        categoriesSingleton.get(category2.toUpperCase())
+                    ] : []),
+                ];
+
+                // TODO: Remove this later when validation is added to the API
+                if (splat)
+                {
+                    const {
+                        data: {
+                            flavor_texts: flavorTexts = [],
+                        } = {},
+                    } = await RollOfDarknessApi.flavorText.get({
+                        splat,
+                        categories,
+                    });
+
+                    responseMessage = jsonPrettifierService.getArrayOfStringsAsString(
+                        flavorTexts
+                    );
+                }
             }
         }
 
