@@ -11,7 +11,7 @@ class Roll_Math extends BaseRollCommand
                 type: 'string',
                 value: options.rollMath.dicePool,
             },
-        });Parser
+        });
 
         this._mathParser = new Parser({
             operators: {
