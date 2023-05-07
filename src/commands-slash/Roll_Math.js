@@ -63,7 +63,7 @@ class Roll_Math extends BaseRollCommand
                 expm1: false,
                 log1p: false,
                 sign: false,
-                log2: false
+                log2: false,
             },
         });
     }
