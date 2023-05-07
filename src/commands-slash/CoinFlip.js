@@ -13,7 +13,7 @@ class CoinFlip extends BaseSlashCommand
             .addBooleanOption((option) => options.roll.secret(option, {
                 commandType: 'coin flip',
             }));
-        
+
         this._coinFlipService = new CoinFlipService();
     }
 
