@@ -6,7 +6,10 @@ class Roll extends BaseRollCommand
     constructor()
     {
         super({
-            firstParameter: options.roll.numberOfDice,
+            firstParameter: {
+                type: 'integer',
+                value: options.roll.numberOfDice,
+            },
         });
     }
 }

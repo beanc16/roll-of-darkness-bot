@@ -9,12 +9,27 @@ const RollResponseFormatterService = require('../../services/RollResponseFormatt
 class BaseRollCommand extends SplatSlashCommand
 {
     constructor({
-        firstParameter = options.roll.numberOfDice,
+        firstParameter = {
+            type: 'integer',
+            value: options.roll.numberOfDice
+        },
     } = {})
     {
         super();
+
+        // Set up the first parameter
+        if (firstParameter && firstParameter.type === 'integer') {
+            this._slashCommandData
+                .addIntegerOption(firstParameter.value);
+        } else if (firstParameter && firstParameter.type === 'string') {
+            this._slashCommandData
+                .addStringOption(firstParameter.value);
+        } else if (firstParameter && firstParameter.type === 'boolean') {
+            this._slashCommandData
+                .addBooleanOption(firstParameter.value);
+        }
+
         this._slashCommandData
-            .addIntegerOption(firstParameter)
             .addStringOption(options.roll.rerolls)
             .addBooleanOption(options.roll.rote)
             .addIntegerOption(options.roll.exceptionalOn)
