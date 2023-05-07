@@ -23,7 +23,8 @@
         "@beanc16/microservices-abstraction": "^1.8.4",
         "app-root-path": "^3.0.0",
         "discord.js": "^14.7.1",
-        "dotenv": "^16.0.1"
+        "dotenv": "^16.0.1",
+        "expr-eval": "^2.0.2"
     },
     "devDependencies": {
         "eslint": "^8.8.0",
