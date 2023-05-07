@@ -1,11 +1,12 @@
 const categoriesSingleton = require('../../models/categoriesSingleton');
+const { maxParams } = require('../../constants/roll');
 
 function numberOfDice(option)
 {
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll');
     option.setMinValue(1);
-    option.setMaxValue(50);
+    option.setMaxValue(maxParams.numberOfDice);
     option.setRequired(true);
     return option;
 }
@@ -59,7 +60,7 @@ function exceptionalOn(option)
     option.setName('exceptional_on');
     option.setDescription('The number of successes it takes to get an exceptional success (default: 5)');
     option.setMinValue(1);
-    option.setMaxValue(10);
+    option.setMaxValue(maxParams.exceptionalOn);
     return option;
 }
 
@@ -68,7 +69,7 @@ function extraSuccesses(option)
     option.setName('extra_successes');
     option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
     option.setMinValue(1);
-    option.setMaxValue(30);
+    option.setMaxValue(maxParams.extraSuccesses);
     return option;
 }
 

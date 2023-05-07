@@ -9,6 +9,12 @@ const defaultParams = {
     isAdvancedAction: false,
 };
 
+const maxParams = {
+    numberOfDice: 50,
+    exceptionalOn: 10,
+    extraSuccesses: 30,
+};
+
 const rerollsEnum = {
     ten_again: {
         number: 10,
@@ -41,5 +47,6 @@ const defaultFlavorTextResults = [
 module.exports = {
     defaultFlavorTextResults,
     defaultParams,
+    maxParams,
     rerollsEnum,
 };

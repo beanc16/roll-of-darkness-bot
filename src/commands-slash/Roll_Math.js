@@ -1,5 +1,6 @@
 const BaseRollCommand = require('./base-commands/BaseRollCommand');
 const options = require('./options');
+const { maxParams } = require('../constants/roll');
 const { Parser } = require('expr-eval');
 
 class Roll_Math extends BaseRollCommand
@@ -87,9 +88,17 @@ class Roll_Math extends BaseRollCommand
 
         // Run this separately from the try catch, so errors in super.run don't send an incorrect error message
         if (successfullyParsedDicepool) {
-            super.run(interaction, {
-                numberOfDice,
-            });
+            // Haven't exceeded the max number of dice to roll
+            if (numberOfDice <= maxParams.numberOfDice && numberOfDice > 0)
+            {
+                super.run(interaction, {
+                    numberOfDice,
+                });
+            }
+            else
+            {
+                interaction.reply(`The calculated number of dice to roll is ${numberOfDice}, but it must be a number between 1 and ${maxParams.numberOfDice}.`);
+            }
         }
     }
 }
