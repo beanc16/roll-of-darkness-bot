@@ -80,10 +80,12 @@ function advancedAction(option)
     return option;
 }
 
-function secret(option)
+function secret(option, {
+    commandType = 'roll',
+} = {})
 {
     option.setName('secret');
-    option.setDescription('Makes a temporary roll message that only you can see (default: false)');
+    option.setDescription(`Makes a temporary ${commandType} message that only you can see (default: false)`);
     return option;
 }
 
