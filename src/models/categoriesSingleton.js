@@ -27,16 +27,24 @@ class CategoriesSingleton
         return this._singleton.get() || {};
     }
 
-    getAllAsStringOptionChoices()
+    getAllAsStringOptionChoices({
+        type,
+    } = {})
     {
         const unparsedCategoriesArray = Object.values(this.getAll()) || [];
-        const parsedCategoriesArray = unparsedCategoriesArray.map(function (category)
+        const parsedCategoriesArray = unparsedCategoriesArray.reduce(function (acc, category)
         {
-            return {
+            if (type && category.type !== type)
+            {
+                return acc;
+            }
+            acc.push({
                 name: category.category,
                 value: category.key.toLowerCase(),
-            };
-        });
+            });
+
+            return acc;
+        }, []);
 
         return parsedCategoriesArray;
     }

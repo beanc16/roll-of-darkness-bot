@@ -15,7 +15,9 @@ function splat(option)
     option.setName('splat');
     option.setDescription('The supernatural splat to get flavor text for (default: General)');
     option.addChoices(
-        ...categoriesSingleton.getAllAsStringOptionChoices(),
+        ...categoriesSingleton.getAllAsStringOptionChoices({
+            type: 'Splat',
+        }),
     );
     return option;
 }
