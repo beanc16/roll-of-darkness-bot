@@ -7,6 +7,7 @@ const defaultParams = {
     canBeDramaticFailure: false,
     isRote: false,
     isAdvancedAction: false,
+    extraSuccesses: 0,
 };
 
 const maxParams = {

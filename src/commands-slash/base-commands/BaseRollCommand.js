@@ -69,6 +69,7 @@ class BaseRollCommand extends SplatSlashCommand
             rerollOnGreaterThanOrEqualTo,
             isRote,
             isAdvancedAction,
+            extraSuccesses,
         });
         const dicePoolGroup = diceService.roll();
 

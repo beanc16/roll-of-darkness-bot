@@ -7,12 +7,14 @@ class DicePool
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
+        extraSuccesses = rollConstants.defaultParams.extraSuccesses,
     } = {})
     {
         this._rolls = [];
         this._exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this._successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
         this._canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure;
+        this._extraSuccesses = extraSuccesses || rollConstants.defaultParams.extraSuccesses;
     }
 
     get rolls()
@@ -28,7 +30,7 @@ class DicePool
             {
                 return (result.number >= this._successOnGreaterThanOrEqualTo);
             });
-            this._numOfSuccesses = successfulDiceRolled.length;
+            this._numOfSuccesses = successfulDiceRolled.length + this._extraSuccesses;
         }
 
         return this._numOfSuccesses;
@@ -41,7 +43,7 @@ class DicePool
             return categoriesSingleton.get('EXCEPTIONAL_SUCCESS');
         }
         
-        else if (this.numOfSuccesses > 0)
+        else if (this.numOfSuccesses > this._successOnGreaterThanOrEqualTo)
         {
             return categoriesSingleton.get('SUCCESS');
         }

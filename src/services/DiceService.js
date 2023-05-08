@@ -13,6 +13,7 @@ class DiceService
         canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
+        extraSuccesses = rollConstants.defaultParams.extraSuccesses,
     } = rollConstants.defaultParams)
     {
         this.sides = sides || rollConstants.defaultParams.sides;
@@ -23,6 +24,7 @@ class DiceService
         this.canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
+        this.extraSuccesses = extraSuccesses || rollConstants.defaultParams.extraSuccesses;
     }
 
     roll()
@@ -45,6 +47,7 @@ class DiceService
             exceptionalOn: this.exceptionalOn,
             successOnGreaterThanOrEqualTo: this.successOnGreaterThanOrEqualTo,
             canBeDramaticFailure: this.canBeDramaticFailure,
+            extraSuccesses: this.extraSuccesses,
         });
 
         for (let i = 0; i < this.count; i++)

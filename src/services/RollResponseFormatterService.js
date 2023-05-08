@@ -15,7 +15,6 @@ class RollResponseFormatterService extends ResponseFormatterService
         isRote = rollConstants.defaultParams.isRote,
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
-        successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
     } = {})
     {
         super({
@@ -29,12 +28,6 @@ class RollResponseFormatterService extends ResponseFormatterService
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
-        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.default.successOnGreaterThanOrEqualTo;
-    }
-
-    getNumOfSuccessesWithExtraSuccesses(dicepoolIndex)
-    {
-        return this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex) + this.extraSuccesses;
     }
 
     getDiceString(dicepoolIndex)
@@ -133,7 +126,7 @@ class RollResponseFormatterService extends ResponseFormatterService
         numToTestInstead,
     } = {})
     {
-        if (!numToTestInstead && this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex) !== 1)
+        if (!numToTestInstead && this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex) !== 1)
         {
             return 'successes';
         }
@@ -148,7 +141,7 @@ class RollResponseFormatterService extends ResponseFormatterService
 
     getDicepoolResponse(dicepoolIndex)
     {
-        const totalNumOfSuccesses = this.getNumOfSuccessesWithExtraSuccesses(dicepoolIndex);
+        const totalNumOfSuccesses = this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex);
         const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(dicepoolIndex)
         const successesText = Text.bold(`${totalNumOfSuccesses} ${successesSingularOrPlural}`);
 
