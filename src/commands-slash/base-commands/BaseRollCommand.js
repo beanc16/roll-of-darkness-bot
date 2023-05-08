@@ -67,6 +67,7 @@ class BaseRollCommand extends SplatSlashCommand
         const diceService = new DiceService({
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
+            exceptionalOn,
             isRote,
             isAdvancedAction,
             extraSuccesses,
