@@ -2,6 +2,7 @@ const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
 const subcommandsGroups = require('./subcommand-groups');
 const categoriesSingleton = require('../../models/categoriesSingleton');
+const FlavorTextService = require('../../services/FlavorTextService');
 const JsonPrettifierService = require('../../services/JsonPrettifierService');
 
 class Admin extends BaseSlashCommand
@@ -32,6 +33,7 @@ class Admin extends BaseSlashCommand
             || interaction.options.getSubcommand('flavor_text');
 
         let responseMessage;
+        const flavorTextService = new FlavorTextService();
 
         if (subcommandGroup === 'get_all')
         {
@@ -39,11 +41,8 @@ class Admin extends BaseSlashCommand
 
             if (subcommand === 'category')
             {
-                const {
-                    data: {
-                        categories = [],
-                    } = {},
-                } = await RollOfDarknessApi.categories.get();
+                const categoryMap = await flavorTextService.getCategories({ refreshCache: true });
+                const categories = Object.values(categoryMap);
 
                 responseMessage = jsonPrettifierService.getArrayOfObjectsAsString(
                     categories
@@ -52,14 +51,7 @@ class Admin extends BaseSlashCommand
 
             else if (subcommand === 'flavor_text')
             {
-                const {
-                    data: {
-                        flavor_texts: flavorTexts = [],
-                    } = {},
-                } = await RollOfDarknessApi.flavorText.get({
-                    splat: '',
-                    categories: [],
-                });
+                const flavorTexts = await flavorTextService.getAllFlavorText({ refreshCache: true });
 
                 responseMessage = jsonPrettifierService.getArrayOfStringsAsString(
                     flavorTexts
@@ -89,11 +81,8 @@ class Admin extends BaseSlashCommand
                 // TODO: Remove this later when validation is added to the API
                 if (splat)
                 {
-                    const {
-                        data: {
-                            flavor_texts: flavorTexts = [],
-                        } = {},
-                    } = await RollOfDarknessApi.flavorText.get({
+                    const flavorTexts = await flavorTextService.getFlavorText({
+                        refreshCache: true,
                         splat,
                         categories,
                     });
@@ -114,6 +103,7 @@ class Admin extends BaseSlashCommand
 
                 if (category && categoryType)
                 {
+                    // TODO: Move this create to the FlavorTextService later
                     const {
                         data: {
                             message = '',
@@ -124,6 +114,7 @@ class Admin extends BaseSlashCommand
                     });
 
                     responseMessage = message;
+                    await flavorTextService.getCategories({ refreshCache: true }); // Refresh categories
                 }
             }
 
@@ -146,6 +137,7 @@ class Admin extends BaseSlashCommand
                 // TODO: Remove this later when validation is added to the API
                 if (flavorText && diceCount !== null && categories.length > 0)
                 {
+                    // TODO: Move this create to the FlavorTextService later
                     const {
                         data: {
                             message = '',
@@ -157,6 +149,7 @@ class Admin extends BaseSlashCommand
                     });
 
                     responseMessage = message;
+                    await flavorTextService.getAllFlavorText({ refreshCache: true }); // Refresh flavor text
                 }
             }
         }

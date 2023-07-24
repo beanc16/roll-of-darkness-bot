@@ -12,9 +12,11 @@ class FlavorTextService
         return this._categories;
     }
 
-    async getCategories()
+    async getCategories({
+        refreshCache = false,
+    } = {})
     {
-        if (categoriesSingleton.getAll()?.length > 0)
+        if (!refreshCache && categoriesSingleton.getAll()?.length > 0)
         {
             return categoriesSingleton.getAll();
         }
@@ -47,12 +49,67 @@ class FlavorTextService
         return categoriesSingleton.getAll();
     }
 
+    async getAllFlavorText({
+        refreshCache = false,
+    } = {})
+    {
+        if (!categoriesSingleton.isInitialized())
+        {
+            await this.getCategories();
+        }
+
+        // Get the cached flavor text if it exists
+        const flavorTexts = flavorTextSingleton.getAll();
+        if (!refreshCache && flavorTexts?.length > 0)
+        {
+            return flavorTexts;
+        }
+
+        // Get the flavor text from the API
+        /*
+         * Payload as of v1.8.1 of @beanc16/microservices-abstraction:
+         *  {
+         *      "flavor_texts": [
+         *          "Flavor text 1.",
+         *          "Flavor text 2."
+         *      ]
+         *  }
+         */
+        try
+        {
+            const {
+                data: {
+                    flavor_texts: results = [],
+                } = {},
+            } = await RollOfDarknessApi.flavorText.get({
+                splat: '',
+                categories: [],
+            });
+
+            if (results?.length > 0)
+            {
+                return results;
+            }
+
+            else
+            {
+                return rollConstants.defaultFlavorTextResults;
+            }
+        }
+        catch (err)
+        {
+            logger.error('Error getting flavor text', err);
+            return rollConstants.defaultFlavorTextResults;
+        }
+    }
+
     async getFlavorText({
+        refreshCache = false,
         splat = categoriesSingleton.get('GENERAL'),
         categories = [],
     } = {})
     {
-        if (!categoriesSingleton.isInitialized())
+        if (!refreshCache && !categoriesSingleton.isInitialized())
         {
             await this.getCategories();
         }
@@ -115,11 +172,13 @@ class FlavorTextService
     }
 
     async getRandomFlavorText({
+        refreshCache = false,
         splat = categoriesSingleton.get('GENERAL'),
         categories = [],
     } = {})
     {
         const flavorTexts = await this.getFlavorText({
+            refreshCache,
             splat,
             categories,
         });
