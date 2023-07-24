@@ -1,6 +1,6 @@
 {
     "name": "roll-of-darkness-bot",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "A discord bot for rolling dice in the New World of Darkness / Chronicles of Darkness tabletop system style.",
     "main": "bot.js",
     "author": "ShockingShots & LittlePsuedoBunny",
