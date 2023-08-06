@@ -5,12 +5,6 @@ class TakeDramaticFailure extends BaseContextMenuCommand
 {
     async run(bot, interaction)
     {
-        // Send message to show the command was received
-        await interaction.deferReply({
-            ephemeral: true,
-            fetchReply: true,
-        });
-
         const {
             user: {
                 id: botUserId,
@@ -36,6 +30,13 @@ class TakeDramaticFailure extends BaseContextMenuCommand
         const numOfTimesOfCommandIsPinged = targetMessageContent.split(
             `${userIdOfCommandPingedInTargetMessage}`
         ).length - 1;
+
+
+        // Send message to show the command was received
+        await interaction.deferReply({
+            ephemeral: true,
+            fetchReply: true,
+        });
 
         if (
             botUserId !== authorOfTargetMessage.id      // Only messages this bot made
