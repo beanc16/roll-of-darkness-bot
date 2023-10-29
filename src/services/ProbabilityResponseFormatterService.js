@@ -19,7 +19,7 @@ class ProbabilityResponseFormatterService extends ResponseFormatterService
 
     getResponse()
     {
-        return `${this.authorPing}, you have a ${this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice}% chance of getting ${this.desiredNumberOfSuccesses} successes with ${this.numberOfDice} dice.`;
+        return `${this.authorPing}, you have a ${this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice}% chance of getting ${this.desiredNumberOfSuccesses} ${this.getSuccessesAsSingularOrPlural(this.desiredNumberOfSuccesses)} with ${this.numberOfDice} dice.`;
     }
 }
 
