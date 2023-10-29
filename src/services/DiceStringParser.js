@@ -4,7 +4,8 @@ const diceParserTypes = {
     Modifier: 'MODIFIER',
 };
 
-class DiceStringParser {
+class DiceStringParser
+{
     static #digitRegex = /\d/;
     static #letterDRegex = /[d]/i;
     static #supportedMathOperatorRegex = /[+-]/g;
@@ -16,22 +17,24 @@ class DiceStringParser {
     static #parseDie(dieString)
     {
         const [
-            numberOfDice,
+            unparsedNumberOfDice,
             sides,
-        ] = dieString.split(this.#letterDRegex) || [];
+        ] = dieString.split(this.#letterDRegex);
+
+        const numberOfDice = unparsedNumberOfDice || '1';
 
         if (numberOfDice && sides)
         {
             return {
-                numberOfDice,
-                sides,
+                numberOfDice: parseInt(numberOfDice, 10),
+                sides: parseInt(sides, 10),
                 type: diceParserTypes.Die,
             };
         }
         else
         {
             return {
-                modifier: numberOfDice,
+                modifier: parseInt(numberOfDice, 10),
                 type: diceParserTypes.Modifier,
             };
         }
