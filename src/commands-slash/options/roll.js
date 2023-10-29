@@ -64,6 +64,15 @@ function exceptionalOn(option)
     return option;
 }
 
+function diceToReroll(option)
+{
+    option.setName('dice_to_reroll');
+    option.setDescription('The number of dice to reroll on reroll (default: 1)');
+    option.setMinValue(1);
+    option.setMaxValue(maxParams.diceToReroll);
+    return option;
+}
+
 function extraSuccesses(option)
 {
     option.setName('extra_successes');
@@ -97,6 +106,7 @@ module.exports = {
     rerolls,
     rote,
     exceptionalOn,
+    diceToReroll,
     extraSuccesses,
     advancedAction,
     secret,

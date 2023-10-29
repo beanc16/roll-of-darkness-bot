@@ -10,6 +10,7 @@ class DiceService
         rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
+        diceToReroll = rollConstants.defaultParams.diceToReroll,
         canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
@@ -21,6 +22,7 @@ class DiceService
         this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
+        this.diceToReroll = diceToReroll || rollConstants.defaultParams.diceToReroll;
         this.canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
@@ -77,8 +79,10 @@ class DiceService
 
         if (randomInteger >= this.rerollOnGreaterThanOrEqualTo)
         {
-            const results = this.rollOne({ isReroll: true });
-            rolls.push(...results);
+            for (let i = 0; i < this.diceToReroll; i++) {
+                const results = this.rollOne({ isReroll: true });
+                rolls.push(...results);
+            }
         }
 
         if (!isReroll && this.isRote && randomInteger < this.successOnGreaterThanOrEqualTo)

@@ -4,6 +4,7 @@ const defaultParams = {
     rerollOnGreaterThanOrEqualTo: 10,
     successOnGreaterThanOrEqualTo: 8,
     exceptionalOn: 5,
+    diceToReroll: 1,
     canBeDramaticFailure: false,
     isRote: false,
     isAdvancedAction: false,
@@ -13,6 +14,7 @@ const defaultParams = {
 const maxParams = {
     numberOfDice: 50,
     exceptionalOn: 10,
+    diceToReroll: 10,
     extraSuccesses: 30,
 };
 

@@ -33,6 +33,7 @@ class BaseRollCommand extends SplatSlashCommand
             .addStringOption(options.roll.rerolls)
             .addBooleanOption(options.roll.rote)
             .addIntegerOption(options.roll.exceptionalOn)
+            .addIntegerOption(options.roll.diceToReroll)
             .addIntegerOption(options.roll.extraSuccesses)
             .addBooleanOption(options.roll.advancedAction)
             .addBooleanOption(options.roll.secret);
@@ -56,6 +57,7 @@ class BaseRollCommand extends SplatSlashCommand
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
         const exceptionalOn = interaction.options.getInteger('exceptional_on');
+        const diceToReroll = interaction.options.getInteger('dice_to_reroll');
         const isAdvancedAction = interaction.options.getBoolean('advanced_action');
         const extraSuccesses = interaction.options.getInteger('extra_successes');
 
@@ -68,6 +70,7 @@ class BaseRollCommand extends SplatSlashCommand
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
             exceptionalOn,
+            diceToReroll,
             isRote,
             isAdvancedAction,
             extraSuccesses,
