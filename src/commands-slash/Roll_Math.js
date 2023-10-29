@@ -1,5 +1,6 @@
 const BaseRollCommand = require('./base-commands/BaseRollCommand');
 const options = require('./options');
+const { mathParserOptions } = require('../constants/mathParserOptions');
 const { maxParams } = require('../constants/roll');
 const { Parser } = require('expr-eval');
 
@@ -14,59 +15,7 @@ class Roll_Math extends BaseRollCommand
             },
         });
 
-        this._mathParser = new Parser({
-            operators: {
-                // Only allow addition and subtraction
-                add: true,
-                subtract: true,
-
-                // Make everything else false
-                comparison: false,
-                concatenate: false,
-                conditional: false,
-                divide: false,
-                factorial: false,
-                logical: false,
-                multiply: false,
-                power: false,
-                remainder: false,
-                sin: false,
-                cos: false,
-                tan: false,
-                asin: false,
-                acos: false,
-                atan: false,
-                sinh: false,
-                cosh: false,
-                tanh: false,
-                asinh: false,
-                acosh: false,
-                atanh: false,
-                sqrt: false,
-                log: false,
-                ln: false,
-                lg: false,
-                log10: false,
-                abs: false,
-                ceil: false,
-                floor: false,
-                round: false,
-                trunc: false,
-                exp: false,
-                length: false,
-                in: false,
-                random: false,
-                min: false,
-                max: false,
-                assignment: false,
-                fndef: false,
-                cbrt: false,
-                expm1: false,
-                log1p: false,
-                sign: false,
-                log2: false,
-            },
-        });
+        this._mathParser = new Parser(mathParserOptions);
     }
 
     async run(interaction)
