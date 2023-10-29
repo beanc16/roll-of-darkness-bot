@@ -24,23 +24,32 @@ class Probability extends BaseSlashCommand
         const numberOfDice = interaction.options.getInteger('number_of_dice');
         const desiredNumberOfSuccesses = interaction.options.getInteger('desired_number_of_successes');
 
-        // Check probability
-        const probabilityService = new DiceProbabilityService();
-        const probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityService.getProbabilityOfRolling({
-            numberOfDice,
-            desiredNumberOfSuccesses,
-        });
+        if (desiredNumberOfSuccesses > numberOfDice) {
+            await interaction.editReply(
+                'Invalid parameters were submitted. Desired number of successes ' +
+                'must be less than or equal to number of dice, but ' +
+                `a desired number of successes of ${desiredNumberOfSuccesses} ` +
+                `were given with ${numberOfDice} dice.`
+            );
+        } else {
+            // Check probability
+            const probabilityService = new DiceProbabilityService();
+            const probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityService.getProbabilityOfRolling({
+                numberOfDice,
+                desiredNumberOfSuccesses,
+            });
 
-        // Response
-        const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
-            authorId: interaction.user.id,
-            desiredNumberOfSuccesses,
-            numberOfDice,
-            probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-        });
-        await interaction.editReply(
-            probabilityResponseFormatterService.getResponse()
-        );
+            // Response
+            const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
+                authorId: interaction.user.id,
+                desiredNumberOfSuccesses,
+                numberOfDice,
+                probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+            });
+            await interaction.editReply(
+                probabilityResponseFormatterService.getResponse()
+            );
+        }
     }
 
     get description()
