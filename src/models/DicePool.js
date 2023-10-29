@@ -30,7 +30,12 @@ class DicePool
             {
                 return (result.number >= this._successOnGreaterThanOrEqualTo);
             });
-            this._numOfSuccesses = successfulDiceRolled.length + this._extraSuccesses;
+
+            const extraSuccesses = (successfulDiceRolled.length > 0)
+                ? this._extraSuccesses
+                : 0;
+
+            this._numOfSuccesses = successfulDiceRolled.length + extraSuccesses;
         }
 
         return this._numOfSuccesses;
