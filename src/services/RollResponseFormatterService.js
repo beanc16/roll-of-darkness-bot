@@ -8,6 +8,7 @@ class RollResponseFormatterService extends ResponseFormatterService
     constructor({
         authorId,
         dicePoolGroup = new DicePoolGroup(),
+        diceToReroll = rollConstants.defaultParams.diceToReroll,
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         extraSuccesses = 0,
         flavorText = rollConstants.defaultFlavorTextResults,
@@ -21,6 +22,7 @@ class RollResponseFormatterService extends ResponseFormatterService
             authorId,
         });
         this.dicePoolGroup = dicePoolGroup || new DicePoolGroup();
+        this.diceToReroll = diceToReroll || rollConstants.defaultParams.diceToReroll;
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.extraSuccesses = extraSuccesses || 0;
         this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
@@ -83,11 +85,15 @@ class RollResponseFormatterService extends ResponseFormatterService
             results.push('rote');
         }
 
-        if (this.exceptionalOn && this.exceptionalOn !== 5)
+        if (this.exceptionalOn && this.exceptionalOn !== rollConstants.defaultParams.exceptionalOn)
         {
             results.push(`exceptional success occurring on ${this.exceptionalOn} ${this.getSuccessesAsSingularOrPlural(dicepoolIndex, {
                 numToTestInstead: this.exceptionalOn,
             })}`);
+        }
+
+        if (this.diceToReroll && this.diceToReroll !== rollConstants.defaultParams.diceToReroll) {
+            results.push(`rerolling ${this.diceToReroll} dice on reroll`);
         }
 
         if (this.extraSuccesses)

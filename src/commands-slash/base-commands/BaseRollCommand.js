@@ -90,6 +90,7 @@ class BaseRollCommand extends SplatSlashCommand
         const rollResponseFormatterService = new RollResponseFormatterService({
             authorId: interaction.user.id,
             dicePoolGroup,
+            diceToReroll,
             exceptionalOn,
             extraSuccesses,
             flavorText,
