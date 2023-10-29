@@ -22,6 +22,7 @@ class Roll_Math extends BaseRollCommand
     {
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool');
+        const isSecret = interaction.options.getBoolean('secret') || false;
 
         // Get result
         let successfullyParsedDicepool = true;
@@ -32,7 +33,10 @@ class Roll_Math extends BaseRollCommand
         } catch (err) {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             successfullyParsedDicepool = false;
-            interaction.reply(`An invalid dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
+            await interaction.reply({
+                content: `An invalid dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`,
+                ephemeral: isSecret,
+            });
         }
 
         // Run this separately from the try catch, so errors in super.run don't send an incorrect error message
@@ -40,13 +44,16 @@ class Roll_Math extends BaseRollCommand
             // Haven't exceeded the max number of dice to roll
             if (numberOfDice <= maxParams.numberOfDice && numberOfDice > 0)
             {
-                super.run(interaction, {
+                await super.run(interaction, {
                     numberOfDice,
                 });
             }
             else
             {
-                interaction.reply(`The calculated number of dice to roll is ${numberOfDice}, but it must be a number between 1 and ${maxParams.numberOfDice}.`);
+                await interaction.reply({
+                    content: `The calculated number of dice to roll is ${numberOfDice}, but it must be a number between 1 and ${maxParams.numberOfDice}.`,
+                    ephemeral: isSecret,
+                });
             }
         }
     }
