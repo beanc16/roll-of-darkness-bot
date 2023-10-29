@@ -1,6 +1,7 @@
 const diceParserTypes = {
     Die: 'DIE',
     MathOperator: 'MATH_OPERATOR',
+    Modifier: 'MODIFIER',
 };
 
 class DiceStringParser {
@@ -19,18 +20,29 @@ class DiceStringParser {
             sides,
         ] = dieString.split(this.#letterDRegex) || [];
 
-        return {
-            numberOfDice,
-            sides,
-            type: diceParserTypes.Die,
-        };
+        if (numberOfDice && sides)
+        {
+            return {
+                numberOfDice,
+                sides,
+                type: diceParserTypes.Die,
+            };
+        }
+        else
+        {
+            return {
+                modifier: numberOfDice,
+                type: diceParserTypes.Modifier,
+            };
+        }
     }
 
     static #parseMathOperators(allDiceString)
     {
         const unparsedResults = allDiceString.matchAll(this.#supportedMathOperatorRegex);
         const parsedResults = [...unparsedResults];
-        const operators = parsedResults.map(([operatorString]) => {
+        const operators = parsedResults.map(([operatorString]) =>
+        {
             return {
                 operator: operatorString,
                 name: this.#mathOperatorMap[operatorString],
@@ -49,10 +61,12 @@ class DiceStringParser {
 
         const mathOperators = this.#parseMathOperators(allDiceString);
 
-        const output = diceInfo.reduce((acc, curDieInfo, index) => {
+        const output = diceInfo.reduce((acc, curDieInfo, index) =>
+        {
             acc.push(curDieInfo);
 
-            if (mathOperators[index]) {
+            if (mathOperators[index])
+            {
                 acc.push(mathOperators[index]);
             }
 
