@@ -17,6 +17,11 @@ class DicePoolGroup
         return this._dicepools;
     }
 
+    get dicepoolResults()
+    {
+        return this._dicepools.map((dicepool) => dicepool.rollResults);
+    }
+
     get(dicepoolIndex)
     {
         return this.dicepools[dicepoolIndex];
@@ -30,6 +35,11 @@ class DicePoolGroup
     push(value = new DicePool())
     {
         this._dicepools.push(value);
+    }
+
+    forEach(callbackfn)
+    {
+        return this.dicepools.forEach(callbackfn);
     }
 
     map(callbackfn)

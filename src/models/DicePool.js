@@ -22,6 +22,11 @@ class DicePool
         return this._rolls;
     }
 
+    get rollResults()
+    {
+        return this._rolls.flatMap((array) => array.map(({ number }) => number));
+    }
+
     get numOfSuccesses()
     {
         if (!this._numOfSuccesses)
@@ -70,6 +75,11 @@ class DicePool
     push(value)
     {
         this._rolls.push(value);
+    }
+
+    forEach(callbackfn)
+    {
+        return this.rolls.forEach(callbackfn);
     }
 
     map(callbackfn)
