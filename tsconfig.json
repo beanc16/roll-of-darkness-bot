@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "target": "ESNext",
+        "declaration": true,
+        "esModuleInterop": true,
+        "moduleResolution": "nodenext",
+        "sourceMap": true,
+        "outDir": "dist",
+        "declarationDir": "dist/types",
+        "lib": [
+            "ESNext",
+        ],
+        "strict": true,
+        "isolatedModules": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "skipLibCheck": true,
+        // TODO: Remove allowJs later.
+        "allowJs": true,
+    },
+    "include": [
+        "src",
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+    ],
+    "ts-node": {
+        "esm": true,
+    },
+}

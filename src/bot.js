@@ -8,7 +8,7 @@ const {
 } = require('discord.js');
 
 // Events to listen for
-const events = require('./src/events');
+const events = require('./events');
 
 // Initialize Discord Bot
 const bot = new Client({

@@ -2,11 +2,13 @@
     "name": "roll-of-darkness-bot",
     "version": "1.2.2",
     "description": "A discord bot for rolling dice in the New World of Darkness / Chronicles of Darkness tabletop system style.",
-    "main": "bot.js",
+    "main": "dist/bot.js",
+    "types": "dist/types/index.d.ts",
     "author": "ShockingShots & LittlePsuedoBunny",
     "scripts": {
+        "build": "rm -rf dist && tsc",
         "lint": "eslint .",
-        "start": "node bot.js",
+        "start": "npm run build && node dist/bot.js",
         "start:dev": "nodemon bot.js",
         "register-slash-commands": "node src/slash-command-helpers/registerSlashCommands.js",
         "first-time-setup": "node node_modules/@beanc16/discordjs-generators/src/runFirstTimeSetup.js",
@@ -16,19 +18,21 @@
         "postversion": "git push && git push --tags"
     },
     "dependencies": {
-        "@beanc16/discordjs-common-commands": "^1.4.1",
-        "@beanc16/discordjs-generators": "^1.1.1",
-        "@beanc16/discordjs-helpers": "^1.5.1",
+        "@beanc16/discordjs-common-commands": "^2.0.1",
+        "@beanc16/discordjs-generators": "^1.0.0",
+        "@beanc16/discordjs-helpers": "^2.0.1",
         "@beanc16/logger": "^1.3.1",
-        "@beanc16/microservices-abstraction": "^1.8.4",
+        "@beanc16/microservices-abstraction": "^2.0.7",
         "app-root-path": "^3.0.0",
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.1",
         "expr-eval": "^2.0.2"
     },
     "devDependencies": {
+        "@types/node": "^20.9.0",
         "eslint": "^8.8.0",
-        "nodemon": "^2.0.18"
+        "nodemon": "^2.0.18",
+        "typescript": "^5.2.2"
     },
     "engines": {
         "node": "18.x"
