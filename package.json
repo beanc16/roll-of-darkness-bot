@@ -6,8 +6,8 @@
     "author": "ShockingShots & LittlePsuedoBunny",
     "scripts": {
         "lint": "eslint .",
-        "start": "node bot.js",
-        "start:dev": "nodemon bot.js",
+        "start": "node src/bot.js",
+        "start:dev": "nodemon src/bot.js",
         "register-slash-commands": "node src/slash-command-helpers/registerSlashCommands.js",
         "first-time-setup": "node node_modules/@beanc16/discordjs-generators/src/runFirstTimeSetup.js",
         "update-bot-settings": "node node_modules/@beanc16/discordjs-generators/src/updateBotSettings.js",
