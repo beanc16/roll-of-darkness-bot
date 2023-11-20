@@ -8,7 +8,8 @@ class Beat extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            .addUserOption(options.beat.friend);
+            .addUserOption(options.beat.friend)
+            .addStringOption(options.beat.reason);
     }
 
     async run(interaction)
@@ -20,9 +21,14 @@ class Beat extends BaseSlashCommand
 
         // Get parameter results
         const friend = interaction.options.getUser('friend');
+        const unparsedReason = interaction.options.getString('reason');
+
+        const reason = (unparsedReason)
+            ? `\n> ${unparsedReason}`
+            : '';
 
         await interaction.editReply(
-            `${Text.Ping.user(interaction.user.id)} beat up ${Text.Ping.user(friend.id)} <:beet:1170454391451553872>`
+            `${Text.Ping.user(interaction.user.id)} beat up ${Text.Ping.user(friend.id)} <:beet:1170454391451553872>${reason}`
         );
     }
 
