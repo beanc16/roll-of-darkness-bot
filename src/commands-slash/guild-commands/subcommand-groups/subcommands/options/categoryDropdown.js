@@ -1,4 +1,4 @@
-const categoriesSingleton = require('../../../../../models/categoriesSingleton');
+const FlavorTextService = require('../../../../../services/FlavorTextService');
 
 function categoryDropdown(option, categoryNumber = 1, {
     parameterName,
@@ -6,6 +6,8 @@ function categoryDropdown(option, categoryNumber = 1, {
     notType,
 } = {})
 {
+    const flavorTextService = new FlavorTextService();
+
     const description = (parameterName === 'splat')
         ? 'The supernatural splat to get flavor text for (default: General)'
         : 'The non-splat category to get flavor text for';
@@ -13,7 +15,7 @@ function categoryDropdown(option, categoryNumber = 1, {
     option.setName(parameterName || `category${categoryNumber}`);
     option.setDescription(description);
     return option.addChoices(
-        ...categoriesSingleton.getAllAsStringOptionChoices({
+        ...flavorTextService.getAllCategoriesAsStringOptionChoices({
             ...(type !== undefined && { type }),
             ...(notType !== undefined && { notType }),
         }),

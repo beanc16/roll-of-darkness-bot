@@ -1,6 +1,5 @@
 const SplatSlashCommand = require('./base-commands/SplatSlashCommand');
 const options = require('./options/roll');
-const categoriesSingleton = require('../models/categoriesSingleton');
 const DiceService = require('../services/DiceService');
 const FlavorTextService = require('../services/FlavorTextService');
 const RollResponseFormatterService = require('../services/RollResponseFormatterService');
@@ -16,8 +15,11 @@ class Luck extends SplatSlashCommand
 
     async run(interaction)
     {
+        // For flavor text handling
+        const flavorTextService = new FlavorTextService();
+
         // Get initial parameter result
-        const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
+        const splat = interaction.options.getString('splat') || await flavorTextService.getCategory('GENERAL');
         const isSecret = interaction.options.getBoolean('secret') || false;
 
         // Send message to show the command was received
@@ -36,7 +38,6 @@ class Luck extends SplatSlashCommand
         const dicePoolGroup = diceService.roll();
 
         // Flavor text
-        const flavorTextService = new FlavorTextService();
         const flavorText = await flavorTextService.getRandomFlavorText({
             splat,
             categories: [
