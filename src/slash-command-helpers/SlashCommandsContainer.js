@@ -43,9 +43,11 @@ class SlashCommandsContainer
         files.forEach((fileName) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js")
+            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
             {
-                const extensionIndex = fileName.indexOf(".js");
+                const extensionIndex = (fileName.indexOf(".js") !== -1)
+                    ? fileName.indexOf(".js")
+                    : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
                 const command = require(commandPath);
@@ -61,9 +63,11 @@ class SlashCommandsContainer
         guildCommandFiles.forEach((fileName) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js")
+            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
             {
-                const extensionIndex = fileName.indexOf(".js");
+                const extensionIndex = (fileName.indexOf(".js") !== -1)
+                    ? fileName.indexOf(".js")
+                    : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
                 const command = require(commandPath);
@@ -79,9 +83,11 @@ class SlashCommandsContainer
         contextMenuCommandFiles.forEach((fileName) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js")
+            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
             {
-                const extensionIndex = fileName.indexOf(".js");
+                const extensionIndex = (fileName.indexOf(".js") !== -1)
+                    ? fileName.indexOf(".js")
+                    : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
                 const command = require(commandPath);
