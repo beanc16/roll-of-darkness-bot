@@ -4,7 +4,7 @@
         "target": "ESNext",
         "declaration": true,
         "esModuleInterop": true,
-        "moduleResolution": "nodenext",
+        "moduleResolution": "NodeNext",
         "sourceMap": true,
         "outDir": "dist",
         "declarationDir": "dist/types",
