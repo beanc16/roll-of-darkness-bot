@@ -76,12 +76,6 @@ class DiceStringParser
             return acc;
         }, []);
 
-        console.log('\n allDiceString:', allDiceString);
-        console.log('\n diceList:', diceList);
-        console.log('\n diceInfo:', diceInfo);
-        console.log('\n mathOperators:', mathOperators);
-        console.log('\n output:', output);
-
         return output;
     }
 }
