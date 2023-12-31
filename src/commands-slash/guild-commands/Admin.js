@@ -1,7 +1,6 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
 const subcommandsGroups = require('./subcommand-groups');
-const categoriesSingleton = require('../../models/categoriesSingleton');
 const FlavorTextService = require('../../services/FlavorTextService');
 const JsonPrettifierService = require('../../services/JsonPrettifierService');
 
@@ -65,16 +64,16 @@ class Admin extends BaseSlashCommand
 
             if (subcommand === 'flavor_text')
             {
-                const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
+                const splat = interaction.options.getString('splat') || await flavorTextService.getCategory('GENERAL');
                 const category1 = interaction.options.getString('category1');
                 const category2 = interaction.options.getString('category2');
 
                 const categories = [
                     ...(category1 ? [
-                        categoriesSingleton.get(category1.toUpperCase())
+                        await flavorTextService.getCategory(category1.toUpperCase())
                     ] : []),
                     ...(category2 ? [
-                        categoriesSingleton.get(category2.toUpperCase())
+                        await flavorTextService.getCategory(category2.toUpperCase())
                     ] : []),
                 ];
 
@@ -127,10 +126,10 @@ class Admin extends BaseSlashCommand
 
                 const categories = [
                     ...(category1 ? [
-                        categoriesSingleton.get(category1.toUpperCase())
+                        await flavorTextService.getCategory(category1.toUpperCase())
                     ] : []),
                     ...(category2 ? [
-                        categoriesSingleton.get(category2.toUpperCase())
+                        await flavorTextService.getCategory(category2.toUpperCase())
                     ] : []),
                 ];
 

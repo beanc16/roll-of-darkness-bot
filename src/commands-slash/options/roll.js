@@ -1,4 +1,4 @@
-const categoriesSingleton = require('../../models/categoriesSingleton');
+const FlavorTextService = require('../../services/FlavorTextService');
 const { maxParams } = require('../../constants/roll');
 
 function numberOfDice(option)
@@ -13,10 +13,12 @@ function numberOfDice(option)
 
 function splat(option)
 {
+    const flavorTextService = new FlavorTextService();
+
     option.setName('splat');
     option.setDescription('The supernatural splat to get flavor text for (default: General)');
     option.addChoices(
-        ...categoriesSingleton.getAllAsStringOptionChoices({
+        ...flavorTextService.getAllCategoriesAsStringOptionChoices({
             type: 'Splat',
         }),
     );

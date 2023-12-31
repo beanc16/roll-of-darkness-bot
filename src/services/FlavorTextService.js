@@ -34,9 +34,7 @@ class FlavorTextService
          *  }
          */
         const {
-            data: {
-                categories: unparsedCategories = [],
-            } = {},
+            categories: unparsedCategories = [],
         } = await RollOfDarknessApi.categories.get();
 
         const parsedCategories = unparsedCategories.reduce(function (acc, category)
@@ -78,9 +76,7 @@ class FlavorTextService
         try
         {
             const {
-                data: {
-                    flavor_texts: results = [],
-                } = {},
+                flavor_texts: results = [],
             } = await RollOfDarknessApi.flavorText.get({
                 splat: '',
                 categories: [],
@@ -139,9 +135,7 @@ class FlavorTextService
         try
         {
             const {
-                data: {
-                    flavor_texts: results = [],
-                } = {},
+                flavor_texts: results = [],
             } = await RollOfDarknessApi.flavorText.get({
                 splat,
                 categories,
@@ -195,6 +189,21 @@ class FlavorTextService
         // Subtract 1 from index since dice won't roll 0 but index starts at 0
         const flavorTextIndex = flavorTextRandomizerService.rollOne()[0].number - 1;
         return flavorTexts[flavorTextIndex];
+    }
+
+    async getCategory(category = 'GENERAL')
+    {
+        if (!categoriesSingleton.isInitialized())
+        {
+            await this.getCategories();
+        }
+
+        return categoriesSingleton.get(category);
+    }
+
+    getAllCategoriesAsStringOptionChoices(options = {})
+    {
+        return categoriesSingleton.getAllAsStringOptionChoices(options);
     }
 }
 

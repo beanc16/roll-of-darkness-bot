@@ -1,7 +1,6 @@
 const SplatSlashCommand = require('./SplatSlashCommand');
 const options = require('../options');
 const rollConstants = require('../../constants/roll');
-const categoriesSingleton = require('../../models/categoriesSingleton');
 const DiceService = require('../../services/DiceService');
 const FlavorTextService = require('../../services/FlavorTextService');
 const RollResponseFormatterService = require('../../services/RollResponseFormatterService');
@@ -52,8 +51,11 @@ class BaseRollCommand extends SplatSlashCommand
             fetchReply: true,
         });
 
+        // For flavor text handling
+        const flavorTextService = new FlavorTextService();
+
         // Get parameter results
-        const splat = interaction.options.getString('splat') || categoriesSingleton.get('GENERAL');
+        const splat = interaction.options.getString('splat') || await flavorTextService.getCategory('GENERAL');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
         const exceptionalOn = interaction.options.getInteger('exceptional_on');
@@ -78,7 +80,6 @@ class BaseRollCommand extends SplatSlashCommand
         const dicePoolGroup = diceService.roll();
 
         // Flavor text
-        const flavorTextService = new FlavorTextService();
         const flavorText = await flavorTextService.getRandomFlavorText({
             splat,
             categories: [
