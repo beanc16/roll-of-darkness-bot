@@ -2,7 +2,7 @@ const { logger } = require("@beanc16/logger");
 const SlashCommandsContainer = require('./SlashCommandsContainer');
 const FlavorTextService = require('../services/FlavorTextService');
 
-async function registerCommands()
+async function registerCommands(): Promise<void>
 {
     // Initialize singletons
     logger.info(`Initializing singletons.`);

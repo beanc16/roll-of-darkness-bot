@@ -22,6 +22,8 @@ class BaseContextMenuCommand
         this._isInitialized = true;
     }
 
+    // TODO: Add types here later.
+    // @ts-ignore
     async run(bot, interaction)
     {
         throw new Error(`${this.commandName} has not yet been implemented!`);
@@ -48,4 +50,4 @@ class BaseContextMenuCommand
 
 
 
-module.exports = BaseContextMenuCommand;
+export = BaseContextMenuCommand;

@@ -1,21 +1,42 @@
-const fs = require("fs");
-const path = require("path");
-const appRootPath = require("app-root-path");
-const { REST, Routes } = require('discord.js');
-const { logger } = require("@beanc16/logger");
-const { slashCommands: commonSlashCommands } = require("@beanc16/discordjs-common-commands");
+import fs from 'fs';
+import path from 'path';
+import appRootPath from 'app-root-path';
+import { REST, Routes } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
+import BaseContextMenuCommand from '../context-menus/base-commands/BaseContextMenuCommand';
 
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
+
+type Command = typeof commonSlashCommands['Ping'];
+const baseContextMenuCommand = new BaseContextMenuCommand();
+type ContextMenuCommand = typeof baseContextMenuCommand;
+
+interface AddCommandParameters {
+    commandName: string;
+    command: Command;
+}
+interface AddContextMenuCommandParameters {
+    commandName: string;
+    command: ContextMenuCommand;
+}
+
+interface RegisterCommandParameters {
+    guildId: string;
+}
+const defaultRegisterCommandParameters = {
+    guildId: '',
+};
 
 class SlashCommandsContainer
 {
-    static _slashCommands = {};
-    static _guildCommands = {};
-    static _contextMenuCommands = {};
+    static #slashCommands: { [key: string]: Command } = {};
+    static #guildCommands: { [key: string]: Command } = {};
+    static #contextMenuCommands: { [key: string]: ContextMenuCommand } = {};
 
     static { // Static constructor
         // Initialize common commands
-        Object.values(commonSlashCommands).forEach((command) =>
+        Object.values(commonSlashCommands).forEach((command: Command) =>
         {
             SlashCommandsContainer.addCommand({
                 commandName: command.commandName,
@@ -40,7 +61,7 @@ class SlashCommandsContainer
             : [];
 
         // Initialize each command.
-        files.forEach((fileName) =>
+        files.forEach((fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -50,7 +71,7 @@ class SlashCommandsContainer
                     : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
-                const command = require(commandPath);
+                const command = require(commandPath) as Command;
 
                 SlashCommandsContainer.addCommand({
                     commandName: command.commandName,
@@ -60,7 +81,7 @@ class SlashCommandsContainer
         });
     
         // Initialize each guild command.
-        guildCommandFiles.forEach((fileName) =>
+        guildCommandFiles.forEach((fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -70,7 +91,7 @@ class SlashCommandsContainer
                     : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
-                const command = require(commandPath);
+                const command = require(commandPath) as Command;
 
                 SlashCommandsContainer.addGuildCommand({
                     commandName: command.commandName,
@@ -80,7 +101,7 @@ class SlashCommandsContainer
         });
 
         // Initialize each context menu command.
-        contextMenuCommandFiles.forEach((fileName) =>
+        contextMenuCommandFiles.forEach((fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -90,7 +111,7 @@ class SlashCommandsContainer
                     : fileName.indexOf(".ts");
                 const commandNameFromFileName = fileName.substring(0, extensionIndex);
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
-                const command = require(commandPath);
+                const command = require(commandPath) as ContextMenuCommand;
 
                 SlashCommandsContainer.addContextMenuCommand({
                     commandName: command.commandName,
@@ -102,24 +123,24 @@ class SlashCommandsContainer
 
 
 
-    static getCommand(commandName)
+    static getCommand(commandName: string)
     {
-        return SlashCommandsContainer._slashCommands[commandName];
+        return SlashCommandsContainer.#slashCommands[commandName];
     }
 
-    static getGuildCommand(commandName)
+    static getGuildCommand(commandName: string)
     {
-        return SlashCommandsContainer._guildCommands[commandName];
+        return SlashCommandsContainer.#guildCommands[commandName];
     }
 
-    static getContextMenuCommand(commandName)
+    static getContextMenuCommand(commandName: string)
     {
-        return SlashCommandsContainer._contextMenuCommands[commandName];
+        return SlashCommandsContainer.#contextMenuCommands[commandName];
     }
 
     static async getAllCommandsData()
     {
-        const slashCommands = Object.values(SlashCommandsContainer._slashCommands);
+        const slashCommands = Object.values(SlashCommandsContainer.#slashCommands);
         const promises = slashCommands.map(async (slashCommand) => {
             await slashCommand.init();
             return slashCommand.slashCommandData;
@@ -129,7 +150,7 @@ class SlashCommandsContainer
 
     static async getAllGuildCommandsData()
     {
-        const guildCommands = Object.values(SlashCommandsContainer._guildCommands);
+        const guildCommands = Object.values(SlashCommandsContainer.#guildCommands);
         const promises = guildCommands.map(async (guildCommand) => {
             await guildCommand.init();
             return guildCommand.slashCommandData;
@@ -139,7 +160,7 @@ class SlashCommandsContainer
 
     static async getAllContextMenuCommandsData()
     {
-        const slashCommands = Object.values(SlashCommandsContainer._contextMenuCommands);
+        const slashCommands = Object.values(SlashCommandsContainer.#contextMenuCommands);
         const promises = slashCommands.map(async (slashCommand) => {
             await slashCommand.init();
             return slashCommand.commandData;
@@ -150,43 +171,43 @@ class SlashCommandsContainer
     static addCommand({
         commandName,
         command,
-    })
+    } : AddCommandParameters)
     {
         if (!commandName)
         {
             throw new Error(`Invalid commandName in addCommand: ${commandName}`);
         }
 
-        SlashCommandsContainer._slashCommands[commandName] = command;
+        SlashCommandsContainer.#slashCommands[commandName] = command;
     }
 
     static addGuildCommand({
         commandName,
         command,
-    })
+    } : AddCommandParameters)
     {
         if (!commandName)
         {
             throw new Error(`Invalid commandName in addGuildCommand: ${commandName}`);
         }
 
-        SlashCommandsContainer._guildCommands[commandName] = command;
+        SlashCommandsContainer.#guildCommands[commandName] = command;
     }
 
     static addContextMenuCommand({
         commandName,
         command,
-    })
+    } : AddContextMenuCommandParameters)
     {
         if (!commandName)
         {
             throw new Error(`Invalid commandName in addContextMenuCommand: ${commandName}`);
         }
 
-        SlashCommandsContainer._contextMenuCommands[commandName] = command;
+        SlashCommandsContainer.#contextMenuCommands[commandName] = command;
     }
 
-    static async registerAllCommands({ guildId } = {})
+    static async registerAllCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters)
     {
         const [
             registeredGlobalSlashCommandData,
@@ -202,7 +223,7 @@ class SlashCommandsContainer
         };
     }
 
-    static async registerGlobalAndContextMenuCommands()
+    static async registerGlobalAndContextMenuCommands(): Promise<unknown[] | undefined>
     {
         const [
             allCommandsData,
@@ -220,30 +241,34 @@ class SlashCommandsContainer
         {
             logger.info(`Starting refresh of ${data.length} global slash (/) and context menu commands`);
             const registeredSlashCommandData = await rest.put(
-                Routes.applicationCommands(process.env.CLIENT_ID), // Can pass in a guildId as a second parameter to make a slash command available in only that guild (helpful for development)
+                Routes.applicationCommands(process.env.CLIENT_ID as string), // Can pass in a guildId as a second parameter to make a slash command available in only that guild (helpful for development)
                 { body: data },
-            );
+            ) as unknown[];
             logger.info(`Successfully refreshed ${registeredSlashCommandData.length} global slash (/) commands`, registeredSlashCommandData);
             return registeredSlashCommandData;
         }
+
+        return undefined;
     }
 
-    static async registerGuildCommands({ guildId } = {})
+    static async registerGuildCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
     {
         const guildCommandsData = await SlashCommandsContainer.getAllGuildCommandsData();
         if (Object.keys(guildCommandsData).length > 0)
         {
             logger.info(`Starting refresh of ${guildCommandsData.length} guild slash (/) commands`);
             const registeredSlashCommandData = await rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
+                Routes.applicationGuildCommands(process.env.CLIENT_ID as string, guildId),
                 { body: guildCommandsData },
-            );
+            ) as unknown[];
             logger.info(`Successfully refreshed ${registeredSlashCommandData.length} guild slash (/) commands`, registeredSlashCommandData);
             return registeredSlashCommandData;
         }
+
+        return undefined;
     }
 }
 
 
 
-module.exports = SlashCommandsContainer;
+export = SlashCommandsContainer;
