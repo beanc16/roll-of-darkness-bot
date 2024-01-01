@@ -9,7 +9,7 @@
         "build": "rm -rf dist && tsc",
         "lint": "eslint .",
         "start": "npm run build && node dist/bot.js",
-        "start:dev": "nodemon src/bot.js",
+        "start:dev": "nodemon src/bot.ts",
         "register-slash-commands": "ts-node src/slash-command-helpers/registerSlashCommands.ts",
         "first-time-setup": "node node_modules/@beanc16/discordjs-generators/src/runFirstTimeSetup.js",
         "update-bot-settings": "node node_modules/@beanc16/discordjs-generators/src/updateBotSettings.js",
