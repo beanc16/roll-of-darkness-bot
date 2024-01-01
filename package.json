@@ -10,7 +10,7 @@
         "lint": "eslint .",
         "start": "npm run build && node dist/bot.js",
         "start:dev": "nodemon src/bot.js",
-        "register-slash-commands": "node src/slash-command-helpers/registerSlashCommands.js",
+        "register-slash-commands": "ts-node src/slash-command-helpers/registerSlashCommands.ts",
         "first-time-setup": "node node_modules/@beanc16/discordjs-generators/src/runFirstTimeSetup.js",
         "update-bot-settings": "node node_modules/@beanc16/discordjs-generators/src/updateBotSettings.js",
         "preversion": "npm run lint",
@@ -32,6 +32,7 @@
         "@types/node": "^20.9.0",
         "eslint": "^8.8.0",
         "nodemon": "^2.0.18",
+        "ts-node": "^10.9.2",
         "typescript": "^5.3.3"
     },
     "engines": {
