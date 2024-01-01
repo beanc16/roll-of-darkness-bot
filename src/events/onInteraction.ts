@@ -1,10 +1,10 @@
-const { Events } = require('discord.js');
-const { logger } = require("@beanc16/logger");
-const SlashCommandsContainer = require('../slash-command-helpers/SlashCommandsContainer');
+import { Client, CommandInteraction, Events } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import SlashCommandsContainer from '../slash-command-helpers/SlashCommandsContainer';
 
 
 
-async function handler(bot, interaction)
+async function handler(bot: Client, interaction: CommandInteraction)
 {
 	if (interaction.isChatInputCommand())
 	{
@@ -55,7 +55,7 @@ async function handler(bot, interaction)
 
 
 
-module.exports = {
+export = {
     name: Events.InteractionCreate,
     handler,
 };

@@ -1,6 +1,6 @@
-const { Events } = require('discord.js');
-const { logger } = require("@beanc16/logger");
-const FlavorTextService = require('../services/FlavorTextService');
+import { Events } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import FlavorTextService from '../services/FlavorTextService';
 
 async function handler()
 {
@@ -25,7 +25,7 @@ async function handler()
 
 
 
-module.exports = {
+export = {
     name: Events.ClientReady,
     handler,
 };

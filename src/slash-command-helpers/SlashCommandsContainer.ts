@@ -44,10 +44,10 @@ class SlashCommandsContainer
             });
         });
 
-        // Initialize commands in the /src/commands-slash folder
-        const commandsDirPath = appRootPath.resolve("./src/commands-slash");
-        const guildCommandsDirPath = appRootPath.resolve("./src/commands-slash/guild-commands");
-        const contextMenuCommandsDirPath = appRootPath.resolve("./src/context-menus");
+        // Initialize commands
+        const commandsDirPath = appRootPath.resolve('./dist/commands-slash');
+        const guildCommandsDirPath = appRootPath.resolve('./dist/commands-slash/guild-commands');
+        const contextMenuCommandsDirPath = appRootPath.resolve('./dist/context-menus');
 
         // Get all files and directories in the commands folder.
         const files = (fs.existsSync(commandsDirPath))
@@ -61,7 +61,7 @@ class SlashCommandsContainer
             : [];
 
         // Initialize each command.
-        files.forEach((fileName: string) =>
+        const commandPromises = files.map(async (fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -69,9 +69,9 @@ class SlashCommandsContainer
                 const extensionIndex = (fileName.indexOf(".js") !== -1)
                     ? fileName.indexOf(".js")
                     : fileName.indexOf(".ts");
-                const commandNameFromFileName = fileName.substring(0, extensionIndex);
+                const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
-                const command = require(commandPath) as Command;
+                const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addCommand({
                     commandName: command.commandName,
@@ -79,9 +79,9 @@ class SlashCommandsContainer
                 });
             }
         });
-    
+
         // Initialize each guild command.
-        guildCommandFiles.forEach((fileName: string) =>
+        const guildCommandPromises = guildCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -89,9 +89,9 @@ class SlashCommandsContainer
                 const extensionIndex = (fileName.indexOf(".js") !== -1)
                     ? fileName.indexOf(".js")
                     : fileName.indexOf(".ts");
-                const commandNameFromFileName = fileName.substring(0, extensionIndex);
+                const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
-                const command = require(commandPath) as Command;
+                const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addGuildCommand({
                     commandName: command.commandName,
@@ -101,7 +101,7 @@ class SlashCommandsContainer
         });
 
         // Initialize each context menu command.
-        contextMenuCommandFiles.forEach((fileName: string) =>
+        const contextMenuCommandPromises = contextMenuCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
             if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
@@ -109,9 +109,9 @@ class SlashCommandsContainer
                 const extensionIndex = (fileName.indexOf(".js") !== -1)
                     ? fileName.indexOf(".js")
                     : fileName.indexOf(".ts");
-                const commandNameFromFileName = fileName.substring(0, extensionIndex);
+                const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
-                const command = require(commandPath) as ContextMenuCommand;
+                const command = (await import(commandPath)).default as ContextMenuCommand;
 
                 SlashCommandsContainer.addContextMenuCommand({
                     commandName: command.commandName,
@@ -119,6 +119,12 @@ class SlashCommandsContainer
                 });
             }
         });
+
+        Promise.all([
+            ...commandPromises,
+            ...guildCommandPromises,
+            ...contextMenuCommandPromises,
+        ]);
     }
 
 
