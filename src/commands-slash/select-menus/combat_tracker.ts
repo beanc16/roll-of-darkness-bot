@@ -3,6 +3,12 @@ import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker';
 import { CombatTrackerType } from '../../constants/combatTracker';
 
+interface GetCombatTrackerSelectMenusResponse
+{
+    characterOptionSelectMenu?: StringSelectMenuBuilder;
+    initiativeSelectMenu?: StringSelectMenuBuilder;
+}
+
 function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
 {
     // Get the relevant combat trackers based on the type of combat tracker
@@ -14,6 +20,7 @@ function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
         const shouldIncludeOption = (
             typeOfTracker === cur.type
             || typeOfTracker === CombatTrackerType.All
+            || cur.type === CombatTrackerType.All
         );
 
         // Add the option to the hp options
@@ -49,25 +56,34 @@ function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
     };
 }
 
-function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType)
+function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType): GetCombatTrackerSelectMenusResponse
 {
     const {
         hpOptions,
         initiativeOptions,
     } = parseSelectMenuOptions(typeOfTracker);
 
-    const characterOptionSelectMenu = new StringSelectMenuBuilder()
-        .setCustomId('character_option_select')
-        .addOptions(...hpOptions);
+    const response: GetCombatTrackerSelectMenusResponse = {};
 
-    const initiativeSelectMenu = new StringSelectMenuBuilder()
-        .setCustomId('initiative_select')
-        .addOptions(...initiativeOptions);
+    if (hpOptions.length > 0)
+    {
+        const characterOptionSelectMenu = new StringSelectMenuBuilder()
+            .setCustomId('character_option_select')
+            .addOptions(...hpOptions);
 
-    return {
-        characterOptionSelectMenu,
-        initiativeSelectMenu,
-    };
+        response.characterOptionSelectMenu = characterOptionSelectMenu;
+    }
+
+    if (initiativeOptions.length > 0)
+    {
+        const initiativeSelectMenu = new StringSelectMenuBuilder()
+            .setCustomId('initiative_select')
+            .addOptions(...initiativeOptions);
+
+        response.initiativeSelectMenu = initiativeSelectMenu;
+    }
+
+    return response;
 }
 
 export function getCombatTrackerActionRows(typeOfTracker: CombatTrackerType)
@@ -77,14 +93,21 @@ export function getCombatTrackerActionRows(typeOfTracker: CombatTrackerType)
         initiativeSelectMenu,
     } = getCombatTrackerSelectMenus(typeOfTracker);
 
-    const characterOptionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(characterOptionSelectMenu);
+    const rows = [];
 
-    const initiativeRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(initiativeSelectMenu);
+    if (characterOptionSelectMenu)
+    {
+        const characterOptionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(characterOptionSelectMenu);
+        rows.push(characterOptionRow);
+    }
 
-    return [
-        characterOptionRow,
-        initiativeRow,
-    ];
+    if (initiativeSelectMenu)
+    {
+        const initiativeRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(initiativeSelectMenu);
+        rows.push(initiativeRow);
+    }
+
+    return rows;
 }
