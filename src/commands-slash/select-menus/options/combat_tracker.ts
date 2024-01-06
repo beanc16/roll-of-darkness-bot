@@ -2,6 +2,21 @@ import { StringSelectMenuOptionBuilder } from 'discord.js';
 
 import { CombatTrackerType } from '../../../constants/combatTracker';
 
+export const selectMenuValues = {
+    // HP Options
+    editHp: 'edit_hp_button',
+    addCharacter: 'add_character_button',
+    showSecretCharacters: 'show_secret_characters_button',
+    editCharacter: 'edit_character_button',
+    removeCharacter: 'remove_character_button',
+    // Initiative Options
+    nextTurn: 'next_turn_button',
+    previousTurn: 'previous_turn_button',
+    moveTurn: 'move_turn_button',
+    startCombat: 'start_combat_button',
+    endCombat: 'end_combat_button',
+};
+
 // HP Options
 const editCharacterHpOption = new StringSelectMenuOptionBuilder()
     .setLabel('Edit Character HP')

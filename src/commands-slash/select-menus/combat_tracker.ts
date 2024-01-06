@@ -9,6 +9,11 @@ interface GetCombatTrackerSelectMenusResponse
     initiativeSelectMenu?: StringSelectMenuBuilder;
 }
 
+export const selectMenuCustomIds = {
+    characterOptionSelect: 'character_option_select',
+    initiativeSelect: 'initiative_select',
+};
+
 function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
 {
     // Get the relevant combat trackers based on the type of combat tracker
@@ -68,7 +73,7 @@ function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType): GetComba
     if (hpOptions.length > 0)
     {
         const characterOptionSelectMenu = new StringSelectMenuBuilder()
-            .setCustomId('character_option_select')
+            .setCustomId(selectMenuCustomIds.characterOptionSelect)
             .addOptions(...hpOptions);
 
         response.characterOptionSelectMenu = characterOptionSelectMenu;
@@ -77,7 +82,7 @@ function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType): GetComba
     if (initiativeOptions.length > 0)
     {
         const initiativeSelectMenu = new StringSelectMenuBuilder()
-            .setCustomId('initiative_select')
+            .setCustomId(selectMenuCustomIds.initiativeSelect)
             .addOptions(...initiativeOptions);
 
         response.initiativeSelectMenu = initiativeSelectMenu;

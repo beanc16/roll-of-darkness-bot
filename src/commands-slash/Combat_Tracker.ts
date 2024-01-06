@@ -3,6 +3,7 @@ import { CommandInteraction, ComponentType } from 'discord.js';
 
 import options from './options';
 import { getCombatTrackerEmbed as getCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
+import { handleMessageComponentsForCombatTracker } from './message-component-handlers/combat_tracker';
 import { getCombatTrackerActionRows } from './select-menus/combat_tracker';
 import { CombatTrackerType, timeToWaitForCommandInteractions } from '../constants/combatTracker';
 import { logger } from '@beanc16/logger';
@@ -35,10 +36,7 @@ class Combat_Tracker extends BaseSlashCommand
             ),
             time: timeToWaitForCommandInteractions,
         })
-        .then((interaction) => {
-            // TODO: Make this a separate function later, awaited, or something so it's separated.
-            console.log('\n interaction:', interaction);
-        })
+        .then(handleMessageComponentsForCombatTracker)
         .catch((error: Error) => 
         {
             // Ignore timeouts
