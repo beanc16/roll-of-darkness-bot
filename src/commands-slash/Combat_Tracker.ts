@@ -2,9 +2,9 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { CommandInteraction, ComponentType } from 'discord.js';
 
 import options from './options';
-import { getCombatTrackerEmbed as getCombatTrackerEmbedMessage } from './embed-messages/combat-tracker';
+import { getCombatTrackerEmbed as getCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
 import { getCombatTrackerActionRows } from './select-menus/combat_tracker';
-import { CombatTrackerType } from '../constants/combatTracker';
+import { CombatTrackerType, timeToWaitForCommandInteractions } from '../constants/combatTracker';
 import { logger } from '@beanc16/logger';
 
 class Combat_Tracker extends BaseSlashCommand
@@ -33,7 +33,7 @@ class Combat_Tracker extends BaseSlashCommand
             filter: (interaction) => (
                 interaction.componentType === ComponentType.StringSelect
             ),
-            time: 60_000,
+            time: timeToWaitForCommandInteractions,
         })
         .then((interaction) => {
             // TODO: Make this a separate function later, awaited, or something so it's separated.
