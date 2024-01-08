@@ -36,7 +36,7 @@ interface TrackerConstructor
     expireAt: Date;
 }
 
-class Tracker
+export class Tracker
 {
     _id: TrackerConstructor['_id'];
     name: TrackerConstructor['name'];

@@ -1,5 +1,14 @@
 const { CombatTrackerType } = require('../../constants/combatTracker');
 
+function name(option)
+{
+    option.setName('name');
+    option.setDescription('The unique name of the combat.');
+    option.setMinLength(1);
+    option.setRequired(true);
+    return option;
+}
+
 function type(option)
 {
     option.setName('type');
@@ -24,5 +33,6 @@ function type(option)
 
 
 module.exports = {
+    name,
     type,
 };
