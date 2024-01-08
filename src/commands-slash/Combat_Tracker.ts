@@ -34,11 +34,12 @@ class Combat_Tracker extends BaseSlashCommand
         TrackerController.insertOne({
             name: nameKey,
         })
-        .then(async (response: Tracker) =>
+        .then(async (_: Tracker) =>
         {
             // Get components
             const actionRows = getCombatTrackerActionRows(typeKey);
-    
+
+            // Handle the components of the embed message
             message.awaitMessageComponent({
                 filter: (interaction) => (
                     interaction.componentType === ComponentType.StringSelect
@@ -55,6 +56,7 @@ class Combat_Tracker extends BaseSlashCommand
                 }
             });
 
+            // Get embed message
             const embedMessage = getCombatTrackerEmbedMessage({
                 roundNumber: 1,
                 characters: [],
@@ -66,9 +68,14 @@ class Combat_Tracker extends BaseSlashCommand
                 components: actionRows,
             });
         })
-        .catch((error: Error) =>
+        .catch(async (error: Error) =>
         {
             logger.error('Failed to initialize tracker', error);
+
+            // Send response
+            await interaction.editReply({
+                content: 'Failed to create tracker',
+            });
         });
     }
 
