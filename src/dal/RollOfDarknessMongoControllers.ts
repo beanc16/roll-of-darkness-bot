@@ -70,6 +70,17 @@ export class Tracker
     }
 }
 
+// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
+export interface TrackerResponse
+{
+    results: {
+        model: Tracker;
+        result: object;
+    };
+    error: Error | null;
+    statusCode: number;
+}
+
 export class TrackerController extends MongoDbControllerWithEnv
 {
     static collectionName = process.env.COLLECTION_TRACKER;
@@ -143,6 +154,17 @@ class Character
         this.discordCreator = discordCreator;
         this.expireAt = expireAt;
     }
+}
+
+// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
+export interface CharacterResponse
+{
+    results: {
+        model: Character;
+        result: object;
+    };
+    error: Error | null;
+    statusCode: number;
 }
 
 export class CharacterController extends MongoDbControllerWithEnv

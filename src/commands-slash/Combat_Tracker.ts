@@ -2,7 +2,7 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { CommandInteraction, ComponentType } from 'discord.js';
 
 import options from './options';
-import { Tracker, TrackerController } from '../dal/RollOfDarknessMongoControllers';
+import { TrackerController, TrackerResponse } from '../dal/RollOfDarknessMongoControllers';
 import { getCombatTrackerEmbed as getCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
 import { handleMessageComponentsForCombatTracker } from './message-component-handlers/combat_tracker';
 import { getCombatTrackerActionRows } from './select-menus/combat_tracker';
@@ -31,11 +31,22 @@ class Combat_Tracker extends BaseSlashCommand
         const typeKey = interaction.options.get('type')?.value as CombatTrackerType || CombatTrackerType.All;
 
         // Create tracker
-        TrackerController.insertOne({
+        TrackerController.insertOneIfNotExists({
+            // Find objects with the same name
+            name: nameKey,
+        }, {
+            // If none are found, insert a tracker with this name
             name: nameKey,
         })
-        .then(async (_: Tracker) =>
+        .then(async (response: TrackerResponse) =>
         {
+            // Deconstruct response
+            const {
+                results: {
+                    model: tracker,
+                },
+            } = response;
+
             // Get components
             const actionRows = getCombatTrackerActionRows(typeKey);
 
@@ -58,7 +69,9 @@ class Combat_Tracker extends BaseSlashCommand
 
             // Get embed message
             const embedMessage = getCombatTrackerEmbedMessage({
-                roundNumber: 1,
+                combatName: tracker.name,
+                roundNumber: tracker.round,
+                combatStatus: tracker.status,
                 characters: [],
             });
 
@@ -70,7 +83,7 @@ class Combat_Tracker extends BaseSlashCommand
         })
         .catch(async (error: Error) =>
         {
-            logger.error('Failed to initialize tracker', error);
+            logger.warn('Failed to initialize tracker', error);
 
             // Send response
             await interaction.editReply({

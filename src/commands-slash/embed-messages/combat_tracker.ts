@@ -1,4 +1,5 @@
 import { APIEmbedField, EmbedBuilder, RestOrArray } from 'discord.js';
+import { CombatTrackerStatus } from '../../constants/combatTracker';
 
 const combatTrackerColor = 0xCDCDCD;
 
@@ -22,6 +23,8 @@ interface Character
 
 interface CombatTrackerEmbedParameters
 {
+    combatName: string;
+    combatStatus: CombatTrackerStatus;
     roundNumber: number;
     characters: Character[];
 }
@@ -162,7 +165,35 @@ function getCharacterFields(characters: Character[]): RestOrArray<APIEmbedField>
     return fields;
 }
 
+function getDescription({
+    roundNumber,
+    combatStatus,
+} : {
+    roundNumber: CombatTrackerEmbedParameters['roundNumber'];
+    combatStatus: CombatTrackerEmbedParameters['combatStatus'];
+})
+{
+    if (combatStatus === CombatTrackerStatus.InProgress)
+    {
+        return `Round ${roundNumber}`;
+    }
+
+    else if (combatStatus === CombatTrackerStatus.NotStarted)
+    {
+        return 'Not Started';
+    }
+
+    else if (combatStatus === CombatTrackerStatus.Completed)
+    {
+        return 'Complete';
+    }
+
+    return ' ';
+}
+
 export function getCombatTrackerEmbed({
+    combatName,
+    combatStatus,
     roundNumber,
     characters,
 }: CombatTrackerEmbedParameters)
@@ -171,11 +202,11 @@ export function getCombatTrackerEmbed({
 
     // TODO: Add empty state behavior if characters is an empty array.
 
+    const description = getDescription({ combatStatus, roundNumber });
+
     const embed = new EmbedBuilder()
-        // TODO: Make this handle the tracker's title later.
-        .setTitle('Current Combat:')
-        // TODO: Make this show a different message depending on the current status of combat (round should only be shown when it's active).
-        .setDescription(`Round ${roundNumber}`)
+        .setTitle(combatName || 'Current Combat:')
+        .setDescription(description)
         .setColor(combatTrackerColor)
         .setFields(...fields);
 
