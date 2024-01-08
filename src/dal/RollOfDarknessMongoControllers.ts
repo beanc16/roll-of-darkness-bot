@@ -150,3 +150,74 @@ export class CharacterController extends MongoDbControllerWithEnv
     static collectionName = process.env.COLLECTION_CHARACTER;
     static Model = Character;
 }
+
+// Tracker & Character Aggregated Collection
+interface AggregatedTrackerWithCharactersConstructor
+{
+    _id?: ObjectId;
+    name: string;
+    status: CombatTrackerStatus;
+    round: number;
+    currentTurn: number;
+    characters: Character[];
+    expireAt: Date;
+}
+
+class AggregatedTrackerWithCharacters
+{
+    _id: AggregatedTrackerWithCharactersConstructor['_id'];
+    name: AggregatedTrackerWithCharactersConstructor['name'];
+    status: AggregatedTrackerWithCharactersConstructor['status'];
+    round: AggregatedTrackerWithCharactersConstructor['round'];
+    currentTurn: AggregatedTrackerWithCharactersConstructor['currentTurn'];
+    characters: AggregatedTrackerWithCharactersConstructor['characters'];
+    expireAt: AggregatedTrackerWithCharactersConstructor['expireAt'];
+
+    constructor({
+        _id,
+        name,
+        status = CombatTrackerStatus.NotStarted,
+        round = -1,
+        currentTurn = 0,
+        characters = [],
+        expireAt = getDefaultExpireAt(),
+    }: AggregatedTrackerWithCharactersConstructor)
+    {
+        if (_id)
+        {
+            this._id = _id;
+        }
+
+        this.name = name;
+        this.status = status;
+        this.round = round;
+        this.currentTurn = currentTurn;
+        this.characters = characters;
+        this.expireAt = expireAt;
+    }
+}
+
+export class AggregatedTrackerWithCharactersController extends MongoDbControllerWithEnv
+{
+    static collectionName = process.env.COLLECTION_TRACKER;
+    static Model = AggregatedTrackerWithCharacters;
+
+    // Calling AggregatedTrackerWithCharactersController.aggregate() will use this by default to return the Model set above.
+    static aggregateArrayOptions = [
+        {
+            // Join tracker with character
+            $lookup: {
+                from: 'character',
+                localField: 'characterIds',
+                foreignField: '_id',
+                as: 'characters',
+            },
+        },
+        {
+            // Exclude characterIds from the output (since it was only used for initial aggregation)
+            $project: {
+                characterIds: 0,
+            },
+        },
+    ];
+}

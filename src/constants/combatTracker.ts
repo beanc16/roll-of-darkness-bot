@@ -1,3 +1,10 @@
+export enum CombatTrackerStatus
+{
+    NotStarted = 'NOT_STARTED',
+    InProgress = 'IN_PROGRESS',
+    Completed = 'COMPLETED',
+}
+
 export enum CombatTrackerType
 {
     All = 'All',
