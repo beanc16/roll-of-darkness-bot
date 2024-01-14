@@ -99,6 +99,17 @@ export interface TrackerResponse
     statusCode: number;
 }
 
+// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
+export interface TrackerUpdateResponse
+{
+    results: {
+        old: Tracker;
+        new: Tracker;
+    };
+    error: Error | null;
+    statusCode: number;
+}
+
 export class TrackerController extends MongoDbControllerWithEnv
 {
     static collectionName = process.env.COLLECTION_TRACKER;
@@ -204,6 +215,14 @@ interface AggregatedTrackerWithCharactersConstructor
     expireAt: Date;
 }
 
+// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
+export interface AggregatedTrackerWithCharactersResponse
+{
+    results: AggregatedTrackerWithCharacters[];
+    error: Error | null;
+    statusCode: number;
+}
+
 export class AggregatedTrackerWithCharacters
 {
     _id: AggregatedTrackerWithCharactersConstructor['_id'];
@@ -256,9 +275,26 @@ export class AggregatedTrackerWithCharactersController extends MongoDbController
         },
         {
             // Exclude characterIds from the output (since it was only used for initial aggregation)
-            $project: {
-                characterIds: 0,
-            },
+            $unset: "characterIds",
         },
     ];
+
+    // TODO: Update type for accuracy.
+    static async getAll(): Promise<AggregatedTrackerWithCharactersResponse>
+    {
+        return await this.aggregate(this.aggregateArrayOptions);
+    }
+
+    // TODO: Update type for accuracy.
+    static async getByTrackerName(name: string): Promise<AggregatedTrackerWithCharactersResponse>
+    {
+        return await this.aggregate([
+            {
+                $match: {
+                    name,
+                },
+            },
+            ...this.aggregateArrayOptions,
+        ]);
+    }
 }

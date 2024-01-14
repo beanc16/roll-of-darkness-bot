@@ -1,32 +1,100 @@
 import {
+    ActionRowBuilder,
     ComponentType,
+    Message,
     MessageComponentInteraction,
+    StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from 'discord.js';
+import { CombatTrackerStatus } from '../../constants/combatTracker';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
+import combatTrackersSingleton from '../../models/combatTrackersSingleton';
 import { selectMenuCustomIds } from '../select-menus/combat_tracker';
 import { selectMenuValues } from '../select-menus/options/combat_tracker';
 import { logger } from '@beanc16/logger';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
+import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
+
+interface CombatTrackerMessageComponentHandlerParameters
+{
+    interaction: StringSelectMenuInteraction;
+    message: Message;
+    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
+}
 
 // Character Options
-function addCharacter(interaction: MessageComponentInteraction): void
+async function addCharacter({
+    interaction,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     console.log('Add Character:', interaction);
 }
 
 // Initiative Options
-function startCombat(interaction: MessageComponentInteraction): void
+async function startCombat({
+    interaction,
+    message,
+    actionRows,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    console.log('Start Combat:', interaction);
+    const tracker = combatTrackersSingleton.get(message.id);
+
+    // TODO: Only start combat if characters exist.
+    if (tracker.status === CombatTrackerStatus.NotStarted)
+    {
+        try
+        {
+            RollOfDarknessPseudoCache.updateTrackerStatus({
+                status: CombatTrackerStatus.InProgress,
+                message,
+            })
+            .then(async (newTracker: Tracker) =>
+            {
+                // Update message.
+                await updateCombatTrackerEmbedMessage({
+                    combatName: newTracker.name,
+                    roundNumber: newTracker.round,
+                    combatStatus: newTracker.status,
+                    characters: [], // TODO: Update this so characters are sent here later.
+                    interaction,
+                    actionRows,
+                });
+
+                // Say that combat was started.
+                await interaction.followUp({
+                    content: 'Combat was started',
+                    ephemeral: true,
+                });
+            })
+        }
+        catch (error)
+        {
+            logger.error('Failed to start combat', error);
+            await interaction.reply({
+                content: 'ERROR: Failed to start combat',
+                ephemeral: true,
+            });
+        }
+    }
+    else
+    {
+        await interaction.reply({
+            content: 'Cannot start a combat that has already been started',
+            ephemeral: true,
+        });
+    }
 }
 
-function endCombat(interaction: MessageComponentInteraction): void
+async function endCombat({
+    interaction,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     console.log('End Combat:', interaction);
 }
 
 const handlerMap: {
     [key1: string]: {
-        [key2: string]: (interaction: StringSelectMenuInteraction) => void;
+        [key2: string]: (parameters: CombatTrackerMessageComponentHandlerParameters) => Promise<void>;
     };
 } = {
     [selectMenuCustomIds.characterOptionSelect]: {
@@ -45,7 +113,15 @@ const handlerMap: {
     },
 };
 
-export function handleMessageComponentsForCombatTracker(interaction: MessageComponentInteraction): void
+export async function handleMessageComponentsForCombatTracker({
+    interaction,
+    message,
+    actionRows,
+} : {
+    interaction: MessageComponentInteraction;
+    message: Message;
+    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
+}): Promise<void>
 {
     const {
         componentType,
@@ -63,7 +139,11 @@ export function handleMessageComponentsForCombatTracker(interaction: MessageComp
 
         if (handlerMap[customId][value])
         {
-            handlerMap[customId][value](typedInteraction);
+            await handlerMap[customId][value]({
+                interaction: typedInteraction,
+                message,
+                actionRows,
+            });
         }
         else
         {

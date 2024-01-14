@@ -1,13 +1,18 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { CommandInteraction, ComponentType } from 'discord.js';
+import {
+    CommandInteraction,
+    ComponentType,
+    MessageComponentInteraction,
+} from 'discord.js';
 
 import options from './options';
-import { TrackerController, TrackerResponse } from '../dal/RollOfDarknessMongoControllers';
-import { getCombatTrackerEmbed as getCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers';
+import { updateCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
 import { handleMessageComponentsForCombatTracker } from './message-component-handlers/combat_tracker';
 import { getCombatTrackerActionRows } from './select-menus/combat_tracker';
 import { CombatTrackerType, timeToWaitForCommandInteractions } from '../constants/combatTracker';
 import { logger } from '@beanc16/logger';
+import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache';
 
 class Combat_Tracker extends BaseSlashCommand
 {
@@ -31,22 +36,13 @@ class Combat_Tracker extends BaseSlashCommand
         const typeKey = interaction.options.get('type')?.value as CombatTrackerType || CombatTrackerType.All;
 
         // Create tracker
-        TrackerController.insertOneIfNotExists({
-            // Find objects with the same name
-            name: nameKey,
-        }, {
-            // If none are found, insert a tracker with this name
-            name: nameKey,
+        RollOfDarknessPseudoCache.createTracker({
+            trackerName: nameKey,
+            interaction,
+            message,
         })
-        .then(async (response: TrackerResponse) =>
+        .then(async (tracker: Tracker) =>
         {
-            // Deconstruct response
-            const {
-                results: {
-                    model: tracker,
-                },
-            } = response;
-
             // Get components
             const actionRows = getCombatTrackerActionRows(typeKey);
 
@@ -57,7 +53,14 @@ class Combat_Tracker extends BaseSlashCommand
                 ),
                 time: timeToWaitForCommandInteractions,
             })
-            .then(handleMessageComponentsForCombatTracker)
+            .then(async (messageComponentInteraction: MessageComponentInteraction) =>
+            {
+                await handleMessageComponentsForCombatTracker({
+                    interaction: messageComponentInteraction,
+                    message,
+                    actionRows,
+                });
+            })
             .catch((error: Error) => 
             {
                 // Ignore timeouts
@@ -67,18 +70,14 @@ class Combat_Tracker extends BaseSlashCommand
                 }
             });
 
-            // Get embed message
-            const embedMessage = getCombatTrackerEmbedMessage({
+            // Send response
+            await updateCombatTrackerEmbedMessage({
                 combatName: tracker.name,
                 roundNumber: tracker.round,
                 combatStatus: tracker.status,
                 characters: [],
-            });
-
-            // Send response
-            await interaction.editReply({
-                embeds: [embedMessage],
-                components: actionRows,
+                interaction,
+                actionRows,
             });
         })
         .catch(async (error: Error) =>
