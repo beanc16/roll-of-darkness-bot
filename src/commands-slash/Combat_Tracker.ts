@@ -1,16 +1,12 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import {
-    CommandInteraction,
-    ComponentType,
-    MessageComponentInteraction,
-} from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 
 import options from './options';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers';
 import { updateCombatTrackerEmbedMessage } from './embed-messages/combat_tracker';
-import { handleMessageComponentsForCombatTracker } from './message-component-handlers/combat_tracker';
+import { awaitCombatTrackerMessageComponents } from './message-component-handlers/combat_tracker';
 import { getCombatTrackerActionRows } from './select-menus/combat_tracker';
-import { CombatTrackerType, timeToWaitForCommandInteractions } from '../constants/combatTracker';
+import { CombatTrackerType } from '../constants/combatTracker';
 import { logger } from '@beanc16/logger';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache';
 
@@ -44,30 +40,15 @@ class Combat_Tracker extends BaseSlashCommand
         .then(async (tracker: Tracker) =>
         {
             // Get components
-            const actionRows = getCombatTrackerActionRows(typeKey);
+            const actionRows = getCombatTrackerActionRows({
+                typeOfTracker: typeKey,
+                combatTrackerStatus: tracker.status,
+            });
 
             // Handle the components of the embed message
-            message.awaitMessageComponent({
-                filter: (interaction) => (
-                    interaction.componentType === ComponentType.StringSelect
-                ),
-                time: timeToWaitForCommandInteractions,
-            })
-            .then(async (messageComponentInteraction: MessageComponentInteraction) =>
-            {
-                await handleMessageComponentsForCombatTracker({
-                    interaction: messageComponentInteraction,
-                    message,
-                    actionRows,
-                });
-            })
-            .catch((error: Error) => 
-            {
-                // Ignore timeouts
-                if (error.message !== 'Collector received no interactions before ending with reason: time')
-                {
-                    logger.error(error);
-                }
+            awaitCombatTrackerMessageComponents({
+                message,
+                typeOfTracker: typeKey,
             });
 
             // Send response

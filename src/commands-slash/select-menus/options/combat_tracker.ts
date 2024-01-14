@@ -1,6 +1,6 @@
 import { StringSelectMenuOptionBuilder } from 'discord.js';
 
-import { CombatTrackerType } from '../../../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../../../constants/combatTracker';
 
 export const selectMenuValues = {
     // HP Options
@@ -94,6 +94,7 @@ export interface CombatTrackerOption
     option: StringSelectMenuOptionBuilder;
     menu: CombatTrackerType;
     type: CombatTrackerType;
+    status: CombatTrackerStatus;
     rank: number;
 }
 
@@ -102,60 +103,70 @@ export const combatTrackerOptions: CombatTrackerOption[] = [
         option: editCharacterHpOption,
         menu: CombatTrackerType.Hp,
         type: CombatTrackerType.Hp,
+        status: CombatTrackerStatus.NotStartedOrInProgress,
         rank: 0,
     },
     {
         option: addCharacterOption,
         menu: CombatTrackerType.Hp,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.NotStartedOrInProgress,
         rank: 1,
     },
     {
         option: showSecretCharactersOption,
         menu: CombatTrackerType.Hp,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.All,
         rank: 2,
     },
     {
         option: editCharacterOption,
         menu: CombatTrackerType.Hp,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.NotStartedOrInProgress,
         rank: 3,
     },
     {
         option: removeCharacterOption,
         menu: CombatTrackerType.Hp,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.NotStartedOrInProgress,
         rank: 4,
     },
     {
         option: nextTurnOption,
         menu: CombatTrackerType.Initiative,
         type: CombatTrackerType.Initiative,
+        status: CombatTrackerStatus.InProgress,
         rank: 0,
     },
     {
         option: previousTurnOption,
         menu: CombatTrackerType.Initiative,
         type: CombatTrackerType.Initiative,
+        status: CombatTrackerStatus.InProgress,
         rank: 1,
     },
     {
         option: moveTurnOption,
         menu: CombatTrackerType.Initiative,
         type: CombatTrackerType.Initiative,
+        status: CombatTrackerStatus.InProgress,
         rank: 2,
     },
     {
         option: startCombatOption,
         menu: CombatTrackerType.Initiative,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.NotStarted,
         rank: 3,
     },
     {
         option: endCombatOption,
         menu: CombatTrackerType.Initiative,
         type: CombatTrackerType.All,
+        status: CombatTrackerStatus.InProgress,
         rank: 4,
     },
 ];

@@ -1,15 +1,13 @@
 import {
-    ActionRowBuilder,
     ComponentType,
     Message,
     MessageComponentInteraction,
-    StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from 'discord.js';
-import { CombatTrackerStatus } from '../../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType, timeToWaitForCommandInteractions } from '../../constants/combatTracker';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
 import combatTrackersSingleton from '../../models/combatTrackersSingleton';
-import { selectMenuCustomIds } from '../select-menus/combat_tracker';
+import { getCombatTrackerActionRows, selectMenuCustomIds } from '../select-menus/combat_tracker';
 import { selectMenuValues } from '../select-menus/options/combat_tracker';
 import { logger } from '@beanc16/logger';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
@@ -19,22 +17,151 @@ interface CombatTrackerMessageComponentHandlerParameters
 {
     interaction: StringSelectMenuInteraction;
     message: Message;
-    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
+    typeOfTracker: CombatTrackerType;
 }
 
 // Character Options
-async function addCharacter({
+async function editCharacterHp({
     interaction,
+    typeOfTracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    console.log('Add Character:', interaction);
+    await interaction.reply({
+        content: `The ability to edit a character's HP has not yet been implemented`,
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function addCharacter({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: 'The ability to add a character has not yet been implemented',
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function showSecretCharacters({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: 'The ability to show secret characters has not yet been implemented',
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function editCharacter({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: 'The ability to edit a character has not yet been implemented',
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function removeCharacter({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: 'The ability to remove a character has not yet been implemented',
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
 }
 
 // Initiative Options
+async function nextTurn({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: `The ability to go to the next character's turn has not yet been implemented`,
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function previousTurn({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: `The ability to go to the previous character's turn has not yet been implemented`,
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
+async function moveTurn({
+    interaction,
+    typeOfTracker,
+} : CombatTrackerMessageComponentHandlerParameters): Promise<void>
+{
+    await interaction.reply({
+        content: `The ability to go to a specific character's turn has not yet been implemented`,
+        ephemeral: true,
+    });
+
+    // Handle the components of the embed message.
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        typeOfTracker,
+    });
+}
+
 async function startCombat({
     interaction,
     message,
-    actionRows,
+    typeOfTracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     const tracker = combatTrackersSingleton.get(message.id);
@@ -50,6 +177,12 @@ async function startCombat({
             })
             .then(async (newTracker: Tracker) =>
             {
+                // Get components
+                const actionRows = getCombatTrackerActionRows({
+                    typeOfTracker,
+                    combatTrackerStatus: newTracker.status,
+                });
+
                 // Update message.
                 await updateCombatTrackerEmbedMessage({
                     combatName: newTracker.name,
@@ -60,10 +193,10 @@ async function startCombat({
                     actionRows,
                 });
 
-                // Say that combat was started.
-                await interaction.followUp({
-                    content: 'Combat was started',
-                    ephemeral: true,
+                // Handle the components of the embed message.
+                awaitCombatTrackerMessageComponents({
+                    message: interaction.message,
+                    typeOfTracker,
                 });
             })
         }
@@ -87,9 +220,61 @@ async function startCombat({
 
 async function endCombat({
     interaction,
+    message,
+    typeOfTracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    console.log('End Combat:', interaction);
+    const tracker = combatTrackersSingleton.get(message.id);
+
+    if (tracker.status === CombatTrackerStatus.InProgress)
+    {
+        try
+        {
+            RollOfDarknessPseudoCache.updateTrackerStatus({
+                status: CombatTrackerStatus.Completed,
+                message,
+            })
+            .then(async (newTracker: Tracker) =>
+            {
+                // Get components
+                const actionRows = getCombatTrackerActionRows({
+                    typeOfTracker,
+                    combatTrackerStatus: newTracker.status,
+                });
+
+                // Update message.
+                await updateCombatTrackerEmbedMessage({
+                    combatName: newTracker.name,
+                    roundNumber: newTracker.round,
+                    combatStatus: newTracker.status,
+                    characters: [], // TODO: Update this so characters are sent here later.
+                    interaction,
+                    actionRows,
+                });
+
+                // Handle the components of the embed message.
+                awaitCombatTrackerMessageComponents({
+                    message: interaction.message,
+                    typeOfTracker,
+                });
+            })
+        }
+        catch (error)
+        {
+            logger.error('Failed to start combat', error);
+            await interaction.reply({
+                content: 'ERROR: Failed to start combat',
+                ephemeral: true,
+            });
+        }
+    }
+    else
+    {
+        await interaction.reply({
+            content: 'Cannot end a combat that is not in progress',
+            ephemeral: true,
+        });
+    }
 }
 
 const handlerMap: {
@@ -98,29 +283,29 @@ const handlerMap: {
     };
 } = {
     [selectMenuCustomIds.characterOptionSelect]: {
-        // [selectMenuValues.editHp]: some_function_here,
+        [selectMenuValues.editHp]: editCharacterHp,
         [selectMenuValues.addCharacter]: addCharacter,
-        // [selectMenuValues.showSecretCharacters]: some_function_here,
-        // [selectMenuValues.editCharacter]: some_function_here,
-        // [selectMenuValues.removeCharacter]: some_function_here,
+        [selectMenuValues.showSecretCharacters]: showSecretCharacters,
+        [selectMenuValues.editCharacter]: editCharacter,
+        [selectMenuValues.removeCharacter]: removeCharacter,
     },
     [selectMenuCustomIds.initiativeSelect]: {
-        // [selectMenuValues.nextTurn]: some_function_here,
-        // [selectMenuValues.previousTurn]: some_function_here,
-        // [selectMenuValues.moveTurn]: some_function_here,
+        [selectMenuValues.nextTurn]: nextTurn,
+        [selectMenuValues.previousTurn]: previousTurn,
+        [selectMenuValues.moveTurn]: moveTurn,
         [selectMenuValues.startCombat]: startCombat,
         [selectMenuValues.endCombat]: endCombat,
     },
 };
 
-export async function handleMessageComponentsForCombatTracker({
+async function handleMessageComponentsForCombatTracker({
     interaction,
     message,
-    actionRows,
+    typeOfTracker,
 } : {
     interaction: MessageComponentInteraction;
     message: Message;
-    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
+    typeOfTracker: CombatTrackerType;
 }): Promise<void>
 {
     const {
@@ -142,7 +327,7 @@ export async function handleMessageComponentsForCombatTracker({
             await handlerMap[customId][value]({
                 interaction: typedInteraction,
                 message,
-                actionRows,
+                typeOfTracker,
             });
         }
         else
@@ -154,4 +339,37 @@ export async function handleMessageComponentsForCombatTracker({
             });
         }
     }
+}
+
+export function awaitCombatTrackerMessageComponents({
+    message,
+    typeOfTracker,
+} : {
+    message: Message;
+    typeOfTracker: CombatTrackerType;
+})
+{
+    // Handle the components of the embed message
+    message.awaitMessageComponent({
+        filter: (interaction) => (
+            interaction.componentType === ComponentType.StringSelect
+        ),
+        time: timeToWaitForCommandInteractions,
+    })
+    .then(async (messageComponentInteraction: MessageComponentInteraction) =>
+    {
+        await handleMessageComponentsForCombatTracker({
+            interaction: messageComponentInteraction,
+            message,
+            typeOfTracker,
+        });
+    })
+    .catch((error: Error) => 
+    {
+        // Ignore timeouts
+        if (error.message !== 'Collector received no interactions before ending with reason: time')
+        {
+            logger.error(error);
+        }
+    });
 }

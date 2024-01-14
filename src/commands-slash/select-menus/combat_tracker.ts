@@ -1,7 +1,13 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker';
-import { CombatTrackerType } from '../../constants/combatTracker';
+import { CombatTrackerType, CombatTrackerStatus } from '../../constants/combatTracker';
+
+interface GetCombatTrackerSelectMenusParamters
+{
+    typeOfTracker: CombatTrackerType;
+    combatTrackerStatus: CombatTrackerStatus;
+}
 
 interface GetCombatTrackerSelectMenusResponse
 {
@@ -14,7 +20,10 @@ export const selectMenuCustomIds = {
     initiativeSelect: 'initiative_select',
 };
 
-function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
+function parseSelectMenuOptions({
+    typeOfTracker,
+    combatTrackerStatus,
+}: GetCombatTrackerSelectMenusParamters)
 {
     // Get the relevant combat trackers based on the type of combat tracker
     const {
@@ -22,20 +31,24 @@ function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
         initiativeCombatTrackers,
     } = combatTrackerOptions.reduce((acc, cur) => {
         // The option should be included in the select menu
-        const shouldIncludeOption = (
+        const shouldIncludeOptionByType = (
             typeOfTracker === cur.type
             || typeOfTracker === CombatTrackerType.All
             || cur.type === CombatTrackerType.All
         );
+        const shouldIncludeOptionByStatus = (
+            cur.status.includes(combatTrackerStatus)
+            || cur.status === CombatTrackerStatus.All
+        );
 
         // Add the option to the hp options
-        if (shouldIncludeOption && cur.menu === CombatTrackerType.Hp)
+        if (shouldIncludeOptionByType && shouldIncludeOptionByStatus && cur.menu === CombatTrackerType.Hp)
         {
             acc.hpCombatTrackers.push(cur);
         }
 
         // Add the option to the initiative options
-        else if (shouldIncludeOption && cur.menu === CombatTrackerType.Initiative)
+        else if (shouldIncludeOptionByType && shouldIncludeOptionByStatus && cur.menu === CombatTrackerType.Initiative)
         {
             acc.initiativeCombatTrackers.push(cur);
         }
@@ -61,12 +74,18 @@ function parseSelectMenuOptions(typeOfTracker: CombatTrackerType)
     };
 }
 
-function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType): GetCombatTrackerSelectMenusResponse
+function getCombatTrackerSelectMenus({
+    typeOfTracker,
+    combatTrackerStatus,
+}: GetCombatTrackerSelectMenusParamters): GetCombatTrackerSelectMenusResponse
 {
     const {
         hpOptions,
         initiativeOptions,
-    } = parseSelectMenuOptions(typeOfTracker);
+    } = parseSelectMenuOptions({
+        typeOfTracker,
+        combatTrackerStatus,
+    });
 
     const response: GetCombatTrackerSelectMenusResponse = {};
 
@@ -91,12 +110,19 @@ function getCombatTrackerSelectMenus(typeOfTracker: CombatTrackerType): GetComba
     return response;
 }
 
-export function getCombatTrackerActionRows(typeOfTracker: CombatTrackerType)
+// TODO: Make this only return certain action rows based on the CombatTrackerStatus too.
+export function getCombatTrackerActionRows({
+    typeOfTracker,
+    combatTrackerStatus,
+}: GetCombatTrackerSelectMenusParamters)
 {
     const {
         characterOptionSelectMenu,
         initiativeSelectMenu,
-    } = getCombatTrackerSelectMenus(typeOfTracker);
+    } = getCombatTrackerSelectMenus({
+        typeOfTracker,
+        combatTrackerStatus,
+    });
 
     const rows = [];
 
