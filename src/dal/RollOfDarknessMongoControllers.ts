@@ -1,5 +1,5 @@
 const { MongoDbControllerWithEnv } = require('mongodb-controller'); // TODO: Update this to use import rather than require syntax once this package has types.
-import type { ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import { CombatTrackerStatus } from '../constants/combatTracker';
 
 // expiresAt helpers
@@ -24,6 +24,13 @@ function getDefaultExpireAt(): Date
     });
 }
 
+// Shared values
+interface DiscordCreator
+{
+    userId: string;
+    serverId: string;
+}
+
 // Tracker Collection
 interface TrackerConstructor
 {
@@ -33,6 +40,10 @@ interface TrackerConstructor
     round: number;
     currentTurn: number;
     characterIds: ObjectId[];
+    discordCreator: (DiscordCreator &
+    {
+        messageId: string;
+    });
     expireAt: Date;
 }
 
@@ -44,6 +55,7 @@ export class Tracker
     round: TrackerConstructor['round'];
     currentTurn: TrackerConstructor['currentTurn'];
     characterIds: TrackerConstructor['characterIds'];
+    discordCreator: TrackerConstructor['discordCreator'];
     expireAt: TrackerConstructor['expireAt'];
 
     constructor({
@@ -53,6 +65,7 @@ export class Tracker
         round = -1,
         currentTurn = 0,
         characterIds = [],
+        discordCreator,
         expireAt = getDefaultExpireAt(),
     }: TrackerConstructor)
     {
@@ -60,12 +73,17 @@ export class Tracker
         {
             this._id = _id;
         }
+        else
+        {
+            this._id = new ObjectId();
+        }
 
         this.name = name;
         this.status = status;
         this.round = round;
         this.currentTurn = currentTurn;
         this.characterIds = characterIds;
+        this.discordCreator = discordCreator;
         this.expireAt = expireAt;
     }
 }
@@ -104,10 +122,7 @@ interface CharacterConstructor
         initiative: boolean;
         hp: boolean;
     };
-    discordCreator: {
-        userId: string;
-        serverId: string;
-    };
+    discordCreator: DiscordCreator;
     expireAt: Date;
 }
 
@@ -144,6 +159,10 @@ class Character
         if (_id)
         {
             this._id = _id;
+        }
+        else
+        {
+            this._id = new ObjectId();
         }
 
         this.name = name;
@@ -185,7 +204,7 @@ interface AggregatedTrackerWithCharactersConstructor
     expireAt: Date;
 }
 
-class AggregatedTrackerWithCharacters
+export class AggregatedTrackerWithCharacters
 {
     _id: AggregatedTrackerWithCharactersConstructor['_id'];
     name: AggregatedTrackerWithCharactersConstructor['name'];
