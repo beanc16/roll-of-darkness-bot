@@ -1,4 +1,4 @@
-const Singleton = require("./Singleton");
+const { default: Singleton } = require("./Singleton");
 
 class CategoriesSingleton
 {
