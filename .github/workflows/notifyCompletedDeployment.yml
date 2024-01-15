@@ -1,0 +1,17 @@
+name: Notify Discord of Deployment
+
+on:
+  deployment:
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    name: Notify Discord
+    steps:
+      - name: Notify Discord on Success
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
+        with:
+          args:
+            '🚀 {{ EVENT_PAYLOAD.repository.full_name }} successfully deployed'
