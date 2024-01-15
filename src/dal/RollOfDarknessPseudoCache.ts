@@ -18,6 +18,7 @@ interface CreateTrackerParameters
     trackerType: CombatTrackerType;
     interaction: CommandInteraction;
     message: Message;
+    onTrackerAlreadyExists?: (interaction: CommandInteraction) => Promise<void>;
 }
 
 interface UpdateTrackerStatusParameters
@@ -53,29 +54,47 @@ export class RollOfDarknessPseudoCache
         trackerType,
         interaction,
         message,
-    }: CreateTrackerParameters): Promise<TrackerResponse['results']['model']>
+        onTrackerAlreadyExists = async (interaction) =>
+        {
+            // Send response
+            await interaction.editReply({
+                content: `Failed to create tracker because a tracker named ${trackerName} already exists`,
+            });
+        },
+    }: CreateTrackerParameters): Promise<TrackerResponse['results']['model'] | undefined>
     {
-        // TODO: Handle tracker already exists.
-        const {
-            results: {
-                model: tracker,
-            },
-        } = await TrackerController.insertOneIfNotExists({
-            // Find objects with the same name
-            name: trackerName,
-        }, {
-            // If none are found, insert a tracker with this name
-            name: trackerName,
-            type: trackerType,
-            discordCreator: {
-                userId: interaction.user.id,
-                serverId: interaction.guild?.id,
-                messageId: message.id,
-            },
-        }) as TrackerResponse;
+        try
+        {
+            const {
+                results: {
+                    model: tracker,
+                },
+            } = await TrackerController.insertOneIfNotExists({
+                // Find objects with the same name
+                name: trackerName,
+            }, {
+                // If none are found, insert a tracker with this name
+                name: trackerName,
+                type: trackerType,
+                discordCreator: {
+                    userId: interaction.user.id,
+                    serverId: interaction.guild?.id,
+                    messageId: message.id,
+                },
+            }) as TrackerResponse;
 
-        combatTrackersSingleton.upsert(tracker);
-        return tracker;
+            combatTrackersSingleton.upsert(tracker);
+            return tracker;
+        }
+        catch ({ error }: any)
+        {
+            if (onTrackerAlreadyExists && error.name === 'DocumentAlreadyExistsError')
+            {
+                await onTrackerAlreadyExists(interaction);
+            }
+
+            return undefined;
+        }
     }
 
     static async updateTrackerStatus({

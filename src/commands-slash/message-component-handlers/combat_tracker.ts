@@ -43,12 +43,6 @@ async function addCharacter({
 {
     // Send the modal.
     await AddCharacterModal.showModal(interaction);
-
-    // Handle the components of the embed message.
-    // awaitCombatTrackerMessageComponents({
-    //     message: interaction.message,
-    //     tracker,
-    // });
 }
 
 async function showSecretCharacters({
@@ -224,7 +218,7 @@ async function startCombat({
             // Handle the components of the embed message.
             awaitCombatTrackerMessageComponents({
                 message: interaction.message,
-                tracker,
+                tracker: newTracker,
             });
         })
     }
@@ -277,7 +271,7 @@ async function endCombat({
                 // Handle the components of the embed message.
                 awaitCombatTrackerMessageComponents({
                     message: interaction.message,
-                    tracker,
+                    tracker: newTracker,
                 });
             })
         }

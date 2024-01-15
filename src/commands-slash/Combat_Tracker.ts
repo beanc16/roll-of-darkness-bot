@@ -38,29 +38,32 @@ class Combat_Tracker extends BaseSlashCommand
             interaction,
             message,
         })
-        .then(async (tracker: Tracker) =>
+        .then(async (tracker: Tracker | undefined) =>
         {
-            // Get components
-            const actionRows = getCombatTrackerActionRows({
-                typeOfTracker: typeKey,
-                combatTrackerStatus: tracker.status,
-            });
-
-            // Handle the components of the embed message
-            awaitCombatTrackerMessageComponents({
-                message,
-                tracker,
-            });
-
-            // Send response
-            await updateCombatTrackerEmbedMessage({
-                combatName: tracker.name,
-                roundNumber: tracker.round,
-                combatStatus: tracker.status,
-                characters: [],
-                interaction,
-                actionRows,
-            });
+            if (tracker)
+            {
+                // Get components
+                const actionRows = getCombatTrackerActionRows({
+                    typeOfTracker: typeKey,
+                    combatTrackerStatus: tracker.status,
+                });
+    
+                // Handle the components of the embed message
+                awaitCombatTrackerMessageComponents({
+                    message,
+                    tracker,
+                });
+    
+                // Send response
+                await updateCombatTrackerEmbedMessage({
+                    combatName: tracker.name,
+                    roundNumber: tracker.round,
+                    combatStatus: tracker.status,
+                    characters: [],
+                    interaction,
+                    actionRows,
+                });
+            }
         })
         .catch(async (error: Error) =>
         {
