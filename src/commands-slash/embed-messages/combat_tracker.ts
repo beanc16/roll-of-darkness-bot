@@ -136,9 +136,43 @@ function getCharacterNameString({
     return `${currentTurnMarkerOrEmptyString} ${characterName}${initiativeOrEmptyString}`;
 }
 
-function getCharacterFields(characters: Character[]): RestOrArray<APIEmbedField>
+function sortCharacterFields(characters: Character[] = []): Character[]
 {
-    const fields = characters.map(({
+    /*
+     * Sort in descending order such that bigger initiative values
+     * are highest and undefined initiatives are lowest.
+     */
+
+    const chractersClone = Array.from(characters);
+
+    chractersClone.sort((a, b) =>
+    {
+        if (!b.initiative && !a.initiative)
+        {
+            return 0;
+        }
+
+        if (!b.initiative)
+        {
+            return -1;
+        }
+
+        if (!a.initiative)
+        {
+            return 1;
+        }
+
+        return b.initiative - a.initiative;
+    });
+
+    return chractersClone;
+}
+
+function getCharacterFields(characters: Character[] = []): RestOrArray<APIEmbedField>
+{
+    const sortedCharacters = sortCharacterFields(characters);
+
+    const fields = sortedCharacters.map(({
         name,
         initiative,
         isTurn,
@@ -199,8 +233,6 @@ function getCombatTrackerEmbedMessage({
 }: CombatTrackerEmbedParameters)
 {
     const fields = getCharacterFields(characters);
-
-    // TODO: Add empty state behavior if characters is an empty array.
 
     const description = getDescription({ combatStatus, roundNumber });
 

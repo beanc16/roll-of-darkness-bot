@@ -1,24 +1,21 @@
 import { CommandInteraction, Message, ModalSubmitInteraction } from 'discord.js';
 import {
-    AggregatedTrackerWithCharactersController,
+    Character,
     CharacterController,
     CharacterResponse,
+    Tracker,
     TrackerController, 
     TrackerResponse,
     TrackerUpdateResponse,
 } from './RollOfDarknessMongoControllers';
-import { CombatTrackerStatus } from '../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
 import combatTrackersSingleton from '../models/combatTrackersSingleton';
 import charactersSingleton from '../models/charactersSingleton';
-
-interface GetTrackerParameters
-{
-    trackerName: string;
-}
 
 interface CreateTrackerParameters
 {
     trackerName: string;
+    trackerType: CombatTrackerType;
     interaction: CommandInteraction;
     message: Message;
 }
@@ -26,7 +23,12 @@ interface CreateTrackerParameters
 interface UpdateTrackerStatusParameters
 {
     status: CombatTrackerStatus;
-    message: Message;
+    tracker: Tracker;
+}
+
+interface GetCharactersParameters
+{
+    tracker: Tracker;
 }
 
 interface CreateCharacterParameters
@@ -46,25 +48,14 @@ interface CreateCharacterParameters
 
 export class RollOfDarknessPseudoCache
 {
-    static async getTracker({
-        trackerName
-    }: GetTrackerParameters)
-    {
-        const {
-            results: [
-                tracker,
-            ] = [],
-        } = await AggregatedTrackerWithCharactersController.getByTrackerName(trackerName);
-
-        return tracker;
-    }
-
     static async createTracker({
         trackerName,
+        trackerType,
         interaction,
         message,
     }: CreateTrackerParameters): Promise<TrackerResponse['results']['model']>
     {
+        // TODO: Handle tracker already exists.
         const {
             results: {
                 model: tracker,
@@ -75,6 +66,7 @@ export class RollOfDarknessPseudoCache
         }, {
             // If none are found, insert a tracker with this name
             name: trackerName,
+            type: trackerType,
             discordCreator: {
                 userId: interaction.user.id,
                 serverId: interaction.guild?.id,
@@ -82,17 +74,16 @@ export class RollOfDarknessPseudoCache
             },
         }) as TrackerResponse;
 
-        combatTrackersSingleton.upsert(message.id, tracker);
+        combatTrackersSingleton.upsert(tracker);
         return tracker;
     }
 
     static async updateTrackerStatus({
         status,
-        message,
+        tracker: oldTracker,
     } : UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
-        const oldTracker = combatTrackersSingleton.get(message.id);
-
+        // TODO: Handle tracker does not exists.
         const {
             results: {
                 new: tracker,
@@ -109,8 +100,16 @@ export class RollOfDarknessPseudoCache
             ),
         }) as TrackerUpdateResponse;
 
-        combatTrackersSingleton.upsert(message.id, tracker);
+        combatTrackersSingleton.upsert(tracker);
         return tracker;
+    }
+
+    static getCharacters({
+        tracker
+    }: GetCharactersParameters): Character[]
+    {
+        const trackerId = tracker._id?.toString() as string;
+        return charactersSingleton.get(trackerId);
     }
 
     static async createCharacter({
@@ -166,7 +165,7 @@ export class RollOfDarknessPseudoCache
             operator: 'push',
         }) as TrackerUpdateResponse;
 
-        combatTrackersSingleton.upsert(message.id, tracker);
+        combatTrackersSingleton.upsert(tracker);
         charactersSingleton.upsert(tracker._id?.toString() as string, character);
 
         return {

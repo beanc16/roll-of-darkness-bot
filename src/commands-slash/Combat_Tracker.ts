@@ -34,6 +34,7 @@ class Combat_Tracker extends BaseSlashCommand
         // Create tracker
         RollOfDarknessPseudoCache.createTracker({
             trackerName: nameKey,
+            trackerType: typeKey,
             interaction,
             message,
         })
@@ -48,7 +49,7 @@ class Combat_Tracker extends BaseSlashCommand
             // Handle the components of the embed message
             awaitCombatTrackerMessageComponents({
                 message,
-                typeOfTracker: typeKey,
+                tracker,
             });
 
             // Send response

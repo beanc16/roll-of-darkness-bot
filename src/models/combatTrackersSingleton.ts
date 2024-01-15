@@ -1,9 +1,9 @@
-import { AggregatedTrackerWithCharacters, Tracker } from '../dal/RollOfDarknessMongoControllers';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers';
 import Singleton from './Singleton';
 
 interface CombatTrackerSingletonMap
 {
-    [key: string]: Tracker | AggregatedTrackerWithCharacters;
+    [key: string]: Tracker;
 }
 
 class CombatTrackersSingleton
@@ -20,15 +20,16 @@ class CombatTrackersSingleton
         return this.#singleton.get() || {};
     }
 
-    get(key: string): Tracker | AggregatedTrackerWithCharacters
+    get(key: string): Tracker
     {
         return this.getAll()[key];
     }
 
-    upsert(key: string, value: Tracker | AggregatedTrackerWithCharacters): void
+    upsert(tracker: Tracker): void
     {
+        const trackerId = tracker._id?.toString() as string;
         const map = this.getAll();
-        map[key] = value;
+        map[trackerId] = tracker;
         this.set(map);
     }
 

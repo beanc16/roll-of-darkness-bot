@@ -9,7 +9,7 @@ import initiativeCommand from '../../commands-slash/Initiative';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker';
 import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker';
-import { CombatTrackerType } from '../../constants/combatTracker';
+import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker';
 
 export enum AddCharacterCustomIds
 {
@@ -132,7 +132,6 @@ export class AddCharacterModal extends BaseCustomModal
     {
         // TODO: Add way to handle invalid inputted data.
         const data = this.parseInput<AddCharacterCustomIds>(interaction);
-        console.log('\n data:', data);
 
         const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
         const initiative = (initiativeModifier)
@@ -142,7 +141,6 @@ export class AddCharacterModal extends BaseCustomModal
             : undefined;
 
         const {
-            character,
             tracker,
         } = await RollOfDarknessPseudoCache.createCharacter({
             characterName: data[AddCharacterCustomIds.Name] as string,
@@ -164,9 +162,17 @@ export class AddCharacterModal extends BaseCustomModal
 
         // Get components.
         const actionRows = getCombatTrackerActionRows({
-            // TODO: Find a way to get this in a permanent way later.
-            typeOfTracker: CombatTrackerType.All,
+            typeOfTracker: tracker.type,
             combatTrackerStatus: tracker.status,
+        });
+
+        // Get characters.
+        const characters = RollOfDarknessPseudoCache.getCharacters({ tracker });
+
+        // Handle the components of the embed message.
+        awaitCombatTrackerMessageComponents({
+            message: interaction.message as Message,
+            tracker,
         });
 
         // Update message.
@@ -174,7 +180,7 @@ export class AddCharacterModal extends BaseCustomModal
             combatName: tracker.name,
             roundNumber: tracker.round,
             combatStatus: tracker.status,
-            characters: [character], // TODO: Update this so all characters are sent here later.
+            characters,
             interaction,
             actionRows,
         });

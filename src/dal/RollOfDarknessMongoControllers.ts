@@ -1,6 +1,6 @@
 const { MongoDbControllerWithEnv } = require('mongodb-controller'); // TODO: Update this to use import rather than require syntax once this package has types.
 import { ObjectId } from 'mongodb';
-import { CombatTrackerStatus } from '../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
 
 // expiresAt helpers
 function addMinutesToDate({
@@ -37,6 +37,7 @@ interface TrackerConstructor
     _id?: ObjectId;
     name: string;
     status: CombatTrackerStatus;
+    type: CombatTrackerType;
     round: number;
     currentTurn: number;
     characterIds: ObjectId[];
@@ -52,6 +53,7 @@ export class Tracker
     _id: TrackerConstructor['_id'];
     name: TrackerConstructor['name'];
     status: TrackerConstructor['status'];
+    type: TrackerConstructor['type'];
     round: TrackerConstructor['round'];
     currentTurn: TrackerConstructor['currentTurn'];
     characterIds: TrackerConstructor['characterIds'];
@@ -62,6 +64,7 @@ export class Tracker
         _id,
         name,
         status = CombatTrackerStatus.NotStarted,
+        type = CombatTrackerType.All,
         round = -1,
         currentTurn = 0,
         characterIds = [],
@@ -80,6 +83,7 @@ export class Tracker
 
         this.name = name;
         this.status = status;
+        this.type = type;
         this.round = round;
         this.currentTurn = currentTurn;
         this.characterIds = characterIds;

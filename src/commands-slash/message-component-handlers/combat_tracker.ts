@@ -4,9 +4,8 @@ import {
     MessageComponentInteraction,
     StringSelectMenuInteraction,
 } from 'discord.js';
-import { CombatTrackerStatus, CombatTrackerType, timeToWaitForCommandInteractions } from '../../constants/combatTracker';
+import { CombatTrackerStatus, timeToWaitForCommandInteractions } from '../../constants/combatTracker';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
-import combatTrackersSingleton from '../../models/combatTrackersSingleton';
 import { getCombatTrackerActionRows, selectMenuCustomIds } from '../select-menus/combat_tracker';
 import { selectMenuValues } from '../select-menus/options/combat_tracker';
 import { logger } from '@beanc16/logger';
@@ -17,14 +16,13 @@ import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter';
 interface CombatTrackerMessageComponentHandlerParameters
 {
     interaction: StringSelectMenuInteraction;
-    message: Message;
-    typeOfTracker: CombatTrackerType;
+    tracker: Tracker;
 }
 
 // Character Options
 async function editCharacterHp({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -35,28 +33,27 @@ async function editCharacterHp({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function addCharacter({
     interaction,
-    typeOfTracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     // Send the modal.
     await AddCharacterModal.showModal(interaction);
 
     // Handle the components of the embed message.
-    awaitCombatTrackerMessageComponents({
-        message: interaction.message,
-        typeOfTracker,
-    });
+    // awaitCombatTrackerMessageComponents({
+    //     message: interaction.message,
+    //     tracker,
+    // });
 }
 
 async function showSecretCharacters({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -67,13 +64,13 @@ async function showSecretCharacters({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function editCharacter({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -84,13 +81,13 @@ async function editCharacter({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function removeCharacter({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -101,14 +98,14 @@ async function removeCharacter({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 // Initiative Options
 async function nextTurn({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -119,13 +116,13 @@ async function nextTurn({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function previousTurn({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -136,13 +133,13 @@ async function previousTurn({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function moveTurn({
     interaction,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     await interaction.reply({
@@ -153,65 +150,89 @@ async function moveTurn({
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
-        typeOfTracker,
+        tracker,
     });
 }
 
 async function startCombat({
     interaction,
-    message,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    const tracker = combatTrackersSingleton.get(message.id);
-
-    // TODO: Only start combat if characters exist.
-    if (tracker.status === CombatTrackerStatus.NotStarted)
-    {
-        try
-        {
-            RollOfDarknessPseudoCache.updateTrackerStatus({
-                status: CombatTrackerStatus.InProgress,
-                message,
-            })
-            .then(async (newTracker: Tracker) =>
-            {
-                // Get components.
-                const actionRows = getCombatTrackerActionRows({
-                    typeOfTracker,
-                    combatTrackerStatus: newTracker.status,
-                });
-
-                // Update message.
-                await updateCombatTrackerEmbedMessage({
-                    combatName: newTracker.name,
-                    roundNumber: newTracker.round,
-                    combatStatus: newTracker.status,
-                    characters: [], // TODO: Update this so characters are sent here later.
-                    interaction,
-                    actionRows,
-                });
-
-                // Handle the components of the embed message.
-                awaitCombatTrackerMessageComponents({
-                    message: interaction.message,
-                    typeOfTracker,
-                });
-            })
-        }
-        catch (error)
-        {
-            logger.error('Failed to start combat', error);
-            await interaction.reply({
-                content: 'ERROR: Failed to start combat',
-                ephemeral: true,
-            });
-        }
-    }
-    else
+    if (tracker.status !== CombatTrackerStatus.NotStarted)
     {
         await interaction.reply({
             content: 'Cannot start a combat that has already been started',
+            ephemeral: true,
+        });
+
+        // Handle the components of the embed message.
+        awaitCombatTrackerMessageComponents({
+            message: interaction.message,
+            tracker,
+        });
+
+        // Exit function early.
+        return;
+    }
+    else if (tracker.characterIds.length === 0)
+    {
+        await interaction.reply({
+            content: 'Cannot start a combat that has no characters',
+            ephemeral: true,
+        });
+
+        // Handle the components of the embed message.
+        awaitCombatTrackerMessageComponents({
+            message: interaction.message,
+            tracker,
+        });
+
+        // Exit function early.
+        return;
+    }
+
+    try
+    {
+        RollOfDarknessPseudoCache.updateTrackerStatus({
+            status: CombatTrackerStatus.InProgress,
+            tracker,
+        })
+        .then(async (newTracker: Tracker) =>
+        {
+            // Get components.
+            const actionRows = getCombatTrackerActionRows({
+                typeOfTracker: newTracker.type,
+                combatTrackerStatus: newTracker.status,
+            });
+
+            // Get characters.
+            const characters = RollOfDarknessPseudoCache.getCharacters({
+                tracker: newTracker,
+            });
+
+            // Update message.
+            await updateCombatTrackerEmbedMessage({
+                combatName: newTracker.name,
+                roundNumber: newTracker.round,
+                combatStatus: newTracker.status,
+                characters,
+                interaction,
+                actionRows,
+            });
+
+            // Handle the components of the embed message.
+            awaitCombatTrackerMessageComponents({
+                message: interaction.message,
+                tracker,
+            });
+        })
+    }
+    catch (error)
+    {
+        logger.error('Failed to start combat', error);
+        await interaction.reply({
+            content: 'ERROR: Failed to start combat',
             ephemeral: true,
         });
     }
@@ -219,26 +240,28 @@ async function startCombat({
 
 async function endCombat({
     interaction,
-    message,
-    typeOfTracker,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    const tracker = combatTrackersSingleton.get(message.id);
-
     if (tracker.status === CombatTrackerStatus.InProgress)
     {
         try
         {
             RollOfDarknessPseudoCache.updateTrackerStatus({
                 status: CombatTrackerStatus.Completed,
-                message,
+                tracker,
             })
             .then(async (newTracker: Tracker) =>
             {
                 // Get components
                 const actionRows = getCombatTrackerActionRows({
-                    typeOfTracker,
+                    typeOfTracker: newTracker.type,
                     combatTrackerStatus: newTracker.status,
+                });
+
+                // Get characters.
+                const characters = RollOfDarknessPseudoCache.getCharacters({
+                    tracker: newTracker,
                 });
 
                 // Update message.
@@ -246,7 +269,7 @@ async function endCombat({
                     combatName: newTracker.name,
                     roundNumber: newTracker.round,
                     combatStatus: newTracker.status,
-                    characters: [], // TODO: Update this so characters are sent here later.
+                    characters,
                     interaction,
                     actionRows,
                 });
@@ -254,7 +277,7 @@ async function endCombat({
                 // Handle the components of the embed message.
                 awaitCombatTrackerMessageComponents({
                     message: interaction.message,
-                    typeOfTracker,
+                    tracker,
                 });
             })
         }
@@ -299,12 +322,10 @@ const handlerMap: {
 
 async function handleMessageComponentsForCombatTracker({
     interaction,
-    message,
-    typeOfTracker,
+    tracker,
 } : {
     interaction: MessageComponentInteraction;
-    message: Message;
-    typeOfTracker: CombatTrackerType;
+    tracker: Tracker;
 }): Promise<void>
 {
     const {
@@ -325,8 +346,7 @@ async function handleMessageComponentsForCombatTracker({
         {
             await handlerMap[customId][value]({
                 interaction: typedInteraction,
-                message,
-                typeOfTracker,
+                tracker,
             });
         }
         else
@@ -342,10 +362,10 @@ async function handleMessageComponentsForCombatTracker({
 
 export function awaitCombatTrackerMessageComponents({
     message,
-    typeOfTracker,
+    tracker,
 } : {
     message: Message;
-    typeOfTracker: CombatTrackerType;
+    tracker: Tracker;
 })
 {
     // Handle the components of the embed message
@@ -359,8 +379,7 @@ export function awaitCombatTrackerMessageComponents({
     {
         await handleMessageComponentsForCombatTracker({
             interaction: messageComponentInteraction,
-            message,
-            typeOfTracker,
+            tracker,
         });
     })
     .catch((error: Error) => 

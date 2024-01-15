@@ -28,7 +28,7 @@ class CharactersSingleton
     upsert(key: string, value: Character): void
     {
         const map = this.getAll();
-        if (map[key])
+        if (!map[key])
         {
             map[key] = [];
         }
