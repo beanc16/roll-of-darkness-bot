@@ -10,6 +10,7 @@ import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker';
 import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker';
 import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker';
+import { CombatTrackerType } from '../../constants/combatTracker';
 
 export enum AddCharacterCustomIds
 {
@@ -80,7 +81,7 @@ export class AddCharacterModal extends BaseCustomModal
         };
     }
 
-    static getTextInputs(): TextInputBuilder[]
+    static getTextInputs<TextInputParamaters = CombatTrackerType>(type: TextInputParamaters): TextInputBuilder[]
     {
         const nameInput = new TextInputBuilder()
 			.setCustomId(AddCharacterCustomIds.Name)
@@ -122,15 +123,20 @@ export class AddCharacterModal extends BaseCustomModal
 
         return [
             nameInput,
-            initiativeInput,
-            hpInput,
+            ...((!type || type === CombatTrackerType.All || type === CombatTrackerType.Initiative)
+                ? [initiativeInput]
+                : []
+            ),
+            ...((!type || type === CombatTrackerType.All || type === CombatTrackerType.Hp)
+                ? [hpInput]
+                : []
+            ),
             secretsInput,
         ];
     }
 
     static async run(interaction: ModalSubmitInteraction)
     {
-        // TODO: Add way to handle invalid inputted data.
         const data = this.parseInput<AddCharacterCustomIds>(interaction);
 
         const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
@@ -177,9 +183,7 @@ export class AddCharacterModal extends BaseCustomModal
 
         // Update message.
         await updateCombatTrackerEmbedMessage({
-            combatName: tracker.name,
-            roundNumber: tracker.round,
-            combatStatus: tracker.status,
+            tracker,
             characters,
             interaction,
             actionRows,

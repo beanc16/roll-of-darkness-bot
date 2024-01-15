@@ -39,10 +39,11 @@ async function editCharacterHp({
 
 async function addCharacter({
     interaction,
+    tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     // Send the modal.
-    await AddCharacterModal.showModal(interaction);
+    await AddCharacterModal.showModal(interaction, tracker.type);
 }
 
 async function showSecretCharacters({
@@ -207,9 +208,7 @@ async function startCombat({
 
             // Update message.
             await updateCombatTrackerEmbedMessage({
-                combatName: newTracker.name,
-                roundNumber: newTracker.round,
-                combatStatus: newTracker.status,
+                tracker: newTracker,
                 characters,
                 interaction,
                 actionRows,
@@ -260,9 +259,7 @@ async function endCombat({
 
                 // Update message.
                 await updateCombatTrackerEmbedMessage({
-                    combatName: newTracker.name,
-                    roundNumber: newTracker.round,
-                    combatStatus: newTracker.status,
+                    tracker: newTracker,
                     characters,
                     interaction,
                     actionRows,

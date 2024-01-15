@@ -56,9 +56,7 @@ class Combat_Tracker extends BaseSlashCommand
     
                 // Send response
                 await updateCombatTrackerEmbedMessage({
-                    combatName: tracker.name,
-                    roundNumber: tracker.round,
-                    combatStatus: tracker.status,
+                    tracker,
                     characters: [],
                     interaction,
                     actionRows,

@@ -34,7 +34,7 @@ export abstract class BaseCustomModal
         return this._title;
     }
 
-    static getTextInputs(): TextInputBuilder[]
+    static getTextInputs<TextInputParamaters = object>(_data?: TextInputParamaters): TextInputBuilder[]
     {
         return [];
     }
@@ -91,35 +91,36 @@ export abstract class BaseCustomModal
         }, {} as Record<KeyType, unknown>);
     }
 
-    static getActionRows(): ActionRowBuilder<ModalActionRowComponentBuilder>[]
+    static getActionRows<TextInputParamaters = object>(data?: TextInputParamaters): ActionRowBuilder<ModalActionRowComponentBuilder>[]
     {
-        return this.getTextInputs().map((textInput) =>
+        return this.getTextInputs<TextInputParamaters>(data).map((textInput) =>
         {
             return new ActionRowBuilder<ModalActionRowComponentBuilder>()
                 .addComponents(textInput);
         })
     }
 
-    static getModal(): ModalBuilder
+    static getModal<TextInputParamaters = object>(data?: TextInputParamaters): ModalBuilder
     {
         const modal = new ModalBuilder()
             .setCustomId(this._id)
             .setTitle(this._title);
 
-        const actionRows = this.getActionRows();
+        const actionRows = this.getActionRows<TextInputParamaters>(data);
         modal.addComponents(actionRows);
 
         return modal;
     }
 
-    static async showModal(interaction: MessageComponentInteraction): Promise<void>
+    static async showModal<TextInputParamaters = object>(interaction: MessageComponentInteraction, data?: TextInputParamaters): Promise<void>
     {
-        const modal = this.getModal();
+        const modal = this.getModal<TextInputParamaters>(data);
         await interaction.showModal(modal);
     }
 
     static parseInput<KeyType extends string = string>(interaction: ModalSubmitInteraction)
     {
+        // TODO: Add way to handle invalid inputted data.
         const {
             fields: {
                 fields,

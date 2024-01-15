@@ -1,5 +1,6 @@
 import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, ModalSubmitInteraction, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
-import { CombatTrackerStatus } from '../../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../../constants/combatTracker';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
 
 const combatTrackerColor = 0xCDCDCD;
 
@@ -23,9 +24,7 @@ interface Character
 
 interface CombatTrackerEmbedParameters
 {
-    combatName: string;
-    combatStatus: CombatTrackerStatus;
-    roundNumber: number;
+    tracker: Tracker;
     characters: Character[];
 }
 
@@ -119,17 +118,25 @@ function getCharacterNameString({
     name: characterName,
     isTurn,
     initiative,
+    tracker,
 } : {
     name: Character['name'];
     isTurn: Character['isTurn'];
     initiative: Character['initiative'];
+    tracker: Tracker;
 }): string
 {
     const currentTurnMarkerOrEmptyString = (isTurn)
             ? '-->'
             : '';
 
-    const initiativeOrEmptyString = (initiative !== undefined)
+    const initiativeOrEmptyString = (
+        initiative !== undefined
+        && (
+            tracker.type === CombatTrackerType.All
+            || tracker.type === CombatTrackerType.Initiative
+        )
+    )
         ? ` | Init: ${initiative}`
         : '';
 
@@ -168,7 +175,10 @@ function sortCharacterFields(characters: Character[] = []): Character[]
     return chractersClone;
 }
 
-function getCharacterFields(characters: Character[] = []): RestOrArray<APIEmbedField>
+function getCharacterFields({
+    tracker,
+    characters,
+}: CombatTrackerEmbedParameters): RestOrArray<APIEmbedField>
 {
     const sortedCharacters = sortCharacterFields(characters);
 
@@ -183,12 +193,15 @@ function getCharacterFields(characters: Character[] = []): RestOrArray<APIEmbedF
             name,
             initiative,
             isTurn,
+            tracker,
         })
 
-        const hpString = getCharacterHpString({
-            maxHp,
-            currentDamage,
-        });
+        const hpString = (tracker.type === CombatTrackerType.All || tracker.type === CombatTrackerType.Hp)
+            ? getCharacterHpString({
+                maxHp,
+                currentDamage,
+            })
+            : ' ';
 
         return {
             name: characterString,
@@ -199,25 +212,19 @@ function getCharacterFields(characters: Character[] = []): RestOrArray<APIEmbedF
     return fields;
 }
 
-function getDescription({
-    roundNumber,
-    combatStatus,
-} : {
-    roundNumber: CombatTrackerEmbedParameters['roundNumber'];
-    combatStatus: CombatTrackerEmbedParameters['combatStatus'];
-})
+function getDescription(tracker: Tracker)
 {
-    if (combatStatus === CombatTrackerStatus.InProgress)
+    if (tracker.status === CombatTrackerStatus.InProgress)
     {
-        return `Round ${roundNumber}`;
+        return `Round ${tracker.round}`;
     }
 
-    else if (combatStatus === CombatTrackerStatus.NotStarted)
+    else if (tracker.status === CombatTrackerStatus.NotStarted)
     {
         return 'Not Started';
     }
 
-    else if (combatStatus === CombatTrackerStatus.Completed)
+    else if (tracker.status === CombatTrackerStatus.Completed)
     {
         return 'Complete';
     }
@@ -226,18 +233,19 @@ function getDescription({
 }
 
 function getCombatTrackerEmbedMessage({
-    combatName,
-    combatStatus,
-    roundNumber,
+    tracker,
     characters,
 }: CombatTrackerEmbedParameters)
 {
-    const fields = getCharacterFields(characters);
+    const fields = getCharacterFields({
+        tracker,
+        characters,
+    });
 
-    const description = getDescription({ combatStatus, roundNumber });
+    const description = getDescription(tracker);
 
     const embed = new EmbedBuilder()
-        .setTitle(combatName || 'Current Combat:')
+        .setTitle(tracker.name || 'Current Combat:')
         .setDescription(description)
         .setColor(combatTrackerColor)
         .setFields(...fields);
