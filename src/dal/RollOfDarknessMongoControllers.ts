@@ -2,28 +2,6 @@ const { MongoDbControllerWithEnv } = require('mongodb-controller'); // TODO: Upd
 import { ObjectId } from 'mongodb';
 import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
 
-// expiresAt helpers
-function addMinutesToDate({
-    date = new Date(),
-    minutes,
-} : {
-    date?: Date;
-    minutes: number;
-}): Date
-{
-    // 1 minute === 60000 milliseconds
-    const millisecondsToAdd = minutes * 60000;
-    const unixTimestamp = date.getTime() + millisecondsToAdd;
-    return new Date(unixTimestamp);
-}
-
-function getDefaultExpireAt(): Date
-{
-    return addMinutesToDate({
-        minutes: 1440,
-    });
-}
-
 // Shared values
 interface DiscordCreator
 {
@@ -45,7 +23,7 @@ interface TrackerConstructor
     {
         messageId: string;
     });
-    expireAt: Date;
+    createdAt: Date;
 }
 
 export class Tracker
@@ -58,7 +36,7 @@ export class Tracker
     currentTurn: TrackerConstructor['currentTurn'];
     characterIds: TrackerConstructor['characterIds'];
     discordCreator: TrackerConstructor['discordCreator'];
-    expireAt: TrackerConstructor['expireAt'];
+    createdAt: TrackerConstructor['createdAt'];
 
     constructor({
         _id,
@@ -69,7 +47,7 @@ export class Tracker
         currentTurn = 0,
         characterIds = [],
         discordCreator,
-        expireAt = getDefaultExpireAt(),
+        createdAt = new Date(),
     }: TrackerConstructor)
     {
         if (_id)
@@ -88,7 +66,7 @@ export class Tracker
         this.currentTurn = currentTurn;
         this.characterIds = characterIds;
         this.discordCreator = discordCreator;
-        this.expireAt = expireAt;
+        this.createdAt = createdAt;
     }
 }
 
@@ -138,7 +116,7 @@ interface CharacterConstructor
         hp: boolean;
     };
     discordCreator: DiscordCreator;
-    expireAt: Date;
+    createdAt: Date;
 }
 
 export class Character
@@ -150,7 +128,7 @@ export class Character
     currentDamage: CharacterConstructor['currentDamage'];
     isSecret: CharacterConstructor['isSecret'];
     discordCreator: CharacterConstructor['discordCreator'];
-    expireAt: CharacterConstructor['expireAt'];
+    createdAt: CharacterConstructor['createdAt'];
 
     constructor({
         _id,
@@ -168,7 +146,7 @@ export class Character
             hp: false,
         },
         discordCreator,
-        expireAt = getDefaultExpireAt(),
+        createdAt = new Date(),
     }: CharacterConstructor)
     {
         if (_id)
@@ -186,7 +164,7 @@ export class Character
         this.currentDamage = currentDamage;
         this.isSecret = isSecret;
         this.discordCreator = discordCreator;
-        this.expireAt = expireAt;
+        this.createdAt = createdAt;
     }
 }
 
@@ -216,7 +194,7 @@ interface AggregatedTrackerWithCharactersConstructor
     round: number;
     currentTurn: number;
     characters: Character[];
-    expireAt: Date;
+    createdAt: Date;
 }
 
 // TODO: Get this as MongoDbResults from mongodb-controller when it has types.
@@ -235,7 +213,7 @@ export class AggregatedTrackerWithCharacters
     round: AggregatedTrackerWithCharactersConstructor['round'];
     currentTurn: AggregatedTrackerWithCharactersConstructor['currentTurn'];
     characters: AggregatedTrackerWithCharactersConstructor['characters'];
-    expireAt: AggregatedTrackerWithCharactersConstructor['expireAt'];
+    createdAt: AggregatedTrackerWithCharactersConstructor['createdAt'];
 
     constructor({
         _id,
@@ -244,7 +222,7 @@ export class AggregatedTrackerWithCharacters
         round = -1,
         currentTurn = 0,
         characters = [],
-        expireAt = getDefaultExpireAt(),
+        createdAt = new Date(),
     }: AggregatedTrackerWithCharactersConstructor)
     {
         if (_id)
@@ -257,7 +235,7 @@ export class AggregatedTrackerWithCharacters
         this.round = round;
         this.currentTurn = currentTurn;
         this.characters = characters;
-        this.expireAt = expireAt;
+        this.createdAt = createdAt;
     }
 }
 
