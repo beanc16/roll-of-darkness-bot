@@ -3,7 +3,7 @@ import Singleton from './Singleton';
 
 interface CharacterSingletonMap
 {
-    [key: string]: Character;
+    [key: string]: Character[];
 }
 
 class CharactersSingleton
@@ -20,7 +20,7 @@ class CharactersSingleton
         return this.#singleton.get() || {};
     }
 
-    get(key: string): Character
+    get(key: string): Character[]
     {
         return this.getAll()[key];
     }
@@ -28,7 +28,11 @@ class CharactersSingleton
     upsert(key: string, value: Character): void
     {
         const map = this.getAll();
-        map[key] = value;
+        if (map[key])
+        {
+            map[key] = [];
+        }
+        map[key].push(value);
         this.set(map);
     }
 
