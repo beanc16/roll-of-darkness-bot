@@ -8,7 +8,7 @@ class ProbabilityResponseFormatterService extends ResponseFormatterService
         numberOfDice,
         probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
         roundToDecimalPlaces = 0,
-    })
+    }) 
     {
         super({
             authorId,
