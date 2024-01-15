@@ -12,6 +12,7 @@ import { selectMenuValues } from '../select-menus/options/combat_tracker';
 import { logger } from '@beanc16/logger';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
+import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter';
 
 interface CombatTrackerMessageComponentHandlerParameters
 {
@@ -43,10 +44,8 @@ async function addCharacter({
     typeOfTracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    await interaction.reply({
-        content: 'The ability to add a character has not yet been implemented',
-        ephemeral: true,
-    });
+    // Send the modal.
+    await AddCharacterModal.showModal(interaction);
 
     // Handle the components of the embed message.
     awaitCombatTrackerMessageComponents({
