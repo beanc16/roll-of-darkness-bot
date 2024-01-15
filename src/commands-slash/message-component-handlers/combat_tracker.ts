@@ -176,7 +176,7 @@ async function startCombat({
             })
             .then(async (newTracker: Tracker) =>
             {
-                // Get components
+                // Get components.
                 const actionRows = getCombatTrackerActionRows({
                     typeOfTracker,
                     combatTrackerStatus: newTracker.status,

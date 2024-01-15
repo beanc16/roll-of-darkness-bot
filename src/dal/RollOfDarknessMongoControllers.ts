@@ -137,7 +137,7 @@ interface CharacterConstructor
     expireAt: Date;
 }
 
-class Character
+export class Character
 {
     _id: CharacterConstructor['_id'];
     name: CharacterConstructor['name'];

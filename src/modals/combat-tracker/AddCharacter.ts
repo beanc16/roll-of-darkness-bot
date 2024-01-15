@@ -1,9 +1,15 @@
 import {
+    Message,
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
 import { BaseCustomModal } from '../BaseCustomModal';
+import initiativeCommand from '../../commands-slash/Initiative';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
+import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker';
+import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker';
+import { CombatTrackerType } from '../../constants/combatTracker';
 
 export enum AddCharacterCustomIds
 {
@@ -124,9 +130,53 @@ export class AddCharacterModal extends BaseCustomModal
 
     static async run(interaction: ModalSubmitInteraction)
     {
-        console.log('AddCharacter modal handler', interaction);
-
+        // TODO: Add way to handle invalid inputted data.
         const data = this.parseInput<AddCharacterCustomIds>(interaction);
         console.log('\n data:', data);
+
+        const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
+        const initiative = (initiativeModifier)
+            ? initiativeCommand.rollWithModifier(
+                parseInt(initiativeModifier, 10)
+            ) as number
+            : undefined;
+
+        const {
+            character,
+            tracker,
+        } = await RollOfDarknessPseudoCache.createCharacter({
+            characterName: data[AddCharacterCustomIds.Name] as string,
+            ...(initiative && {
+                initiative,
+            }),
+            ...(data[AddCharacterCustomIds.Hp] && {
+                maxHp: (data[AddCharacterCustomIds.Hp] as Record<string, unknown>).maxHp as number,
+                bashingDamage: (data[AddCharacterCustomIds.Hp] as Record<string, unknown>).bashingDamage as number,
+                lethalDamage: (data[AddCharacterCustomIds.Hp] as Record<string, unknown>).lethalDamage as number,
+                aggravatedDamage: (data[AddCharacterCustomIds.Hp] as Record<string, unknown>).aggravatedDamage as number,
+            }),
+            nameIsSecret: (data[AddCharacterCustomIds.Secrets] as Record<string, unknown>).nameIsSecret as boolean,
+            initiativeIsSecret: (data[AddCharacterCustomIds.Secrets] as Record<string, unknown>).initiativeIsSecret as boolean,
+            hpIsSecret: (data[AddCharacterCustomIds.Secrets] as Record<string, unknown>).hpIsSecret as boolean,
+            interaction,
+            message: interaction.message as Message,
+        });
+
+        // Get components.
+        const actionRows = getCombatTrackerActionRows({
+            // TODO: Find a way to get this in a permanent way later.
+            typeOfTracker: CombatTrackerType.All,
+            combatTrackerStatus: tracker.status,
+        });
+
+        // Update message.
+        await updateCombatTrackerEmbedMessage({
+            combatName: tracker.name,
+            roundNumber: tracker.round,
+            combatStatus: tracker.status,
+            characters: [character], // TODO: Update this so all characters are sent here later.
+            interaction,
+            actionRows,
+        });
     }
 }

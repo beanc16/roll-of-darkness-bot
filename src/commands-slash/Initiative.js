@@ -43,21 +43,7 @@ class Initiative extends BaseSlashCommand
         }
 
         if (successfullyParsedDicepool) {
-            // Get parameter results
-            const numberOfDice = 1;
-            const rerollsKey = rollConstants.rerollsEnum.no_again.key;
-    
-            // Convert parameters to necessary inputs for service calls
-            const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey]?.number;
-
-            // Roll the dice
-            const diceService = new DiceService({
-                count: numberOfDice,
-                rerollOnGreaterThanOrEqualTo,
-                successOnGreaterThanOrEqualTo: 10, // You can't succeed at initiative rolls, so just set the number really high
-                canBeDramaticFailure: false,
-            });
-            const dicePoolGroup = diceService.roll();
+            const dicePoolGroup = Initiative.roll();
 
             // Response
             const initiativeResponseFormatterService = new InitiativeResponseFormatterService({
@@ -74,6 +60,34 @@ class Initiative extends BaseSlashCommand
     get description()
     {
         return `Roll one d10 with no rerolls to determine initiative order.`;
+    }
+
+    roll()
+    {
+        // Get parameter results
+        const numberOfDice = 1;
+        const rerollsKey = rollConstants.rerollsEnum.no_again.key;
+
+        // Convert parameters to necessary inputs for service calls
+        const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey]?.number;
+
+        // Roll the dice
+        const diceService = new DiceService({
+            count: numberOfDice,
+            rerollOnGreaterThanOrEqualTo,
+            successOnGreaterThanOrEqualTo: 10, // You can't succeed at initiative rolls, so just set the number really high
+            canBeDramaticFailure: false,
+        });
+        const dicePoolGroup = diceService.roll();
+
+        return dicePoolGroup;
+    }
+
+    rollWithModifier(modifier = 0)
+    {
+        const dicePoolGroup = this.roll();
+        const [result] = dicePoolGroup.getBiggestResult().rollResults;
+        return result + modifier;
     }
 }
 

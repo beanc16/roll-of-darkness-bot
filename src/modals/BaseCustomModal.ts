@@ -142,9 +142,9 @@ export abstract class BaseCustomModal
             acc[customId as KeyType] = value;
 
             return acc;
-        }, {} as Record<KeyType, Record<KeyType, unknown> | string | number | boolean | undefined>);
+        }, {} as Record<KeyType, Record<string, unknown> | string | number | boolean | undefined>);
 
-        return data;
+        return data || {} as Record<KeyType, Record<string, unknown> | string | number | boolean | undefined>;
     }
 
     public static async run(_interaction: ModalSubmitInteraction)

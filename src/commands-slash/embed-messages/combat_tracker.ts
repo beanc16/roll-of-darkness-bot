@@ -1,4 +1,4 @@
-import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
+import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, ModalSubmitInteraction, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
 import { CombatTrackerStatus } from '../../constants/combatTracker';
 
 const combatTrackerColor = 0xCDCDCD;
@@ -214,7 +214,7 @@ function getCombatTrackerEmbedMessage({
 }
 
 export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerEmbedParameters & {
-    interaction: CommandInteraction | StringSelectMenuInteraction,
+    interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction,
     actionRows: ActionRowBuilder<StringSelectMenuBuilder>[],
 })
 {
@@ -235,6 +235,17 @@ export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerE
     else if (interaction instanceof StringSelectMenuInteraction)
     {
         await interaction.update({
+            embeds: [embedMessage],
+            components: actionRows,
+        });
+    }
+    else if (interaction instanceof ModalSubmitInteraction)
+    {
+        const response = await interaction.deferUpdate({
+            fetchReply: true,
+        });
+
+        await response.edit({
             embeds: [embedMessage],
             components: actionRows,
         });

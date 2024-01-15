@@ -1,13 +1,15 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, Message, ModalSubmitInteraction } from 'discord.js';
 import {
     AggregatedTrackerWithCharactersController,
-    // CharacterController,
+    CharacterController,
+    CharacterResponse,
     TrackerController, 
     TrackerResponse,
     TrackerUpdateResponse,
 } from './RollOfDarknessMongoControllers';
 import { CombatTrackerStatus } from '../constants/combatTracker';
 import combatTrackersSingleton from '../models/combatTrackersSingleton';
+import charactersSingleton from '../models/charactersSingleton';
 
 interface GetTrackerParameters
 {
@@ -24,6 +26,21 @@ interface CreateTrackerParameters
 interface UpdateTrackerStatusParameters
 {
     status: CombatTrackerStatus;
+    message: Message;
+}
+
+interface CreateCharacterParameters
+{
+    characterName: string;
+    initiative?: number;
+    maxHp?: number;
+    bashingDamage?: number;
+    lethalDamage?: number;
+    aggravatedDamage?: number;
+    nameIsSecret: boolean;
+    initiativeIsSecret: boolean;
+    hpIsSecret: boolean;
+    interaction: ModalSubmitInteraction;
     message: Message;
 }
 
@@ -94,5 +111,67 @@ export class RollOfDarknessPseudoCache
 
         combatTrackersSingleton.upsert(message.id, tracker);
         return tracker;
+    }
+
+    static async createCharacter({
+        characterName,
+        initiative,
+        maxHp,
+        bashingDamage,
+        lethalDamage,
+        aggravatedDamage,
+        nameIsSecret,
+        initiativeIsSecret,
+        hpIsSecret,
+        interaction,
+        message,
+    }: CreateCharacterParameters): Promise<{
+        character: CharacterResponse['results']['model'],
+        tracker: TrackerResponse['results']['model'],
+    }>
+    {
+        const character = await CharacterController.insertOne({
+            name: characterName,
+            ...(initiative && { initiative }),
+            ...(maxHp && { maxHp }),
+            ...((bashingDamage || lethalDamage || aggravatedDamage) && {
+                currentDamage: {
+                    bashing: bashingDamage,
+                    lethal: lethalDamage,
+                    aggravated: aggravatedDamage,
+                },
+            }),
+            isSecret: {
+                name: nameIsSecret,
+                initiative: initiativeIsSecret,
+                hp: hpIsSecret,
+            },
+            discordCreator: {
+                userId: interaction.user.id,
+                serverId: interaction.guild?.id,
+            },
+        }) as CharacterResponse['results']['model'];
+
+        const {
+            results: {
+                new: tracker,
+            },
+        } = await TrackerController.findOneAndUpdate({
+            // Find objects with the same name
+            'discordCreator.messageId': message.id,
+        }, {
+            // If one is found, push into the characterIds array.
+            characterIds: character._id,
+        }, {
+            operator: 'push',
+        }) as TrackerUpdateResponse;
+
+        combatTrackersSingleton.upsert(message.id, tracker);
+        charactersSingleton.upsert(tracker._id?.toString() as string, character);
+
+        return {
+            character,
+            tracker,
+        };
     }
 }

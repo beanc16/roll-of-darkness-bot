@@ -27,7 +27,7 @@
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.1",
         "expr-eval": "^2.0.2",
-        "mongodb-controller": "^1.4.3"
+        "mongodb-controller": "^1.4.4"
     },
     "devDependencies": {
         "@types/node": "^20.9.0",
