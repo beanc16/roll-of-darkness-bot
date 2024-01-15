@@ -34,7 +34,9 @@ class Probability extends BaseSlashCommand
         } else {
             // Check probability
             const probabilityService = new DiceProbabilityService();
-            const probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityService.getProbabilityOfRolling({
+            const {
+                cumulativeProbability: probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+            } = await probabilityService.getProbabilityOfRolling({
                 numberOfDice,
                 desiredNumberOfSuccesses,
             });

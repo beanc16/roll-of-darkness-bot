@@ -1,28 +1,36 @@
+const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
+
 const rollConstants = require('../constants/roll');
-const ProbabilityService = require('./ProbabilityService');
 
 class DiceProbabilityService
 {
-    constructor()
-    {
-        this._probabilityService = new ProbabilityService();
-    }
-
-    getProbabilityOfRolling({
+    async getProbabilityOfRolling({
         numberOfDice = rollConstants.defaultParams.count,
-        successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
+        // successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         desiredNumberOfSuccesses = 1,
-    })
+    } = {})
     {
-        const probabilityOfSuccessOnOneDiceRoll = (10 - successOnGreaterThanOrEqualTo + 1) / 10;
-
-        const probabilityOfSuccess = this._probabilityService.getDiscreteBinomialDistribution({
-            n: numberOfDice,
-            p: probabilityOfSuccessOnOneDiceRoll,
-            k: desiredNumberOfSuccesses,
+        /*
+         * Cumulative probability is the probability of getting
+         * AT LEAST the given number of successes on the given
+         * number of dice.
+         *
+         * Individual probability is the probability of getting
+         * EXACTLY the given number of successes on the given
+         * number of dice.
+         */
+        const {
+            cumulative_probability: cumulativeProbability,
+            individual_probability: individualProbability,
+        } = await RollOfDarknessApi.probability.getDiceProbability({
+            dice: numberOfDice,
+            successes: desiredNumberOfSuccesses,
         });
 
-        return probabilityOfSuccess.toFixed(2) * 100;
+        return {
+            cumulativeProbability,
+            individualProbability,
+        };
     }
 }
 
