@@ -110,7 +110,6 @@ function getCombatTrackerSelectMenus({
     return response;
 }
 
-// TODO: Make this only return certain action rows based on the CombatTrackerStatus too.
 export function getCombatTrackerActionRows({
     typeOfTracker,
     combatTrackerStatus,
