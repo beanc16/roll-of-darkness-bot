@@ -7,6 +7,7 @@ class ProbabilityResponseFormatterService extends ResponseFormatterService
         desiredNumberOfSuccesses,
         numberOfDice,
         probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+        roundToDecimalPlaces = 0,
     })
     {
         super({
@@ -14,7 +15,7 @@ class ProbabilityResponseFormatterService extends ResponseFormatterService
         });
         this.desiredNumberOfSuccesses = desiredNumberOfSuccesses;
         this.numberOfDice = numberOfDice;
-        this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice;
+        this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice.toFixed(roundToDecimalPlaces);
     }
 
     getResponse()
