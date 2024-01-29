@@ -6,10 +6,19 @@ class DiceProbabilityService
 {
     async getProbabilityOfRolling({
         numberOfDice = rollConstants.defaultParams.count,
-        // successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         desiredNumberOfSuccesses = 1,
+        rerolls = '10again',
+        rote = false,
+        advancedAction = false,
     } = {})
     {
+        console.log('\n data:', {
+            dice: numberOfDice,
+            successes: desiredNumberOfSuccesses,
+            rerolls,
+            rote,
+            advancedAction,
+        });
         /*
          * Cumulative probability is the probability of getting
          * AT LEAST the given number of successes on the given
@@ -25,6 +34,9 @@ class DiceProbabilityService
         } = await RollOfDarknessApi.probability.getDiceProbability({
             dice: numberOfDice,
             successes: desiredNumberOfSuccesses,
+            rerolls,
+            rote,
+            advancedAction,
         });
 
         return {

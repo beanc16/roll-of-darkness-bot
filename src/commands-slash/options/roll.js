@@ -25,6 +25,19 @@ function splat(option)
     return option;
 }
 
+// TODO: Probably move this somewhere else later. Or ask Joel to update the API to take the values instead. Or update the values to match.
+// For probability command
+const rerollChoices = {
+    '10again': 'ten_again',
+    'ten_again': '10again',
+    '9again': 'nine_again',
+    'nine_again': '9again',
+    '8again': 'eight_again',
+    'eight_again': '8again',
+    'noagain': 'no_again',
+    'no_again': 'noagain',
+};
+
 function rerolls(option)
 {
     option.setName('rerolls');
@@ -105,6 +118,7 @@ function secret(option, {
 module.exports = {
     numberOfDice,
     splat,
+    rerollChoices,
     rerolls,
     rote,
     exceptionalOn,
