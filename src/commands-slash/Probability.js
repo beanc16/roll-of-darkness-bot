@@ -47,6 +47,9 @@ class Probability extends BaseSlashCommand
             authorId: interaction.user.id,
             desiredNumberOfSuccesses,
             numberOfDice,
+            rerolls: options.roll.rerollChoices[rerollsKey],
+            rote: isRote,
+            advancedAction: isAdvancedAction,
             probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
         });
         await interaction.editReply(
