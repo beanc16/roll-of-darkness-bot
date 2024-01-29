@@ -10,7 +10,10 @@ class Probability extends BaseSlashCommand
         super();
         this._slashCommandData
             .addIntegerOption(options.roll.numberOfDice)
-            .addIntegerOption(options.probability.desiredNumberOfSuccesses);
+            .addIntegerOption(options.probability.desiredNumberOfSuccesses)
+            .addStringOption(options.roll.rerolls)
+            .addBooleanOption(options.roll.rote)
+            .addBooleanOption(options.roll.advancedAction);
     }
 
     async run(interaction)
@@ -23,35 +26,32 @@ class Probability extends BaseSlashCommand
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice');
         const desiredNumberOfSuccesses = interaction.options.getInteger('desired_number_of_successes');
+        const rerollsKey = interaction.options.getString('rerolls') || options.roll.rerollChoices['10again'];
+        const isRote = interaction.options.getBoolean('rote');
+        const isAdvancedAction = interaction.options.getBoolean('advanced_action');
 
-        if (desiredNumberOfSuccesses > numberOfDice) {
-            await interaction.editReply(
-                'Invalid parameters were submitted. Desired number of successes ' +
-                'must be less than or equal to number of dice, but ' +
-                `a desired number of successes of ${desiredNumberOfSuccesses} ` +
-                `were given with ${numberOfDice} dice.`
-            );
-        } else {
-            // Check probability
-            const probabilityService = new DiceProbabilityService();
-            const {
-                cumulativeProbability: probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-            } = await probabilityService.getProbabilityOfRolling({
-                numberOfDice,
-                desiredNumberOfSuccesses,
-            });
+        // Check probability
+        const probabilityService = new DiceProbabilityService();
+        const {
+            cumulativeProbability: probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+        } = await probabilityService.getProbabilityOfRolling({
+            numberOfDice,
+            desiredNumberOfSuccesses,
+            rerolls: options.roll.rerollChoices[rerollsKey],
+            rote: isRote,
+            advancedAction: isAdvancedAction,
+        });
 
-            // Response
-            const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
-                authorId: interaction.user.id,
-                desiredNumberOfSuccesses,
-                numberOfDice,
-                probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-            });
-            await interaction.editReply(
-                probabilityResponseFormatterService.getResponse()
-            );
-        }
+        // Response
+        const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
+            authorId: interaction.user.id,
+            desiredNumberOfSuccesses,
+            numberOfDice,
+            probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+        });
+        await interaction.editReply(
+            probabilityResponseFormatterService.getResponse()
+        );
     }
 
     get description()
