@@ -12,13 +12,6 @@ class DiceProbabilityService
         advancedAction = false,
     } = {})
     {
-        console.log('\n data:', {
-            dice: numberOfDice,
-            successes: desiredNumberOfSuccesses,
-            rerolls,
-            rote,
-            advancedAction,
-        });
         /*
          * Cumulative probability is the probability of getting
          * AT LEAST the given number of successes on the given
