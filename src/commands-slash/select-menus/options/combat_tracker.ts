@@ -32,48 +32,48 @@ const addCharacterOption = new StringSelectMenuOptionBuilder()
     .setEmoji({ name: '🏃' })
     .setDefault(false);
 
-const showSecretCharactersOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Show Secret Characters')
-    .setDescription(`Send the initiative order with secret information visible (that only you can see)`)
-    .setValue('show_secret_characters_button')
-    .setEmoji({ name: '👀' })
-    .setDefault(false);
+// const showSecretCharactersOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Show Secret Characters')
+//     .setDescription(`Send the initiative order with secret information visible (that only you can see)`)
+//     .setValue('show_secret_characters_button')
+//     .setEmoji({ name: '👀' })
+//     .setDefault(false);
 
-const editCharacterOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Edit Character')
-    .setDescription(`Edit a character's name or initiative value`)
-    .setValue('edit_character_button')
-    .setEmoji({ name: '📝' })
-    .setDefault(false);
+// const editCharacterOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Edit Character')
+//     .setDescription(`Edit a character's name or initiative value`)
+//     .setValue('edit_character_button')
+//     .setEmoji({ name: '📝' })
+//     .setDefault(false);
 
-const removeCharacterOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Remove Character')
-    .setDescription(`Remove a character from combat`)
-    .setValue('remove_character_button')
-    .setEmoji({ name: '❌' })
-    .setDefault(false);
+// const removeCharacterOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Remove Character')
+//     .setDescription(`Remove a character from combat`)
+//     .setValue('remove_character_button')
+//     .setEmoji({ name: '❌' })
+//     .setDefault(false);
 
 // Initiative Options
-const nextTurnOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Next Turn')
-    .setDescription(`Go to the next turn in the initiative order`)
-    .setValue('next_turn_button')
-    .setEmoji({ name: '⏭' })
-    .setDefault(false);
+// const nextTurnOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Next Turn')
+//     .setDescription(`Go to the next turn in the initiative order`)
+//     .setValue('next_turn_button')
+//     .setEmoji({ name: '⏭' })
+//     .setDefault(false);
 
-const previousTurnOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Previous Turn')
-    .setDescription(`Go to the previous turn in the initiative order`)
-    .setValue('previous_turn_button')
-    .setEmoji({ name: '⏮' })
-    .setDefault(false);
+// const previousTurnOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Previous Turn')
+//     .setDescription(`Go to the previous turn in the initiative order`)
+//     .setValue('previous_turn_button')
+//     .setEmoji({ name: '⏮' })
+//     .setDefault(false);
 
-const moveTurnOption = new StringSelectMenuOptionBuilder()
-    .setLabel('Move Turn')
-    .setDescription(`Move to a specific turn in the initiative order`)
-    .setValue('move_turn_button')
-    .setEmoji({ name: '↪' })
-    .setDefault(false);
+// const moveTurnOption = new StringSelectMenuOptionBuilder()
+//     .setLabel('Move Turn')
+//     .setDescription(`Move to a specific turn in the initiative order`)
+//     .setValue('move_turn_button')
+//     .setEmoji({ name: '↪' })
+//     .setDefault(false);
 
 const startCombatOption = new StringSelectMenuOptionBuilder()
     .setLabel('Start Combat')
@@ -113,48 +113,48 @@ export const combatTrackerOptions: CombatTrackerOption[] = [
         status: CombatTrackerStatus.NotStartedOrInProgress,
         rank: 1,
     },
-    {
-        option: showSecretCharactersOption,
-        menu: CombatTrackerType.Hp,
-        type: CombatTrackerType.All,
-        status: CombatTrackerStatus.All,
-        rank: 2,
-    },
-    {
-        option: editCharacterOption,
-        menu: CombatTrackerType.Hp,
-        type: CombatTrackerType.All,
-        status: CombatTrackerStatus.NotStartedOrInProgress,
-        rank: 3,
-    },
-    {
-        option: removeCharacterOption,
-        menu: CombatTrackerType.Hp,
-        type: CombatTrackerType.All,
-        status: CombatTrackerStatus.NotStartedOrInProgress,
-        rank: 4,
-    },
-    {
-        option: nextTurnOption,
-        menu: CombatTrackerType.Initiative,
-        type: CombatTrackerType.Initiative,
-        status: CombatTrackerStatus.InProgress,
-        rank: 0,
-    },
-    {
-        option: previousTurnOption,
-        menu: CombatTrackerType.Initiative,
-        type: CombatTrackerType.Initiative,
-        status: CombatTrackerStatus.InProgress,
-        rank: 1,
-    },
-    {
-        option: moveTurnOption,
-        menu: CombatTrackerType.Initiative,
-        type: CombatTrackerType.Initiative,
-        status: CombatTrackerStatus.InProgress,
-        rank: 2,
-    },
+    // {
+    //     option: showSecretCharactersOption,
+    //     menu: CombatTrackerType.Hp,
+    //     type: CombatTrackerType.All,
+    //     status: CombatTrackerStatus.All,
+    //     rank: 2,
+    // },
+    // {
+    //     option: editCharacterOption,
+    //     menu: CombatTrackerType.Hp,
+    //     type: CombatTrackerType.All,
+    //     status: CombatTrackerStatus.NotStartedOrInProgress,
+    //     rank: 3,
+    // },
+    // {
+    //     option: removeCharacterOption,
+    //     menu: CombatTrackerType.Hp,
+    //     type: CombatTrackerType.All,
+    //     status: CombatTrackerStatus.NotStartedOrInProgress,
+    //     rank: 4,
+    // },
+    // {
+    //     option: nextTurnOption,
+    //     menu: CombatTrackerType.Initiative,
+    //     type: CombatTrackerType.Initiative,
+    //     status: CombatTrackerStatus.InProgress,
+    //     rank: 0,
+    // },
+    // {
+    //     option: previousTurnOption,
+    //     menu: CombatTrackerType.Initiative,
+    //     type: CombatTrackerType.Initiative,
+    //     status: CombatTrackerStatus.InProgress,
+    //     rank: 1,
+    // },
+    // {
+    //     option: moveTurnOption,
+    //     menu: CombatTrackerType.Initiative,
+    //     type: CombatTrackerType.Initiative,
+    //     status: CombatTrackerStatus.InProgress,
+    //     rank: 2,
+    // },
     {
         option: startCombatOption,
         menu: CombatTrackerType.Initiative,
