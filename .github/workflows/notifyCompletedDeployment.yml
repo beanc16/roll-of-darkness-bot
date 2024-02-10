@@ -9,9 +9,26 @@ jobs:
     name: Notify Discord
     steps:
       - name: Notify Discord on Success
+        if: ${{ success() }}
         uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
         with:
           args:
             '🚀 {{ EVENT_PAYLOAD.repository.full_name }} successfully deployed'
+      - name: Notify Discord on Failure
+        if: ${{ failure() }}
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
+        with:
+          args:
+            '❌ {{ EVENT_PAYLOAD.repository.full_name }} failed to deployed'
+      - name: Notify Discord on Cancelled
+        if: ${{ cancelled() }}
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
+        with:
+          args:
+            '✖️ {{ EVENT_PAYLOAD.repository.full_name }} deployment was cancelled'
