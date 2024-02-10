@@ -47,13 +47,13 @@ class Combat_Tracker extends BaseSlashCommand
                     typeOfTracker: typeKey,
                     combatTrackerStatus: tracker.status,
                 });
-    
+
                 // Handle the components of the embed message
                 awaitCombatTrackerMessageComponents({
                     message,
                     tracker,
                 });
-    
+
                 // Send response
                 await updateCombatTrackerEmbedMessage({
                     tracker,
