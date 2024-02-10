@@ -12,6 +12,7 @@ import { logger } from '@beanc16/logger';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
 import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter';
+import { EditCharacterHpModal } from '../../modals/combat-tracker/EditCharacterHp';
 
 interface CombatTrackerMessageComponentHandlerParameters
 {
@@ -25,16 +26,8 @@ async function editCharacterHp({
     tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    await interaction.reply({
-        content: `The ability to edit a character's HP has not yet been implemented`,
-        ephemeral: true,
-    });
-
-    // Handle the components of the embed message.
-    awaitCombatTrackerMessageComponents({
-        message: interaction.message,
-        tracker,
-    });
+    // Send the modal.
+    await EditCharacterHpModal.showModal(interaction, tracker.type);
 }
 
 async function addCharacter({

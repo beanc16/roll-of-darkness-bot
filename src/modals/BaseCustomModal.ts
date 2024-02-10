@@ -7,7 +7,6 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
-import { AddCharacterCustomIds } from './combat-tracker/AddCharacter';
 
 interface InputValue
 {
@@ -22,7 +21,8 @@ export abstract class BaseCustomModal
     protected static _id: string;
     protected static _title: string;
     protected static _inputValuesMap: Record<string, InputValue[]>;
-    protected static _styleMap: Record<AddCharacterCustomIds, TextInputStyle>;
+    protected static _styleMap: Record<string, TextInputStyle>;
+    protected static _inputData: unknown;
 
     static get id()
     {
@@ -114,6 +114,7 @@ export abstract class BaseCustomModal
 
     static async showModal<TextInputParamaters = object>(interaction: MessageComponentInteraction, data?: TextInputParamaters): Promise<void>
     {
+        this._inputData = data;
         const modal = this.getModal<TextInputParamaters>(data);
         await interaction.showModal(modal);
     }
@@ -132,7 +133,7 @@ export abstract class BaseCustomModal
             value,
         }) => {
             // Parse paragraph input fields
-            if (this._styleMap[customId as AddCharacterCustomIds] === TextInputStyle.Paragraph)
+            if (this._styleMap[customId] === TextInputStyle.Paragraph)
             {
                 const map = this.parseInputValues<KeyType>(customId, value);
                 acc[customId as KeyType] = map;

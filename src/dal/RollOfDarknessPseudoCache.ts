@@ -47,6 +47,18 @@ interface CreateCharacterParameters
     message: Message;
 }
 
+interface EditCharacterHpParameters
+{
+    tracker: Tracker;
+    interaction: CommandInteraction;
+    characterName: string;
+    hpType: 'damaged' | 'healed';
+    bashingDamage?: number;
+    lethalDamage?: number;
+    aggravatedDamage?: number;
+    onCharacterNotFound?: (interaction: CommandInteraction) => Promise<void>;
+}
+
 export class RollOfDarknessPseudoCache
 {
     static async createTracker({
@@ -192,4 +204,36 @@ export class RollOfDarknessPseudoCache
             tracker,
         };
     }
+
+    // TODO: Type parameters and output.
+    static async editCharacterHp({
+        tracker,
+        interaction,
+        characterName,
+        hpType,
+        bashingDamage,
+        lethalDamage,
+        aggravatedDamage,
+        onCharacterNotFound = async (interaction) =>
+        {
+            // Send response
+            await interaction.editReply({
+                content: `Failed to edit character hp because a character named ${characterName} was not found`,
+            });
+        },
+    } : EditCharacterHpParameters)
+    {
+        const characters = this.getCharacters({ tracker });
+        const characterToEdit = characters.find((character) => character.name === characterName);
+
+        if (!characterToEdit)
+        {
+            onCharacterNotFound(interaction);
+        }
+        else
+        {
+            // Do damage/healing calculation based on max hp and current damage here
+            characterToEdit.maxHp;
+        }
+    };
 }
