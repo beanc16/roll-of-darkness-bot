@@ -46,12 +46,12 @@ const addCharacterOption = new StringSelectMenuOptionBuilder()
 //     .setEmoji({ name: '📝' })
 //     .setDefault(false);
 
-// const removeCharacterOption = new StringSelectMenuOptionBuilder()
-//     .setLabel('Remove Character')
-//     .setDescription(`Remove a character from combat`)
-//     .setValue('remove_character_button')
-//     .setEmoji({ name: '❌' })
-//     .setDefault(false);
+const removeCharacterOption = new StringSelectMenuOptionBuilder()
+    .setLabel('Remove Character')
+    .setDescription(`Remove a character from combat`)
+    .setValue('remove_character_button')
+    .setEmoji({ name: '❌' })
+    .setDefault(false);
 
 // Initiative Options
 // const nextTurnOption = new StringSelectMenuOptionBuilder()
@@ -127,13 +127,13 @@ export const combatTrackerOptions: CombatTrackerOption[] = [
     //     status: CombatTrackerStatus.NotStartedOrInProgress,
     //     rank: 3,
     // },
-    // {
-    //     option: removeCharacterOption,
-    //     menu: CombatTrackerType.Hp,
-    //     type: CombatTrackerType.All,
-    //     status: CombatTrackerStatus.NotStartedOrInProgress,
-    //     rank: 4,
-    // },
+    {
+        option: removeCharacterOption,
+        menu: CombatTrackerType.Hp,
+        type: CombatTrackerType.All,
+        status: CombatTrackerStatus.NotStartedOrInProgress,
+        rank: 4,
+    },
     // {
     //     option: nextTurnOption,
     //     menu: CombatTrackerType.Initiative,

@@ -13,6 +13,7 @@ import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
 import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter';
 import { EditCharacterHpModal } from '../../modals/combat-tracker/EditCharacterHp';
+import { RemoveCharacterModal } from '../../modals/combat-tracker/RemoveCharacter';
 
 interface CombatTrackerMessageComponentHandlerParameters
 {
@@ -78,16 +79,8 @@ async function removeCharacter({
     tracker,
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
-    await interaction.reply({
-        content: 'The ability to remove a character has not yet been implemented',
-        ephemeral: true,
-    });
-
-    // Handle the components of the embed message.
-    awaitCombatTrackerMessageComponents({
-        message: interaction.message,
-        tracker,
-    });
+    // Send the modal.
+    await RemoveCharacterModal.showModal(interaction, tracker);
 }
 
 // Initiative Options
