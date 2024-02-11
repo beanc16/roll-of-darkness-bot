@@ -121,7 +121,7 @@ export abstract class BaseCustomModal
 
     static parseInput<KeyType extends string = string>(interaction: ModalSubmitInteraction)
     {
-        // TODO: Add way to handle invalid inputted data.
+        // TODO: Add way to handle invalid inputted data. Probably with JOI schemas.
         const {
             fields: {
                 fields,
