@@ -85,12 +85,12 @@ export class EditCharacterHpModal extends BaseCustomModal
         const damageTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.HpType)
             .setLabel(`What type of damage is it? (bashing / lethal / agg)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.HpType])
+            .setStyle(this._styleMap[EditCharacterHpCustomIds.DamageType])
             .setMinLength(1)
             .setMaxLength(7)
             .setRequired(true)
             .setValue(
-                this.getInputValues(EditCharacterHpCustomIds.HpType)
+                this.getInputValues(EditCharacterHpCustomIds.DamageType)
             );
 
         return [
