@@ -1,6 +1,6 @@
 type DamageType = 'bashing' | 'lethal' | 'agg';
 
-interface HpParameters
+interface WorldOfDarknessHpServiceParameters
 {
     maxHp: number;
     bashingDamage: number;
@@ -10,19 +10,11 @@ interface HpParameters
     damageType: DamageType;
 }
 
-interface HpResponse
+interface WorldOfDarknessHpServiceResponse
 {
     newBashingDamage: number;
     newLethalDamage: number;
     newAggravatedDamage: number;
-}
-
-interface HpSpecificParameters
-{
-    bashingDamage: number;
-    lethalDamage: number;
-    aggravatedDamage: number;
-    amount: number;
 }
 
 interface NWodDamageManagerConstructorParameters
@@ -31,6 +23,12 @@ interface NWodDamageManagerConstructorParameters
     bashingDamage: number;
     lethalDamage: number;
     aggravatedDamage: number;
+}
+
+interface NWodDamageManagerOperationParameters
+{
+    amount: number;
+    damageType: DamageType;
 }
 
 class NWodDamageManager
@@ -53,7 +51,27 @@ class NWodDamageManager
         this.#aggravatedDamage = aggravatedDamage;
     }
 
-    increment(damageType: DamageType)
+    get maxHp(): number
+    {
+        return this.#maxHp;
+    }
+
+    get bashingDamage(): number
+    {
+        return this.#bashingDamage;
+    }
+
+    get lethalDamage(): number
+    {
+        return this.#lethalDamage;
+    }
+
+    get aggravatedDamage(): number
+    {
+        return this.#aggravatedDamage;
+    }
+
+    increment(damageType: DamageType): void
     {
         if (damageType === 'bashing')
         {
@@ -71,7 +89,7 @@ class NWodDamageManager
         }
     }
 
-    decrement(damageType: DamageType)
+    decrement(damageType: DamageType): void
     {
         if (damageType === 'bashing')
         {
@@ -89,7 +107,7 @@ class NWodDamageManager
         }
     }
 
-    upgrade(damageType: DamageType)
+    upgrade(damageType: DamageType): void
     {
         // Upgrade to the next damage type
         if (damageType === 'bashing' || damageType === 'lethal')
@@ -107,7 +125,7 @@ class NWodDamageManager
         {
             this.increment('agg');
         }
-
+        
         // Remove from the lowest tier damage type
         if (this.#bashingDamage > 0)
         {
@@ -118,12 +136,95 @@ class NWodDamageManager
             this.decrement('lethal');
         }
     }
+    
+    damage({
+        amount,
+        damageType,
+    }: NWodDamageManagerOperationParameters): void
+    {
+        for (let i = 0; i < amount; i += 1)
+        {
+            if (this.getTotalDamage() < this.#maxHp)
+            {
+                this.increment(damageType);
+            }
+            else
+            {
+                this.upgrade(damageType);
+            }
+        }
+    }
 
-    getTotalDamage = () => {
+    heal({
+        amount,
+        damageType,
+    }: NWodDamageManagerOperationParameters): void
+    {
+        for (let i = 0; i < amount; i += 1)
+        {
+            if (
+                this.#aggravatedDamage > 0
+                && damageType === 'agg'
+            )
+            {
+                this.decrement('agg');
+            }
+            else if (
+                this.#lethalDamage > 0
+                && (damageType === 'agg' || damageType === 'lethal')
+            )
+            {
+                this.decrement('lethal');
+            }
+            else if (
+                this.#bashingDamage > 0
+                && (damageType === 'agg' || damageType === 'lethal' || damageType === 'bashing')
+            )
+            {
+                this.decrement('bashing');
+            }
+        }
+    }
+
+    downgrade({
+        amount,
+        damageType,
+    }: NWodDamageManagerOperationParameters): void
+    {
+        for (let i = 0; i < amount; i += 1)
+        {
+            if (
+                this.#aggravatedDamage > 0
+                && damageType === 'agg'
+            )
+            {
+                this.decrement('agg');
+                this.increment('lethal');
+            }
+            else if (
+                this.#lethalDamage > 0
+                && (damageType === 'agg' || damageType === 'lethal')
+            )
+            {
+                this.decrement('lethal');
+                this.increment('bashing');
+            }
+            else if (
+                this.#bashingDamage > 0
+                && (damageType === 'agg' || damageType === 'lethal' || damageType === 'bashing')
+            )
+            {
+                this.decrement('bashing');
+            }
+        }
+    }
+
+    getTotalDamage(): number
+    {
         return this.#bashingDamage + this.#lethalDamage + this.#aggravatedDamage;
     };
 
-    getValues()
+    getValues(): WorldOfDarknessHpServiceResponse
     {
         return {
             newAggravatedDamage: this.#aggravatedDamage,
@@ -135,144 +236,6 @@ class NWodDamageManager
 
 export class WorldOfDarknessHpService
 {
-    static #healSpecificDamage({
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-    }: HpSpecificParameters): HpResponse
-    {
-        const orderedDamage = [
-            aggravatedDamage,
-            lethalDamage,
-            bashingDamage,
-        ];
-
-        // Heal each damage in order
-        const {
-            damage: [
-                newAggravatedDamage,
-                newLethalDamage,
-                newBashingDamage,
-            ],
-        } = orderedDamage.reduce((acc, damage) =>
-        {
-            if (acc.amount <= 0 || damage <= 0)
-            {
-                acc.damage.push(damage);
-                return acc;
-            }
-
-            const remainingDamage = damage - acc.amount;
-            acc.damage.push(Math.max(remainingDamage, 0));
-            acc.amount = (remainingDamage > 0)
-                ? 0                     // Has damage of this tier left, so stop healing
-                : remainingDamage * -1; // Overflowed healing, so should do damage to lower tiers of damage types
-
-            return acc;
-        }, {
-            damage: [] as number[],
-            amount,
-        });
-
-        return {
-            newAggravatedDamage,
-            newLethalDamage,
-            newBashingDamage,
-        };
-    }
-
-    static heal({
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-        damageType,
-    }: Omit<HpParameters, 'maxHp'>)
-    {
-        const input = {
-            // Default to not healing all damage types (by setting them to 0)
-            bashingDamage: 0,
-            lethalDamage: 0,
-            aggravatedDamage: 0,
-            amount,
-        };
-
-        if (damageType === 'agg')
-        {
-            input.bashingDamage = bashingDamage;
-            input.lethalDamage = lethalDamage;
-            input.aggravatedDamage = aggravatedDamage;
-        }
-        else if (damageType === 'lethal')
-        {
-            input.bashingDamage = bashingDamage;
-            input.lethalDamage = lethalDamage;
-        }
-        else if (damageType === 'bashing')
-        {
-            input.bashingDamage = bashingDamage;
-        }
-
-        const output = this.#healSpecificDamage(input);
-
-        if (damageType === 'lethal')
-        {
-            output.newAggravatedDamage = aggravatedDamage;
-        }
-        else if (damageType === 'bashing')
-        {
-            output.newAggravatedDamage = aggravatedDamage;
-            output.newLethalDamage = lethalDamage;
-        }
-
-        return output;
-    }
-
-    static downgrade({
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-        damageType,
-    }: Omit<HpParameters, 'maxHp'>)
-    {
-        const output = this.heal({
-            bashingDamage,
-            lethalDamage,
-            aggravatedDamage,
-            amount,
-            damageType,
-        });
-        let newAmount = amount;
-
-        if (damageType === 'agg')
-        {
-            const remainderToCarryOver = (output.newAggravatedDamage === 0)
-                ? aggravatedDamage
-                : newAmount;
-            
-            output.newLethalDamage = lethalDamage + remainderToCarryOver;
-            newAmount = Math.max(newAmount - remainderToCarryOver, 0);
-        }
-
-        if (damageType === 'lethal' || damageType === 'agg')
-        {
-            const remainderToCarryOver = (output.newLethalDamage === 0)
-                ? lethalDamage
-                : newAmount;
-            
-            output.newBashingDamage = bashingDamage + remainderToCarryOver;
-
-            if (damageType === 'agg')
-            {
-                output.newLethalDamage = output.newLethalDamage - remainderToCarryOver;
-            }
-        }
-
-        return output;
-    }
-
     static damage({
         maxHp,
         bashingDamage,
@@ -280,7 +243,7 @@ export class WorldOfDarknessHpService
         aggravatedDamage,
         amount,
         damageType,
-    }: HpParameters)
+    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
     {
         const damageManager = new NWodDamageManager({
             maxHp,
@@ -289,17 +252,58 @@ export class WorldOfDarknessHpService
             aggravatedDamage,
         });
 
-        for (let i = 0; i < amount; i += 1)
-        {
-            if (damageManager.getTotalDamage() < maxHp)
-            {
-                damageManager.increment(damageType);
-            }
-            else
-            {
-                damageManager.upgrade(damageType);
-            }
-        }
+        damageManager.damage({
+            amount,
+            damageType,
+        });
+
+        return damageManager.getValues();
+    }
+
+    static heal({
+        maxHp,
+        bashingDamage,
+        lethalDamage,
+        aggravatedDamage,
+        amount,
+        damageType,
+    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
+    {
+        const damageManager = new NWodDamageManager({
+            maxHp,
+            bashingDamage,
+            lethalDamage,
+            aggravatedDamage,
+        });
+
+        damageManager.heal({
+            amount,
+            damageType,
+        });
+
+        return damageManager.getValues();
+    }
+
+    static downgrade({
+        maxHp,
+        bashingDamage,
+        lethalDamage,
+        aggravatedDamage,
+        amount,
+        damageType,
+    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
+    {
+        const damageManager = new NWodDamageManager({
+            maxHp,
+            bashingDamage,
+            lethalDamage,
+            aggravatedDamage,
+        });
+
+        damageManager.downgrade({
+            amount,
+            damageType,
+        });
 
         return damageManager.getValues();
     }
