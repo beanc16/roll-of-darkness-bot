@@ -3,6 +3,7 @@ import {
     Character,
     CharacterController,
     CharacterResponse,
+    CharacterUpdateResponse,
     Tracker,
     TrackerController, 
     TrackerResponse,
@@ -11,6 +12,7 @@ import {
 import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
 import combatTrackersSingleton from '../models/combatTrackersSingleton';
 import charactersSingleton from '../models/charactersSingleton';
+import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService';
 
 interface CreateTrackerParameters
 {
@@ -52,7 +54,8 @@ interface EditCharacterHpParameters
     tracker: Tracker;
     interaction: CommandInteraction;
     characterName: string;
-    hpType: 'damaged' | 'healed';
+    hpType: 'damaged' | 'healed' | 'downgraded'; // TODO: Make this a shared type with the discord layer
+    damageToDo: number;
     bashingDamage?: number;
     lethalDamage?: number;
     aggravatedDamage?: number;
@@ -211,9 +214,10 @@ export class RollOfDarknessPseudoCache
         interaction,
         characterName,
         hpType,
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
+        damageToDo,
+        bashingDamage = 0,
+        lethalDamage = 0,
+        aggravatedDamage = 0,
         onCharacterNotFound = async (interaction) =>
         {
             // Send response
@@ -221,7 +225,7 @@ export class RollOfDarknessPseudoCache
                 content: `Failed to edit character hp because a character named ${characterName} was not found`,
             });
         },
-    } : EditCharacterHpParameters)
+    }: EditCharacterHpParameters): Promise<CharacterResponse['results']['model'] | undefined>
     {
         const characters = this.getCharacters({ tracker });
         const characterToEdit = characters.find((character) => character.name === characterName);
@@ -229,11 +233,67 @@ export class RollOfDarknessPseudoCache
         if (!characterToEdit)
         {
             onCharacterNotFound(interaction);
+            return undefined;
         }
         else
         {
-            // Do damage/healing calculation based on max hp and current damage here
-            characterToEdit.maxHp;
+            const damageType = (aggravatedDamage > 0)
+                ? 'agg'
+                : (lethalDamage > 0)
+                ? 'lethal'
+                : 'bashing';
+
+            const editHpBy = {
+                damaged: () => WorldOfDarknessHpService.damage({
+                    maxHp: characterToEdit.maxHp,
+                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
+                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    amount: damageToDo,
+                    damageType,
+                }),
+                healed: () => WorldOfDarknessHpService.heal({
+                    maxHp: characterToEdit.maxHp,
+                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
+                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    amount: damageToDo,
+                    damageType,
+                }),
+                downgraded: () => WorldOfDarknessHpService.downgrade({
+                    maxHp: characterToEdit.maxHp,
+                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
+                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    amount: damageToDo,
+                    damageType,
+                }),
+            };
+
+            const {
+                newBashingDamage,
+                newLethalDamage,
+                newAggravatedDamage,
+            } = editHpBy[hpType]();
+
+            const {
+                results: {
+                    new: editedCharacter,
+                },
+            } = await CharacterController.findOneAndUpdate({
+                name: characterToEdit.name,
+            }, {
+                // If one is found, update the current damage
+                currentDamage: {
+                    bashing: newBashingDamage,
+                    lethal: newLethalDamage,
+                    aggravated: newAggravatedDamage,
+                },
+            }) as CharacterUpdateResponse;
+
+            charactersSingleton.upsert(tracker._id?.toString() as string, editedCharacter);
+
+            return editedCharacter;
         }
     };
 }

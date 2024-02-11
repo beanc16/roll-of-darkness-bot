@@ -179,6 +179,17 @@ export interface CharacterResponse
     statusCode: number;
 }
 
+// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
+export interface CharacterUpdateResponse
+{
+    results: {
+        old: Character;
+        new: Character;
+    };
+    error: Error | null;
+    statusCode: number;
+}
+
 export class CharacterController extends MongoDbControllerWithEnv
 {
     static collectionName = process.env.COLLECTION_CHARACTER;
