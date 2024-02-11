@@ -11,7 +11,7 @@ import {
 interface InputValue
 {
     key: string;
-    label: string;
+    label?: string;
     value: string | number;
     typeOfValue: 'string' | 'integer' | 'boolean';
 }
@@ -45,7 +45,7 @@ export abstract class BaseCustomModal
 
         return inputValues.reduce((acc, cur, index) =>
         {
-            acc += `${cur.label}${cur.value}`;
+            acc += `${cur.label || ''}${cur.value}`;
 
             // Add a line break between each input value, but not at the end
             if (index < inputValues.length - 1)
@@ -66,7 +66,7 @@ export abstract class BaseCustomModal
             const defaultInputValue = defaultInputValues[index];
 
             // Remove the label so all that remains is the value
-            const value = cur.trim().replace(defaultInputValue.label, '');
+            const value = cur.trim().replace(defaultInputValue.label || '', '');
 
             if (defaultInputValue.typeOfValue === 'integer')
             {

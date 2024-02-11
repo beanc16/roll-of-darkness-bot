@@ -137,6 +137,11 @@ export class AddCharacterModal extends BaseCustomModal
 
     static async run(interaction: ModalSubmitInteraction)
     {
+        // Send message to show the command was received
+        await interaction.deferUpdate({
+            fetchReply: true,
+        });
+
         const data = this.parseInput<AddCharacterCustomIds>(interaction);
 
         const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;

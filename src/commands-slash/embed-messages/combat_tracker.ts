@@ -281,11 +281,7 @@ export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerE
     }
     else if (interaction instanceof ModalSubmitInteraction)
     {
-        const response = await interaction.deferUpdate({
-            fetchReply: true,
-        });
-
-        await response.edit({
+        await interaction.message?.edit({
             embeds: [embedMessage],
             components: actionRows,
         });

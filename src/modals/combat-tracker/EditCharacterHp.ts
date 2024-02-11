@@ -23,14 +23,14 @@ export enum EditCharacterHpCustomIds
 export class EditCharacterHpModal extends BaseCustomModal
 {
     static {
-        this._id = 'add-character-modal';
-        this._title = 'Add Character';
+        this._id = 'edit-character-modal';
+        this._title = 'Edit Character';
         this._inputValuesMap = {
             [EditCharacterHpCustomIds.HpType]: [
                 {
                     key: 'hpType',
                     label: '',
-                    value: 'damaged',
+                    value: HpType.Damage,
                     typeOfValue: 'string',
                 },
             ],
@@ -38,7 +38,7 @@ export class EditCharacterHpModal extends BaseCustomModal
                 {
                     key: 'damageType',
                     label: '',
-                    value: 'lethal',
+                    value: DamageType.Lethal,
                     typeOfValue: 'string',
                 },
             ],
@@ -83,7 +83,7 @@ export class EditCharacterHpModal extends BaseCustomModal
             .setRequired(true);
 
         const damageTypeInput = new TextInputBuilder()
-            .setCustomId(EditCharacterHpCustomIds.HpType)
+            .setCustomId(EditCharacterHpCustomIds.DamageType)
             .setLabel(`Type of damage? (bashing / lethal / agg)`)
             .setStyle(this._styleMap[EditCharacterHpCustomIds.DamageType])
             .setMinLength(1)
@@ -108,6 +108,11 @@ export class EditCharacterHpModal extends BaseCustomModal
 
     static async run(interaction: ModalSubmitInteraction)
     {
+        // Send message to show the command was received
+        await interaction.deferUpdate({
+            fetchReply: true,
+        });
+
         const tracker = this._inputData as Tracker;
 
         const {
