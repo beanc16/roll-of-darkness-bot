@@ -68,7 +68,7 @@ export class EditCharacterHpModal extends BaseCustomModal
             .setLabel(`Change HP? (damage / heal / downgrade)`)
             .setStyle(this._styleMap[EditCharacterHpCustomIds.HpType])
             .setMinLength(1)
-            .setMaxLength(7)
+            .setMaxLength(9)
             .setRequired(true)
             .setValue(
                 this.getInputValues(EditCharacterHpCustomIds.HpType)
@@ -138,7 +138,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         });
 
         // Get characters.
-        const characters = RollOfDarknessPseudoCache.getCharacters({ tracker });
+        const characters = await RollOfDarknessPseudoCache.getCharacters({ tracker });
 
         // Handle the components of the embed message.
         awaitCombatTrackerMessageComponents({

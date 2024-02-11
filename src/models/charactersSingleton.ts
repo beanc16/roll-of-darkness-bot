@@ -20,7 +20,7 @@ class CharactersSingleton
         return this.#singleton.get() || {};
     }
 
-    get(key: string): Character[]
+    get(key: string): Character[] | undefined
     {
         return this.getAll()[key];
     }
@@ -32,6 +32,11 @@ class CharactersSingleton
         {
             map[key] = [];
         }
+
+        // Remove the given value if it exists
+        map[key] = map[key].filter((element) => element._id?.toString() !== value._id?.toString());
+
+        // Inser the given value
         map[key].push(value);
         this.set(map);
     }

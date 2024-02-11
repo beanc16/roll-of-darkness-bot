@@ -178,7 +178,7 @@ export class AddCharacterModal extends BaseCustomModal
         });
 
         // Get characters.
-        const characters = RollOfDarknessPseudoCache.getCharacters({ tracker });
+        const characters = await RollOfDarknessPseudoCache.getCharacters({ tracker });
 
         // Handle the components of the embed message.
         awaitCombatTrackerMessageComponents({

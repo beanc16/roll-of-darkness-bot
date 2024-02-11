@@ -27,7 +27,7 @@ async function editCharacterHp({
 } : CombatTrackerMessageComponentHandlerParameters): Promise<void>
 {
     // Send the modal.
-    await EditCharacterHpModal.showModal(interaction, tracker.type);
+    await EditCharacterHpModal.showModal(interaction, tracker);
 }
 
 async function addCharacter({
@@ -195,7 +195,7 @@ async function startCombat({
             });
 
             // Get characters.
-            const characters = RollOfDarknessPseudoCache.getCharacters({
+            const characters = await RollOfDarknessPseudoCache.getCharacters({
                 tracker: newTracker,
             });
 
@@ -246,7 +246,7 @@ async function endCombat({
                 });
 
                 // Get characters.
-                const characters = RollOfDarknessPseudoCache.getCharacters({
+                const characters = await RollOfDarknessPseudoCache.getCharacters({
                     tracker: newTracker,
                 });
 

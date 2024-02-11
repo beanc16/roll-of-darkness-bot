@@ -1,5 +1,6 @@
 import { CommandInteraction, Message, ModalSubmitInteraction } from 'discord.js';
 import {
+    AggregatedTrackerWithCharactersController,
     Character,
     CharacterController,
     CharacterResponse,
@@ -70,7 +71,8 @@ export class RollOfDarknessPseudoCache
         onTrackerAlreadyExists = async (interaction) =>
         {
             // Send response
-            await interaction.editReply({
+            await interaction.followUp({
+                ephemeral: true,
                 content: `Failed to create tracker because a tracker named ${trackerName} already exists`,
             });
         },
@@ -136,12 +138,27 @@ export class RollOfDarknessPseudoCache
         return tracker;
     }
 
-    static getCharacters({
+    static async getCharacters({
         tracker
-    }: GetCharactersParameters): Character[]
+    }: GetCharactersParameters): Promise<Character[]>
     {
         const trackerId = tracker._id?.toString() as string;
-        return charactersSingleton.get(trackerId);
+        const characters = charactersSingleton.get(trackerId);
+
+        if (characters)
+        {
+            return characters;
+        }
+
+        const {
+            results: [
+                {
+                    characters: charactersFromDb = [],
+                } = {},
+            ] = [{}],
+        } = await AggregatedTrackerWithCharactersController.getByTrackerName(tracker.name);
+
+        return charactersFromDb;
     }
 
     static async createCharacter({
@@ -216,7 +233,8 @@ export class RollOfDarknessPseudoCache
         onCharacterNotFound = async (interaction) =>
         {
             // Send response
-            await interaction.editReply({
+            await interaction.followUp({
+                ephemeral: true,
                 content: `Failed to edit character hp because a character named ${characterName} was not found`,
             });
         },
@@ -225,7 +243,7 @@ export class RollOfDarknessPseudoCache
         tracker?: TrackerResponse['results']['model'],
     }>
     {
-        const characters = this.getCharacters({ tracker });
+        const characters = await this.getCharacters({ tracker });
         const characterToEdit = characters.find((character) => character.name === characterName);
 
         if (!characterToEdit)
@@ -274,7 +292,7 @@ export class RollOfDarknessPseudoCache
                     new: editedCharacter,
                 },
             } = await CharacterController.findOneAndUpdate({
-                name: characterToEdit.name,
+                _id: characterToEdit._id,
             }, {
                 // If one is found, update the current damage
                 currentDamage: {
@@ -285,15 +303,12 @@ export class RollOfDarknessPseudoCache
             }) as CharacterUpdateResponse;
 
             // TODO: Handle tracker does not exists.
-            const {
-                results: {
-                    model: newTracker,
-                },
-            } = await TrackerController.getMostRecent({
+            const newTracker = await TrackerController.getMostRecent({
                 name: tracker.name,
-            }) as TrackerResponse;
+            }) as TrackerResponse['results']['model'];
 
-            charactersSingleton.upsert(tracker._id?.toString() as string, editedCharacter);
+            combatTrackersSingleton.upsert(newTracker);
+            charactersSingleton.upsert(newTracker._id?.toString() as string, editedCharacter);
 
             return {
                 character: editedCharacter,
