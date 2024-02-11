@@ -268,6 +268,7 @@ export class RollOfDarknessPseudoCache
                 newAggravatedDamage,
             } = editHpBy[hpType]();
 
+            // TODO: Handle character does not exists.
             const {
                 results: {
                     new: editedCharacter,
@@ -283,6 +284,7 @@ export class RollOfDarknessPseudoCache
                 },
             }) as CharacterUpdateResponse;
 
+            // TODO: Handle tracker does not exists.
             const {
                 results: {
                     model: newTracker,
