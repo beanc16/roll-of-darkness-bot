@@ -9,7 +9,7 @@ import {
     TrackerResponse,
     TrackerUpdateResponse,
 } from './RollOfDarknessMongoControllers';
-import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants/combatTracker';
 import combatTrackersSingleton from '../models/combatTrackersSingleton';
 import charactersSingleton from '../models/charactersSingleton';
 import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService';
@@ -52,14 +52,12 @@ interface CreateCharacterParameters
 interface EditCharacterHpParameters
 {
     tracker: Tracker;
-    interaction: CommandInteraction;
+    interaction: ModalSubmitInteraction;
     characterName: string;
-    hpType: 'damaged' | 'healed' | 'downgraded'; // TODO: Make this a shared type with the discord layer
+    hpType: HpType;
+    damageType: DamageType;
     damageToDo: number;
-    bashingDamage?: number;
-    lethalDamage?: number;
-    aggravatedDamage?: number;
-    onCharacterNotFound?: (interaction: CommandInteraction) => Promise<void>;
+    onCharacterNotFound?: (interaction: ModalSubmitInteraction) => Promise<void>;
 }
 
 export class RollOfDarknessPseudoCache
@@ -208,16 +206,13 @@ export class RollOfDarknessPseudoCache
         };
     }
 
-    // TODO: Type parameters and output.
     static async editCharacterHp({
         tracker,
         interaction,
         characterName,
         hpType,
+        damageType,
         damageToDo,
-        bashingDamage = 0,
-        lethalDamage = 0,
-        aggravatedDamage = 0,
         onCharacterNotFound = async (interaction) =>
         {
             // Send response
@@ -225,7 +220,10 @@ export class RollOfDarknessPseudoCache
                 content: `Failed to edit character hp because a character named ${characterName} was not found`,
             });
         },
-    }: EditCharacterHpParameters): Promise<CharacterResponse['results']['model'] | undefined>
+    }: EditCharacterHpParameters): Promise<{
+        character?: CharacterResponse['results']['model'],
+        tracker?: TrackerResponse['results']['model'],
+    }>
     {
         const characters = this.getCharacters({ tracker });
         const characterToEdit = characters.find((character) => character.name === characterName);
@@ -233,38 +231,32 @@ export class RollOfDarknessPseudoCache
         if (!characterToEdit)
         {
             onCharacterNotFound(interaction);
-            return undefined;
+            return {};
         }
         else
         {
-            const damageType = (aggravatedDamage > 0)
-                ? 'agg'
-                : (lethalDamage > 0)
-                ? 'lethal'
-                : 'bashing';
-
             const editHpBy = {
-                damaged: () => WorldOfDarknessHpService.damage({
+                [HpType.Damage]: () => WorldOfDarknessHpService.damage({
                     maxHp: characterToEdit.maxHp,
-                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
-                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
-                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    bashingDamage: characterToEdit.currentDamage.bashing,
+                    lethalDamage: characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: characterToEdit.currentDamage.aggravated,
                     amount: damageToDo,
                     damageType,
                 }),
-                healed: () => WorldOfDarknessHpService.heal({
+                [HpType.Heal]: () => WorldOfDarknessHpService.heal({
                     maxHp: characterToEdit.maxHp,
-                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
-                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
-                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    bashingDamage: characterToEdit.currentDamage.bashing,
+                    lethalDamage: characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: characterToEdit.currentDamage.aggravated,
                     amount: damageToDo,
                     damageType,
                 }),
-                downgraded: () => WorldOfDarknessHpService.downgrade({
+                [HpType.Downgrade]: () => WorldOfDarknessHpService.downgrade({
                     maxHp: characterToEdit.maxHp,
-                    bashingDamage: bashingDamage || characterToEdit.currentDamage.bashing,
-                    lethalDamage: bashingDamage || characterToEdit.currentDamage.lethal,
-                    aggravatedDamage: bashingDamage || characterToEdit.currentDamage.aggravated,
+                    bashingDamage: characterToEdit.currentDamage.bashing,
+                    lethalDamage: characterToEdit.currentDamage.lethal,
+                    aggravatedDamage: characterToEdit.currentDamage.aggravated,
                     amount: damageToDo,
                     damageType,
                 }),
@@ -291,9 +283,20 @@ export class RollOfDarknessPseudoCache
                 },
             }) as CharacterUpdateResponse;
 
+            const {
+                results: {
+                    model: newTracker,
+                },
+            } = await TrackerController.getMostRecent({
+                name: tracker.name,
+            }) as TrackerResponse;
+
             charactersSingleton.upsert(tracker._id?.toString() as string, editedCharacter);
 
-            return editedCharacter;
+            return {
+                character: editedCharacter,
+                tracker: newTracker,
+            };
         }
     };
 }
