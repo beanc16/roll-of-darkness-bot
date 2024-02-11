@@ -65,7 +65,7 @@ export class EditCharacterHpModal extends BaseCustomModal
 
         const hpTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.HpType)
-            .setLabel(`What should happen to the character's HP? (damage / heal / downgrade)`)
+            .setLabel(`Change HP? (damage / heal / downgrade)`)
             .setStyle(this._styleMap[EditCharacterHpCustomIds.HpType])
             .setMinLength(1)
             .setMaxLength(7)
@@ -84,7 +84,7 @@ export class EditCharacterHpModal extends BaseCustomModal
 
         const damageTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.HpType)
-            .setLabel(`What type of damage is it? (bashing / lethal / agg)`)
+            .setLabel(`Type of damage? (bashing / lethal / agg)`)
             .setStyle(this._styleMap[EditCharacterHpCustomIds.DamageType])
             .setMinLength(1)
             .setMaxLength(7)
