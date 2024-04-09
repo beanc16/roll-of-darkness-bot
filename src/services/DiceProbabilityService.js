@@ -1,6 +1,5 @@
-const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
-
 const rollConstants = require('../constants/roll');
+const CachedRollOfDarknessApi = require('../services/CachedRollOfDarknessApi');
 
 class DiceProbabilityService
 {
@@ -24,7 +23,7 @@ class DiceProbabilityService
         const {
             cumulative_probability: cumulativeProbability,
             individual_probability: individualProbability,
-        } = await RollOfDarknessApi.probability.getDiceProbability({
+        } = await CachedRollOfDarknessApi.probability.getDiceProbability({
             dice: numberOfDice,
             successes: desiredNumberOfSuccesses,
             rerolls,
