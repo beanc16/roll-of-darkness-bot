@@ -7,6 +7,7 @@ class InitiativeResponseFormatterService extends ResponseFormatterService
         authorId,
         dicePoolGroup,
         initiativeModifier,
+        name,
     })
     {
         super({
@@ -16,13 +17,15 @@ class InitiativeResponseFormatterService extends ResponseFormatterService
         this.rollResult = dicePoolGroup.getBiggestResult().rolls[0][0].number;
         this.initiativeModifier = initiativeModifier;
         this.initiative = this.rollResult + this.initiativeModifier;
+        this.name = name;
     }
 
     getResponse()
     {
         const optionalPlusSign = (this.initiativeModifier > 0) ? '+' : '';
+        const rollName = (this.name) ? ` for ${this.name}` : '';
 
-        const initialInfo = `${this.authorPing} rolled a ${this.rollResult} with a ${optionalPlusSign}${this.initiativeModifier} initiative modifier.`;
+        const initialInfo = `${this.authorPing} rolled a ${this.rollResult} with a ${optionalPlusSign}${this.initiativeModifier} initiative modifier${rollName}.`;
         return `${initialInfo}\n\n${Text.bold(`Initiative of ${this.initiative}`)}`;
     }
 }

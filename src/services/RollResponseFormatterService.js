@@ -14,6 +14,7 @@ class RollResponseFormatterService extends ResponseFormatterService
         flavorText = rollConstants.defaultFlavorTextResults,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         isRote = rollConstants.defaultParams.isRote,
+        name,
         numberOfDice = rollConstants.defaultParams.count,
         rerollsDisplay,
     } = {})
@@ -28,6 +29,7 @@ class RollResponseFormatterService extends ResponseFormatterService
         this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
+        this.name = name;
         this.numberOfDice = numberOfDice || rollConstants.defaultParams.count;
         this.rerollsDisplay = rerollsDisplay;
     }
@@ -192,7 +194,9 @@ class RollResponseFormatterService extends ResponseFormatterService
             return acc;
         }, '');
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}. ${this.flavorText}`
+        const rollName = (this.name) ? ` for ${this.name}` : '';
+
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}${rollName}. ${this.flavorText}`
             + responsesStr;
     }
 }

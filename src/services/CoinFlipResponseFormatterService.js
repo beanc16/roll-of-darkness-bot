@@ -6,6 +6,7 @@ class CoinFlipResponseFormatterService extends ResponseFormatterService
     constructor({
         authorId,
         headsOrTails,
+        name,
         result,
     } = {})
     {
@@ -14,6 +15,7 @@ class CoinFlipResponseFormatterService extends ResponseFormatterService
         });
         this.headsOrTails = headsOrTails;
         this.result = result;
+        this.name = name;
         this.successfullyPredictedResult = (result === headsOrTails);
     }
 
@@ -29,7 +31,9 @@ class CoinFlipResponseFormatterService extends ResponseFormatterService
 
     getResponse()
     {
-        return `${this.authorPing} flipped a coin, predicted that it would be ${Text.bold(this.headsOrTails)}, and got ${Text.bold(this.result)}. ${this.getRandomFlavorText()}`;
+        const rollName = (this.name) ? ` for ${this.name}` : '';
+
+        return `${this.authorPing} flipped a coin, predicted that it would be ${Text.bold(this.headsOrTails)}, and got ${Text.bold(this.result)}${rollName}. ${this.getRandomFlavorText()}`;
     }
 }
 
