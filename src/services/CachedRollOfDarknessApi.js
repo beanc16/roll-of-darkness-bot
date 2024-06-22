@@ -72,7 +72,7 @@ class CachedRollOfDarknessApi extends RollOfDarknessApi
 
     static _delayOnError(errorMessage, err)
     {
-        logger.error(
+        logger.warn(
             errorMessage,
             err?.response?.data || err,
             {
