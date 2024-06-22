@@ -25,6 +25,15 @@ function splat(option)
     return option;
 }
 
+function name(option)
+{
+    option.setName('name');
+    option.setDescription('The name/flavor text of the roll');
+    option.setMinLength(1);
+    option.setMaxLength(100);
+    return option;
+}
+
 // TODO: Probably move this somewhere else later. Or ask Joel to update the API to take the values instead. Or update the values to match.
 // For probability command
 const rerollChoices = {
@@ -118,6 +127,7 @@ function secret(option, {
 module.exports = {
     numberOfDice,
     splat,
+    name,
     rerollChoices,
     rerolls,
     rote,
