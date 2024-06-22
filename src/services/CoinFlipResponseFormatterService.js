@@ -1,7 +1,7 @@
 const { Text } = require('@beanc16/discordjs-helpers');
 const ResponseFormatterService = require('./ResponseFormatterService');
 
-class RollResponseFormatterService extends ResponseFormatterService
+class CoinFlipResponseFormatterService extends ResponseFormatterService
 {
     constructor({
         authorId,
@@ -35,4 +35,4 @@ class RollResponseFormatterService extends ResponseFormatterService
 
 
 
-module.exports = RollResponseFormatterService;
+module.exports = CoinFlipResponseFormatterService;
