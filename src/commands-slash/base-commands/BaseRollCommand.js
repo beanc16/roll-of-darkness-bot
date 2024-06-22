@@ -29,6 +29,7 @@ class BaseRollCommand extends SplatSlashCommand
         }
 
         this._slashCommandData
+            .addStringOption(options.roll.name)
             .addStringOption(options.roll.rerolls)
             .addBooleanOption(options.roll.rote)
             .addIntegerOption(options.roll.exceptionalOn)
@@ -56,6 +57,7 @@ class BaseRollCommand extends SplatSlashCommand
 
         // Get parameter results
         const splat = interaction.options.getString('splat') || await flavorTextService.getCategory('GENERAL');
+        const name = interaction.options.getString('name');
         const rerollsKey = interaction.options.getString('rerolls');
         const isRote = interaction.options.getBoolean('rote');
         const exceptionalOn = interaction.options.getInteger('exceptional_on');
@@ -97,6 +99,7 @@ class BaseRollCommand extends SplatSlashCommand
             flavorText,
             isAdvancedAction,
             isRote,
+            name,
             numberOfDice,
             rerollsDisplay,
         });

@@ -10,6 +10,7 @@ class CoinFlip extends BaseSlashCommand
         super();
         this._slashCommandData
             .addStringOption(options.coinFlip.headsOrTails)
+            .addStringOption(options.roll.name)
             .addBooleanOption((option) => options.roll.secret(option, {
                 commandType: 'coin flip',
             }));
@@ -22,6 +23,7 @@ class CoinFlip extends BaseSlashCommand
         // Get initial parameter result
         const headsOrTails = interaction.options.getString('heads_or_tails') || false;
         const isSecret = interaction.options.getBoolean('secret') || false;
+        const name = interaction.options.getString('name');
 
         // Send message to show the command was received
         await interaction.deferReply({
@@ -48,6 +50,7 @@ class CoinFlip extends BaseSlashCommand
         const coinFlipResponseFormatterService = new CoinFlipResponseFormatterService({
             authorId: interaction.user.id,
             headsOrTails,
+            name,
             result,
         })
         await interaction.editReply(

@@ -10,6 +10,7 @@ class Luck extends SplatSlashCommand
     {
         super();
         this._slashCommandData
+            .addStringOption(options.name)
             .addBooleanOption(options.secret);
     }
 
@@ -21,6 +22,7 @@ class Luck extends SplatSlashCommand
         // Get initial parameter result
         const splat = interaction.options.getString('splat') || await flavorTextService.getCategory('GENERAL');
         const isSecret = interaction.options.getBoolean('secret') || false;
+        const name = interaction.options.getString('name');
 
         // Send message to show the command was received
         await interaction.deferReply({
@@ -51,6 +53,7 @@ class Luck extends SplatSlashCommand
             dicePoolGroup,
             flavorText,
             numberOfDice,
+            name,
         });
         await interaction.editReply(
             rollResponseFormatterService.getResponse()

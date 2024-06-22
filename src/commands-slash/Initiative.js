@@ -13,6 +13,7 @@ class Initiative extends BaseSlashCommand
         super();
         this._slashCommandData
             .addStringOption(options.initiative.initiativeModifier)
+            .addStringOption(options.roll.name)
             .addBooleanOption(options.roll.secret);
 
         this._mathParser = new Parser(mathParserOptions);
@@ -23,6 +24,7 @@ class Initiative extends BaseSlashCommand
         // Get initial parameter result
         const initiativeModifierExpression = interaction.options.getString('initiative_modifier');
         const isSecret = interaction.options.getBoolean('secret') || false;
+        const name = interaction.options.getString('name');
 
         // Send message to show the command was received
         await interaction.deferReply({
@@ -64,6 +66,7 @@ class Initiative extends BaseSlashCommand
                 authorId: interaction.user.id,
                 dicePoolGroup,
                 initiativeModifier,
+                name,
             });
             await interaction.editReply(
                 initiativeResponseFormatterService.getResponse()
