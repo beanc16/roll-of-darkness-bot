@@ -61,3 +61,11 @@ jobs:
         with:
           args:
             '❌ {{ EVENT_PAYLOAD.repository.full_name }} failed to registered slash commands'
+      - name: Notify Discord on Cancel
+        if: cancelled()
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
+        with:
+          args:
+            '❌ {{ EVENT_PAYLOAD.repository.full_name }} cancelled registeration of slash commands'
