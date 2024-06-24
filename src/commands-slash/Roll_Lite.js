@@ -105,7 +105,7 @@ class Roll_Lite extends BaseSlashCommand
         if (successfullyParsedDicepool) {
             await interaction.editReply( // TODO: Add name here like /roll supports.
                 `${Text.Ping.user(interaction.user.id)} :game_die:\n`
-                + `${Text.bold(name) ?? Text.bold('Result')}:${resultString}\n`
+                + `${Text.bold(name ?? 'Result')}:${resultString}\n`
                 + `${Text.bold('Total')}: ${finalRollResult}`
             );
         }
