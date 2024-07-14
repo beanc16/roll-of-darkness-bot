@@ -36,6 +36,7 @@ jobs:
           LOGGLY_TOKEN: ${{ secrets.LOGGLY_TOKEN }}
           LOGGLY_SUBDOMAIN: ${{ secrets.LOGGLY_SUBDOMAIN }}
           LOGGING_DISCORD_WEBHOOK: ${{ secrets.LOGGING_DISCORD_WEBHOOK }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
         run: npm run register-slash-commands
 
   notify-discord:
