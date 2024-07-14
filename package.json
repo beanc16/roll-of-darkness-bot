@@ -27,16 +27,15 @@
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.1",
         "expr-eval": "^2.0.2",
-        "mongodb-controller": "^1.4.4",
-        "mongodb": "^4.3.1"
+        "mongodb": "^6.3.0",
+        "mongodb-controller": "^1.4.4"
     },
     "devDependencies": {
         "@types/node": "^20.9.0",
         "eslint": "^8.8.0",
-        "mongodb": "^6.3.0",
         "nodemon": "^2.0.18",
         "ts-node": "^10.9.2",
-        "typescript": "^5.3.3"
+        "typescript": "^5.5.3"
     },
     "engines": {
         "node": "18.x"

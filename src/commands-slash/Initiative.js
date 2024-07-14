@@ -45,7 +45,7 @@ class Initiative extends BaseSlashCommand
         }
 
         if (successfullyParsedDicepool) {
-            const dicePoolGroup = Initiative.roll();
+            const dicePoolGroup = this.roll();
 
             // Response
             const initiativeResponseFormatterService = new InitiativeResponseFormatterService({

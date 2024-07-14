@@ -1,5 +1,5 @@
 const { Text } = require('@beanc16/discordjs-helpers');
-const BaseContextMenuCommand = require('./base-commands/BaseContextMenuCommand');
+const { BaseContextMenuCommand } = require('./base-commands/BaseContextMenuCommand');
 
 class TakeDramaticFailure extends BaseContextMenuCommand
 {

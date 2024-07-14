@@ -4,7 +4,7 @@ import appRootPath from 'app-root-path';
 import { REST, Routes } from 'discord.js';
 import { logger } from '@beanc16/logger';
 import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
-import BaseContextMenuCommand from '../context-menus/base-commands/BaseContextMenuCommand';
+import { BaseContextMenuCommand } from '../context-menus/base-commands/BaseContextMenuCommand';
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 
@@ -28,7 +28,7 @@ const defaultRegisterCommandParameters = {
     guildId: '',
 };
 
-class SlashCommandsContainer
+export class SlashCommandsContainer
 {
     static #slashCommands: { [key: string]: Command } = {};
     static #guildCommands: { [key: string]: Command } = {};
@@ -274,7 +274,3 @@ class SlashCommandsContainer
         return undefined;
     }
 }
-
-
-
-export = SlashCommandsContainer;

@@ -3,7 +3,7 @@ import onReady from './onReady';
 
 
 
-export = [
+export default [
     onInteraction,
     onReady,
 ];

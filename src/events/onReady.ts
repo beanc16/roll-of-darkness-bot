@@ -25,7 +25,7 @@ async function handler()
 
 
 
-export = {
+export default {
     name: Events.ClientReady,
     handler,
 };

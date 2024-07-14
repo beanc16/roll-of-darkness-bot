@@ -3,7 +3,7 @@ const { ApplicationCommandType, ContextMenuCommandBuilder } = require('discord.j
 
 
 
-class BaseContextMenuCommand
+export class BaseContextMenuCommand
 {
     _isInitialized;
     _commandData;
@@ -47,7 +47,3 @@ class BaseContextMenuCommand
         return;
     }
 }
-
-
-
-export = BaseContextMenuCommand;

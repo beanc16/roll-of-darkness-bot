@@ -1,6 +1,6 @@
 import { Client, CommandInteraction, Events, ModalSubmitInteraction } from 'discord.js';
 import { logger } from '@beanc16/logger';
-import SlashCommandsContainer from '../slash-command-helpers/SlashCommandsContainer';
+import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer';
 import { modalMap } from '../modals';
 
 
@@ -80,7 +80,7 @@ async function handler(bot: Client, interaction: CommandInteraction)
 
 
 
-export = {
+export default {
     name: Events.InteractionCreate,
     handler,
 };

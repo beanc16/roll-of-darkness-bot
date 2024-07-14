@@ -80,4 +80,4 @@ class Combat_Tracker extends BaseSlashCommand
     }
 }
 
-export = new Combat_Tracker();
+export default new Combat_Tracker();
