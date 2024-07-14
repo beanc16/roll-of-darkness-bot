@@ -1,9 +1,8 @@
-const { RollOfDarknessApi } = require('@beanc16/microservices-abstraction');
 const rollConstants = require('../constants/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
 const flavorTextSingleton = require('../models/flavorTextSingleton');
+const CachedRollOfDarknessApi = require('../services/CachedRollOfDarknessApi');
 const DiceService = require('../services/DiceService');
-const { logger } = require('@beanc16/logger');
 
 class FlavorTextService
 {
@@ -35,7 +34,12 @@ class FlavorTextService
          */
         const {
             categories: unparsedCategories = [],
-        } = await RollOfDarknessApi.categories.get();
+        } = await CachedRollOfDarknessApi.categories.get();
+
+        if (unparsedCategories.length === 0)
+        {
+            return [];
+        }
 
         const parsedCategories = unparsedCategories.reduce(function (acc, category)
         {
@@ -73,28 +77,20 @@ class FlavorTextService
          *      ]
          *  }
          */
-        try
+        const {
+            flavor_texts: results = [],
+        } = await CachedRollOfDarknessApi.flavorText.get({
+            splat: '',
+            categories: [],
+        });
+
+        if (results?.length > 0)
         {
-            const {
-                flavor_texts: results = [],
-            } = await RollOfDarknessApi.flavorText.get({
-                splat: '',
-                categories: [],
-            });
-
-            if (results?.length > 0)
-            {
-                return results;
-            }
-
-            else
-            {
-                return rollConstants.defaultFlavorTextResults;
-            }
+            return results;
         }
-        catch (err)
+
+        else
         {
-            logger.error('Error getting flavor text', err);
             return rollConstants.defaultFlavorTextResults;
         }
     }
@@ -132,35 +128,27 @@ class FlavorTextService
          *      ]
          *  }
          */
-        try
+        const {
+            flavor_texts: results = [],
+        } = await CachedRollOfDarknessApi.flavorText.get({
+            splat,
+            categories,
+        });
+
+        if (results?.length > 0)
         {
-            const {
-                flavor_texts: results = [],
-            } = await RollOfDarknessApi.flavorText.get({
-                splat,
-                categories,
+            flavorTextSingleton.push({
+                keys: [
+                    splat,
+                    ...categories,
+                ],
+                results,
             });
-
-            if (results?.length > 0)
-            {
-                flavorTextSingleton.push({
-                    keys: [
-                        splat,
-                        ...categories,
-                    ],
-                    results,
-                });
-                return results;
-            }
-
-            else
-            {
-                return rollConstants.defaultFlavorTextResults;
-            }
+            return results;
         }
-        catch (err)
+
+        else
         {
-            logger.error('Error getting flavor text', err);
             return rollConstants.defaultFlavorTextResults;
         }
     }

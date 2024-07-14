@@ -13,6 +13,7 @@ class Roll_Lite extends BaseSlashCommand
         super();
         this._slashCommandData
             .addStringOption(options.rollLite.dicePool)
+            .addStringOption(options.roll.name)
             .addBooleanOption(options.roll.secret);
 
         this._mathParser = new Parser(mathParserOptions);
@@ -23,6 +24,7 @@ class Roll_Lite extends BaseSlashCommand
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool');
         const isSecret = interaction.options.getBoolean('secret') || false;
+        const name = interaction.options.getString('name');
 
         // Send message to show the command was received
         await interaction.deferReply({
@@ -101,9 +103,9 @@ class Roll_Lite extends BaseSlashCommand
 
         // Run this separately from the try catch, so errors in super.run don't send an incorrect error message
         if (successfullyParsedDicepool) {
-            await interaction.editReply(
+            await interaction.editReply( // TODO: Add name here like /roll supports.
                 `${Text.Ping.user(interaction.user.id)} :game_die:\n`
-                + `${Text.bold('Result')}:${resultString}\n`
+                + `${Text.bold(name ?? 'Result')}:${resultString}\n`
                 + `${Text.bold('Total')}: ${finalRollResult}`
             );
         }

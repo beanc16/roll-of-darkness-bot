@@ -1,11 +1,12 @@
 const { Text } = require('@beanc16/discordjs-helpers');
 const ResponseFormatterService = require('./ResponseFormatterService');
 
-class RollResponseFormatterService extends ResponseFormatterService
+class CoinFlipResponseFormatterService extends ResponseFormatterService
 {
     constructor({
         authorId,
         headsOrTails,
+        name,
         result,
     } = {})
     {
@@ -14,6 +15,7 @@ class RollResponseFormatterService extends ResponseFormatterService
         });
         this.headsOrTails = headsOrTails;
         this.result = result;
+        this.name = name;
         this.successfullyPredictedResult = (result === headsOrTails);
     }
 
@@ -29,10 +31,12 @@ class RollResponseFormatterService extends ResponseFormatterService
 
     getResponse()
     {
-        return `${this.authorPing} flipped a coin, predicted that it would be ${Text.bold(this.headsOrTails)}, and got ${Text.bold(this.result)}. ${this.getRandomFlavorText()}`;
+        const rollName = (this.name) ? ` for ${this.name}` : '';
+
+        return `${this.authorPing} flipped a coin, predicted that it would be ${Text.bold(this.headsOrTails)}, and got ${Text.bold(this.result)}${rollName}. ${this.getRandomFlavorText()}`;
     }
 }
 
 
 
-module.exports = RollResponseFormatterService;
+module.exports = CoinFlipResponseFormatterService;

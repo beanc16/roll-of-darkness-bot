@@ -42,19 +42,27 @@ class Probability extends BaseSlashCommand
             advancedAction: isAdvancedAction,
         });
 
-        // Response
-        const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
-            authorId: interaction.user.id,
-            desiredNumberOfSuccesses,
-            numberOfDice,
-            rerolls: options.roll.rerollChoices[rerollsKey],
-            rote: isRote,
-            advancedAction: isAdvancedAction,
-            probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-        });
-        await interaction.editReply(
-            probabilityResponseFormatterService.getResponse()
-        );
+        if (!probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice)
+        {
+            // Response
+            const probabilityResponseFormatterService = new ProbabilityResponseFormatterService({
+                authorId: interaction.user.id,
+                desiredNumberOfSuccesses,
+                numberOfDice,
+                rerolls: options.roll.rerollChoices[rerollsKey],
+                rote: isRote,
+                advancedAction: isAdvancedAction,
+                probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
+            });
+            await interaction.editReply(
+                probabilityResponseFormatterService.getResponse()
+            );
+        }
+
+        else
+        {
+            await interaction.editReply('Failed to calculate probability.');
+        }
     }
 
     get description()
