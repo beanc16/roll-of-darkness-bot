@@ -1,9 +1,9 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
-const options = require('../options');
-const { mathParserOptions } = require('../../constants/mathParserOptions');
-const rollConstants = require('../../constants/roll');
-const DiceService = require('../../services/DiceService');
-const InitiativeResponseFormatterService = require('../../services/InitiativeResponseFormatterService');
+const options = require('./options');
+const { mathParserOptions } = require('../constants/mathParserOptions');
+const rollConstants = require('../constants/roll');
+const DiceService = require('../services/DiceService');
+const InitiativeResponseFormatterService = require('../services/InitiativeResponseFormatterService');
 const { Parser } = require('expr-eval');
 
 class Initiative extends BaseSlashCommand

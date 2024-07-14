@@ -5,7 +5,7 @@ import {
     TextInputStyle,
 } from 'discord.js';
 import { BaseCustomModal } from '../BaseCustomModal';
-import initiativeCommand from '../../commands-slash/guild-commands/Initiative';
+import initiativeCommand from '../../commands-slash/Initiative';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
 import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker';
 import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker';
