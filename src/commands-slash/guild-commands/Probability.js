@@ -1,7 +1,7 @@
 const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
-const options = require('./options');
-const DiceProbabilityService = require('../services/DiceProbabilityService');
-const ProbabilityResponseFormatterService = require('../services/ProbabilityResponseFormatterService');
+const options = require('../options');
+const DiceProbabilityService = require('../../services/DiceProbabilityService');
+const ProbabilityResponseFormatterService = require('../../services/ProbabilityResponseFormatterService');
 
 class Probability extends BaseSlashCommand
 {
