@@ -20,6 +20,7 @@ export enum HealingAndStatusOption
 export enum PtuRandomSubcommand
 {
     Berry = 'berry',
+    DowsingRod = 'dowsing_rod',
     EvolutionaryStone = 'evolutionary_stone',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
@@ -67,6 +68,30 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
                 value: BerryTier.Three,
             },
         );
+    });
+    return subcommand;
+};
+
+export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.DowsingRod);
+    subcommand.setDescription('Get a random item using a Dowsing Rod.');
+    // TODO: Add a number of iterations to roll this.
+    subcommand.addIntegerOption((option) => {
+        option.setName('occult_education_rank');
+        option.setDescription('Your Occult Education rank.');
+        option.setMinValue(1);
+        option.setMaxValue(8);
+        option.setRequired(true);
+        return option;
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('has_skill_stunt_dowsing');
+        return option.setDescription('You have the Skill Stunt (Dowsing) Edge (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('is_sandy_or_rocky');
+        return option.setDescription(`You're searching in a sandy or rocky area (default: false)`);
     });
     return subcommand;
 };

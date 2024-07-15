@@ -6,7 +6,7 @@ import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiS
 import { PtuSubcommandGroup } from './options/subcommand-groups';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomPickupNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 
 enum HealingItemTypes
 {
@@ -42,7 +42,7 @@ type SubcommandHandlers = Record<
 export interface RandomResult
 {
     name: string;
-    cost: string;
+    cost?: string;
     description: string;
     numOfTimesRolled?: number;
 }
@@ -67,6 +67,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.Berry]: {
         data: 'Berry',
         plural: 'Berries',
+    },
+    [PtuRandomSubcommand.DowsingRod]: {
+        data: 'Dowsing Rod Shard',
+        plural: 'Dowsing Rod Shards',
     },
     [PtuRandomSubcommand.EvolutionaryStone]: {
         data: 'Evolutionary Stone',
@@ -135,7 +139,7 @@ const subcommandHandler = async (interaction: ChatInputCommandInteraction, subco
         const index = acc.findIndex(({ result }) => result === cur);
 
         // Increment the number of times rolled
-        if (index > 0)
+        if (index >= 0)
         {
             acc[index].numOfTimesRolled += 1;
         }
@@ -240,7 +244,7 @@ class Ptu extends BaseSlashCommand
                 const uniqueRolls = rollResult.reduce((acc, cur) => {
                     const index = acc.findIndex(({ result }) => result === cur);
 
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         acc[index].numOfTimesRolled += 1;
                     }
@@ -330,7 +334,7 @@ class Ptu extends BaseSlashCommand
                 const uniqueRolls = rollResult.reduce((acc, cur) => {
                     const index = acc.findIndex(({ result }) => result === cur);
 
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         acc[index].numOfTimesRolled += 1;
                     }
@@ -417,7 +421,7 @@ class Ptu extends BaseSlashCommand
                 const uniqueRolls = rollResult.reduce((acc, cur) => {
                     const index = acc.findIndex(({ result }) => result === cur);
 
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         acc[index].numOfTimesRolled += 1;
                     }
@@ -539,7 +543,7 @@ class Ptu extends BaseSlashCommand
                     const uniqueRolls = rollResult.reduce((acc, cur) => {
                         const index = acc.findIndex(({ result }) => result === cur);
     
-                        if (index > 0)
+                        if (index >= 0)
                         {
                             acc[index].numOfTimesRolled += 1;
                         }
@@ -569,7 +573,7 @@ class Ptu extends BaseSlashCommand
                 const uniqueRolls = rollResult.reduce((acc, cur) => {
                     const index = acc.findIndex(({ result }) => result === cur);
 
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         acc[index].numOfTimesRolled += 1;
                     }
@@ -585,7 +589,7 @@ class Ptu extends BaseSlashCommand
                 }, [] as {
                     result: number;
                     numOfTimesRolled: number;
-                }[]); // TODO: Make unique rolls for rerolls be grouped together with a CompositeKeyRecord later
+                }[]); // TODO: Make unique rolls for rerolls be grouped together with a CompositeKeyRecord for ball name and jailbreak info name later
 
                 // Get random items
                 const results = uniqueRolls.reduce((acc, { result, numOfTimesRolled }) => {
@@ -642,7 +646,7 @@ class Ptu extends BaseSlashCommand
                 if (roll <= 5)
                 {
                     // Get message
-                    const embed = getRandomPickupNothingEmbedMessage({
+                    const embed = getRandomYouFoundNothingEmbedMessage({
                         itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.Pickup].plural,
                         rollResults: roll.toString(),
                     });
@@ -699,6 +703,130 @@ class Ptu extends BaseSlashCommand
                 else if (roll === 20)
                 {
                     return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.TM](interaction);
+                }
+
+                return true;
+            },
+            [PtuRandomSubcommand.DowsingRod]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const numberOfDice = interaction.options.getInteger('occult_education_rank') as number;
+                const hasSkillStuntDowsing = interaction.options.getBoolean('has_skill_stunt_dowsing') || false;
+                const isSandyOrRocky = interaction.options.getBoolean('is_sandy_or_rocky') || false;
+
+                const getDiceToRoll = ({ numberOfDice, hasSkillStuntDowsing, isSandyOrRocky } : { numberOfDice: number, hasSkillStuntDowsing: boolean, isSandyOrRocky: boolean }) =>
+                {
+                    let diceToRoll = numberOfDice;
+
+                    if (hasSkillStuntDowsing) diceToRoll += 1;
+                    if (isSandyOrRocky) diceToRoll += 1;
+
+                    return diceToRoll;
+                };
+
+                // Determine what items to roll for
+                const rollResult = new DiceLiteService({
+                    count: getDiceToRoll({ numberOfDice, hasSkillStuntDowsing, isSandyOrRocky }),
+                    sides: 6,
+                    rerollOnGreaterThanOrEqualTo: 6, // TODO: Make sure this explodes properly
+                }).roll();
+
+                // Get the number of shards to roll for
+                const numOfShardsToRoll = rollResult.reduce((acc, roll) => {
+                    if (roll >= 4)
+                    {
+                        acc += 1;
+                    }
+
+                    return acc;
+                }, 0);
+
+                // Nothing
+                if (numOfShardsToRoll === 0)
+                {
+                    // Get message
+                    const embed = getRandomYouFoundNothingEmbedMessage({
+                        itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.DowsingRod].plural,
+                        rollResults: rollResult.join(', '),
+                    });
+
+                    // Send embed
+                    await interaction.editReply({
+                        embeds: [embed],
+                    });
+                }
+
+                // Shard
+                else
+                {
+                    // Pull data from spreadsheet
+                    const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                        // TODO: Make this spreadsheet id a constant later
+                        spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                        range: `'${subcommandToStrings[PtuRandomSubcommand.DowsingRod].data} Data'!A2:E`,
+                    });
+
+                    // Parse data
+                    const parsedData = data.reduce((acc, [name, cost, description]) => {
+                        acc.push({
+                            name,
+                            cost,
+                            description,
+                        });
+                        return acc;
+                    }, [] as RandomResult[]);
+
+                    // Get random numbers
+                    const rollResult = new DiceLiteService({
+                        count: numberOfDice,
+                        sides: parsedData.length,
+                    }).roll();
+                    const rollResults = rollResult.join(', ');
+
+                    // Combine numbers to be unique
+                    const uniqueRolls = rollResult.reduce((acc, cur) => {
+                        const index = acc.findIndex(({ result }) => result === cur);
+
+                        // Increment the number of times rolled
+                        if (index >= 0)
+                        {
+                            acc[index].numOfTimesRolled += 1;
+                        }
+
+                        // Add to array for the first time
+                        else
+                        {
+                            acc.push({
+                                result: cur,
+                                numOfTimesRolled: 1,
+                            });
+                        }
+
+                        return acc;
+                    }, [] as {
+                        result: number;
+                        numOfTimesRolled: number;
+                    }[]);
+
+                    // Get random items based on rolls
+                    const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                        return {
+                            ...parsedData[result - 1],
+                            numOfTimesRolled,
+                        };
+                    });
+
+                    // Get embed message
+                    const embed = getRandomResultEmbedMessage({
+                        itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.DowsingRod].plural,
+                        results,
+                        rollResults,
+                    });
+
+                    // Send embed
+                    await interaction.editReply({
+                        embeds: [embed],
+                    });
                 }
 
                 return true;

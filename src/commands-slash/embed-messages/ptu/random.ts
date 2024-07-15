@@ -20,9 +20,17 @@ export const getRandomResultEmbedMessage = ({
         description,
         numOfTimesRolled = 1,
     }) => {
+        const descriptionString = (description !== undefined)
+            ? `${description}\n`
+            : '';
+
+        const costString = (cost !== undefined)
+            ? `\nCost: ${cost}`
+            : '';
+
         return {
             name,
-            value: `${description}\nNumber: ${numOfTimesRolled}\nCost: ${cost}`,
+            value: `${descriptionString}Number: ${numOfTimesRolled}${costString}`,
         } as APIEmbedField;
     });
 
@@ -35,7 +43,7 @@ export const getRandomResultEmbedMessage = ({
     return embed;
 };
 
-export const getRandomPickupNothingEmbedMessage = ({
+export const getRandomYouFoundNothingEmbedMessage = ({
     itemNamePluralized,
     rollResults,
 }: {
