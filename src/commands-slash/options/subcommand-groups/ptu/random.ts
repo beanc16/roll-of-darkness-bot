@@ -13,8 +13,10 @@ export enum BerryTier
 export enum PtuRandomSubcommand
 {
     Berry = 'berry',
+    EvolutionaryStone = 'evolutionary_stone',
     XItem = 'x-item',
     TM = 'tm',
+    Vitamin = 'vitamin',
 };
 
 const numberOfDice = (option: SlashCommandIntegerOption) =>
@@ -58,6 +60,14 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
+export const evolutionaryStones = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
+    subcommand.setDescription('Get one or more random evolutionary stones.');
+    subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
 export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.XItem);
@@ -69,7 +79,15 @@ export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
 export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.TM);
-    subcommand.setDescription('Get one or more random TMs/HMs');
+    subcommand.setDescription('Get one or more random TMs/HMs.');
+    subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const vitamin = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Vitamin);
+    subcommand.setDescription('Get one or more random vitamins.');
     subcommand.addIntegerOption(numberOfDice);
     return subcommand;
 };

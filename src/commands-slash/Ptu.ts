@@ -43,6 +43,10 @@ const subcommandToStrings: SubcommandToStrings = {
         data: 'Berry',
         plural: 'Berries',
     },
+    [PtuRandomSubcommand.EvolutionaryStone]: {
+        data: 'Evolutionary Stone',
+        plural: 'Evolutionary Stones',
+    },
     [PtuRandomSubcommand.XItem]: {
         data: 'X-Item',
         plural: 'X-Items',
@@ -50,6 +54,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.TM]: {
         data: 'TM',
         plural: 'TMs',
+    },
+    [PtuRandomSubcommand.Vitamin]: {
+        data: 'Vitamin',
+        plural: 'Vitamins',
     },
 };
 
@@ -232,10 +240,14 @@ class Ptu extends BaseSlashCommand
 
                 return true;
             },
+            [PtuRandomSubcommand.EvolutionaryStone]: async (interaction: ChatInputCommandInteraction) =>
+                subcommandHandler(interaction, PtuRandomSubcommand.EvolutionaryStone),
             [PtuRandomSubcommand.XItem]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.XItem),
             [PtuRandomSubcommand.TM]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.TM),
+            [PtuRandomSubcommand.Vitamin]: async (interaction: ChatInputCommandInteraction) =>
+                subcommandHandler(interaction, PtuRandomSubcommand.Vitamin),
         },
     };
 
