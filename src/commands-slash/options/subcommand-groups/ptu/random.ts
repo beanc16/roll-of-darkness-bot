@@ -60,7 +60,7 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const evolutionaryStones = (subcommand: SlashCommandSubcommandBuilder) =>
+export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
