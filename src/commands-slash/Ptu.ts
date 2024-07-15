@@ -4,9 +4,15 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import * as options from './options';
 import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiService';
 import { PtuSubcommandGroup } from './options/subcommand-groups';
-import { BerryTier, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
+import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
 import { getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+
+enum HealingItemTypes
+{
+    Healing = 'Healing',
+    Status = 'Status',
+}
 
 enum HeldItemTypes
 {
@@ -52,6 +58,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.EvolutionaryStone]: {
         data: 'Evolutionary Stone',
         plural: 'Evolutionary Stones',
+    },
+    [PtuRandomSubcommand.HealingItem]: {
+        data: 'Healing Item',
+        plural: 'Healing Items',
     },
     [PtuRandomSubcommand.HeldItem]: {
         data: 'Held Item',
@@ -251,6 +261,94 @@ class Ptu extends BaseSlashCommand
             },
             [PtuRandomSubcommand.EvolutionaryStone]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.EvolutionaryStone),
+            // TODO: DRY this out later so stuff can be shared
+            [PtuRandomSubcommand.HealingItem]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
+                const inputType = interaction.options.getString('type') || HealingAndStatusOption.HealingAndStatus;
+
+                const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                    // TODO: Make this spreadsheet id a constant later
+                    spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                    range: `'${subcommandToStrings[PtuRandomSubcommand.HealingItem].data} Data'!A2:D`,
+                });
+
+                // TODO: Move helper elsewhere in the future
+                const shouldInclude = ({ inputType, type }: { inputType: string, type: string }) =>
+                {
+                    if (inputType === HealingAndStatusOption.HealingAndStatus) return true;
+                    if (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing) return true;
+                    if (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status) return true;
+                    return false;
+                };
+
+                // TODO: Make this parser customizable to DRY out later
+                // Parse the data
+                const parsedData = data.reduce((acc, [name, cost, type, description]) => {
+                    // TODO: Make this a generic "shouldInclude" function later to DRY
+                    if (shouldInclude({ inputType, type }))
+                    {
+                        acc.push({
+                            name,
+                            cost,
+                            description,
+                        });
+                    }
+
+                    return acc;
+                }, [] as RandomResult[]);
+
+                // Get random numbers
+                const rollResult = new DiceLiteService({
+                    count: numberOfDice,
+                    sides: parsedData.length,
+                }).roll();
+                const rollResults = rollResult.join(', ');
+
+                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                    const index = acc.findIndex(({ result }) => result === cur);
+
+                    if (index > 0)
+                    {
+                        acc[index].numOfTimesRolled += 1;
+                    }
+                    else
+                    {
+                        acc.push({
+                            result: cur,
+                            numOfTimesRolled: 1,
+                        });
+                    }
+
+                    return acc;
+                }, [] as {
+                    result: number;
+                    numOfTimesRolled: number;
+                }[]);
+
+                // Get random items
+                const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                    return {
+                        ...parsedData[result - 1],
+                        numOfTimesRolled,
+                    };
+                });
+
+                // Get message
+                const embed = getRandomResultEmbedMessage({
+                    itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.HealingItem].plural,
+                    results,
+                    rollResults,
+                });
+
+                // Send embed
+                await interaction.editReply({
+                    embeds: [embed],
+                });
+
+                return true;
+            },
             // TODO: DRY this out later so stuff can be shared
             [PtuRandomSubcommand.HeldItem]: async (interaction: ChatInputCommandInteraction) =>
             {

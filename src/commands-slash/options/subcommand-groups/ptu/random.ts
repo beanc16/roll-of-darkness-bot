@@ -10,10 +10,18 @@ export enum BerryTier
     Three = 'three',
 }
 
+export enum HealingAndStatusOption
+{
+    HealingAndStatus = 'healing_and_status',
+    Healing = 'healing',
+    Status = 'status',
+}
+
 export enum PtuRandomSubcommand
 {
     Berry = 'berry',
     EvolutionaryStone = 'evolutionary_stone',
+    HealingItem = 'healing_item',
     HeldItem = 'held_item',
     XItem = 'x-item',
     TM = 'tm',
@@ -66,6 +74,32 @@ export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
     subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.HealingItem);
+    subcommand.setDescription('Get one or more random healing/status items.');
+    subcommand.addIntegerOption(numberOfDice);
+    subcommand.addStringOption((option) => {
+        option.setName('type');
+        option.setDescription('The type of healing/status item to roll for (default: Healing & Status)');
+        return option.setChoices(
+            {
+                name: 'Healing & Status',
+                value: HealingAndStatusOption.HealingAndStatus,
+            },
+            {
+                name: 'Healing',
+                value: HealingAndStatusOption.Healing,
+            },
+            {
+                name: 'Status',
+                value: HealingAndStatusOption.Status,
+            },
+        );
+    });
     return subcommand;
 };
 
