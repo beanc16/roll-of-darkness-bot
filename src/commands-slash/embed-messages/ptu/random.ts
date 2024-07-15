@@ -1,18 +1,20 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
-import { Berry } from '../../Ptu';
+import { RandomResult } from '../../Ptu';
 
 const color = 0xCDCDCD;
 
-export const getRandomBerriesEmbedMessage = ({
-    berries,
+export const getRandomResultEmbedMessage = ({
+    itemNamePluralized,
+    results,
     rollResults,
 }: {
-    berries: Berry[];
+    itemNamePluralized: string;
+    results: RandomResult[];
     rollResults: string;
 }) =>
 {
-    const fields = berries.map(({
+    const fields = results.map(({
         name,
         cost,
         description,
@@ -25,7 +27,7 @@ export const getRandomBerriesEmbedMessage = ({
     });
 
     const embed = new EmbedBuilder()
-        .setTitle('Random Berries')
+        .setTitle(`Random ${itemNamePluralized}`)
         .setDescription(`Result: (${rollResults})`)
         .setColor(color)
         .setFields(...fields);
