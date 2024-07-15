@@ -23,9 +23,9 @@ async function handler()
         // Log success
         logger.info(`Initialized ${process.env.APPLICATION_NAME}.`);
     }
-    catch (err)
+    catch (error)
     {
-        logger.error(`Failed to initialize ${process.env.APPLICATION_NAME}.`, err);
+        logger.error(`Failed to initialize ${process.env.APPLICATION_NAME}.`, (error as any)?.response?.data || error);
     }
 }
 
