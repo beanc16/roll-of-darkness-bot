@@ -35,6 +35,22 @@ export const getRandomResultEmbedMessage = ({
     return embed;
 };
 
+export const getRandomPickupNothingEmbedMessage = ({
+    itemNamePluralized,
+    rollResults,
+}: {
+    itemNamePluralized: string;
+    rollResults: string;
+}) =>
+{
+    const embed = new EmbedBuilder()
+        .setTitle(`Random ${itemNamePluralized}`)
+        .setDescription(`Result: (${rollResults})\n\nYou found nothing.`)
+        .setColor(color);
+
+    return embed;
+};
+
 export const getRandomPokeballEmbedMessage = ({
     itemNamePluralized,
     results,

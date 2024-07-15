@@ -6,7 +6,7 @@ import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiS
 import { PtuSubcommandGroup } from './options/subcommand-groups';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+import { getRandomPickupNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 
 enum HealingItemTypes
 {
@@ -79,6 +79,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.HeldItem]: {
         data: 'Held Item',
         plural: 'Held Items',
+    },
+    [PtuRandomSubcommand.Pickup]: {
+        data: 'Pickup',
+        plural: 'Pickups',
     },
     [PtuRandomSubcommand.Pokeball]: {
         data: 'Pokeball',
@@ -626,6 +630,79 @@ class Ptu extends BaseSlashCommand
                 subcommandHandler(interaction, PtuRandomSubcommand.TM),
             [PtuRandomSubcommand.Vitamin]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.Vitamin),
+            [PtuRandomSubcommand.Pickup]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Determine what items to roll for
+                const [roll] = new DiceLiteService({
+                    count: 1,
+                    sides: 20,
+                }).roll();
+
+                // Nothing
+                if (roll <= 5)
+                {
+                    // Get message
+                    const embed = getRandomPickupNothingEmbedMessage({
+                        itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.Pickup].plural,
+                        rollResults: roll.toString(),
+                    });
+
+                    // Send embed
+                    await interaction.editReply({
+                        embeds: [embed],
+                    });
+                }
+
+                // X-Item
+                else if (roll === 6 || roll === 7)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.XItem](interaction);
+                }
+
+                // Berries
+                else if (roll >= 8 && roll <= 10)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.Berry](interaction);
+                }
+
+                // Pokeball
+                else if (roll >= 11 && roll <= 13)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.Pokeball](interaction);
+                }
+
+                // Healing
+                else if (roll >= 14 && roll <= 16)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.HealingItem](interaction);
+                }
+
+                // Evolutionary Stone
+                else if (roll === 17)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.EvolutionaryStone](interaction);
+                }
+
+                // Vitamin
+                else if (roll === 18)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.Vitamin](interaction);
+                }
+
+                // Held Item
+                else if (roll === 19)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.HeldItem](interaction);
+                }
+
+                // TM
+                else if (roll === 20)
+                {
+                    return this.subcommandHandlers[PtuSubcommandGroup.Random][PtuRandomSubcommand.TM](interaction);
+                }
+
+                return true;
+            },
         },
     };
 

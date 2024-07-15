@@ -23,6 +23,7 @@ export enum PtuRandomSubcommand
     EvolutionaryStone = 'evolutionary_stone',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
+    Pickup = 'pickup',
     Pokeball = 'pokeball',
     XItem = 'x-item',
     TM = 'tm',
@@ -113,6 +114,14 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setName('include_mega');
         return option.setDescription('Include mega stone in potential results (default: false)');
     });
+    return subcommand;
+};
+
+export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Pickup);
+    subcommand.setDescription('Get a random item using the Pickup ability.');
+    // subcommand.addIntegerOption(numberOfDice);
     return subcommand;
 };
 
