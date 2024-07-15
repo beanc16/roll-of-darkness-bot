@@ -20,7 +20,7 @@ async function handler()
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
 
-        // 
+        // Log success
         logger.info(`Initialized ${process.env.APPLICATION_NAME}.`);
     }
     catch (err)
