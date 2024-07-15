@@ -8,6 +8,12 @@ import { BerryTier, PtuRandomSubcommand } from './options/subcommand-groups/ptu/
 import { DiceLiteService } from '../services/DiceLiteService';
 import { getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 
+enum HeldItemTypes
+{
+    Normal = 'Normal',
+    Mega = 'Mega',
+}
+
 type SubcommandHandlers = Record<
     PtuSubcommandGroup,
     Record<
@@ -46,6 +52,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.EvolutionaryStone]: {
         data: 'Evolutionary Stone',
         plural: 'Evolutionary Stones',
+    },
+    [PtuRandomSubcommand.HeldItem]: {
+        data: 'Held Item',
+        plural: 'Held Items',
     },
     [PtuRandomSubcommand.XItem]: {
         data: 'X-Item',
@@ -162,7 +172,7 @@ class Ptu extends BaseSlashCommand
                 });
 
                 // TODO: Move helper elsewhere in the future
-                const shouldIncludeBerry = ({ inputTier, tier }: { inputTier: string, tier: number }) =>
+                const shouldInclude = ({ inputTier, tier }: { inputTier: string, tier: number }) =>
                 {
                     if (inputTier === BerryTier.OnePlus && tier >= 1) return true;
                     if (inputTier === BerryTier.One && tier === 1) return true;
@@ -173,27 +183,26 @@ class Ptu extends BaseSlashCommand
                 };
 
                 // Parse the data
-                const berriesData = data.reduce((acc, [name, cost, unparsedTier, description]) => {
+                const parsedData = data.reduce((acc, [name, cost, unparsedTier, description]) => {
                     const tier = parseInt(unparsedTier, 10);
 
                     // TODO: Make this a generic "shouldInclude" function later to DRY
-                    if (shouldIncludeBerry({ inputTier, tier }))
+                    if (shouldInclude({ inputTier, tier }))
                     {
                         acc.push({
                             name,
                             cost,
-                            tier,
                             description,
                         });
                     }
 
                     return acc;
-                }, [] as RandomBerry[]);
+                }, [] as RandomResult[]);
 
                 // Get random numbers
                 const rollResult = new DiceLiteService({
                     count: numberOfDice,
-                    sides: berriesData.length,
+                    sides: parsedData.length,
                 }).roll();
                 const rollResults = rollResult.join(', ');
 
@@ -221,7 +230,7 @@ class Ptu extends BaseSlashCommand
                 // Get random items
                 const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
                     return {
-                        ...berriesData[result - 1],
+                        ...parsedData[result - 1],
                         numOfTimesRolled,
                     };
                 });
@@ -242,6 +251,93 @@ class Ptu extends BaseSlashCommand
             },
             [PtuRandomSubcommand.EvolutionaryStone]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.EvolutionaryStone),
+            // TODO: DRY this out later so stuff can be shared
+            [PtuRandomSubcommand.HeldItem]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
+                const includeMega = interaction.options.getBoolean('include_mega') || false;
+
+                const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                    // TODO: Make this spreadsheet id a constant later
+                    spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                    range: `'${subcommandToStrings[PtuRandomSubcommand.HeldItem].data} Data'!A2:D`,
+                });
+
+                // TODO: Move helper elsewhere in the future
+                const shouldInclude = ({ type, includeMega }: { type: string, includeMega: boolean }) =>
+                {
+                    if (type === HeldItemTypes.Normal) return true;
+                    if (type === HeldItemTypes.Mega && includeMega) return true;
+                    return false;
+                };
+
+                // TODO: Make this parser customizable to DRY out later
+                // Parse the data
+                const parsedData = data.reduce((acc, [name, cost, type, description]) => {
+                    // TODO: Make this a generic "shouldInclude" function later to DRY
+                    if (shouldInclude({ type, includeMega }))
+                    {
+                        acc.push({
+                            name,
+                            cost,
+                            description,
+                        });
+                    }
+
+                    return acc;
+                }, [] as RandomResult[]);
+
+                // Get random numbers
+                const rollResult = new DiceLiteService({
+                    count: numberOfDice,
+                    sides: parsedData.length,
+                }).roll();
+                const rollResults = rollResult.join(', ');
+
+                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                    const index = acc.findIndex(({ result }) => result === cur);
+
+                    if (index > 0)
+                    {
+                        acc[index].numOfTimesRolled += 1;
+                    }
+                    else
+                    {
+                        acc.push({
+                            result: cur,
+                            numOfTimesRolled: 1,
+                        });
+                    }
+
+                    return acc;
+                }, [] as {
+                    result: number;
+                    numOfTimesRolled: number;
+                }[]);
+
+                // Get random items
+                const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                    return {
+                        ...parsedData[result - 1],
+                        numOfTimesRolled,
+                    };
+                });
+
+                // Get message
+                const embed = getRandomResultEmbedMessage({
+                    itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.HeldItem].plural,
+                    results,
+                    rollResults,
+                });
+
+                // Send embed
+                await interaction.editReply({
+                    embeds: [embed],
+                });
+
+                return true;
+            },
             [PtuRandomSubcommand.XItem]: async (interaction: ChatInputCommandInteraction) =>
                 subcommandHandler(interaction, PtuRandomSubcommand.XItem),
             [PtuRandomSubcommand.TM]: async (interaction: ChatInputCommandInteraction) =>

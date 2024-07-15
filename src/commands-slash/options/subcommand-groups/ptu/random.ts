@@ -14,6 +14,7 @@ export enum PtuRandomSubcommand
 {
     Berry = 'berry',
     EvolutionaryStone = 'evolutionary_stone',
+    HeldItem = 'held_item',
     XItem = 'x-item',
     TM = 'tm',
     Vitamin = 'vitamin',
@@ -65,6 +66,18 @@ export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
     subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.HeldItem);
+    subcommand.setDescription('Get one or more random held items.');
+    subcommand.addIntegerOption(numberOfDice);
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_mega');
+        return option.setDescription('Include mega stone in potential results (default: false)');
+    });
     return subcommand;
 };
 

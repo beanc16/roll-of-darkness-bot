@@ -12,6 +12,7 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     subcommandGroup.setDescription('Run PTU radomization commands.');
     subcommandGroup.addSubcommand(randomSubcommands.berry);
     subcommandGroup.addSubcommand(randomSubcommands.evolutionaryStone);
+    subcommandGroup.addSubcommand(randomSubcommands.heldItem);
     subcommandGroup.addSubcommand(randomSubcommands.xItem);
     subcommandGroup.addSubcommand(randomSubcommands.tm);
     subcommandGroup.addSubcommand(randomSubcommands.vitamin);
