@@ -6,7 +6,7 @@ import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiS
 import { PtuSubcommandGroup } from './options/subcommand-groups';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+import { getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 
 enum HealingItemTypes
 {
@@ -18,6 +18,17 @@ enum HeldItemTypes
 {
     Normal = 'Normal',
     Mega = 'Mega',
+}
+
+enum PokeballType
+{
+    Normal = 'Normal',
+    Special = 'Special',
+    Safari = 'Safari',
+    Jailbreaker = 'Jailbreaker Ball',
+    Case = 'Jailbreaker Case',
+    Attachment = 'Jailbreaker Attachment',
+    Master = 'Master',
 }
 
 type SubcommandHandlers = Record<
@@ -36,9 +47,11 @@ export interface RandomResult
     numOfTimesRolled?: number;
 }
 
-export interface RandomBerry extends RandomResult
+export interface RandomPokeball extends RandomResult
 {
-    tier: number;
+    mod?: string;
+    type?: string;
+    jailBreakerInfo?: RandomPokeball;
 }
 
 interface StringsForSubcommand {
@@ -66,6 +79,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.HeldItem]: {
         data: 'Held Item',
         plural: 'Held Items',
+    },
+    [PtuRandomSubcommand.Pokeball]: {
+        data: 'Pokeball',
+        plural: 'Pokeballs',
     },
     [PtuRandomSubcommand.XItem]: {
         data: 'X-Item',
@@ -425,6 +442,173 @@ class Ptu extends BaseSlashCommand
                 // Get message
                 const embed = getRandomResultEmbedMessage({
                     itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.HeldItem].plural,
+                    results,
+                    rollResults,
+                });
+
+                // Send embed
+                await interaction.editReply({
+                    embeds: [embed],
+                });
+
+                return true;
+            },
+            // TODO: DRY this out later so stuff can be shared
+            [PtuRandomSubcommand.Pokeball]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
+                const includeSpecial = interaction.options.getBoolean('include_special') || false;
+                const includeSafari = interaction.options.getBoolean('include_safari') || false;
+                const includeJailbreaker = interaction.options.getBoolean('include_jailbreaker') || false;
+                const includeCases = interaction.options.getBoolean('include_cases') || false;
+                const includeAttachments = interaction.options.getBoolean('include_attachments') || false;
+                const includeMaster = interaction.options.getBoolean('include_master') || false;
+
+                const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                    // TODO: Make this spreadsheet id a constant later
+                    spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                    range: `'${subcommandToStrings[PtuRandomSubcommand.Pokeball].data} Data'!A2:E`,
+                });
+
+                // TODO: Move helper elsewhere in the future
+                const shouldInclude = ({ type, includeSpecial, includeSafari, includeJailbreaker, includeCases, includeAttachments, includeMaster }: { type: string, includeSpecial: boolean, includeSafari: boolean, includeJailbreaker: boolean, includeCases: boolean, includeAttachments: boolean, includeMaster: boolean }) =>
+                {
+                    if (type === PokeballType.Normal) return true;
+                    if (type === PokeballType.Special && includeSpecial) return true;
+                    if (type === PokeballType.Safari && includeSafari) return true;
+                    if (type === PokeballType.Jailbreaker && includeJailbreaker) return true;
+                    if (type === PokeballType.Case && includeCases) return true;
+                    if (type === PokeballType.Attachment && includeAttachments) return true;
+                    if (type === PokeballType.Master && includeMaster) return true;
+                    return false;
+                };
+
+                // TODO: Make this parser customizable to DRY out later
+                // Parse the data
+                const parsedData = data.reduce((acc, [name, cost, mod, type, description]) => {
+                    // TODO: Make this a generic "shouldInclude" function later to DRY
+                    if (shouldInclude({ type, includeSpecial, includeSafari, includeJailbreaker, includeCases, includeAttachments, includeMaster }))
+                    {
+                        acc.push({
+                            name,
+                            cost,
+                            description,
+                            mod,
+                            type,
+                        });
+                    }
+
+                    return acc;
+                }, [] as RandomPokeball[]);
+
+                const parsedDataOnlyPokeballs = data.reduce((acc, [name, cost, mod, type, description]) => {
+                    // TODO: Make this a generic "shouldInclude" function later to DRY
+                    if (shouldInclude({ type, includeSpecial, includeSafari, includeJailbreaker, includeCases: false, includeAttachments: false, includeMaster }))
+                    {
+                        acc.push({
+                            name,
+                            cost,
+                            description,
+                            mod,
+                            type,
+                        });
+                    }
+
+                    return acc;
+                }, [] as RandomPokeball[]);
+
+                // Get random numbers
+                const rollResult = new DiceLiteService({
+                    count: numberOfDice,
+                    sides: parsedData.length,
+                }).roll();
+                const rollResults = rollResult.join(', '); // TODO: Dynamically generate this, including rerolls later.
+
+                const rerollForPokeballsOnly = (numberOfTimesToRoll: number, jailbreakerInfo: RandomPokeball) =>
+                {
+                    const rollResult = new DiceLiteService({
+                        count: numberOfTimesToRoll,
+                        sides: parsedDataOnlyPokeballs.length,
+                    }).roll();
+
+                    const uniqueRolls = rollResult.reduce((acc, cur) => {
+                        const index = acc.findIndex(({ result }) => result === cur);
+    
+                        if (index > 0)
+                        {
+                            acc[index].numOfTimesRolled += 1;
+                        }
+                        else
+                        {
+                            acc.push({
+                                result: cur,
+                                numOfTimesRolled: 1,
+                            });
+                        }
+    
+                        return acc;
+                    }, [] as {
+                        result: number;
+                        numOfTimesRolled: number;
+                    }[]);
+
+                    return uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                        return {
+                            ...parsedDataOnlyPokeballs[result - 1],
+                            numOfTimesRolled,
+                            jailBreakerInfo: jailbreakerInfo,
+                        };
+                    });
+                };
+
+                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                    const index = acc.findIndex(({ result }) => result === cur);
+
+                    if (index > 0)
+                    {
+                        acc[index].numOfTimesRolled += 1;
+                    }
+                    else
+                    {
+                        acc.push({
+                            result: cur,
+                            numOfTimesRolled: 1,
+                        });
+                    }
+
+                    return acc;
+                }, [] as {
+                    result: number;
+                    numOfTimesRolled: number;
+                }[]); // TODO: Make unique rolls for rerolls be grouped together with a CompositeKeyRecord later
+
+                // Get random items
+                const results = uniqueRolls.reduce((acc, { result, numOfTimesRolled }) => {
+                    const pokeball = parsedData[result - 1];
+
+                    // Reroll for pokeballs to put the case(s) or attachment(s) on
+                    if (pokeball.type === PokeballType.Case || pokeball.type === PokeballType.Attachment)
+                    {
+                        const newPokeballs = rerollForPokeballsOnly(numOfTimesRolled, pokeball);
+                        acc.push(...newPokeballs);
+                    }
+
+                    // Regular pokeballs
+                    else
+                    {
+                        acc.push({
+                            ...parsedData[result - 1],
+                            numOfTimesRolled,
+                        });
+                    }
+
+                    return acc;
+                }, [] as RandomPokeball[]);
+
+                // Get message
+                const embed = getRandomPokeballEmbedMessage({
+                    itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.Pokeball].plural,
                     results,
                     rollResults,
                 });

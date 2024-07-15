@@ -23,6 +23,7 @@ export enum PtuRandomSubcommand
     EvolutionaryStone = 'evolutionary_stone',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
+    Pokeball = 'pokeball',
     XItem = 'x-item',
     TM = 'tm',
     Vitamin = 'vitamin',
@@ -111,6 +112,38 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addBooleanOption((option) => {
         option.setName('include_mega');
         return option.setDescription('Include mega stone in potential results (default: false)');
+    });
+    return subcommand;
+};
+
+export const pokeball = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Pokeball);
+    subcommand.setDescription('Get one or more random pokeballs.');
+    subcommand.addIntegerOption(numberOfDice);
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_special');
+        return option.setDescription('Include premier and cherish balls in potential results (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_safari');
+        return option.setDescription('Include sport and park balls in potential results (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_jailbreaker');
+        return option.setDescription('Include jailbroken balls in potential results (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_cases');
+        return option.setDescription('Include pokeballs in cases in potential results (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_attachments');
+        return option.setDescription('Include pokeballs in attachments in potential results (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_master');
+        return option.setDescription('Include master balls in potential results (default: false)');
     });
     return subcommand;
 };
