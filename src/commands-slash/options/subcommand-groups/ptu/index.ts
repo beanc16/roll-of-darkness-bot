@@ -6,5 +6,6 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     subcommandGroup.setName('random');
     subcommandGroup.setDescription('Run PTU radomization commands.');
     subcommandGroup.addSubcommand(randomSubcommands.berry);
+    subcommandGroup.addSubcommand(randomSubcommands.xItem);
     return subcommandGroup;
 };

@@ -5,33 +5,38 @@ import * as options from './options';
 import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiService';
 import { BerryTier } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomBerriesEmbedMessage } from './embed-messages/ptu/random';
+import { getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 
 enum PtuSubcommandGroup
 {
     Random = 'random',
 }
 
-enum PtuSubcommand
+enum PtuRandomSubcommand
 {
     Berry = 'berry',
+    XItem = 'x-item',
 }
 
 type SubcommandHandlers = Record<
     PtuSubcommandGroup,
     Record<
-        PtuSubcommand,
+        PtuRandomSubcommand,
         (interaction: ChatInputCommandInteraction) => Promise<boolean>
     >
 >;
 
-export interface Berry
+export interface RandomResult
 {
     name: string;
     cost: string;
-    tier: number;
     description: string;
     numOfTimesRolled?: number;
+}
+
+export interface Berry extends RandomResult
+{
+    tier: number;
 }
 
 class Ptu extends BaseSlashCommand
@@ -45,7 +50,7 @@ class Ptu extends BaseSlashCommand
 
     private subcommandHandlers: SubcommandHandlers = {
         [PtuSubcommandGroup.Random]: {
-            [PtuSubcommand.Berry]: async (interaction: ChatInputCommandInteraction) =>
+            [PtuRandomSubcommand.Berry]: async (interaction: ChatInputCommandInteraction) =>
             {
                 // Get parameter results
                 const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
@@ -122,8 +127,80 @@ class Ptu extends BaseSlashCommand
                 });
 
                 // Get message
-                const embed = getRandomBerriesEmbedMessage({
-                    berries,
+                const embed = getRandomResultEmbedMessage({
+                    itemNamePluralized: 'Berries',
+                    results: berries,
+                    rollResults,
+                });
+
+                // Send embed
+                await interaction.editReply({
+                    embeds: [embed],
+                });
+
+                return true;
+            },
+            [PtuRandomSubcommand.XItem]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
+
+                const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                    // TODO: Make this spreadsheet id a constant later
+                    spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                    range: `'X-Item Data'!A2:D`,
+                });
+
+                // Parse the data
+                const parsedData = data.reduce((acc, [name, cost, description]) => {
+                    acc.push({
+                        name,
+                        cost,
+                        description,
+                    });
+                    return acc;
+                }, [] as RandomResult[]);
+
+                // Get random numbers
+                const rollResult = new DiceLiteService({
+                    count: numberOfDice,
+                    sides: parsedData.length,
+                }).roll();
+                const rollResults = rollResult.join(', ');
+
+                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                    const index = acc.findIndex(({ result }) => result === cur);
+
+                    if (index > 0)
+                    {
+                        acc[index].numOfTimesRolled += 1;
+                    }
+                    else
+                    {
+                        acc.push({
+                            result: cur,
+                            numOfTimesRolled: 1,
+                        });
+                    }
+
+                    return acc;
+                }, [] as {
+                    result: number;
+                    numOfTimesRolled: number;
+                }[]);
+
+                // Get random items
+                const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                    return {
+                        ...parsedData[result - 1],
+                        numOfTimesRolled,
+                    };
+                });
+
+                // Get message
+                const embed = getRandomResultEmbedMessage({
+                    itemNamePluralized: 'X-Items',
+                    results,
                     rollResults,
                 });
 
@@ -146,7 +223,7 @@ class Ptu extends BaseSlashCommand
 
         // Get parameter results
         const subcommandGroup = interaction.options.getSubcommandGroup() as PtuSubcommandGroup;
-        const subcommand = interaction.options.getSubcommand() as PtuSubcommand;
+        const subcommand = interaction.options.getSubcommand() as PtuRandomSubcommand;
 
         // Get handler
         const handler = this.subcommandHandlers[subcommandGroup][subcommand];

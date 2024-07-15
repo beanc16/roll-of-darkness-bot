@@ -47,6 +47,14 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
                 value: BerryTier.Three,
             },
         );
-    })
+    });
+    return subcommand;
+};
+
+export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName('x-item');
+    subcommand.setDescription('Get a random x-item.');
+    subcommand.addIntegerOption(numberOfDice);
     return subcommand;
 };
