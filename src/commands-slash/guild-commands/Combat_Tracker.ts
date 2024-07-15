@@ -2,7 +2,7 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { CommandInteraction } from 'discord.js';
 
-import options from '../options';
+import * as options from '../options';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker';

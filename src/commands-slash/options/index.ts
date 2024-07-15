@@ -7,7 +7,9 @@ const roll = require('./roll');
 const rollLite = require('./roll_lite');
 const rollMath = require('./roll_math');
 
-module.exports = {
+import * as subcommandGroups from './subcommand-groups/index';
+
+export {
     beat,
     coinFlip,
     combatTracker,
@@ -16,4 +18,5 @@ module.exports = {
     roll,
     rollLite,
     rollMath,
+    subcommandGroups,
 };
