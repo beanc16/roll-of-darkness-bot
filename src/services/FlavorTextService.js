@@ -2,7 +2,7 @@ const rollConstants = require('../constants/roll');
 const categoriesSingleton = require('../models/categoriesSingleton');
 const flavorTextSingleton = require('../models/flavorTextSingleton');
 const CachedRollOfDarknessApi = require('../services/CachedRollOfDarknessApi');
-const DiceService = require('../services/DiceService');
+const { DiceService } = require('../services/DiceService');
 
 class FlavorTextService
 {

@@ -2,7 +2,7 @@ const { BaseSlashCommand } = require('@beanc16/discordjs-common-commands');
 const { Text } = require('@beanc16/discordjs-helpers');
 const options = require('./options');
 const { mathParserOptions } = require('../constants/mathParserOptions');
-const DiceLiteService = require('../services/DiceLiteService');
+const { DiceLiteService } = require('../services/DiceLiteService');
 const { diceParserTypes, DiceStringParser } = require('../services/DiceStringParser');
 const { Parser } = require('expr-eval');
 

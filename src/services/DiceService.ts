@@ -1,9 +1,20 @@
-const rollConstants = require('../constants/roll');
-const DicePoolGroup = require('../models/DicePoolGroup');
-const DicePool = require('../models/DicePool');
+import rollConstants from '../constants/roll';
+import DicePoolGroup from '../models/DicePoolGroup';
+import DicePool from '../models/DicePool';
 
-class DiceService
+export class DiceService
 {
+    public sides: number;
+    public count: number;
+    public rerollOnGreaterThanOrEqualTo: number;
+    public successOnGreaterThanOrEqualTo: number;
+    public exceptionalOn: number;
+    public diceToReroll: number;
+    public canBeDramaticFailure: boolean;
+    public isRote: boolean;
+    public isAdvancedAction: boolean;
+    public extraSuccesses: number;
+
     constructor({
         sides = rollConstants.defaultParams.sides,
         count = rollConstants.defaultParams.count,
@@ -15,6 +26,17 @@ class DiceService
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         extraSuccesses = rollConstants.defaultParams.extraSuccesses,
+    }: {
+        sides?: number;
+        count?: number;
+        rerollOnGreaterThanOrEqualTo?: number;
+        successOnGreaterThanOrEqualTo?: number;
+        exceptionalOn?: number;
+        diceToReroll?: number;
+        canBeDramaticFailure?: boolean;
+        isRote?: boolean;
+        isAdvancedAction?: boolean;
+        extraSuccesses?: number;
     } = rollConstants.defaultParams)
     {
         this.sides = sides || rollConstants.defaultParams.sides;
@@ -29,7 +51,7 @@ class DiceService
         this.extraSuccesses = extraSuccesses || rollConstants.defaultParams.extraSuccesses;
     }
 
-    roll()
+    roll(): DicePoolGroup
     {
         const dicePoolGroup = new DicePoolGroup({
             dicepool: this.rollDicepool(),
@@ -43,7 +65,7 @@ class DiceService
         return dicePoolGroup;
     }
 
-    rollDicepool()
+    rollDicepool(): DicePool
     {
         const dicePool = new DicePool({
             exceptionalOn: this.exceptionalOn,
@@ -64,7 +86,7 @@ class DiceService
     rollOne({
         isReroll = false,
         isRote = false,
-    } = {})
+    } = {}): any[] // TODO: Type this better later
     {
         const rolls = [];
 
@@ -97,7 +119,3 @@ class DiceService
         return rolls;
     }
 }
-
-
-
-module.exports = DiceService;

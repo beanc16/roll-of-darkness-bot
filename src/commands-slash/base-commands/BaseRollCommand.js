@@ -1,7 +1,7 @@
 const SplatSlashCommand = require('./SplatSlashCommand');
 const options = require('../options');
 const rollConstants = require('../../constants/roll');
-const DiceService = require('../../services/DiceService');
+const { DiceService } = require('../../services/DiceService');
 const FlavorTextService = require('../../services/FlavorTextService');
 const RollResponseFormatterService = require('../../services/RollResponseFormatterService');
 

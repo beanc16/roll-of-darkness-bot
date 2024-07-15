@@ -1,4 +1,4 @@
-const DiceService = require('./DiceService');
+const { DiceService } = require('./DiceService');
 const { coinFlipResultsEnum } = require('../constants/coinFlip');
 
 class CoinFlipService
