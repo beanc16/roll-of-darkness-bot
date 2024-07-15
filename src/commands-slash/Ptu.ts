@@ -64,6 +64,10 @@ type SubcommandToStrings = {
 };
 
 const subcommandToStrings: SubcommandToStrings = {
+    [PtuRandomSubcommand.Apricorn]: {
+        data: 'Apricorn',
+        plural: 'Apricorns',
+    },
     [PtuRandomSubcommand.Berry]: {
         data: 'Berry',
         plural: 'Berries',
@@ -193,6 +197,79 @@ class Ptu extends BaseSlashCommand
 
     private subcommandHandlers: SubcommandHandlers = {
         [PtuSubcommandGroup.Random]: {
+            // TODO: DRY this out later so stuff can be shared
+            [PtuRandomSubcommand.Apricorn]: async (interaction: ChatInputCommandInteraction) =>
+            {
+                // Get parameter results
+                const survivalRank = interaction.options.getInteger('survival_rank') as number;
+                // const numberOfIterations = interaction.options.getInteger('number_of_iterations') || 1;
+
+                const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                    // TODO: Make this spreadsheet id a constant later
+                    spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                    range: `'${subcommandToStrings[PtuRandomSubcommand.Apricorn].data} Data'!A2:D`,
+                });
+
+                // TODO: Make this parser customizable to DRY out later
+                // Parse the data
+                const parsedData = data.reduce((acc, [name, pokeball]) => {
+                    acc.push({
+                        name,
+                        description: pokeball,
+                    });
+                    return acc;
+                }, [] as RandomResult[]);
+
+                // Get random numbers
+                const rollResult = new DiceLiteService({
+                    count: survivalRank,
+                    sides: parsedData.length,
+                }).roll();
+                const rollResults = rollResult.join(', ');
+
+                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                    const index = acc.findIndex(({ result }) => result === cur);
+
+                    if (index >= 0)
+                    {
+                        acc[index].numOfTimesRolled += 1;
+                    }
+                    else
+                    {
+                        acc.push({
+                            result: cur,
+                            numOfTimesRolled: 1,
+                        });
+                    }
+
+                    return acc;
+                }, [] as {
+                    result: number;
+                    numOfTimesRolled: number;
+                }[]);
+
+                // Get random items
+                const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                    return {
+                        ...parsedData[result - 1],
+                        numOfTimesRolled,
+                    };
+                });
+
+                // Get message
+                const embed = getRandomResultEmbedMessage({
+                    itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.Apricorn].plural,
+                    results,
+                    rollResults,
+                });
+
+                // Send embed
+                await interaction.editReply({
+                    embeds: [embed],
+                });
+
+                return true;
+            },
             // TODO: DRY this out later so stuff can be shared
             [PtuRandomSubcommand.Berry]: async (interaction: ChatInputCommandInteraction) =>
             {

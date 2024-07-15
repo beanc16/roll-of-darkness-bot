@@ -19,6 +19,7 @@ export enum HealingAndStatusOption
 
 export enum PtuRandomSubcommand
 {
+    Apricorn = 'apricorn',
     Berry = 'berry',
     DowsingRod = 'dowsing_rod',
     EvolutionaryStone = 'evolutionary_stone',
@@ -37,6 +38,32 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
     option.setMaxValue(25);
     return option;
 }
+
+// const numberOfIterations = (option: SlashCommandIntegerOption) =>
+// {
+//     option.setName('number_of_iterations');
+//     option.setDescription('The number of times to roll (default: 1)');
+//     option.setMinValue(1);
+//     option.setMaxValue(50);
+//     return option;
+// };
+
+export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Apricorn);
+    subcommand.setDescription('Get a random Apricorn.');
+    // TODO: Add number of iterations
+    // subcommand.addIntegerOption(numberOfIterations);
+    subcommand.addIntegerOption((option) => {
+        option.setName('survival_rank');
+        option.setDescription('Your Survival rank.');
+        option.setMinValue(1);
+        option.setMaxValue(8);
+        option.setRequired(true);
+        return option;
+    });
+    return subcommand;
+};
 
 export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
 {
@@ -76,7 +103,8 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.DowsingRod);
     subcommand.setDescription('Get a random item using a Dowsing Rod.');
-    // TODO: Add a number of iterations to roll this.
+    // TODO: Add number of iterations
+    // subcommand.addIntegerOption(numberOfIterations);
     subcommand.addIntegerOption((option) => {
         option.setName('occult_education_rank');
         option.setDescription('Your Occult Education rank.');
