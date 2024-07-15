@@ -10,6 +10,13 @@ export enum BerryTier
     Three = 'three',
 }
 
+export enum PtuRandomSubcommand
+{
+    Berry = 'berry',
+    XItem = 'x-item',
+    TM = 'tm',
+};
+
 const numberOfDice = (option: SlashCommandIntegerOption) =>
 {
     options.roll.numberOfDice(option)
@@ -19,8 +26,8 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
 
 export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
 {
-    subcommand.setName('berry');
-    subcommand.setDescription('Get a random berry.');
+    subcommand.setName(PtuRandomSubcommand.Berry);
+    subcommand.setDescription('Get one or more random berries.');
     subcommand.addIntegerOption(numberOfDice);
     subcommand.addStringOption((option) => {
         option.setName('berry_tier');
@@ -53,8 +60,16 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
 
 export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
 {
-    subcommand.setName('x-item');
-    subcommand.setDescription('Get a random x-item.');
+    subcommand.setName(PtuRandomSubcommand.XItem);
+    subcommand.setDescription('Get one or more random x-items.');
+    subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.TM);
+    subcommand.setDescription('Get one or more random TMs/HMs');
     subcommand.addIntegerOption(numberOfDice);
     return subcommand;
 };
