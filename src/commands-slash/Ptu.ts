@@ -54,6 +54,65 @@ export interface RandomPokeball extends RandomResult
     jailBreakerInfo?: RandomPokeball;
 }
 
+export enum PokemonType
+{
+    Bug = 'Bug',
+    Dark = 'Dark',
+    Dragon = 'Dragon',
+    Electric = 'Electric',
+    Fairy = 'Fairy',
+    Fighting = 'Fighting',
+    Fire = 'Fire',
+    Flying = 'Flying',
+    Ghost = 'Ghost',
+    Grass = 'Grass',
+    Ground = 'Ground',
+    Ice = 'Ice',
+    Normal = 'Normal',
+    Poison = 'Poison',
+    Psychic = 'Psychic',
+    Rock = 'Rock',
+    Steel = 'Steel',
+    Water = 'Water',
+}
+
+export enum PokemonMoveCategory
+{
+    Physical = 'Physical',
+    Special = 'Special',
+    Status = 'Status',
+}
+
+export enum PtuMoveFrequency
+{
+    // TODO: Fill this in later
+}
+
+export interface PtuMove
+{
+    name: string;
+    type: PokemonType;
+    category: PokemonMoveCategory;
+    damageBase: number;
+    frequency: PtuMoveFrequency;
+    ac?: number;
+    range: string;
+    effects?: string;
+    contestStats?: string;
+    uses: {
+        sheerForce: boolean;
+        toughClaws: boolean;
+        technician: boolean;
+        reckless: boolean;
+        ironFist: boolean;
+        megaLauncher: boolean;
+        megaLauncherErrata: boolean;
+        punkRock: boolean;
+        strongJaw: boolean;
+        recklessErrata: boolean;
+    };
+}
+
 interface StringsForSubcommand {
     data: string;
     plural: string;
@@ -110,6 +169,7 @@ const subcommandToStrings: SubcommandToStrings = {
     },
 };
 
+// TODO: Probably move all random thingd to their own file?
 const subcommandHandler = async (interaction: ChatInputCommandInteraction, subcommand: PtuRandomSubcommand) => {
     // Get parameter results
     const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
@@ -184,6 +244,77 @@ const subcommandHandler = async (interaction: ChatInputCommandInteraction, subco
     });
 
     return true;
+};
+
+const getLookupMoveData = async () =>
+{
+    const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+        spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+        range: `'Moves Data'!A3:Z`,
+    });
+
+    const moves = data.reduce((acc, cur) =>
+    {
+        const [
+            name,
+            _typeIcon,
+            _categoryIcon,
+            damageBase,
+            frequency,
+            ac,
+            range,
+            effects,
+            contestStats,
+            category,
+            type,
+            sheerForce,
+            toughClaws,
+            technician,
+            reckless,
+            ironFist,
+            megaLauncher,
+            megaLauncherErrata,
+            punkRock,
+            strongJaw,
+            recklessErrata,
+        ] = cur;
+
+        if (name === 'Name' || name === 'Maneuver')
+        {
+            return acc;
+        }
+
+        // TODO: Parse some of this data into a more helpful format first
+        acc.push({
+            name,
+            type,
+            category,
+            damageBase,
+            frequency,
+            ac,
+            range,
+            effects,
+            contestStats,
+            uses: {
+                sheerForce,
+                toughClaws,
+                technician,
+                reckless,
+                ironFist,
+                megaLauncher,
+                megaLauncherErrata,
+                punkRock,
+                strongJaw,
+                recklessErrata,
+            },
+        });
+
+        return acc;
+    }, [] as PtuMove[]);
+
+    // TODO: Add ability to filter out moves based on an options parameter later (IE: only return moves of a certain type)
+
+    return moves;
 };
 
 class Ptu extends BaseSlashCommand
