@@ -45,7 +45,7 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
         // Separate moves with a blank line
         if (index !== 0 && acc.pages[acc.curPage] !== '')
         {
-            curDescription = '\n\n' + curDescription;
+            curDescription = '\n' + curDescription;
         }
 
         // Add the move to the current page's description
