@@ -8,9 +8,9 @@ import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './option
 import { DiceLiteService } from '../services/DiceLiteService';
 import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
-import { logger } from '@beanc16/logger';
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
+import { PtuMove } from '../models/PtuMove';
 
 enum HealingItemTypes
 {
@@ -59,31 +59,6 @@ export interface RandomPokeball extends RandomResult
     mod?: string;
     type?: string;
     jailBreakerInfo?: RandomPokeball;
-}
-
-export interface PtuMove
-{
-    name: string;
-    type: PokemonType;
-    category: PokemonMoveCategory;
-    damageBase: number;
-    frequency: PtuMoveFrequency;
-    ac?: number;
-    range: string;
-    effects?: string;
-    contestStats?: string;
-    uses: {
-        sheerForce: boolean;
-        toughClaws: boolean;
-        technician: boolean;
-        reckless: boolean;
-        ironFist: boolean;
-        megaLauncher: boolean;
-        megaLauncherErrata: boolean;
-        punkRock: boolean;
-        strongJaw: boolean;
-        recklessErrata: boolean;
-    };
 }
 
 interface StringsForSubcommand {
@@ -219,7 +194,7 @@ const subcommandHandlerForRandom = async (interaction: ChatInputCommandInteracti
     return true;
 };
 
-interface GetLookupMoveDataParameters
+export interface GetLookupMoveDataParameters
 {
     type: PokemonType | null;
     category: PokemonMoveCategory | null;
@@ -237,143 +212,14 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
 
     const moves = data.reduce((acc, cur) =>
     {
-        const [ // TODO: Make a class that takes this array in a constructor and does validation in nested functions
-            name,
-            _typeIcon,
-            _categoryIcon,
-            unparsedDamageBase,
-            frequency,
-            unparsedAc,
-            range,
-            effects,
-            contestStats,
-            category,
-            type,
-            sheerForce,
-            toughClaws,
-            technician,
-            reckless,
-            ironFist,
-            megaLauncher,
-            megaLauncherErrata,
-            punkRock,
-            strongJaw,
-            recklessErrata,
-        ] = cur;
+        const move = new PtuMove(cur);
 
-        // ---> TODO: Convert these validation if statements to use JOI later.
-        if (name === 'Name' || name === 'Maneuver')
+        if (!move.IsValid(input))
         {
             return acc;
         }
 
-        const damageBase = parseInt(unparsedDamageBase.trim(), 10);
-        const ac = parseInt(unparsedAc.trim(), 10);
-
-        if (EnumParserService.isInEnum(PokemonType, type))
-        {
-            logger.warn('Received a move with an invalid type', { validInputs: PokemonType }, cur);
-            return acc;
-        }
-
-        if (EnumParserService.isInEnum(PokemonMoveCategory, category))
-        {
-            logger.warn('Received a move with an invalid category', { validInputs: PokemonMoveCategory }, cur);
-            return acc;
-        }
-
-        if (EnumParserService.isInEnum(PtuMoveFrequency, frequency))
-        {
-            logger.warn('Received a move with an invalid frequency', { validInputs: PtuMoveFrequency }, cur);
-            return acc;
-        }
-
-        if (Number.isNaN(damageBase))
-        {
-            logger.warn('Received a move with a damage base that is not a number', cur);
-            return acc;
-        }
-
-        if (Number.isNaN(ac))
-        {
-            logger.warn('Received a move with an AC that is not a number', cur);
-            return acc;
-        }
-        // <--- TODO: Convert these validation if statements to use JOI later.
-
-        // Type
-        if (input.type && input.type !== type)
-        {
-            return acc;
-        }
-
-        // Category
-        if (input.category && input.category !== category)
-        {
-            return acc;
-        }
-
-        // Damage Base
-        if (input.db)
-        {
-            switch (input.dbEquality)
-            {
-                case EqualityOption.GreaterThanOrEqualTo:
-                    if (input.db >= damageBase) return acc;
-                    break;
-                case EqualityOption.GreaterThan:
-                    if (input.db > damageBase) return acc;
-                    break;
-                case EqualityOption.LessThanOrEqualTo:
-                    if (input.db <= damageBase) return acc;
-                    break;
-                case EqualityOption.LessThan:
-                    if (input.db < damageBase) return acc;
-                    break;
-                case EqualityOption.NotEqualTo:
-                    if (input.db !== damageBase) return acc;
-                    break;
-                case EqualityOption.Equal:
-                default:
-                    if (input.db === damageBase) return acc;
-            }
-        }
-
-        // Frequency
-        if (input.frequency && input.frequency !== frequency)
-        {
-            return acc;
-        }
-
-        // TODO: Add AC
-    
-        // TODO: Add range
-    
-        // TODO: Add general substring searching (of name, effect, etc.)
-
-        acc.push({
-            name,
-            type: type as PokemonType,
-            category: category as PokemonMoveCategory,
-            damageBase,
-            frequency: frequency as PtuMoveFrequency,
-            ac,
-            range,
-            effects,
-            contestStats,
-            uses: {
-                sheerForce: sheerForce === 'o',
-                toughClaws: toughClaws === 'o',
-                technician: technician === 'o',
-                reckless: reckless === 'o',
-                ironFist: ironFist === 'o',
-                megaLauncher: megaLauncher === 'o',
-                megaLauncherErrata: megaLauncherErrata === 'o',
-                punkRock: punkRock === 'o',
-                strongJaw: strongJaw === 'o',
-                recklessErrata: recklessErrata === 'o',
-            },
-        });
+        acc.push(move);
 
         return acc;
     }, [] as PtuMove[]);
@@ -401,7 +247,7 @@ class Ptu extends BaseSlashCommand
             const type = interaction.options.getString('type') as PokemonType | null;
             const category = interaction.options.getString('category') as PokemonMoveCategory | null;
             const db = interaction.options.getInteger('damage_base');
-            const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption | null;
+            const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption;
             const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
 
             const moves = await getLookupMoveData({

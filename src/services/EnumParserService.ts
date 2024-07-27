@@ -1,4 +1,4 @@
-type GetEnumKeyByEnumValueParameters<
+export type GetEnumKeyByEnumValueParameters<
     Key extends string,
     Value extends string | number
 > = {
@@ -8,12 +8,12 @@ type GetEnumKeyByEnumValueParameters<
     value: Value;
 }
 
-type EnumValue<Value extends string | number = string> = Value;
+export type EnumValue<Value extends string | number = string> = Value;
 type SomeEnum<EnumKey extends string, EnumValue> = {
     [key in EnumKey]: EnumValue
 };
 
-class EnumParserService
+export class EnumParserService
 {
     public static getEnumKeyByEnumValue = <
         EnumKey extends string,

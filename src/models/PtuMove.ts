@@ -1,0 +1,195 @@
+import { logger } from '@beanc16/logger';
+import { EqualityOption } from '../commands-slash/options/shared';
+import { GetLookupMoveDataParameters } from '../commands-slash/Ptu';
+import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
+import { EnumParserService } from '../services/EnumParserService';
+
+export class PtuMove
+{
+    public name: string;
+    public type?: PokemonType;
+    public category?: PokemonMoveCategory;
+    public frequency?: PtuMoveFrequency;
+    public damageBase?: number;
+    public ac?: number;
+    public range: string;
+    public effects: string;
+    public contestStats: string;
+    public uses: {
+        sheerForce: boolean;
+        toughClaws: boolean;
+        technician: boolean;
+        reckless: boolean;
+        ironFist: boolean;
+        megaLauncher: boolean;
+        megaLauncherErrata: boolean;
+        punkRock: boolean;
+        strongJaw: boolean;
+        recklessErrata: boolean;
+    };
+
+    constructor (input: string[])
+    {
+        const [
+            name,
+            _typeIcon,
+            _categoryIcon,
+            untrimmedDamageBase,
+            untrimmedFrequency,
+            untrimmedAc,
+            range,
+            effects,
+            contestStats,
+            untrimmedCategory,
+            untrimmedType,
+            sheerForce,
+            toughClaws,
+            technician,
+            reckless,
+            ironFist,
+            megaLauncher,
+            megaLauncherErrata,
+            punkRock,
+            strongJaw,
+            recklessErrata,
+        ] = input;
+
+        // Trim strings with necessary validation
+        const unparsedDamageBase = untrimmedDamageBase.trim();
+        const frequency = untrimmedFrequency.trim();
+        const unparsedAc = untrimmedAc.trim();
+        const category = untrimmedCategory.trim();
+        const type = untrimmedType?.trim();
+
+        // Parse numbers
+        const damageBase = parseInt(unparsedDamageBase, 10);
+        const ac = parseInt(unparsedAc, 10);
+
+        // Base values
+        this.name = name.trim();
+        this.range = range.trim();
+        this.effects = effects.trim();
+        this.contestStats = contestStats.trim();
+        this.uses = {
+            sheerForce: sheerForce === 'o',
+            toughClaws: toughClaws === 'o',
+            technician: technician === 'o',
+            reckless: reckless === 'o',
+            ironFist: ironFist === 'o',
+            megaLauncher: megaLauncher === 'o',
+            megaLauncherErrata: megaLauncherErrata === 'o',
+            punkRock: punkRock === 'o',
+            strongJaw: strongJaw === 'o',
+            recklessErrata: recklessErrata === 'o',
+        };
+
+        // ---> TODO: Convert these validation if statements to use JOI later.
+        // Category
+        if (EnumParserService.isInEnum(PokemonMoveCategory, category))
+        {
+            this.category = category as PokemonMoveCategory;
+        }
+        else if (category !== 'Category' && category !== '--' && category !== '')
+        {
+            logger.warn('Received a move with an invalid category', { category, validCategories: Object.values(PokemonMoveCategory) });
+        }
+
+        // Type
+        if (EnumParserService.isInEnum(PokemonType, type))
+        {
+            this.type = type as PokemonType;
+        }
+        else if (type !== 'Type' && type !== '--' && type !== '' && type !== undefined)
+        {
+            console.log('\n input:', input);
+            logger.warn('Received a move with an invalid type', { type, validTypes: Object.values(PokemonType) });
+        }
+
+        // Frequency
+        if (EnumParserService.isInEnum(PtuMoveFrequency, frequency))
+        {
+            this.frequency = frequency as PtuMoveFrequency;
+        }
+        else if (frequency !== 'Frequency' && frequency !== '--' && frequency !== 'See Effect' && frequency !== 'Action' && frequency !== '')
+        {
+            logger.warn('Received a move with an invalid frequency', { frequency, validInputs: Object.values(PtuMoveFrequency) });
+        }
+
+        // Damage Base
+        if (!(unparsedDamageBase === '--' || Number.isNaN(damageBase)))
+        {
+            this.damageBase = damageBase;
+        }
+        else if (unparsedDamageBase !== '--' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
+        {
+            logger.warn('Received a move with a damage base that is not a number', { unparsedDamageBase, damageBase });
+        }
+
+        // AC
+        if (!(unparsedAc === '--' || Number.isNaN(ac)))
+        {
+            this.ac = ac;
+        }
+        else if (unparsedAc !== '--' && unparsedAc !== 'AC' && unparsedAc !== 'See Effect' && unparsedAc !== '')
+        {
+            logger.warn('Received a move with an AC that is not a number', { unparsedAc, ac });
+        }
+        // <--- TODO: Convert these validation if statements to use JOI later.
+    }
+
+    public IsValid(input: GetLookupMoveDataParameters): boolean
+    {
+        // Type
+        if (input.type && input.type !== this.type)
+        {
+            return false;
+        }
+
+        // Category
+        if (input.category && input.category !== this.category)
+        {
+            return false;
+        }
+
+        // Damage Base
+        if (input.db)
+        {
+            if (this.damageBase === undefined) return false;
+            switch (input.dbEquality)
+            {
+                case EqualityOption.GreaterThanOrEqualTo:
+                    if (!(this.damageBase >= input.db)) return false;
+                    break;
+                case EqualityOption.GreaterThan:
+                    if (!(this.damageBase > input.db)) return false;
+                    break;
+                case EqualityOption.LessThanOrEqualTo:
+                    if (!(this.damageBase <= input.db)) return false;
+                    break;
+                case EqualityOption.LessThan:
+                    if (!(this.damageBase < input.db)) return false;
+                    break;
+                case EqualityOption.NotEqualTo:
+                    if (!(this.damageBase !== input.db)) return false;
+                    break;
+                case EqualityOption.Equal:
+                default:
+                    if (!(this.damageBase === input.db)) return false;
+            }
+        }
+
+        // Frequency
+        if (input.frequency && input.frequency !== this.frequency)
+        {
+            return false;
+        }
+
+        // TODO: Add AC
+    
+        // TODO: Add range
+    
+        // TODO: Add general substring searching (of name, effect, etc.)
+
+        return true;
+    }
+}

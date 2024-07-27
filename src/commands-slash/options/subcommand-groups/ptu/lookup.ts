@@ -61,10 +61,10 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     });
 
     // Frequency
-    const frequencyChoices = Object.entries(PtuMoveFrequency).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) => {
+    const frequencyChoices = Object.values(PtuMoveFrequency).map<APIApplicationCommandOptionChoice<string>>(
+        (value) => {
             return {
-                name: key,
+                name: value,
                 value: value,
             };
         }

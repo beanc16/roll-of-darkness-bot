@@ -25,14 +25,22 @@ export enum PokemonMoveCategory
     Physical = 'Physical',
     Special = 'Special',
     Status = 'Status',
+    Versatile = 'Versatile',
+    Static = 'Static',
 }
 
 export enum PtuMoveFrequency
 {
-    AtWill = 'At Will',
-    EoT = 'EoT',
+    AtWill = 'At-Will',
+    EoT = 'EOT',
     SceneX2 = 'Scene x2',
     Scene = 'Scene',
+    DailyX3 = 'Daily x3',
     DailyX2 = 'Daily x2',
     Daily = 'Daily',
+    Static = 'Static',
+    Free = 'Free',
+    Shift = 'Shift',
+    Standard = 'Standard',
+    FullActionInterupt = 'Full Action, Interrupt',
 }
