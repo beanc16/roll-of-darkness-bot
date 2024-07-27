@@ -224,6 +224,17 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
         return acc;
     }, [] as PtuMove[]);
 
+    moves.sort((a, b) =>
+    {
+        /*
+         * Sort by:
+         * 1) Type
+         * 2) Name
+         */
+        return a.type?.localeCompare(b.type ?? '')
+            || a.name.localeCompare(b.name);
+    });
+
     return moves;
 };
 
