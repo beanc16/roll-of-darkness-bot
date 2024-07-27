@@ -1,15 +1,16 @@
 import { EmbedBuilder } from 'discord.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 import { PtuMove } from '../../../models/PtuMove';
+import { Text } from '@beanc16/discordjs-helpers';
 
+const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
 
 // TODO: Add listview and final paginated version (using fields) of message later
 
-export const getLookupMovesEmbedMessage = (moves: PtuMove[]) =>
+export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
 {
-    const description = moves.reduce((acc, {
+    const { pages } = moves.reduce((acc, {
         name,
         type,
         category,
@@ -17,46 +18,58 @@ export const getLookupMovesEmbedMessage = (moves: PtuMove[]) =>
         damageBase,
         ac,
         range,
+        effects,
     }, index) => {
-        if (index !== 0)
-        {
-            acc += '\n\n';
-        }
-
-        acc += `${Text.bold(name)}`;
-
-        const secondLine = [
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
             ...(type !== undefined ? [`Type: ${type}`] : []),
-            ...(category !== undefined ? [`Category: ${category}`] : []),
-        ];
-        if (secondLine.length > 0)
-        {
-            acc += `\n${secondLine.join(' | ')}`;
-        }
-
-        if (frequency)
-        {
-            acc += `\nFrequency: ${frequency}`;
-        }
-
-        const fourthLine = [
-            ...(damageBase !== undefined ? [`DB: ${damageBase}`] : []),
+            ...(frequency !== undefined ? [`Frequency: ${frequency}`] : []),
             ...(ac !== undefined ? [`AC: ${ac}`] : []),
+            ...(damageBase !== undefined ? [`DB: ${damageBase}`] : []),
+            ...(category !== undefined ? [`Class: ${category}`] : []),
+            ...(range && range !== '--' ? [`Range: ${range}`] : []),
+            ...(effects && effects !== '--' ? [`Effect:\n\`\`\`\n${effects}\`\`\``] : []),
         ];
-        if (fourthLine.length > 0)
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
         {
-            acc += `\n${fourthLine.join(' | ')}`;
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
         }
 
-        acc += `\nRange: ${range}`;
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last move
+        if (index === moves.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
 
         return acc;
-    }, '');
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
 
-    const embed = new EmbedBuilder()
+    return pages.map((description, index) => {
+        const embed = new EmbedBuilder()
         .setTitle('Moves')
         .setDescription(description)
-        .setColor(color);
+        .setColor(color)
+        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
 
-    return embed;
+        return embed;
+    });
 };

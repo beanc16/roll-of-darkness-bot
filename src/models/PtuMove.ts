@@ -137,7 +137,29 @@ export class PtuMove
         // <--- TODO: Convert these validation if statements to use JOI later.
     }
 
-    public IsValid(input: GetLookupMoveDataParameters): boolean
+    public ShouldIncludeInOutput(): boolean
+    {
+        // Moves to not include
+        const blacklist = [
+            '',
+            'Name',
+            'Maneuver',
+            'MH Adept',
+            'MH Expert',
+            'OH Adept',
+            'EW Adept',
+            'EW Expert',
+        ];
+
+        if (blacklist.includes(this.name))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public IsValidBasedOnInput(input: GetLookupMoveDataParameters): boolean
     {
         // Type
         if (input.type && input.type !== this.type)

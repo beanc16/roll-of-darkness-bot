@@ -11,7 +11,7 @@ import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
 import { PtuMove } from '../models/PtuMove';
-import { getLookupMovesEmbedMessage } from './embed-messages/ptu/lookup';
+import { getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
 
 enum HealingItemTypes
 {
@@ -215,7 +215,12 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
     {
         const move = new PtuMove(cur);
 
-        if (!move.IsValid(input))
+        if (!move.ShouldIncludeInOutput())
+        {
+            return acc;
+        }
+
+        if (!move.IsValidBasedOnInput(input))
         {
             return acc;
         }
@@ -273,12 +278,20 @@ class Ptu extends BaseSlashCommand
             // TODO: Add listview and final paginated functionality later
 
             // Get message
-            const embed = getLookupMovesEmbedMessage(moves);
+            const embeds = getLookupMovesEmbedMessages(moves);
 
             // Send embed
             await interaction.editReply({
-                embeds: [embed],
+                embeds: [embeds[0]],
             });
+
+            // Reply to the original message with all embeds after the first
+            for (const embed of embeds.slice(1))
+            {
+                await interaction.followUp({
+                    embeds: [embed],
+                });
+            }
 
             return true;
         },
