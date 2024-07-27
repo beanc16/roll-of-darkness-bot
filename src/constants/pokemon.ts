@@ -31,10 +31,8 @@ export enum PtuMoveFrequency
 {
     AtWill = 'At Will',
     EoT = 'EoT',
-    SceneX3 = 'Scene x3',
     SceneX2 = 'Scene x2',
     Scene = 'Scene',
-    DailyX3 = 'Daily x3',
     DailyX2 = 'Daily x2',
     Daily = 'Daily',
 }

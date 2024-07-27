@@ -1,5 +1,5 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PokemonType } from '../../../../constants/pokemon';
+import { PokemonType, PokemonMoveCategory, PtuMoveFrequency } from '../../../../constants/pokemon';
 import { equalityOption } from '../../shared';
 
 export enum PtuLookupSubcommand
@@ -13,11 +13,11 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setDescription('Get a list of moves based on the given parameters.');
 
     // Type
-    const typeChoices = Object.keys(PokemonType).map<APIApplicationCommandOptionChoice<string>>(
-        (type) => {
+    const typeChoices = Object.entries(PokemonType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
             return {
-                name: type,
-                value: type,
+                name: key,
+                value: value,
             };
         }
     );
@@ -29,7 +29,22 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
         );
     });
 
-    // TODO: Add move category
+    // Move Category
+    const categoryChoices = Object.entries(PokemonMoveCategory).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+    subcommand.addStringOption((option) => {
+        option.setName('category');
+        option.setDescription('The category of moves to look up.');
+        return option.setChoices(
+            ...categoryChoices,
+        );
+    });
 
     // Damage Base
     subcommand.addIntegerOption((option) => {
@@ -45,7 +60,22 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
             .setDescription('The provided damage base value should be ??? to the moves (default: Equals)');
     });
 
-    // TODO: Add frequency
+    // Frequency
+    const frequencyChoices = Object.entries(PtuMoveFrequency).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+    subcommand.addStringOption((option) => {
+        option.setName('frequency');
+        option.setDescription('The frequency of moves to look up.');
+        return option.setChoices(
+            ...frequencyChoices,
+        );
+    });
 
     // TODO: Add AC
 
