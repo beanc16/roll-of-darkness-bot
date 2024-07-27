@@ -7,6 +7,8 @@ import { PtuSubcommandGroup } from './options/subcommand-groups';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
 import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
+import { logger } from '@beanc16/logger';
 
 enum HealingItemTypes
 {
@@ -52,40 +54,6 @@ export interface RandomPokeball extends RandomResult
     mod?: string;
     type?: string;
     jailBreakerInfo?: RandomPokeball;
-}
-
-export enum PokemonType
-{
-    Bug = 'Bug',
-    Dark = 'Dark',
-    Dragon = 'Dragon',
-    Electric = 'Electric',
-    Fairy = 'Fairy',
-    Fighting = 'Fighting',
-    Fire = 'Fire',
-    Flying = 'Flying',
-    Ghost = 'Ghost',
-    Grass = 'Grass',
-    Ground = 'Ground',
-    Ice = 'Ice',
-    Normal = 'Normal',
-    Poison = 'Poison',
-    Psychic = 'Psychic',
-    Rock = 'Rock',
-    Steel = 'Steel',
-    Water = 'Water',
-}
-
-export enum PokemonMoveCategory
-{
-    Physical = 'Physical',
-    Special = 'Special',
-    Status = 'Status',
-}
-
-export enum PtuMoveFrequency
-{
-    // TODO: Fill this in later
 }
 
 export interface PtuMove
@@ -169,8 +137,8 @@ const subcommandToStrings: SubcommandToStrings = {
     },
 };
 
-// TODO: Probably move all random thingd to their own file?
-const subcommandHandler = async (interaction: ChatInputCommandInteraction, subcommand: PtuRandomSubcommand) => {
+// TODO: Probably move all random things to their own file?
+const subcommandHandlerForRandom = async (interaction: ChatInputCommandInteraction, subcommand: PtuRandomSubcommand) => {
     // Get parameter results
     const numberOfDice = interaction.options.getInteger('number_of_dice') as number;
 
@@ -259,9 +227,9 @@ const getLookupMoveData = async () =>
             name,
             _typeIcon,
             _categoryIcon,
-            damageBase,
+            unparsedDamageBase,
             frequency,
-            ac,
+            unparsedAc,
             range,
             effects,
             contestStats,
@@ -279,33 +247,66 @@ const getLookupMoveData = async () =>
             recklessErrata,
         ] = cur;
 
+        // TODO: Convert this to use JOI later.
         if (name === 'Name' || name === 'Maneuver')
         {
             return acc;
         }
 
-        // TODO: Parse some of this data into a more helpful format first
+        const damageBase = parseInt(unparsedDamageBase.trim(), 10);
+        const ac = parseInt(unparsedAc.trim(), 10);
+
+        if (EnumParserService.isInEnum(PokemonType, type))
+        {
+            logger.warn('Received a move with an invalid type', { validInputs: PokemonType }, cur);
+            return acc;
+        }
+
+        if (EnumParserService.isInEnum(PokemonMoveCategory, category))
+        {
+            logger.warn('Received a move with an invalid category', { validInputs: PokemonMoveCategory }, cur);
+            return acc;
+        }
+
+        if (EnumParserService.isInEnum(PtuMoveFrequency, frequency))
+        {
+            logger.warn('Received a move with an invalid frequency', { validInputs: PtuMoveFrequency }, cur);
+            return acc;
+        }
+
+        if (Number.isNaN(damageBase))
+        {
+            logger.warn('Received a move with a damage base that is not a number', cur);
+            return acc;
+        }
+
+        if (Number.isNaN(ac))
+        {
+            logger.warn('Received a move with an AC that is not a number', cur);
+            return acc;
+        }
+
         acc.push({
             name,
-            type,
-            category,
+            type: type as PokemonType,
+            category: category as PokemonMoveCategory,
             damageBase,
-            frequency,
+            frequency: frequency as PtuMoveFrequency,
             ac,
             range,
             effects,
             contestStats,
             uses: {
-                sheerForce,
-                toughClaws,
-                technician,
-                reckless,
-                ironFist,
-                megaLauncher,
-                megaLauncherErrata,
-                punkRock,
-                strongJaw,
-                recklessErrata,
+                sheerForce: sheerForce === 'o',
+                toughClaws: toughClaws === 'o',
+                technician: technician === 'o',
+                reckless: reckless === 'o',
+                ironFist: ironFist === 'o',
+                megaLauncher: megaLauncher === 'o',
+                megaLauncherErrata: megaLauncherErrata === 'o',
+                punkRock: punkRock === 'o',
+                strongJaw: strongJaw === 'o',
+                recklessErrata: recklessErrata === 'o',
             },
         });
 
@@ -493,7 +494,7 @@ class Ptu extends BaseSlashCommand
                 return true;
             },
             [PtuRandomSubcommand.EvolutionaryStone]: async (interaction: ChatInputCommandInteraction) =>
-                subcommandHandler(interaction, PtuRandomSubcommand.EvolutionaryStone),
+                subcommandHandlerForRandom(interaction, PtuRandomSubcommand.EvolutionaryStone),
             // TODO: DRY this out later so stuff can be shared
             [PtuRandomSubcommand.HealingItem]: async (interaction: ChatInputCommandInteraction) =>
             {
@@ -837,11 +838,11 @@ class Ptu extends BaseSlashCommand
                 return true;
             },
             [PtuRandomSubcommand.XItem]: async (interaction: ChatInputCommandInteraction) =>
-                subcommandHandler(interaction, PtuRandomSubcommand.XItem),
+                subcommandHandlerForRandom(interaction, PtuRandomSubcommand.XItem),
             [PtuRandomSubcommand.TM]: async (interaction: ChatInputCommandInteraction) =>
-                subcommandHandler(interaction, PtuRandomSubcommand.TM),
+                subcommandHandlerForRandom(interaction, PtuRandomSubcommand.TM),
             [PtuRandomSubcommand.Vitamin]: async (interaction: ChatInputCommandInteraction) =>
-                subcommandHandler(interaction, PtuRandomSubcommand.Vitamin),
+                subcommandHandlerForRandom(interaction, PtuRandomSubcommand.Vitamin),
             [PtuRandomSubcommand.Pickup]: async (interaction: ChatInputCommandInteraction) =>
             {
                 // Determine what items to roll for
