@@ -387,6 +387,7 @@ class Ptu extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            .addSubcommandGroup(options.subcommandGroups.lookup)
             .addSubcommandGroup(options.subcommandGroups.random);
     }
 
