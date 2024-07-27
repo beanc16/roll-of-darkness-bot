@@ -11,6 +11,7 @@ import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
 import { PtuMove } from '../models/PtuMove';
+import { getLookupMovesEmbedMessage } from './embed-messages/ptu/lookup';
 
 enum HealingItemTypes
 {
@@ -268,11 +269,16 @@ class Ptu extends BaseSlashCommand
                 dbEquality,
                 frequency,
             });
-            console.log('\n moves:', moves);
 
-            // TODO: Implement display for moves later
+            // TODO: Add listview and final paginated functionality later
+
+            // Get message
+            const embed = getLookupMovesEmbedMessage(moves);
+
             // Send embed
-            await interaction.editReply('Done');
+            await interaction.editReply({
+                embeds: [embed],
+            });
 
             return true;
         },
