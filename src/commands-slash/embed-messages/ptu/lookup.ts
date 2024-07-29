@@ -31,7 +31,7 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
             ...(damageBase !== undefined ? [`DB: ${damageBase}`] : []),
             ...(category !== undefined ? [`Class: ${category}`] : []),
             ...(range && range !== '--' ? [`Range: ${range}`] : []),
-            ...(effects && effects !== '--' ? [`Effect:\n\`\`\`\n${effects}\`\`\``] : []),
+            ...(effects && effects !== '--' ? [`Effect:\n\`\`\`\n${effects}\`\`\``] : ['']),
         ];
 
         // Create the description
