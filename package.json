@@ -27,6 +27,7 @@
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.1",
         "expr-eval": "^2.0.2",
+        "fuse.js": "^7.0.0",
         "mongodb": "^6.3.0",
         "mongodb-controller": "^1.4.4"
     },
