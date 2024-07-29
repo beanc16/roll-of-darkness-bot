@@ -12,6 +12,7 @@ import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
 import { PtuMove } from '../models/PtuMove';
 import { getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
+import { PtuMovesSearchService } from '../services/SearchService';
 
 enum HealingItemTypes
 {
@@ -202,6 +203,11 @@ export interface GetLookupMoveDataParameters
     db: number | null;
     dbEquality: EqualityOption | null;
     frequency: PtuMoveFrequency | null;
+    ac: number | null;
+    acEquality: EqualityOption | null;
+    nameSearch: string | null;
+    rangeSearch: string | null;
+    effectSearch: string | null
 }
 
 const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
@@ -230,6 +236,13 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
         return acc;
     }, [] as PtuMove[]);
 
+    // Sort manually if there's no searches
+    if (input.nameSearch || input.effectSearch)
+    {
+        const results = PtuMovesSearchService.search(moves, input);
+        return results;
+    }
+
     moves.sort((a, b) =>
     {
         /*
@@ -240,7 +253,6 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
         return a.type?.localeCompare(b.type ?? '')
             || a.name.localeCompare(b.name);
     });
-
     return moves;
 };
 
@@ -266,6 +278,11 @@ class Ptu extends BaseSlashCommand
             const db = interaction.options.getInteger('damage_base');
             const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption;
             const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
+            const ac = interaction.options.getInteger('ac');
+            const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+            const nameSearch = interaction.options.getString('name_search');
+            const rangeSearch = interaction.options.getString('range_search');
+            const effectSearch = interaction.options.getString('effect_search');
 
             const moves = await getLookupMoveData({
                 type,
@@ -273,12 +290,24 @@ class Ptu extends BaseSlashCommand
                 db,
                 dbEquality,
                 frequency,
+                ac,
+                acEquality,
+                nameSearch,
+                rangeSearch,
+                effectSearch,
             });
 
             // TODO: Add listview and final paginated functionality later
 
             // Get message
             const embeds = getLookupMovesEmbedMessages(moves);
+
+            // Send no results found
+            if (embeds.length === 0)
+            {
+                await interaction.editReply('No moves were found.');
+                return true;
+            }
 
             // Send embed
             await interaction.editReply({

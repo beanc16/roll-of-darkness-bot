@@ -57,7 +57,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         return equalityOption(option)
             .setName('damage_base_equality')
-            .setDescription('The provided damage base value should be ??? to the moves (default: Equals)');
+            .setDescription('The provided DB should be ??? to the moves DB (default: Equals)');
     });
 
     // Frequency
@@ -77,11 +77,33 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
         );
     });
 
-    // TODO: Add AC
+    subcommand.addIntegerOption((option) => {
+        option.setName('ac');
+        option.setDescription('The AC of moves to look up.');
+        option.setMinValue(0);
+        option.setMaxValue(10);
+        return option;
+    });
+    subcommand.addStringOption((option) => {
+        return equalityOption(option)
+            .setName('ac_equality')
+            .setDescription('The provided AC should be ??? to the moves AC (default: Equals)');
+    });
 
-    // TODO: Add range
+    subcommand.addStringOption((option) => {
+        option.setName('name_search');
+        return option.setDescription(`A search on the move's name.`);
+    });
 
-    // TODO: Add general string searching (of name, effect, etc.)
+    subcommand.addStringOption((option) => {
+        option.setName('range_search');
+        return option.setDescription(`A search on the move's range.`);
+    });
+
+    subcommand.addStringOption((option) => {
+        option.setName('effect_search');
+        return option.setDescription(`A search on the move's effect.`);
+    });
 
     return subcommand;
 };

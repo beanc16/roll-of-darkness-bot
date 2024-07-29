@@ -99,9 +99,8 @@ export class PtuMove
         {
             this.type = type as PokemonType;
         }
-        else if (type !== 'Type' && type !== '--' && type !== '' && type !== undefined)
+        else if (type !== 'Type' && type !== 'See Effect' && type !== '--' && type !== '' && type !== undefined)
         {
-            console.log('\n input:', input);
             logger.warn('Received a move with an invalid type', { type, validTypes: Object.values(PokemonType) });
         }
 
@@ -206,11 +205,37 @@ export class PtuMove
             return false;
         }
 
-        // TODO: Add AC
-    
-        // TODO: Add range
-    
-        // TODO: Add general substring searching (of name, effect, etc.)
+        // AC
+        if (input.ac)
+        {
+            if (this.ac === undefined) return false;
+            switch (input.acEquality)
+            {
+                case EqualityOption.GreaterThanOrEqualTo:
+                    if (!(this.ac >= input.ac)) return false;
+                    break;
+                case EqualityOption.GreaterThan:
+                    if (!(this.ac > input.ac)) return false;
+                    break;
+                case EqualityOption.LessThanOrEqualTo:
+                    if (!(this.ac <= input.ac)) return false;
+                    break;
+                case EqualityOption.LessThan:
+                    if (!(this.ac < input.ac)) return false;
+                    break;
+                case EqualityOption.NotEqualTo:
+                    if (!(this.ac !== input.ac)) return false;
+                    break;
+                case EqualityOption.Equal:
+                default:
+                    if (!(this.ac === input.ac)) return false;
+            }
+        }
+
+        if (input.rangeSearch && !this.range.toLowerCase().includes(input.rangeSearch.toLowerCase()))
+        {
+            return false;
+        }
 
         return true;
     }

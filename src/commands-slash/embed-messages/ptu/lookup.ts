@@ -10,6 +10,8 @@ const color = 0xCDCDCD;
 
 export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
 {
+    if (moves.length === 0) return [];
+
     const { pages } = moves.reduce((acc, {
         name,
         type,
