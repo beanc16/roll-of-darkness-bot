@@ -1,14 +1,7 @@
-import Fuse, { FuseIndexOptions, FuseOptionKey, FuseResult, IFuseOptions } from 'fuse.js';
+import Fuse, { FuseIndex, FuseOptionKey, FuseResult, IFuseOptions } from 'fuse.js';
 import { PtuMove } from '../models/PtuMove';
 
-export interface IndexOptions<T>
-{
-    keys: FuseOptionKey<T>[];
-    list: ReadonlyArray<T>;
-    options?: FuseIndexOptions<T>;
-}
-
-export class SearchService<T>
+class SearchService<T>
 {
     private fuse: Fuse<T>;
     private readonly MAX_ALLOWED_SCORE: number;
@@ -36,10 +29,13 @@ export class SearchService<T>
      * // Example function signature
      * const searchService = new SearchService(array, ['author.tags.value'])
      */
-    constructor(array: T[], searchableKeys: FuseOptionKey<T>[], maxAllowedScore: number = 0.8)
+    constructor(array: T[], searchableKeys: FuseOptionKey<T>[], maxAllowedScore: number = 0.8, index?: FuseIndex<T>)
     {
-        // TODO: Create indices for all searchable things later: https://www.fusejs.io/api/indexing.html#fuse-parseindex
-        this.fuse = new Fuse<T>(array, this.generateOptions(searchableKeys)/*, index*/);
+        this.fuse = new Fuse<T>(
+            array,
+            this.generateOptions(searchableKeys),
+            index
+        );
         this.MAX_ALLOWED_SCORE = maxAllowedScore;
     }
 
@@ -85,20 +81,27 @@ interface PtuMovesSearchOptions
 export class PtuMovesSearchService
 {
     private static searchService?: SearchService<PtuMove>;
+    private static index?: FuseIndex<PtuMove>; // Speeds up instantiation once created once
 
     static search(array: PtuMove[], options: PtuMovesSearchOptions)
     {
-        // Initialize search service
+        // Initialize search service parameters
         const searchableKeys = [
             ...(options.nameSearch ? [{ name: 'name', weight: 1 }] : []),
             ...(options.effectSearch ? [{ name: 'effects', weight: 3 }] : []),
         ];
         const maxAllowedScore = this.getMaxAllowedScore(options);
 
+        if (!this.index)
+        {
+            this.index = Fuse.createIndex(searchableKeys, array);
+        }
+
         this.searchService = new SearchService<PtuMove>(
             array,
             searchableKeys,
-            maxAllowedScore
+            maxAllowedScore,
+            this.index
         );
 
         // Search
