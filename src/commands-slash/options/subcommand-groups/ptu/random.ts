@@ -175,6 +175,7 @@ export const metronome = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.Metronome);
     subcommand.setDescription('Get a random move using the Metronome move.');
+    return subcommand;
 };
 
 export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>

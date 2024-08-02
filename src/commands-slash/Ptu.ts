@@ -730,7 +730,7 @@ class Ptu extends BaseSlashCommand
             // Get random numbers
             const roll = new DiceLiteService({
                 count: 1,
-                sides: moves.data,
+                sides: moves.length,
             }).roll()[0];
 
             // Get random move
