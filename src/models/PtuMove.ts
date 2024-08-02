@@ -4,6 +4,11 @@ import { GetLookupMoveDataParameters } from '../commands-slash/Ptu';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
 import { EnumParserService } from '../services/EnumParserService';
 
+export interface PtuMoveExclude {
+    names?: string[];
+    rangeSearch?: string | null;
+}
+
 export class PtuMove
 {
     public name: string;
@@ -136,7 +141,10 @@ export class PtuMove
         // <--- TODO: Convert these validation if statements to use JOI later.
     }
 
-    public ShouldIncludeInOutput(): boolean
+    public ShouldIncludeInOutput({
+        names = [],
+        rangeSearch,
+    }: PtuMoveExclude = {}): boolean
     {
         // Moves to not include
         const blacklist = [
@@ -151,6 +159,16 @@ export class PtuMove
         ];
 
         if (blacklist.includes(this.name))
+        {
+            return false;
+        }
+
+        if (names.includes(this.name))
+        {
+            return false;
+        }
+
+        if (rangeSearch && this.range.toLowerCase().includes(rangeSearch.toLowerCase()))
         {
             return false;
         }

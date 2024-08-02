@@ -10,7 +10,7 @@ import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, ge
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
-import { PtuMove } from '../models/PtuMove';
+import { PtuMove, PtuMoveExclude } from '../models/PtuMove';
 import { getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
 import { PtuMovesSearchService } from '../services/SearchService';
 
@@ -207,7 +207,8 @@ export interface GetLookupMoveDataParameters
     acEquality: EqualityOption | null;
     nameSearch: string | null;
     rangeSearch: string | null;
-    effectSearch: string | null
+    effectSearch: string | null;
+    exclude?: PtuMoveExclude;
 }
 
 const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
@@ -221,7 +222,7 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
     {
         const move = new PtuMove(cur);
 
-        if (!move.ShouldIncludeInOutput())
+        if (!move.ShouldIncludeInOutput(input.exclude))
         {
             return acc;
         }
