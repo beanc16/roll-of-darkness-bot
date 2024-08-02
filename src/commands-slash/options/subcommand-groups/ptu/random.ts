@@ -25,6 +25,7 @@ export enum PtuRandomSubcommand
     EvolutionaryStone = 'evolutionary_stone',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
+    Metronome = 'metronome',
     Pickup = 'pickup',
     Pokeball = 'pokeball',
     XItem = 'x-item',
@@ -168,6 +169,12 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
         return option.setDescription('Include mega stone in potential results (default: false)');
     });
     return subcommand;
+};
+
+export const metronome = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Metronome);
+    subcommand.setDescription('Get a random move using the Metronome move.');
 };
 
 export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
