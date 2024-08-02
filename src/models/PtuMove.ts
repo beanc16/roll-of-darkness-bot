@@ -6,7 +6,8 @@ import { EnumParserService } from '../services/EnumParserService';
 
 export interface PtuMoveExclude {
     names?: string[];
-    rangeSearch?: string | null;
+    rangeSearch?: string;
+    weaponMovesAndManuevers?: boolean;
 }
 
 export class PtuMove
@@ -141,10 +142,7 @@ export class PtuMove
         // <--- TODO: Convert these validation if statements to use JOI later.
     }
 
-    public ShouldIncludeInOutput({
-        names = [],
-        rangeSearch,
-    }: PtuMoveExclude = {}): boolean
+    public ShouldIncludeInOutput(): boolean
     {
         // Moves to not include
         const blacklist = [
@@ -159,16 +157,6 @@ export class PtuMove
         ];
 
         if (blacklist.includes(this.name))
-        {
-            return false;
-        }
-
-        if (names.includes(this.name))
-        {
-            return false;
-        }
-
-        if (rangeSearch && this.range.toLowerCase().includes(rangeSearch.toLowerCase()))
         {
             return false;
         }
@@ -250,9 +238,17 @@ export class PtuMove
             }
         }
 
+        // Range
         if (input.rangeSearch && !this.range.toLowerCase().includes(input.rangeSearch.toLowerCase()))
         {
             return false;
+        }
+
+        // Exclude
+        if (input.exclude)
+        {
+            if (input.exclude.names && input.exclude.names.includes(this.name)) return false;
+            if (input.exclude.rangeSearch && this.range.toLowerCase().includes(input.exclude.rangeSearch.toLowerCase())) return false;
         }
 
         return true;

@@ -222,17 +222,29 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
         range: `'Moves Data'!A3:Z`,
     });
 
+    let beyondWeaponMovesAndManuevers = false;
     const moves = data.reduce((acc, cur) =>
     {
         const move = new PtuMove(cur);
 
         // TODO: Find a way to exclude unnecessary extra stuff in moves
-        if (!move.ShouldIncludeInOutput(input.exclude))
+        if (!move.ShouldIncludeInOutput())
         {
             return acc;
         }
 
         if (!move.IsValidBasedOnInput(input))
+        {
+            return acc;
+        }
+
+        // Assume Arcane Fury marks the start of weapon moves, which are above maneuvers
+        if (move.name === 'Arcane Fury')
+        {
+            beyondWeaponMovesAndManuevers = true;
+        }
+
+        if (beyondWeaponMovesAndManuevers && input?.exclude?.weaponMovesAndManuevers)
         {
             return acc;
         }
@@ -680,9 +692,38 @@ class Ptu extends BaseSlashCommand
             const moves = await getLookupMoveData({
                 exclude: {
                     names: [
-                        // TODO: Add here later
+                        'Struggle',
+                        'Hidden Power ',
+                        'After You',
+                        'Assist',
+                        'Bestow',
+                        'Copycat',
+                        'Counter',
+                        'Covet',
+                        'Destiny Bond',
+                        'Endure',
+                        'Feint',
+                        'Focus Punch',
+                        'Follow Me',
+                        'Helping Hand',
+                        'Metronome',
+                        'Me First',
+                        'Mimic',
+                        'Mirror Coat',
+                        'Mirror Move',
+                        'Quash',
+                        'Rage Powder',
+                        'Sketch',
+                        'Sleep Talk',
+                        'Snatch',
+                        'Snore',
+                        'Switcheroo',
+                        'Thief',
+                        'Transform',
+                        'Trick',
                     ],
                     rangeSearch: 'Shield',
+                    weaponMovesAndManuevers: true,
                 },
             });
 
