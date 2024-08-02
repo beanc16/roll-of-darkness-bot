@@ -97,6 +97,10 @@ const subcommandToStrings: SubcommandToStrings = {
         data: 'Held Item',
         plural: 'Held Items',
     },
+    [PtuRandomSubcommand.Metronome]: {
+        data: 'Moves',
+        plural: 'Metronomes',
+    },
     [PtuRandomSubcommand.Pickup]: {
         data: 'Pickup',
         plural: 'Pickups',
@@ -196,18 +200,18 @@ const subcommandHandlerForRandom = async (interaction: ChatInputCommandInteracti
     return true;
 };
 
-export interface GetLookupMoveDataParameters
-{
-    type: PokemonType | null;
-    category: PokemonMoveCategory | null;
-    db: number | null;
-    dbEquality: EqualityOption | null;
-    frequency: PtuMoveFrequency | null;
-    ac: number | null;
-    acEquality: EqualityOption | null;
-    nameSearch: string | null;
-    rangeSearch: string | null;
-    effectSearch: string | null;
+// TODO: Clean up this type later
+export interface GetLookupMoveDataParameters {
+    type?: PokemonType | null;
+    category?: PokemonMoveCategory | null;
+    db?: number | null;
+    dbEquality?: EqualityOption | null;
+    frequency?: PtuMoveFrequency | null;
+    ac?: number | null;
+    acEquality?: EqualityOption | null;
+    nameSearch?: string | null;
+    rangeSearch?: string | null;
+    effectSearch?: string | null;
     exclude?: PtuMoveExclude;
 }
 
@@ -222,6 +226,7 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
     {
         const move = new PtuMove(cur);
 
+        // TODO: Find a way to exclude unnecessary extra stuff in moves
         if (!move.ShouldIncludeInOutput(input.exclude))
         {
             return acc;
@@ -661,6 +666,37 @@ class Ptu extends BaseSlashCommand
                 results,
                 rollResults,
             });
+
+            // Send embed
+            await interaction.editReply({
+                embeds: [embed],
+            });
+
+            return true;
+        },
+        // TODO: DRY this out later so stuff can be shared
+        [PtuRandomSubcommand.Metronome]: async (interaction: ChatInputCommandInteraction) =>
+        {
+            const moves = await getLookupMoveData({
+                exclude: {
+                    names: [
+                        // TODO: Add here later
+                    ],
+                    rangeSearch: 'Shield',
+                },
+            });
+
+            // Get random numbers
+            const roll = new DiceLiteService({
+                count: 1,
+                sides: moves.data,
+            }).roll()[0];
+
+            // Get random move
+            const move = moves[roll - 1];
+
+            // Get message
+            const [embed] = getLookupMovesEmbedMessages([move]);
 
             // Send embed
             await interaction.editReply({

@@ -74,8 +74,8 @@ class SearchService<T>
 
 interface PtuMovesSearchOptions
 {
-    nameSearch: string | null;
-    effectSearch: string | null;
+    nameSearch?: string | null;
+    effectSearch?: string | null;
 }
 
 export class PtuMovesSearchService
