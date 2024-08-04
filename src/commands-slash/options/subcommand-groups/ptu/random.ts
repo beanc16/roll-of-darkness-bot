@@ -115,6 +115,10 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
         return option;
     });
     subcommand.addBooleanOption((option) => {
+        option.setName('has_crystal_resonance');
+        return option.setDescription('You have the Crystal Resonance Feature (default: false)');
+    });
+    subcommand.addBooleanOption((option) => {
         option.setName('has_skill_stunt_dowsing');
         return option.setDescription('You have the Skill Stunt (Dowsing) Edge (default: false)');
     });
