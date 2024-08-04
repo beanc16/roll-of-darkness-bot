@@ -1,5 +1,5 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import * as options from './options';
 import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiService';
@@ -13,6 +13,7 @@ import { EqualityOption } from './options/shared';
 import { PtuMove, PtuMoveExclude } from '../models/PtuMove';
 import { getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
 import { PtuMovesSearchService } from '../services/SearchService';
+import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord';
 
 enum HealingItemTypes
 {
@@ -200,8 +201,8 @@ const subcommandHandlerForRandom = async (interaction: ChatInputCommandInteracti
     return true;
 };
 
-// TODO: Clean up this type later
 export interface GetLookupMoveDataParameters {
+    name?: string | null;
     type?: PokemonType | null;
     category?: PokemonMoveCategory | null;
     db?: number | null;
@@ -227,7 +228,6 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
     {
         const move = new PtuMove(cur);
 
-        // TODO: Find a way to exclude unnecessary extra stuff in moves
         if (!move.ShouldIncludeInOutput())
         {
             return acc;
@@ -291,6 +291,7 @@ class Ptu extends BaseSlashCommand
         [PtuLookupSubcommand.Move]: async (interaction: ChatInputCommandInteraction) =>
         {
             // Get parameter results
+            const name = interaction.options.getString('name');
             const type = interaction.options.getString('type') as PokemonType | null;
             const category = interaction.options.getString('category') as PokemonMoveCategory | null;
             const db = interaction.options.getInteger('damage_base');
@@ -303,6 +304,7 @@ class Ptu extends BaseSlashCommand
             const effectSearch = interaction.options.getString('effect_search');
 
             const moves = await getLookupMoveData({
+                name,
                 type,
                 category,
                 db,
@@ -1149,6 +1151,34 @@ class Ptu extends BaseSlashCommand
         {
             await interaction.editReply('Subcommand Group or subcommand not yet implemented');
         }
+    }
+
+    async autocomplete(interaction: AutocompleteInteraction)
+    {
+        const focusedValue = interaction.options.getFocused(true);
+
+        const moves = await getLookupMoveData({});
+        let choices: ApplicationCommandOptionChoiceData<string>[] = [];
+
+        if (focusedValue.name === 'name')
+        {
+            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Get the choices matching the search
+		const filteredChoices = choices.filter((choice) =>
+            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0)
+        );
+
+        // Discord limits a maximum of 25 choices to display
+        const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
+
+		await interaction.respond(limitedChoices);
     }
 
     get description()

@@ -1,0 +1,1 @@
+export const MAX_AUTOCOMPLETE_CHOICES = 25;

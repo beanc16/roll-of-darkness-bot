@@ -166,6 +166,12 @@ export class PtuMove
 
     public IsValidBasedOnInput(input: GetLookupMoveDataParameters): boolean
     {
+        // Name
+        if (input.name && input.name !== this.name)
+        {
+            return false;
+        }
+
         // Type
         if (input.type && input.type !== this.type)
         {

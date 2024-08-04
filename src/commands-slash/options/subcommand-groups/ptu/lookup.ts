@@ -12,6 +12,13 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuLookupSubcommand.Move);
     subcommand.setDescription('Get a list of moves based on the given parameters.');
 
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('name');
+        option.setDescription(`The move's name.`);
+        return option.setAutocomplete(true);
+    });
+
     // Type
     const typeChoices = Object.entries(PokemonType).map<APIApplicationCommandOptionChoice<string>>(
         ([key, value]) => {
