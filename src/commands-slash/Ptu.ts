@@ -6,7 +6,7 @@ import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiS
 import { PtuSubcommandGroup } from './options/subcommand-groups';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
 import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage } from './embed-messages/ptu/random';
+import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage, getRandomDowsingRodEmbedMessage } from './embed-messages/ptu/random';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
@@ -1087,13 +1087,15 @@ class Ptu extends BaseSlashCommand
         {
             // Get parameter results
             const numberOfDice = interaction.options.getInteger('occult_education_rank') as number;
+            const hasCrystalResonance = interaction.options.getBoolean('has_crystal_resonance') || false;
             const hasSkillStuntDowsing = interaction.options.getBoolean('has_skill_stunt_dowsing') || false;
             const isSandyOrRocky = interaction.options.getBoolean('is_sandy_or_rocky') || false;
 
-            const getDiceToRoll = ({ numberOfDice, hasSkillStuntDowsing, isSandyOrRocky } : { numberOfDice: number, hasSkillStuntDowsing: boolean, isSandyOrRocky: boolean }) =>
+            const getDiceToRoll = ({ numberOfDice, hasCrystalResonance, hasSkillStuntDowsing, isSandyOrRocky } : { numberOfDice: number, hasCrystalResonance: boolean, hasSkillStuntDowsing: boolean, isSandyOrRocky: boolean }) =>
             {
                 let diceToRoll = numberOfDice;
 
+                if (hasCrystalResonance) diceToRoll += 3;
                 if (hasSkillStuntDowsing) diceToRoll += 1;
                 if (isSandyOrRocky) diceToRoll += 1;
 
@@ -1101,14 +1103,14 @@ class Ptu extends BaseSlashCommand
             };
 
             // Determine what items to roll for
-            const rollResult = new DiceLiteService({
-                count: getDiceToRoll({ numberOfDice, hasSkillStuntDowsing, isSandyOrRocky }),
+            const findingShardsRollResult = new DiceLiteService({
+                count: getDiceToRoll({ numberOfDice, hasCrystalResonance, hasSkillStuntDowsing, isSandyOrRocky }),
                 sides: 6,
-                rerollOnGreaterThanOrEqualTo: 6, // TODO: Make sure this explodes properly
+                rerollOnGreaterThanOrEqualTo: 6,
             }).roll();
 
             // Get the number of shards to roll for
-            const numOfShardsToRoll = rollResult.reduce((acc, roll) => {
+            const numOfShardsToRoll = findingShardsRollResult.reduce((acc, roll) => {
                 if (roll >= 4)
                 {
                     acc += 1;
@@ -1123,7 +1125,7 @@ class Ptu extends BaseSlashCommand
                 // Get message
                 const embed = getRandomYouFoundNothingEmbedMessage({
                     itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.DowsingRod].plural,
-                    rollResults: rollResult.join(', '),
+                    rollResults: findingShardsRollResult.join(', '),
                 });
 
                 // Send embed
@@ -1153,14 +1155,13 @@ class Ptu extends BaseSlashCommand
                 }, [] as RandomResult[]);
 
                 // Get random numbers
-                const rollResult = new DiceLiteService({
-                    count: numberOfDice,
+                const shardColorRollResults = new DiceLiteService({
+                    count: numOfShardsToRoll,
                     sides: parsedData.length,
                 }).roll();
-                const rollResults = rollResult.join(', ');
 
                 // Combine numbers to be unique
-                const uniqueRolls = rollResult.reduce((acc, cur) => {
+                const uniqueRolls = shardColorRollResults.reduce((acc, cur) => {
                     const index = acc.findIndex(({ result }) => result === cur);
 
                     // Increment the number of times rolled
@@ -1193,10 +1194,11 @@ class Ptu extends BaseSlashCommand
                 });
 
                 // Get embed message
-                const embed = getRandomResultEmbedMessage({
+                const embed = getRandomDowsingRodEmbedMessage({
                     itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.DowsingRod].plural,
                     results,
-                    rollResults,
+                    findingShardRollResults: findingShardsRollResult.join(', '),
+                    shardColorRollResults: shardColorRollResults.join(', '),
                 });
 
                 // Send embed

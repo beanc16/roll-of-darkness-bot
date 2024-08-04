@@ -59,6 +59,47 @@ export const getRandomYouFoundNothingEmbedMessage = ({
     return embed;
 };
 
+export const getRandomDowsingRodEmbedMessage = ({
+    itemNamePluralized,
+    results,
+    findingShardRollResults,
+    shardColorRollResults,
+}: {
+    itemNamePluralized: string;
+    results: RandomResult[];
+    findingShardRollResults: string;
+    shardColorRollResults: string;
+}) =>
+{
+    const fields = results.map(({
+        name,
+        cost,
+        description,
+        numOfTimesRolled = 1,
+    }) => {
+        const descriptionString = (description !== undefined)
+            ? `${description}\n`
+            : '';
+
+        const costString = (cost !== undefined)
+            ? `\nCost: ${cost}`
+            : '';
+
+        return {
+            name,
+            value: `${descriptionString}Number: ${numOfTimesRolled}${costString}`,
+        } as APIEmbedField;
+    });
+
+    const embed = new EmbedBuilder()
+        .setTitle(`Random ${itemNamePluralized}`)
+        .setDescription(`Finding Shard Result: (${findingShardRollResults})\nShard Color Result: (${shardColorRollResults})`)
+        .setColor(color)
+        .setFields(...fields);
+
+    return embed;
+};
+
 export const getRandomPokeballEmbedMessage = ({
     itemNamePluralized,
     results,
