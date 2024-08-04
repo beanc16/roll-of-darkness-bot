@@ -15,6 +15,7 @@ import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages } from './
 import { PtuAbilitiesSearchService, PtuMovesSearchService } from '../services/SearchService';
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord';
 import { PtuAbility } from '../models/PtuAbility';
+import { SubcommandHandlerFunction } from '../types/common';
 
 enum HealingItemTypes
 {
@@ -38,8 +39,6 @@ enum PokeballType
     Attachment = 'Jailbreaker Attachment',
     Master = 'Master',
 }
-
-type SubcommandHandlerFunction = (interaction: ChatInputCommandInteraction) => Promise<boolean>;
 
 type SubcommandHandlers = {
     [PtuSubcommandGroup.Lookup]: {

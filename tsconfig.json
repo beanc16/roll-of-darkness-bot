@@ -17,6 +17,7 @@
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "skipLibCheck": true,
+        "experimentalDecorators": true,
         // TODO: Remove allowJs later.
         "allowJs": true,
     },
