@@ -18,7 +18,7 @@ export class PtuMove
     public frequency?: PtuMoveFrequency;
     public damageBase?: number;
     public ac?: number;
-    public range: string;
+    public range?: string;
     public effects: string;
     public contestStats: string;
     public uses: {
@@ -61,6 +61,7 @@ export class PtuMove
         ] = input;
 
         // Trim strings with necessary validation
+        const unparsedRange = range.trim();
         const unparsedDamageBase = untrimmedDamageBase.trim();
         const frequency = untrimmedFrequency.trim();
         const unparsedAc = untrimmedAc.trim();
@@ -73,7 +74,6 @@ export class PtuMove
 
         // Base values
         this.name = name.trim();
-        this.range = range.trim();
         this.effects = effects.trim();
         this.contestStats = contestStats.trim();
         this.uses = {
@@ -138,6 +138,12 @@ export class PtuMove
         else if (unparsedAc !== '--' && unparsedAc !== 'AC' && unparsedAc !== 'See Effect' && unparsedAc !== '')
         {
             logger.warn('Received a move with an AC that is not a number', { unparsedAc, ac });
+        }
+
+        // Range
+        if (unparsedRange !== '--')
+        {
+            this.range = unparsedRange;
         }
         // <--- TODO: Convert these validation if statements to use JOI later.
     }
@@ -245,7 +251,7 @@ export class PtuMove
         }
 
         // Range
-        if (input.rangeSearch && !this.range.toLowerCase().includes(input.rangeSearch.toLowerCase()))
+        if (input.rangeSearch && this.range && !this.range.toLowerCase().includes(input.rangeSearch.toLowerCase()))
         {
             return false;
         }
@@ -254,7 +260,7 @@ export class PtuMove
         if (input.exclude)
         {
             if (input.exclude.names && input.exclude.names.includes(this.name)) return false;
-            if (input.exclude.rangeSearch && this.range.toLowerCase().includes(input.exclude.rangeSearch.toLowerCase())) return false;
+            if (input.exclude.rangeSearch && this.range && this.range.toLowerCase().includes(input.exclude.rangeSearch.toLowerCase())) return false;
         }
 
         return true;

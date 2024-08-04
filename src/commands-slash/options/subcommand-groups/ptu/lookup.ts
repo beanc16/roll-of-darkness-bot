@@ -14,7 +14,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
 
     // Name
     subcommand.addStringOption((option) => {
-        option.setName('name');
+        option.setName('move_name');
         option.setDescription(`The move's name.`);
         return option.setAutocomplete(true);
     });

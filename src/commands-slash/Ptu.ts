@@ -291,7 +291,7 @@ class Ptu extends BaseSlashCommand
         [PtuLookupSubcommand.Move]: async (interaction: ChatInputCommandInteraction) =>
         {
             // Get parameter results
-            const name = interaction.options.getString('name');
+            const name = interaction.options.getString('move_name');
             const type = interaction.options.getString('type') as PokemonType | null;
             const category = interaction.options.getString('category') as PokemonMoveCategory | null;
             const db = interaction.options.getInteger('damage_base');
@@ -1160,7 +1160,8 @@ class Ptu extends BaseSlashCommand
         const moves = await getLookupMoveData({});
         let choices: ApplicationCommandOptionChoiceData<string>[] = [];
 
-        if (focusedValue.name === 'name')
+        // Move Name
+        if (focusedValue.name === 'move_name')
         {
             choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
