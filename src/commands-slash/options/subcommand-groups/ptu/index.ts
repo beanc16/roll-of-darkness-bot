@@ -12,6 +12,7 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run PTU lookup commands.');
+    subcommandGroup.addSubcommand(lookupSubcommands.ability);
     subcommandGroup.addSubcommand(lookupSubcommands.move);
     return subcommandGroup;
 };

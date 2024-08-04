@@ -11,9 +11,10 @@ import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
 import { EqualityOption } from './options/shared';
 import { PtuMove, PtuMoveExclude } from '../models/PtuMove';
-import { getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
-import { PtuMovesSearchService } from '../services/SearchService';
+import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
+import { PtuAbilitiesSearchService, PtuMovesSearchService } from '../services/SearchService';
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord';
+import { PtuAbility } from '../models/PtuAbility';
 
 enum HealingItemTypes
 {
@@ -201,6 +202,13 @@ const subcommandHandlerForRandom = async (interaction: ChatInputCommandInteracti
     return true;
 };
 
+export interface GetLookupAbilityDataParameters {
+    name?: string | null;
+    nameSearch?: string | null;
+    frequencySearch?: string | null;
+    effectSearch?: string | null;
+}
+
 export interface GetLookupMoveDataParameters {
     name?: string | null;
     type?: PokemonType | null;
@@ -216,7 +224,46 @@ export interface GetLookupMoveDataParameters {
     exclude?: PtuMoveExclude;
 }
 
-const getLookupMoveData = async (input: GetLookupMoveDataParameters) =>
+const getLookupAbilityData = async (input: GetLookupAbilityDataParameters = {}) =>
+{
+    const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+        spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+        range: `'Abilities Data'!A3:Z`,
+    });
+
+    const abilities = data.reduce((acc, cur) =>
+    {
+        const ability = new PtuAbility(cur);
+
+        if (!ability.IsValidBasedOnInput(input))
+        {
+            return acc;
+        }
+
+        acc.push(ability);
+
+        return acc;
+    }, [] as PtuAbility[]);
+
+    // Sort manually if there's no searches
+    if (input.nameSearch || input.effectSearch)
+    {
+        const results = PtuAbilitiesSearchService.search(abilities, input);
+        return results;
+    }
+
+    abilities.sort((a, b) =>
+    {
+        /*
+         * Sort by:
+         * 1) Name
+         */
+        return a.name.localeCompare(b.name);
+    });
+    return abilities;
+};
+
+const getLookupMoveData = async (input: GetLookupMoveDataParameters = {}) =>
 {
     const { data = [] } = await CachedGoogleSheetsApiService.getRange({
         spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
@@ -288,6 +335,48 @@ class Ptu extends BaseSlashCommand
 
     private lookupSubcommandHandlers: SubcommandHandlers[PtuSubcommandGroup.Lookup] = {
         // TODO: Add here later
+        [PtuLookupSubcommand.Ability]: async (interaction: ChatInputCommandInteraction) =>
+        {
+            // Get parameter results
+            const name = interaction.options.getString('ability_name');
+            const nameSearch = interaction.options.getString('name_search');
+            const frequencySearch = interaction.options.getString('frequency_search');
+            const effectSearch = interaction.options.getString('effect_search');
+
+            const abilities = await getLookupAbilityData({
+                name,
+                nameSearch,
+                frequencySearch,
+                effectSearch,
+            });
+
+            // TODO: Add listview and final paginated functionality later
+
+            // Get message
+            const embeds = getLookupAbilitiesEmbedMessages(abilities);
+
+            // Send no results found
+            if (embeds.length === 0)
+            {
+                await interaction.editReply('No abilities were found.');
+                return true;
+            }
+
+            // Send embed
+            await interaction.editReply({
+                embeds: [embeds[0]],
+            });
+
+            // Reply to the original message with all embeds after the first
+            for (const embed of embeds.slice(1))
+            {
+                await interaction.followUp({
+                    embeds: [embed],
+                });
+            }
+
+            return true;
+        },
         [PtuLookupSubcommand.Move]: async (interaction: ChatInputCommandInteraction) =>
         {
             // Get parameter results
@@ -1157,13 +1246,25 @@ class Ptu extends BaseSlashCommand
     {
         const focusedValue = interaction.options.getFocused(true);
 
-        const moves = await getLookupMoveData({});
         let choices: ApplicationCommandOptionChoiceData<string>[] = [];
 
         // Move Name
         if (focusedValue.name === 'move_name')
         {
+            const moves = await getLookupMoveData();
             choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Ability Name
+        if (focusedValue.name === 'ability_name')
+        {
+            const abilities = await getLookupAbilityData();
+            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,

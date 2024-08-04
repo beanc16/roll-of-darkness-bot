@@ -4,8 +4,40 @@ import { equalityOption } from '../../shared';
 
 export enum PtuLookupSubcommand
 {
+    Ability = 'ability',
     Move = 'move',
 }
+
+export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Ability);
+    subcommand.setDescription('Get a list of abilities based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('ability_name');
+        option.setDescription(`The ability's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Searches
+    subcommand.addStringOption((option) => {
+        option.setName('name_search');
+        return option.setDescription(`A search on the move's name.`);
+    });
+
+    subcommand.addStringOption((option) => {
+        option.setName('frequency_search');
+        return option.setDescription(`A search on the move's frequency.`);
+    });
+
+    subcommand.addStringOption((option) => {
+        option.setName('effect_search');
+        return option.setDescription(`A search on the move's effect.`);
+    });
+
+    return subcommand;
+};
 
 export const move = (subcommand: SlashCommandSubcommandBuilder) =>
 {
@@ -84,6 +116,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
         );
     });
 
+    // AC
     subcommand.addIntegerOption((option) => {
         option.setName('ac');
         option.setDescription('The AC of moves to look up.');
@@ -97,6 +130,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
             .setDescription('The provided AC should be ??? to the moves AC (default: Equals)');
     });
 
+    // Searches
     subcommand.addStringOption((option) => {
         option.setName('name_search');
         return option.setDescription(`A search on the move's name.`);
