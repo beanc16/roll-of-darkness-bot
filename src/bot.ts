@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
+// Environment Variables (add back in if Doppler stops working)
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 // Libraries
 import {
