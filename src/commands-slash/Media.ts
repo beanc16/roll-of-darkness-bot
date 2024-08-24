@@ -33,18 +33,26 @@ class Media extends BaseSlashCommand
         const subcommandGroup = interaction.options.getSubcommandGroup(true) as MediaSubcommandGroup;
         const subcommand = interaction.options.getSubcommand(true) as MediaInstagramSubcommand;
 
-        // Get handler
-        const handler = this.subcommandHandlers[subcommandGroup][subcommand];
+        try {
+            // Get handler
+            const handler = this.subcommandHandlers[subcommandGroup][subcommand];
 
-        // Run subcommand
-        const response = (handler !== undefined)
-            ? await handler(interaction)
-            : false;
+            // Run subcommand
+            const response = (handler !== undefined)
+                ? await handler(interaction)
+                : false;
 
-        // Send response if the handler failed or was undefined
-        if (!response)
-        {
-            await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+            // Send response if the handler failed or was undefined
+            if (!response)
+            {
+                await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+            }
+        } catch (err) {
+            logger.error('An error occurred while processing media', err, {
+                subcommandGroup,
+                subcommand,
+            });
+            await interaction.editReply('An unknown error occurred');
         }
     }
 
