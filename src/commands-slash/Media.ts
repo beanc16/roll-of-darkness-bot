@@ -66,7 +66,13 @@ class Media extends BaseSlashCommand
 
                     if (curUrl !== null)
                     {
-                        inputUrls.push(curUrl);
+                        const indexOfUrlToRemove = curUrl.indexOf('?igsh');
+
+                        const inputUrl = (indexOfUrlToRemove < 0)
+                            ? curUrl.substring(0, indexOfUrlToRemove)
+                            : curUrl;
+
+                        inputUrls.push(inputUrl);
                     }
                 }
 
