@@ -6,6 +6,7 @@ import { MediaSubcommandGroup } from './options/subcommand-groups';
 import { MediaInstagramSubcommand } from './options/subcommand-groups/media/instagram';
 import { SubcommandHandlerFunction } from '../types/common';
 import { InstagramMediaDownloader } from '../services/MediaDownloaders';
+import { logger } from '@beanc16/logger';
 
 type SubcommandHandlers = {
     [MediaSubcommandGroup.Instagram]: {
@@ -74,9 +75,9 @@ class Media extends BaseSlashCommand
 
                     if (curUrl !== null)
                     {
-                        const indexOfUrlToRemove = curUrl.indexOf('?igsh');
+                        const indexOfUrlToRemove = curUrl.indexOf('/?');
 
-                        const inputUrl = (indexOfUrlToRemove < 0)
+                        const inputUrl = (indexOfUrlToRemove >= 0)
                             ? curUrl.substring(0, indexOfUrlToRemove)
                             : curUrl;
 
