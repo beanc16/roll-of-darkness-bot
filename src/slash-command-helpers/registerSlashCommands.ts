@@ -1,6 +1,6 @@
-const { logger } = require("@beanc16/logger");
-const { SlashCommandsContainer } = require('./SlashCommandsContainer');
-const FlavorTextService = require('../services/FlavorTextService');
+import { logger } from '@beanc16/logger';
+import { SlashCommandsContainer } from './SlashCommandsContainer.js';
+import FlavorTextService from '../services/FlavorTextService.js';
 
 async function registerCommands(): Promise<void>
 {

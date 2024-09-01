@@ -34,7 +34,16 @@ export class SlashCommandsContainer
     static #guildCommands: { [key: string]: Command } = {};
     static #contextMenuCommands: { [key: string]: ContextMenuCommand } = {};
 
-    static { // Static constructor
+    static {
+        this.initialize();
+    }
+
+    static async initialize()
+    {
+        this.#slashCommands = {};
+        this.#guildCommands = {};
+        this.#contextMenuCommands = {};
+        
         // Initialize common commands
         Object.values(commonSlashCommands).forEach((command: Command) =>
         {
@@ -121,7 +130,7 @@ export class SlashCommandsContainer
             }
         });
 
-        Promise.all([
+        await Promise.all([
             ...commandPromises,
             ...guildCommandPromises,
             ...contextMenuCommandPromises,
@@ -216,6 +225,8 @@ export class SlashCommandsContainer
 
     static async registerAllCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters)
     {
+        await this.initialize();
+
         const [
             registeredGlobalSlashCommandData,
             registeredGuildSlashCommandData,

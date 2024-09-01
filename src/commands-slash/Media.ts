@@ -1,11 +1,11 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import * as options from './options/index.js';
-import { MediaSubcommandGroup } from './options/subcommand-groups/index.js';
 import { MediaInstagramSubcommand } from './options/subcommand-groups/media/instagram.js';
-import { logger } from '@beanc16/logger';
 import { MediaStrategyExecutor } from './strategies/media/index.js';
+import { MediaSubcommandGroup } from './options/subcommand-groups/index.js';
 
 class Media extends BaseSlashCommand
 {
@@ -13,6 +13,7 @@ class Media extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            .addSubcommandGroup(options.subcommandGroups.image)
             .addSubcommandGroup(options.subcommandGroups.instagram);
     }
 
