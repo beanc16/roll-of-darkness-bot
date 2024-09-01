@@ -3,13 +3,14 @@ import { APIApplicationCommandOptionChoice, SlashCommandAttachmentOption, SlashC
 
 export enum MediaImageSubcommand
 {
+    Background = 'background',
     Upscale = 'upscale',
 }
 
 const imageOption = (option: SlashCommandAttachmentOption) =>
 {
     option.setName('image');
-    return option.setDescription('An image.');
+    return option.setDescription('An image. This will take precedence over image_url.');
 };
 
 const imageUrlOption = (option: SlashCommandStringOption) =>
@@ -37,7 +38,7 @@ export const background = (subcommand: SlashCommandSubcommandBuilder) => {
     baseImageSubcommand(subcommand);
     subcommand.addStringOption((option) => {
         option.setName('color');
-        option.setDescription("The image's background color.");
+        option.setDescription("The image's background color. This will take precedence over hex_code.");
 
         const backgroundColorOptions = Object.entries(FileStorageMicroserviceImageBackground).map<APIApplicationCommandOptionChoice<string>>(
             ([key, value]) => {
