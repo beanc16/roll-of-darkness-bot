@@ -1,5 +1,5 @@
-import { Tracker } from '../dal/RollOfDarknessMongoControllers';
-import Singleton from './Singleton';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import Singleton from './Singleton.js';
 
 interface CombatTrackerSingletonMap
 {

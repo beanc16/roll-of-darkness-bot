@@ -1,5 +1,5 @@
-import { Character } from '../dal/RollOfDarknessMongoControllers';
-import Singleton from './Singleton';
+import { Character } from '../dal/RollOfDarknessMongoControllers.js';
+import Singleton from './Singleton.js';
 
 interface CharacterSingletonMap
 {

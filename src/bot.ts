@@ -9,7 +9,7 @@ import {
 } from 'discord.js';
 
 // Events to listen for
-import events from './events';
+import events from './events/index.js';
 
 // Initialize Discord Bot
 const bot = new Client({

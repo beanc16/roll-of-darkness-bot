@@ -1,18 +1,11 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { AttachmentPayload, ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 
-import * as options from './options';
-import { MediaSubcommandGroup } from './options/subcommand-groups';
-import { MediaInstagramSubcommand } from './options/subcommand-groups/media/instagram';
-import { SubcommandHandlerFunction } from '../types/common';
-import { InstagramMediaDownloader } from '../services/MediaDownloaders';
+import * as options from './options/index.js';
+import { MediaSubcommandGroup } from './options/subcommand-groups/index.js';
+import { MediaInstagramSubcommand } from './options/subcommand-groups/media/instagram.js';
 import { logger } from '@beanc16/logger';
-
-type SubcommandHandlers = {
-    [MediaSubcommandGroup.Instagram]: {
-        [key in MediaInstagramSubcommand]: SubcommandHandlerFunction
-    };
-}
+import { MediaStrategyExecutor } from './strategies/media/index.js';
 
 class Media extends BaseSlashCommand
 {
@@ -35,13 +28,12 @@ class Media extends BaseSlashCommand
         const subcommand = interaction.options.getSubcommand(true) as MediaInstagramSubcommand;
 
         try {
-            // Get handler
-            const handler = this.subcommandHandlers[subcommandGroup][subcommand];
-
             // Run subcommand
-            const response = (handler !== undefined)
-                ? await handler(interaction)
-                : false;
+            const response = MediaStrategyExecutor.run({
+                subcommandGroup,
+                subcommand,
+                interaction,
+            });
 
             // Send response if the handler failed or was undefined
             if (!response)
@@ -61,77 +53,6 @@ class Media extends BaseSlashCommand
     {
         return `Run media commands.`;
     }
-
-    private subcommandHandlers: SubcommandHandlers = {
-        [MediaSubcommandGroup.Instagram]: {
-            [MediaInstagramSubcommand.Download]: async (interaction: ChatInputCommandInteraction) =>
-            {
-                // Get parameter results as an array
-                const inputUrls: string[] = [];
-
-                for (let i = 1; i <= 10; i++)
-                {
-                    const curUrl = interaction.options.getString(`url_${i}`);
-
-                    if (curUrl !== null)
-                    {
-                        const indexOfUrlToRemove = curUrl.indexOf('/?');
-
-                        const inputUrl = (indexOfUrlToRemove >= 0)
-                            ? curUrl.substring(0, indexOfUrlToRemove)
-                            : curUrl;
-
-                        inputUrls.push(inputUrl);
-                    }
-                }
-
-                // Get results
-                const pagedDownloadUrls = await InstagramMediaDownloader.getPagedDownloadUrls(
-                    inputUrls
-                );
-
-                // Parse to attachments array
-                const pagedAttachments = pagedDownloadUrls.reduce<AttachmentPayload[][]>((acc, urls) => {
-                    if (urls.length === 0)
-                    {
-                        return acc;
-                    }
-
-                    const attachments = urls.map<AttachmentPayload>((url) => {
-                        return {
-                            attachment: url,
-                        };
-                    });
-                    acc.push(attachments);
-
-                    return acc;
-                }, []);
-
-                // Early exit
-                if (pagedAttachments.length === 0)
-                {
-                    await interaction.editReply('No images to download found.');
-                }
-
-                // TODO: Add pagination functionality later
-
-                // Send result
-                await interaction.editReply({
-                    files: pagedAttachments[0],
-                });
-
-                // Reply to the original message with all files after the first
-                for (const attachments of pagedAttachments.slice(1))
-                {
-                    await interaction.followUp({
-                        files: attachments
-                    });
-                }
-
-                return true;
-            },
-        },
-    };
 }
 
 export default new Media();

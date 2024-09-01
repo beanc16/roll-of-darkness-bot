@@ -1,19 +1,20 @@
+import { logger } from '@beanc16/logger';
 import {
     ComponentType,
     Message,
     MessageComponentInteraction,
     StringSelectMenuInteraction,
 } from 'discord.js';
-import { CombatTrackerStatus, timeToWaitForCommandInteractions } from '../../constants/combatTracker';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
-import { getCombatTrackerActionRows, selectMenuCustomIds } from '../select-menus/combat_tracker';
-import { selectMenuValues } from '../select-menus/options/combat_tracker';
-import { logger } from '@beanc16/logger';
-import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
-import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
-import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter';
-import { EditCharacterHpModal } from '../../modals/combat-tracker/EditCharacterHp';
-import { RemoveCharacterModal } from '../../modals/combat-tracker/RemoveCharacter';
+
+import { CombatTrackerStatus, timeToWaitForCommandInteractions } from '../../constants/combatTracker.js';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import { getCombatTrackerActionRows, selectMenuCustomIds } from '../select-menus/combat_tracker.js';
+import { selectMenuValues } from '../select-menus/options/combat_tracker.js';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
+import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
+import { AddCharacterModal } from '../../modals/combat-tracker/AddCharacter.js';
+import { EditCharacterHpModal } from '../../modals/combat-tracker/EditCharacterHp.js';
+import { RemoveCharacterModal } from '../../modals/combat-tracker/RemoveCharacter.js';
 
 interface CombatTrackerMessageComponentHandlerParameters
 {

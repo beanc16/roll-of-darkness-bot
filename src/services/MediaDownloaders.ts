@@ -1,5 +1,6 @@
 // @ts-ignore -- This package doesn't have any types.
 import instagramGetUrlUntyped from 'instagram-url-direct';
+import { staticImplements } from '../decorators/staticImplements.js';
 
 type InstagramGetUrl = (url: string) => Promise<{
     results_number: number;
@@ -7,12 +8,6 @@ type InstagramGetUrl = (url: string) => Promise<{
 }>;
 
 const instagramGetUrl: InstagramGetUrl = instagramGetUrlUntyped;
-
-// Class Decorator
-function staticImplements<T>()
-{
-    return <U extends T>(constructor: U) => {constructor};
-}
 
 export interface MediaDownloader
 {

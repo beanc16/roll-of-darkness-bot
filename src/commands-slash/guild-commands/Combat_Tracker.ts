@@ -2,13 +2,13 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { CommandInteraction } from 'discord.js';
 
-import * as options from '../options';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
-import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker';
-import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker';
-import { CombatTrackerType } from '../../constants/combatTracker';
-import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
+import * as options from '../options/index.js';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
+import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { CombatTrackerType } from '../../constants/combatTracker.js';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
 
 class Combat_Tracker extends BaseSlashCommand
 {

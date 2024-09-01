@@ -1,21 +1,21 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
-import * as options from './options';
-import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiService';
-import { PtuSubcommandGroup } from './options/subcommand-groups';
-import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random';
-import { DiceLiteService } from '../services/DiceLiteService';
-import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage, getRandomDowsingRodEmbedMessage } from './embed-messages/ptu/random';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
-import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup';
-import { EqualityOption } from './options/shared';
-import { PtuMove, PtuMoveExclude } from '../models/PtuMove';
-import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup';
-import { PtuAbilitiesSearchService, PtuMovesSearchService } from '../services/SearchService';
-import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord';
-import { PtuAbility } from '../models/PtuAbility';
-import { SubcommandHandlerFunction } from '../types/common';
+import * as options from './options/index.js';
+import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiService.js';
+import { PtuSubcommandGroup } from './options/subcommand-groups/index.js';
+import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random.js';
+import { DiceLiteService } from '../services/DiceLiteService.js';
+import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage, getRandomDowsingRodEmbedMessage } from './embed-messages/ptu/random.js';
+import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon.js';
+import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup.js';
+import { EqualityOption } from './options/shared.js';
+import { PtuMove, PtuMoveExclude } from '../models/PtuMove.js';
+import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup.js';
+import { PtuAbilitiesSearchService, PtuMovesSearchService } from '../services/SearchService.js';
+import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
+import { PtuAbility } from '../models/PtuAbility.js';
+import { SubcommandHandlerFunction } from '../types/common.js';
 
 enum HealingItemTypes
 {

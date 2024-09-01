@@ -1,5 +1,5 @@
-import { BaseCustomModal } from './BaseCustomModal';
-import { combatTrackerModals } from './combat-tracker/index';
+import { BaseCustomModal } from './BaseCustomModal.js';
+import { combatTrackerModals } from './combat-tracker/index.js';
 
 export const modalMap = [
     ...combatTrackerModals,

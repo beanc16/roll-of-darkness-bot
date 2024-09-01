@@ -4,13 +4,13 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
-import { BaseCustomModal } from '../BaseCustomModal';
-import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache';
-import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker';
-import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker';
-import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker';
-import { CombatTrackerType, DamageType, HpType } from '../../constants/combatTracker';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers';
+import { BaseCustomModal } from '../BaseCustomModal.js';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
+import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker.js';
+import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker.js';
+import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker.js';
+import { CombatTrackerType, DamageType, HpType } from '../../constants/combatTracker.js';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
 
 export enum EditCharacterHpCustomIds
 {

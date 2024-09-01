@@ -1,6 +1,6 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
-import { RandomPokeball, RandomResult } from '../../Ptu';
+import { RandomPokeball, RandomResult } from '../../Ptu.js';
 
 const color = 0xCDCDCD;
 

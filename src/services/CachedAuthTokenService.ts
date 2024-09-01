@@ -4,7 +4,7 @@ import {
     UserMicroservice,
 } from '@beanc16/microservices-abstraction';
 
-import authTokenSingleton from '../models/authTokenSingleton';
+import authTokenSingleton from '../models/authTokenSingleton.js';
 
 export class CachedAuthTokenService
 {

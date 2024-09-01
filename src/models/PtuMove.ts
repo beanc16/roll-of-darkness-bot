@@ -1,8 +1,8 @@
 import { logger } from '@beanc16/logger';
-import { EqualityOption } from '../commands-slash/options/shared';
-import { GetLookupMoveDataParameters } from '../commands-slash/Ptu';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon';
-import { EnumParserService } from '../services/EnumParserService';
+import { EqualityOption } from '../commands-slash/options/shared.js';
+import { GetLookupMoveDataParameters } from '../commands-slash/Ptu.js';
+import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon.js';
+import { EnumParserService } from '../services/EnumParserService.js';
 
 export interface PtuMoveExclude {
     names?: string[];

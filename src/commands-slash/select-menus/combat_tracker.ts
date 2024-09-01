@@ -1,7 +1,7 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
-import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker';
-import { CombatTrackerType, CombatTrackerStatus } from '../../constants/combatTracker';
+import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker.js';
+import { CombatTrackerType, CombatTrackerStatus } from '../../constants/combatTracker.js';
 
 interface GetCombatTrackerSelectMenusParamters
 {

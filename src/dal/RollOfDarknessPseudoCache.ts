@@ -9,11 +9,11 @@ import {
     TrackerController, 
     TrackerResponse,
     TrackerUpdateResponse,
-} from './RollOfDarknessMongoControllers';
-import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants/combatTracker';
-import combatTrackersSingleton from '../models/combatTrackersSingleton';
-import charactersSingleton from '../models/charactersSingleton';
-import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService';
+} from './RollOfDarknessMongoControllers.js';
+import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants/combatTracker.js';
+import combatTrackersSingleton from '../models/combatTrackersSingleton.js';
+import charactersSingleton from '../models/charactersSingleton.js';
+import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService.js';
 
 interface CreateTrackerParameters
 {
@@ -92,7 +92,7 @@ export class RollOfDarknessPseudoCache
                 results: {
                     model: tracker,
                 },
-            } = await TrackerController.insertOneIfNotExists({
+                        } = await TrackerController.insertOneIfNotExists({
                 // Find objects with the same name
                 name: trackerName,
             }, {
@@ -130,7 +130,7 @@ export class RollOfDarknessPseudoCache
             results: {
                 new: tracker,
             },
-        } = await TrackerController.findOneAndUpdate({
+                } = await TrackerController.findOneAndUpdate({
             // Find objects with the same name
             name: oldTracker.name,
         }, {
@@ -224,7 +224,7 @@ export class RollOfDarknessPseudoCache
             results: {
                 new: tracker,
             },
-        } = await TrackerController.findOneAndUpdate({
+                } = await TrackerController.findOneAndUpdate({
             // Find objects with the same name
             'discordCreator.messageId': message.id,
         }, {
@@ -313,7 +313,7 @@ export class RollOfDarknessPseudoCache
                 results: {
                     new: editedCharacter,
                 },
-            } = await CharacterController.findOneAndUpdate({
+                        } = await CharacterController.findOneAndUpdate({
                 _id: character._id,
             }, {
                 // If one is found, update the current damage
@@ -359,7 +359,7 @@ export class RollOfDarknessPseudoCache
         else
         {
             // TODO: Handle character does not exist.
-            await CharacterController.findOneAndDelete({
+                        await CharacterController.findOneAndDelete({
                 _id: character._id,
             });
 
@@ -373,7 +373,7 @@ export class RollOfDarknessPseudoCache
                 results: {
                     new: editedTracker,
                 },
-            } = await TrackerController.findOneAndUpdate({
+                        } = await TrackerController.findOneAndUpdate({
                 // Find objects with the same name
                 name: tracker.name,
             }, {

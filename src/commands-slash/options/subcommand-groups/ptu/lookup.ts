@@ -1,6 +1,6 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PokemonType, PokemonMoveCategory, PtuMoveFrequency } from '../../../../constants/pokemon';
-import { equalityOption } from '../../shared';
+import { PokemonType, PokemonMoveCategory, PtuMoveFrequency } from '../../../../constants/pokemon.js';
+import { equalityOption } from '../../shared.js';
 
 export enum PtuLookupSubcommand
 {

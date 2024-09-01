@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const { ApplicationCommandType, ContextMenuCommandBuilder } = require('discord.js');
+import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js';
 
 
 
@@ -44,6 +44,6 @@ export class BaseContextMenuCommand
     get requiredPermissions()
     {
         // eslint-disable-next-line getter-return
-        return;
+        return undefined;
     }
 }

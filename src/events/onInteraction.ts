@@ -1,7 +1,7 @@
 import { AutocompleteInteraction, Client, CommandInteraction, Events, ModalSubmitInteraction } from 'discord.js';
 import { logger } from '@beanc16/logger';
-import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer';
-import { modalMap } from '../modals';
+import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer.js';
+import { modalMap } from '../modals/index.js';
 
 
 

@@ -1,5 +1,5 @@
 import { SlashCommandIntegerOption, SlashCommandSubcommandBuilder } from 'discord.js';
-import * as options from '../../../options';
+import * as options from '../../../options/index.js';
 
 export enum BerryTier
 {

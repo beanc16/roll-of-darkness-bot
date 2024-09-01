@@ -1,6 +1,6 @@
-import { AddCharacterModal } from './AddCharacter';
-import { EditCharacterHpModal } from './EditCharacterHp';
-import { RemoveCharacterModal } from './RemoveCharacter';
+import { AddCharacterModal } from './AddCharacter.js';
+import { EditCharacterHpModal } from './EditCharacterHp.js';
+import { RemoveCharacterModal } from './RemoveCharacter.js';
 
 export const combatTrackerModals = [
     AddCharacterModal,

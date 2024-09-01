@@ -1,6 +1,7 @@
-import rollConstants from '../constants/roll';
-import DicePoolGroup from '../models/DicePoolGroup';
-import DicePool from '../models/DicePool';
+import rollConstants from '../constants/roll.js';
+import { DicePoolGroup } from '../models/DicePoolGroup.js';
+import { DicePool } from '../models/DicePool.js';
+import { Roll } from '../types/rolls.js';
 
 export class DiceService
 {
@@ -28,15 +29,15 @@ export class DiceService
         extraSuccesses = rollConstants.defaultParams.extraSuccesses,
     }: {
         sides?: number;
-        count?: number;
+        count?: number | null;
         rerollOnGreaterThanOrEqualTo?: number;
         successOnGreaterThanOrEqualTo?: number;
-        exceptionalOn?: number;
-        diceToReroll?: number;
+        exceptionalOn?: number | null;
+        diceToReroll?: number | null;
         canBeDramaticFailure?: boolean;
-        isRote?: boolean;
-        isAdvancedAction?: boolean;
-        extraSuccesses?: number;
+        isRote?: boolean | null;
+        isAdvancedAction?: boolean | null;
+        extraSuccesses?: number | null;
     } = rollConstants.defaultParams)
     {
         this.sides = sides || rollConstants.defaultParams.sides;
@@ -86,7 +87,7 @@ export class DiceService
     rollOne({
         isReroll = false,
         isRote = false,
-    } = {}): any[] // TODO: Type this better later
+    } = {}): Roll[]
     {
         const rolls = [];
 

@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandGroupBuilder } from 'discord.js';
-import * as lookupSubcommands from './lookup';
-import * as randomSubcommands from './random';
+import * as lookupSubcommands from './lookup.js';
+import * as randomSubcommands from './random.js';
 
 export enum PtuSubcommandGroup
 {

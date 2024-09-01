@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import appRootPath from 'app-root-path';
 import { REST, Routes } from 'discord.js';
 import { logger } from '@beanc16/logger';
 import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
-import { BaseContextMenuCommand } from '../context-menus/base-commands/BaseContextMenuCommand';
+
+import { BaseContextMenuCommand } from '../context-menus/base-commands/BaseContextMenuCommand.js';
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 
@@ -45,9 +45,10 @@ export class SlashCommandsContainer
         });
 
         // Initialize commands
-        const commandsDirPath = appRootPath.resolve('./dist/commands-slash');
-        const guildCommandsDirPath = appRootPath.resolve('./dist/commands-slash/guild-commands');
-        const contextMenuCommandsDirPath = appRootPath.resolve('./dist/context-menus');
+        const rootDir = `${process.cwd()}/${(process.env.STAGE === 'dev' ? 'src' : 'dist')}`;
+        const commandsDirPath = `${rootDir}/commands-slash`;
+        const guildCommandsDirPath = `${rootDir}/commands-slash/guild-commands`;
+        const contextMenuCommandsDirPath = `${rootDir}/context-menus`;
 
         // Get all files and directories in the commands folder.
         const files = (fs.existsSync(commandsDirPath))

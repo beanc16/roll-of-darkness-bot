@@ -1,7 +1,7 @@
 import { Events } from 'discord.js';
 import { logger } from '@beanc16/logger';
-import FlavorTextService from '../services/FlavorTextService';
-import { CachedAuthTokenService } from '../services/CachedAuthTokenService';
+import FlavorTextService from '../services/FlavorTextService.js';
+import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 
 async function handler()
 {

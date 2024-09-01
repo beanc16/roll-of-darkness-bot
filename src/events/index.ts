@@ -1,5 +1,5 @@
-import onInteraction from './onInteraction';
-import onReady from './onReady';
+import onInteraction from './onInteraction.js';
+import onReady from './onReady.js';
 
 
 

@@ -3,9 +3,9 @@ import {
     GoogleSheetsGetRangesParametersV1,
     GoogleSheetsMicroservice,
 } from '@beanc16/microservices-abstraction';
-import { CachedAuthTokenService } from './CachedAuthTokenService';
+import { CachedAuthTokenService } from './CachedAuthTokenService.js';
 import { logger } from '@beanc16/logger';
-import { CompositeKeyRecord } from './CompositeKeyRecord';
+import { CompositeKeyRecord } from './CompositeKeyRecord.js';
 
 interface GetRangeResponse
 {

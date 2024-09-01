@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandGroupBuilder } from 'discord.js';
-import * as instagramSubcommands from './instagram';
+import * as instagramSubcommands from './instagram.js';
 
 export enum MediaSubcommandGroup
 {

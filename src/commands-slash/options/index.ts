@@ -1,22 +1,10 @@
-const beat = require('./beat');
-const coinFlip = require('./coinFlip');
-const combatTracker = require('./combat_tracker');
-const initiative = require('./initiative');
-const probability = require('./probability');
-const roll = require('./roll');
-const rollLite = require('./roll_lite');
-const rollMath = require('./roll_math');
+export * as beat from './beat.js';
+export * as coinFlip from './coinFlip.js';
+export * as combatTracker from './combat_tracker.js';
+export * as initiative from './initiative.js';
+export * as probability from './probability.js';
+export * as roll from './roll.js';
+export * as rollLite from './roll_lite.js';
+export * as rollMath from './roll_math.js';
 
-import * as subcommandGroups from './subcommand-groups/index';
-
-export {
-    beat,
-    coinFlip,
-    combatTracker,
-    initiative,
-    probability,
-    roll,
-    rollLite,
-    rollMath,
-    subcommandGroups,
-};
+export * as subcommandGroups from './subcommand-groups/index.js';

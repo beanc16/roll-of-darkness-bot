@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 
-import { PtuAbility } from '../../../models/PtuAbility';
-import { PtuMove } from '../../../models/PtuMove';
+import { PtuAbility } from '../../../models/PtuAbility.js';
+import { PtuMove } from '../../../models/PtuMove.js';
 import { Text } from '@beanc16/discordjs-helpers';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;

@@ -1,6 +1,6 @@
-const { MongoDbControllerWithEnv } = require('mongodb-controller'); // TODO: Update this to use import rather than require syntax once this package has types.
+import { MongoDbControllerWithEnv, MongoDbResults } from 'mongodb-controller';
 import { ObjectId } from 'mongodb';
-import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../constants/combatTracker.js';
 
 // Shared values
 interface DiscordCreator
@@ -70,31 +70,25 @@ export class Tracker
     }
 }
 
-// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
-export interface TrackerResponse
+export interface TrackerResponse extends MongoDbResults
 {
     results: {
         model: Tracker;
         result: object;
     };
-    error: Error | null;
-    statusCode: number;
 }
 
-// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
-export interface TrackerUpdateResponse
+export interface TrackerUpdateResponse extends MongoDbResults
 {
     results: {
         old: Tracker;
         new: Tracker;
     };
-    error: Error | null;
-    statusCode: number;
 }
 
 export class TrackerController extends MongoDbControllerWithEnv
 {
-    static collectionName = process.env.COLLECTION_TRACKER;
+    static collectionName = process.env.COLLECTION_TRACKER as string;
     static Model = Tracker;
 }
 
@@ -168,31 +162,25 @@ export class Character
     }
 }
 
-// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
-export interface CharacterResponse
+export interface CharacterResponse extends MongoDbResults
 {
     results: {
         model: Character;
         result: object;
     };
-    error: Error | null;
-    statusCode: number;
 }
 
-// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
-export interface CharacterUpdateResponse
+export interface CharacterUpdateResponse extends MongoDbResults
 {
     results: {
         old: Character;
         new: Character;
     };
-    error: Error | null;
-    statusCode: number;
 }
 
 export class CharacterController extends MongoDbControllerWithEnv
 {
-    static collectionName = process.env.COLLECTION_CHARACTER;
+    static collectionName = process.env.COLLECTION_CHARACTER as string;
     static Model = Character;
 }
 
@@ -208,12 +196,9 @@ interface AggregatedTrackerWithCharactersConstructor
     createdAt: Date;
 }
 
-// TODO: Get this as MongoDbResults from mongodb-controller when it has types.
-export interface AggregatedTrackerWithCharactersResponse
+export interface AggregatedTrackerWithCharactersResponse extends MongoDbResults
 {
     results: AggregatedTrackerWithCharacters[];
-    error: Error | null;
-    statusCode: number;
 }
 
 export class AggregatedTrackerWithCharacters
@@ -252,7 +237,7 @@ export class AggregatedTrackerWithCharacters
 
 export class AggregatedTrackerWithCharactersController extends MongoDbControllerWithEnv
 {
-    static collectionName = process.env.COLLECTION_TRACKER;
+    static collectionName = process.env.COLLECTION_TRACKER as string;
     static Model = AggregatedTrackerWithCharacters;
 
     // Calling AggregatedTrackerWithCharactersController.aggregate() will use this by default to return the Model set above.

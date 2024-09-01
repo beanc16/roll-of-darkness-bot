@@ -1,6 +1,6 @@
 import { StringSelectMenuOptionBuilder } from 'discord.js';
 
-import { CombatTrackerStatus, CombatTrackerType } from '../../../constants/combatTracker';
+import { CombatTrackerStatus, CombatTrackerType } from '../../../constants/combatTracker.js';
 
 export const selectMenuValues = {
     // HP Options

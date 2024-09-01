@@ -1,4 +1,4 @@
-import { DiceService } from './DiceService';
+import { DiceService } from './DiceService.js';
 
 export class DiceLiteService
 {
