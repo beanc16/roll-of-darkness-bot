@@ -16,6 +16,7 @@ export enum AddCharacterCustomIds
 {
     Name = 'name-text-input',
     Initiative = 'initiative-text-input',
+    ShouldRollInitiativeAsModifier = 'initiative-boolean-input',
     Hp = 'hp-text-input',
     Secrets = 'secrets-text-input',
 }
@@ -76,6 +77,7 @@ export class AddCharacterModal extends BaseCustomModal
         this._styleMap = {
             [AddCharacterCustomIds.Name]: TextInputStyle.Short,
             [AddCharacterCustomIds.Initiative]: TextInputStyle.Short,
+            [AddCharacterCustomIds.ShouldRollInitiativeAsModifier]: TextInputStyle.Short,
             [AddCharacterCustomIds.Hp]: TextInputStyle.Paragraph,
             [AddCharacterCustomIds.Secrets]: TextInputStyle.Paragraph,
         };
@@ -93,11 +95,20 @@ export class AddCharacterModal extends BaseCustomModal
 
         const initiativeInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.Initiative)
-            .setLabel(`What's their initiative modifier? (number)`)
+            .setLabel(`What's their initiative? (number)`)
             .setStyle(this._styleMap[AddCharacterCustomIds.Initiative])
             .setMinLength(1)
             .setMaxLength(3)
             .setRequired(false);
+
+        const shouldRollInitiativeAsModifierInput = new TextInputBuilder()
+            .setCustomId(AddCharacterCustomIds.ShouldRollInitiativeAsModifier)
+            .setLabel(`Should the initiative be rolled? (yes/no)`)
+            .setStyle(this._styleMap[AddCharacterCustomIds.ShouldRollInitiativeAsModifier])
+            .setMinLength(2)
+            .setMaxLength(3)
+            .setRequired(false)
+            .setValue('no');
 
         const hpInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.Hp)
@@ -124,7 +135,7 @@ export class AddCharacterModal extends BaseCustomModal
         return [
             nameInput,
             ...((!type || type === CombatTrackerType.All || type === CombatTrackerType.Initiative)
-                ? [initiativeInput]
+                ? [initiativeInput, shouldRollInitiativeAsModifierInput]
                 : []
             ),
             ...((!type || type === CombatTrackerType.All || type === CombatTrackerType.Hp)
@@ -135,6 +146,28 @@ export class AddCharacterModal extends BaseCustomModal
         ];
     }
 
+    private static parseInitiative(data: Record<AddCharacterCustomIds, string | number | boolean | Record<string, unknown> | undefined>)
+    {
+        const shouldRollInitiativeAsModifierInput = data[AddCharacterCustomIds.ShouldRollInitiativeAsModifier] as string | undefined;
+        const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
+
+        let initiative: number | undefined;
+
+        if (shouldRollInitiativeAsModifierInput?.toLowerCase() === 'yes' && initiativeModifier)
+        {
+            initiative = initiativeCommand.rollWithModifier(
+                parseInt(initiativeModifier, 10)
+            );
+        }
+
+        else if (initiativeModifier)
+        {
+            initiative = parseInt(initiativeModifier, 10);
+        }
+
+        return initiative;
+    }
+
     static async run(interaction: ModalSubmitInteraction)
     {
         // Send message to show the command was received
@@ -143,13 +176,7 @@ export class AddCharacterModal extends BaseCustomModal
         });
 
         const data = this.parseInput<AddCharacterCustomIds>(interaction);
-
-        const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
-        const initiative = (initiativeModifier)
-            ? initiativeCommand.rollWithModifier(
-                parseInt(initiativeModifier, 10)
-            ) as number
-            : undefined;
+        const initiative = this.parseInitiative(data);
 
         const {
             tracker,

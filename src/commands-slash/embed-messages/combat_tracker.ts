@@ -19,7 +19,6 @@ interface Character
         initiative: boolean;
         hp: boolean;
     };
-    isTurn?: boolean;
 }
 
 interface CombatTrackerEmbedParameters
@@ -121,7 +120,7 @@ function getCharacterNameString({
     tracker,
 } : {
     name: Character['name'];
-    isTurn: Character['isTurn'];
+    isTurn: boolean;
     initiative: Character['initiative'];
     tracker: Tracker;
 }): string
@@ -185,14 +184,20 @@ function getCharacterFields({
     const fields = sortedCharacters.map(({
         name,
         initiative,
-        isTurn,
         maxHp,
         currentDamage,
-    }) => {
+    }, index) => {
         const characterString = getCharacterNameString({
             name,
             initiative,
-            isTurn,
+            isTurn: (
+                (
+                    tracker.type === CombatTrackerType.All
+                    || tracker.type === CombatTrackerType.Initiative
+                )
+                && tracker.status === CombatTrackerStatus.InProgress
+                && index === tracker.currentTurn
+            ),
             tracker,
         })
 
@@ -216,6 +221,11 @@ function getDescription(tracker: Tracker)
 {
     if (tracker.status === CombatTrackerStatus.InProgress)
     {
+        if (tracker.type === CombatTrackerType.Hp)
+        {
+            return 'In Progress';
+        }
+
         return `Round ${tracker.round}`;
     }
 

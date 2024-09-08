@@ -30,6 +30,18 @@ interface UpdateTrackerStatusParameters
     tracker: Tracker;
 }
 
+interface NextTurnParameters
+{
+    tracker: Tracker;
+}
+
+type PreviousTurnParameters = NextTurnParameters;
+
+interface MoveTurnParameters extends NextTurnParameters
+{
+    turn: number;
+}
+
 interface GetCharactersParameters
 {
     tracker: Tracker;
@@ -67,6 +79,13 @@ interface DeleteCharacterParameters
     interaction: ModalSubmitInteraction;
     characterName: string;
     onCharacterNotFound?: (interaction: ModalSubmitInteraction) => Promise<void>;
+}
+
+interface UpdateTurnParameters
+{
+    oldTracker: Tracker;
+    updatedTurn: number;
+    updatedRound?: number;
 }
 
 export class RollOfDarknessPseudoCache
@@ -130,7 +149,7 @@ export class RollOfDarknessPseudoCache
             results: {
                 new: tracker,
             },
-                } = await TrackerController.findOneAndUpdate({
+        } = await TrackerController.findOneAndUpdate({
             // Find objects with the same name
             name: oldTracker.name,
         }, {
@@ -144,6 +163,82 @@ export class RollOfDarknessPseudoCache
 
         combatTrackersSingleton.upsert(tracker);
         return tracker;
+    }
+
+    static async nextTurn({
+        tracker: oldTracker,
+    } : NextTurnParameters): Promise<TrackerUpdateResponse['results']['new']>
+    {
+        const {
+            characters,
+            currentTurn,
+        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+
+        const updatedTurn = (currentTurn + 1 < characters.length)
+            ? currentTurn + 1
+            : 0;
+
+        const updatedRound = (currentTurn + 1 >= characters.length)
+            ? oldTracker.round + 1
+            : undefined;
+
+        return await this.updateTurn({
+            oldTracker,
+            updatedTurn,
+            updatedRound,
+        });
+    }
+
+    static async previousTurn({
+        tracker: oldTracker,
+    } : PreviousTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    {
+        const {
+            characters,
+            currentTurn,
+        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+
+        const updatedTurn = (currentTurn - 1 >= 0)
+            ? currentTurn - 1
+            : characters.length - 1;
+
+        const updatedRound = (currentTurn - 1 < 0)
+            ? oldTracker.round - 1
+            : undefined;
+
+        if (updatedRound !== undefined && updatedRound < 1)
+        {
+            return false;
+        }
+
+        return await this.updateTurn({
+            oldTracker,
+            updatedTurn,
+            updatedRound,
+        });
+    }
+
+    static async moveTurn({
+        tracker: oldTracker,
+        turn,
+    } : MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    {
+        const characters = await this.getCharacters({ tracker: oldTracker });
+
+        const updatedTurn = (turn > 0 && turn <= characters.length)
+            ? turn - 1
+            : undefined;
+
+        if (!updatedTurn)
+        {
+            // Return false if the turn is outside of the allowed range
+            return false;
+        }
+
+        return await this.updateTurn({
+            oldTracker,
+            updatedTurn,
+        });
     }
 
     static async getCharacters({
@@ -384,5 +479,66 @@ export class RollOfDarknessPseudoCache
             combatTrackersSingleton.upsert(editedTracker);
             charactersSingleton.delete(editedTracker._id?.toString() as string, character);
         }
-    };
+    }
+
+    private static async getCharactersAndCurrentTurn({
+        tracker
+    }: GetCharactersParameters): Promise<{
+        characters: Character[];
+        currentTurn: number;
+    }>
+    {
+        const trackerId = tracker._id?.toString() as string;
+        const cachedTracker = combatTrackersSingleton.get(trackerId);
+        const characters = charactersSingleton.get(trackerId);
+
+        if (cachedTracker && characters)
+        {
+            return {
+                characters: characters,
+                currentTurn: cachedTracker.currentTurn,
+            };
+        }
+
+        const {
+            results: [
+                {
+                    characters: charactersFromDb = [],
+                    currentTurn = 0,
+                } = {},
+            ] = [{}],
+        } = await AggregatedTrackerWithCharactersController.getByTrackerName(tracker.name);
+
+        return {
+            characters: charactersFromDb,
+            currentTurn,
+        };
+    }
+
+    private static async updateTurn({
+        oldTracker,
+        updatedTurn,
+        updatedRound,
+    } : UpdateTurnParameters)
+    {
+        // TODO: Handle tracker does not exists.
+        const {
+            results: {
+                new: tracker,
+            },
+        } = await TrackerController.findOneAndUpdate({
+            // Find objects with the same name
+            name: oldTracker.name,
+        }, {
+            // If one is found, update the current turn
+            currentTurn: updatedTurn,
+            ...(updatedRound !== undefined
+                ? { round: updatedRound }
+                : {}
+            ),
+        }) as TrackerUpdateResponse;
+
+        combatTrackersSingleton.upsert(tracker);
+        return tracker;
+    }
 }

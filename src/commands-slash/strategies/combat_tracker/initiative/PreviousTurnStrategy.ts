@@ -3,6 +3,12 @@ import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractio
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
 import { selectMenuValues } from '../../../select-menus/options/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../../../message-component-handlers/combat_tracker.js';
+import { CombatTrackerStatus } from '../../../../constants/combatTracker.js';
+import { RollOfDarknessPseudoCache } from '../../../../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../../../../dal/RollOfDarknessMongoControllers.js';
+import { getCombatTrackerActionRows } from '../../../select-menus/combat_tracker.js';
+import { updateCombatTrackerEmbedMessage } from '../../../embed-messages/combat_tracker.js';
+import { logger } from '@beanc16/logger';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
 export class PreviousTurnStrategy
@@ -14,15 +20,99 @@ export class PreviousTurnStrategy
         tracker,
     }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
-        await interaction.reply({
-            content: `The ability to go to the previous character's turn has not yet been implemented`,
-            ephemeral: true,
-        });
+        if (tracker.status !== CombatTrackerStatus.InProgress)
+        {
+            await interaction.reply({
+                content: `Cannot update the turn for combat that's not in progress`,
+                ephemeral: true,
+            });
 
-        // Handle the components of the embed message.
-        awaitCombatTrackerMessageComponents({
-            message: interaction.message,
-            tracker,
-        });
+            // Handle the components of the embed message.
+            awaitCombatTrackerMessageComponents({
+                message: interaction.message,
+                tracker,
+            });
+
+            // Exit function early.
+            return;
+        }
+        else if (tracker.characterIds.length === 0)
+        {
+            await interaction.reply({
+                content: 'Cannot update the turn for combat that has no characters',
+                ephemeral: true,
+            });
+
+            // Handle the components of the embed message.
+            awaitCombatTrackerMessageComponents({
+                message: interaction.message,
+                tracker,
+            });
+
+            // Exit function early.
+            return;
+        }
+
+        try
+        {
+            RollOfDarknessPseudoCache.previousTurn({
+                tracker,
+            })
+            .then(async (result: Tracker | boolean) =>
+            {
+                if (!result)
+                {
+                    await interaction.reply({
+                        content: 'ERROR: Cannot go to the previous turn, as it would put the combat before Round 1.',
+                        ephemeral: true,
+                    });
+
+                    // Handle the components of the embed message.
+                    awaitCombatTrackerMessageComponents({
+                        message: interaction.message,
+                        tracker,
+                    });
+
+                    // Exit function early.
+                    return;
+                }
+
+                // We can confidently say that this is a tracker now.
+                const newTracker = result as Tracker;
+
+                // Get components.
+                const actionRows = getCombatTrackerActionRows({
+                    typeOfTracker: tracker.type,
+                    combatTrackerStatus: tracker.status,
+                });
+
+                // Get characters.
+                const characters = await RollOfDarknessPseudoCache.getCharacters({
+                    tracker,
+                });
+
+                // Update message.
+                await updateCombatTrackerEmbedMessage({
+                    tracker: newTracker,
+                    characters,
+                    interaction,
+                    actionRows,
+                });
+
+                // Handle the components of the embed message.
+                awaitCombatTrackerMessageComponents({
+                    message: interaction.message,
+                    tracker: newTracker,
+                });
+            })
+        }
+        catch (error)
+        {
+            logger.error('Failed to go to the previous turn of combat', error);
+            await interaction.reply({
+                content: 'ERROR: Failed to go to the previous turn of combat',
+                ephemeral: true,
+            });
+        }
     }
 }
