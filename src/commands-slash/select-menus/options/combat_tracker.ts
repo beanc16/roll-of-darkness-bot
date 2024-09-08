@@ -68,12 +68,12 @@ const previousTurnOption = new StringSelectMenuOptionBuilder()
     .setEmoji({ name: '⏮' })
     .setDefault(false);
 
-// const moveTurnOption = new StringSelectMenuOptionBuilder()
-//     .setLabel('Move Turn')
-//     .setDescription(`Move to a specific turn in the initiative order`)
-//     .setValue(selectMenuValues.moveTurn)
-//     .setEmoji({ name: '↪' })
-//     .setDefault(false);
+const moveTurnOption = new StringSelectMenuOptionBuilder()
+    .setLabel('Move Turn')
+    .setDescription(`Move to a specific turn in the initiative order`)
+    .setValue(selectMenuValues.moveTurn)
+    .setEmoji({ name: '↪' })
+    .setDefault(false);
 
 const startCombatOption = new StringSelectMenuOptionBuilder()
     .setLabel('Start Combat')
@@ -148,13 +148,13 @@ export const combatTrackerOptions: CombatTrackerOption[] = [
         status: CombatTrackerStatus.InProgress,
         rank: 1,
     },
-    // {
-    //     option: moveTurnOption,
-    //     menu: CombatTrackerType.Initiative,
-    //     type: CombatTrackerType.Initiative,
-    //     status: CombatTrackerStatus.InProgress,
-    //     rank: 2,
-    // },
+    {
+        option: moveTurnOption,
+        menu: CombatTrackerType.Initiative,
+        type: CombatTrackerType.Initiative,
+        status: CombatTrackerStatus.InProgress,
+        rank: 2,
+    },
     {
         option: startCombatOption,
         menu: CombatTrackerType.Initiative,
