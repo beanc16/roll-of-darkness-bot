@@ -9,6 +9,7 @@ import { Tracker } from '../../../../dal/RollOfDarknessMongoControllers.js';
 import { getCombatTrackerActionRows } from '../../../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../../../embed-messages/combat_tracker.js';
 import { logger } from '@beanc16/logger';
+import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
 export class PreviousTurnStrategy
@@ -20,6 +21,9 @@ export class PreviousTurnStrategy
         tracker,
     }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
+        // Set command as having started
+        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        
         if (tracker.status !== CombatTrackerStatus.InProgress)
         {
             await interaction.reply({
@@ -31,6 +35,7 @@ export class PreviousTurnStrategy
             awaitCombatTrackerMessageComponents({
                 message: interaction.message,
                 tracker,
+                user: interaction.user,
             });
 
             // Exit function early.
@@ -47,6 +52,7 @@ export class PreviousTurnStrategy
             awaitCombatTrackerMessageComponents({
                 message: interaction.message,
                 tracker,
+                user: interaction.user,
             });
 
             // Exit function early.
@@ -71,6 +77,7 @@ export class PreviousTurnStrategy
                     awaitCombatTrackerMessageComponents({
                         message: interaction.message,
                         tracker,
+                        user: interaction.user,
                     });
 
                     // Exit function early.
@@ -103,6 +110,7 @@ export class PreviousTurnStrategy
                 awaitCombatTrackerMessageComponents({
                     message: interaction.message,
                     tracker: newTracker,
+                    user: interaction.user,
                 });
             })
         }

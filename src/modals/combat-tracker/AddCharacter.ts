@@ -12,6 +12,7 @@ import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-mess
 import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker.js';
 import { CombatTrackerType } from '../../constants/combatTracker.js';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import stillWaitingForModalSingleton from '../../models/stillWaitingForModalSingleton.js';
 
 export enum AddCharacterCustomIds
 {
@@ -174,6 +175,9 @@ export class AddCharacterModal extends BaseCustomModal
 
     static async run(interaction: ModalSubmitInteraction)
     {
+        // Set command as having started
+        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,
@@ -216,6 +220,7 @@ export class AddCharacterModal extends BaseCustomModal
         awaitCombatTrackerMessageComponents({
             message: interaction.message as Message,
             tracker,
+            user: interaction.user,
         });
 
         // Update message.

@@ -1,21 +1,26 @@
 import { logger } from '@beanc16/logger';
 import {
+    APIUser,
     ComponentType,
     Message,
     MessageComponentInteraction,
     StringSelectMenuInteraction,
+    User,
 } from 'discord.js';
 
 import { timeToWaitForCommandInteractions } from '../../constants/combatTracker.js';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import stillWaitingForModalSingleton from '../../models/stillWaitingForModalSingleton.js';
 import { CombatTrackerStrategyExecutor } from '../strategies/combat_tracker/index.js';
 
 async function handleMessageComponentsForCombatTracker({
     interaction,
     tracker,
+    user,
 } : {
     interaction: MessageComponentInteraction;
     tracker: Tracker;
+    user?: User | APIUser | undefined;
 }): Promise<void>
 {
     const {
@@ -47,21 +52,33 @@ async function handleMessageComponentsForCombatTracker({
             });
         }
     }
+
+    awaitCombatTrackerMessageComponents({
+        message: interaction.message,
+        tracker,
+        user,
+    });
 }
 
 // TODO: Maybe move this to another file related to strategy pattern things?
 export function awaitCombatTrackerMessageComponents({
     message,
     tracker,
+    user,
 } : {
     message: Message;
     tracker: Tracker;
+    user: User | APIUser | undefined;
 })
 {
+    // Set the user's current action as having not finished yet (this enables listening even after canceling)
+    stillWaitingForModalSingleton.set(user?.id, true);
+
     // Handle the components of the embed message
     message.awaitMessageComponent({
+        componentType: ComponentType.StringSelect,
         filter: (interaction) => (
-            interaction.componentType === ComponentType.StringSelect
+            stillWaitingForModalSingleton.get(interaction.user.id)
         ),
         time: timeToWaitForCommandInteractions,
     })
@@ -70,6 +87,7 @@ export function awaitCombatTrackerMessageComponents({
         await handleMessageComponentsForCombatTracker({
             interaction: messageComponentInteraction,
             tracker,
+            user: messageComponentInteraction.member?.user,
         });
     })
     .catch((error: Error) => 

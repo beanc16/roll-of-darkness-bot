@@ -52,6 +52,7 @@ class Combat_Tracker extends BaseSlashCommand
                 awaitCombatTrackerMessageComponents({
                     message,
                     tracker,
+                    user: interaction.member?.user,
                 });
 
                 // Send response

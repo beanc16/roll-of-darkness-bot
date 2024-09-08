@@ -9,6 +9,7 @@ import { RollOfDarknessPseudoCache } from '../../../../dal/RollOfDarknessPseudoC
 import { getCombatTrackerActionRows } from '../../../select-menus/combat_tracker.js';
 import { Tracker } from '../../../../dal/RollOfDarknessMongoControllers.js';
 import { CombatTrackerStatus } from '../../../../constants/combatTracker.js';
+import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
 export class StartCombatStrategy
@@ -20,6 +21,9 @@ export class StartCombatStrategy
         tracker,
     }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
+        // Set command as having started
+        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        
         if (tracker.status !== CombatTrackerStatus.NotStarted)
         {
             await interaction.reply({
@@ -31,6 +35,7 @@ export class StartCombatStrategy
             awaitCombatTrackerMessageComponents({
                 message: interaction.message,
                 tracker,
+                user: interaction.user,
             });
 
             // Exit function early.
@@ -47,6 +52,7 @@ export class StartCombatStrategy
             awaitCombatTrackerMessageComponents({
                 message: interaction.message,
                 tracker,
+                user: interaction.user,
             });
 
             // Exit function early.
@@ -84,6 +90,7 @@ export class StartCombatStrategy
                 awaitCombatTrackerMessageComponents({
                     message: interaction.message,
                     tracker: newTracker,
+                    user: interaction.user,
                 });
             })
         }
