@@ -15,6 +15,6 @@ export class AddCharacterStrategy
     }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Send the modal.
-        await AddCharacterModal.showModal(interaction, tracker.type);
+        await AddCharacterModal.showModal(interaction, tracker);
     }
 }

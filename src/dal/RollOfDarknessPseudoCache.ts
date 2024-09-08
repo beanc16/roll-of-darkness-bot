@@ -60,6 +60,7 @@ interface CreateCharacterParameters
     hpIsSecret: boolean;
     interaction: ModalSubmitInteraction;
     message: Message;
+    tracker: Tracker;
 }
 
 interface EditCharacterHpParameters
@@ -111,7 +112,7 @@ export class RollOfDarknessPseudoCache
                 results: {
                     model: tracker,
                 },
-                        } = await TrackerController.insertOneIfNotExists({
+            } = await TrackerController.insertOneIfNotExists({
                 // Find objects with the same name
                 name: trackerName,
             }, {
@@ -288,6 +289,7 @@ export class RollOfDarknessPseudoCache
         hpIsSecret,
         interaction,
         message,
+        tracker: oldTracker,
     }: CreateCharacterParameters): Promise<{
         character: CharacterResponse['results']['model'],
         tracker: TrackerResponse['results']['model'],
@@ -315,18 +317,36 @@ export class RollOfDarknessPseudoCache
             },
         }) as CharacterResponse['results']['model'];
 
+        const characters = await this.getCharacters({ tracker: oldTracker });
+
+        // Should update current turn if the new user has a higher initiative
+        // than the character whose turn it currently is, so it stays on the
+        // same character's turn.
+        const shouldUpdateCurrentTurn = (
+            characters.length > 0
+            && oldTracker.status === CombatTrackerStatus.InProgress
+            && character.initiative > characters[oldTracker.currentTurn].initiative
+        );
+
         const {
             results: {
                 new: tracker,
             },
-                } = await TrackerController.findOneAndUpdate({
+        } = await TrackerController.findOneAndUpdate({
             // Find objects with the same name
             'discordCreator.messageId': message.id,
         }, {
             // If one is found, push into the characterIds array.
-            characterIds: character._id,
-        }, {
-            operator: 'push',
+            characterIds: [
+                ...oldTracker.characterIds,
+                character._id,
+            ],
+
+            // If the current turn should be updated, add 1
+            ...(shouldUpdateCurrentTurn
+                ? { currentTurn: oldTracker.currentTurn + 1 }
+                : {}
+            ),
         }) as TrackerUpdateResponse;
 
         combatTrackersSingleton.upsert(tracker);

@@ -11,6 +11,7 @@ import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/co
 import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker.js';
 import { CombatTrackerType } from '../../constants/combatTracker.js';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
 
 export enum AddCharacterCustomIds
 {
@@ -83,8 +84,11 @@ export class AddCharacterModal extends BaseCustomModal
         };
     }
 
-    static getTextInputs<TextInputParamaters = CombatTrackerType>(type: TextInputParamaters): TextInputBuilder[]
+    static getTextInputs<TextInputParamaters = Tracker>(input: TextInputParamaters): TextInputBuilder[]
     {
+        const tracker = input as Tracker | undefined;
+        const type = tracker?.type;
+
         const nameInput = new TextInputBuilder()
 			.setCustomId(AddCharacterCustomIds.Name)
 			.setLabel(`What's the character's name?`)
@@ -196,6 +200,7 @@ export class AddCharacterModal extends BaseCustomModal
             hpIsSecret: (data[AddCharacterCustomIds.Secrets] as Record<string, unknown>).hpIsSecret as boolean,
             interaction,
             message: interaction.message as Message,
+            tracker: this._inputData as Tracker,
         });
 
         // Get components.
