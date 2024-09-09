@@ -26,6 +26,7 @@ export enum PtuRandomSubcommand
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     Metronome = 'metronome',
+    Nature = 'nature',
     Pickup = 'pickup',
     Pokeball = 'pokeball',
     XItem = 'x-item',
@@ -179,6 +180,18 @@ export const metronome = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.Metronome);
     subcommand.setDescription('Get a random move using the Metronome move.');
+    return subcommand;
+};
+
+export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuRandomSubcommand.Nature);
+    subcommand.setDescription('Get a random nature.');
+    subcommand.addIntegerOption((option) => {
+        option = numberOfDice(option);
+        option.setDescription('The number of dice to roll (default: 1)');
+        return option.setRequired(false);
+    });
     return subcommand;
 };
 

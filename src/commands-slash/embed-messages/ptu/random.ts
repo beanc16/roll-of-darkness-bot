@@ -1,8 +1,9 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
-import { RandomPokeball, RandomResult } from '../../Ptu.js';
+import { RandomNature, RandomPokeball, RandomResult } from '../../Ptu.js';
 
 const color = 0xCDCDCD;
+const tab = '　';
 
 export const getRandomResultEmbedMessage = ({
     itemNamePluralized,
@@ -100,6 +101,45 @@ export const getRandomDowsingRodEmbedMessage = ({
     return embed;
 };
 
+export const getRandomNatureEmbedMessage = ({
+    itemNamePluralized,
+    results,
+    rollResults,
+}: {
+    itemNamePluralized: string;
+    results: RandomNature[];
+    rollResults: string;
+}) =>
+{
+    const fields = results.map(({
+        name,
+        raisedStat,
+        loweredStat,
+        likedFlavor,
+        dislikedFlavor,
+    }) => {
+        const lines = [
+            `Raised: ${raisedStat}`,
+            `Lowered: ${loweredStat}`,
+            `Likes: ${likedFlavor}`,
+            `Dislikes: ${dislikedFlavor}`,
+        ];
+
+        return {
+            name,
+            value: lines.join('\n'),
+        } as APIEmbedField;
+    });
+
+    const embed = new EmbedBuilder()
+        .setTitle(`Random ${itemNamePluralized}`)
+        .setDescription(`Result: (${rollResults})`)
+        .setColor(color)
+        .setFields(...fields);
+
+    return embed;
+};
+
 export const getRandomPokeballEmbedMessage = ({
     itemNamePluralized,
     results,
@@ -118,7 +158,6 @@ export const getRandomPokeballEmbedMessage = ({
         mod,
         jailBreakerInfo,
     }) => {
-        const tab = '　';
         const jailbreakerString = (jailBreakerInfo !== undefined)
             ? `\n${tab}*${jailBreakerInfo.name}*\n${tab}${jailBreakerInfo.description}\n${tab}Number: ${numOfTimesRolled}\n${tab}Cost: ${cost}`
             : '';

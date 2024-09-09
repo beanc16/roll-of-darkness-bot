@@ -28,6 +28,7 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     subcommandGroup.addSubcommand(randomSubcommands.healingItem);
     subcommandGroup.addSubcommand(randomSubcommands.heldItem);
     subcommandGroup.addSubcommand(randomSubcommands.metronome);
+    subcommandGroup.addSubcommand(randomSubcommands.nature);
     subcommandGroup.addSubcommand(randomSubcommands.pokeball);
     subcommandGroup.addSubcommand(randomSubcommands.pickup);
     subcommandGroup.addSubcommand(randomSubcommands.xItem);

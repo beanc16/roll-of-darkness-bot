@@ -6,7 +6,7 @@ import { CachedGoogleSheetsApiService } from '../services/CachedGoogleSheetsApiS
 import { PtuSubcommandGroup } from './options/subcommand-groups/index.js';
 import { BerryTier, HealingAndStatusOption, PtuRandomSubcommand } from './options/subcommand-groups/ptu/random.js';
 import { DiceLiteService } from '../services/DiceLiteService.js';
-import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage, getRandomDowsingRodEmbedMessage } from './embed-messages/ptu/random.js';
+import { getRandomYouFoundNothingEmbedMessage, getRandomPokeballEmbedMessage, getRandomResultEmbedMessage, getRandomDowsingRodEmbedMessage, getRandomNatureEmbedMessage } from './embed-messages/ptu/random.js';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon.js';
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup.js';
 import { EqualityOption } from './options/shared.js';
@@ -64,6 +64,15 @@ export interface RandomPokeball extends RandomResult
     jailBreakerInfo?: RandomPokeball;
 }
 
+export interface RandomNature
+{
+    name: string;
+    raisedStat: string;
+    loweredStat: string;
+    likedFlavor: string;
+    dislikedFlavor: string;
+}
+
 interface StringsForSubcommand {
     data: string;
     plural: string;
@@ -101,6 +110,10 @@ const subcommandToStrings: SubcommandToStrings = {
     [PtuRandomSubcommand.Metronome]: {
         data: 'Moves',
         plural: 'Metronomes',
+    },
+    [PtuRandomSubcommand.Nature]: {
+        data: 'Nature',
+        plural: 'Natures',
     },
     [PtuRandomSubcommand.Pickup]: {
         data: 'Pickup',
@@ -828,6 +841,80 @@ class Ptu extends BaseSlashCommand
 
             // Get message
             const [embed] = getLookupMovesEmbedMessages([move]);
+
+            // Send embed
+            await interaction.editReply({
+                embeds: [embed],
+            });
+
+            return true;
+        },
+        [PtuRandomSubcommand.Nature]: async (interaction: ChatInputCommandInteraction) =>
+        {
+            // Get parameter results
+            const numberOfDice = interaction.options.getInteger('number_of_dice') as number ?? 1;
+
+            // Pull data from spreadsheet
+            const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                // TODO: Make this spreadsheet id a constant later
+                spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                range: `'${subcommandToStrings[PtuRandomSubcommand.Nature].data} Data'!A2:E`,
+            });
+
+            // Parse data
+            const parsedData = data.reduce<RandomNature[]>((acc, [name, raisedStat, loweredStat, likedFlavor, dislikedFlavor]) => {
+                acc.push({
+                    name,
+                    raisedStat,
+                    loweredStat,
+                    likedFlavor,
+                    dislikedFlavor,
+                });
+                return acc;
+            }, []);
+
+            // Get random numbers
+            const rollResult = new DiceLiteService({
+                count: numberOfDice,
+                sides: parsedData.length,
+            }).roll();
+            const rollResults = rollResult.join(', ');
+
+            const uniqueRolls = rollResult.reduce((acc, cur) => {
+                const index = acc.findIndex(({ result }) => result === cur);
+
+                if (index >= 0)
+                {
+                    acc[index].numOfTimesRolled += 1;
+                }
+                else
+                {
+                    acc.push({
+                        result: cur,
+                        numOfTimesRolled: 1,
+                    });
+                }
+
+                return acc;
+            }, [] as {
+                result: number;
+                numOfTimesRolled: number;
+            }[]);
+
+            // Get random items
+            const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+                return {
+                    ...parsedData[result - 1],
+                    numOfTimesRolled,
+                };
+            });
+
+            // Get embed message
+            const embed = getRandomNatureEmbedMessage({
+                itemNamePluralized: subcommandToStrings[PtuRandomSubcommand.Nature].plural,
+                results,
+                rollResults,
+            });
 
             // Send embed
             await interaction.editReply({
