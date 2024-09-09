@@ -880,34 +880,8 @@ class Ptu extends BaseSlashCommand
             }).roll();
             const rollResults = rollResult.join(', ');
 
-            const uniqueRolls = rollResult.reduce((acc, cur) => {
-                const index = acc.findIndex(({ result }) => result === cur);
-
-                if (index >= 0)
-                {
-                    acc[index].numOfTimesRolled += 1;
-                }
-                else
-                {
-                    acc.push({
-                        result: cur,
-                        numOfTimesRolled: 1,
-                    });
-                }
-
-                return acc;
-            }, [] as {
-                result: number;
-                numOfTimesRolled: number;
-            }[]);
-
             // Get random items
-            const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
-                return {
-                    ...parsedData[result - 1],
-                    numOfTimesRolled,
-                };
-            });
+            const results = rollResult.map((roll) => parsedData[roll - 1]);
 
             // Get embed message
             const embed = getRandomNatureEmbedMessage({
