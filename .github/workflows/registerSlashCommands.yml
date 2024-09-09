@@ -28,6 +28,8 @@ jobs:
         env:
           GITHUB_PRIVATE_PACKAGES_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
         run: npm install
+      - name: Build
+        run: npm run build
       - name: Register Slash Commands
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
