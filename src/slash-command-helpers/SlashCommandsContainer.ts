@@ -54,7 +54,7 @@ export class SlashCommandsContainer
         });
 
         // Initialize commands
-        const rootDir = `${process.cwd()}/src`;
+        const rootDir = `${process.cwd()}/${(process.env.STAGE === 'dev' ? 'src' : 'dist')}`;
         const commandsDirPath = `${rootDir}/commands-slash`;
         const guildCommandsDirPath = `${rootDir}/commands-slash/guild-commands`;
         const contextMenuCommandsDirPath = `${rootDir}/context-menus`;
