@@ -12,8 +12,13 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run PTU lookup commands.');
-    subcommandGroup.addSubcommand(lookupSubcommands.ability);
-    subcommandGroup.addSubcommand(lookupSubcommands.move);
+    Object.values(lookupSubcommands).forEach(lookupSubcommand => 
+    {
+        if (typeof lookupSubcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(lookupSubcommand);
+        }
+    });
     return subcommandGroup;
 };
 
@@ -21,18 +26,12 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Random);
     subcommandGroup.setDescription('Run PTU randomization commands.');
-    subcommandGroup.addSubcommand(randomSubcommands.apricorn);
-    subcommandGroup.addSubcommand(randomSubcommands.berry);
-    subcommandGroup.addSubcommand(randomSubcommands.dowsingRod);
-    subcommandGroup.addSubcommand(randomSubcommands.evolutionaryStone);
-    subcommandGroup.addSubcommand(randomSubcommands.healingItem);
-    subcommandGroup.addSubcommand(randomSubcommands.heldItem);
-    subcommandGroup.addSubcommand(randomSubcommands.metronome);
-    subcommandGroup.addSubcommand(randomSubcommands.nature);
-    subcommandGroup.addSubcommand(randomSubcommands.pokeball);
-    subcommandGroup.addSubcommand(randomSubcommands.pickup);
-    subcommandGroup.addSubcommand(randomSubcommands.xItem);
-    subcommandGroup.addSubcommand(randomSubcommands.tm);
-    subcommandGroup.addSubcommand(randomSubcommands.vitamin);
+    Object.values(randomSubcommands).forEach(randomSubcommand => 
+    {
+        if (typeof randomSubcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(randomSubcommand);
+        }
+    });
     return subcommandGroup;
 };
