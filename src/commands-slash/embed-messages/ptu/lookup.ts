@@ -170,7 +170,7 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
         // Separate natures with a blank line
         if (index !== 0 && acc.pages[acc.curPage] !== '')
         {
-            curDescription = '\n' + curDescription;
+            curDescription = '\n\n' + curDescription;
         }
 
         // Add the nature to the current page's description
@@ -230,7 +230,7 @@ export const getLookupTmsEmbedMessages = (tms: PtuTm[]) =>
         // Separate moves with a blank line
         if (index !== 0 && acc.pages[acc.curPage] !== '')
         {
-            curDescription = '\n' + curDescription;
+            curDescription = '\n\n' + curDescription;
         }
 
         // Add the move to the current page's description
