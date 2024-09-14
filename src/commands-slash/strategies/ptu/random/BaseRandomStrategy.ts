@@ -85,7 +85,7 @@ export class BaseRandomStrategy
     ): Promise<boolean>
     {
         // Get setup data
-        const numberOfDice = this.getNumberOfDice(interaction, options);
+        const numberOfDice = this.getNumberOfDice(interaction, options) ?? 1;
         const parsedData = await this.getParsedData(subcommand, options);
 
         // Get random numbers
@@ -151,7 +151,7 @@ export class BaseRandomStrategy
         }
 
         // Get parameter results
-        return interaction.options.getInteger('number_of_dice', true);
+        return interaction.options.getInteger('number_of_dice');
     }
 
     private static async getParsedData(subcommand: PtuRandomSubcommand, options: BaseRandomStrategyOptions)
