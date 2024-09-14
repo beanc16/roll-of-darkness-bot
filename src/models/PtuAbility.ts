@@ -1,4 +1,4 @@
-import { GetLookupAbilityDataParameters } from '../commands-slash/Ptu.js';
+import { GetLookupAbilityDataParameters } from '../commands-slash/strategies/ptu/lookup/LookupAbilityStrategy.js';
 
 export class PtuAbility
 {

@@ -21,7 +21,7 @@ export const getRandomResultEmbedMessage = ({
         description,
         numOfTimesRolled = 1,
     }) => {
-        const descriptionString = (description !== undefined)
+        const descriptionString = (description !== undefined && description !== '--')
             ? `${description}\n`
             : '';
 

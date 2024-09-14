@@ -29,9 +29,9 @@ export enum PtuRandomSubcommand
     Nature = 'nature',
     Pickup = 'pickup',
     Pokeball = 'pokeball',
-    XItem = 'x-item',
     TM = 'tm',
     Vitamin = 'vitamin',
+    XItem = 'x-item',
 };
 
 const numberOfDice = (option: SlashCommandIntegerOption) =>
