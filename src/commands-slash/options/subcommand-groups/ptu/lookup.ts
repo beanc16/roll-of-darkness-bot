@@ -6,6 +6,7 @@ export enum PtuLookupSubcommand
 {
     Ability = 'ability',
     Move = 'move',
+    Tm = 'tm',
 }
 
 export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
@@ -144,6 +145,22 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('effect_search');
         return option.setDescription(`A search on the move's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Tm);
+    subcommand.setDescription('Get a tm based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('tm_name');
+        option.setDescription(`The tm's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;

@@ -11,11 +11,12 @@ import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup.js';
 import { EqualityOption } from './options/shared.js';
 import { PtuMove, PtuMoveExclude } from '../models/PtuMove.js';
-import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages } from './embed-messages/ptu/lookup.js';
+import { getLookupAbilitiesEmbedMessages, getLookupMovesEmbedMessages, getLookupTmsEmbedMessages } from './embed-messages/ptu/lookup.js';
 import { PtuAbilitiesSearchService, PtuMovesSearchService } from '../services/SearchService.js';
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { SubcommandHandlerFunction } from '../types/common.js';
+import { PtuTm } from '../models/PtuTm.js';
 
 enum HealingItemTypes
 {
@@ -236,6 +237,11 @@ export interface GetLookupMoveDataParameters {
     exclude?: PtuMoveExclude;
 }
 
+export interface GetLookupTmDataParameters {
+    name?: string | null;
+    includeAllIfNoName?: boolean;
+}
+
 const getLookupAbilityData = async (input: GetLookupAbilityDataParameters = {}) =>
 {
     const { data = [] } = await CachedGoogleSheetsApiService.getRange({
@@ -333,6 +339,36 @@ const getLookupMoveData = async (input: GetLookupMoveDataParameters = {}) =>
     return moves;
 };
 
+const getLookupTmData = async (input: GetLookupTmDataParameters = {}) =>
+{
+    const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+        spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+        range: `'Tm Data'!A2:Z`,
+    });
+
+    const moves = data.reduce<PtuTm[]>((acc, cur) =>
+    {
+        // cur[0] === name in spreadsheet
+        if (!(input.name && input.name === cur[0]) && !input.includeAllIfNoName)
+        {
+            return acc;
+        }
+
+        acc.push(
+            new PtuTm(cur)
+        );
+        return acc;
+    }, []);
+
+    // Sort by name
+    moves.sort((a, b) =>
+    {
+        return a.name.localeCompare(b.name);
+    });
+
+    return moves;
+};
+
 class Ptu extends BaseSlashCommand
 {
     constructor()
@@ -346,7 +382,6 @@ class Ptu extends BaseSlashCommand
     // TODO: Convert subcommand handlers to a strategy pattern with classes later.
 
     private lookupSubcommandHandlers: SubcommandHandlers[PtuSubcommandGroup.Lookup] = {
-        // TODO: Add here later
         [PtuLookupSubcommand.Ability]: async (interaction: ChatInputCommandInteraction) =>
         {
             // Get parameter results
@@ -427,6 +462,42 @@ class Ptu extends BaseSlashCommand
             if (embeds.length === 0)
             {
                 await interaction.editReply('No moves were found.');
+                return true;
+            }
+
+            // Send embed
+            await interaction.editReply({
+                embeds: [embeds[0]],
+            });
+
+            // Reply to the original message with all embeds after the first
+            for (const embed of embeds.slice(1))
+            {
+                await interaction.followUp({
+                    embeds: [embed],
+                });
+            }
+
+            return true;
+        },
+        [PtuLookupSubcommand.Tm]: async (interaction: ChatInputCommandInteraction) =>
+        {
+            // Get parameter results
+            const name = interaction.options.getString('tm_name');
+
+            const tms = await getLookupTmData({
+                name,
+            });
+
+            // TODO: Add listview and final paginated functionality later
+
+            // Get message
+            const embeds = getLookupTmsEmbedMessages(tms);
+
+            // Send no results found
+            if (embeds.length === 0)
+            {
+                await interaction.editReply('No tms were found.');
                 return true;
             }
 
@@ -1327,6 +1398,18 @@ class Ptu extends BaseSlashCommand
         {
             const abilities = await getLookupAbilityData();
             choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // TM Name
+        if (focusedValue.name === 'tm_name')
+        {
+            const tms = await getLookupTmData({ includeAllIfNoName: true });
+            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,
