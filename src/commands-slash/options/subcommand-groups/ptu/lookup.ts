@@ -1,11 +1,12 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PokemonType, PokemonMoveCategory, PtuMoveFrequency } from '../../../../constants/pokemon.js';
+import { PokemonType, PokemonMoveCategory, PtuMoveFrequency, PokemonStat } from '../../../../types/pokemon.js';
 import { equalityOption } from '../../shared.js';
 
 export enum PtuLookupSubcommand
 {
     Ability = 'ability',
     Move = 'move',
+    Nature = 'nature',
     Tm = 'tm',
 }
 
@@ -145,6 +146,48 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('effect_search');
         return option.setDescription(`A search on the move's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Nature);
+    subcommand.setDescription('Get a list of natures based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('nature_name');
+        option.setDescription(`The nature's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    const statChoices = Object.entries(PokemonStat).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+
+    // Raised Stat
+    subcommand.addStringOption((option) => {
+        option.setName('raised_stat');
+        option.setDescription(`The stat that the nature raises.`);
+        return option.setChoices(
+            ...statChoices
+        );
+    });
+
+    // Lowered Stat
+    subcommand.addStringOption((option) => {
+        option.setName('lowered_stat');
+        option.setDescription(`The stat that the nature lowers.`);
+        return option.setChoices(
+            ...statChoices
+        );
     });
 
     return subcommand;

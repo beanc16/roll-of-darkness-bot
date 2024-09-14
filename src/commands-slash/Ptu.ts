@@ -99,6 +99,21 @@ class Ptu extends BaseSlashCommand
             });
         }
 
+        // Natures
+        if (focusedValue.name === 'nature_name')
+        {
+            const natures = await PtuStrategyExecutor.getLookupData<PtuNature>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Nature,
+            });
+            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
         // TM Name
         if (focusedValue.name === 'tm_name')
         {
