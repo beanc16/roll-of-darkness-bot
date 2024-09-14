@@ -5,9 +5,9 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRandomSubcommand } from '../../../options/subcommand-groups/ptu/random.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomNatureEmbedMessage } from '../../../embed-messages/ptu/random.js';
-import { RandomNature } from '../../../Ptu.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
+import { PtuNature } from '../../../../models/PtuNature.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomNatureStrategy
@@ -29,20 +29,10 @@ export class RandomNatureStrategy
         });
 
         // Parse data
-        const parsedData = data.reduce<RandomNature[]>((acc, [
-            name,
-            raisedStat,
-            loweredStat,
-            likedFlavor,
-            dislikedFlavor
-        ]) => {
-            acc.push({
-                name,
-                raisedStat,
-                loweredStat,
-                likedFlavor,
-                dislikedFlavor,
-            });
+        const parsedData = data.reduce<PtuNature[]>((acc, cur) => {
+            acc.push(
+                new PtuNature(cur)
+            );
             return acc;
         }, []);
 

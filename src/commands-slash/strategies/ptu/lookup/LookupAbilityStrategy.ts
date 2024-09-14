@@ -54,28 +54,28 @@ export class LookupAbilityStrategy
             spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
             range: `'Abilities Data'!A3:Z`,
         });
-    
+
         const abilities = data.reduce<PtuAbility[]>((acc, cur) =>
         {
             const ability = new PtuAbility(cur);
-    
+
             if (!ability.IsValidBasedOnInput(input))
             {
                 return acc;
             }
-    
+
             acc.push(ability);
-    
+
             return acc;
         }, []);
-    
+
         // Sort manually if there's no searches
         if (input.nameSearch || input.effectSearch)
         {
             const results = PtuAbilitiesSearchService.search(abilities, input);
             return results;
         }
-    
+
         abilities.sort((a, b) =>
         {
             /*

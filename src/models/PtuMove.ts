@@ -1,6 +1,6 @@
 import { logger } from '@beanc16/logger';
 import { EqualityOption } from '../commands-slash/options/shared.js';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../constants/pokemon.js';
+import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../types/pokemon.js';
 import { EnumParserService } from '../services/EnumParserService.js';
 import { GetLookupMoveDataParameters } from '../commands-slash/strategies/ptu/lookup/LookupMoveStrategy.js';
 

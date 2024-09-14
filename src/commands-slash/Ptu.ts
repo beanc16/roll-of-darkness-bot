@@ -10,6 +10,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuTm } from '../models/PtuTm.js';
 import { PtuStrategyExecutor } from './strategies/ptu/index.js';
+import { PtuNature } from '../models/PtuNature.js';
 
 export interface RandomResult
 {
@@ -24,15 +25,6 @@ export interface RandomPokeball extends RandomResult
     mod?: string;
     type?: string;
     jailBreakerInfo?: RandomPokeball;
-}
-
-export interface RandomNature
-{
-    name: string;
-    raisedStat: string;
-    loweredStat: string;
-    likedFlavor: string;
-    dislikedFlavor: string;
 }
 
 class Ptu extends BaseSlashCommand

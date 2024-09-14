@@ -20,6 +20,16 @@ export enum PokemonType
     Water = 'Water',
 }
 
+export enum PokemonStat
+{
+    Hp = 'HP',
+    Attack = 'ATK',
+    Defense = 'DEF',
+    SpecialAttack = 'SATK',
+    SpecialDefense = 'SDEF',
+    Speed = 'SPD',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',

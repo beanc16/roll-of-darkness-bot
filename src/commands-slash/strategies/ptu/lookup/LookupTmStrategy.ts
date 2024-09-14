@@ -51,15 +51,15 @@ export class LookupTmStrategy
 
         const tms = data.reduce<PtuTm[]>((acc, cur) =>
         {
+            const tm = new PtuTm(cur);
+
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name === cur[0]) && !input.includeAllIfNoName)
+            if (!(input.name && input.name === tm.name) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(
-                new PtuTm(cur)
-            );
+            acc.push(tm);
             return acc;
         }, []);
 

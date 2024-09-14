@@ -1,6 +1,7 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
-import { RandomNature, RandomPokeball, RandomResult } from '../../Ptu.js';
+import { RandomPokeball, RandomResult } from '../../Ptu.js';
+import { PtuNature } from '../../../models/PtuNature.js';
 
 const color = 0xCDCDCD;
 const tab = '　';
@@ -107,7 +108,7 @@ export const getRandomNatureEmbedMessage = ({
     rollResults,
 }: {
     itemNamePluralized: string;
-    results: RandomNature[];
+    results: PtuNature[];
     rollResults: string;
 }) =>
 {
