@@ -273,7 +273,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
                     (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
                     (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
                     (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
-                ].join(', ')}`,
+                ].filter((str) => str.length > 0).join(', ')}`,
                 `Ability: ${megaEvolution.ability}`,
                 [
                     (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
