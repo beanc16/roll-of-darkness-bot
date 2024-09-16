@@ -15,6 +15,8 @@ import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.j
 import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
 import { PtuNature } from '../../../models/PtuNature.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
+import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
+import { PtuPokemon } from '../../../types/pokemon.js';
 
 export class PtuStrategyExecutor
 {
@@ -56,7 +58,7 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuMove | PtuNature | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuMove | PtuNature | PtuPokemon | PtuTm>({
         subcommandGroup,
         subcommand,
         options
@@ -69,6 +71,8 @@ export class PtuStrategyExecutor
             ? GetLookupAbilityDataParameters
             : PtuLookupModel extends PtuNature
             ? GetLookupNatureDataParameters
+            : PtuLookupModel extends PtuPokemon
+            ? GetLookupPokemonDataParameters
             : PtuLookupModel extends PtuTm
             ? GetLookupTmDataParameters
             : never;

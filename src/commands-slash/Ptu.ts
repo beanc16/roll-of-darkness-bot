@@ -11,6 +11,7 @@ import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuTm } from '../models/PtuTm.js';
 import { PtuStrategyExecutor } from './strategies/ptu/index.js';
 import { PtuNature } from '../models/PtuNature.js';
+import { PtuPokemon } from '../types/pokemon.js';
 
 export interface RandomResult
 {
@@ -68,6 +69,8 @@ class Ptu extends BaseSlashCommand
 
         let choices: ApplicationCommandOptionChoiceData<string>[] = [];
 
+        // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
+
         // Move Name
         if (focusedValue.name === 'move_name')
         {
@@ -107,6 +110,24 @@ class Ptu extends BaseSlashCommand
                 subcommand: PtuLookupSubcommand.Nature,
             });
             choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Pokemon
+        if (focusedValue.name === 'pokemon_name')
+        {
+            const pokemon = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Pokemon,
+                options: {
+                    name: focusedValue.value,
+                },
+            });
+            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,

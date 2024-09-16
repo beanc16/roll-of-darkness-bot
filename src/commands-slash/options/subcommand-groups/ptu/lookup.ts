@@ -7,6 +7,7 @@ export enum PtuLookupSubcommand
     Ability = 'ability',
     Move = 'move',
     Nature = 'nature',
+    Pokemon = 'pokemon',
     Tm = 'tm',
 }
 
@@ -188,6 +189,22 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
         return option.setChoices(
             ...statChoices
         );
+    });
+
+    return subcommand;
+};
+
+export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Pokemon);
+    subcommand.setDescription('Get a pokemon based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('pokemon_name');
+        option.setDescription(`The pokemon's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
