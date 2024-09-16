@@ -120,6 +120,12 @@ class Ptu extends BaseSlashCommand
         // Pokemon
         if (focusedValue.name === 'pokemon_name')
         {
+            if (this.isQueryingPokemonAutocomplete)
+            {
+                await this.waitForCurrentPokemonAutocompleteQuery();
+            }
+
+            this.isQueryingPokemonAutocomplete = true;
             const pokemon = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokemon,
@@ -133,6 +139,7 @@ class Ptu extends BaseSlashCommand
                     value: name,
                 };
             });
+            this.isQueryingPokemonAutocomplete = false;
         }
 
         // TM Name
@@ -164,6 +171,24 @@ class Ptu extends BaseSlashCommand
     get description()
     {
         return `Run PTU commands.`;
+    }
+
+    // TODO: Remove this later when migrated to ptu microservice
+    private isQueryingPokemonAutocomplete = false;
+    private async waitForCurrentPokemonAutocompleteQuery()
+    {
+        return new Promise<void>((resolve) =>
+        {
+            // Infinitely wait for this.isQueryingPokemonAutocomplete to become false
+            setTimeout(async () => {
+                if (this.isQueryingPokemonAutocomplete)
+                {
+                    await this.waitForCurrentPokemonAutocompleteQuery();
+                }
+
+                resolve();
+            }, 500);
+        });
     }
 }
 
