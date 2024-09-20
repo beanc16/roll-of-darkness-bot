@@ -58,7 +58,7 @@ export class LookupPokemonStrategy
         }
 
         const lookupName = (lookupType === PtuPokemonLookupType.SubstringCaseInsensitive)
-            ? new RegExp(name, 'i')
+            ? new RegExp(escapeRegex(name), 'i')
             : name;
 
         const { results = [] } = await PokemonController.getAll({
@@ -106,4 +106,9 @@ export class LookupPokemonStrategy
 
         return pokemon;
     }
+}
+
+const escapeRegex = (string: string) =>
+{
+    return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 }
