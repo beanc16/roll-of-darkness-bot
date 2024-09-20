@@ -142,7 +142,10 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
 {
     if (pokemon.length === 0) return [];
 
-    const { pages } = pokemon.reduce((acc, {
+    const pages = pokemon.reduce<{
+        description: string;
+        imageUrl?: string;
+    }[]>((acc, {
         name,
         baseStats,
         types,
@@ -176,10 +179,11 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             dexNumber,
             source,
             page,
+            imageUrl,
         },
         megaEvolution,
         extras,
-    }, index) => {
+    }) => {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(`${dexNumber !== undefined ? `${dexNumber} ` : ''}${name}`),
@@ -288,43 +292,26 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             `${source}: ${page}`,
         ];
 
-        // Create the description
-        let curDescription = lines.join('\n');
-
-        // Don't let descriptions exceed the max limit
-        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
-        {
-            acc.curPage += 1;
-            acc.pages[acc.curPage] = '';
-        }
-
-        // Separate moves with a blank line
-        if (index !== 0 && acc.pages[acc.curPage] !== '')
-        {
-            curDescription = '\n' + curDescription;
-        }
-
-        // Add the move to the current page's description
-        acc.pages[acc.curPage] += curDescription;
-
-        // Close the code block on the last move
-        if (index === pokemon.length - 1)
-        {
-            acc.pages[acc.curPage] += '';
-        }
+        // Add the pokemon's line-by-line description as a page w/ the imageUrl
+        acc.push({
+            description: lines.join('\n'),
+            imageUrl,
+        });
 
         return acc;
-    }, {
-        pages: [''],
-        curPage: 0,
-    });
+    }, []);
 
-    return pages.map((description, index) => {
+    return pages.map(({ description, imageUrl }, index) => {
         const embed = new EmbedBuilder()
         .setTitle('Pokemon')
         .setDescription(description)
         .setColor(color)
         .setFooter({ text: `Page ${index + 1}/${pages.length}`});
+
+        if (imageUrl)
+        {
+            embed.setImage(imageUrl);
+        }
 
         return embed;
     });
