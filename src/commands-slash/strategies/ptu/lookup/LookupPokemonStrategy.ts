@@ -70,7 +70,11 @@ export class LookupPokemonStrategy
                 dexNumber,
             },
         }: PtuPokemon) => dexNumber);
-        const imageUrlResults = await PokeApi.getImageUrls(dexNumbers);
+
+        // Only include image urls for exact match searching
+        const imageUrlResults = (lookupType === PtuPokemonLookupType.ExactMatch)
+            ? await PokeApi.getImageUrls(dexNumbers)
+            : undefined;
 
         // Try to add imageUrl to pokemon result
         const pokemon = results.map((result: PtuPokemon) => {
