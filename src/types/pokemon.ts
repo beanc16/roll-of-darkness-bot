@@ -147,6 +147,7 @@ export interface PtuPokemon {
         dexNumber?: string;
         source: string;
         page?: string;
+        imageUrl?: string;
     };
     extras?: {                       // For anything extra that doesn't go anywhere else. Currently just for Oricorio's Forme Change.
         name: string;

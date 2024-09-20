@@ -7,11 +7,19 @@ import { PtuLookupSubcommand } from '../../../options/subcommand-groups/ptu/look
 import { getLookupPokemonEmbedMessages } from '../../../embed-messages/ptu/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PokemonController } from '../../../../dal/PtuController.js';
+import { PokeApi } from '../../../../services/PokeApi.js';
 import { PtuPokemon } from '../../../../types/pokemon.js';
+
+export enum PtuPokemonLookupType
+{
+    SubstringCaseInsensitive = 'SUBSTRING_CASE_INSENSITIVE',
+    ExactMatch = 'EXACT_MATCH',
+}
 
 export interface GetLookupPokemonDataParameters
 {
     name?: string | null;
+    lookupType?: PtuPokemonLookupType;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -26,6 +34,7 @@ export class LookupPokemonStrategy
 
         const pokemon = await this.getLookupData({
             name,
+            lookupType: PtuPokemonLookupType.ExactMatch,
         });
 
         // TODO: Add listview and final paginated functionality later
@@ -38,8 +47,9 @@ export class LookupPokemonStrategy
         });
     }
 
-    private static async getLookupData({
+    public static async getLookupData({
         name,
+        lookupType = PtuPokemonLookupType.SubstringCaseInsensitive,
     }: GetLookupPokemonDataParameters = {})
     {
         if (!name)
@@ -47,10 +57,46 @@ export class LookupPokemonStrategy
             return [];
         }
 
+        const lookupName = (lookupType === PtuPokemonLookupType.SubstringCaseInsensitive)
+            ? new RegExp(name, 'i')
+            : name;
+
         const { results = [] } = await PokemonController.getAll({
-            name: new RegExp(name, 'i'),
+            name: lookupName,
         });
-        const pokemon = results as PtuPokemon[];
+
+        const dexNumbers = results.map(({
+            metadata: {
+                dexNumber,
+            },
+        }: PtuPokemon) => dexNumber);
+        const imageUrlResults = await PokeApi.getImageUrls(dexNumbers);
+
+        // Try to add imageUrl to pokemon result
+        const pokemon = results.map((result: PtuPokemon) => {
+            const {
+                metadata: {
+                    dexNumber,
+                },
+            } = result;
+
+            const { imageUrl } = imageUrlResults?.find(({ id }) =>
+                id === PokeApi.parseId(dexNumber)
+            ) ?? {};
+
+            if (!imageUrl)
+            {
+                return result;
+            }
+
+            return {
+                ...result,
+                metadata: {
+                    ...result.metadata,
+                    imageUrl,
+                },
+            } as PtuPokemon;
+        }) as PtuPokemon[];
 
         // Sort by name
         pokemon.sort((a, b) =>
