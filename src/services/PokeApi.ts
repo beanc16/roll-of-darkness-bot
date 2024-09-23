@@ -74,6 +74,10 @@ export class PokeApi
         {
             parsedName += '-standard';
         }
+        if (parsedName === 'morpeko')
+        {
+            parsedName += '-full-belly';
+        }
         else if (parsedName === 'wishiwashi')
         {
             parsedName += '-solo';
