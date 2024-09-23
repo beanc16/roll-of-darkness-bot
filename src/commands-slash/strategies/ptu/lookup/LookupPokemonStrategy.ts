@@ -65,27 +65,50 @@ export class LookupPokemonStrategy
             name: lookupName,
         });
 
-        const dexNumbers = results.map(({
+        const {
+            dexNumbers,
+            names,
+        } = results.reduce((acc: {
+            dexNumbers: string[];
+            names: string[];
+        }, {
+            name,
             metadata: {
                 dexNumber,
             },
-        }: PtuPokemon) => dexNumber);
+        }: PtuPokemon) => {
+            if (dexNumber)
+            {
+                acc.dexNumbers.push(dexNumber);
+            }
+
+            acc.names.push(name);
+            return acc;
+        }, {
+            dexNumbers: [],
+            names: [],
+        }) as {
+            dexNumbers: string[];
+            names: string[];
+        };
 
         // Only include image urls for exact match searching
         const imageUrlResults = (lookupType === PtuPokemonLookupType.ExactMatch)
-            ? await PokeApi.getImageUrls(dexNumbers)
+            ? await PokeApi.getImageUrls(dexNumbers, names)
             : undefined;
 
         // Try to add imageUrl to pokemon result
         const pokemon = results.map((result: PtuPokemon) => {
             const {
+                name,
                 metadata: {
                     dexNumber,
                 },
             } = result;
 
-            const { imageUrl } = imageUrlResults?.find(({ id }) =>
-                id === PokeApi.parseId(dexNumber)
+            const { imageUrl } = imageUrlResults?.find((result) =>
+                result.id === PokeApi.parseId(dexNumber)
+                || result.name === PokeApi.parseName(name)
             ) ?? {};
 
             if (!imageUrl)
