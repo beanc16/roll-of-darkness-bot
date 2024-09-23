@@ -9,17 +9,12 @@ import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PokemonController } from '../../../../dal/PtuController.js';
 import { PokeApi } from '../../../../services/PokeApi.js';
 import { PtuPokemon } from '../../../../types/pokemon.js';
-
-export enum PtuPokemonLookupType
-{
-    SubstringCaseInsensitive = 'SUBSTRING_CASE_INSENSITIVE',
-    ExactMatch = 'EXACT_MATCH',
-}
+import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
 
 export interface GetLookupPokemonDataParameters
 {
     name?: string | null;
-    lookupType?: PtuPokemonLookupType;
+    lookupType?: RegexLookupType;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -34,7 +29,7 @@ export class LookupPokemonStrategy
 
         const pokemon = await this.getLookupData({
             name,
-            lookupType: PtuPokemonLookupType.ExactMatch,
+            lookupType: RegexLookupType.ExactMatchCaseInsensitive,
         });
 
         // TODO: Add listview and final paginated functionality later
@@ -49,7 +44,7 @@ export class LookupPokemonStrategy
 
     public static async getLookupData({
         name,
-        lookupType = PtuPokemonLookupType.SubstringCaseInsensitive,
+        lookupType = RegexLookupType.SubstringCaseInsensitive,
     }: GetLookupPokemonDataParameters = {})
     {
         if (!name)
@@ -57,9 +52,7 @@ export class LookupPokemonStrategy
             return [];
         }
 
-        const lookupName = (lookupType === PtuPokemonLookupType.SubstringCaseInsensitive)
-            ? new RegExp(escapeRegex(name), 'i')
-            : name;
+        const lookupName = parseRegexByType(name, lookupType);
 
         const { results = [] } = await PokemonController.getAll({
             name: lookupName,
@@ -92,8 +85,8 @@ export class LookupPokemonStrategy
             names: string[];
         };
 
-        // Only include image urls for exact match searching
-        const imageUrlResults = (lookupType === PtuPokemonLookupType.ExactMatch)
+        // Don't include images for substring searches
+        const imageUrlResults = (lookupType !== RegexLookupType.SubstringCaseInsensitive)
             ? await PokeApi.getImageUrls(dexNumbers, names)
             : undefined;
 
@@ -133,9 +126,4 @@ export class LookupPokemonStrategy
 
         return pokemon;
     }
-}
-
-const escapeRegex = (string: string) =>
-{
-    return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 }
