@@ -48,6 +48,7 @@ export class PokeApi
             .replaceAll('hisuian', 'hisui')
             .replaceAll('alolan', 'alola')
             // Fix specific pokemon
+            .replaceAll('basculin', 'basculin-red-striped')
             .replaceAll('calyrex-ice-rider', 'calyrex-ice')
             .replaceAll('calyrex-shadow-rider', 'calyrex-shadow')
             .replaceAll('darmanitan-galar', 'darmanitan-galar-standard')
@@ -55,11 +56,13 @@ export class PokeApi
             .replaceAll('eiscue-ice-face', 'eiscue-ice')
             .replaceAll('eiscue-noice-face', 'eiscue-noice')
             .replaceAll('hoopa-confined', 'hoopa')
+            .replaceAll('keldeo', 'keldeo-ordinary')
             .replaceAll('kyurem-zekrom', 'kyurem-black')
             .replaceAll('kyurem-reshiram', 'kyurem-white')
             .replaceAll('meloetta-step', 'meloetta-pirouette')
             .replaceAll('minior-core', 'minior-red')
             .replaceAll('minior-meteor', 'minior-red-meteor')
+            .replaceAll('morpeko', 'morpeko-full-belly')
             .replaceAll('mr.-mime', 'mr-mime')
             .replaceAll('mr.-rime', 'mr-rime')
             .replaceAll('necrozma-dawn-wings', 'necrozma-dawn')
@@ -73,10 +76,6 @@ export class PokeApi
         if (parsedName === 'darmanitan')
         {
             parsedName += '-standard';
-        }
-        if (parsedName === 'morpeko')
-        {
-            parsedName += '-full-belly';
         }
         else if (parsedName === 'wishiwashi')
         {
@@ -135,7 +134,10 @@ export class PokeApi
         try {
             return await this.api.pokemon.searchByName(parsedName);
         } catch (err) {
-            logger.error('Failed to get pokemon by name from PokeApi', err);
+            logger.error('Failed to get pokemon by name from PokeApi', {
+                name,
+                parsedName,
+            }, err);
             return undefined;
         }
     }
