@@ -55,6 +55,16 @@ export enum PtuMoveFrequency
     FullActionInterupt = 'Full Action, Interrupt',
 }
 
+export enum PtuMoveListType
+{
+    All = 'all',
+    EggMoves = 'eggMoves',
+    LevelUp = 'levelUp',
+    TmHm = 'tmHm',
+    TutorMoves = 'tutorMoves',
+    ZygardeCubeMoves = 'zygardeCubeMoves',
+}
+
 // TODO: Move this to a types package owned by an API that controls this data with PtuController later
 export interface PtuPokemon {
     name: string;

@@ -5,7 +5,7 @@ import { PtuMove } from '../../../models/PtuMove.js';
 import { Text } from '@beanc16/discordjs-helpers';
 import { PtuTm } from '../../../models/PtuTm.js';
 import { PtuNature } from '../../../models/PtuNature.js';
-import { PtuPokemon } from '../../../types/pokemon.js';
+import { PtuMoveListType, PtuPokemon } from '../../../types/pokemon.js';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
@@ -195,6 +195,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             `Special Attack: ${baseStats.specialAttack}`,
             `Special Defense: ${baseStats.specialDefense}`,
             `Speed: ${baseStats.speed}`,
+            `Total: ${Object.values(baseStats).reduce((acc, val) => acc + val, 0)}`,
             '',
             Text.bold('Basic Information'),
             `Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`,
@@ -315,6 +316,202 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
 
         return embed;
     });
+};
+
+export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
+    moveName,
+    moveListType,
+}: {
+    moveName: string;
+    moveListType: PtuMoveListType;
+}) =>
+{
+    if (pokemon.length === 0) return [];
+
+    const {
+        // Level up
+        levelUp,
+        totalLevelUpMoveLearnedValue,
+        outliersInLevelUpData,
+
+        // Everything else
+        eggMoves,
+        tmHm,
+        tutorMoves,
+        zygardeCubeMoves,
+    } = pokemon.reduce((acc, curPokemon) =>
+    {
+        const {
+            name,
+            moveList: {
+                levelUp,
+                eggMoves,
+                tmHm,
+                tutorMoves,
+                zygardeCubeMoves = [],
+            },
+        } = curPokemon;
+
+        if (
+            moveListType === PtuMoveListType.EggMoves
+            || moveListType === PtuMoveListType.TmHm
+            || moveListType === PtuMoveListType.TutorMoves
+            || moveListType === PtuMoveListType.ZygardeCubeMoves
+        )
+        {
+            acc[moveListType].push(curPokemon);
+            return acc;
+        }
+
+        const zygardeMove = zygardeCubeMoves.find((move) => move === moveName);
+        if (zygardeMove)
+        {
+            acc[PtuMoveListType.ZygardeCubeMoves].push(curPokemon);
+            return acc;
+        }
+
+        const eggMove = eggMoves.find((move) => move === moveName);
+        if (eggMove)
+        {
+            acc[PtuMoveListType.EggMoves].push(curPokemon);
+            return acc;
+        }
+
+        const tutorMove = tutorMoves.find((move) => move === moveName);
+        if (tutorMove)
+        {
+            acc[PtuMoveListType.TutorMoves].push(curPokemon);
+            // Don't return acc
+        }
+
+        const tmHmMove = tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
+        if (tmHmMove)
+        {
+            acc[PtuMoveListType.TmHm].push(curPokemon);
+            // Don't return acc
+        }
+
+        const levelUpMove = levelUp.find(({ move }) => move === moveName);
+        if (
+            (moveListType === PtuMoveListType.LevelUp || moveListType === PtuMoveListType.All)
+            && levelUpMove
+        )
+        {
+            const level = parseInt(levelUpMove.level as string, 10);
+
+            if (!Number.isNaN(level))
+            {
+                acc.totalLevelUpMoveLearnedValue += level;
+            }
+            else
+            {
+                acc.outliersInLevelUpData.push({
+                    name,
+                    level: levelUpMove.level,
+                });
+            }
+
+            acc[PtuMoveListType.LevelUp].push({
+                pokemon: curPokemon,
+                level,
+            });
+        }
+
+        return acc;
+    }, {
+        [PtuMoveListType.LevelUp]: [] as {
+            pokemon: PtuPokemon;
+            level: string | number;
+        }[],
+        [PtuMoveListType.EggMoves]: [] as PtuPokemon[],
+        [PtuMoveListType.TmHm]: [] as PtuPokemon[],
+        [PtuMoveListType.TutorMoves]: [] as PtuPokemon[],
+        [PtuMoveListType.ZygardeCubeMoves]: [] as PtuPokemon[],
+        totalLevelUpMoveLearnedValue: 0,
+        outliersInLevelUpData: [] as { name: string; level: string | number; }[],
+    });
+
+    // Sort level up move results by their level
+    levelUp.sort((a, b) => {
+        const aLevel = parseInt(a.level as string, 10);
+        if (!Number.isNaN(aLevel))
+        {
+            1;
+        }
+
+        const bLevel = parseInt(b.level as string, 10);
+        if (!Number.isNaN(bLevel))
+        {
+            -1;
+        }
+
+        return aLevel - bLevel;
+    });
+
+    let description = '';
+
+    // Level Up
+    if (levelUp.length > 0)
+    {
+        description += Text.bold('Learn as Level-Up Move:') + '\n';
+        description += `${
+            (totalLevelUpMoveLearnedValue / levelUp.length).toFixed(1)
+        } Average Level\n`;
+
+        description = outliersInLevelUpData.reduce((acc, { level, name }) => {
+            acc += `${level} ${name}\n`;
+            return acc;
+        }, description);
+
+        description = levelUp.reduce((acc, { level, pokemon }) => {
+            acc += `${level} ${pokemon.name}\n`;
+            return acc;
+        }, description);
+    }
+
+    // Egg Move
+    if (eggMoves.length > 0)
+    {
+        description = eggMoves.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as Egg Move:')}\n`);
+    }
+
+    // TM/HM
+    if (tmHm.length > 0)
+    {
+        description = tmHm.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as TM/HM:')}\n`);
+    }
+
+    // Tutor Move
+    if (tutorMoves.length > 0)
+    {
+        description = tutorMoves.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as Tutor Move:')}\n`);
+    }
+
+    // Zygarde Cube Move
+    if (zygardeCubeMoves.length > 0)
+    {
+        description = zygardeCubeMoves.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`);
+    }
+
+    return [
+        new EmbedBuilder()
+            .setTitle('Pokemon')
+            .setDescription(description)
+            .setColor(color)
+            .setFooter({ text: 'Page 1/1'})
+    ];
 };
 
 export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>

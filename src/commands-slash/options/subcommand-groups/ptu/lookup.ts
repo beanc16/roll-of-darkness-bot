@@ -1,5 +1,5 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
-import { PokemonType, PokemonMoveCategory, PtuMoveFrequency, PokemonStat } from '../../../../types/pokemon.js';
+import { PokemonType, PokemonMoveCategory, PtuMoveFrequency, PokemonStat, PtuMoveListType } from '../../../../types/pokemon.js';
 import { equalityOption } from '../../shared.js';
 
 export enum PtuLookupSubcommand
@@ -203,8 +203,32 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('pokemon_name');
         option.setDescription(`The pokemon's name.`);
-        option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    // Move name
+    subcommand.addStringOption((option) => {
+        option.setName('move_name');
+        option.setDescription(`The move's name to search.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Move search type
+    const moveListTypeChoices = Object.entries(PtuMoveListType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+    subcommand.addStringOption((option) => {
+        option.setName('move_list_type');
+        option.setDescription('The type of search to do on the move list (defaut: all).');
+        option.setChoices(
+            ...moveListTypeChoices
+        );
+        return option;
     });
 
     return subcommand;
