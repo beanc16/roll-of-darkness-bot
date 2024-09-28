@@ -55,6 +55,14 @@ export enum PtuMoveFrequency
     FullActionInterupt = 'Full Action, Interrupt',
 }
 
+export enum PtuAbilityListType
+{
+    All = 'all',
+    Basic = 'basicAbilities',
+    Advanced = 'advancedAbilities',
+    High = 'highAbility',
+}
+
 export enum PtuMoveListType
 {
     All = 'all',
