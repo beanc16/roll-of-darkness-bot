@@ -1,14 +1,14 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../../options/subcommand-groups/ptu/lookup.js';
 
-import { getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../embed-messages/ptu/lookup.js';
+import { getLookupPokemonByAbilityEmbedMessages, getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../embed-messages/ptu/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PokemonController } from '../../../../dal/PtuController.js';
 import { PokeApi } from '../../../../services/PokeApi.js';
-import { PtuMoveListType, PtuPokemon } from '../../../../types/pokemon.js';
+import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../../../types/pokemon.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
 
 export interface GetLookupPokemonDataParameters
@@ -17,6 +17,13 @@ export interface GetLookupPokemonDataParameters
     lookupType?: RegexLookupType;
     moveName?: string | null;
     moveListType?: PtuMoveListType;
+    abilityName?: string | null;
+    abilityListType?: PtuAbilityListType;
+}
+
+interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
+{
+    pokemon: PtuPokemon[];
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -30,15 +37,18 @@ export class LookupPokemonStrategy
         const name = interaction.options.getString('pokemon_name');
         const moveName = interaction.options.getString('move_name');
         const moveListType = (interaction.options.getString('move_list_type') ?? PtuMoveListType.All) as PtuMoveListType;
+        const abilityName = interaction.options.getString('ability_name');
+        const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
 
-        if (!(name || moveName))
+        const numOfTruthyValues = [name, moveName, abilityName].filter(Boolean).length;
+        if (numOfTruthyValues === 0)
         {
-            await interaction.editReply('Cannot look up a pokemon without a name or move.');
+            await interaction.editReply('Cannot look up a pokemon without a name, move, or ability.');
             return true;
         }
-        else if (name && moveName)
+        else if (numOfTruthyValues > 1)
         {
-            await interaction.editReply('Cannot look up a pokemon by both name and move at the same time.');
+            await interaction.editReply('Cannot look up a pokemon by more than just one of name, move, or ability at the same time.');
             return true;
         }
 
@@ -47,17 +57,21 @@ export class LookupPokemonStrategy
             lookupType: RegexLookupType.ExactMatchCaseInsensitive,
             moveName,
             moveListType,
+            abilityName,
+            abilityListType,
         });
 
         // TODO: Add listview and final paginated functionality later
 
         // Get message
-        const embeds = (name)
-            ? getLookupPokemonEmbedMessages(pokemon)
-            : getLookupPokemonByMoveEmbedMessages(pokemon, {
-                moveName: moveName as string,
-                moveListType,
-            });
+        const embeds = this.getLookupPokemonEmbeds({
+            name,
+            moveName,
+            moveListType,
+            abilityName,
+            abilityListType,
+            pokemon,
+        });
 
         return await BaseLookupRespondStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No pokemon were found.',
@@ -66,12 +80,14 @@ export class LookupPokemonStrategy
 
     public static async getLookupData({
         name,
+        lookupType = RegexLookupType.SubstringCaseInsensitive,
         moveName,
         moveListType = PtuMoveListType.All,
-        lookupType = RegexLookupType.SubstringCaseInsensitive,
+        abilityName,
+        abilityListType = PtuAbilityListType.All,
     }: GetLookupPokemonDataParameters = {})
     {
-        if (!(name || moveName))
+        if (!(name || moveName || abilityName))
         {
             return [];
         }
@@ -81,6 +97,8 @@ export class LookupPokemonStrategy
             moveName,
             moveListType,
             lookupType,
+            abilityName,
+            abilityListType,
         });
 
         const { results = [] } = await PokemonController.getAll(searchParams);
@@ -128,6 +146,8 @@ export class LookupPokemonStrategy
         moveName,
         moveListType = PtuMoveListType.All,
         lookupType = RegexLookupType.SubstringCaseInsensitive,
+        abilityName,
+        abilityListType = PtuAbilityListType.All,
     }: GetLookupPokemonDataParameters = {})
     {
         if (name)
@@ -205,6 +225,71 @@ export class LookupPokemonStrategy
             }
         }
 
+        if (abilityName)
+        {
+            let key: string;
+            switch (abilityListType)
+            {
+                case PtuAbilityListType.Basic:
+                case PtuAbilityListType.Advanced:
+                case PtuAbilityListType.High:
+                    key = `abilities.${moveListType}`;
+                    return {
+                        [key]: abilityName,
+                    };
+                    break;
+                case PtuAbilityListType.All:
+                    const searchParams: object[] = [
+                        PtuAbilityListType.Basic,
+                        PtuAbilityListType.Advanced,
+                        PtuAbilityListType.High,
+                    ].map((listType) => {
+                        key = `abilities.${listType}`;
+                        return {
+                            [key]: abilityName,
+                        };
+                    });
+
+                    return {
+                        $or: searchParams,
+                    };
+                    break;
+            }
+        }
+
         return {};
+    }
+
+    private static getLookupPokemonEmbeds({
+        name,
+        moveName,
+        moveListType = PtuMoveListType.All,
+        abilityName,
+        abilityListType = PtuAbilityListType.All,
+        pokemon,
+    }: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
+    {
+        if (name)
+        {
+            return getLookupPokemonEmbedMessages(pokemon);
+        }
+
+        if (moveName)
+        {
+            return getLookupPokemonByMoveEmbedMessages(pokemon, {
+                moveName: moveName as string,
+                moveListType,
+            });
+        }
+
+        if (abilityName)
+        {
+            return getLookupPokemonByAbilityEmbedMessages(pokemon, {
+                abilityName: abilityName as string,
+                abilityListType,
+            });
+        }
+
+        return [];
     }
 }
