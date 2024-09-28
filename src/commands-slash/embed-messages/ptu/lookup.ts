@@ -5,7 +5,7 @@ import { PtuMove } from '../../../models/PtuMove.js';
 import { Text } from '@beanc16/discordjs-helpers';
 import { PtuTm } from '../../../models/PtuTm.js';
 import { PtuNature } from '../../../models/PtuNature.js';
-import { PtuMoveListType, PtuPokemon } from '../../../types/pokemon.js';
+import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../../types/pokemon.js';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
@@ -503,6 +503,121 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
             acc += `${name}\n`;
             return acc;
         }, `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`);
+    }
+
+    const lines = description.split('\n');
+    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    {
+        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            curPageIndex += 1;
+        }
+
+        allPages[curPageIndex] += `${line}\n`;
+
+        return {
+            pages: allPages,
+            curPageIndex,
+        };
+    }, {
+        pages: [''] as string[],
+        curPageIndex: 0,
+    });
+
+    return pages.map((curPage, index) =>
+    {
+        return new EmbedBuilder()
+            .setTitle('Pokemon')
+            .setDescription(curPage)
+            .setColor(color)
+            .setFooter({ text: `Page ${index + 1}/${pages.length}` });
+    });
+};
+
+export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
+    abilityName,
+    abilityListType,
+}: {
+    abilityName: string;
+    abilityListType: PtuAbilityListType;
+}) =>
+{
+    if (pokemon.length === 0) return [];
+
+    const {
+        basicAbilities,
+        advancedAbilities,
+        highAbility: highAbilities,
+    } = pokemon.reduce((acc, curPokemon) =>
+    {
+        const {
+            abilities: {
+                basicAbilities,
+                advancedAbilities,
+                highAbility,
+            },
+        } = curPokemon;
+
+        if (abilityListType !== PtuAbilityListType.All)
+        {
+            acc[abilityListType].push(curPokemon);
+            return acc;
+        }
+
+        const basicAbility = basicAbilities.find((ability) => ability === abilityName);
+        if (basicAbility)
+        {
+            acc[PtuAbilityListType.Basic].push(curPokemon);
+            return acc;
+        }
+
+        const advancedAbility = advancedAbilities.find((ability) => ability === abilityName);
+        if (advancedAbility)
+        {
+            acc[PtuAbilityListType.Advanced].push(curPokemon);
+            return acc;
+        }
+
+        if (highAbility == abilityName)
+        {
+            acc[PtuAbilityListType.High].push(curPokemon);
+            return acc;
+        }
+
+        return acc;
+    }, {
+        [PtuAbilityListType.Basic]: [] as PtuPokemon[],
+        [PtuAbilityListType.Advanced]: [] as PtuPokemon[],
+        [PtuAbilityListType.High]: [] as PtuPokemon[],
+    });
+
+    let description = '';
+
+    // Basic Ability
+    if (basicAbilities.length > 0)
+    {
+        description = basicAbilities.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as Basic Ability:')}\n`);
+    }
+
+    // Advanced Ability
+    if (advancedAbilities.length > 0)
+    {
+        description = advancedAbilities.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as Advanced Ability:')}\n`);
+    }
+
+    // Tutor Move
+    if (highAbilities.length > 0)
+    {
+        description = highAbilities.reduce((acc, { name }) => {
+            acc += `${name}\n`;
+            return acc;
+        }, `${description}\n${Text.bold('Learn as High Ability:')}\n`);
     }
 
     const lines = description.split('\n');
