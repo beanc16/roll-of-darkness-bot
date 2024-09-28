@@ -505,13 +505,33 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         }, `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`);
     }
 
-    return [
-        new EmbedBuilder()
+    const lines = description.split('\n');
+    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    {
+        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            curPageIndex += 1;
+        }
+
+        allPages[curPageIndex] += `${line}\n`;
+
+        return {
+            pages: allPages,
+            curPageIndex,
+        };
+    }, {
+        pages: [''] as string[],
+        curPageIndex: 0,
+    });
+
+    return pages.map((curPage, index) =>
+    {
+        return new EmbedBuilder()
             .setTitle('Pokemon')
-            .setDescription(description)
+            .setDescription(curPage)
             .setColor(color)
-            .setFooter({ text: 'Page 1/1'})
-    ];
+            .setFooter({ text: `Page ${index + 1}/${pages.length}` });
+    });
 };
 
 export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>

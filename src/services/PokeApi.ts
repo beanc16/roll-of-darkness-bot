@@ -1,5 +1,5 @@
 import { logger } from '@beanc16/logger';
-import Pokedex from '@sherwinski/pokeapi-ts';
+import Pokedex from 'pokedex-promise-v2';
 
 type PokeApiId = string | number;
 
@@ -12,7 +12,7 @@ interface GetImageUrlResponse
 
 export class PokeApi
 {
-    private static api = new Pokedex.default();
+    private static api = new Pokedex();
 
     public static parseId(id?: PokeApiId): number | undefined
     {
@@ -97,36 +97,26 @@ export class PokeApi
         return parsedName;
     }
 
-    private static async getById(id?: PokeApiId)
+    public static parseNames(names?: string[]): string[]
     {
-        const parsedId = this.parseId(id);
+        const parsedNames = names?.reduce<string[]>((acc, name) => {
+            const parsedName = this.parseName(name);
 
-        if (!parsedId)
-        {
-            return undefined;
-        }
+            if (parsedName)
+            {
+                acc.push(parsedName);
+            }
+            else
+            {
+                logger.warn('Failed to parse name:', name);
+            }
 
-        // Get pokemon from PokeApi
-        try {
-            return await this.api.pokemon.searchById(parsedId);
-        } catch (err) {
-            logger.error('Failed to get pokemon by id from PokeApi', err);
-            return undefined;
-        }
-    }
+            return acc;
+        }, []);
 
-    private static async getByIds(ids?: PokeApiId[])
-    {
-        const resultPromises = ids?.map((id) => this.getById(id));
-
-        if (!resultPromises)
-        {
-            return undefined;
-        }
-
-        const results = await Promise.all(resultPromises);
-
-        return results.filter((result) => result !== undefined);
+        return (parsedNames)
+            ? parsedNames
+            : [];
     }
 
     private static async getByName(name?: string)
@@ -140,7 +130,7 @@ export class PokeApi
 
         // Get pokemon from PokeApi
         try {
-            return await this.api.pokemon.searchByName(parsedName);
+            return await this.api.getPokemonByName(parsedName);
         } catch (err) {
             logger.error('Failed to get pokemon by name from PokeApi', {
                 name,
@@ -152,23 +142,23 @@ export class PokeApi
 
     private static async getByNames(names?: string[])
     {
-        const resultPromises = names?.map((name) => this.getByName(name));
+        const parsedNames = this.parseNames(names);
 
-        if (!resultPromises)
-        {
+        // Get pokemon from PokeApi
+        try {
+            return await this.api.getPokemonByName(parsedNames);
+        } catch (err) {
+            logger.error('Failed to get pokemon by name from PokeApi', {
+                names,
+                parsedNames,
+            }, err);
             return undefined;
         }
-
-        const results = await Promise.all(resultPromises);
-
-        return results.filter((result) => result !== undefined);
     }
 
-    public static async getImageUrl(id?: PokeApiId, name?: string): Promise<string | undefined>
+    public static async getImageUrl(name?: string): Promise<string | undefined>
     {
-        const result = (name)
-            ? await this.getByName(name)
-            : await this.getById(id);
+        const result = await this.getByName(name);
 
         if (!result)
         {
@@ -193,11 +183,9 @@ export class PokeApi
         return imageUrl;
     }
 
-    public static async getImageUrls(ids?: PokeApiId[], names?: string[]): Promise<GetImageUrlResponse[] | undefined>
+    public static async getImageUrls(names?: string[]): Promise<GetImageUrlResponse[] | undefined>
     {
-        const results = (names)
-            ? await this.getByNames(names)
-            : await this.getByIds(ids);
+        const results = await this.getByNames(names);
 
         if (!results)
         {

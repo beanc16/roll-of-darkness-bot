@@ -85,50 +85,19 @@ export class LookupPokemonStrategy
 
         const { results = [] } = await PokemonController.getAll(searchParams);
 
-        const {
-            dexNumbers,
-            names,
-        } = results.reduce((acc: {
-            dexNumbers: string[];
-            names: string[];
-        }, {
-            name,
-            metadata: {
-                dexNumber,
-            },
-        }: PtuPokemon) => {
-            if (dexNumber)
-            {
-                acc.dexNumbers.push(dexNumber);
-            }
-
-            acc.names.push(name);
-            return acc;
-        }, {
-            dexNumbers: [],
-            names: [],
-        }) as {
-            dexNumbers: string[];
-            names: string[];
-        };
+        const names = results.map(({ name }: PtuPokemon) => name);
 
         // Don't include images for substring searches
         const imageUrlResults = (lookupType !== RegexLookupType.SubstringCaseInsensitive)
-            ? await PokeApi.getImageUrls(dexNumbers, names)
+            ? await PokeApi.getImageUrls(names)
             : undefined;
 
         // Try to add imageUrl to pokemon result
         const pokemon = results.map((result: PtuPokemon) => {
-            const {
-                name,
-                metadata: {
-                    dexNumber,
-                },
-            } = result;
+            const { name } = result;
 
             const { imageUrl } = imageUrlResults?.find((result) =>
-                result.id === PokeApi.parseId(dexNumber)
-                || result.name === PokeApi.parseName(name)
+                result.name === PokeApi.parseName(name)
             ) ?? {};
 
             if (!imageUrl)
