@@ -233,7 +233,7 @@ export class LookupPokemonStrategy
                 case PtuAbilityListType.Basic:
                 case PtuAbilityListType.Advanced:
                 case PtuAbilityListType.High:
-                    key = `abilities.${moveListType}`;
+                    key = `abilities.${abilityListType}`;
                     return {
                         [key]: abilityName,
                     };

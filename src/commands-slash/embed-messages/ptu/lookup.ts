@@ -448,11 +448,34 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         return aLevel - bLevel;
     });
 
-    let description = '';
+    let endOfTitle = '';
+    switch (moveListType)
+    {
+        case PtuMoveListType.All:
+            endOfTitle = '';
+            break;
+        case PtuMoveListType.LevelUp:
+            endOfTitle = ' as a Level-Up Move';
+            break;
+        case PtuMoveListType.EggMoves:
+            endOfTitle = ' as an Egg Move';
+            break;
+        case PtuMoveListType.TmHm:
+            endOfTitle = ' as a TM/HM';
+            break;
+        case PtuMoveListType.TutorMoves:
+            endOfTitle = ' as a Tutor Move';
+            break;
+        case PtuMoveListType.ZygardeCubeMoves:
+            endOfTitle = ' as a Zygarde Cube Move';
+            break;
+    }
+    let description = `${Text.bold(`Pokemon that can learn ${moveName}${endOfTitle}`)}\n`;
 
     // Level Up
     if (levelUp.length > 0)
     {
+        if (description.length > 0) description += '\n';
         description += Text.bold('Learn as Level-Up Move:') + '\n';
         description += `${
             (totalLevelUpMoveLearnedValue / levelUp.length).toFixed(1)
@@ -591,7 +614,23 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
         [PtuAbilityListType.High]: [] as PtuPokemon[],
     });
 
-    let description = '';
+    let endOfTitle = '';
+    switch (abilityListType)
+    {
+        case PtuAbilityListType.All:
+            endOfTitle = '';
+            break;
+        case PtuAbilityListType.Basic:
+            endOfTitle = ' as a Basic Ability';
+            break;
+        case PtuAbilityListType.Advanced:
+            endOfTitle = ' as an Advanced Ability';
+            break;
+        case PtuAbilityListType.High:
+            endOfTitle = ' as a High Ability';
+            break;
+    }
+    let description = `${Text.bold(`Pokemon that can learn ${abilityName}${endOfTitle}`)}\n`;
 
     // Basic Ability
     if (basicAbilities.length > 0)
