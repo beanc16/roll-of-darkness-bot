@@ -88,7 +88,7 @@ export class LookupPokemonStrategy
         const names = results.map(({ name }: PtuPokemon) => name);
 
         // Don't include images for substring searches
-        const imageUrlResults = (lookupType !== RegexLookupType.SubstringCaseInsensitive)
+        const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
             ? await PokeApi.getImageUrls(names)
             : undefined;
 
