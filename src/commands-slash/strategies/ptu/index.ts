@@ -6,6 +6,7 @@ import { PtuRandomSubcommand } from '../../options/subcommand-groups/ptu/random.
 import { NestedChatIteractionStrategyRecord } from '../ChatIteractionStrategy.js';
 
 import lookupStrategies from './lookup/index.js';
+import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import { PtuMove } from '../../../models/PtuMove.js';
 import { PtuAbility } from '../../../models/PtuAbility.js';
@@ -17,12 +18,16 @@ import { PtuNature } from '../../../models/PtuNature.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { PtuPokemon } from '../../../types/pokemon.js';
+import { PtuQuickReferenceSubcommand } from '../../options/subcommand-groups/ptu/quickReference.js';
 
 export class PtuStrategyExecutor
 {
     private static strategies: (NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.Lookup,
         PtuLookupSubcommand
+    > | NestedChatIteractionStrategyRecord<
+        PtuSubcommandGroup.QuickReference,
+        PtuQuickReferenceSubcommand
     > | NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.Random,
         PtuRandomSubcommand
@@ -32,6 +37,8 @@ export class PtuStrategyExecutor
         // @ts-ignore -- TODO: Fix this type later
         this.strategies = {
             [PtuSubcommandGroup.Lookup]: lookupStrategies,
+            // @ts-ignore -- TODO: Fix this type later
+            [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.Random]: randomStrategies,
         };
@@ -43,7 +50,7 @@ export class PtuStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuQuickReferenceSubcommand;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
