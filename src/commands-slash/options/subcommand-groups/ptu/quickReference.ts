@@ -5,8 +5,10 @@ export enum PtuQuickReferenceSubcommand
     DamageCharts = 'damage_charts',
     NatureChart = 'nature_chart',
     PokemonExperienceChart = 'pokemon_experience_chart',
+    PowerChart = 'power_chart',
     SwitchingPokemon = 'switching_pokemon',
     TrainingPokemon = 'training_pokemon',
+    WeightClassChart = 'weight_class_chart',
     TypeChart = 'type_chart',
 }
 
@@ -34,6 +36,14 @@ export const pokemonExperienceChart = (subcommand: SlashCommandSubcommandBuilder
     return subcommand;
 };
 
+export const powerChart = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuQuickReferenceSubcommand.PowerChart);
+    subcommand.setDescription(`Get a chart showing weight limits for power.`);
+
+    return subcommand;
+};
+
 export const switchingPokemon = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuQuickReferenceSubcommand.SwitchingPokemon);
@@ -46,6 +56,14 @@ export const trainingPokemon = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuQuickReferenceSubcommand.TrainingPokemon);
     subcommand.setDescription('Get info about how to train your pokemon.');
+
+    return subcommand;
+};
+
+export const weightClassChart = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuQuickReferenceSubcommand.WeightClassChart);
+    subcommand.setDescription(`Get a chart showing weight ranges for each weight class.`);
 
     return subcommand;
 };
