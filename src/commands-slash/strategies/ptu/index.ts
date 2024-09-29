@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { PtuSubcommandGroup } from '../../options/subcommand-groups/index.js';
+import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../../options/subcommand-groups/index.js';
 import { PtuLookupSubcommand } from '../../options/subcommand-groups/ptu/lookup.js';
 import { PtuRandomSubcommand } from '../../options/subcommand-groups/ptu/random.js';
 import { NestedChatIteractionStrategyRecord } from '../ChatIteractionStrategy.js';
@@ -18,7 +18,6 @@ import { PtuNature } from '../../../models/PtuNature.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { PtuPokemon } from '../../../types/pokemon.js';
-import { PtuQuickReferenceSubcommand } from '../../options/subcommand-groups/ptu/quickReference.js';
 
 export class PtuStrategyExecutor
 {
@@ -27,7 +26,7 @@ export class PtuStrategyExecutor
         PtuLookupSubcommand
     > | NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.QuickReference,
-        PtuQuickReferenceSubcommand
+        PtuQuickReferenceInfo
     > | NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.Random,
         PtuRandomSubcommand
@@ -50,12 +49,24 @@ export class PtuStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuQuickReferenceSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuSubcommandGroup.QuickReference;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
-        // @ts-ignore -- TODO: Fix this type later
-        const Strategy = this.strategies[subcommandGroup][subcommand];
+        let Strategy;
+
+        if (subcommand === PtuSubcommandGroup.QuickReference)
+        {
+            const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
+
+            // @ts-ignore -- TODO: Fix this type later
+            Strategy = this.strategies[subcommand][referenceInfo];
+        }
+        else
+        {
+            // @ts-ignore -- TODO: Fix this type later
+            Strategy = this.strategies[subcommandGroup][subcommand];
+        }
 
         if (Strategy)
         {

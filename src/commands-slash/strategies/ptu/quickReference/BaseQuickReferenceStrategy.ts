@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { PtuQuickReferenceSubcommand } from '../../../options/subcommand-groups/ptu/quickReference.js';
+import { PtuQuickReferenceInfo } from '../../../options/subcommand-groups/ptu/index.js';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 
 export class BaseQuickReferenceStrategy
 {
     static async run(
         interaction: ChatInputCommandInteraction,
-        subcommand: PtuQuickReferenceSubcommand,
+        subcommand: PtuQuickReferenceInfo,
     ): Promise<boolean>
     {
         // Convert the subcommand into a file name. IE: "damage_charts" becomes "Damage Charts".

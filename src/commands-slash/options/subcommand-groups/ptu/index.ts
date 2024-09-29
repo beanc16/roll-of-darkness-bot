@@ -1,6 +1,5 @@
-import { SlashCommandSubcommandGroupBuilder } from 'discord.js';
+import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
 import * as lookupSubcommands from './lookup.js';
-import * as quickReferenceSubcommands from './quickReference.js';
 import * as randomSubcommands from './random.js';
 
 export enum PtuSubcommandGroup
@@ -8,6 +7,18 @@ export enum PtuSubcommandGroup
     Lookup = 'lookup',
     QuickReference = 'quick_reference',
     Random = 'random',
+}
+
+export enum PtuQuickReferenceInfo
+{
+    DamageCharts = 'damage_charts',
+    NatureChart = 'nature_chart',
+    PokemonExperienceChart = 'pokemon_experience_chart',
+    PowerChart = 'power_chart',
+    SwitchingPokemon = 'switching_pokemon',
+    TrainingPokemon = 'training_pokemon',
+    WeightClassChart = 'weight_class_chart',
+    TypeChart = 'type_chart',
 }
 
 export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
@@ -24,18 +35,33 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const quickReference = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const quickReference = (subcommand: SlashCommandSubcommandBuilder) =>
 {
-    subcommandGroup.setName(PtuSubcommandGroup.QuickReference);
-    subcommandGroup.setDescription('Run PTU quick reference commands.');
-    Object.values(quickReferenceSubcommands).forEach(quickReferenceSubcommand => 
-    {
-        if (typeof quickReferenceSubcommand === 'function')
-        {
-            subcommandGroup.addSubcommand(quickReferenceSubcommand);
-        }
+    subcommand.setName(PtuSubcommandGroup.QuickReference);
+    subcommand.setDescription('Get PTU quick reference information.');
+
+    subcommand.addStringOption((option) => {
+        option.setName('reference_info');
+        option.setDescription('The quick reference info to look up.');
+
+        const choices = Object.values(PtuQuickReferenceInfo).map<APIApplicationCommandOptionChoice<string>>(
+            (value) => {
+                const key = value
+                    .split('_')
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                return {
+                    name: key,
+                    value: value,
+                };
+            }
+        );
+        option.addChoices(...choices);
+        return option.setRequired(true);
     });
-    return subcommandGroup;
+
+    return subcommand;
 };
 
 export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>

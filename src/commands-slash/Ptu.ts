@@ -12,7 +12,6 @@ import { PtuTm } from '../models/PtuTm.js';
 import { PtuStrategyExecutor } from './strategies/ptu/index.js';
 import { PtuNature } from '../models/PtuNature.js';
 import { PtuPokemon } from '../types/pokemon.js';
-import { PtuQuickReferenceSubcommand } from './options/subcommand-groups/ptu/quickReference.js';
 
 export interface RandomResult
 {
@@ -36,7 +35,7 @@ class Ptu extends BaseSlashCommand
         super();
         this._slashCommandData
             .addSubcommandGroup(options.subcommandGroups.lookup)
-            .addSubcommandGroup(options.subcommandGroups.quickReference)
+            .addSubcommand(options.subcommandGroups.quickReference)
             .addSubcommandGroup(options.subcommandGroups.random);
     }
 
@@ -48,8 +47,8 @@ class Ptu extends BaseSlashCommand
         });
 
         // Get parameter results
-        const subcommandGroup = interaction.options.getSubcommandGroup(true) as PtuSubcommandGroup;
-        const subcommand = interaction.options.getSubcommand(true) as PtuLookupSubcommand | PtuQuickReferenceSubcommand | PtuRandomSubcommand;
+        const subcommandGroup = interaction.options.getSubcommandGroup() as PtuSubcommandGroup;
+        const subcommand = interaction.options.getSubcommand(true) as PtuLookupSubcommand | PtuRandomSubcommand;
 
         // Run subcommand
         const response = await PtuStrategyExecutor.run({
