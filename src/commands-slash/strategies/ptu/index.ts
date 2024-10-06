@@ -18,6 +18,7 @@ import { PtuNature } from '../../../models/PtuNature.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { PtuPokemon } from '../../../types/pokemon.js';
+import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 
 export class PtuStrategyExecutor
 {
@@ -40,6 +41,8 @@ export class PtuStrategyExecutor
             [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.Random]: randomStrategies,
+            // @ts-ignore -- TODO: Fix this type later
+            [PtuSubcommandGroup.Train]: TrainPokemonStrategy,
         };
     }
 
@@ -49,7 +52,7 @@ export class PtuStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuSubcommandGroup.QuickReference;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
@@ -61,6 +64,11 @@ export class PtuStrategyExecutor
 
             // @ts-ignore -- TODO: Fix this type later
             Strategy = this.strategies[subcommand][referenceInfo];
+        }
+        else if (subcommand === PtuSubcommandGroup.Train)
+        {
+            // @ts-ignore -- TODO: Fix this type later
+            Strategy = this.strategies[subcommand];
         }
         else
         {

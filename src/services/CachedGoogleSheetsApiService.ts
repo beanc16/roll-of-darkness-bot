@@ -1,7 +1,9 @@
 import {
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
+    GoogleSheetsGetRangesResponseV1,
     GoogleSheetsMicroservice,
+    GoogleSheetsUpdateParametersV1,
 } from '@beanc16/microservices-abstraction';
 import { CachedAuthTokenService } from './CachedAuthTokenService.js';
 import { logger } from '@beanc16/logger';
@@ -13,13 +15,28 @@ interface GetRangeResponse
     errorType?: 'AUTOMATED_USER_NOT_ADDED_TO_SHEET';
 }
 
+interface UpdateResponse
+{
+    errorType?: 'AUTOMATED_USER_NOT_ADDED_TO_SHEET';
+}
+
+interface WithCacheOptions
+{
+    shouldNotCache?: boolean;
+}
+
 export class CachedGoogleSheetsApiService
 {
     static #retries = 1;
     static #cache: CompositeKeyRecord<[string, string], string[][]> = new CompositeKeyRecord();
 
-    static async getRange(parameters: GoogleSheetsGetRangeParametersV1): Promise<GetRangeResponse>
+    static async getRange(initialParameters: GoogleSheetsGetRangeParametersV1 & WithCacheOptions): Promise<GetRangeResponse>
     {
+        const {
+            shouldNotCache = false,
+            ...parameters
+        } = initialParameters;
+
         const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
@@ -47,7 +64,10 @@ export class CachedGoogleSheetsApiService
                 if (statusCode === 200)
                 {
                     // Save to cache by spreadsheet / spreadsheetId
-                    this.#cache.Add([cacheSpreadsheetKey, cacheRangeKey], data);
+                    if (!shouldNotCache)
+                    {
+                        this.#cache.Add([cacheSpreadsheetKey, cacheRangeKey], data);
+                    }
                     return { data };
                 }
 
@@ -89,7 +109,7 @@ export class CachedGoogleSheetsApiService
         return {};
     }
 
-    static async getRanges(parameters: GoogleSheetsGetRangesParametersV1): Promise<void>
+    static async getRanges(parameters: GoogleSheetsGetRangesParametersV1): Promise<GoogleSheetsGetRangesResponseV1['data'] | undefined>
     {
         for (let i = 0; i <= this.#retries; i += 1)
         {
@@ -102,14 +122,12 @@ export class CachedGoogleSheetsApiService
 
             if (statusCode === 200)
             {
-                // TODO: Parse data later
-                console.log('\n data:', data);
-                // return data;
+                return data;
             }
 
             else if (statusCode === 401)
             {
-                logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRange. Retrieving new auth token.');
+                logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
                 await CachedAuthTokenService.resetAuthToken();
                 continue;
             }
@@ -118,5 +136,76 @@ export class CachedGoogleSheetsApiService
         }
 
         return undefined;
+    }
+
+    static async update(initialParameters: GoogleSheetsUpdateParametersV1 & WithCacheOptions): Promise<UpdateResponse>
+    {
+        const {
+            shouldNotCache = false,
+            ...parameters
+        } = initialParameters;
+
+        const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
+        const cacheRangeKey = parameters?.range as string;
+
+        for (let i = 0; i <= this.#retries; i += 1)
+        {
+            const authToken = await CachedAuthTokenService.getAuthToken();
+
+            try
+            {
+                const {
+                    statusCode = 200,
+                    data = [],
+                    error,
+                } = await GoogleSheetsMicroservice.v1.update(authToken, parameters);
+
+                if (statusCode === 200)
+                {
+                    // Save to cache by spreadsheet / spreadsheetId
+                    if (!shouldNotCache)
+                    {
+                        this.#cache.Add([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
+                    }
+
+                    return {};
+                }
+
+                else if (statusCode === 401)
+                {
+                    logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.update. Retrieving new auth token.');
+                    await CachedAuthTokenService.resetAuthToken();
+                    continue;
+                }
+
+                logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.update', { statusCode }, data, (error as any)?.response);
+                throw error;
+            }
+            catch (error)
+            {
+                // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                if ((error as any)?.response?.data?.statusCode === 403)
+                {
+                    logger.warn('The automated user is not added to the queried sheet. Please add them.', {
+                        ...(parameters?.spreadsheetId && {
+                            spreadsheetId: parameters?.spreadsheetId,
+                        }),
+                        ...(parameters?.spreadsheet && {
+                            spreadsheet: parameters?.spreadsheet,
+                        }),
+                    });
+                    return {
+                        errorType: 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
+                    };
+                }
+
+                else
+                {
+                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.update', (error as any)?.response?.data || error);
+                }
+            }
+        }
+
+        return {};
     }
 }

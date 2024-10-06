@@ -36,7 +36,8 @@ class Ptu extends BaseSlashCommand
         this._slashCommandData
             .addSubcommandGroup(options.subcommandGroups.lookup)
             .addSubcommand(options.subcommandGroups.quickReference)
-            .addSubcommandGroup(options.subcommandGroups.random);
+            .addSubcommandGroup(options.subcommandGroups.random)
+            .addSubcommand(options.subcommandGroups.train);
     }
 
     async run(interaction: ChatInputCommandInteraction)
