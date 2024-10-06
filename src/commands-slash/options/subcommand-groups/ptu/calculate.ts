@@ -103,6 +103,11 @@ export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
     });
 
     subcommand.addBooleanOption((option) => {
+        option.setName('is_paradox');
+        return option.setDescription(`The pokemon is a Paradox (default: false).`);
+    });
+
+    subcommand.addBooleanOption((option) => {
         option.setName('is_legendary');
         return option.setDescription(`The pokemon is Legendary (default: false).`);
     });
@@ -132,6 +137,12 @@ export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addBooleanOption((option) => {
         option.setName('is_slowed');
         return option.setDescription(`The pokemon has the Slowed affliction (default: false).`);
+    });
+
+    // Extra
+    subcommand.addIntegerOption((option) => {
+        option.setName('additional_modifier');
+        return option.setDescription('Any extra manual modifiers (default: 0).');
     });
 
     return subcommand;

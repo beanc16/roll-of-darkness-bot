@@ -16,18 +16,21 @@ export class CalculateCaptureRatingStrategy
         const hpPercentage = interaction.options.getString('hp_percentage', true) as PtuPokemonHpPercentage;
         const remainingEvolutions = interaction.options.getString('num_of_remaining_evolutions', true) as PtuPokemonEvolutionaryStage;
         const isShiny = interaction.options.getBoolean('is_shiny') ?? false;
+        const isParadox = interaction.options.getBoolean('is_paradox') ?? false;
         const isLegendary = interaction.options.getBoolean('is_legendary') ?? false;
         const numOfInjuries = interaction.options.getInteger('num_of_injuries') ?? 0;
         const numOfPersistentAfflictions = interaction.options.getInteger('num_of_persistent_afflictions') ?? 0;
         const numOfVolatileAfflictions = interaction.options.getInteger('num_of_volatile_afflictions') ?? 0;
         const isStuck = interaction.options.getBoolean('is_stuck') ?? false;
         const isSlowed = interaction.options.getBoolean('is_slowed') ?? false;
+        const additionalModifier = interaction.options.getInteger('additional_modifier') ?? 0;
 
         // Get modifiers
         const hpPercentageModifier = this.getHpPercentageModifier(hpPercentage);
         const remainingEvolutionsModifier = this.getRemainingEvolutionsModifier(remainingEvolutions);
         const rarityModifier = this.getRarityModifier({
             isShiny,
+            isParadox,
             isLegendary,
         });
         const getAfflictionsModifier = this.getAfflictionsModifier({
@@ -45,6 +48,7 @@ export class CalculateCaptureRatingStrategy
             remainingEvolutionsModifier,
             rarityModifier,
             getAfflictionsModifier,
+            additionalModifier,
         });
 
         // Send message
@@ -61,12 +65,14 @@ export class CalculateCaptureRatingStrategy
         remainingEvolutionsModifier,
         rarityModifier,
         getAfflictionsModifier,
+        additionalModifier,
     }: {
         pokemonLevel: number;
         hpPercentageModifier: number;
         remainingEvolutionsModifier: number;
         rarityModifier: number;
         getAfflictionsModifier: number;
+        additionalModifier: number;
     }): number
     {
         return Math.floor(
@@ -76,6 +82,7 @@ export class CalculateCaptureRatingStrategy
             + remainingEvolutionsModifier   // Remaining Evolutions
             + rarityModifier                // Rarity
             + getAfflictionsModifier        // Afflictions
+            + additionalModifier            // Additional
         );
     }
 
@@ -105,9 +112,11 @@ export class CalculateCaptureRatingStrategy
 
     private static getRarityModifier({
         isShiny,
+        isParadox,
         isLegendary,
     }: {
         isShiny: boolean;
+        isParadox: boolean;
         isLegendary: boolean;
     })
     {
@@ -116,6 +125,11 @@ export class CalculateCaptureRatingStrategy
         if (isShiny)
         {
             modifier -= 10;
+        }
+
+        if (isParadox)
+        {
+            modifier -= 15;
         }
 
         if (isLegendary)
