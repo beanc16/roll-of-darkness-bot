@@ -1,9 +1,11 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
+import * as calculateSubcommands from './calculate.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
 
 export enum PtuSubcommandGroup
 {
+    Calculate = 'calculate',
     Lookup = 'lookup',
     QuickReference = 'quick_reference',
     Random = 'random',
@@ -21,15 +23,29 @@ export enum PtuQuickReferenceInfo
     TypeChart = 'type_chart',
 }
 
+export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Calculate);
+    subcommandGroup.setDescription('Run PTU calculate commands.');
+    Object.values(calculateSubcommands).forEach(subcommand => 
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
 export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run PTU lookup commands.');
-    Object.values(lookupSubcommands).forEach(lookupSubcommand => 
+    Object.values(lookupSubcommands).forEach(subcommand => 
     {
-        if (typeof lookupSubcommand === 'function')
+        if (typeof subcommand === 'function')
         {
-            subcommandGroup.addSubcommand(lookupSubcommand);
+            subcommandGroup.addSubcommand(subcommand);
         }
     });
     return subcommandGroup;
@@ -68,11 +84,11 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Random);
     subcommandGroup.setDescription('Run PTU randomization commands.');
-    Object.values(randomSubcommands).forEach(randomSubcommand => 
+    Object.values(randomSubcommands).forEach(subcommand => 
     {
-        if (typeof randomSubcommand === 'function')
+        if (typeof subcommand === 'function')
         {
-            subcommandGroup.addSubcommand(randomSubcommand);
+            subcommandGroup.addSubcommand(subcommand);
         }
     });
     return subcommandGroup;

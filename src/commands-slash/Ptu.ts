@@ -34,6 +34,7 @@ class Ptu extends BaseSlashCommand
     {
         super();
         this._slashCommandData
+            .addSubcommandGroup(options.subcommandGroups.calculate)
             .addSubcommandGroup(options.subcommandGroups.lookup)
             .addSubcommand(options.subcommandGroups.quickReference)
             .addSubcommandGroup(options.subcommandGroups.random);
