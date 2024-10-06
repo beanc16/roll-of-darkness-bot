@@ -1,10 +1,12 @@
-export const mathParserOptions = {
+import type { ParserOptions } from 'expr-eval';
+
+export const addMathParserOptions: ParserOptions = {
     operators: {
-        // Only allow addition and subtraction
+        // Only allow addition
         add: true,
-        subtract: true,
 
         // Make everything else false
+        subtract: false,
         comparison: false,
         concatenate: false,
         conditional: false,
@@ -49,5 +51,13 @@ export const mathParserOptions = {
         log1p: false,
         sign: false,
         log2: false,
+    },
+};
+
+export const addAndSubtractMathParserOptions: ParserOptions = {
+    operators: {
+        // Only allow addition and subtraction
+        ...addMathParserOptions.operators,
+        subtract: true,
     },
 };

@@ -1,6 +1,6 @@
 import BaseRollCommand from './base-commands/BaseRollCommand.js';
 import * as options from './options/index.js';
-import { mathParserOptions } from '../constants/mathParserOptions.js';
+import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import rolLConstants from '../constants/roll.js';
 import { Parser } from 'expr-eval';
 import { ChatInputCommandInteraction } from 'discord.js';
@@ -18,7 +18,7 @@ class Roll_Math extends BaseRollCommand
             },
         });
 
-        this._mathParser = new Parser(mathParserOptions);
+        this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
     async run(interaction: ChatInputCommandInteraction)

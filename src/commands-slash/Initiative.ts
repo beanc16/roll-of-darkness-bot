@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
 import { initiative, roll } from './options/index.js';
-import { mathParserOptions } from '../constants/mathParserOptions.js';
+import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import rollConstants from '../constants/roll.js';
 import { DiceService } from '../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../services/InitiativeResponseFormatterService.js';
@@ -20,7 +20,7 @@ class Initiative extends BaseSlashCommand
             .addStringOption(roll.name)
             .addBooleanOption(roll.secret);
 
-        this._mathParser = new Parser(mathParserOptions);
+        this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
     async run(interaction: ChatInputCommandInteraction)
