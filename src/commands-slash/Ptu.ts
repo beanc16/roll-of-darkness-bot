@@ -1,17 +1,25 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import {
+    ApplicationCommandOptionChoiceData,
+    AutocompleteInteraction,
+    ChatInputCommandInteraction,
+} from 'discord.js';
 
 import * as options from './options/index.js';
+import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
+
 import { PtuSubcommandGroup } from './options/subcommand-groups/index.js';
 import { PtuRandomSubcommand } from './options/subcommand-groups/ptu/random.js';
 import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup.js';
-import { PtuMove } from '../models/PtuMove.js';
-import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
+
 import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuTm } from '../models/PtuTm.js';
-import { PtuStrategyExecutor } from './strategies/ptu/index.js';
+import { PtuCapability } from '../models/PtuCapability.js';
+import { PtuMove } from '../models/PtuMove.js';
 import { PtuNature } from '../models/PtuNature.js';
 import { PtuPokemon } from '../types/pokemon.js';
+import { PtuTm } from '../models/PtuTm.js';
+
+import { PtuStrategyExecutor } from './strategies/ptu/index.js';
 
 export interface RandomResult
 {
@@ -153,6 +161,21 @@ class Ptu extends BaseSlashCommand
                 subcommand: PtuLookupSubcommand.Tm,
             });
             choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Capability Name
+        if (focusedValue.name === 'capability_name')
+        {
+            const capabilities = await PtuStrategyExecutor.getLookupData<PtuCapability>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Capability,
+            });
+            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,

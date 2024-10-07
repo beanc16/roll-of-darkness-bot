@@ -12,6 +12,7 @@ import { equalityOption } from '../../shared.js';
 export enum PtuLookupSubcommand
 {
     Ability = 'ability',
+    Capability = 'capability',
     Move = 'move',
     Nature = 'nature',
     Pokemon = 'pokemon',
@@ -44,6 +45,22 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('effect_search');
         return option.setDescription(`A search on the move's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const capability = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Capability);
+    subcommand.setDescription('Get a capability based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('capability_name');
+        option.setDescription(`The capability's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
