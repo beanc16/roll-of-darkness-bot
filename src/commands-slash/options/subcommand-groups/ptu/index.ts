@@ -2,6 +2,7 @@ import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder, Slash
 import * as calculateSubcommands from './calculate.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
+import * as rollSubcommands from './roll.js';
 
 export enum PtuSubcommandGroup
 {
@@ -9,6 +10,7 @@ export enum PtuSubcommandGroup
     Lookup = 'lookup',
     QuickReference = 'quick_reference',
     Random = 'random',
+    Roll = 'roll',
 }
 
 export enum PtuQuickReferenceInfo
@@ -85,6 +87,20 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     subcommandGroup.setName(PtuSubcommandGroup.Random);
     subcommandGroup.setDescription('Run PTU randomization commands.');
     Object.values(randomSubcommands).forEach(subcommand => 
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
+export const roll = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Roll);
+    subcommandGroup.setDescription('Run PTU roll commands.');
+    Object.values(rollSubcommands).forEach(subcommand => 
     {
         if (typeof subcommand === 'function')
         {

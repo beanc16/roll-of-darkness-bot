@@ -4,12 +4,14 @@ import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../../options/subcomm
 import { PtuCalculateSubcommand } from '../../options/subcommand-groups/ptu/calculate.js';
 import { PtuLookupSubcommand } from '../../options/subcommand-groups/ptu/lookup.js';
 import { PtuRandomSubcommand } from '../../options/subcommand-groups/ptu/random.js';
+import { PtuRollSubcommand } from '../../options/subcommand-groups/ptu/roll.js';
 import { NestedChatIteractionStrategyRecord } from '../ChatIteractionStrategy.js';
 
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
 import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
+import rollStrategies from './roll/index.js';
 
 import { PtuMove } from '../../../models/PtuMove.js';
 import { PtuAbility } from '../../../models/PtuAbility.js';
@@ -37,6 +39,9 @@ export class PtuStrategyExecutor
     > | NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.Calculate,
         PtuCalculateSubcommand
+    > | NestedChatIteractionStrategyRecord<
+        PtuSubcommandGroup.Roll,
+        PtuRollSubcommand
     >);
 
     static {
@@ -49,6 +54,8 @@ export class PtuStrategyExecutor
             [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.Random]: randomStrategies,
+            // @ts-ignore -- TODO: Fix this type later
+            [PtuSubcommandGroup.Roll]: rollStrategies,
         };
     }
 
