@@ -41,7 +41,7 @@ export const battleExp = (subcommand: SlashCommandSubcommandBuilder) =>
 
     subcommand.addIntegerOption((option) => {
         option.setName('num_of_players');
-        option.setDescription(`The number of players (not pokemon) gaining experience.`);
+        option.setDescription(`The number of players (not Pokémon) gaining experience.`);
         return option.setRequired(true);
     });
 
@@ -51,12 +51,12 @@ export const battleExp = (subcommand: SlashCommandSubcommandBuilder) =>
 export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuCalculateSubcommand.CaptureRating);
-    subcommand.setDescription('Calculate the capture rating of a pokemon.');
+    subcommand.setDescription('Calculate the capture rating of a Pokémon.');
 
     // Level
     subcommand.addIntegerOption((option) => {
         option.setName('pokemon_level');
-        option.setDescription(`The level of the pokemon a player is trying to capture.`);
+        option.setDescription(`The level of the Pokémon a player is trying to capture.`);
         return option.setRequired(true);
     });
 
@@ -71,7 +71,7 @@ export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
     );
     subcommand.addStringOption((option) => {
         option.setName('hp_percentage');
-        option.setDescription(`The percentage of the pokemon's remaining HP.`);
+        option.setDescription(`The percentage of the Pokémon's remaining HP.`);
         option.setChoices(
             ...hpPercentChoices,
         );
@@ -99,23 +99,23 @@ export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
     // Rarity
     subcommand.addBooleanOption((option) => {
         option.setName('is_shiny');
-        return option.setDescription(`The pokemon is Shiny (default: false).`);
+        return option.setDescription(`The Pokémon is Shiny (default: false).`);
     });
 
     subcommand.addBooleanOption((option) => {
         option.setName('is_paradox');
-        return option.setDescription(`The pokemon is a Paradox (default: false).`);
+        return option.setDescription(`The Pokémon is a Paradox (default: false).`);
     });
 
     subcommand.addBooleanOption((option) => {
         option.setName('is_legendary');
-        return option.setDescription(`The pokemon is Legendary (default: false).`);
+        return option.setDescription(`The Pokémon is Legendary (default: false).`);
     });
 
     // Injuries
     subcommand.addIntegerOption((option) => {
         option.setName('num_of_injuries');
-        return option.setDescription('The number of Injuries the pokemon has (default: 0).');
+        return option.setDescription('The number of Injuries the Pokémon has (default: 0).');
     });
 
     // Status Afflictions
@@ -131,12 +131,12 @@ export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
 
     subcommand.addBooleanOption((option) => {
         option.setName('is_stuck');
-        return option.setDescription(`The pokemon has the Stuck affliction (default: false).`);
+        return option.setDescription(`The Pokémon has the Stuck affliction (default: false).`);
     });
 
     subcommand.addBooleanOption((option) => {
         option.setName('is_slowed');
-        return option.setDescription(`The pokemon has the Slowed affliction (default: false).`);
+        return option.setDescription(`The Pokémon has the Slowed affliction (default: false).`);
     });
 
     // Extra

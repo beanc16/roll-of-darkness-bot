@@ -204,12 +204,12 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
 export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuLookupSubcommand.Pokemon);
-    subcommand.setDescription('Get a pokemon based on the given parameters.');
+    subcommand.setDescription('Get a Pokémon based on the given parameters.');
 
     // Name
     subcommand.addStringOption((option) => {
         option.setName('pokemon_name');
-        option.setDescription(`The pokemon's name.`);
+        option.setDescription(`The Pokémon's name.`);
         return option.setAutocomplete(true);
     });
 

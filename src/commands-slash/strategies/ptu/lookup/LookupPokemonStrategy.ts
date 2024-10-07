@@ -43,12 +43,12 @@ export class LookupPokemonStrategy
         const numOfTruthyValues = [name, moveName, abilityName].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
-            await interaction.editReply('Cannot look up a pokemon without a name, move, or ability.');
+            await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
             return true;
         }
         else if (numOfTruthyValues > 1)
         {
-            await interaction.editReply('Cannot look up a pokemon by more than just one of name, move, or ability at the same time.');
+            await interaction.editReply('Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.');
             return true;
         }
 
@@ -74,7 +74,7 @@ export class LookupPokemonStrategy
         });
 
         return await BaseLookupRespondStrategy.run(interaction, embeds, {
-            noEmbedsErrorMessage: 'No pokemon were found.',
+            noEmbedsErrorMessage: 'No Pokémon were found.',
         });
     }
 

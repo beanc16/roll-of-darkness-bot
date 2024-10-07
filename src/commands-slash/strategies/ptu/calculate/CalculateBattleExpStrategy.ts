@@ -25,9 +25,9 @@ export class CalculateBattleExpStrategy
             totalLevelOfEnemies = this.mathParser.evaluate(totalLevelsOfEnemiesFormula);
         } catch (err) {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
-            await interaction.editReply({
-                content: 'An invalid dicepool was submitted. Include only numbers and plus signs (+).',
-            });
+            await interaction.editReply(
+                'An invalid dicepool was submitted. Include only numbers and plus signs (+).'
+            );
             return true;
         }
 

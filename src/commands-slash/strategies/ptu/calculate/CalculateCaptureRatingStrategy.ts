@@ -52,9 +52,9 @@ export class CalculateCaptureRatingStrategy
         });
 
         // Send message
-        await interaction.editReply({
-            content: `The pokemon has a capture rating of ${captureRating}.`,
-        });
+        await interaction.editReply(
+            `The Pokémon has a capture rating of ${captureRating}.`
+        );
 
         return true;
     }
