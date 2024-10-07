@@ -73,6 +73,13 @@ export enum PtuMoveListType
     ZygardeCubeMoves = 'zygardeCubeMoves',
 }
 
+export enum PokemonStatusType
+{
+    Persistent = 'Persistent',
+    Volatile = 'Volatile',
+    Other = 'Other',
+}
+
 // TODO: Move this to a types package owned by an API that controls this data with PtuController later
 export interface PtuPokemon {
     name: string;

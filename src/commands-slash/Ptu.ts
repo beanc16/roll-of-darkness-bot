@@ -20,6 +20,7 @@ import { PtuPokemon } from '../types/pokemon.js';
 import { PtuTm } from '../models/PtuTm.js';
 
 import { PtuStrategyExecutor } from './strategies/ptu/index.js';
+import { PtuStatus } from '../models/PtuStatus.js';
 
 export interface RandomResult
 {
@@ -151,6 +152,21 @@ class Ptu extends BaseSlashCommand
                 };
             });
             this.isQueryingPokemonAutocomplete = false;
+        }
+
+        // Status Name
+        if (focusedValue.name === 'status_name')
+        {
+            const statuses = await PtuStrategyExecutor.getLookupData<PtuStatus>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Status,
+            });
+            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
         }
 
         // TM Name

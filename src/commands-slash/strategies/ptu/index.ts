@@ -26,6 +26,8 @@ import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js'
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { PtuCapability } from '../../../models/PtuCapability.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
+import { PtuStatus } from '../../../models/PtuStatus.js';
+import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 
 export class PtuStrategyExecutor
 {
@@ -94,24 +96,26 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuMove | PtuNature | PtuPokemon | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
         subcommandGroup,
         subcommand,
         options
     }: {
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
-        options?: PtuLookupModel extends PtuMove
+        options?: PtuLookupModel extends PtuMove    // Move
             ? GetLookupMoveDataParameters
-            : PtuLookupModel extends PtuAbility
+            : PtuLookupModel extends PtuAbility     // Ability
             ? GetLookupAbilityDataParameters
-            : PtuLookupModel extends PtuCapability
+            : PtuLookupModel extends PtuCapability  // Capability
             ? GetLookupCapabilityDataParameters
-            : PtuLookupModel extends PtuNature
+            : PtuLookupModel extends PtuNature      // Nature
             ? GetLookupNatureDataParameters
-            : PtuLookupModel extends PtuPokemon
+            : PtuLookupModel extends PtuPokemon     // Pokemon
             ? GetLookupPokemonDataParameters
-            : PtuLookupModel extends PtuTm
+            : PtuLookupModel extends PtuStatus      // Status
+            ? GetLookupStatusDataParameters
+            : PtuLookupModel extends PtuTm          // TM
             ? GetLookupTmDataParameters
             : never;
     }): Promise<PtuLookupModel[]>

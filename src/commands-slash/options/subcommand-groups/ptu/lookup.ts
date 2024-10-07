@@ -6,6 +6,7 @@ import {
     PokemonStat,
     PtuMoveListType,
     PtuAbilityListType,
+    PokemonStatusType,
 } from '../../../../types/pokemon.js';
 import { equalityOption } from '../../shared.js';
 
@@ -16,6 +17,7 @@ export enum PtuLookupSubcommand
     Move = 'move',
     Nature = 'nature',
     Pokemon = 'pokemon',
+    Status = 'status',
     Tm = 'tm',
 }
 
@@ -278,6 +280,38 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
             ...abilityListTypeChoices
         );
         return option;
+    });
+
+    return subcommand;
+};
+
+export const status = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Status);
+    subcommand.setDescription('Get a status based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('status_name');
+        option.setDescription(`The status' name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(PokemonStatusType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+    subcommand.addStringOption((option) => {
+        option.setName('status_type');
+        option.setDescription(`The status' type.`);
+        return option.setChoices(
+            ...typeChoices
+        );
     });
 
     return subcommand;
