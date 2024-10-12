@@ -1,6 +1,6 @@
 import Fuse, { FuseIndex, FuseOptionKey, FuseResult, IFuseOptions } from 'fuse.js';
-import { PtuMove } from '../models/PtuMove.js';
-import { PtuAbility } from '../models/PtuAbility.js';
+import { PtuMove } from '../commands-slash/Ptu/models/PtuMove.js';
+import { PtuAbility } from '../commands-slash/Ptu/models/PtuAbility.js';
 
 class SearchService<T>
 {

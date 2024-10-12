@@ -5,22 +5,29 @@ import {
     ChatInputCommandInteraction,
 } from 'discord.js';
 
-import * as options from './options/index.js';
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 
-import { PtuSubcommandGroup } from './options/subcommand-groups/index.js';
-import { PtuRandomSubcommand } from './options/subcommand-groups/ptu/random.js';
-import { PtuLookupSubcommand } from './options/subcommand-groups/ptu/lookup.js';
+import {
+    PtuSubcommandGroup,
+    calculate,
+    lookup,
+    quickReference,
+    random,
+    roll,
+    train,
+} from './Ptu/subcommand-groups/index.js';
+import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
+import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 
-import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuCapability } from '../models/PtuCapability.js';
-import { PtuMove } from '../models/PtuMove.js';
-import { PtuNature } from '../models/PtuNature.js';
-import { PtuPokemon } from '../types/pokemon.js';
-import { PtuTm } from '../models/PtuTm.js';
+import { PtuAbility } from './Ptu/models/PtuAbility.js';
+import { PtuCapability } from './Ptu/models/PtuCapability.js';
+import { PtuMove } from './Ptu/models/PtuMove.js';
+import { PtuNature } from './Ptu/models/PtuNature.js';
+import { PtuPokemon } from './Ptu/types/pokemon.js';
+import { PtuTm } from './Ptu/models/PtuTm.js';
 
-import { PtuStrategyExecutor } from './strategies/ptu/index.js';
-import { PtuStatus } from '../models/PtuStatus.js';
+import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
+import { PtuStatus } from './Ptu/models/PtuStatus.js';
 import { Timer } from '../services/Timer.js';
 
 export interface RandomResult
@@ -44,12 +51,12 @@ class Ptu extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            .addSubcommandGroup(options.subcommandGroups.calculate)
-            .addSubcommandGroup(options.subcommandGroups.lookup)
-            .addSubcommand(options.subcommandGroups.quickReference)
-            .addSubcommandGroup(options.subcommandGroups.random)
-            .addSubcommandGroup(options.subcommandGroups.roll)
-            .addSubcommand(options.subcommandGroups.train);
+            .addSubcommandGroup(calculate)
+            .addSubcommandGroup(lookup)
+            .addSubcommand(quickReference)
+            .addSubcommandGroup(random)
+            .addSubcommandGroup(roll)
+            .addSubcommand(train);
     }
 
     async run(interaction: ChatInputCommandInteraction)
