@@ -155,8 +155,12 @@ export class TrainPokemonStrategy
             || startingLevel === undefined
         )
         {
-            await interaction.editReply(`Cannot train on a sheet that doesn't follow the pokemon template.`);
-            logger.warn('Failed to retrieve data for training a pokemon', {
+            await interaction.editReply(
+                `The given page was found on the character sheet, but doesn't appear to follow the expected Pokémon template. ` +
+                `Please check to make sure the "Nickname", "Species", "Total EXP", "To Next Lvl", and "Training Exp:" ` +
+                `parts of the given page are named as such and are in the same place on the Pokémon template page.`
+            );
+            logger.warn('Data for training a pokemon does not match the expected Pokémon template', {
                 characterName,
                 spreadsheetId,
                 pokemonName,
