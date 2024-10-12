@@ -1,10 +1,29 @@
+import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { CharacterSheetName, getSpreadsheetIdFromCharacterSheetName } from '../../../options/subcommand-groups/ptu/train.js';
-import { logger } from '@beanc16/logger';
+
+const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
+
+interface GetSpreadsheetValuesResponse {
+    nicknameLabel: string;
+    nickname: string;
+    speciesLabel: string;
+    species: string;
+    totalExpLabel: string;
+    totalExp?: number;
+    unparsedTotalExp: string;
+    expToNextLevelLabel: string;
+    expToNextLevel?: number;
+    unparsedExpToNextLevel: string;
+    trainingExpLabel: string;
+    trainingExp?: number;
+    unparsedTrainingExp: string;
+    startingLevel?: number;
+}
 
 @staticImplements<ChatIteractionStrategy>()
 export class TrainPokemonStrategy
@@ -31,60 +50,79 @@ export class TrainPokemonStrategy
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const characterName = interaction.options.getString('character_name') as CharacterSheetName | null;
-        const spreadsheetId = interaction.options.getString('spreadsheet_id');
+        const characterName = interaction.options.getString('character_name', true) as CharacterSheetName;
         const pokemonName = interaction.options.getString('pokemon_page_name', true);
         const numOfTrainingSessions = interaction.options.getInteger('num_of_training_sessions') ?? 1;
         const expPerTrainingSession = interaction.options.getInteger('exp_per_training_session');
 
-        // Safeguard necessary variables
-        const numOfTruthyValues = [characterName, spreadsheetId].filter(Boolean).length;
-        if (numOfTruthyValues === 0)
-        {
-            await interaction.editReply('Cannot train a pokemon without providing a character_name or spreadsheet_id.');
-            return true;
-        }
-        else if (numOfTruthyValues > 1)
-        {
-            await interaction.editReply('Cannot train a pokemon when providing both character_name and spreadsheet_id.');
-            return true;
-        }
-
         // Parse spreadsheet id
         const {
-            spreadsheetId: parsedSpreadsheetId,
-            discordUserIdsOfSpreadsheetEditors,
-        } = this.getSpreadsheetId({
-            interaction,
-            characterName,
             spreadsheetId,
-        });
+            discordUserIdsOfSpreadsheetEditors,
+        } = getSpreadsheetIdFromCharacterSheetName(characterName);
 
         // Someone is trying to train a pokemon on a sheet they don't own
         if (!discordUserIdsOfSpreadsheetEditors.includes(interaction.user.id))
         {
-            await interaction.editReply(`Cannot train a pokemon on a character sheet that you don't own.`);
+            await interaction.editReply(
+                `Cannot train a pokemon on a character sheet that this bot hasn't given you permission to edit. `
+                + `If you feel you should have permission to train this character's Pokémon, please contact this bot's owner.`
+            );
             return true;
         }
 
         // Get data from the spreadsheet
-        const spreadsheetValues = await this.getSpreadsheetValues({
-            spreadsheetId: parsedSpreadsheetId,
+        const spreadsheetValuesResult = await this.getSpreadsheetValues({
+            spreadsheetId,
             pokemonName,
         });
 
         // Add safety rail for missing data
-        if (!spreadsheetValues)
+        if (!spreadsheetValuesResult)
         {
-            await interaction.editReply('Failed to retrieve data for training.');
+            await interaction.editReply(
+                `Failed to retrieve data for training. Please contact this bot's owner for help fixing the issue.`
+            );
             logger.warn('Failed to retrieve data for training a pokemon', {
                 characterName,
                 spreadsheetId,
-                parsedSpreadsheetId,
                 pokemonName,
             });
             return true;
         }
+
+        if (typeof spreadsheetValuesResult === 'string')
+        {
+            const errorType = spreadsheetValuesResult as GoogleSheetsApiErrorType;
+
+            if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
+            {
+                await this.sendPermissionError(interaction, 'view');
+            }
+            else if (errorType === GoogleSheetsApiErrorType.UnableToParseRange)
+            {
+                await interaction.editReply(
+                    `I'm unable to parse data on the page named "${pokemonName}". ` +
+                    `Please double check to make sure the page's name is spelled correctly and try again.`
+                );
+            }
+            else
+            {
+                await interaction.editReply(
+                    `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`
+                );
+                logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
+                    errorType,
+                    characterName,
+                    spreadsheetId,
+                    pokemonName,
+                });
+            }
+            return true;
+        }
+
+        // This is safe to typecast after the prior type guards
+        const spreadsheetValues = spreadsheetValuesResult as GetSpreadsheetValuesResponse;
 
         // Deconstruct values
         const {
@@ -104,7 +142,7 @@ export class TrainPokemonStrategy
             startingLevel,
         } = spreadsheetValues;
 
-        // Add safety rail for non-pokemon sheet getting used
+        // Add safety rail for a non-pokemon sheet getting used
         if (
             nicknameLabel !== this.spreadsheetLabels.nickname
             || speciesLabel !== this.spreadsheetLabels.species
@@ -121,7 +159,6 @@ export class TrainPokemonStrategy
             logger.warn('Failed to retrieve data for training a pokemon', {
                 characterName,
                 spreadsheetId,
-                parsedSpreadsheetId,
                 pokemonName,
                 nicknameLabel,
                 nickname,
@@ -140,9 +177,13 @@ export class TrainPokemonStrategy
             return true;
         }
 
-        // TODO
-        const { newTotalExp } = await this.train({
-            spreadsheetId: parsedSpreadsheetId,
+        // Train the pokemon
+        const {
+            errorType,
+            newTotalExp,
+        } = await this.train({
+            interaction,
+            spreadsheetId,
             pokemonName,
             totalExp,
             expToNextLevel,
@@ -151,13 +192,15 @@ export class TrainPokemonStrategy
             expPerTrainingSessionOverride: expPerTrainingSession,
         });
 
+        if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
+        {
+            await this.sendPermissionError(interaction, 'edit');
+            return true;
+        }
+
         const newLevel = await this.getLevel({
-            spreadsheetId: parsedSpreadsheetId,
+            spreadsheetId,
             pokemonName,
-        });
-        console.log('\n levels:', {
-            startingLevel,
-            newLevel,
         });
 
         const leveledUpText = (newLevel !== undefined && startingLevel === newLevel)
@@ -172,34 +215,13 @@ export class TrainPokemonStrategy
         return true;
     }
 
-    private static getSpreadsheetId({
-        interaction,
-        characterName,
-        spreadsheetId,
-    }: {
-        interaction: ChatInputCommandInteraction;
-        characterName: CharacterSheetName | null;
-        spreadsheetId: string | null;
-    })
-    {
-        if (characterName)
-        {
-            return getSpreadsheetIdFromCharacterSheetName(characterName);
-        }
-
-        return {
-            spreadsheetId: spreadsheetId as string,
-            discordUserIdsOfSpreadsheetEditors: interaction.user.id,
-        };
-    }
-
     private static async getSpreadsheetValues({
         spreadsheetId,
         pokemonName,
     }: {
         spreadsheetId: string;
         pokemonName: string;
-    })
+    }): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
     {
         // Parse data for the spreadsheet
         const ranges = Object.values(this.spreadsheetRangesToGetForTraining).map((range) => {
@@ -210,13 +232,21 @@ export class TrainPokemonStrategy
         });
 
         // Get data from the spreadsheet
-        const [
-            {
-                valueRanges = [],
-            } = {},
-        ] = await CachedGoogleSheetsApiService.getRanges({
+        const {
+            data: [
+                {
+                    valueRanges = [],
+                } = {},
+            ] = [{}],
+            errorType,
+        } = await CachedGoogleSheetsApiService.getRanges({
             ranges,
         }) ?? [];
+
+        if (errorType)
+        {
+            return errorType;
+        }
 
         if (ranges.length !== valueRanges.length)
         {
@@ -322,6 +352,7 @@ export class TrainPokemonStrategy
     }
 
     private static async train({
+        interaction,
         spreadsheetId,
         pokemonName,
         totalExp,
@@ -330,6 +361,7 @@ export class TrainPokemonStrategy
         numOfTrainingSessions,
         expPerTrainingSessionOverride,
     }: {
+        interaction: ChatInputCommandInteraction;
         spreadsheetId: string;
         pokemonName: string;
         totalExp: number;
@@ -337,7 +369,7 @@ export class TrainPokemonStrategy
         trainingExp: number;
         numOfTrainingSessions: number;
         expPerTrainingSessionOverride: number | null;
-    }): Promise<{ newTotalExp: number }>
+    }): Promise<{ newTotalExp: number; errorType?: GoogleSheetsApiErrorType; }>
     {
         const {
             newTotalExp,
@@ -351,13 +383,21 @@ export class TrainPokemonStrategy
         });
 
         // Apply training to the character sheet
-        await CachedGoogleSheetsApiService.update({
+        const { errorType } = await CachedGoogleSheetsApiService.update({
             spreadsheetId,
             range: `'${pokemonName}'!${this.spreadsheetRangesForMiscellaneous.totalExpForUpdate}`,
             values: [
                 [`${newTotalExp}`],
             ],
         });
+
+        if (errorType)
+        {
+            return {
+                newTotalExp: -1,
+                errorType,
+            };
+        }
 
         // Continue training more if there's more sessions left
         if (newNumOfTrainingSessionsLeft > 0)
@@ -369,10 +409,11 @@ export class TrainPokemonStrategy
             } = await this.getSpreadsheetValues({
                 spreadsheetId,
                 pokemonName,
-            }) ?? {};
+            }) as GetSpreadsheetValuesResponse ?? {};
 
             // Continue training
             return await this.train({
+                interaction,
                 spreadsheetId,
                 pokemonName,
                 totalExp: newTotalExp,
@@ -423,5 +464,17 @@ export class TrainPokemonStrategy
             newTotalExp,
             newNumOfTrainingSessionsLeft: 0,
         };
+    }
+
+    private static async sendPermissionError(interaction: ChatInputCommandInteraction, action: 'view' | 'edit')
+    {
+        await interaction.editReply(
+            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me edit permissions here shortly.`
+        );
+        await interaction.user.send(
+            `If you want to use \`/ptu train\`, then I need edit access to your character sheet. ` +
+            `If you aren't sure how to give me edit permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n` +
+            `You can either make your sheet editable by anyone with the URL or add this email as an editor (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``
+        );
     }
 }
