@@ -130,8 +130,13 @@ export class CachedGoogleSheetsApiService
         return {};
     }
 
-    static async getRanges(parameters: GoogleSheetsGetRangesParametersV1): Promise<GetRangesResponse>
+    static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GetRangesResponse>
     {
+        const {
+            shouldNotCache = false, // Add caching so this does something later
+            ...parameters
+        } = initialParameters;
+
         for (let i = 0; i <= this.#retries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();

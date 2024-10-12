@@ -245,6 +245,7 @@ export class TrainPokemonStrategy
             errorType,
         } = await CachedGoogleSheetsApiService.getRanges({
             ranges,
+            shouldNotCache: true,
         }) ?? [];
 
         if (errorType)
@@ -393,6 +394,7 @@ export class TrainPokemonStrategy
             values: [
                 [`${newTotalExp}`],
             ],
+            shouldNotCache: true,
         });
 
         if (errorType)
