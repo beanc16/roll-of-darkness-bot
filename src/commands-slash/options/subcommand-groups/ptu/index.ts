@@ -118,12 +118,6 @@ export const train = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setDescription('Train a pokemon on your character sheet.');
 
     subcommand.addStringOption((option) => {
-        option.setName('pokemon_page_name');
-        option.setDescription(`The name of the pokemon's page in the spreadsheet.`);
-        return option.setRequired(true);
-    });
-
-    subcommand.addStringOption((option) => {
         option.setName('character_name');
         option.setDescription('The name of the character to train pokemon on.');
 
@@ -137,6 +131,12 @@ export const train = (subcommand: SlashCommandSubcommandBuilder) =>
         );
         option.addChoices(...choices);
 
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) => {
+        option.setName('pokemon_page_name');
+        option.setDescription(`The name of the pokemon's page in the spreadsheet.`);
         return option.setRequired(true);
     });
 
