@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { MediaSubcommandGroup } from '../../options/subcommand-groups/index.js';
-import { MediaInstagramSubcommand } from '../../options/subcommand-groups/media/instagram.js';
-import { NestedChatIteractionStrategyRecord } from '../ChatIteractionStrategy.js';
+import { MediaSubcommandGroup } from '../subcommand-groups/index.js';
+import { MediaInstagramSubcommand } from '../subcommand-groups/instagram.js';
 
 import imageStrategies from './image/index.js';
 import instagramStrategies from './instagram/index.js';
-import { MediaImageSubcommand } from '../../options/subcommand-groups/media/image.js';
+import { MediaImageSubcommand } from '../subcommand-groups/image.js';
+import { NestedChatIteractionStrategyRecord } from '../../strategies/ChatIteractionStrategy.js';
 
 export class MediaStrategyExecutor
 {

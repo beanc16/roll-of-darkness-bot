@@ -1,6 +1,6 @@
 // @ts-ignore -- This package doesn't have any types.
 import instagramGetUrlUntyped from 'instagram-url-direct';
-import { staticImplements } from '../decorators/staticImplements.js';
+import { staticImplements } from '../../../decorators/staticImplements.js';
 
 type InstagramGetUrl = (url: string) => Promise<{
     results_number: number;

@@ -1,8 +1,8 @@
 import { AttachmentPayload, ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../ChatIteractionStrategy.js';
-import { InstagramMediaDownloader } from '../../../../services/MediaDownloaders.js';
-import { MediaInstagramSubcommand } from '../../../options/subcommand-groups/media/instagram.js';
+import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
+import { InstagramMediaDownloader } from '../../services/MediaDownloaders.js';
+import { MediaInstagramSubcommand } from '../../subcommand-groups/instagram.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 
 @staticImplements<ChatIteractionStrategy>()

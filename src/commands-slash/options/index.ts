@@ -6,5 +6,3 @@ export * as probability from './probability.js';
 export * as roll from './roll.js';
 export * as rollLite from './roll_lite.js';
 export * as rollMath from './roll_math.js';
-
-export * as subcommandGroups from './subcommand-groups/index.js';

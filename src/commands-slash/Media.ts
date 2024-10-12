@@ -2,10 +2,14 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import * as options from './options/index.js';
-import { MediaInstagramSubcommand } from './options/subcommand-groups/media/instagram.js';
-import { MediaStrategyExecutor } from './strategies/media/index.js';
-import { MediaSubcommandGroup } from './options/subcommand-groups/index.js';
+import {
+    MediaSubcommandGroup,
+    image,
+    instagram,
+} from './Media/subcommand-groups/index.js';
+import { MediaInstagramSubcommand } from './Media/subcommand-groups/instagram.js';
+import { MediaStrategyExecutor } from './Media/strategies/index.js';
+import { MediaImageSubcommand } from './Media/subcommand-groups/image.js';
 
 class Media extends BaseSlashCommand
 {
@@ -13,8 +17,8 @@ class Media extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            .addSubcommandGroup(options.subcommandGroups.image)
-            .addSubcommandGroup(options.subcommandGroups.instagram);
+            .addSubcommandGroup(image)
+            .addSubcommandGroup(instagram);
     }
 
     async run(interaction: ChatInputCommandInteraction)
@@ -26,7 +30,7 @@ class Media extends BaseSlashCommand
 
         // Get parameter results
         const subcommandGroup = interaction.options.getSubcommandGroup(true) as MediaSubcommandGroup;
-        const subcommand = interaction.options.getSubcommand(true) as MediaInstagramSubcommand;
+        const subcommand = interaction.options.getSubcommand(true) as MediaImageSubcommand | MediaInstagramSubcommand;
 
         try {
             // Run subcommand
