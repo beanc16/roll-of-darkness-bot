@@ -4,7 +4,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
 import * as options from './options/index.js';
-import { mathParserOptions } from '../constants/mathParserOptions.js';
+import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import { DiceLiteService } from '../services/DiceLiteService.js';
 import { diceParserTypes, DiceStringParser, MathOperator, ParsedDicePool, ParsedDie, ParsedModifier, ProcessedDicePool } from '../services/DiceStringParser.js';
 
@@ -20,7 +20,7 @@ class Roll_Lite extends BaseSlashCommand
             .addStringOption(options.roll.name)
             .addBooleanOption(options.roll.secret);
 
-        this._mathParser = new Parser(mathParserOptions);
+        this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
     async run(interaction: ChatInputCommandInteraction)

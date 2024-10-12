@@ -1,23 +1,33 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../../options/subcommand-groups/index.js';
+import { PtuCalculateSubcommand } from '../../options/subcommand-groups/ptu/calculate.js';
 import { PtuLookupSubcommand } from '../../options/subcommand-groups/ptu/lookup.js';
 import { PtuRandomSubcommand } from '../../options/subcommand-groups/ptu/random.js';
+import { PtuRollSubcommand } from '../../options/subcommand-groups/ptu/roll.js';
 import { NestedChatIteractionStrategyRecord } from '../ChatIteractionStrategy.js';
 
+import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
 import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
-import { PtuMove } from '../../../models/PtuMove.js';
+import rollStrategies from './roll/index.js';
+
 import { PtuAbility } from '../../../models/PtuAbility.js';
+import { PtuCapability } from '../../../models/PtuCapability.js';
+import { PtuMove } from '../../../models/PtuMove.js';
+import { PtuNature } from '../../../models/PtuNature.js';
+import { PtuPokemon } from '../../../types/pokemon.js';
+import { PtuStatus } from '../../../models/PtuStatus.js';
 import { PtuTm } from '../../../models/PtuTm.js';
+
 import { GetLookupMoveDataParameters } from './lookup/LookupMoveStrategy.js';
 import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.js';
+import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
 import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
-import { PtuNature } from '../../../models/PtuNature.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
-import { PtuPokemon } from '../../../types/pokemon.js';
+import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 
 export class PtuStrategyExecutor
@@ -31,16 +41,25 @@ export class PtuStrategyExecutor
     > | NestedChatIteractionStrategyRecord<
         PtuSubcommandGroup.Random,
         PtuRandomSubcommand
+    > | NestedChatIteractionStrategyRecord<
+        PtuSubcommandGroup.Calculate,
+        PtuCalculateSubcommand
+    > | NestedChatIteractionStrategyRecord<
+        PtuSubcommandGroup.Roll,
+        PtuRollSubcommand
     >);
 
     static {
         // @ts-ignore -- TODO: Fix this type later
         this.strategies = {
+            // @ts-ignore -- TODO: Fix this type later
+            [PtuSubcommandGroup.Calculate]: calculateStrategies,
             [PtuSubcommandGroup.Lookup]: lookupStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.Random]: randomStrategies,
+            [PtuSubcommandGroup.Roll]: rollStrategies,
             // @ts-ignore -- TODO: Fix this type later
             [PtuSubcommandGroup.Train]: TrainPokemonStrategy,
         };
@@ -52,7 +71,7 @@ export class PtuStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
@@ -84,22 +103,26 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuMove | PtuNature | PtuPokemon | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
         subcommandGroup,
         subcommand,
         options
     }: {
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
-        options?: PtuLookupModel extends PtuMove
+        options?: PtuLookupModel extends PtuMove    // Move
             ? GetLookupMoveDataParameters
-            : PtuLookupModel extends PtuAbility
+            : PtuLookupModel extends PtuAbility     // Ability
             ? GetLookupAbilityDataParameters
-            : PtuLookupModel extends PtuNature
+            : PtuLookupModel extends PtuCapability  // Capability
+            ? GetLookupCapabilityDataParameters
+            : PtuLookupModel extends PtuNature      // Nature
             ? GetLookupNatureDataParameters
-            : PtuLookupModel extends PtuPokemon
+            : PtuLookupModel extends PtuPokemon     // Pokemon
             ? GetLookupPokemonDataParameters
-            : PtuLookupModel extends PtuTm
+            : PtuLookupModel extends PtuStatus      // Status
+            ? GetLookupStatusDataParameters
+            : PtuLookupModel extends PtuTm          // TM
             ? GetLookupTmDataParameters
             : never;
     }): Promise<PtuLookupModel[]>

@@ -6,15 +6,18 @@ import {
     PokemonStat,
     PtuMoveListType,
     PtuAbilityListType,
+    PokemonStatusType,
 } from '../../../../types/pokemon.js';
 import { equalityOption } from '../../shared.js';
 
 export enum PtuLookupSubcommand
 {
     Ability = 'ability',
+    Capability = 'capability',
     Move = 'move',
     Nature = 'nature',
     Pokemon = 'pokemon',
+    Status = 'status',
     Tm = 'tm',
 }
 
@@ -44,6 +47,22 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('effect_search');
         return option.setDescription(`A search on the move's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const capability = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Capability);
+    subcommand.setDescription('Get a capability based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('capability_name');
+        option.setDescription(`The capability's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
@@ -204,12 +223,12 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
 export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuLookupSubcommand.Pokemon);
-    subcommand.setDescription('Get a pokemon based on the given parameters.');
+    subcommand.setDescription('Get a Pokémon based on the given parameters.');
 
     // Name
     subcommand.addStringOption((option) => {
         option.setName('pokemon_name');
-        option.setDescription(`The pokemon's name.`);
+        option.setDescription(`The Pokémon's name.`);
         return option.setAutocomplete(true);
     });
 
@@ -261,6 +280,38 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
             ...abilityListTypeChoices
         );
         return option;
+    });
+
+    return subcommand;
+};
+
+export const status = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Status);
+    subcommand.setDescription('Get a status based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('status_name');
+        option.setDescription(`The status' name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(PokemonStatusType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) => {
+            return {
+                name: key,
+                value: value,
+            };
+        }
+    );
+    subcommand.addStringOption((option) => {
+        option.setName('status_type');
+        option.setDescription(`The status' type.`);
+        return option.setChoices(
+            ...typeChoices
+        );
     });
 
     return subcommand;

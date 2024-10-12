@@ -132,7 +132,7 @@ export class PokeApi
         try {
             return await this.api.getPokemonByName(parsedName);
         } catch (err) {
-            logger.error('Failed to get pokemon by name from PokeApi', {
+            logger.error('Failed to get Pokémon by name from PokeApi', {
                 name,
                 parsedName,
             }, err);
@@ -148,7 +148,7 @@ export class PokeApi
         try {
             return await this.api.getPokemonByName(parsedNames);
         } catch (err) {
-            logger.error('Failed to get pokemon by name from PokeApi', {
+            logger.error('Failed to get Pokémon by name from PokeApi', {
                 names,
                 parsedNames,
             }, err);

@@ -1,11 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
 import { PtuAbility } from '../../../models/PtuAbility.js';
+import { PtuCapability } from '../../../models/PtuCapability.js';
 import { PtuMove } from '../../../models/PtuMove.js';
-import { Text } from '@beanc16/discordjs-helpers';
-import { PtuTm } from '../../../models/PtuTm.js';
 import { PtuNature } from '../../../models/PtuNature.js';
+import { PtuTm } from '../../../models/PtuTm.js';
 import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../../types/pokemon.js';
+import { PtuStatus } from '../../../models/PtuStatus.js';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
@@ -62,6 +64,64 @@ export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
     return pages.map((description, index) => {
         const embed = new EmbedBuilder()
         .setTitle('Abilities')
+        .setDescription(description)
+        .setColor(color)
+        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
+
+        return embed;
+    });
+};
+
+export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]) =>
+{
+    if (capabilities.length === 0) return [];
+
+    const { pages } = capabilities.reduce((acc, {
+        name,
+        description,
+    }, index) => {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(description !== undefined && description !== '--' ? [
+                `Description:\n\`\`\`\n${description}\`\`\``
+            ] : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === capabilities.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return pages.map((description, index) => {
+        const embed = new EmbedBuilder()
+        .setTitle('Capabilities')
         .setDescription(description)
         .setColor(color)
         .setFooter({ text: `Page ${index + 1}/${pages.length}`});
@@ -721,7 +781,7 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
         // Separate natures with a blank line
         if (index !== 0 && acc.pages[acc.curPage] !== '')
         {
-            curDescription = '\n\n' + curDescription;
+            curDescription = '\n' + curDescription;
         }
 
         // Add the nature to the current page's description
@@ -742,6 +802,70 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
     return pages.map((description, index) => {
         const embed = new EmbedBuilder()
         .setTitle('Natures')
+        .setDescription(description)
+        .setColor(color)
+        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
+
+        return embed;
+    });
+};
+
+export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
+{
+    if (statuses.length === 0) return [];
+
+    const { pages } = statuses.reduce((acc, {
+        name,
+        type,
+        isHomebrew,
+        description,
+    }, index) => {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name) + ((isHomebrew !== undefined && isHomebrew)
+                ? ` [Homebrew]`
+                : ''
+            ),
+            ...(type !== undefined ? [`Type: ${type}`] : []),
+            ...(description !== undefined && description !== '--' ? [
+                `Description:\n\`\`\`\n${description}\`\`\``
+            ] : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate statuses with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the status to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === statuses.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return pages.map((description, index) => {
+        const embed = new EmbedBuilder()
+        .setTitle('Statuses')
         .setDescription(description)
         .setColor(color)
         .setFooter({ text: `Page ${index + 1}/${pages.length}`});
@@ -781,7 +905,7 @@ export const getLookupTmsEmbedMessages = (tms: PtuTm[]) =>
         // Separate moves with a blank line
         if (index !== 0 && acc.pages[acc.curPage] !== '')
         {
-            curDescription = '\n\n' + curDescription;
+            curDescription = '\n' + curDescription;
         }
 
         // Add the move to the current page's description
