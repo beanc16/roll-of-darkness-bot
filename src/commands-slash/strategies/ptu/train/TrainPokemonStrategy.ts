@@ -65,8 +65,8 @@ export class TrainPokemonStrategy
         if (!discordUserIdsOfSpreadsheetEditors.includes(interaction.user.id))
         {
             await interaction.editReply(
-                `Cannot train a pokemon on a character sheet that this bot hasn't given you permission to edit. `
-                + `If you feel you should have permission to train this character's Pokémon, please contact this bot's owner.`
+                `The owner of this bot has not given you permission to train Pokémon on this character sheet. `
+                + `If you feel that you should have permission to train this character's Pokémon, please contact this bot's owner.`
             );
             return true;
         }
