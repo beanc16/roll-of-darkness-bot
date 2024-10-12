@@ -135,12 +135,9 @@ export const train = (subcommand: SlashCommandSubcommandBuilder) =>
                 };
             }
         );
-        return option.addChoices(...choices);
-    });
+        option.addChoices(...choices);
 
-    subcommand.addStringOption((option) => {
-        option.setName('spreadsheet_id');
-        return option.setDescription('The id of the google sheet to train pokemon on.');
+        return option.setRequired(true);
     });
 
     subcommand.addIntegerOption((option) => {
