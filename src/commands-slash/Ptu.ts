@@ -21,6 +21,7 @@ import { PtuTm } from '../models/PtuTm.js';
 
 import { PtuStrategyExecutor } from './strategies/ptu/index.js';
 import { PtuStatus } from '../models/PtuStatus.js';
+import { Timer } from '../services/Timer.js';
 
 export interface RandomResult
 {
@@ -220,17 +221,16 @@ class Ptu extends BaseSlashCommand
     private isQueryingPokemonAutocomplete = false;
     private async waitForCurrentPokemonAutocompleteQuery()
     {
-        return new Promise<void>((resolve) =>
-        {
-            // Infinitely wait for this.isQueryingPokemonAutocomplete to become false
-            setTimeout(async () => {
+        // Infinitely wait for this.isQueryingPokemonAutocomplete to become false
+        await Timer.wait({
+            seconds: 5,
+            callback: async () =>
+            {
                 if (this.isQueryingPokemonAutocomplete)
                 {
                     await this.waitForCurrentPokemonAutocompleteQuery();
                 }
-
-                resolve();
-            }, 500);
+            },
         });
     }
 }
