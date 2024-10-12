@@ -1,4 +1,4 @@
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import { Tracker } from '../commands-slash/Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import Singleton from './Singleton.js';
 
 interface CombatTrackerSingletonMap

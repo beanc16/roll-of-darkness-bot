@@ -1,6 +1,6 @@
 import { SlashCommandStringOption } from 'discord.js';
 
-import { CombatTrackerType } from '../../constants/combatTracker.js';
+import { CombatTrackerType } from './constants.js';
 
 export function name(option: SlashCommandStringOption)
 {

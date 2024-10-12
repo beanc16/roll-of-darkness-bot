@@ -2,19 +2,19 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
 import { selectMenuValues } from '../../../select-menus/options/combat_tracker.js';
-import { awaitCombatTrackerMessageComponents } from '../../../message-component-handlers/combat_tracker.js';
-import { logger } from '@beanc16/logger';
-import { updateCombatTrackerEmbedMessage } from '../../../embed-messages/combat_tracker.js';
-import { RollOfDarknessPseudoCache } from '../../../Combat_Tracker/dal/RollOfDarknessPseudoCache.js';
+import { awaitCombatTrackerMessageComponents } from '../../message-component-handlers/combat_tracker.js';
+import { CombatTrackerStatus } from '../../constants.js';
+import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
 import { getCombatTrackerActionRows } from '../../../select-menus/combat_tracker.js';
-import { Tracker } from '../../../Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
-import { CombatTrackerStatus } from '../../../Combat_Tracker/constants.js';
+import { updateCombatTrackerEmbedMessage } from '../../embed-messages/combat_tracker.js';
+import { logger } from '@beanc16/logger';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
-export class StartCombatStrategy
+export class NextTurnStrategy
 {
-    public static key = selectMenuValues.startCombat;
+    public static key = selectMenuValues.nextTurn;
 
     static async run({
         interaction,
@@ -24,10 +24,10 @@ export class StartCombatStrategy
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
         
-        if (tracker.status !== CombatTrackerStatus.NotStarted)
+        if (tracker.status !== CombatTrackerStatus.InProgress)
         {
             await interaction.reply({
-                content: 'Cannot start a combat that has already been started',
+                content: `Cannot update the turn for combat that's not in progress`,
                 ephemeral: true,
             });
 
@@ -44,7 +44,7 @@ export class StartCombatStrategy
         else if (tracker.characterIds.length === 0)
         {
             await interaction.reply({
-                content: 'Cannot start a combat that has no characters',
+                content: 'Cannot update the turn for combat that has no characters',
                 ephemeral: true,
             });
 
@@ -61,8 +61,7 @@ export class StartCombatStrategy
 
         try
         {
-            RollOfDarknessPseudoCache.updateTrackerStatus({
-                status: CombatTrackerStatus.InProgress,
+            RollOfDarknessPseudoCache.nextTurn({
                 tracker,
             })
             .then(async (newTracker: Tracker) =>
@@ -96,9 +95,9 @@ export class StartCombatStrategy
         }
         catch (error)
         {
-            logger.error('Failed to start combat', error);
+            logger.error('Failed to go to the next turn of combat', error);
             await interaction.reply({
-                content: 'ERROR: Failed to start combat',
+                content: 'ERROR: Failed to go to the next turn of combat',
                 ephemeral: true,
             });
         }

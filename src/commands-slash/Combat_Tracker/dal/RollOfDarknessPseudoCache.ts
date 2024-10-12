@@ -10,10 +10,10 @@ import {
     TrackerResponse,
     TrackerUpdateResponse,
 } from './RollOfDarknessMongoControllers.js';
-import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants/combatTracker.js';
-import combatTrackersSingleton from '../models/combatTrackersSingleton.js';
-import charactersSingleton from '../models/charactersSingleton.js';
-import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService.js';
+import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants.js';
+import combatTrackersSingleton from '../../../models/combatTrackersSingleton.js';
+import charactersSingleton from '../../../models/charactersSingleton.js';
+import { WorldOfDarknessHpService } from '../../../services/WorldOfDarknessHpService.js';
 
 interface CreateTrackerParameters
 {

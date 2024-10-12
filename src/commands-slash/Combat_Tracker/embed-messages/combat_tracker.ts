@@ -1,6 +1,6 @@
 import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, ModalSubmitInteraction, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
-import { CombatTrackerStatus, CombatTrackerType } from '../../constants/combatTracker.js';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 
 const combatTrackerColor = 0xCDCDCD;
 

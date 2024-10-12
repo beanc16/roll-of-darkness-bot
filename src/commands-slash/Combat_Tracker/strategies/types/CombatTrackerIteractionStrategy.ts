@@ -1,4 +1,4 @@
-import { BaseStrategy, BaseStrategyRecord, NestedBaseStrategyRecord } from '../../BaseStrategy.js';
+import { BaseStrategy, BaseStrategyRecord, NestedBaseStrategyRecord } from '../../../strategies/BaseStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from './CombatTrackerMessageComponentHandlerParameters.js';
 
 export type CombatTrackerIteractionStrategy = BaseStrategy<

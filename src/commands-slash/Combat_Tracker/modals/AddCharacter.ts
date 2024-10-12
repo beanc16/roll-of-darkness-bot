@@ -4,15 +4,15 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
-import { BaseCustomModal } from '../BaseCustomModal.js';
-import initiativeCommand from '../../commands-slash/Initiative.js';
-import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../../commands-slash/select-menus/combat_tracker.js';
-import { updateCombatTrackerEmbedMessage } from '../../commands-slash/embed-messages/combat_tracker.js';
-import { awaitCombatTrackerMessageComponents } from '../../commands-slash/message-component-handlers/combat_tracker.js';
-import { CombatTrackerType } from '../../constants/combatTracker.js';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../models/stillWaitingForModalSingleton.js';
+import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import initiativeCommand from '../../Initiative.js';
+import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
+import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
+import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
+import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
+import { CombatTrackerType } from '../constants.js';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 
 export enum AddCharacterCustomIds
 {

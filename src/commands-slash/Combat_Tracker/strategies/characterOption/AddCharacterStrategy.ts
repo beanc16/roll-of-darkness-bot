@@ -1,13 +1,13 @@
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
-import { EditCharacterHpModal } from '../../../../modals/combat-tracker/EditCharacterHp.js';
+import { AddCharacterModal } from '../../modals/AddCharacter.js';
 import { selectMenuValues } from '../../../select-menus/options/combat_tracker.js';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
-export class EditCharacterHpStrategy
+export class AddCharacterStrategy
 {
-    public static key = selectMenuValues.editHp;
+    public static key = selectMenuValues.addCharacter;
 
     static async run({
         interaction,
@@ -15,6 +15,6 @@ export class EditCharacterHpStrategy
     }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Send the modal.
-        await EditCharacterHpModal.showModal(interaction, tracker);
+        await AddCharacterModal.showModal(interaction, tracker);
     }
 }

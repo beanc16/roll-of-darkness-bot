@@ -8,10 +8,10 @@ import {
     User,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../constants/combatTracker.js';
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../models/stillWaitingForModalSingleton.js';
-import { CombatTrackerStrategyExecutor } from '../strategies/combat_tracker/index.js';
+import { timeToWaitForCommandInteractions } from '../constants.js';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { CombatTrackerStrategyExecutor } from '../strategies/index.js';
 
 async function handleMessageComponentsForCombatTracker({
     interaction,

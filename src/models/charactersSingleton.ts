@@ -1,4 +1,4 @@
-import { Character } from '../dal/RollOfDarknessMongoControllers.js';
+import { Character } from '../commands-slash/Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import Singleton from './Singleton.js';
 
 interface CharacterSingletonMap
