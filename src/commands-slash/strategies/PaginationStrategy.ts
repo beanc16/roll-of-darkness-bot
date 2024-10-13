@@ -1,5 +1,6 @@
 import {
     ActionRowBuilder,
+    AttachmentPayload,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
@@ -21,7 +22,8 @@ enum ButtonName {
 interface PaginationStrategyRunParameters
 {
     originalInteraction: ChatInputCommandInteraction;
-    embeds: EmbedBuilder[];
+    embeds?: EmbedBuilder[];
+    files?: AttachmentPayload[];
 }
 
 interface PaginationStrategySendPagedMessagesParameters extends PaginationStrategyRunParameters
@@ -32,28 +34,51 @@ interface PaginationStrategySendPagedMessagesParameters extends PaginationStrate
 
 export class PaginationStrategy
 {
+    /**
+     * Paginate an interaction with an array of embeds or files.
+     *
+     * While embeds and files are both listed as optional, including
+     * one of them is required in order to get paging.
+     *
+     * If an embeds or files array only has one element, then a
+     * message will be sent, but pagination buttons will not be added.
+     */
     public static async run({
         originalInteraction,
         embeds,
+        files,
     }: PaginationStrategyRunParameters)
     {
+        const shouldPaginate = (
+            (embeds && embeds.length > 1)
+            || (files && files.length > 1)
+        );
+
         // Only include pagination buttons if there's more than one embed message
-        const components = (embeds.length > 1)
+        const components = (shouldPaginate)
             ? [this.getPaginationRowComponent()]
             : [];
 
         // Send first embed message
         const response = await originalInteraction.editReply({
-            embeds: [embeds[0]],
+            ...(embeds
+                ? { embeds: [embeds[0]] }
+                : {}
+            ),
+            ...(files
+                ? { files: [files[0]] }
+                : {}
+            ),
             components,
         });
 
         // Only listen for pagination buttons if there's more than one embed message
-        if (embeds.length > 1)
+        if (shouldPaginate)
         {
             await this.sendPagedMessages({
                 originalInteraction,
                 embeds,
+                files,
                 interactionResponse: response,
                 pageIndex: 0,
             });
@@ -62,8 +87,9 @@ export class PaginationStrategy
 
     private static async sendPagedMessages({
         originalInteraction,
-        interactionResponse,
         embeds,
+        files,
+        interactionResponse,
         pageIndex,
     }: PaginationStrategySendPagedMessagesParameters)
     {
@@ -79,12 +105,20 @@ export class PaginationStrategy
             const newPageIndex = this.updatePageIndex({
                 buttonInteraction,
                 embeds,
+                files,
                 pageIndex,
             });
 
             const paginationRow = PaginationStrategy.getPaginationRowComponent();
             await buttonInteraction.update({
-                embeds: [embeds[newPageIndex]],
+                ...(embeds
+                    ? { embeds: [embeds[newPageIndex]] }
+                    : {}
+                ),
+                ...(files
+                    ? { files: [files[newPageIndex]] }
+                    : {}
+                ),
                 components: [paginationRow],
             });
 
@@ -109,7 +143,14 @@ export class PaginationStrategy
             if (!hasUpdated)
             {
                 originalInteraction.editReply({
-                    embeds: [embeds[pageIndex]],
+                    ...(embeds
+                        ? { embeds: [embeds[pageIndex]] }
+                        : {}
+                    ),
+                    ...(files
+                        ? { files: [files[pageIndex]] }
+                        : {}
+                    ),
                     components: [],
                 });
             }
@@ -119,19 +160,23 @@ export class PaginationStrategy
     private static updatePageIndex({
         buttonInteraction,
         embeds,
+        files,
         pageIndex,
     }: {
         buttonInteraction: ButtonInteraction;
-        embeds: EmbedBuilder[];
+        embeds?: EmbedBuilder[];
+        files?: AttachmentPayload[];
         pageIndex: number;
     }): number
     {
+        const array = (embeds ?? files) as unknown[];
+
         if (buttonInteraction.customId === ButtonName.Next)
         {
             pageIndex += 1;
 
             // Circle back around to the first page if after the last page
-            if (pageIndex >= embeds.length)
+            if (pageIndex >= array.length)
             {
                 pageIndex = 0;
             }
@@ -144,7 +189,7 @@ export class PaginationStrategy
             // Circle back around to the last page if before the first page
             if (pageIndex < 0)
             {
-                pageIndex = embeds.length - 1;
+                pageIndex = array.length - 1;
             }
         }
 
@@ -155,7 +200,7 @@ export class PaginationStrategy
 
         else if (buttonInteraction.customId === ButtonName.Last)
         {
-            pageIndex = embeds.length - 1;
+            pageIndex = array.length - 1;
         }
 
         return pageIndex;
