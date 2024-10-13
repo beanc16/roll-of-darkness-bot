@@ -29,6 +29,3 @@ export enum DamageType
     Lethal = 'lethal',
     Aggravated = 'agg',
 }
-
-// 3_600_000ms === 3600secs === 60mins === 1hr
-export const timeToWaitForCommandInteractions = 3_600_000;

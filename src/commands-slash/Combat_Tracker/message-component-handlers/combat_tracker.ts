@@ -8,7 +8,7 @@ import {
     User,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../constants.js';
+import { timeToWaitForCommandInteractions } from '../../../constants/discord.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { CombatTrackerStrategyExecutor } from '../strategies/index.js';
