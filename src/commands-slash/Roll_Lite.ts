@@ -112,7 +112,7 @@ class Roll_Lite extends BaseSlashCommand
         }
 
         // Run this separately from the try catch, so errors in super.run don't send an incorrect error message
-        await interaction.editReply( // TODO: Add name here like /roll supports.
+        await interaction.editReply(
             `${Text.Ping.user(interaction.user.id)} :game_die:\n`
             + `${Text.bold(name ?? 'Result')}:${resultString}\n`
             + `${Text.bold('Total')}: ${finalRollResult}`
