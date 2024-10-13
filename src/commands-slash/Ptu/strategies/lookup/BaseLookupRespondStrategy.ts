@@ -1,4 +1,5 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 
 export class BaseLookupRespondStrategy
 {
@@ -17,18 +18,11 @@ export class BaseLookupRespondStrategy
             return true;
         }
 
-        // Send first embed
-        await interaction.editReply({
-            embeds: [embeds[0]],
+        // Send messages with pagination (fire and forget)
+        PaginationStrategy.run({
+            originalInteraction: interaction,
+            embeds,
         });
-
-        // Reply to the original message with all embeds after the first
-        for (const embed of embeds.slice(1))
-        {
-            await interaction.followUp({
-                embeds: [embed],
-            });
-        }
 
         return true;
     }
