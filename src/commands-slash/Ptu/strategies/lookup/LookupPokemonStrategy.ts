@@ -61,8 +61,6 @@ export class LookupPokemonStrategy
             abilityListType,
         });
 
-        // TODO: Add listview and final paginated functionality later
-
         // Get message
         const embeds = this.getLookupPokemonEmbeds({
             name,

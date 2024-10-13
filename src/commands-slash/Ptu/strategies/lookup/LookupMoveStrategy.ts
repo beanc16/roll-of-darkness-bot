@@ -63,8 +63,6 @@ export class LookupMoveStrategy
             effectSearch,
         });
 
-        // TODO: Add listview and final paginated functionality later
-
         // Get message
         const embeds = getLookupMovesEmbedMessages(moves);
 

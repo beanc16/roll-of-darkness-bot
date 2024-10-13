@@ -43,8 +43,6 @@ export class LookupNatureStrategy
             loweredStat,
         });
 
-        // TODO: Add listview and final paginated functionality later
-
         // Get message
         const embeds = getLookupNatureEmbedMessages(natures);
 

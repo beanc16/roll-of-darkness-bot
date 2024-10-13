@@ -30,8 +30,6 @@ export class LookupCapabilityStrategy
             includeAllIfNoName: false,
         });
 
-        // TODO: Add listview and final paginated functionality later
-
         // Get message
         const embeds = getLookupCapabilitiesEmbedMessages(capabilities);
 

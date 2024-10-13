@@ -38,8 +38,6 @@ export class LookupAbilityStrategy
             effectSearch,
         });
 
-        // TODO: Add listview and final paginated functionality later
-
         // Get message
         const embeds = getLookupAbilitiesEmbedMessages(abilities);
 

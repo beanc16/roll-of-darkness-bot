@@ -59,8 +59,6 @@ export class InstagramDownloadStrategy
             await interaction.editReply('No images to download found.');
         }
 
-        // TODO: Add pagination functionality later
-
         // Send result
         await interaction.editReply({
             files: pagedAttachments[0],
