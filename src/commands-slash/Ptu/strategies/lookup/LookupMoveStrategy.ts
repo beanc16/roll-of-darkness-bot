@@ -11,6 +11,7 @@ import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/
 import { EqualityOption } from '../../../options/shared.js';
 import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupMoveDataParameters
 {
@@ -74,7 +75,7 @@ export class LookupMoveStrategy
     public static async getLookupData(input: GetLookupMoveDataParameters = {})
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'Moves Data'!A3:Z`,
         });
 

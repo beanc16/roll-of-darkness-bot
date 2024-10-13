@@ -8,6 +8,7 @@ import { getRandomNatureEmbedMessage } from '../../../Ptu/embed-messages/random.
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuNature } from '../../models/PtuNature.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomNatureStrategy
@@ -21,8 +22,7 @@ export class RandomNatureStrategy
 
         // Pull data from spreadsheet
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            // TODO: Make this spreadsheet id a constant later
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${BaseRandomStrategy.subcommandToStrings[
                 PtuRandomSubcommand.Nature
             ].data} Data'!A2:E`,

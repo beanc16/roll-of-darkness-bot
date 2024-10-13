@@ -8,6 +8,7 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { RandomPokeball } from '../../../Ptu.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomPokeballEmbedMessage } from '../../../Ptu/embed-messages/random.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 enum PokeballType
 {
@@ -37,8 +38,7 @@ export class RandomPokeballStrategy
         const includeMaster = interaction.options.getBoolean('include_master') || false;
 
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            // TODO: Make this spreadsheet id a constant later
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${BaseRandomStrategy.subcommandToStrings[
                 PtuRandomSubcommand.Pokeball
             ].data} Data'!A2:E`,

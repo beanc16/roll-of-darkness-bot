@@ -8,6 +8,7 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { getLookupTmsEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PtuTm } from '../../models/PtuTm.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupTmDataParameters
 {
@@ -43,7 +44,7 @@ export class LookupTmStrategy
     })
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'Tm Data'!A2:Z`,
         });
 

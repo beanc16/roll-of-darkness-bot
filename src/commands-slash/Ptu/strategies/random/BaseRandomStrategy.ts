@@ -3,6 +3,7 @@ import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomResultEmbedMessage } from '../../../Ptu/embed-messages/random.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 interface RandomResult
 {
@@ -162,8 +163,7 @@ export class BaseRandomStrategy
 
         // Pull data from spreadsheet
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            // TODO: Make this spreadsheet id a constant later
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${this.subcommandToStrings[subcommand].data} Data'!A2:D`,
         });
 

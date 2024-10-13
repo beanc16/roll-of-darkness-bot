@@ -6,6 +6,7 @@ import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomApricornStrategy
@@ -19,8 +20,7 @@ export class RandomApricornStrategy
         // const numberOfIterations = interaction.options.getInteger('number_of_iterations') || 1;
 
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            // TODO: Make this spreadsheet id a constant later
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 

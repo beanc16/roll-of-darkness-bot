@@ -8,6 +8,7 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { getLookupNatureEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PtuNature } from '../../models/PtuNature.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupNatureDataParameters
 {
@@ -54,7 +55,7 @@ export class LookupNatureStrategy
     private static async getLookupData(input: GetLookupNatureDataParameters = {})
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'Nature Data'!A2:E`,
         });
 

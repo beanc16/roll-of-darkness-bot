@@ -9,6 +9,7 @@ import { PtuAbilitiesSearchService } from '../../../../services/SearchService.js
 import { getLookupAbilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupAbilityDataParameters
 {
@@ -49,7 +50,7 @@ export class LookupAbilityStrategy
     private static async getLookupData(input: GetLookupAbilityDataParameters = {})
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'Abilities Data'!A3:Z`,
         });
 

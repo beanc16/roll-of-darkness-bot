@@ -8,6 +8,7 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { getLookupStatusesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
 import { PtuStatus } from '../../models/PtuStatus.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupStatusDataParameters
 {
@@ -46,7 +47,7 @@ export class LookupStatusStrategy
     })
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI', // TODO: Make this a constant at some point
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'Status Data'!A2:Z`,
         });
 

@@ -8,6 +8,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage } from '../../../Ptu/embed-messages/random.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomDowsingRodStrategy
@@ -66,8 +67,7 @@ export class RandomDowsingRodStrategy
         {
             // Pull data from spreadsheet
             const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-                // TODO: Make this spreadsheet id a constant later
-                spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+                spreadsheetId: rollOfDarknessPtuSpreadsheetId,
                 range: `'${BaseRandomStrategy.subcommandToStrings[
                     PtuRandomSubcommand.DowsingRod
                 ].data} Data'!A2:E`,

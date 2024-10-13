@@ -6,6 +6,7 @@ import { BerryTier, PtuRandomSubcommand } from '../../subcommand-groups/random.j
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomBerryStrategy
@@ -17,8 +18,7 @@ export class RandomBerryStrategy
         const inputTier = interaction.options.getString('berry_tier') || BerryTier.OnePlus;
 
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            // TODO: Make this spreadsheet id a constant later
-            spreadsheetId: '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI',
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
