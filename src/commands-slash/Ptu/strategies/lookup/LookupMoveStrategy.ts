@@ -95,7 +95,7 @@ export class LookupMoveStrategy
             }
 
             // Assume Arcane Fury marks the start of weapon moves, which are above maneuvers
-            if (move.name === 'Arcane Fury')
+            if (move.name.toLowerCase() === 'Arcane Fury'.toLowerCase())
             {
                 beyondWeaponMovesAndManuevers = true;
             }

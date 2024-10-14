@@ -24,7 +24,7 @@ export class LookupTmStrategy
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString('tm_name');
+        const name = interaction.options.getString('tm_name', true);
 
         const tms = await this.getLookupData({
             name,

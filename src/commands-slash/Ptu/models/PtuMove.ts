@@ -173,7 +173,7 @@ export class PtuMove
     public IsValidBasedOnInput(input: GetLookupMoveDataParameters): boolean
     {
         // Name
-        if (input.name && input.name !== this.name)
+        if (input.name && input.name.toLowerCase() !== this.name.toLowerCase())
         {
             return false;
         }
@@ -259,7 +259,7 @@ export class PtuMove
         // Exclude
         if (input.exclude)
         {
-            if (input.exclude.names && input.exclude.names.includes(this.name)) return false;
+            if (input.exclude.names && input.exclude.names.some(name => name.toLowerCase() === this.name.toLowerCase())) return false;
             if (input.exclude.rangeSearch && this.range && this.range.toLowerCase().includes(input.exclude.rangeSearch.toLowerCase())) return false;
         }
 

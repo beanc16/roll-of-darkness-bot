@@ -63,7 +63,7 @@ export class LookupNatureStrategy
         {
             const nature = new PtuNature(cur);
 
-            if (input.name && input.name !== nature.name)
+            if (input.name && input.name.toLowerCase() !== nature.name.toLowerCase())
             {
                 return acc;
             }

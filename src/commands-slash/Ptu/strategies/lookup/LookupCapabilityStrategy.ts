@@ -53,7 +53,7 @@ export class LookupCapabilityStrategy
             const capability = new PtuCapability(cur);
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name === capability.name) && !input.includeAllIfNoName)
+            if (!(input.name && input.name.toLowerCase() === capability.name.toLowerCase()) && !input.includeAllIfNoName)
             {
                 return acc;
             }

@@ -56,7 +56,7 @@ export class LookupStatusStrategy
             const status = new PtuStatus(cur);
 
             // Name
-            if (input.name && input.name !== status.name && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== status.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }

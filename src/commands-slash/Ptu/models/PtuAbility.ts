@@ -35,7 +35,7 @@ export class PtuAbility
     public IsValidBasedOnInput(input: GetLookupAbilityDataParameters): boolean
     {
         // Name
-        if (input.name && input.name !== this.name)
+        if (input.name && input.name.toLowerCase() !== this.name.toLowerCase())
         {
             return false;
         }
