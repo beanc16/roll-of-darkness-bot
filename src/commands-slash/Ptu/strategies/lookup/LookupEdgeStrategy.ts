@@ -35,7 +35,7 @@ export class LookupEdgeStrategy
         const embeds = getLookupEdgesEmbedMessages(edges);
 
         return await BaseLookupRespondStrategy.run(interaction, embeds, {
-            noEmbedsErrorMessage: 'No tms were found.',
+            noEmbedsErrorMessage: 'No edges were found.',
         });
     }
 
