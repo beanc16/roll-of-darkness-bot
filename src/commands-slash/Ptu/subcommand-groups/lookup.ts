@@ -15,6 +15,7 @@ export enum PtuLookupSubcommand
     Ability = 'ability',
     Capability = 'capability',
     Edge = 'edge',
+    Feature = 'feature',
     Move = 'move',
     Nature = 'nature',
     Pokemon = 'pokemon',
@@ -78,6 +79,22 @@ export const edge = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.addStringOption((option) => {
         option.setName('edge_name');
         option.setDescription(`The edge's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const feature = (subcommand: SlashCommandSubcommandBuilder) =>
+{
+    subcommand.setName(PtuLookupSubcommand.Feature);
+    subcommand.setDescription('Get a feature based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) => {
+        option.setName('feature_name');
+        option.setDescription(`The feature's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
     });

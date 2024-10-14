@@ -30,6 +30,7 @@ import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import { PtuStatus } from './Ptu/models/PtuStatus.js';
 import { Timer } from '../services/Timer.js';
 import { PtuEdge } from './Ptu/models/PtuEdge.js';
+import { PtuFeature } from './Ptu/models/PtuFeature.js';
 
 export interface RandomResult
 {
@@ -202,6 +203,21 @@ class Ptu extends BaseSlashCommand
                 subcommand: PtuLookupSubcommand.Capability,
             });
             choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Feature Name
+        if (focusedValue.name === 'feature_name')
+        {
+            const features = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Feature,
+            });
+            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,
