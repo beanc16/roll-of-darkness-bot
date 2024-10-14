@@ -52,6 +52,11 @@ export class LookupEdgeStrategy
         {
             const edge = new PtuEdge(cur);
 
+            if (edge.name.length === 0)
+            {
+                return acc;
+            }
+
             // cur[0] === name in spreadsheet
             if (!(input.name && input.name.toLowerCase() === edge.name.toLowerCase()) && !input.includeAllIfNoName)
             {
