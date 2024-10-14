@@ -10,11 +10,10 @@ import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemo
 import { PtuStatus } from '../models/PtuStatus.js';
 import { PtuEdge } from '../models/PtuEdge.js';
 import { PtuFeature } from '../models/PtuFeature.js';
+import { getPagedEmbedBuilders } from './shared.js';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
-
-// TODO: Add listview and final paginated version (using fields) of message later
 
 export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
 {
@@ -63,14 +62,9 @@ export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Abilities')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Abilities',
+        pages,
     });
 };
 
@@ -121,14 +115,9 @@ export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Capabilities')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Capabilities',
+        pages,
     });
 };
 
@@ -183,14 +172,9 @@ export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Edges')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Edges',
+        pages,
     });
 };
 
@@ -253,14 +237,9 @@ export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Features')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Features',
+        pages,
     });
 };
 
@@ -321,14 +300,9 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Moves')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Moves',
+        pages,
     });
 };
 
@@ -500,8 +474,12 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
         const embed = new EmbedBuilder()
         .setTitle('Pokemon')
         .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
+        .setColor(color);
+
+        if (pages.length > 1)
+        {
+            embed.setFooter({ text: `Page ${index + 1}/${pages.length}`});
+        }
 
         if (imageUrl)
         {
@@ -741,13 +719,9 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         curPageIndex: 0,
     });
 
-    return pages.map((curPage, index) =>
-    {
-        return new EmbedBuilder()
-            .setTitle('Pokemon')
-            .setDescription(curPage)
-            .setColor(color)
-            .setFooter({ text: `Page ${index + 1}/${pages.length}` });
+    return getPagedEmbedBuilders({
+        title: 'Pokemon',
+        pages,
     });
 };
 
@@ -872,13 +846,9 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
         curPageIndex: 0,
     });
 
-    return pages.map((curPage, index) =>
-    {
-        return new EmbedBuilder()
-            .setTitle('Pokemon')
-            .setDescription(curPage)
-            .setColor(color)
-            .setFooter({ text: `Page ${index + 1}/${pages.length}` });
+    return getPagedEmbedBuilders({
+        title: 'Pokemon',
+        pages,
     });
 };
 
@@ -933,14 +903,9 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Natures')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Natures',
+        pages,
     });
 };
 
@@ -997,14 +962,9 @@ export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('Statuses')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'Statuses',
+        pages,
     });
 };
 
@@ -1057,13 +1017,8 @@ export const getLookupTmsEmbedMessages = (tms: PtuTm[]) =>
         curPage: 0,
     });
 
-    return pages.map((description, index) => {
-        const embed = new EmbedBuilder()
-        .setTitle('TMs')
-        .setDescription(description)
-        .setColor(color)
-        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
-
-        return embed;
+    return getPagedEmbedBuilders({
+        title: 'TMs',
+        pages,
     });
 };
