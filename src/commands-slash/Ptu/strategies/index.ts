@@ -29,6 +29,8 @@ import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js'
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
+import { PtuEdge } from '../models/PtuEdge.js';
+import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 
 export class PtuStrategyExecutor
 {
@@ -103,7 +105,7 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuEdge | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
         subcommandGroup,
         subcommand,
         options
@@ -116,6 +118,8 @@ export class PtuStrategyExecutor
             ? GetLookupAbilityDataParameters
             : PtuLookupModel extends PtuCapability  // Capability
             ? GetLookupCapabilityDataParameters
+            : PtuLookupModel extends PtuEdge        // Edge
+            ? GetLookupEdgeDataParameters
             : PtuLookupModel extends PtuNature      // Nature
             ? GetLookupNatureDataParameters
             : PtuLookupModel extends PtuPokemon     // Pokemon

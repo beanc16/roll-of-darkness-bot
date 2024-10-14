@@ -8,6 +8,7 @@ import { PtuNature } from '../models/PtuNature.js';
 import { PtuTm } from '../models/PtuTm.js';
 import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemon.js';
 import { PtuStatus } from '../models/PtuStatus.js';
+import { PtuEdge } from '../models/PtuEdge.js';
 
 const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
@@ -122,6 +123,68 @@ export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]
     return pages.map((description, index) => {
         const embed = new EmbedBuilder()
         .setTitle('Capabilities')
+        .setDescription(description)
+        .setColor(color)
+        .setFooter({ text: `Page ${index + 1}/${pages.length}`});
+
+        return embed;
+    });
+};
+
+export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]) =>
+{
+    if (edges.length === 0) return [];
+
+    const { pages } = edges.reduce((acc, {
+        name,
+        prerequisites,
+        effect,
+    }, index) => {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(prerequisites !== undefined && prerequisites !== '-' ? [
+                `Prerequisites: ${prerequisites}`
+            ] : []),
+            ...(effect !== undefined && effect !== '--' ? [
+                `Effect:\n\`\`\`\n${effect}\`\`\``
+            ] : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === edges.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return pages.map((description, index) => {
+        const embed = new EmbedBuilder()
+        .setTitle('Edges')
         .setDescription(description)
         .setColor(color)
         .setFooter({ text: `Page ${index + 1}/${pages.length}`});
