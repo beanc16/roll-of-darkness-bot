@@ -32,20 +32,20 @@ export class InstagramDownloadStrategy
         }
 
         // Get results
-        const pagedDownloadUrls = await InstagramMediaDownloader.getPagedDownloadUrls(
+        const pagedDownloadBuffers = await InstagramMediaDownloader.getPagedDownloadUrls(
             inputUrls
         );
 
         // Parse to attachments array
-        const pagedAttachments = pagedDownloadUrls.reduce<AttachmentPayload[][]>((acc, urls) => {
-            if (urls.length === 0)
+        const pagedAttachments = pagedDownloadBuffers.reduce<AttachmentPayload[][]>((acc, buffers) => {
+            if (buffers.length === 0)
             {
                 return acc;
             }
 
-            const attachments = urls.map<AttachmentPayload>((url) => {
+            const attachments = buffers.map<AttachmentPayload>((buffer) => {
                 return {
-                    attachment: url,
+                    attachment: buffer,
                 };
             });
             acc.push(attachments);
