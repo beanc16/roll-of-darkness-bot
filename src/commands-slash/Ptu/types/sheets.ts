@@ -1,3 +1,5 @@
+import { APIApplicationCommandOptionChoice } from 'discord.js';
+
 export enum PtuCharacterSheetName {
     // Magalam Present Campaign
     Yuki = 'Sano Yukihime',
@@ -19,11 +21,16 @@ export enum PtuCharacterSheetName {
     Emery = 'Emery Draven',
 }
 
-export enum PtuSheetName {
-    // General
-    BotData = 'Roll of Darkness Bot Data',
-    OriginSheet = 'Origin Sheet',
+export const ptuCharacterSheetNameChoices = Object.values(PtuCharacterSheetName).map<APIApplicationCommandOptionChoice<string>>(
+    (name) => {
+        return {
+            name,
+            value: name,
+        };
+    }
+);
 
+export enum PtuSheetName {
     // Eden
     AllEdenAdmin = 'Eden - All Admin Sheets',
     AllEdenCharacters = 'Eden - All Character Sheets',
@@ -31,7 +38,20 @@ export enum PtuSheetName {
     EdenWildPokemon = 'Eden - Wild Pokemon',
     EdenPokedex = 'Eden - Pokedex',
 
+    // General
+    BotData = 'Roll of Darkness Bot Data',
+    OriginSheet = 'Origin Sheet',
+
     // Magalam
     AllMagalamPresentCharacters = 'Magalam (Present) - All Character Sheets',
     AllMagalamPastCharacters = 'Magalam (Past) - All Character Sheets',
 }
+
+export const ptuSheetNameChoices = Object.values(PtuSheetName).map<APIApplicationCommandOptionChoice<string>>(
+    (name) => {
+        return {
+            name,
+            value: name,
+        };
+    }
+);
