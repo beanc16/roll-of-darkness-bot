@@ -1,10 +1,10 @@
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
+import { getSpreadsheetInfoFromCharacterSheetName } from '../../services/sheetHelpers.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 
 const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
@@ -58,9 +58,9 @@ export class TrainPokemonStrategy
 
         // Parse spreadsheet id
         const {
-            spreadsheetId,
+            spreadsheetIds: [spreadsheetId],
             discordUserIdsOfSpreadsheetEditors,
-        } = getSpreadsheetIdFromCharacterSheetName(characterName);
+        } = getSpreadsheetInfoFromCharacterSheetName(characterName);
 
         // Someone is trying to train a pokemon on a sheet they don't own
         if (!discordUserIdsOfSpreadsheetEditors.includes(interaction.user.id))

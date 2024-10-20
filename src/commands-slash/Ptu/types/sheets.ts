@@ -18,3 +18,16 @@ export enum PtuCharacterSheetName {
     Verona = 'Verona Starlet',
     Emery = 'Emery Draven',
 }
+
+export enum PtuSheetName {
+    // General
+    BotData = 'Roll of Darkness Bot Data',
+    OriginSheet = 'Origin Sheet',
+
+    // Eden
+    AllEdenAdmin = 'Eden - All Admin Sheets',
+    AllEdenCharacters = 'Eden - All Character Sheets',
+    EdenNpcOnePagers = 'Eden - NPC One Pagers',
+    EdenWildPokemon = 'Eden - Wild Pokemon',
+    EdenPokedex = 'Eden - Pokedex',
+}
