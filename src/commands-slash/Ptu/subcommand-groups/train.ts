@@ -1,23 +1,4 @@
-export enum CharacterSheetName {
-    // Magalam Present Campaign
-    Yuki = 'Sano Yukihime',
-    Marina = 'Marina Keawe',
-    Mary = 'Mary Fantasia',
-    RetPresent = 'Ret Thron (Present)',
-    Morgan = 'Morgan Dyfodwg',
-
-    // Magalam Past Campaign
-    Hina = 'Hina Keawe',
-    Lucy = 'Lucia Delgado',
-    RetPast = 'Ret Thron (Past)',
-    Yami = 'Yami Juon',
-
-    // Eden Usurper Campaign
-    Vesper = 'Vesper',
-    Fanqia = 'Lú Fanqia',
-    Verona = 'Verona Starlet',
-    Emery = 'Emery Draven',
-}
+import { PtuCharacterSheetName } from "../types/sheets.js";
 
 enum DiscordUserId {
     Bean = '173083328302284800',
@@ -28,32 +9,32 @@ enum DiscordUserId {
     Joel = '191607823292039169',
 }
 
-export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: CharacterSheetName) =>
+export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName) =>
 {
-    const characterNameToSpreadsheetInfo: Record<CharacterSheetName, {
+    const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, {
         spreadsheetId: string;
         discordUserIdsOfSpreadsheetEditors: string[];
     }> = {
         // Magalam Present Campaign
-        [CharacterSheetName.Yuki]: {
+        [PtuCharacterSheetName.Yuki]: {
             spreadsheetId: '1sOwz9lMG1gF1HzDz0xUAHGQ8fD0tvembRLF1FGEMF1A',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Bean,
             ],
         },
-        [CharacterSheetName.Marina]: {
+        [PtuCharacterSheetName.Marina]: {
             spreadsheetId: '1jsQFtZanMDqV3rve3jfva3yxzfRsGKJh4A_hhg4SKAg',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Avery,
             ],
         },
-        [CharacterSheetName.RetPresent]: {
+        [PtuCharacterSheetName.RetPresent]: {
             spreadsheetId: '1RqtG-rW19goVS98ad6YvPmC_U_7m0K72pQzKZkhWFtg',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Cody,
             ],
         },
-        [CharacterSheetName.Mary]: {
+        [PtuCharacterSheetName.Mary]: {
             spreadsheetId: '1XXoNcgPz52ovVnvLYDOa1ROBvzY1cK-3lFA2jXshOgU',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Ash,
@@ -62,7 +43,7 @@ export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: Chara
                 DiscordUserId.Josh,
             ],
         },
-        [CharacterSheetName.Morgan]: {
+        [PtuCharacterSheetName.Morgan]: {
             spreadsheetId: '159jFuwyxZfnCmSwU7UR4xjHytJCU562yxA_dedbn8Bc',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Joel,
@@ -73,25 +54,25 @@ export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: Chara
         },
 
         // Magalam Past Campaign
-        [CharacterSheetName.Hina]: {
+        [PtuCharacterSheetName.Hina]: {
             spreadsheetId: '1uFlHgP_AngmNJ3jJ-PQFGjsyjNiBykKnf2-wDtprzWw',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Bean,
             ],
         },
-        [CharacterSheetName.Lucy]: {
+        [PtuCharacterSheetName.Lucy]: {
             spreadsheetId: '12l01Yks_5chRtksZqQpMrxzpxaiurQhvNMfgskk-GiM',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Avery,
             ],
         },
-        [CharacterSheetName.RetPast]: {
+        [PtuCharacterSheetName.RetPast]: {
             spreadsheetId: '1jWpp1L8RirVFz0KqEDVMIfgukIr5E6DAhyO0_S8HSvo',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Cody,
             ],
         },
-        [CharacterSheetName.Yami]: {
+        [PtuCharacterSheetName.Yami]: {
             spreadsheetId: '19DX-Ebjyc2xIEcFVmDO1q09b2rsamXZP3KCrW6Kqv7w',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Ash,
@@ -101,28 +82,28 @@ export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: Chara
         },
 
         // Eden Usurper Campaign
-        [CharacterSheetName.Vesper]: {
+        [PtuCharacterSheetName.Vesper]: {
             spreadsheetId: '1vP1pgOsf-a6TykSnpJtL7RppQiK24pQZ05F2jCSTV0c',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Avery,
                 DiscordUserId.Bean,
             ],
         },
-        [CharacterSheetName.Fanqia]: {
+        [PtuCharacterSheetName.Fanqia]: {
             spreadsheetId: '1AEtwiFKoxC85BAvgXt8TkIGrv1RGGWK25qpVzCh4qvM',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Josh,
                 DiscordUserId.Bean,
             ],
         },
-        [CharacterSheetName.Verona]: {
+        [PtuCharacterSheetName.Verona]: {
             spreadsheetId: '1VUMbrsyRlHZVXeVXZ7XRgONYEzK5UUVfYP0G9SbTBrk',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Cody,
                 DiscordUserId.Bean,
             ],
         },
-        [CharacterSheetName.Emery]: {
+        [PtuCharacterSheetName.Emery]: {
             spreadsheetId: '1mTn2iWj01efQnzdtz_YCV5AoM57tr5MZv-AOfcpGqZ4',
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Joel,

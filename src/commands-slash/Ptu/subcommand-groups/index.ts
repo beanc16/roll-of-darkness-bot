@@ -3,7 +3,7 @@ import * as calculateSubcommands from './calculate.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
 import * as rollSubcommands from './roll.js';
-import { CharacterSheetName } from './train.js';
+import { PtuCharacterSheetName } from '../types/sheets.js';
 
 export enum PtuSubcommandGroup
 {
@@ -121,7 +121,7 @@ export const train = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setName('character_name');
         option.setDescription('The name of the character to train pokemon on.');
 
-        const choices = Object.values(CharacterSheetName).map<APIApplicationCommandOptionChoice<string>>(
+        const choices = Object.values(PtuCharacterSheetName).map<APIApplicationCommandOptionChoice<string>>(
             (name) => {
                 return {
                     name,

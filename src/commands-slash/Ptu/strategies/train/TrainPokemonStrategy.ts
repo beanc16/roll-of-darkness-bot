@@ -4,7 +4,8 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { CharacterSheetName, getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
+import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
+import { PtuCharacterSheetName } from '../../types/sheets.js';
 
 const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
 
@@ -50,7 +51,7 @@ export class TrainPokemonStrategy
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const characterName = interaction.options.getString('character_name', true) as CharacterSheetName;
+        const characterName = interaction.options.getString('character_name', true) as PtuCharacterSheetName;
         const pokemonName = interaction.options.getString('pokemon_page_name', true);
         const numOfTrainingSessions = interaction.options.getInteger('num_of_training_sessions') ?? 1;
         const expPerTrainingSession = interaction.options.getInteger('exp_per_training_session');
