@@ -38,7 +38,13 @@ const characterSheetNameToSpreadsheetId: Record<PtuCharacterSheetName, string> =
 };
 
 const ptuSheetNameToSpreadsheetId: Record<
-    Exclude<PtuSheetName, PtuSheetName.AllEdenAdmin | PtuSheetName.AllEdenCharacters>,
+    Exclude<
+        PtuSheetName,
+        PtuSheetName.AllEdenAdmin
+        | PtuSheetName.AllEdenCharacters
+        | PtuSheetName.AllMagalamPresentCharacters
+        | PtuSheetName.AllMagalamPastCharacters
+    >,
     string
 > = {
     // General
@@ -204,6 +210,35 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
         [PtuSheetName.EdenPokedex]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.EdenPokedex]],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
+        },
+
+        // Magalam
+        [PtuSheetName.AllMagalamPresentCharacters]: {
+            spreadsheetIds: [
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Yuki],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Marina],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Mary],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPresent],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Morgan],
+            ],
+            discordUserIdsOfSpreadsheetEditors: [
+                DiscordUserId.Bean,
+                DiscordUserId.Josh,
+                DiscordUserId.Avery,
+            ],
+        },
+        [PtuSheetName.AllMagalamPastCharacters]: {
+            spreadsheetIds: [
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Hina],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Lucy],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPast],
+                characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Yami],
+            ],
+            discordUserIdsOfSpreadsheetEditors: [
+                DiscordUserId.Bean,
+                DiscordUserId.Josh,
+                DiscordUserId.Avery,
+            ],
         },
     };
 

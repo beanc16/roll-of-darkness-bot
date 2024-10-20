@@ -30,4 +30,8 @@ export enum PtuSheetName {
     EdenNpcOnePagers = 'Eden - NPC One Pagers',
     EdenWildPokemon = 'Eden - Wild Pokemon',
     EdenPokedex = 'Eden - Pokedex',
+
+    // Magalam
+    AllMagalamPresentCharacters = 'Magalam (Present) - All Character Sheets',
+    AllMagalamPastCharacters = 'Magalam (Past) - All Character Sheets',
 }
