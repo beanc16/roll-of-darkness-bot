@@ -247,7 +247,7 @@ export class TrainPokemonStrategy
         } = await CachedGoogleSheetsApiService.getRanges({
             ranges,
             shouldNotCache: true,
-        }) ?? [];
+        });
 
         if (errorType)
         {
