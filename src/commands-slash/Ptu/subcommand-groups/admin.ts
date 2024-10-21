@@ -1,5 +1,5 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
-import { ptuCharacterSheetNameChoices, PtuSheetName, ptuSheetNameChoices } from '../types/sheets.js';
+import { ptuCharacterSheetNameChoices, ptuDataSheetNameChoices, PtuSheetName, ptuSheetNameChoices } from '../types/sheets.js';
 
 export enum PtuAdminSubcommand
 {
@@ -15,13 +15,7 @@ export const copy = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setName('data_sheet');
         option.setDescription('The name of the page to copy data to and from.');
 
-        const choices: APIApplicationCommandOptionChoice<string>[] = [
-            {
-                name: 'Pokémon Data',
-                value: 'Pokémon Data',
-            },
-        ];
-        option.addChoices(...choices);
+        option.addChoices(...ptuDataSheetNameChoices);
         return option.setRequired(true);
     });
 
@@ -69,6 +63,12 @@ export const copy = (subcommand: SlashCommandSubcommandBuilder) =>
             ...ptuSheetNameChoices,
             ...ptuCharacterSheetNameChoices,
         );
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) => {
+        option.setName('name');
+        option.setDescription('The name of the data to copy.');
         return option.setRequired(true);
     });
 
