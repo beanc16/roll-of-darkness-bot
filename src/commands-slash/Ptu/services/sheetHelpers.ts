@@ -1,9 +1,16 @@
 import { isOfEnum } from '../../../types/typeGuards.js';
 import { PtuCharacterSheetName, PtuSheetName } from '../types/sheets.js';
 
+export interface SpreadsheetData
+{
+    id: string;
+    name: PtuSheetName | PtuCharacterSheetName;
+}
+
 interface GetSpreadsheetInfoResponse
 {
     spreadsheetIds: string[];
+    spreadsheetData?: SpreadsheetData[];
     discordUserIdsOfSpreadsheetEditors: string[];
 }
 
@@ -165,15 +172,31 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
 {
     const characterNameToSpreadsheetInfo: Record<PtuSheetName, {
         spreadsheetIds: string[];
+        spreadsheetData: {
+            id: string;
+            name: PtuSheetName | PtuCharacterSheetName;
+        }[];
         discordUserIdsOfSpreadsheetEditors: string[];
     }> = {
         // General
         [PtuSheetName.BotData]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.BotData]],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.BotData],
+                    name: PtuSheetName.BotData,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
         [PtuSheetName.OriginSheet]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.OriginSheet]],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.OriginSheet],
+                    name: PtuSheetName.OriginSheet,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Bean,
                 DiscordUserId.Josh,
@@ -188,6 +211,20 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
                 ptuSheetNameToSpreadsheetId[PtuSheetName.EdenWildPokemon],
                 ptuSheetNameToSpreadsheetId[PtuSheetName.EdenPokedex],
             ],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenNpcOnePagers],
+                    name: PtuSheetName.EdenNpcOnePagers,
+                },
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenWildPokemon],
+                    name: PtuSheetName.EdenWildPokemon,
+                },
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenPokedex],
+                    name: PtuSheetName.EdenPokedex,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
         [PtuSheetName.AllEdenCharacters]: {
@@ -197,18 +234,54 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Verona],
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Emery],
             ],
+            spreadsheetData: [
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Vesper],
+                    name: PtuCharacterSheetName.Vesper,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Fanqia],
+                    name: PtuCharacterSheetName.Fanqia,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Verona],
+                    name: PtuCharacterSheetName.Verona,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Emery],
+                    name: PtuCharacterSheetName.Emery,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
         [PtuSheetName.EdenNpcOnePagers]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.EdenNpcOnePagers]],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenNpcOnePagers],
+                    name: PtuSheetName.EdenNpcOnePagers,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
         [PtuSheetName.EdenWildPokemon]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.EdenWildPokemon]],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenWildPokemon],
+                    name: PtuSheetName.EdenWildPokemon,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
         [PtuSheetName.EdenPokedex]: {
             spreadsheetIds: [ptuSheetNameToSpreadsheetId[PtuSheetName.EdenPokedex]],
+            spreadsheetData: [
+                {
+                    id: ptuSheetNameToSpreadsheetId[PtuSheetName.EdenPokedex],
+                    name: PtuSheetName.EdenPokedex,
+                },
+            ],
             discordUserIdsOfSpreadsheetEditors: [DiscordUserId.Bean],
         },
 
@@ -220,6 +293,28 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Mary],
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPresent],
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Morgan],
+            ],
+            spreadsheetData: [
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Yuki],
+                    name: PtuCharacterSheetName.Yuki,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Marina],
+                    name: PtuCharacterSheetName.Marina,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Mary],
+                    name: PtuCharacterSheetName.Mary,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPresent],
+                    name: PtuCharacterSheetName.RetPresent,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Morgan],
+                    name: PtuCharacterSheetName.Morgan,
+                },
             ],
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Bean,
@@ -233,6 +328,24 @@ export const getSpreadsheetInfoFromPtuSheetName = (ptuSheetName: PtuSheetName): 
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Lucy],
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPast],
                 characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Yami],
+            ],
+            spreadsheetData: [
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Hina],
+                    name: PtuCharacterSheetName.Hina,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Lucy],
+                    name: PtuCharacterSheetName.Lucy,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.RetPast],
+                    name: PtuCharacterSheetName.RetPast,
+                },
+                {
+                    id: characterSheetNameToSpreadsheetId[PtuCharacterSheetName.Yami],
+                    name: PtuCharacterSheetName.Yami,
+                },
             ],
             discordUserIdsOfSpreadsheetEditors: [
                 DiscordUserId.Bean,
