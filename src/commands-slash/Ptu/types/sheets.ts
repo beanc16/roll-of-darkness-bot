@@ -55,3 +55,17 @@ export const ptuSheetNameChoices = Object.values(PtuSheetName).map<APIApplicatio
         };
     }
 );
+
+export enum PtuDataSheetName
+{
+    PokemonData = 'Pokemon Data',
+}
+
+export const ptuDataSheetNameChoices = Object.values(PtuDataSheetName).map<APIApplicationCommandOptionChoice<string>>(
+    (name) => {
+        return {
+            name,
+            value: name,
+        };
+    }
+);
