@@ -13,6 +13,7 @@ export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
 
     subcommand.addIntegerOption(rollOptions.numberOfDice);
     subcommand.addStringOption(rollOptions.name);
+    subcommand.addIntegerOption(rollOptions.cursedDice);
     subcommand.addIntegerOption(rollOptions.enhancements);
     subcommand.addStringOption(rollOptions.twoSuccesses);
     subcommand.addBooleanOption(rollOptions.secret);

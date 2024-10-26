@@ -12,6 +12,24 @@ export enum TwoSuccessesOption {
     NoDoubles = 'no_doubles',
 }
 
+export function cursedDice(option: SlashCommandIntegerOption)
+{
+    option.setName('cursed_dice');
+    option.setDescription('The number of cursed dice to roll (default: 0)');
+    option.setMinValue(0);
+    option.setMaxValue(9);
+    return option;
+}
+
+export function enhancements(option: SlashCommandIntegerOption)
+{
+    option.setName('enhancements');
+    option.setDescription('The number of enhancements to add to your result (default: 0)');
+    option.setMinValue(0);
+    option.setMaxValue(5);
+    return option;
+}
+
 export function twoSuccesses(option: SlashCommandStringOption)
 {
     option.setName('double_successes');
@@ -30,14 +48,5 @@ export function twoSuccesses(option: SlashCommandStringOption)
             value: TwoSuccessesOption.NoDoubles,
         },
     );
-    return option;
-}
-
-export function enhancements(option: SlashCommandIntegerOption)
-{
-    option.setName('enhancements');
-    option.setDescription('The number of enhancements to add to your result (default: 0)');
-    option.setMinValue(0);
-    option.setMaxValue(5);
     return option;
 }

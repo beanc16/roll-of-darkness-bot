@@ -19,8 +19,9 @@ export class RollStrategy
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice', true);
         const name = interaction.options.getString('name');
+        const numberOfCursedDice = interaction.options.getInteger('cursed_dice') ?? 0;
         const enhancements = interaction.options.getInteger('enhancements') ?? 0;
-        const successesKey = interaction.options.getString('two_successes') as TwoSuccessesOption | null;
+        const successesKey = interaction.options.getString('double_successes') as TwoSuccessesOption | null;
 
         // Convert parameters to necessary inputs for service calls
         const twoSuccessesOn = this.getTwoSuccessesOn(successesKey);
@@ -36,6 +37,15 @@ export class RollStrategy
             rollResults,
         } = diceService.roll();
 
+        // Roll cursed dice
+        const cursedDiceService = new CursebourneDiceService({
+            count: numberOfCursedDice,
+        });
+        const {
+            numOfSuccesses: numOfCursedDiceSuccesses,
+            rollResults: cursedDiceRollResults,
+        } = cursedDiceService.roll();
+
         // Send message
         const response = this.getResponse({
             interaction,
@@ -45,6 +55,9 @@ export class RollStrategy
             name,
             numOfSuccesses,
             rollResults,
+            numberOfCursedDice,
+            numOfCursedDiceSuccesses,
+            cursedDiceRollResults,
         });
         await interaction.editReply(response);
 
@@ -79,6 +92,9 @@ export class RollStrategy
         name,
         numOfSuccesses,
         rollResults,
+        numberOfCursedDice,
+        numOfCursedDiceSuccesses,
+        cursedDiceRollResults,
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number;
@@ -87,6 +103,9 @@ export class RollStrategy
         name: string | null;
         numOfSuccesses: number;
         rollResults: number[];
+        numberOfCursedDice: number;
+        numOfCursedDiceSuccesses: number;
+        cursedDiceRollResults: number[];
     }): string
     {
         const againString = (successesKey === TwoSuccessesOption.DoubleNines)
@@ -98,36 +117,63 @@ export class RollStrategy
         const enhancementsString = (enhancements > 0)
             ? `${enhancements} enhancements`
             : '';
+        
+        const cursedDiceString = (numberOfCursedDice > 0)
+            ? `${numberOfCursedDice} cursed dice`
+            : '';
 
         const rollName = (name) ? ` for ${name}` : '';
-        const successesAsSingularOrPlural = (numOfSuccesses !== 1)
-            ? 'successes'
-            : 'success';
 
         return `${Text.Ping.user(interaction.user.id)} rolled ${numberOfDice} dice${
-            this.getCombinedExtrasString(againString, enhancementsString)
-        }${rollName}.\n\n` +
-            Text.bold(`${numOfSuccesses} ${successesAsSingularOrPlural}`) + '\n' +
-            rollResults.join(', ');
+            this.getCombinedExtrasString(againString, enhancementsString, cursedDiceString)
+        }${rollName}.\n\n`
+            + this.getRollString({
+                numOfSuccesses,
+                rollResults,
+            }) + `\n\n${Text.italic('Cursed Dice:')}\n`
+            + this.getRollString({
+                numOfSuccesses: numOfCursedDiceSuccesses,
+                rollResults: cursedDiceRollResults,
+            });
     }
 
-    private static getCombinedExtrasString(...extras: string[]): string
+    private static getCombinedExtrasString(...input: string[]): string
     {
+        const inputWithNoEmptyStrings = input.filter(
+            str => str.trim().length > 0
+        );
         let output = ' with ';
 
-        if (extras.length > 2)
+        if (inputWithNoEmptyStrings.length > 2)
         {
-            output += extras.join(', ');
+            output += inputWithNoEmptyStrings.join(', ');
             const indexOfLastComma = output.lastIndexOf(', ');
 
             return output.slice(0, indexOfLastComma + 1) + ' and' + output.slice(indexOfLastComma + 1);
         }
 
-        if (extras.length > 0)
+        if (inputWithNoEmptyStrings.length > 0)
         {
-            return output + extras.join(' and ');
+            return output + inputWithNoEmptyStrings.join(' and ');
         }
 
         return '';
+    }
+
+    private static getRollString({
+        numOfSuccesses,
+        rollResults,
+    }: {
+        numOfSuccesses: number;
+        rollResults: number[];
+    })
+    {
+        const successesAsSingularOrPlural = (numOfSuccesses !== 1)
+            ? 'successes'
+            : 'success';
+
+        return Text.bold(`${numOfSuccesses} ${successesAsSingularOrPlural}`)
+            + '\n'
+            + rollResults.join(', ');
     }
 }
