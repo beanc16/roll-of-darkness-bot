@@ -40,16 +40,16 @@ export class DiceService
         extraSuccesses?: number | null;
     } = rollConstants.defaultParams)
     {
-        this.sides = sides || rollConstants.defaultParams.sides;
-        this.count = count || rollConstants.defaultParams.count;
-        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo || rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
-        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
-        this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
-        this.diceToReroll = diceToReroll || rollConstants.defaultParams.diceToReroll;
-        this.canBeDramaticFailure = canBeDramaticFailure || rollConstants.defaultParams.canBeDramaticFailure
-        this.isRote = isRote || rollConstants.defaultParams.isRote;
-        this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
-        this.extraSuccesses = extraSuccesses || rollConstants.defaultParams.extraSuccesses;
+        this.sides = sides ?? rollConstants.defaultParams.sides;
+        this.count = count ?? rollConstants.defaultParams.count;
+        this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo ?? rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
+        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo ?? rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
+        this.exceptionalOn = exceptionalOn ?? rollConstants.defaultParams.exceptionalOn;
+        this.diceToReroll = diceToReroll ?? rollConstants.defaultParams.diceToReroll;
+        this.canBeDramaticFailure = canBeDramaticFailure ?? rollConstants.defaultParams.canBeDramaticFailure
+        this.isRote = isRote ?? rollConstants.defaultParams.isRote;
+        this.isAdvancedAction = isAdvancedAction ?? rollConstants.defaultParams.isAdvancedAction;
+        this.extraSuccesses = extraSuccesses ?? rollConstants.defaultParams.extraSuccesses;
     }
 
     roll(): DicePoolGroup

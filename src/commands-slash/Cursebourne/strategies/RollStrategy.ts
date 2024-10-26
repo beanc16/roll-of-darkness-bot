@@ -28,7 +28,7 @@ export class RollStrategy
 
         // Roll the dice
         const diceService = new CurseborneDiceService({
-            count: numberOfDice,
+            count: Math.max(0, numberOfDice - numberOfCursedDice),
             twoSuccessesOn,
             enhancements,
         });
@@ -39,7 +39,9 @@ export class RollStrategy
 
         // Roll cursed dice
         const cursedDiceService = new CurseborneDiceService({
-            count: numberOfCursedDice,
+            count: (numberOfDice - numberOfCursedDice > 0)
+                ? numberOfCursedDice
+                : numberOfDice,
         });
         const {
             numOfSuccesses: numOfCursedDiceSuccesses,
@@ -124,17 +126,32 @@ export class RollStrategy
 
         const rollName = (name) ? ` for ${name}` : '';
 
+        const rollStrings: string[] = [];
+
+        if (rollResults.length > 0)
+        {
+            rollStrings.push(
+                this.getRollString({
+                    numOfSuccesses,
+                    rollResults,
+                })
+            );
+        }
+
+        if (cursedDiceRollResults.length > 0)
+        {
+            rollStrings.push(
+                `${Text.italic('Cursed Dice:')}\n`
+                + this.getRollString({
+                    numOfSuccesses: numOfCursedDiceSuccesses,
+                    rollResults: cursedDiceRollResults,
+                })
+            );
+        }
+
         return `${Text.Ping.user(interaction.user.id)} rolled ${numberOfDice} dice${
             this.getCombinedExtrasString(againString, enhancementsString, cursedDiceString)
-        }${rollName}.\n\n`
-            + this.getRollString({
-                numOfSuccesses,
-                rollResults,
-            }) + `\n\n${Text.italic('Cursed Dice:')}\n`
-            + this.getRollString({
-                numOfSuccesses: numOfCursedDiceSuccesses,
-                rollResults: cursedDiceRollResults,
-            });
+        }${rollName}.\n\n${rollStrings.join('\n\n')}`;
     }
 
     private static getCombinedExtrasString(...input: string[]): string
@@ -173,7 +190,7 @@ export class RollStrategy
             : 'success';
 
         return Text.bold(`${numOfSuccesses} ${successesAsSingularOrPlural}`)
-            + '\n'
+            + (rollResults.length > 0 ? '\n' : '')
             + rollResults.join(', ');
     }
 }
