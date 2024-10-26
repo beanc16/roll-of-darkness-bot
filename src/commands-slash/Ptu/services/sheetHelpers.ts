@@ -7,7 +7,7 @@ export interface SpreadsheetData
     name: PtuSheetName | PtuCharacterSheetName;
 }
 
-interface GetSpreadsheetInfoResponse
+export interface GetSpreadsheetInfoResponse
 {
     spreadsheetIds: string[];
     spreadsheetData?: SpreadsheetData[];
