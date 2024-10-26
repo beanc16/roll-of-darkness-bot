@@ -7,9 +7,9 @@ export {
 } from '../../options/roll.js';
 
 export enum TwoSuccessesOption {
-    TenAgain = 'ten_again',
-    NineAgain = 'nine_again',
-    NoAgain = 'no_again',
+    DoubleTens = 'double_10s',
+    DoubleNines = 'double_9s',
+    NoDoubles = 'no_doubles',
 }
 
 export function twoSuccesses(option: SlashCommandStringOption)
@@ -18,16 +18,16 @@ export function twoSuccesses(option: SlashCommandStringOption)
     option.setDescription('The minimum value that dice get two successes on (default: 10again)');
     option.addChoices(
         {
-            name: '10again',
-            value: TwoSuccessesOption.TenAgain,
+            name: 'double_10s',
+            value: TwoSuccessesOption.DoubleTens,
         },
         {
-            name: '9again',
-            value: TwoSuccessesOption.NineAgain,
+            name: 'double_9s',
+            value: TwoSuccessesOption.DoubleNines,
         },
         {
-            name: 'noagain',
-            value: TwoSuccessesOption.NoAgain,
+            name: 'no_doubles',
+            value: TwoSuccessesOption.NoDoubles,
         },
     );
     return option;

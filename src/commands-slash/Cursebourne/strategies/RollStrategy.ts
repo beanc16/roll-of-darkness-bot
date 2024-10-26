@@ -50,17 +50,17 @@ export class RollStrategy
 
     private static getTwoSuccessesOn(twoSuccessesOn: TwoSuccessesOption | null): number
     {
-        if (twoSuccessesOn === TwoSuccessesOption.TenAgain)
+        if (twoSuccessesOn === TwoSuccessesOption.DoubleTens)
         {
             return 10;
         }
 
-        else if (twoSuccessesOn === TwoSuccessesOption.NineAgain)
+        else if (twoSuccessesOn === TwoSuccessesOption.DoubleNines)
         {
             return 9;
         }
 
-        else if (twoSuccessesOn === TwoSuccessesOption.NoAgain)
+        else if (twoSuccessesOn === TwoSuccessesOption.NoDoubles)
         {
             return 100;
         }
@@ -84,9 +84,9 @@ export class RollStrategy
         rollResults: number[];
     }): string
     {
-        const againString = (successesKey === TwoSuccessesOption.NineAgain)
+        const againString = (successesKey === TwoSuccessesOption.DoubleNines)
             ? ' with two successes occurring when rolling a 9'
-            : (successesKey === TwoSuccessesOption.NoAgain)
+            : (successesKey === TwoSuccessesOption.NoDoubles)
             ? ' with two successes not occurring when rolling a 10'
             : '';
 
