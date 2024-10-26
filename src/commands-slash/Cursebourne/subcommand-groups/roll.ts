@@ -14,7 +14,7 @@ export enum TwoSuccessesOption {
 
 export function twoSuccesses(option: SlashCommandStringOption)
 {
-    option.setName('two_successes');
+    option.setName('double_successes');
     option.setDescription('The minimum value that dice get two successes on (default: 10again)');
     option.addChoices(
         {
