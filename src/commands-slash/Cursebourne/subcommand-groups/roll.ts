@@ -1,4 +1,4 @@
-import { SlashCommandStringOption } from 'discord.js';
+import { SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
 export {
     numberOfDice,
@@ -30,5 +30,14 @@ export function twoSuccesses(option: SlashCommandStringOption)
             value: TwoSuccessesOption.NoDoubles,
         },
     );
+    return option;
+}
+
+export function enhancements(option: SlashCommandIntegerOption)
+{
+    option.setName('enhancements');
+    option.setDescription('The number of enhancements to add to your result (default: 0)');
+    option.setMinValue(0);
+    option.setMaxValue(5);
     return option;
 }

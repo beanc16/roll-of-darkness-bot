@@ -19,6 +19,7 @@ export class RollStrategy
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice', true);
         const name = interaction.options.getString('name');
+        const enhancements = interaction.options.getInteger('enhancements') ?? 0;
         const successesKey = interaction.options.getString('two_successes') as TwoSuccessesOption | null;
 
         // Convert parameters to necessary inputs for service calls
@@ -28,6 +29,7 @@ export class RollStrategy
         const diceService = new CursebourneDiceService({
             count: numberOfDice,
             twoSuccessesOn,
+            enhancements,
         });
         const {
             numOfSuccesses,
@@ -39,6 +41,7 @@ export class RollStrategy
             interaction,
             numberOfDice,
             successesKey,
+            enhancements,
             name,
             numOfSuccesses,
             rollResults,
@@ -72,12 +75,14 @@ export class RollStrategy
         interaction,
         numberOfDice,
         successesKey,
+        enhancements,
         name,
         numOfSuccesses,
         rollResults,
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number;
+        enhancements: number;
         successesKey: TwoSuccessesOption | null;
         name: string | null;
         numOfSuccesses: number;
@@ -85,9 +90,13 @@ export class RollStrategy
     }): string
     {
         const againString = (successesKey === TwoSuccessesOption.DoubleNines)
-            ? ' with two successes occurring when rolling a 9'
+            ? 'double 9s'
             : (successesKey === TwoSuccessesOption.NoDoubles)
-            ? ' with two successes not occurring when rolling a 10'
+            ? 'no double 10s'
+            : '';
+
+        const enhancementsString = (enhancements > 0)
+            ? `${enhancements} enhancements`
             : '';
 
         const rollName = (name) ? ` for ${name}` : '';
@@ -95,8 +104,30 @@ export class RollStrategy
             ? 'successes'
             : 'success';
 
-        return `${Text.Ping.user(interaction.user.id)} rolled ${numberOfDice} dice${againString}${rollName}.\n\n` +
+        return `${Text.Ping.user(interaction.user.id)} rolled ${numberOfDice} dice${
+            this.getCombinedExtrasString(againString, enhancementsString)
+        }${rollName}.\n\n` +
             Text.bold(`${numOfSuccesses} ${successesAsSingularOrPlural}`) + '\n' +
             rollResults.join(', ');
+    }
+
+    private static getCombinedExtrasString(...extras: string[]): string
+    {
+        let output = ' with ';
+
+        if (extras.length > 2)
+        {
+            output += extras.join(', ');
+            const indexOfLastComma = output.lastIndexOf(', ');
+
+            return output.slice(0, indexOfLastComma + 1) + ' and' + output.slice(indexOfLastComma + 1);
+        }
+
+        if (extras.length > 0)
+        {
+            return output + extras.join(' and ');
+        }
+
+        return '';
     }
 }

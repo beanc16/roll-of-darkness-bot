@@ -33,7 +33,7 @@ export class CursebourneDicePool
             });
 
             return acc;
-        }, numOfSuccesses);
+        }, 0 + numOfSuccesses);
     }
 
     get rollResults()
