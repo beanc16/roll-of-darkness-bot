@@ -1,8 +1,8 @@
 import { DiceService } from '../../../services/DiceService.js';
 import rollConstants from '../../../constants/roll.js';
-import { CursebourneDicePool } from '../models/CursebourneDicePool.js';
+import { CurseborneDicePool } from '../models/CurseborneDicePool.js';
 
-export class CursebourneDiceService
+export class CurseborneDiceService
 {
     private diceService: DiceService;
     public twoSuccessesOn: number;
@@ -47,7 +47,7 @@ export class CursebourneDiceService
             numOfSuccesses: number;
             rollResults: number[];
         }>((acc, cur) => {
-            const dicePool = new CursebourneDicePool({
+            const dicePool = new CurseborneDicePool({
                 dicePool: cur,
                 twoSuccessesOn: this.twoSuccessesOn,
             });

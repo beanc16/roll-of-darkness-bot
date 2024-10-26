@@ -10,7 +10,7 @@ import { PtuMovesSearchService } from '../../../../services/SearchService.js';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/pokemon.js';
 import { EqualityOption } from '../../../options/shared.js';
 import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupMoveDataParameters
@@ -67,7 +67,7 @@ export class LookupMoveStrategy
         // Get message
         const embeds = getLookupMovesEmbedMessages(moves);
 
-        return await BaseLookupRespondStrategy.run(interaction, embeds, {
+        return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No moves were found.',
         });
     }

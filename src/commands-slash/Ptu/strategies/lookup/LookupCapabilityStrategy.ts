@@ -6,7 +6,7 @@ import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { getLookupCapabilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuCapability } from '../../models/PtuCapability.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
@@ -34,7 +34,7 @@ export class LookupCapabilityStrategy
         // Get message
         const embeds = getLookupCapabilitiesEmbedMessages(capabilities);
 
-        return await BaseLookupRespondStrategy.run(interaction, embeds, {
+        return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No capabilities were found.',
         });
     }

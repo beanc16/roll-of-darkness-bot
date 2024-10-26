@@ -1,14 +1,36 @@
-import { SlashCommandSubcommandBuilder } from 'discord.js';
+import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
 import * as rollOptions from './roll.js';
+import * as lookupSubcommands from './lookup.js';
 
-export enum CursebourneSubcommand
+export enum CurseborneSubcommandGroup
+{
+    Lookup = 'lookup',
+}
+
+export enum CurseborneSubcommand
 {
     Roll = 'roll',
 }
 
+export type CurseborneAllNestedSubcommands = lookupSubcommands.CurseborneLookupSubcommand;
+
+export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+{
+    subcommandGroup.setName(CurseborneSubcommandGroup.Lookup);
+    subcommandGroup.setDescription('Run Cursebourne lookup commands.');
+    Object.values(lookupSubcommands).forEach(subcommand => 
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
 export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
 {
-    subcommand.setName(CursebourneSubcommand.Roll);
+    subcommand.setName(CurseborneSubcommand.Roll);
     subcommand.setDescription('Run d10s following Cursebourne rules.');
 
     subcommand.addIntegerOption(rollOptions.numberOfDice);

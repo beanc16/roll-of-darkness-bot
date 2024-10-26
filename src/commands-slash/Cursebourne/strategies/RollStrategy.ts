@@ -2,17 +2,17 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
-import { CursebourneSubcommand } from '../subcommand-groups/index.js';
+import { CurseborneSubcommand } from '../subcommand-groups/index.js';
 import { TwoSuccessesOption } from '../subcommand-groups/roll.js';
-import { CursebourneDiceService } from '../services/CursebourneDiceService.js';
+import { CurseborneDiceService } from '../services/CurseborneDiceService.js';
 import { Text } from '@beanc16/discordjs-helpers';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
-    public static key = CursebourneSubcommand.Roll;
+    public static key = CurseborneSubcommand.Roll;
 
-    static async run(
+    public static async run(
         interaction: ChatInputCommandInteraction,
     ): Promise<boolean>
     {
@@ -27,7 +27,7 @@ export class RollStrategy
         const twoSuccessesOn = this.getTwoSuccessesOn(successesKey);
 
         // Roll the dice
-        const diceService = new CursebourneDiceService({
+        const diceService = new CurseborneDiceService({
             count: numberOfDice,
             twoSuccessesOn,
             enhancements,
@@ -38,7 +38,7 @@ export class RollStrategy
         } = diceService.roll();
 
         // Roll cursed dice
-        const cursedDiceService = new CursebourneDiceService({
+        const cursedDiceService = new CurseborneDiceService({
             count: numberOfCursedDice,
         });
         const {

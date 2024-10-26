@@ -6,7 +6,7 @@ import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
-import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuEdge } from '../../models/PtuEdge.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
@@ -34,7 +34,7 @@ export class LookupEdgeStrategy
         // Get message
         const embeds = getLookupEdgesEmbedMessages(edges);
 
-        return await BaseLookupRespondStrategy.run(interaction, embeds, {
+        return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No edges were found.',
         });
     }

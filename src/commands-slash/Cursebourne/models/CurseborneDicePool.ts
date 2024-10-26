@@ -1,6 +1,6 @@
 import { DicePool } from '../../../models/DicePool.js';
 
-export class CursebourneDicePool
+export class CurseborneDicePool
 {
     private dicePool: DicePool;
     private twoSuccessesOn: number;

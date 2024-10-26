@@ -1,0 +1,1 @@
+export const rollOfDarknessCurseborneSpreadsheetId = '1VgOwNfSH1U_0dtFc3UPX4b_6obE5q_SqWYLCm2Q52Kk';

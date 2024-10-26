@@ -6,7 +6,7 @@ import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { getLookupNatureEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuNature } from '../../models/PtuNature.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
@@ -47,7 +47,7 @@ export class LookupNatureStrategy
         // Get message
         const embeds = getLookupNatureEmbedMessages(natures);
 
-        return await BaseLookupRespondStrategy.run(interaction, embeds, {
+        return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No natures were found.',
         });
     }

@@ -10,9 +10,9 @@ import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemo
 import { PtuStatus } from '../models/PtuStatus.js';
 import { PtuEdge } from '../models/PtuEdge.js';
 import { PtuFeature } from '../models/PtuFeature.js';
-import { getPagedEmbedBuilders } from './shared.js';
+import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
+import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 
-const MAX_EMBED_DESCRIPTION_LENGTH = 4096;
 const color = 0xCDCDCD;
 
 export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>

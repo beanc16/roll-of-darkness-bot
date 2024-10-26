@@ -5,7 +5,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { getLookupPokemonByAbilityEmbedMessages, getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { BaseLookupRespondStrategy } from './BaseLookupRespondStrategy.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../types/pokemon.js';
@@ -71,7 +71,7 @@ export class LookupPokemonStrategy
             pokemon,
         });
 
-        return await BaseLookupRespondStrategy.run(interaction, embeds, {
+        return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No Pokémon were found.',
         });
     }
