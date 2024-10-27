@@ -1,6 +1,7 @@
 import { UUID } from 'node:crypto';
 import { ObjectId } from 'mongodb';
 import { MongoDbControllerWithEnv } from 'mongodb-controller';
+import { CounterType } from '../../options/counter.js';
 
 export enum CounterOperation
 {
@@ -25,15 +26,71 @@ interface CounterConstructor
 {
     _id?: ObjectId;
     guid: UUID;
+    name: string;
     count: number;
     auditLogs: CounterAuditLog[];
     discordCreator: DiscordCreator;
 }
 
-export class Counter
+export class CounterContainer
+{
+    private counter: Counter;
+    private type: CounterType;
+    private isInDatabase: boolean;
+
+    constructor(params: CounterConstructor, type: CounterType, isInDatabase?: boolean)
+    {
+        this.counter = new Counter(params);
+        this.type = type;
+        this.isInDatabase = !!isInDatabase;
+    }
+
+    public get guid()
+    {
+        return this.counter.guid;
+    }
+
+    public get count()
+    {
+        return this.counter.count;
+    }
+
+    public set count(value: number)
+    {
+        this.counter.count = value;
+    }
+
+    public get counterType()
+    {
+        return this.type;
+    }
+
+    public getCounter()
+    {
+        return this.counter;
+    }
+
+    public addAuditLog(auditLog: CounterAuditLog)
+    {
+        this.counter.auditLogs.push(auditLog);
+    }
+
+    public hasBeenSavedToDatabase(): boolean
+    {
+        return this.isInDatabase;
+    }
+
+    public setHasBeenSavedToDatabase(value: boolean)
+    {
+        this.isInDatabase = value;
+    }
+}
+
+class Counter
 {
     _id?: ObjectId;
     guid: UUID;
+    name: string;
     count: number;
     auditLogs: CounterAuditLog[];
     discordCreator: DiscordCreator;
@@ -41,6 +98,7 @@ export class Counter
     constructor({
         _id,
         guid,
+        name,
         count,
         auditLogs = [],
         discordCreator,
@@ -56,6 +114,7 @@ export class Counter
         }
 
         this.guid = guid;
+        this.name = name;
         this.count = count;
         this.auditLogs = auditLogs;
         this.discordCreator = discordCreator;

@@ -13,10 +13,12 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { logger } from '@beanc16/logger';
 
 import {
+    CounterType,
     name,
     type,
 } from './options/counter.js';
 import counterSingleton from './Counter/models/CounterSingleton.js';
+import { CounterContainer } from './Counter/dal/CounterMongoController.js';
 
 enum ButtonName
 {
@@ -43,7 +45,7 @@ class Counter extends BaseSlashCommand
 
         // Get parameter results
         const name = interaction.options.getString('name', true);
-        // const type = interaction.options.getString('type') ?? CounterType.Temporary;
+        const type = interaction.options.getString('type') as CounterType ?? CounterType.Temporary;
 
         // Setup variables
         const guid = randomUUID();
@@ -54,8 +56,10 @@ class Counter extends BaseSlashCommand
         );
         this.initializeCounter({
             guid,
+            name,
             interaction,
             response,
+            type,
         });
 
         // Handle button interactions
@@ -64,6 +68,7 @@ class Counter extends BaseSlashCommand
             interactionResponse: response,
             name,
             guid,
+            type,
         });
     }
 
@@ -74,16 +79,21 @@ class Counter extends BaseSlashCommand
 
     private initializeCounter({
         guid,
+        name,
         interaction,
         response,
+        type,
     }: {
         guid: UUID;
+        name: string;
         interaction: ChatInputCommandInteraction;
         response: Message;
+        type: CounterType;
     })
     {
-        counterSingleton.upsert({
+        counterSingleton.upsert(new CounterContainer({
             guid,
+            name,
             count: 0,
             auditLogs: [],
             discordCreator: {
@@ -91,7 +101,7 @@ class Counter extends BaseSlashCommand
                 serverId: interaction.guildId ?? interaction.channelId,
                 messageId: response.id,
             },
-        });
+        }, type));
     }
 
     private getMessageData(name: string, guid: UUID)
@@ -131,11 +141,13 @@ class Counter extends BaseSlashCommand
         interactionResponse,
         name,
         guid,
+        type,
     }: {
         originalInteraction: ChatInputCommandInteraction;
         interactionResponse: Message<boolean>;
         name: string;
         guid: UUID;
+        type: CounterType;
     })
     {
         let buttonInteraction: ButtonInteraction | undefined;
@@ -158,7 +170,7 @@ class Counter extends BaseSlashCommand
             // Ignore timeouts
             if ((error as Error).message !== 'Collector received no interactions before ending with reason: time')
             {
-                logger.error('An unknown error occurred whilst collecting pages', error);
+                logger.error('An unknown error occurred whilst handling Counter button interactions', error);
             }
         }
         finally
@@ -169,6 +181,7 @@ class Counter extends BaseSlashCommand
                 originalInteraction,
                 interactionResponse: buttonInteraction?.message ?? interactionResponse,
                 guid,
+                type,
             });
         }
     }
@@ -176,14 +189,14 @@ class Counter extends BaseSlashCommand
     private updateCount(buttonInteraction: ButtonInteraction, guid: UUID)
     {
         const handlerMap: Record<ButtonName, () => void> = {
-            [ButtonName.Plus]: () => counterSingleton.incrementCount(
+            [ButtonName.Plus]: () => counterSingleton.incrementCount({
                 guid,
-                buttonInteraction.user.id
-            ),
-            [ButtonName.Minus]: () => counterSingleton.decrementCount(
+                userId: buttonInteraction.user.id
+            }),
+            [ButtonName.Minus]: () => counterSingleton.decrementCount({
                 guid,
-                buttonInteraction.user.id
-            ),
+                userId: buttonInteraction.user.id
+            }),
         };
 
         return handlerMap[buttonInteraction.customId as ButtonName]();

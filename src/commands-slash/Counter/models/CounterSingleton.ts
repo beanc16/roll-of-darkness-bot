@@ -1,13 +1,21 @@
 import { UUID } from 'node:crypto';
 
 import Singleton from '../../../models/Singleton.js';
-import { Counter, CounterOperation } from '../dal/CounterMongoController.js';
+import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
+import { CounterEventHandler } from '../services/CounterEventHandler.js';
+import { CounterType } from '../../options/counter.js';
+
+interface UpdateCountParameters
+{
+    guid: UUID;
+    userId: string;
+}
 
 class CounterSingleton
 {
-    private singleton: Singleton<Record<UUID, Counter>>;
+    private singleton: Singleton<Record<UUID, CounterContainer>>;
 
-    constructor(params?: Record<UUID, Counter>)
+    constructor(params?: Record<UUID, CounterContainer>)
     {
         this.singleton = new Singleton(params ?? {});
     }
@@ -22,12 +30,12 @@ class CounterSingleton
         return this.getAll()[key];
     }
 
-    set(value: Record<UUID, Counter>)
+    set(value: Record<UUID, CounterContainer>)
     {
         this.singleton.set(value);
     }
 
-    upsert(value: Counter)
+    upsert(value: CounterContainer)
     {
         const all = this.getAll();
 
@@ -35,24 +43,35 @@ class CounterSingleton
             ...all,
             [value.guid]: value,
         });
+
+        if (value.counterType === CounterType.Permanent)
+        {
+            CounterEventHandler.onUpsert(value.guid);
+        }
     }
 
-    incrementCount(key: UUID, userId: string)
+    incrementCount({
+        guid,
+        userId,
+    }: UpdateCountParameters)
     {
-        const counter = this.get(key);
-        counter.count += 1;
-        counter.auditLogs.push({
+        const counterContainer = this.get(guid);
+        counterContainer.count += 1;
+        counterContainer.addAuditLog({
             userId,
             operation: CounterOperation.Plus,
         });
-        this.upsert(counter);
+        this.upsert(counterContainer);
     }
 
-    decrementCount(key: UUID, userId: string)
+    decrementCount({
+        guid,
+        userId,
+    }: UpdateCountParameters)
     {
-        const counter = this.get(key);
+        const counter = this.get(guid);
         counter.count -= 1;
-        counter.auditLogs.push({
+        counter.addAuditLog({
             userId,
             operation: CounterOperation.Minus,
         });
