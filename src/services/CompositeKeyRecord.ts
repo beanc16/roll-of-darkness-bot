@@ -26,8 +26,21 @@ export class CompositeKeyRecord<CompositeKey extends BaseCompositeKey, Value = u
         this.record[parsedKey] = value;
     }
 
-    public Clear(): void
+    public Clear(key?: CompositeKey): void
     {
+        if (key)
+        {
+            const parsedKey = this.ParseKey(key);
+
+            const {
+                [parsedKey]: _,
+                ...remainingProperties
+            } = this.record;
+
+            this.record = remainingProperties;
+            return;
+        }
+
         this.record = {};
     }
 

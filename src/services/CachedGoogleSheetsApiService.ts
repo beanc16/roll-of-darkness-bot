@@ -39,10 +39,10 @@ interface WithCacheOptions
 
 export class CachedGoogleSheetsApiService
 {
-    static #retries = 4;
-    static #cache: CompositeKeyRecord<[string, string], string[][]> = new CompositeKeyRecord();
+    private static retries = 4;
+    private static cache: CompositeKeyRecord<[string, string], string[][]> = new CompositeKeyRecord();
 
-    static async getRange(initialParameters: GoogleSheetsGetRangeParametersV1 & WithCacheOptions): Promise<GetRangeResponse>
+    public static async getRange(initialParameters: GoogleSheetsGetRangeParametersV1 & WithCacheOptions): Promise<GetRangeResponse>
     {
         const {
             shouldNotCache = false,
@@ -52,7 +52,7 @@ export class CachedGoogleSheetsApiService
         const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
-        const cachedData = this.#cache.Get([cacheSpreadsheetKey, cacheRangeKey]);
+        const cachedData = this.cache.Get([cacheSpreadsheetKey, cacheRangeKey]);
 
         if (cachedData !== undefined)
         {
@@ -61,7 +61,7 @@ export class CachedGoogleSheetsApiService
             };
         }
 
-        for (let i = 0; i <= this.#retries; i += 1)
+        for (let i = 0; i <= this.retries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();
 
@@ -78,7 +78,7 @@ export class CachedGoogleSheetsApiService
                     // Save to cache by spreadsheet / spreadsheetId
                     if (!shouldNotCache)
                     {
-                        this.#cache.Add([cacheSpreadsheetKey, cacheRangeKey], data);
+                        this.cache.Add([cacheSpreadsheetKey, cacheRangeKey], data);
                     }
                     return { data };
                 }
@@ -130,14 +130,14 @@ export class CachedGoogleSheetsApiService
         return {};
     }
 
-    static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GetRangesResponse>
+    public static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GetRangesResponse>
     {
         const {
             shouldNotCache = false, // Add caching so this does something later
             ...parameters
         } = initialParameters;
 
-        for (let i = 0; i <= this.#retries; i += 1)
+        for (let i = 0; i <= this.retries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();
 
@@ -203,7 +203,7 @@ export class CachedGoogleSheetsApiService
         return {};
     }
 
-    static async update(initialParameters: GoogleSheetsUpdateParametersV1 & WithCacheOptions): Promise<UpdateResponse>
+    public static async update(initialParameters: GoogleSheetsUpdateParametersV1 & WithCacheOptions): Promise<UpdateResponse>
     {
         const {
             shouldNotCache = false,
@@ -213,7 +213,7 @@ export class CachedGoogleSheetsApiService
         const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
-        for (let i = 0; i <= this.#retries; i += 1)
+        for (let i = 0; i <= this.retries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();
 
@@ -230,7 +230,7 @@ export class CachedGoogleSheetsApiService
                     // Save to cache by spreadsheet / spreadsheetId
                     if (!shouldNotCache)
                     {
-                        this.#cache.Add([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
+                        this.cache.Add([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
                     }
 
                     return {};
@@ -272,5 +272,11 @@ export class CachedGoogleSheetsApiService
         }
 
         return {};
+    }
+
+    // TODO: Make ptu or ptu_admin command that calls this
+    public static async clearCache(keys?: [string, string])
+    {
+        this.cache.Clear(keys);
     }
 }
