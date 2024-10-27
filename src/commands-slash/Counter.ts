@@ -1,12 +1,20 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, ComponentType, Message } from 'discord.js';
-
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    ComponentType,
+    Message,
+} from 'discord.js';
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
+import { logger } from '@beanc16/logger';
+
 import {
     name,
     type,
 } from './options/counter.js';
-import { logger } from '@beanc16/logger';
 
 enum ButtonName {
     Plus = 'plus',
