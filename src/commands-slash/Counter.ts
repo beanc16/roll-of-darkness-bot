@@ -5,8 +5,11 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
+    Client,
     ComponentType,
     Message,
+    MessageInteraction,
+    TextChannel,
 } from 'discord.js';
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
@@ -18,7 +21,11 @@ import {
     type,
 } from './options/counter.js';
 import counterSingleton from './Counter/models/CounterSingleton.js';
-import { CounterContainer } from './Counter/dal/CounterMongoController.js';
+import {
+    Counter as CounterForDb,
+    CounterContainer,
+    CounterController,
+} from './Counter/dal/CounterMongoController.js';
 
 enum ButtonName
 {
@@ -98,7 +105,11 @@ class Counter extends BaseSlashCommand
             auditLogs: [],
             discordCreator: {
                 userId: interaction.user.id,
-                serverId: interaction.guildId ?? interaction.channelId,
+                ...(!!interaction.guildId
+                    ? { serverId: interaction.guildId}
+                    : {}
+                ),
+                channelId: interaction.channelId,
                 messageId: response.id,
             },
         }, type));
@@ -143,7 +154,7 @@ class Counter extends BaseSlashCommand
         guid,
         type,
     }: {
-        originalInteraction: ChatInputCommandInteraction;
+        originalInteraction: ChatInputCommandInteraction | MessageInteraction;
         interactionResponse: Message<boolean>;
         name: string;
         guid: UUID;
@@ -201,6 +212,69 @@ class Counter extends BaseSlashCommand
 
         return handlerMap[buttonInteraction.customId as ButtonName]();
     }
+
+    public async runOnStartup(bot: Client)
+    {
+        try
+        {
+            logger.debug('Initializing counters...');
+
+            const { results = [] } = await CounterController.getAll({}) as {
+                results: CounterForDb[];
+            };
+
+            const promises = results.map(async (counter) => {
+                const {
+                    discordCreator: {
+                        channelId,
+                        messageId,
+                    },
+                } = counter;
+
+                // Get the message that the counter belongs to
+                const channel = await bot.channels.fetch(channelId) as TextChannel;
+                const message = await channel.messages.fetch(messageId);
+
+                // Overwrite the count from the database with whatever's in the message
+                const count = this.getCount(message);
+                counter.count = count;
+
+                // Save the counter to the cache
+                counterSingleton.upsert(
+                    new CounterContainer(counter, CounterType.Permanent, true)
+                );
+
+                // Add buttons to the message for counter
+                await message.edit(
+                    this.getMessageData(counter.name, counter.guid)
+                );
+
+                // Listen for button interactions
+                this.handleButtonInteractions({
+                    originalInteraction: message.interaction as MessageInteraction,
+                    interactionResponse: message,
+                    name: counter.name,
+                    guid: counter.guid,
+                    type: CounterType.Permanent,
+                });
+            });
+
+            await Promise.all(promises);
+
+            logger.debug('Counters intialized!');
+        }
+        catch (error)
+        {
+            logger.error('An error occurred while initializing pre-existing counters', error);
+        }
+    }
+
+    private getCount(message: Message)
+    {
+        const indexOfAfterColon = message.content.indexOf(':') + 1;
+        const countStr = message.content.slice(indexOfAfterColon).trim().replaceAll('*', '');
+        return parseInt(countStr, 10);
+    };
 }
 
 

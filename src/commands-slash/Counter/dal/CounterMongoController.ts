@@ -18,7 +18,8 @@ export interface CounterAuditLog
 interface DiscordCreator
 {
     userId: string;
-    serverId: string;
+    serverId?: string;
+    channelId: string;
     messageId: string;
 }
 
@@ -86,7 +87,7 @@ export class CounterContainer
     }
 }
 
-class Counter
+export class Counter
 {
     _id?: ObjectId;
     guid: UUID;
