@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ChatInputCommandInteraction, ComponentType, Message } from 'discord.js';
 
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
@@ -6,6 +6,7 @@ import {
     name,
     type,
 } from './options/counter.js';
+import { logger } from '@beanc16/logger';
 
 enum ButtonName {
     Plus = 'plus',
@@ -26,7 +27,7 @@ class Counter extends BaseSlashCommand
         this.count = 0;
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    public async run(interaction: ChatInputCommandInteraction)
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -37,19 +38,33 @@ class Counter extends BaseSlashCommand
         const name = interaction.options.getString('name', true);
         // const type = interaction.options.getString('type') ?? CounterType.Temporary;
 
-        // Get components
-        const buttonRow = this.getButtonRowComponent();
-
         // Send message
-        await interaction.editReply({
-            content: this.getMessage(name),
-            components: [buttonRow],
+        const response = await interaction.editReply(
+            this.getMessageData(name)
+        );
+
+        // Handle button interactions
+        this.handleButtonInteractions({
+            originalInteraction: interaction,
+            interactionResponse: response,
+            name,
         });
     }
 
     get description()
     {
         return `Add a basic counter for adding/subtracting numbers.`;
+    }
+
+    private getMessageData(name: string)
+    {
+        const message = `${Text.bold(`${name}:`)} ${this.count}`;
+        const buttonRow = this.getButtonRowComponent();
+
+        return {
+            content: message,
+            components: [buttonRow],
+        };
     }
 
     private getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
@@ -73,9 +88,56 @@ class Counter extends BaseSlashCommand
         return row;
     }
 
-    private getMessage(name: string)
+    private async handleButtonInteractions({
+        originalInteraction,
+        interactionResponse,
+        name,
+    }: {
+        originalInteraction: ChatInputCommandInteraction;
+        interactionResponse: Message<boolean>;
+        name: string;
+    })
     {
-        return `${Text.bold(`${name}:`)} ${this.count}`;
+        try
+        {
+            const buttonInteraction = await interactionResponse.awaitMessageComponent({
+                componentType: ComponentType.Button,
+            });
+
+            this.updateCount(buttonInteraction);
+            await buttonInteraction.update(
+                this.getMessageData(name)
+            );
+
+            interactionResponse = buttonInteraction.message;
+        }
+        catch (error)
+        {
+            // Ignore timeouts
+            if ((error as Error).message !== 'Collector received no interactions before ending with reason: time')
+            {
+                logger.error('An unknown error occurred whilst collecting pages', error);
+            }
+        }
+        finally
+        {
+            // Restart listener upon timeout
+            this.handleButtonInteractions({
+                name,
+                originalInteraction,
+                interactionResponse,
+            });
+        }
+    }
+
+    private updateCount(buttonInteraction: ButtonInteraction)
+    {
+        const handlerMap: Record<ButtonName, () => number> = {
+            [ButtonName.Plus]: () => this.count += 1,
+            [ButtonName.Minus]: () => this.count -= 1,
+        };
+
+        return handlerMap[buttonInteraction.customId as ButtonName]();
     }
 }
 
