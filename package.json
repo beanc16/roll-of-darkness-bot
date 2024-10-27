@@ -32,7 +32,7 @@
         "fuse.js": "^7.0.0",
         "instagram-url-direct": "^1.0.20",
         "mongodb": "^6.3.0",
-        "mongodb-controller": "^1.5.6",
+        "mongodb-controller": "^1.6.4",
         "pokedex-promise-v2": "^4.2.0"
     },
     "devDependencies": {
