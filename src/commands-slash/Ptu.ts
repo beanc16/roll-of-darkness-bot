@@ -145,7 +145,10 @@ class Ptu extends BaseSlashCommand
         {
             if (this.isQueryingPokemonAutocomplete)
             {
-                await this.waitForCurrentPokemonAutocompleteQuery();
+                await Timer.waitUntilTrue({
+                    seconds: 5,
+                    callback: () => !this.isQueryingPokemonAutocomplete,
+                });
             }
 
             this.isQueryingPokemonAutocomplete = true;
@@ -258,20 +261,6 @@ class Ptu extends BaseSlashCommand
 
     // TODO: Remove this later when migrated to ptu microservice
     private isQueryingPokemonAutocomplete = false;
-    private async waitForCurrentPokemonAutocompleteQuery()
-    {
-        // Infinitely wait for this.isQueryingPokemonAutocomplete to become false
-        await Timer.wait({
-            seconds: 5,
-            callback: async () =>
-            {
-                if (this.isQueryingPokemonAutocomplete)
-                {
-                    await this.waitForCurrentPokemonAutocompleteQuery();
-                }
-            },
-        });
-    }
 }
 
 export default new Ptu();

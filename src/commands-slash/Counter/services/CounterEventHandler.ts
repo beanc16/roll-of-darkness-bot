@@ -40,9 +40,9 @@ export class CounterEventHandler
     // Infinitely debounce until enough time has passed for the given event
     private static async debounceEvent(key: [UUID, CounterEventType])
     {
-        await Timer.wait({
+        await Timer.waitUntilTrue({
             seconds: this.SECONDS_TO_DEBOUNCE / 3,
-            callback: async () =>
+            callback: () =>
             {
                 const prevTimestamp = this.eventTimestamps.Get(key);
                 const currentTimestamp = dayjs();
@@ -53,17 +53,12 @@ export class CounterEventHandler
                     true
                 );
 
-                if (secondsPassed > this.SECONDS_TO_DEBOUNCE)
-                {
-                    await this.saveToDb(key[0]);
-                    this.eventTimestamps.Clear(key);
-                }
-                else
-                {
-                    await this.debounceEvent(key);
-                }
+                return secondsPassed > this.SECONDS_TO_DEBOUNCE;
             },
         });
+
+        await this.saveToDb(key[0]);
+        this.eventTimestamps.Clear(key);
     }
 
     private static async saveToDb(guid: UUID)
