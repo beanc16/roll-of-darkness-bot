@@ -2,7 +2,7 @@ import { APIApplicationCommandOptionChoice, SlashCommandStringOption } from 'dis
 
 export enum CounterType
 {
-    Temporary = `Temporary - Can't Use After Bot Restart`,
+    Temporary = `Temporary - Can't Be Used After Bot Restart`,
     Permanent = 'Permanent - Can Be Used After Bot Restart',
 }
 
@@ -18,11 +18,11 @@ export function name(option: SlashCommandStringOption)
 
 export function type(option: SlashCommandStringOption)
 {
-    const choices = Object.entries(CounterType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) => {
+    const choices = Object.values(CounterType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) => {
             return {
-                name: key,
-                value: value,
+                name: value,
+                value,
             };
         }
     );
