@@ -17,7 +17,7 @@ export class CounterEventHandler
         [UUID, CounterEventType],
         dayjs.Dayjs
     > = new CompositeKeyRecord();
-    private static SECONDS_TO_DEBOUNCE = 3; // TODO: Reduce this timer after mongodb-controller won't close connections if a save is in-progress
+    private static SECONDS_TO_DEBOUNCE = 4; // TODO: Reduce this timer after mongodb-controller won't close connections if a save is in-progress
 
     public static onUpsert(guid: UUID)
     {
