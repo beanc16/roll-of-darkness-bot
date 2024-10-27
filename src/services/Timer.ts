@@ -1,6 +1,6 @@
 export class Timer
 {
-    static wait <CallbackParameters = never>({
+    public static wait <CallbackParameters = never>({
         seconds,
         parameters,
         callback,
@@ -20,6 +20,33 @@ export class Timer
                 }
 
                 resolve();
+            }, seconds * 1000);
+        });
+    }
+
+    public static waitUntilTrue({
+        seconds,
+        callback,
+    }: {
+        seconds: number;
+        callback: () => boolean;
+    }): Promise<void>
+    {
+        return new Promise<void>((resolve) =>
+        {
+            setTimeout(async () =>
+            {
+                if (callback())
+                {
+                    resolve();
+                }
+
+                else
+                {
+                    resolve(
+                        await this.waitUntilTrue({ seconds, callback })
+                    );
+                }
             }, seconds * 1000);
         });
     }
