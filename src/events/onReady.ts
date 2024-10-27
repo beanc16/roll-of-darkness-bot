@@ -1,6 +1,6 @@
 import { Events } from 'discord.js';
 import { logger } from '@beanc16/logger';
-import FlavorTextService from '../services/FlavorTextService.js';
+// import FlavorTextService from '../services/FlavorTextService.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 
 async function handler()
@@ -14,8 +14,8 @@ async function handler()
     try
     {
         // Initialize flavor text singleton
-        const flavorTextService = new FlavorTextService();
-        await flavorTextService.getCategories();
+        // const flavorTextService = new FlavorTextService();
+        // await flavorTextService.getCategories();
         
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
