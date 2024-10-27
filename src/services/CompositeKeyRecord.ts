@@ -20,6 +20,11 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
         return this.record[parsedKey];
     }
 
+    public Has(key: Key): boolean
+    {
+        return !!this.Get(key)
+    }
+
     public Upsert(key: Key, value: Value): void
     {
         const parsedKey = this.ParseKey(key);
