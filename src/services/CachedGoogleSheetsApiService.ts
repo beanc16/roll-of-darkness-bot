@@ -78,7 +78,7 @@ export class CachedGoogleSheetsApiService
                     // Save to cache by spreadsheet / spreadsheetId
                     if (!shouldNotCache)
                     {
-                        this.cache.Add([cacheSpreadsheetKey, cacheRangeKey], data);
+                        this.cache.Upsert([cacheSpreadsheetKey, cacheRangeKey], data);
                     }
                     return { data };
                 }
@@ -230,7 +230,7 @@ export class CachedGoogleSheetsApiService
                     // Save to cache by spreadsheet / spreadsheetId
                     if (!shouldNotCache)
                     {
-                        this.cache.Add([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
+                        this.cache.Upsert([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
                     }
 
                     return {};

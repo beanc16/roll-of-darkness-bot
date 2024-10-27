@@ -1,6 +1,6 @@
-type BaseCompositeKey = (string | number | symbol)[];
+export type CompositeKey = (string | number | symbol)[];
 
-export class CompositeKeyRecord<CompositeKey extends BaseCompositeKey, Value = unknown>
+export class CompositeKeyRecord<Key extends CompositeKey, Value>
 {
     private record: Record<string, Value>;
 
@@ -14,19 +14,19 @@ export class CompositeKeyRecord<CompositeKey extends BaseCompositeKey, Value = u
         return this.record;
     }
 
-    public Get(key: CompositeKey): Value
+    public Get(key: Key): Value
     {
         const parsedKey = this.ParseKey(key);
         return this.record[parsedKey];
     }
 
-    public Add(key: CompositeKey, value: Value): void
+    public Upsert(key: Key, value: Value): void
     {
         const parsedKey = this.ParseKey(key);
         this.record[parsedKey] = value;
     }
 
-    public Clear(key?: CompositeKey): void
+    public Clear(key?: Key): void
     {
         if (key)
         {
@@ -44,7 +44,7 @@ export class CompositeKeyRecord<CompositeKey extends BaseCompositeKey, Value = u
         this.record = {};
     }
 
-    private ParseKey(key: CompositeKey): string
+    private ParseKey(key: Key): string
     {
         const parsedKey = key.join(',');
         return parsedKey;
