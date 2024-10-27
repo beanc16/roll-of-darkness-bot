@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { REST, Routes } from 'discord.js';
+import { Client, REST, Routes } from 'discord.js';
 import { logger } from '@beanc16/logger';
 import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
 
@@ -190,7 +190,7 @@ export class SlashCommandsContainer
     }
 
     static async getAllStartupCommandsData(): Promise<(Command & {
-        runOnStartup: () => Promise<void>;
+        runOnStartup: (bot: Client) => Promise<void>;
     })[]>
     {
         await Timer.waitUntilTrue({
