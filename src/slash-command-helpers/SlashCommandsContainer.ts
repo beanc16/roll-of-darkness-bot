@@ -5,6 +5,7 @@ import { logger } from '@beanc16/logger';
 import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
 
 import { BaseContextMenuCommand } from '../context-menus/base-commands/BaseContextMenuCommand.js';
+import { Timer } from '../services/Timer.js';
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 
@@ -30,11 +31,13 @@ const defaultRegisterCommandParameters = {
 
 export class SlashCommandsContainer
 {
-    static #slashCommands: { [key: string]: Command } = {};
-    static #guildCommands: { [key: string]: Command } = {};
-    static #contextMenuCommands: { [key: string]: ContextMenuCommand } = {};
+    static #slashCommands: Record<string, Command> = {};
+    static #guildCommands: Record<string, Command> = {};
+    static #contextMenuCommands: Record<string, ContextMenuCommand> = {};
+    private static isInitialized: boolean;
 
     static {
+        this.isInitialized = false;
         this.initialize();
     }
 
@@ -135,6 +138,8 @@ export class SlashCommandsContainer
             ...guildCommandPromises,
             ...contextMenuCommandPromises,
         ]);
+
+        this.isInitialized = true;
     }
 
 
@@ -182,6 +187,21 @@ export class SlashCommandsContainer
             return slashCommand.commandData;
         });
         return await Promise.all(promises);
+    }
+
+    static async getAllStartupCommandsData(): Promise<(Command & {
+        runOnStartup: () => Promise<void>;
+    })[]>
+    {
+        await Timer.waitUntilTrue({
+            seconds: 0.2,
+            callback: () => this.isInitialized,
+        });
+
+        // @ts-ignore -- TODO: Fix this later
+        return Object.values(SlashCommandsContainer.#slashCommands).filter((command) =>
+            ('runOnStartup' in command && typeof command.runOnStartup === 'function')
+        );
     }
 
     static addCommand({

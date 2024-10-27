@@ -2,6 +2,7 @@ import { Events } from 'discord.js';
 import { logger } from '@beanc16/logger';
 // import FlavorTextService from '../services/FlavorTextService.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
+import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer.js';
 
 async function handler()
 {
@@ -19,6 +20,13 @@ async function handler()
         
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
+
+        // Run startup functions
+        const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
+        const startupPromisesToRun = startupCommands.map((command) =>
+            command.runOnStartup()
+        );
+        await Promise.all(startupPromisesToRun);
 
         // Log success
         logger.info(`Initialized ${process.env.APPLICATION_NAME}.`);
