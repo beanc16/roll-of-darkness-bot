@@ -1,3 +1,4 @@
+import { randomUUID, UUID } from 'node:crypto';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -15,24 +16,22 @@ import {
     name,
     type,
 } from './options/counter.js';
+import counterSingleton from './Counter/models/CounterSingleton.js';
 
-enum ButtonName {
+enum ButtonName
+{
     Plus = 'plus',
     Minus = 'minus',
 }
 
 class Counter extends BaseSlashCommand
 {
-    private count: number;
-
     constructor()
     {
         super();
         this._slashCommandData
             .addStringOption(name)
             .addStringOption(type);
-
-        this.count = 0;
     }
 
     public async run(interaction: ChatInputCommandInteraction)
@@ -46,16 +45,25 @@ class Counter extends BaseSlashCommand
         const name = interaction.options.getString('name', true);
         // const type = interaction.options.getString('type') ?? CounterType.Temporary;
 
+        // Setup variables
+        const guid = randomUUID();
+
         // Send message
         const response = await interaction.editReply(
-            this.getMessageData(name)
+            this.getMessageData(name, guid)
         );
+        this.initializeCounter({
+            guid,
+            interaction,
+            response,
+        });
 
         // Handle button interactions
         this.handleButtonInteractions({
             originalInteraction: interaction,
             interactionResponse: response,
             name,
+            guid,
         });
     }
 
@@ -64,9 +72,31 @@ class Counter extends BaseSlashCommand
         return `Add a basic counter for adding/subtracting numbers.`;
     }
 
-    private getMessageData(name: string)
+    private initializeCounter({
+        guid,
+        interaction,
+        response,
+    }: {
+        guid: UUID;
+        interaction: ChatInputCommandInteraction;
+        response: Message;
+    })
     {
-        const message = `${Text.bold(`${name}:`)} ${this.count}`;
+        counterSingleton.upsert({
+            guid,
+            count: 0,
+            auditLogs: [],
+            discordCreator: {
+                userId: interaction.user.id,
+                serverId: interaction.guildId ?? interaction.channelId,
+                messageId: response.id,
+            },
+        });
+    }
+
+    private getMessageData(name: string, guid: UUID)
+    {
+        const message = `${Text.bold(`${name}:`)} ${counterSingleton.get(guid)?.count ?? 0}`;
         const buttonRow = this.getButtonRowComponent();
 
         return {
@@ -100,24 +130,28 @@ class Counter extends BaseSlashCommand
         originalInteraction,
         interactionResponse,
         name,
+        guid,
     }: {
         originalInteraction: ChatInputCommandInteraction;
         interactionResponse: Message<boolean>;
         name: string;
+        guid: UUID;
     })
     {
+        let buttonInteraction: ButtonInteraction | undefined;
+
         try
         {
-            const buttonInteraction = await interactionResponse.awaitMessageComponent({
+            // Wait for button interactions
+            buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
             });
 
-            this.updateCount(buttonInteraction);
+            // Update count based on interaction
+            this.updateCount(buttonInteraction, guid);
             await buttonInteraction.update(
-                this.getMessageData(name)
+                this.getMessageData(name, guid)
             );
-
-            interactionResponse = buttonInteraction.message;
         }
         catch (error)
         {
@@ -133,16 +167,23 @@ class Counter extends BaseSlashCommand
             this.handleButtonInteractions({
                 name,
                 originalInteraction,
-                interactionResponse,
+                interactionResponse: buttonInteraction?.message ?? interactionResponse,
+                guid,
             });
         }
     }
 
-    private updateCount(buttonInteraction: ButtonInteraction)
+    private updateCount(buttonInteraction: ButtonInteraction, guid: UUID)
     {
-        const handlerMap: Record<ButtonName, () => number> = {
-            [ButtonName.Plus]: () => this.count += 1,
-            [ButtonName.Minus]: () => this.count -= 1,
+        const handlerMap: Record<ButtonName, () => void> = {
+            [ButtonName.Plus]: () => counterSingleton.incrementCount(
+                guid,
+                buttonInteraction.user.id
+            ),
+            [ButtonName.Minus]: () => counterSingleton.decrementCount(
+                guid,
+                buttonInteraction.user.id
+            ),
         };
 
         return handlerMap[buttonInteraction.customId as ButtonName]();
