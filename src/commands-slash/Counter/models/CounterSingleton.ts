@@ -70,14 +70,14 @@ class CounterSingleton
         userId,
     }: UpdateCountParameters)
     {
-        const counter = this.get(guid);
-        counter.count -= 1;
-        counter.addAuditLog({
+        const counterContainer = this.get(guid);
+        counterContainer.count -= 1;
+        counterContainer.addAuditLog({
             userId,
             operation: CounterOperation.Minus,
             timestamp: new Date(),
         });
-        this.upsert(counter);
+        this.upsert(counterContainer);
     }
 }
 
