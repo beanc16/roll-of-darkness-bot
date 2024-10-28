@@ -1,5 +1,6 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import * as options from './options/index.js';
+import * as rollOptions from './Nwod/options/roll.js';
 import CoinFlipService from '../services/CoinFlipService.js';
 import CoinFlipResponseFormatterService from '../services/CoinFlipResponseFormatterService.js';
 import { ChatInputCommandInteraction } from 'discord.js';
@@ -13,8 +14,8 @@ class CoinFlip extends BaseSlashCommand
         super();
         this._slashCommandData
             .addStringOption(options.coinFlip.headsOrTails)
-            .addStringOption(options.roll.name)
-            .addBooleanOption((option) => options.roll.secret(option, {
+            .addStringOption(rollOptions.name)
+            .addBooleanOption((option) => rollOptions.secret(option, {
                 commandType: 'coin flip',
             }));
 

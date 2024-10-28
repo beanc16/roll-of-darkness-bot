@@ -1,5 +1,6 @@
 import SplatSlashCommand from './SplatSlashCommand.js';
-import * as options from '../options/index.js';
+import * as rollOptions from '../Nwod/options/roll.js';
+import * as sharedOptions from '../options/shared.js';
 import rollConstants from '../../constants/roll.js';
 import { DiceService } from '../../services/DiceService.js';
 import FlavorTextService from '../../services/FlavorTextService.js';
@@ -11,7 +12,7 @@ export default class BaseRollCommand extends SplatSlashCommand
     constructor({
         firstParameter = {
             type: 'integer',
-            value: options.roll.numberOfDice
+            value: sharedOptions.numberOfDice
         },
     }: {
         firstParameter?: ({
@@ -41,14 +42,14 @@ export default class BaseRollCommand extends SplatSlashCommand
         }
 
         this._slashCommandData
-            .addStringOption(options.roll.name)
-            .addStringOption(options.roll.rerolls)
-            .addBooleanOption(options.roll.rote)
-            .addIntegerOption(options.roll.exceptionalOn)
-            .addIntegerOption(options.roll.diceToReroll)
-            .addIntegerOption(options.roll.extraSuccesses)
-            .addBooleanOption(options.roll.advancedAction)
-            .addBooleanOption(options.roll.secret);
+            .addStringOption(rollOptions.name)
+            .addStringOption(rollOptions.rerolls)
+            .addBooleanOption(rollOptions.rote)
+            .addIntegerOption(rollOptions.exceptionalOn)
+            .addIntegerOption(rollOptions.diceToReroll)
+            .addIntegerOption(rollOptions.extraSuccesses)
+            .addBooleanOption(rollOptions.advancedAction)
+            .addBooleanOption(rollOptions.secret);
     }
 
     async run(interaction: ChatInputCommandInteraction, {

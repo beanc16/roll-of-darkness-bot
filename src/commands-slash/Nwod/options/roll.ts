@@ -1,14 +1,12 @@
 import { SlashCommandBooleanOption, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
-import FlavorTextService from '../../services/FlavorTextService.js';
-import rollConstants from '../../constants/roll.js';
+import FlavorTextService from '../../../services/FlavorTextService.js';
+import rollConstants from '../../../constants/roll.js';
 
-export function numberOfDice(option: SlashCommandIntegerOption)
+export function numberOfDice(option: SlashCommandStringOption)
 {
     option.setName('number_of_dice');
-    option.setDescription('The number of dice to roll');
-    option.setMinValue(1);
-    option.setMaxValue(rollConstants.maxParams.numberOfDice);
+    option.setDescription('A mathematical formula of dice to roll (only addition and subtraction are supported; IE: 4 + 3 - 2).');
     option.setRequired(true);
     return option;
 }

@@ -1,5 +1,5 @@
 import BaseRollCommand from './base-commands/BaseRollCommand.js';
-import * as options from './options/index.js';
+import { numberOfDice } from './options/shared.js';
 
 class Roll extends BaseRollCommand
 {
@@ -8,7 +8,7 @@ class Roll extends BaseRollCommand
         super({
             firstParameter: {
                 type: 'integer',
-                value: options.roll.numberOfDice,
+                value: numberOfDice,
             },
         });
     }

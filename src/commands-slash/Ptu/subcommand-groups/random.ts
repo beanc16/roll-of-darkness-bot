@@ -1,5 +1,4 @@
 import { SlashCommandIntegerOption, SlashCommandSubcommandBuilder } from 'discord.js';
-import { roll } from '../../options/index.js';
 
 export enum BerryTier
 {
@@ -36,8 +35,11 @@ export enum PtuRandomSubcommand
 
 const numberOfDice = (option: SlashCommandIntegerOption) =>
 {
-    roll.numberOfDice(option)
+    option.setName('number_of_dice');
+    option.setDescription('The number of dice to roll');
+    option.setMinValue(1);
     option.setMaxValue(25);
+    option.setRequired(true);
     return option;
 }
 

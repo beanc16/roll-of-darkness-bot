@@ -1,5 +1,5 @@
 import BaseRollCommand from './base-commands/BaseRollCommand.js';
-import * as options from './options/index.js';
+import * as rollOptions from './Nwod/options/roll.js';
 import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import rolLConstants from '../constants/roll.js';
 import { Parser } from 'expr-eval';
@@ -14,7 +14,7 @@ class Roll_Math extends BaseRollCommand
         super({
             firstParameter: {
                 type: 'string',
-                value: options.rollMath.dicePool,
+                value: rollOptions.numberOfDice,
             },
         });
 

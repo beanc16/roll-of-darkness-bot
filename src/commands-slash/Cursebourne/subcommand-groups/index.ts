@@ -1,6 +1,7 @@
 import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
 import * as rollOptions from './roll.js';
 import * as lookupSubcommands from './lookup.js';
+import * as sharedOptions from '../../options/shared.js';
 
 export enum CurseborneSubcommandGroup
 {
@@ -33,7 +34,7 @@ export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(CurseborneSubcommand.Roll);
     subcommand.setDescription('Run d10s following Cursebourne rules.');
 
-    subcommand.addIntegerOption(rollOptions.numberOfDice);
+    subcommand.addIntegerOption(sharedOptions.numberOfDice);
     subcommand.addStringOption(rollOptions.name);
     subcommand.addIntegerOption(rollOptions.cursedDice);
     subcommand.addIntegerOption(rollOptions.enhancements);

@@ -1,51 +1,37 @@
-import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
-import * as initiativeOptions from './Nwod/options/initiative.js';
-import * as rollOptions from './Nwod/options/roll.js';
-import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
-import rollConstants from '../constants/roll.js';
-import { DiceService } from '../services/DiceService.js';
-import { InitiativeResponseFormatterService } from '../services/InitiativeResponseFormatterService.js';
+import { ChatIteractionStrategy } from '../../strategies/ChatIteractionStrategy.js';
+import { staticImplements } from '../../../decorators/staticImplements.js';
+import { NwodSubcommand } from '../options/index.js';
+import rollConstants from '../../../constants/roll.js';
+import { DiceService } from '../../../services/DiceService.js';
+import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
+import { addAndSubtractMathParserOptions } from '../../../constants/mathParserOptions.js';
 
-class Initiative extends BaseSlashCommand
+@staticImplements<ChatIteractionStrategy>()
+export class InitiativeStrategy
 {
-    private _mathParser: Parser;
+    public static key = NwodSubcommand.Initiative;
+    private static mathParser = new Parser(addAndSubtractMathParserOptions);
 
-    constructor()
-    {
-        super();
-        this._slashCommandData
-            .addStringOption(initiativeOptions.initiativeModifier)
-            .addStringOption(rollOptions.name)
-            .addBooleanOption(rollOptions.secret);
-
-        this._mathParser = new Parser(addAndSubtractMathParserOptions);
-    }
-
-    async run(interaction: ChatInputCommandInteraction)
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+    ): Promise<boolean>
     {
         // Get initial parameter result
         const initiativeModifierExpression = interaction.options.getString('initiative_modifier', true);
-        const isSecret = interaction.options.getBoolean('secret') || false;
         const name = interaction.options.getString('name');
 
-        // Send message to show the command was received
-        await interaction.deferReply({
-            ephemeral: isSecret,
-            fetchReply: true,
-        });
-
         // Get result
-        let initiativeModifier: number = 0;
+        let initiativeModifier = 0;
 
         try {
-            initiativeModifier = this._mathParser.evaluate(initiativeModifierExpression);
+            initiativeModifier = this.mathParser.evaluate(initiativeModifierExpression);
         } catch (err) {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             await interaction.editReply(`An invalid initiative modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
-            return;
+            return true;
         }
 
         const dicePoolGroup = this.roll();
@@ -60,14 +46,10 @@ class Initiative extends BaseSlashCommand
         await interaction.editReply(
             initiativeResponseFormatterService.getResponse()
         );
+        return true;
     }
 
-    get description()
-    {
-        return `Roll one d10 with no rerolls to determine initiative order.`;
-    }
-
-    roll()
+    private static roll()
     {
         // Get parameter results
         const numberOfDice = 1;
@@ -87,15 +69,4 @@ class Initiative extends BaseSlashCommand
 
         return dicePoolGroup;
     }
-
-    rollWithModifier(modifier = 0)
-    {
-        const dicePoolGroup = this.roll();
-        const [result] = dicePoolGroup.getBiggestResult().rollResults;
-        return result + modifier;
-    }
 }
-
-
-
-export default new Initiative();

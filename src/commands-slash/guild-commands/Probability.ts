@@ -1,7 +1,9 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import * as options from '../options/index.js';
+import * as probabilityOptions from '../options/probability.js';
+import * as rollOptions from '../Nwod/options/roll.js';
+import { numberOfDice } from '../options/shared.js';
 import DiceProbabilityService from '../../services/DiceProbabilityService.js';
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
 import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
@@ -12,11 +14,11 @@ class Probability extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            .addIntegerOption(options.roll.numberOfDice)
-            .addIntegerOption(options.probability.desiredNumberOfSuccesses)
-            .addStringOption(options.roll.rerolls)
-            .addBooleanOption(options.roll.rote)
-            .addBooleanOption(options.roll.advancedAction);
+            .addIntegerOption(numberOfDice)
+            .addIntegerOption(probabilityOptions.desiredNumberOfSuccesses)
+            .addStringOption(rollOptions.rerolls)
+            .addBooleanOption(rollOptions.rote)
+            .addBooleanOption(rollOptions.advancedAction);
     }
 
     async run(interaction: ChatInputCommandInteraction)
@@ -29,7 +31,7 @@ class Probability extends BaseSlashCommand
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice', true);
         const desiredNumberOfSuccesses = interaction.options.getInteger('desired_number_of_successes', true);
-        const rerollsKey = interaction.options.getString('rerolls') || options.roll.rerollChoices['10again'];
+        const rerollsKey = interaction.options.getString('rerolls') || rollOptions.rerollChoices['10again'];
         const isRote = interaction.options.getBoolean('rote');
         const isAdvancedAction = interaction.options.getBoolean('advanced_action');
 
@@ -40,8 +42,8 @@ class Probability extends BaseSlashCommand
         } = await probabilityService.getProbabilityOfRolling({
             numberOfDice,
             desiredNumberOfSuccesses,
-            rerolls: options.roll.rerollChoices[
-                rerollsKey as keyof typeof options.roll.rerollChoices
+            rerolls: rollOptions.rerollChoices[
+                rerollsKey as keyof typeof rollOptions.rerollChoices
             ] as RollOfDarknessProbabiltityDiceGetParameters['rerolls'],
             rote: isRote,
             advancedAction: isAdvancedAction,
@@ -54,7 +56,7 @@ class Probability extends BaseSlashCommand
                 authorId: interaction.user.id,
                 desiredNumberOfSuccesses,
                 numberOfDice,
-                rerolls: options.roll.rerollChoices[rerollsKey as keyof typeof options.roll.rerollChoices],
+                rerolls: rollOptions.rerollChoices[rerollsKey as keyof typeof rollOptions.rerollChoices],
                 rote: isRote,
                 advancedAction: isAdvancedAction,
                 probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,

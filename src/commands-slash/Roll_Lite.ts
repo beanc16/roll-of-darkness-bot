@@ -3,7 +3,8 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
-import * as options from './options/index.js';
+import { rollLite } from './options/index.js';
+import * as rollOptions from './Nwod/options/roll.js';
 import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import { DiceLiteService } from '../services/DiceLiteService.js';
 import { diceParserTypes, DiceStringParser, MathOperator, ParsedDicePool, ParsedDie, ParsedModifier, ProcessedDicePool } from '../services/DiceStringParser.js';
@@ -16,9 +17,9 @@ class Roll_Lite extends BaseSlashCommand
     {
         super();
         this._slashCommandData
-            .addStringOption(options.rollLite.dicePool)
-            .addStringOption(options.roll.name)
-            .addBooleanOption(options.roll.secret);
+            .addStringOption(rollLite.dicePool)
+            .addStringOption(rollOptions.name)
+            .addBooleanOption(rollOptions.secret);
 
         this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }

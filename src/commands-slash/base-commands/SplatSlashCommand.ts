@@ -1,5 +1,5 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import * as options from '../options/index.js';
+import * as options from '../Nwod/options/roll.js';
 
 export default class SplatSlashCommand extends BaseSlashCommand
 {
@@ -8,7 +8,7 @@ export default class SplatSlashCommand extends BaseSlashCommand
         if (!this._isInitialized)
         {
             this._slashCommandData
-                .addStringOption(options.roll.splat);
+                .addStringOption(options.splat);
             await super.init();
         }
     }

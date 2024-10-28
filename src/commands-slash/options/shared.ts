@@ -1,4 +1,4 @@
-import { SlashCommandStringOption } from 'discord.js';
+import { SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
 export enum EqualityOption
 {
@@ -38,4 +38,14 @@ export const equalityOption = (option: SlashCommandStringOption): SlashCommandSt
             value: EqualityOption.NotEqualTo,
         },
     );
+};
+
+export const numberOfDice = (option: SlashCommandIntegerOption) =>
+{
+    option.setName('number_of_dice');
+    option.setDescription('The number of dice to roll');
+    option.setMinValue(1);
+    option.setMaxValue(25);
+    option.setRequired(true);
+    return option;
 };

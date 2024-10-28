@@ -1,5 +1,5 @@
 import SplatSlashCommand from './base-commands/SplatSlashCommand.js';
-import * as options from './options/roll.js';
+import * as options from './Nwod/options/roll.js';
 import { DiceService } from '../services/DiceService.js';
 import FlavorTextService from '../services/FlavorTextService.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';

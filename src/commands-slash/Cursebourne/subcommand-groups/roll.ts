@@ -4,7 +4,7 @@ export {
     numberOfDice,
     name,
     secret,
-} from '../../options/roll.js';
+} from '../../Nwod/options/roll.js';
 
 export enum TwoSuccessesOption {
     DoubleTens = 'double_10s',
