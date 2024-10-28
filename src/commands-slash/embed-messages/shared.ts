@@ -5,9 +5,11 @@ const color = 0xCDCDCD;
 export const getPagedEmbedBuilders = ({
     title,
     pages,
+    url,
 }: {
     title: string;
     pages: string[];
+    url?: string;
 }) =>
 {
     return pages.map((description, index) => {
@@ -19,6 +21,11 @@ export const getPagedEmbedBuilders = ({
         if (pages.length > 1)
         {
             embed.setFooter({ text: `Page ${index + 1}/${pages.length}`})
+        }
+
+        if (url)
+        {
+            embed.setURL(url);
         }
 
         return embed;
