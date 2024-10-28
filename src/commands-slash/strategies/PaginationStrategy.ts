@@ -7,7 +7,9 @@ import {
     ChatInputCommandInteraction,
     ComponentType,
     EmbedBuilder,
+    InteractionEditReplyOptions,
     Message,
+    MessageCreateOptions,
 } from 'discord.js';
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import { logger } from '@beanc16/logger';
@@ -21,9 +23,10 @@ enum ButtonName {
 
 interface PaginationStrategyRunParameters
 {
-    originalInteraction: ChatInputCommandInteraction;
+    originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
     embeds?: EmbedBuilder[];
     files?: AttachmentPayload[];
+    interactionType?: 'editReply' | 'dm';
 }
 
 interface PaginationStrategySendPagedMessagesParameters extends PaginationStrategyRunParameters
@@ -47,6 +50,7 @@ export class PaginationStrategy
         originalInteraction,
         embeds,
         files,
+        interactionType = 'editReply',
     }: PaginationStrategyRunParameters)
     {
         const shouldPaginate = (
@@ -60,16 +64,20 @@ export class PaginationStrategy
             : [];
 
         // Send first embed message
-        const response = await originalInteraction.editReply({
-            ...(embeds
-                ? { embeds: [embeds[0]] }
-                : {}
-            ),
-            ...(files
-                ? { files: [files[0]] }
-                : {}
-            ),
-            components,
+        const response = await this.replyToOriginalInteraction({
+            originalInteraction,
+            interactionType,
+            parameters: {
+                ...(embeds
+                    ? { embeds: [embeds[0]] }
+                    : {}
+                ),
+                ...(files
+                    ? { files: [files[0]] }
+                    : {}
+                ),
+                components,
+            },
         });
 
         // Only listen for pagination buttons if there's more than one embed message
@@ -126,8 +134,10 @@ export class PaginationStrategy
 
             this.sendPagedMessages({
                 originalInteraction,
+                interactionType: 'editReply',
                 interactionResponse: buttonInteraction.message,
                 embeds,
+                files,
                 pageIndex: newPageIndex,
             });
         }
@@ -142,16 +152,20 @@ export class PaginationStrategy
             // Remove paginated buttons upon timeout
             if (!hasUpdated)
             {
-                originalInteraction.editReply({
-                    ...(embeds
-                        ? { embeds: [embeds[pageIndex]] }
-                        : {}
-                    ),
-                    ...(files
-                        ? { files: [files[pageIndex]] }
-                        : {}
-                    ),
-                    components: [],
+                this.replyToOriginalInteraction({
+                    originalInteraction,
+                    interactionType: 'editReply',
+                    parameters: {
+                        ...(embeds
+                            ? { embeds: [embeds[pageIndex]] }
+                            : {}
+                        ),
+                        ...(files
+                            ? { files: [files[pageIndex]] }
+                            : {}
+                        ),
+                        components: [],
+                    },
                 });
             }
         }
@@ -241,5 +255,32 @@ export class PaginationStrategy
             );
 
         return row;
+    }
+
+    private static replyToOriginalInteraction({
+        originalInteraction,
+        interactionType,
+        parameters,
+    }: {
+        originalInteraction: PaginationStrategyRunParameters['originalInteraction'];
+        interactionType: NonNullable<PaginationStrategyRunParameters['interactionType']>;
+        parameters: InteractionEditReplyOptions | MessageCreateOptions;
+    })
+    {
+        const handlerMap: Record<
+            NonNullable<PaginationStrategyRunParameters['interactionType']>,
+            () => Promise<Message>
+        > = {
+            editReply: async () =>
+            {
+                return await originalInteraction.editReply(parameters);
+            },
+            dm: () =>
+            {
+                return originalInteraction.user.send(parameters as MessageCreateOptions);
+            },
+        };
+
+        return handlerMap[interactionType]();
     }
 }
