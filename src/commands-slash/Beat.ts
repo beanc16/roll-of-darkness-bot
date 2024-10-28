@@ -4,6 +4,7 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import * as options from './options/index.js';
 
+// TODO: Move to nwod
 class Beat extends BaseSlashCommand
 {
     constructor()
