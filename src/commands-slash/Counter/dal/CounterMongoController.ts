@@ -13,6 +13,7 @@ export interface CounterAuditLog
 {
     userId: string;
     operation: CounterOperation;
+    timestamp: Date;
 }
 
 interface DiscordCreator

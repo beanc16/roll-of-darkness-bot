@@ -60,6 +60,7 @@ class CounterSingleton
         counterContainer.addAuditLog({
             userId,
             operation: CounterOperation.Plus,
+            timestamp: new Date(),
         });
         this.upsert(counterContainer);
     }
@@ -74,6 +75,7 @@ class CounterSingleton
         counter.addAuditLog({
             userId,
             operation: CounterOperation.Minus,
+            timestamp: new Date(),
         });
         this.upsert(counter);
     }
