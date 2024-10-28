@@ -239,24 +239,28 @@ class Counter extends BaseSlashCommand
                 const count = this.getCount(message);
                 counter.count = count;
 
-                // Save the counter to the cache
-                counterSingleton.upsert(
-                    new CounterContainer(counter, CounterType.Permanent, true)
-                );
+                // Only update messages owned by the bot
+                if (message.author.id === bot.user?.id)
+                {
+                    // Save the counter to the cache
+                    counterSingleton.upsert(
+                        new CounterContainer(counter, CounterType.Permanent, true)
+                    );
 
-                // Add buttons to the message for counter
-                await message.edit(
-                    this.getMessageData(counter.name, counter.guid)
-                );
+                    // Add buttons to the message for counter
+                    await message.edit(
+                        this.getMessageData(counter.name, counter.guid)
+                    );
 
-                // Listen for button interactions
-                this.handleButtonInteractions({
-                    originalInteraction: message.interaction as MessageInteraction,
-                    interactionResponse: message,
-                    name: counter.name,
-                    guid: counter.guid,
-                    type: CounterType.Permanent,
-                });
+                    // Listen for button interactions
+                    this.handleButtonInteractions({
+                        originalInteraction: message.interaction as MessageInteraction,
+                        interactionResponse: message,
+                        name: counter.name,
+                        guid: counter.guid,
+                        type: CounterType.Permanent,
+                    });
+                }
             });
 
             await Promise.all(promises);
