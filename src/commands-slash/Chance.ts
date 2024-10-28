@@ -6,6 +6,7 @@ import FlavorTextService from '../services/FlavorTextService.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';
 import { ChatInputCommandInteraction } from 'discord.js';
 
+// TODO: Delete this later now that /nwod chance exists
 class Chance extends SplatSlashCommand
 {
     constructor()

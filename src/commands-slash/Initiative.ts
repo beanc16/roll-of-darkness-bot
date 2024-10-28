@@ -9,6 +9,7 @@ import rollConstants from '../constants/roll.js';
 import { DiceService } from '../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../services/InitiativeResponseFormatterService.js';
 
+// TODO: Delete this later now that /nwod initiative exists
 class Initiative extends BaseSlashCommand
 {
     private _mathParser: Parser;

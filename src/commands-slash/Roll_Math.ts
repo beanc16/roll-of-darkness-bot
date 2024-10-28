@@ -5,6 +5,7 @@ import rolLConstants from '../constants/roll.js';
 import { Parser } from 'expr-eval';
 import { ChatInputCommandInteraction } from 'discord.js';
 
+// TODO: Delete this later now that /nwod roll exists
 class Roll_Math extends BaseRollCommand
 {
     private _mathParser: Parser;
