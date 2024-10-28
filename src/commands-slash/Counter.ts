@@ -26,11 +26,14 @@ import {
     CounterContainer,
     CounterController,
 } from './Counter/dal/CounterMongoController.js';
+import { getPagedEmbedBuilders } from './embed-messages/shared.js';
+import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 
 enum ButtonName
 {
     Plus = 'plus',
     Minus = 'minus',
+    AuditLog = 'audit_log',
 }
 
 class Counter extends BaseSlashCommand
@@ -138,9 +141,15 @@ class Counter extends BaseSlashCommand
             .setEmoji('➖')
             .setStyle(ButtonStyle.Danger);
 
+        const auditLogButton = new ButtonBuilder()
+            .setCustomId(ButtonName.AuditLog)
+            .setEmoji('📋')
+            .setStyle(ButtonStyle.Secondary);
+
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
                 plusButton,
+                auditLogButton,
                 minusButton,
             );
 
@@ -208,9 +217,53 @@ class Counter extends BaseSlashCommand
                 guid,
                 userId: buttonInteraction.user.id
             }),
+            [ButtonName.AuditLog]: () => this.getAuditLogMessage(guid, buttonInteraction),
         };
 
         return handlerMap[buttonInteraction.customId as ButtonName]();
+    }
+
+    private getAuditLogMessage(guid: UUID, buttonInteraction: ButtonInteraction)
+    {
+        const { auditLogs = [] } = counterSingleton.get(guid).getCounter();
+
+        const { pages } = auditLogs.reduce<{
+            pages: string[];
+            curPageIndex: number;
+        }>((acc, { userId, operation }, index) =>
+        {
+            // Add a new page if the page goes over the max limit
+            if (acc.pages[acc.curPageIndex] && (index + 1) % 20 === 0)
+            {
+                acc.curPageIndex += 1;
+            }
+
+            // Initialize empty page
+            if (!acc.pages[acc.curPageIndex])
+            {
+                acc.pages.push('');
+            }
+
+            acc.pages[acc.curPageIndex] += `${Text.Ping.user(userId)} ${operation}\n`;
+
+            return acc;
+        }, {
+            pages: [],
+            curPageIndex: 0,
+        });
+
+        const embeds = getPagedEmbedBuilders({
+            title: 'Audit Log',
+            pages,
+            url: buttonInteraction.message.url,
+        });
+
+        // Send messages with pagination (fire and forget)
+        PaginationStrategy.run({
+            originalInteraction: buttonInteraction,
+            interactionType: 'dm',
+            embeds,
+        });
     }
 
     public async runOnStartup(bot: Client)
@@ -278,7 +331,7 @@ class Counter extends BaseSlashCommand
         const indexOfAfterColon = message.content.indexOf(':') + 1;
         const countStr = message.content.slice(indexOfAfterColon).trim().replaceAll('*', '');
         return parseInt(countStr, 10);
-    };
+    }
 }
 
 
