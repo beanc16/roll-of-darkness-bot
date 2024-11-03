@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
@@ -11,6 +10,7 @@ import { getRandomPokeballEmbedMessage } from '../../../Ptu/embed-messages/rando
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 enum PokeballType
 {
@@ -23,7 +23,7 @@ enum PokeballType
     Master = 'Master',
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomPokeballStrategy
 {
     public static key = PtuRandomSubcommand.Pokeball;
@@ -33,7 +33,8 @@ export class RandomPokeballStrategy
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    ): Promise<boolean>
+        shouldReturnMessageOptions = false
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice') || 1;
@@ -180,6 +181,16 @@ export class RandomPokeballStrategy
             results,
             rollResults,
         });
+
+        if (shouldReturnMessageOptions)
+        {
+            return {
+                options: {
+                    embeds: [embed],
+                },
+                commandName: `ptu random ${this.key}`,
+            };
+        }
 
         // Send embed with reroll button
         await RerollStrategy.run({

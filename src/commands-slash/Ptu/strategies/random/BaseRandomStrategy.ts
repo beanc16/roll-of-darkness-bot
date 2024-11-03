@@ -6,6 +6,7 @@ import { getRandomResultEmbedMessage } from '../../../Ptu/embed-messages/random.
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { PtuRandomPickupSubcommandResponse } from './types.js';
 
 interface RandomResult
 {
@@ -89,7 +90,8 @@ export class BaseRandomStrategy
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    ): Promise<boolean>
+        shouldReturnMessageOptions = false
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get setup data
         const numberOfDice = this.getNumberOfDice(interaction, options) ?? 1;
@@ -141,6 +143,16 @@ export class BaseRandomStrategy
             results,
             rollResults,
         });
+
+        if (shouldReturnMessageOptions)
+        {
+            return {
+                options: {
+                    embeds: [embed],
+                },
+                commandName: options.commandName,
+            };
+        }
 
         // Send embed with reroll button
         await RerollStrategy.run({

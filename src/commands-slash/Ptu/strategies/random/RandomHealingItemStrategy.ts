@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { HealingAndStatusOption, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 enum HealingItemTypes
 {
@@ -14,12 +14,15 @@ enum HealingItemTypes
     Status = 'Status',
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHealingItemStrategy
 {
     public static key = PtuRandomSubcommand.HealingItem;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        shouldReturnMessageOptions = false
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
         const inputType = interaction.options.getString('type') || HealingAndStatusOption.HealingAndStatus;
@@ -55,6 +58,6 @@ export class RandomHealingItemStrategy
         return await BaseRandomStrategy.run(interaction, this.key, {
             commandName: `ptu random ${this.key}`,
             parsedData,
-        });
+        }, undefined, shouldReturnMessageOptions);
     }
 }

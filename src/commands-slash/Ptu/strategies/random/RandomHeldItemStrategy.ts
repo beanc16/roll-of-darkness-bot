@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 enum HeldItemTypes
 {
@@ -14,12 +14,15 @@ enum HeldItemTypes
     Mega = 'Mega',
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHeldItemStrategy
 {
     public static key = PtuRandomSubcommand.HeldItem;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        shouldReturnMessageOptions = false
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
         const includeMega = interaction.options.getBoolean('include_mega') || false;
@@ -54,6 +57,6 @@ export class RandomHeldItemStrategy
         return await BaseRandomStrategy.run(interaction, this.key, {
             commandName: `ptu random ${this.key}`,
             parsedData,
-        });
+        }, undefined, shouldReturnMessageOptions);
     }
 }

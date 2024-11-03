@@ -1,19 +1,22 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BerryTier, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomBerryStrategy
 {
     public static key = PtuRandomSubcommand.Berry;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        shouldReturnMessageOptions = false
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         const inputTier = interaction.options.getString('berry_tier') || BerryTier.OnePlus;
 
@@ -51,6 +54,6 @@ export class RandomBerryStrategy
         return await BaseRandomStrategy.run(interaction, this.key, {
             commandName: `ptu random ${this.key}`,
             parsedData,
-        });
+        }, undefined, shouldReturnMessageOptions);
     }
 }

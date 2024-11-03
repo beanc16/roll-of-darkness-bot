@@ -1,19 +1,21 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomApricornStrategy
 {
     public static key = PtuRandomSubcommand.Apricorn;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction
+    ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
         const survivalRank = interaction.options.getInteger('survival_rank') as number;

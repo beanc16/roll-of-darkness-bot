@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -9,15 +10,16 @@ import {
     InteractionReplyOptions,
     Message,
 } from 'discord.js';
+
+import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 import { DiscordInteractionCallbackType } from '../../types/discord.js';
-import { logger } from '@beanc16/logger';
 
 enum RerollButtonName
 {
     Reroll = 'reroll',
 }
 
-type RerollInteractionOptions = string | Omit<InteractionEditReplyOptions | InteractionReplyOptions, 'components'>;
+export type RerollInteractionOptions = string | Omit<InteractionEditReplyOptions | InteractionReplyOptions, 'components'>;
 
 export type RerollInteractionCallbackType = DiscordInteractionCallbackType.EditReply
     | DiscordInteractionCallbackType.Followup;
@@ -28,7 +30,7 @@ export interface OnRerollCallbackOptions
     newCallingUserId?: string;
 }
 
-type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean>;
+type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
 
 export class RerollStrategy
 {
