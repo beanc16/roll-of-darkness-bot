@@ -3,15 +3,23 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
 import RollResponseFormatterService from '../../../services/RollResponseFormatterService.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 
 export class BaseRollStrategy
 {
     public static async run({
         interaction,
-        numberOfDice = interaction.options.getInteger('number_of_dice')
+        numberOfDice = interaction.options.getInteger('number_of_dice'),
+        commandName,
+        rerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number | null;
+        commandName: string;
+        rerollCallbackOptions?: OnRerollCallbackOptions;
     }): Promise<boolean>
     {
         // Get parameter results
@@ -45,7 +53,7 @@ export class BaseRollStrategy
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
-            authorId: interaction.user.id,
+            authorId: rerollCallbackOptions?.newCallingUserId ?? interaction.user.id,
             dicePoolGroup,
             diceToReroll,
             exceptionalOn,
@@ -56,9 +64,18 @@ export class BaseRollStrategy
             numberOfDice,
             rerollsDisplay,
         });
-        await interaction.editReply(
-            rollResponseFormatterService.getResponse()
-        );
+        RerollStrategy.run({
+            interaction,
+            options: rollResponseFormatterService.getResponse(),
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run({
+                interaction,
+                numberOfDice,
+                commandName,
+                rerollCallbackOptions: newRerollCallbackOptions,
+            }),
+            commandName,
+        });
 
         return true;
     }

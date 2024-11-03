@@ -8,7 +8,7 @@ import * as rollOptions from './Nwod/options/roll.js';
 import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import { DiceLiteService } from '../services/DiceLiteService.js';
 import { diceParserTypes, DiceStringParser, MathOperator, ParsedDicePool, ParsedDie, ParsedModifier, ProcessedDicePool } from '../services/DiceStringParser.js';
-import { RerollInteractionCallbackType, RerollStrategy } from './strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
 
 class Roll_Lite extends BaseSlashCommand
@@ -31,10 +31,9 @@ class Roll_Lite extends BaseSlashCommand
         {
             interactionCallbackType = DiscordInteractionCallbackType.EditReply,
             newCallingUserId,
-        }: {
-            interactionCallbackType?: RerollInteractionCallbackType;
-            newCallingUserId?: string;
-        } = {}
+        }: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     )
     {
         // Get parameter results
@@ -136,10 +135,10 @@ class Roll_Lite extends BaseSlashCommand
             interaction,
             options: responseMessage,
             interactionCallbackType,
-            onRerollCallback: (newInteractionCallbackType, newCallingUserId) => this.run(interaction, {
-                interactionCallbackType: newInteractionCallbackType,
-                newCallingUserId,
-            }),
+            onRerollCallback: (rerollCallbackOptions) => this.run(
+                interaction, 
+                rerollCallbackOptions
+            ),
             commandName: this.commandName,
         })
     }
