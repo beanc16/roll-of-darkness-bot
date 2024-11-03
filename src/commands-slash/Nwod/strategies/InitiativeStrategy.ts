@@ -69,4 +69,11 @@ export class InitiativeStrategy
 
         return dicePoolGroup;
     }
+
+    public static rollWithModifier(modifier = 0)
+    {
+        const dicePoolGroup = this.roll();
+        const [result] = dicePoolGroup.getBiggestResult().rollResults;
+        return result + modifier;
+    }
 }

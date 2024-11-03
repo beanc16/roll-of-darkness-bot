@@ -5,7 +5,7 @@ import {
     TextInputStyle,
 } from 'discord.js';
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
-import initiativeCommand from '../../Initiative.js';
+import { InitiativeStrategy } from '../../Nwod/strategies/InitiativeStrategy.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
 import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
@@ -160,7 +160,7 @@ export class AddCharacterModal extends BaseCustomModal
 
         if (shouldRollInitiativeAsModifierInput?.toLowerCase() === 'yes' && initiativeModifier)
         {
-            initiative = initiativeCommand.rollWithModifier(
+            initiative = InitiativeStrategy.rollWithModifier(
                 parseInt(initiativeModifier, 10)
             );
         }
