@@ -7,6 +7,8 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { addAndSubtractMathParserOptions } from '../../../../constants/mathParserOptions.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollCaptureStrategy
@@ -15,7 +17,12 @@ export class RollCaptureStrategy
     public static key = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    static async run(
+        interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    ): Promise<boolean>
     {
         // Get parameter results
         const trainerLevel = interaction.options.getInteger('trainer_level', true);
@@ -45,11 +52,13 @@ export class RollCaptureStrategy
 
         if (accuracyRoll <= this.ACCURACY_ROLL_AC)
         {
-            await interaction.editReply(
-                `${Text.Ping.user(interaction.user.id)} :game_die:\n` +
-                `${Text.bold('Accuracy')}: ${accuracyRoll}\n` +
-                `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`
-            );
+            await this.sendMessage({
+                interaction,
+                message: `${Text.Ping.user(interaction.user.id)} :game_die:\n` +
+                    `${Text.bold('Accuracy')}: ${accuracyRoll}\n` +
+                    `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`,
+                rerollCallbackOptions,
+            });
             return true;
         }
 
@@ -69,28 +78,46 @@ export class RollCaptureStrategy
             : 0;
         const result = captureRoll - trainerLevel + accuracyModifier + additionalModifier;
 
-        // Send message
-        if (captureRoll === 1)
-        {
-            await interaction.editReply(
-                `${Text.Ping.user(interaction.user.id)} rolled a guaranteed capture!!!\n` +
-                `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll})\n` +
+        // Create message text
+        const startOfMessage = (captureRoll === 1)
+            ? `${Text.Ping.user(interaction.user.id)} rolled a guaranteed capture!!!\n`
+            : `${Text.Ping.user(interaction.user.id)} :game_die:\n`;
+
+        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll})\n` +
                 `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +
-                `${Text.bold('Result')}: ${result}`
-            );
-        }
+                `${Text.bold('Result')}: ${result}`;
 
         // Send message
-        else
-        {
-            await interaction.editReply(
-                `${Text.Ping.user(interaction.user.id)} :game_die:\n` +
-                `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll})\n` +
-                `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +
-                `${Text.bold('Result')}: ${result}`
-            );
-        }
+        await this.sendMessage({
+            interaction,
+            message: startOfMessage + endOfMessage,
+            rerollCallbackOptions,
+        });
 
         return true;
+    }
+
+    private static async sendMessage({
+        interaction,
+        message,
+        rerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    }: {
+        interaction: ChatInputCommandInteraction;
+        message: string;
+        rerollCallbackOptions?: OnRerollCallbackOptions;
+    })
+    {
+        await RerollStrategy.run({
+            interaction,
+            options: message,
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: 'ptu roll capture',
+        });
     }
 }
