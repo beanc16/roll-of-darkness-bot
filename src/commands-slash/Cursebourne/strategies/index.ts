@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy, ChatIteractionStrategyRecord, NestedChatIteractionStrategyRecord } from '../../strategies/ChatIteractionStrategy.js';
+import { ChatIteractionStrategy, ChatIteractionStrategyRecord, NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
 
 import { RollStrategy } from './RollStrategy.js';
 import {

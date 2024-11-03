@@ -6,7 +6,7 @@ import { MediaInstagramSubcommand } from '../subcommand-groups/instagram.js';
 import imageStrategies from './image/index.js';
 import instagramStrategies from './instagram/index.js';
 import { MediaImageSubcommand } from '../subcommand-groups/image.js';
-import { NestedChatIteractionStrategyRecord } from '../../strategies/ChatIteractionStrategy.js';
+import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
 
 export class MediaStrategyExecutor
 {

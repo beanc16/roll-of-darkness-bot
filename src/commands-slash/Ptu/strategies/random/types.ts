@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
-import { BaseStrategy } from '../../../strategies/BaseStrategy.js';
+import { BaseStrategy } from '../../../strategies/types/BaseStrategy.js';
 
 export interface PtuRandomPickupSubcommandResponse
 {

@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../strategies/ChatIteractionStrategy.js';
+import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { NwodSubcommand } from '../options/index.js';
 import { DiceService } from '../../../services/DiceService.js';

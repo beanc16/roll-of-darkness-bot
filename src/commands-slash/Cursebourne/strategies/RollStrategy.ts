@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../strategies/ChatIteractionStrategy.js';
+import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { CurseborneSubcommand } from '../subcommand-groups/index.js';
 import { TwoSuccessesOption } from '../subcommand-groups/roll.js';

@@ -2,7 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';

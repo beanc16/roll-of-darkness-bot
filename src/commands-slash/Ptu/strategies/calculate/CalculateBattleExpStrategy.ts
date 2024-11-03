@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import { Parser } from 'expr-eval';
 
-import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
 import { addMathParserOptions } from '../../../../constants/mathParserOptions.js';

@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService.js';
 import { PaginationStrategy } from './PaginationStrategy.js';
-import { ChatIteractionStrategy } from './ChatIteractionStrategy.js';
+import { ChatIteractionStrategy } from './types/ChatIteractionStrategy.js';
 
 export enum BaseGetLookupSearchMatchType
 {

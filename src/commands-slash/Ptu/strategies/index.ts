@@ -5,7 +5,7 @@ import { PtuCalculateSubcommand } from '../subcommand-groups/calculate.js';
 import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
-import { NestedChatIteractionStrategyRecord } from '../../strategies/ChatIteractionStrategy.js';
+import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
 
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
