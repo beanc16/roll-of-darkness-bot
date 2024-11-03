@@ -1,12 +1,12 @@
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
-import { selectMenuValues } from '../../../select-menus/options/combat_tracker.js';
+import { selectMenuValues } from '../../select-menus/options/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../../message-component-handlers/combat_tracker.js';
 import { CombatTrackerStatus } from '../../constants.js';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
-import { getCombatTrackerActionRows } from '../../../select-menus/combat_tracker.js';
+import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../../embed-messages/combat_tracker.js';
 import { logger } from '@beanc16/logger';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';

@@ -6,7 +6,7 @@ import * as options from '../Combat_Tracker/options.js';
 import { Tracker } from '../Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import { updateCombatTrackerEmbedMessage } from '../Combat_Tracker/embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../Combat_Tracker/message-component-handlers/combat_tracker.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { getCombatTrackerActionRows } from '../Combat_Tracker/select-menus/combat_tracker.js';
 import { CombatTrackerType } from '../Combat_Tracker/constants.js';
 import { RollOfDarknessPseudoCache } from '../Combat_Tracker/dal/RollOfDarknessPseudoCache.js';
 

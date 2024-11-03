@@ -2,7 +2,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
 import { AddCharacterModal } from '../../modals/AddCharacter.js';
-import { selectMenuValues } from '../../../select-menus/options/combat_tracker.js';
+import { selectMenuValues } from '../../select-menus/options/combat_tracker.js';
 
 @staticImplements<CombatTrackerIteractionStrategy>()
 export class AddCharacterStrategy

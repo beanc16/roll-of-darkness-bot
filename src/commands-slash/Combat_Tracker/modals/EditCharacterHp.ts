@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { CombatTrackerType, DamageType, HpType } from '../constants.js';

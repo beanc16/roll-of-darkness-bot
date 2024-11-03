@@ -1,6 +1,6 @@
 import initiativeStrategies from './initiative/index.js';
 import characterOptionStrategies from './characterOption/index.js';
-import { selectMenuCustomIds } from '../../select-menus/combat_tracker.js';
+import { selectMenuCustomIds } from '../select-menus/combat_tracker.js';
 import { NestedCombatTrackerIteractionStrategyRecord } from './types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from './types/CombatTrackerMessageComponentHandlerParameters.js';
 
