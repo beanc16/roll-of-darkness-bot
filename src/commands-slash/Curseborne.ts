@@ -1,10 +1,19 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { ApplicationCommandOptionChoiceData, AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import {
+    ApplicationCommandOptionChoiceData,
+    AutocompleteInteraction,
+    ChatInputCommandInteraction,
+} from 'discord.js';
 
-import { CurseborneAllNestedSubcommands, CurseborneSubcommand, CurseborneSubcommandGroup, lookup, roll } from './Cursebourne/subcommand-groups/index.js';
-
-import { CursebourneStrategyExecutor } from './Cursebourne/strategies/index.js';
-import { CurseborneLookupSubcommand } from './Cursebourne/subcommand-groups/lookup.js';
+import {
+    CurseborneAllNestedSubcommands,
+    CurseborneSubcommand,
+    CurseborneSubcommandGroup,
+    lookup,
+    roll,
+} from './Curseborne/subcommand-groups/index.js';
+import { CursebourneStrategyExecutor } from './Curseborne/strategies/index.js';
+import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
 
