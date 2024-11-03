@@ -52,6 +52,7 @@ export class RandomHeldItemStrategy
         }, []);
 
         return await BaseRandomStrategy.run(interaction, this.key, {
+            commandName: `ptu random ${this.key}`,
             parsedData,
         });
     }

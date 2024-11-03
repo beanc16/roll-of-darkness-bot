@@ -6,13 +6,21 @@ import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { LookupMoveStrategy } from '../lookup/LookupMoveStrategy.js';
+import { RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions } from '../../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomMetronomeStrategy
 {
     public static key = PtuRandomSubcommand.Metronome;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    ): Promise<boolean>
     {
         const moves = await LookupMoveStrategy.getLookupData({
             exclude: {
@@ -64,9 +72,18 @@ export class RandomMetronomeStrategy
         // Get message
         const [embed] = getLookupMovesEmbedMessages([move]);
 
-        // Send embed
-        await interaction.editReply({
-            embeds: [embed],
+        // Send embed with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: {
+                embeds: [embed],
+            },
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: `ptu random ${this.key}`,
         });
 
         return true;

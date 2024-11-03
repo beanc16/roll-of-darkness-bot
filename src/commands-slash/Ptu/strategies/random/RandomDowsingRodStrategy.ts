@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, InteractionEditReplyOptions } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../../strategies/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
@@ -9,19 +9,29 @@ import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage }
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomDowsingRodStrategy
 {
     public static key = PtuRandomSubcommand.DowsingRod;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    ): Promise<boolean>
     {
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('occult_education_rank') as number;
         const hasCrystalResonance = interaction.options.getBoolean('has_crystal_resonance') || false;
         const hasSkillStuntDowsing = interaction.options.getBoolean('has_skill_stunt_dowsing') || false;
         const isSandyOrRocky = interaction.options.getBoolean('is_sandy_or_rocky') || false;
+
+        // Set up response object
+        let responseOptions: InteractionEditReplyOptions;
 
         // Determine what items to roll for
         const findingShardsRollResult = new DiceLiteService({
@@ -56,10 +66,10 @@ export class RandomDowsingRodStrategy
                 rollResults: findingShardsRollResult.join(', '),
             });
 
-            // Send embed
-            await interaction.editReply({
+            // Set embed
+            responseOptions = {
                 embeds: [embed],
-            });
+            };
         }
 
         // Shard
@@ -132,11 +142,23 @@ export class RandomDowsingRodStrategy
                 shardColorRollResults: shardColorRollResults.join(', '),
             });
 
-            // Send embed
-            await interaction.editReply({
+            // Set embed
+            responseOptions = {
                 embeds: [embed],
-            });
+            };
         }
+
+        // Send embed with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: responseOptions,
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: `ptu random ${this.key}`,
+        });
 
         return true;
     }

@@ -49,6 +49,7 @@ export class RandomBerryStrategy
         }, []);
 
         return await BaseRandomStrategy.run(interaction, this.key, {
+            commandName: `ptu random ${this.key}`,
             parsedData,
         });
     }

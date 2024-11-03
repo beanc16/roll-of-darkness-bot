@@ -12,6 +12,8 @@ export class RandomVitaminStrategy
 
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        return await BaseRandomStrategy.run(interaction, this.key);
+        return await BaseRandomStrategy.run(interaction, this.key, {
+            commandName: `ptu random ${this.key}`,
+        });
     }
 }

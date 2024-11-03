@@ -9,13 +9,20 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuNature } from '../../models/PtuNature.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomNatureStrategy
 {
     public static key = PtuRandomSubcommand.Nature;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    ): Promise<boolean>
     {
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice') ?? 1;
@@ -55,9 +62,18 @@ export class RandomNatureStrategy
             rollResults,
         });
 
-        // Send embed
-        await interaction.editReply({
-            embeds: [embed],
+        // Send embed with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: {
+                embeds: [embed],
+            },
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: `ptu random ${this.key}`,
         });
 
         return true;

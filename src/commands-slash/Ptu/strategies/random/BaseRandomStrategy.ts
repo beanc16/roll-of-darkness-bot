@@ -4,6 +4,8 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomResultEmbedMessage } from '../../../Ptu/embed-messages/random.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 interface RandomResult
 {
@@ -15,6 +17,7 @@ interface RandomResult
 
 interface BaseRandomStrategyOptions
 {
+    commandName: string;
     numberOfDice?: number;
     parsedData?: RandomResult[];
 }
@@ -82,7 +85,10 @@ export class BaseRandomStrategy
     static async run(
         interaction: ChatInputCommandInteraction,
         subcommand: PtuRandomSubcommand,
-        options: BaseRandomStrategyOptions = {}
+        options: BaseRandomStrategyOptions,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     ): Promise<boolean>
     {
         // Get setup data
@@ -136,9 +142,20 @@ export class BaseRandomStrategy
             rollResults,
         });
 
-        // Send embed
-        await interaction.editReply({
-            embeds: [embed],
+        // Send embed with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: {
+                embeds: [embed],
+            },
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                subcommand,
+                options,
+                newRerollCallbackOptions,
+            ),
+            commandName: options.commandName,
         });
 
         return true;

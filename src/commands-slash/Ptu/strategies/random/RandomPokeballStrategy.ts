@@ -9,6 +9,8 @@ import { RandomPokeball } from '../../../Ptu.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomPokeballEmbedMessage } from '../../../Ptu/embed-messages/random.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 enum PokeballType
 {
@@ -26,7 +28,12 @@ export class RandomPokeballStrategy
 {
     public static key = PtuRandomSubcommand.Pokeball;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    ): Promise<boolean>
     {
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice', true);
@@ -174,9 +181,18 @@ export class RandomPokeballStrategy
             rollResults,
         });
 
-        // Send embed
-        await interaction.editReply({
-            embeds: [embed],
+        // Send embed with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: {
+                embeds: [embed],
+            },
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: `ptu random ${this.key}`,
         });
 
         return true;

@@ -17,7 +17,7 @@ export class RollCaptureStrategy
     public static key = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 
-    static async run(
+    public static async run(
         interaction: ChatInputCommandInteraction,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
