@@ -6,6 +6,8 @@ import { CurseborneSubcommand } from '../subcommand-groups/index.js';
 import { TwoSuccessesOption } from '../subcommand-groups/roll.js';
 import { CurseborneDiceService } from '../services/CurseborneDiceService.js';
 import { Text } from '@beanc16/discordjs-helpers';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
@@ -14,6 +16,9 @@ export class RollStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     ): Promise<boolean>
     {
         // Get parameter results
@@ -61,7 +66,16 @@ export class RollStrategy
             numOfCursedDiceSuccesses,
             cursedDiceRollResults,
         });
-        await interaction.editReply(response);
+        await RerollStrategy.run({
+            interaction,
+            options: response,
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: 'cb roll',
+        });
 
         return true;
     }
