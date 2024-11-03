@@ -26,7 +26,7 @@ class Roll_Lite extends BaseSlashCommand
         this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
-    async run(
+    public async run(
         interaction: ChatInputCommandInteraction,
         {
             interactionCallbackType = DiscordInteractionCallbackType.EditReply,
@@ -140,7 +140,7 @@ class Roll_Lite extends BaseSlashCommand
                 rerollCallbackOptions
             ),
             commandName: this.commandName,
-        })
+        });
     }
 
     get description()

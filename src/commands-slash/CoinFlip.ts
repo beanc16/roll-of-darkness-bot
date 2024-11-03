@@ -4,6 +4,8 @@ import * as rollOptions from './Nwod/options/roll.js';
 import CoinFlipService from '../services/CoinFlipService.js';
 import CoinFlipResponseFormatterService from '../services/CoinFlipResponseFormatterService.js';
 import { ChatInputCommandInteraction } from 'discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../types/discord.js';
 
 class CoinFlip extends BaseSlashCommand
 {
@@ -22,7 +24,15 @@ class CoinFlip extends BaseSlashCommand
         this._coinFlipService = new CoinFlipService();
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    public async run(
+        interaction: ChatInputCommandInteraction,
+        {
+            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
+            newCallingUserId,
+        }: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
+    )
     {
         // Get initial parameter result
         const headsOrTails = interaction.options.getString('heads_or_tails', true);
@@ -30,36 +40,34 @@ class CoinFlip extends BaseSlashCommand
         const name = interaction.options.getString('name');
 
         // Send message to show the command was received
-        await interaction.deferReply({
-            ephemeral: isSecret,
-            fetchReply: true,
-        });
+        if (interactionCallbackType === DiscordInteractionCallbackType.EditReply)
+        {
+            await interaction.deferReply({
+                ephemeral: isSecret,
+                fetchReply: true,
+            });
+        }
 
         // Flip the coin
         const result = this._coinFlipService.flip();
 
-        // Flavor text
-        // TODO: Do this later after adding categories for coin flip flavor text
-        /*
-        const flavorTextService = new FlavorTextService();
-        const flavorText = await flavorTextService.getRandomFlavorText({
-            splat,
-            categories: [
-                dicePoolGroup.getBiggestResult().successStatus,
-            ],
-        });
-        */
-
         // Response
         const coinFlipResponseFormatterService = new CoinFlipResponseFormatterService({
-            authorId: interaction.user.id,
+            authorId: newCallingUserId ?? interaction.user.id,
             headsOrTails,
             name,
             result,
-        })
-        await interaction.editReply(
-            coinFlipResponseFormatterService.getResponse()
-        );
+        });
+        await RerollStrategy.run({
+            interaction,
+            options: coinFlipResponseFormatterService.getResponse(),
+            interactionCallbackType,
+            onRerollCallback: (rerollCallbackOptions) => this.run(
+                interaction, 
+                rerollCallbackOptions
+            ),
+            commandName: this.commandName,
+        });
     }
 
     get description()
