@@ -125,7 +125,7 @@ export class PtuMove
         {
             this.damageBase = damageBase;
         }
-        else if (unparsedDamageBase !== '--' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
+        else if (unparsedDamageBase !== '--' && unparsedDamageBase !== '-' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
         {
             logger.warn('Received a move with a damage base that is not a number', { unparsedDamageBase, damageBase });
         }
