@@ -29,7 +29,7 @@ import {
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 
-enum ButtonName
+enum CounterButtonName
 {
     Plus = 'plus',
     Minus = 'minus',
@@ -132,17 +132,17 @@ class Counter extends BaseSlashCommand
     private getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
         const plusButton = new ButtonBuilder()
-            .setCustomId(ButtonName.Plus)
+            .setCustomId(CounterButtonName.Plus)
             .setEmoji('➕')
             .setStyle(ButtonStyle.Success);
 
         const minusButton = new ButtonBuilder()
-            .setCustomId(ButtonName.Minus)
+            .setCustomId(CounterButtonName.Minus)
             .setEmoji('➖')
             .setStyle(ButtonStyle.Danger);
 
         const auditLogButton = new ButtonBuilder()
-            .setCustomId(ButtonName.AuditLog)
+            .setCustomId(CounterButtonName.AuditLog)
             .setEmoji('📋')
             .setStyle(ButtonStyle.Secondary);
 
@@ -208,19 +208,19 @@ class Counter extends BaseSlashCommand
 
     private updateCount(buttonInteraction: ButtonInteraction, guid: UUID)
     {
-        const handlerMap: Record<ButtonName, () => void> = {
-            [ButtonName.Plus]: () => counterSingleton.incrementCount({
+        const handlerMap: Record<CounterButtonName, () => void> = {
+            [CounterButtonName.Plus]: () => counterSingleton.incrementCount({
                 guid,
                 userId: buttonInteraction.user.id
             }),
-            [ButtonName.Minus]: () => counterSingleton.decrementCount({
+            [CounterButtonName.Minus]: () => counterSingleton.decrementCount({
                 guid,
                 userId: buttonInteraction.user.id
             }),
-            [ButtonName.AuditLog]: () => this.getAuditLogMessage(guid, buttonInteraction),
+            [CounterButtonName.AuditLog]: () => this.getAuditLogMessage(guid, buttonInteraction),
         };
 
-        return handlerMap[buttonInteraction.customId as ButtonName]();
+        return handlerMap[buttonInteraction.customId as CounterButtonName]();
     }
 
     private getAuditLogMessage(guid: UUID, buttonInteraction: ButtonInteraction)
