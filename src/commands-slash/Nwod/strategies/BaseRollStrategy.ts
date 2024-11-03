@@ -64,7 +64,7 @@ export class BaseRollStrategy
             numberOfDice,
             rerollsDisplay,
         });
-        RerollStrategy.run({
+        await RerollStrategy.run({
             interaction,
             options: rollResponseFormatterService.getResponse(),
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,

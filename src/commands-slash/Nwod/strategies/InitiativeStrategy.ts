@@ -8,6 +8,8 @@ import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
 import { addAndSubtractMathParserOptions } from '../../../constants/mathParserOptions.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy
@@ -17,6 +19,9 @@ export class InitiativeStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     ): Promise<boolean>
     {
         // Get initial parameter result
@@ -43,9 +48,16 @@ export class InitiativeStrategy
             initiativeModifier,
             name,
         });
-        await interaction.editReply(
-            initiativeResponseFormatterService.getResponse()
-        );
+        await RerollStrategy.run({
+            interaction,
+            options: initiativeResponseFormatterService.getResponse(),
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: 'nwod initiative',
+        });
         return true;
     }
 

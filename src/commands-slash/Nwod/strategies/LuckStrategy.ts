@@ -5,6 +5,8 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { NwodSubcommand } from '../options/index.js';
 import { DiceService } from '../../../services/DiceService.js';
 import RollResponseFormatterService from '../../../services/RollResponseFormatterService.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class LuckStrategy
@@ -13,6 +15,9 @@ export class LuckStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        rerollCallbackOptions: OnRerollCallbackOptions = {
+            interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+        },
     ): Promise<boolean>
     {
         // Get initial parameter result
@@ -34,9 +39,16 @@ export class LuckStrategy
             numberOfDice,
             name,
         });
-        await interaction.editReply(
-            rollResponseFormatterService.getResponse()
-        );
+        await RerollStrategy.run({
+            interaction,
+            options: rollResponseFormatterService.getResponse(),
+            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: 'nwod luck',
+        });
         return true;
     }
 }
