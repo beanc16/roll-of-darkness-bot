@@ -26,7 +26,16 @@ class Roll_Lite extends BaseSlashCommand
         this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
-    async run(interaction: ChatInputCommandInteraction, interactionCallbackType: RerollInteractionCallbackType = DiscordInteractionCallbackType.EditReply)
+    async run(
+        interaction: ChatInputCommandInteraction,
+        {
+            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
+            newCallingUserId,
+        }: {
+            interactionCallbackType?: RerollInteractionCallbackType;
+            newCallingUserId?: string;
+        } = {}
+    )
     {
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool', true);
@@ -118,7 +127,7 @@ class Roll_Lite extends BaseSlashCommand
         }
 
         // Run the below separately from the try catch, so errors in super.run don't send an incorrect error message
-        const responseMessage = `${Text.Ping.user(interaction.user.id)} :game_die:\n`
+        const responseMessage = `${Text.Ping.user(newCallingUserId ?? interaction.user.id)} :game_die:\n`
             + `${Text.bold(name ?? 'Result')}:${resultString}\n`
             + `${Text.bold('Total')}: ${finalRollResult}`;
 
@@ -127,7 +136,10 @@ class Roll_Lite extends BaseSlashCommand
             interaction,
             options: responseMessage,
             interactionCallbackType,
-            onRerollCallback: (newInteractionCallbackType) => this.run(interaction, newInteractionCallbackType),
+            onRerollCallback: (newInteractionCallbackType, newCallingUserId) => this.run(interaction, {
+                interactionCallbackType: newInteractionCallbackType,
+                newCallingUserId,
+            }),
             commandName: this.commandName,
         })
     }

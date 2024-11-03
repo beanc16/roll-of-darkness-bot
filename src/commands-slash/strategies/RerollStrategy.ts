@@ -23,7 +23,8 @@ export type RerollInteractionCallbackType = DiscordInteractionCallbackType.EditR
     | DiscordInteractionCallbackType.Followup;
 
 type OnRerollCallback = (
-    interactionCallbackType: DiscordInteractionCallbackType.Followup
+    interactionCallbackType: DiscordInteractionCallbackType.Followup,
+    newCallingUserId: string,
 ) => Promise<void>;
 
 export class RerollStrategy
@@ -112,7 +113,10 @@ export class RerollStrategy
 
             await Promise.all([
                 // Run callback
-                await onRerollCallback(DiscordInteractionCallbackType.Followup),
+                await onRerollCallback(
+                    DiscordInteractionCallbackType.Followup,
+                    buttonInteraction.user.id,
+                ),
 
                 // Update original message with the same content so
                 // the buttons know that the interaction was successful
