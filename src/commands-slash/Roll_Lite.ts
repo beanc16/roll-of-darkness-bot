@@ -8,6 +8,8 @@ import * as rollOptions from './Nwod/options/roll.js';
 import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import { DiceLiteService } from '../services/DiceLiteService.js';
 import { diceParserTypes, DiceStringParser, MathOperator, ParsedDicePool, ParsedDie, ParsedModifier, ProcessedDicePool } from '../services/DiceStringParser.js';
+import { RerollInteractionCallbackType, RerollStrategy } from './strategies/RerollStrategy.js';
+import { DiscordInteractionCallbackType } from '../types/discord.js';
 
 class Roll_Lite extends BaseSlashCommand
 {
@@ -24,7 +26,7 @@ class Roll_Lite extends BaseSlashCommand
         this._mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    async run(interaction: ChatInputCommandInteraction, interactionCallbackType: RerollInteractionCallbackType = DiscordInteractionCallbackType.EditReply)
     {
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool', true);
@@ -32,10 +34,13 @@ class Roll_Lite extends BaseSlashCommand
         const name = interaction.options.getString('name');
 
         // Send message to show the command was received
-        await interaction.deferReply({
-            ephemeral: isSecret,
-            fetchReply: true,
-        });
+        if (interactionCallbackType === DiscordInteractionCallbackType.EditReply)
+        {
+            await interaction.deferReply({
+                ephemeral: isSecret,
+                fetchReply: true,
+            });
+        }
 
         // Get result
         let parsedDicePool: ParsedDicePool, finalRollResult: number;
@@ -112,12 +117,19 @@ class Roll_Lite extends BaseSlashCommand
             return;
         }
 
-        // Run this separately from the try catch, so errors in super.run don't send an incorrect error message
-        await interaction.editReply(
-            `${Text.Ping.user(interaction.user.id)} :game_die:\n`
+        // Run the below separately from the try catch, so errors in super.run don't send an incorrect error message
+        const responseMessage = `${Text.Ping.user(interaction.user.id)} :game_die:\n`
             + `${Text.bold(name ?? 'Result')}:${resultString}\n`
-            + `${Text.bold('Total')}: ${finalRollResult}`
-        );
+            + `${Text.bold('Total')}: ${finalRollResult}`;
+
+        // Send response with reroll button
+        await RerollStrategy.run({
+            interaction,
+            options: responseMessage,
+            interactionCallbackType,
+            onRerollCallback: (newInteractionCallbackType) => this.run(interaction, newInteractionCallbackType),
+            commandName: this.commandName,
+        })
     }
 
     get description()
