@@ -36,7 +36,7 @@ export class RandomPokeballStrategy
     ): Promise<boolean>
     {
         // Get parameter results
-        const numberOfDice = interaction.options.getInteger('number_of_dice', true);
+        const numberOfDice = interaction.options.getInteger('number_of_dice') || 1;
         const includeSpecial = interaction.options.getBoolean('include_special') || false;
         const includeSafari = interaction.options.getBoolean('include_safari') || false;
         const includeJailbreaker = interaction.options.getBoolean('include_jailbreaker') || false;
