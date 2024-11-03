@@ -26,7 +26,7 @@ export const getRandomResultEmbedMessage = ({
             ? `${description}\n`
             : '';
 
-        const costString = (cost !== undefined)
+        const costString = (cost !== undefined && cost !== '--')
             ? `\nCost: ${cost}`
             : '';
 
