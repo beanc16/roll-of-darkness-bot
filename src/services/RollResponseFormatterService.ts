@@ -10,7 +10,6 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
     private diceToReroll: number;
     private exceptionalOn: number;
     private extraSuccesses: number;
-    private flavorText: string;
     private isAdvancedAction: boolean;
     private isRote: boolean;
     private name: string;
@@ -23,7 +22,6 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         diceToReroll = rollConstants.defaultParams.diceToReroll,
         exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         extraSuccesses = 0,
-        flavorText = rollConstants.defaultFlavorTextResults,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         isRote = rollConstants.defaultParams.isRote,
         name = '',
@@ -50,7 +48,6 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         this.diceToReroll = diceToReroll || rollConstants.defaultParams.diceToReroll;
         this.exceptionalOn = exceptionalOn || rollConstants.defaultParams.exceptionalOn;
         this.extraSuccesses = extraSuccesses || 0;
-        this.flavorText = flavorText || rollConstants.defaultFlavorTextResults;
         this.isAdvancedAction = isAdvancedAction || rollConstants.defaultParams.isAdvancedAction;
         this.isRote = isRote || rollConstants.defaultParams.isRote;
         this.name = name as string;
@@ -222,7 +219,7 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
 
         const rollName = (this.name) ? ` for ${this.name}` : '';
 
-        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}${rollName}. ${this.flavorText}`
+        return `${this.authorPing} rolled ${this.numberOfDice} dice${this.getWithParametersString(0)}${rollName}.`
             + responsesStr;
     }
 }

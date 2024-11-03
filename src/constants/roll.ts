@@ -41,12 +41,9 @@ const rerollsEnum = {
     },
 };
 
-const defaultFlavorTextResults = '#blamejoel.';
-
 
 
 export default {
-    defaultFlavorTextResults,
     defaultParams,
     maxParams,
     rerollsEnum,

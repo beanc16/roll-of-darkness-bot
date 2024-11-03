@@ -93,7 +93,7 @@ export default class FlavorTextService
 
         else
         {
-            return [rollConstants.defaultFlavorTextResults];
+            return ['#blamejoel'];
         }
     }
 
@@ -155,7 +155,7 @@ export default class FlavorTextService
 
         else
         {
-            return [rollConstants.defaultFlavorTextResults];
+            return ['#blamejoel'];
         }
     }
 
