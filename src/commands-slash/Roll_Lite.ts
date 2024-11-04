@@ -6,14 +6,13 @@ import { Parser } from 'expr-eval';
 import { rollLite } from './options/index.js';
 import * as rollOptions from './Nwod/options/roll.js';
 import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
-import { DiceLiteService } from '../services/DiceLiteService.js';
-import { diceParserTypes, DiceStringParser, MathOperator, ParsedDicePool, ParsedDie, ParsedModifier, ProcessedDicePool } from '../services/DiceStringParser.js';
+import { DiceStringParser } from '../services/DiceStringParser.js';
 import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
 
 class Roll_Lite extends BaseSlashCommand
 {
-    private _mathParser: Parser;
+    private mathParser: Parser;
 
     constructor()
     {
@@ -23,7 +22,7 @@ class Roll_Lite extends BaseSlashCommand
             .addStringOption(rollOptions.name)
             .addBooleanOption(rollOptions.secret);
 
-        this._mathParser = new Parser(addAndSubtractMathParserOptions);
+        this.mathParser = new Parser(addAndSubtractMathParserOptions);
     }
 
     public async run(
@@ -51,74 +50,22 @@ class Roll_Lite extends BaseSlashCommand
         }
 
         // Get result
-        let parsedDicePool: ParsedDicePool, finalRollResult: number;
+        let unparsedMathString: string, resultString: string, finalRollResult: number;
 
         try {
-            parsedDicePool = DiceStringParser.parse(dicePoolExpression);
+            // Roll each dice and parse results to string for math parser.
+            const rollResult = DiceStringParser.parseAndRoll(dicePoolExpression);
+            unparsedMathString = rollResult.unparsedMathString;
+            resultString = rollResult.resultString;
         } catch (err) {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             await interaction.editReply(`An invalid dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
             return;
         }
 
-        // Roll each dice and parse results to string for math parser.
-        const {
-            unparsedMathString,
-            resultString,
-        } = parsedDicePool.reduce<{
-            processedDicePool: ProcessedDicePool;
-            unparsedMathString: string;
-            resultString: string;
-        }>((acc, cur) =>
-        {
-            if (cur.type === diceParserTypes.Die)
-            {
-                const curParsedDie = cur as ParsedDie;
-                const { numberOfDice, sides } = curParsedDie;
-                const dieString = `${numberOfDice}d${sides}`;
-                const rollResult = new DiceLiteService({
-                    count: numberOfDice,
-                    sides,
-                }).roll();
-                const rollTotal = rollResult.reduce((acc, cur) => (acc + cur), 0);
-                const rollResultsAsString = rollResult.join(', ');
-
-                acc.processedDicePool.push({
-                    ...curParsedDie,
-                    die: dieString,
-                    result: rollResult,
-                    total: rollTotal,
-                });
-                acc.unparsedMathString += rollTotal;
-                acc.resultString += ` ${dieString} (${rollResultsAsString})`;
-            }
-
-            else if (cur.type === diceParserTypes.MathOperator)
-            {
-                const curMathOperator = cur as MathOperator;
-                acc.processedDicePool.push(curMathOperator);
-                acc.unparsedMathString += curMathOperator.operator;
-                acc.resultString += ` ${curMathOperator.operator}`;
-            }
-
-            else if (cur.type === diceParserTypes.Modifier)
-            {
-                const curParsedModifier = cur as ParsedModifier;
-                acc.processedDicePool.push(curParsedModifier);
-                acc.unparsedMathString += curParsedModifier.modifier;
-                acc.resultString += ` ${curParsedModifier.modifier}`;
-            }
-
-            return acc;
-        }, {
-            processedDicePool: [],
-            unparsedMathString: '',
-            resultString: '',
-        });
-
         // Parse math string for results.
         try {
-            finalRollResult = this._mathParser.evaluate(unparsedMathString);
+            finalRollResult = this.mathParser.evaluate(unparsedMathString);
         } catch (err) {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             await interaction.editReply(`An invalid dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);

@@ -1,3 +1,5 @@
+import { DiceLiteService } from './DiceLiteService.js';
+
 export interface ParsedDie
 {
     numberOfDice: number;
@@ -84,7 +86,7 @@ export class DiceStringParser
         return operators;
     }
 
-    static parse(initialAllDiceString: string): ParsedDicePool
+    private static parse(initialAllDiceString: string): ParsedDicePool
     {
         const allDiceString = initialAllDiceString.replace(/\s+/g, '');
 
@@ -106,5 +108,68 @@ export class DiceStringParser
         }, []);
 
         return output;
+    }
+
+    private static rollParsedPool(parsedDicePool: ParsedDicePool)
+    {
+        // Roll each dice and parse results to string for math parser.
+        const result = parsedDicePool.reduce<{
+            processedDicePool: ProcessedDicePool;
+            unparsedMathString: string;
+            resultString: string;
+        }>((acc, cur) =>
+        {
+            if (cur.type === diceParserTypes.Die)
+            {
+                const curParsedDie = cur as ParsedDie;
+                const { numberOfDice, sides } = curParsedDie;
+                const dieString = `${numberOfDice}d${sides}`;
+                const rollResult = new DiceLiteService({
+                    count: numberOfDice,
+                    sides,
+                }).roll();
+                const rollTotal = rollResult.reduce((acc, cur) => (acc + cur), 0);
+                const rollResultsAsString = rollResult.join(', ');
+
+                acc.processedDicePool.push({
+                    ...curParsedDie,
+                    die: dieString,
+                    result: rollResult,
+                    total: rollTotal,
+                });
+                acc.unparsedMathString += rollTotal;
+                acc.resultString += ` ${dieString} (${rollResultsAsString})`;
+            }
+
+            else if (cur.type === diceParserTypes.MathOperator)
+            {
+                const curMathOperator = cur as MathOperator;
+                acc.processedDicePool.push(curMathOperator);
+                acc.unparsedMathString += curMathOperator.operator;
+                acc.resultString += ` ${curMathOperator.operator}`;
+            }
+
+            else if (cur.type === diceParserTypes.Modifier)
+            {
+                const curParsedModifier = cur as ParsedModifier;
+                acc.processedDicePool.push(curParsedModifier);
+                acc.unparsedMathString += curParsedModifier.modifier;
+                acc.resultString += ` ${curParsedModifier.modifier}`;
+            }
+
+            return acc;
+        }, {
+            processedDicePool: [],
+            unparsedMathString: '',
+            resultString: '',
+        });
+
+        return result;
+    }
+
+    public static parseAndRoll(initialAllDiceString: string)
+    {
+        const parsedDicePool = this.parse(initialAllDiceString);
+        return this.rollParsedPool(parsedDicePool);
     }
 }
