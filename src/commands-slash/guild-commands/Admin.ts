@@ -2,7 +2,7 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { RollOfDarknessApi } from '@beanc16/microservices-abstraction';
 import * as subcommandsGroups from './subcommand-groups/index.js';
 import FlavorTextService from '../../services/FlavorTextService.js';
-import JsonPrettifierService from '../../services/JsonPrettifierService.js';
+import JsonPrettifierService from './Admin/services/JsonPrettifierService.js';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 class Admin extends BaseSlashCommand
