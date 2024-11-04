@@ -17,6 +17,7 @@ This bot is hosted on Heroku for private use. Please do not copy this repo's cod
     - [The first non-dice command](#the-first-non-dice-command)
     - [Pokemon Tabletop United](#pokemon-tabletop-united)
     - [Curseborne](#curseborne)
+    - [What's next?](#whats-next)
   - [Credits](#credits)
 
 
@@ -73,6 +74,11 @@ Recently, a branch of the creators of nWOD decided to make a new system called C
 I made a custom roll command following this system, just as I initially did for nWOD and even created a lookup for some Curseborne data in Google Sheets similar to PTU.
 
 Since this system is so new, this command is still in its infancy, but I expect it'll get fleshed out more if my friends and I play more TTRPG campaigns in the system.
+
+
+### What's next?
+
+Great question! I'm currently tracking ideas for new features, bug fixes, and tech debt in [issues](https://github.com/beanc16/roll-of-darkness-bot/issues). You can get an idea of some of what I plan on working on next there.
 
 
 
