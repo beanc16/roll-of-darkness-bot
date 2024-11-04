@@ -55,6 +55,7 @@ export class TrainPokemonStrategy
         const pokemonName = interaction.options.getString('pokemon_page_name', true);
         const numOfTrainingSessions = interaction.options.getInteger('num_of_training_sessions') ?? 1;
         const expPerTrainingSession = interaction.options.getInteger('exp_per_training_session');
+        const shouldUseBabyFood = interaction.options.getBoolean('should_use_baby_food') ?? false;
 
         // Parse spreadsheet id
         const {
@@ -182,6 +183,17 @@ export class TrainPokemonStrategy
             return true;
         }
 
+        // Add baby food safety rail
+        if (shouldUseBabyFood && startingLevel > 15)
+        {
+            await interaction.editReply(
+                `Tried to use baby food, but ${nickname ?? pokemonName} is level ${startingLevel}. ` +
+                `Baby food can only be used by pokemon of level 15 or lower. ` +
+                `Please try again without using baby food.`
+            );
+            return true;
+        }
+
         // Train the pokemon
         const {
             errorType,
@@ -195,6 +207,7 @@ export class TrainPokemonStrategy
             trainingExp,
             numOfTrainingSessions,
             expPerTrainingSessionOverride: expPerTrainingSession,
+            shouldUseBabyFood: (shouldUseBabyFood && startingLevel! <= 15),
         });
 
         if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
@@ -215,7 +228,7 @@ export class TrainPokemonStrategy
         const trainingSessionText = (numOfTrainingSessions === 1)
             ? ''
             : ` after ${numOfTrainingSessions} training sessions`;
-        await interaction.editReply(`${nickname}${leveledUpText} gained ${expGained} exp${trainingSessionText}`);
+        await interaction.editReply(`${nickname ?? pokemonName}${leveledUpText} gained ${expGained} exp${trainingSessionText}`);
 
         return true;
     }
@@ -366,6 +379,7 @@ export class TrainPokemonStrategy
         trainingExp,
         numOfTrainingSessions,
         expPerTrainingSessionOverride,
+        shouldUseBabyFood,
     }: {
         interaction: ChatInputCommandInteraction;
         spreadsheetId: string;
@@ -375,6 +389,7 @@ export class TrainPokemonStrategy
         trainingExp: number;
         numOfTrainingSessions: number;
         expPerTrainingSessionOverride: number | null;
+        shouldUseBabyFood: boolean;
     }): Promise<{ newTotalExp: number; errorType?: GoogleSheetsApiErrorType; }>
     {
         const {
@@ -386,6 +401,7 @@ export class TrainPokemonStrategy
             trainingExp,
             numOfTrainingSessions,
             expPerTrainingSessionOverride,
+            shouldUseBabyFood,
         });
 
         // Apply training to the character sheet
@@ -413,6 +429,7 @@ export class TrainPokemonStrategy
             const {
                 expToNextLevel,
                 trainingExp: updatedTrainingExp,
+                startingLevel,
             } = await this.getSpreadsheetValues({
                 spreadsheetId,
                 pokemonName,
@@ -428,6 +445,7 @@ export class TrainPokemonStrategy
                 trainingExp: updatedTrainingExp as number,
                 numOfTrainingSessions: newNumOfTrainingSessionsLeft,
                 expPerTrainingSessionOverride,
+                shouldUseBabyFood: (shouldUseBabyFood && startingLevel! <= 15),
             });
         }
 
@@ -440,17 +458,20 @@ export class TrainPokemonStrategy
         trainingExp,
         numOfTrainingSessions,
         expPerTrainingSessionOverride,
+        shouldUseBabyFood,
     }: {
         totalExp: number;
         expToNextLevel: number;
         trainingExp: number;
         numOfTrainingSessions: number;
         expPerTrainingSessionOverride: number | null;
+        shouldUseBabyFood: boolean;
     })
     {
         let newTotalExp = totalExp;
         let newExpToNextLevel = expToNextLevel;
-        const expToTrainWith = expPerTrainingSessionOverride ?? trainingExp;
+        const babyFoodMultiplier = (shouldUseBabyFood) ? 1.2 : 1;
+        const expToTrainWith = Math.floor((expPerTrainingSessionOverride ?? trainingExp) * babyFoodMultiplier);
 
         for (let index = 1; index <= numOfTrainingSessions; index++)
         {

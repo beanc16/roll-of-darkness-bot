@@ -150,5 +150,10 @@ export const train = (subcommand: SlashCommandSubcommandBuilder) =>
         return option.setDescription(`The experience to give per training session (default: whatever's on the sheet).`);
     });
 
+    subcommand.addBooleanOption((option) => {
+        option.setName('should_use_baby_food');
+        return option.setDescription(`Should increase the exp gain of the pokemon at level 15 or lower by 20% (default: false).`);
+    });
+
     return subcommand;
 };
