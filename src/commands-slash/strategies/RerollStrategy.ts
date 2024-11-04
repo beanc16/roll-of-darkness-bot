@@ -8,6 +8,7 @@ import {
     ComponentType,
     InteractionEditReplyOptions,
     InteractionReplyOptions,
+    InteractionUpdateOptions,
     Message,
 } from 'discord.js';
 
@@ -19,10 +20,15 @@ enum RerollButtonName
     Reroll = 'reroll',
 }
 
-export type RerollInteractionOptions = string | Omit<InteractionEditReplyOptions | InteractionReplyOptions, 'components'>;
+export type RerollInteractionOptions = string | Omit<
+    InteractionEditReplyOptions
+    | InteractionReplyOptions
+    | InteractionUpdateOptions, 'components'
+>;
 
 export type RerollInteractionCallbackType = DiscordInteractionCallbackType.EditReply
-    | DiscordInteractionCallbackType.Followup;
+    | DiscordInteractionCallbackType.Followup
+    | DiscordInteractionCallbackType.Update;
 
 export interface OnRerollCallbackOptions
 {
@@ -45,7 +51,7 @@ export class RerollStrategy
         onRerollCallback,
         commandName,
     }: {
-        interaction: ChatInputCommandInteraction;
+        interaction: ChatInputCommandInteraction | ButtonInteraction;
         options: RerollInteractionOptions;
         interactionCallbackType: RerollInteractionCallbackType;
         onRerollCallback: OnRerollCallback;
@@ -57,6 +63,7 @@ export class RerollStrategy
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(rerollOptions as InteractionEditReplyOptions),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(rerollOptions as InteractionReplyOptions),
+            [DiscordInteractionCallbackType.Update]: () => (interaction as ButtonInteraction).update(rerollOptions as InteractionUpdateOptions),
         };
 
         // Send/Update message
@@ -64,7 +71,9 @@ export class RerollStrategy
 
         // Handle any interactions on the buttons
         this.handleButtonInteractions({
-            interactionResponse: response,
+            interactionResponse: (interactionCallbackType === DiscordInteractionCallbackType.Update)
+                ? (interaction as ButtonInteraction).message
+                : response as Message<boolean>,
             onRerollCallback,
             commandName,
         });
