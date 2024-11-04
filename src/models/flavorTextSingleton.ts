@@ -1,4 +1,4 @@
-import Singleton from './Singleton.js';
+import { ArraySingleton } from './Singleton.js';
 
 export interface FlavorText
 {
@@ -14,11 +14,11 @@ interface OptionalFlavorText
 
 class FlavorTextSingleton
 {
-    private _singleton: Singleton<FlavorText[]>;
+    private _singleton: ArraySingleton<FlavorText[]>;
 
     constructor(flavorTexts = [])
     {
-        this._singleton = new Singleton(flavorTexts);
+        this._singleton = new ArraySingleton(flavorTexts);
     }
 
     get notInitialized()
@@ -76,10 +76,10 @@ class FlavorTextSingleton
             this.set([]);
         }
 
-        this._singleton._value.push({
+        this._singleton.push({
             keys: keys || [],
             results: results || [],
-        })
+        });
     }
 }
 

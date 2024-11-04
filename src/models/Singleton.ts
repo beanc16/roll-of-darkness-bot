@@ -1,20 +1,27 @@
 export default class Singleton<T = unknown>
 {
-    // TODO: Change this to #value later when all singletons are in TypeScript.
-    _value: T;
+    protected value: T;
 
     constructor(value: T)
     {
-        this._value = value;
+        this.value = value;
     }
 
-    get()
+    public get()
     {
-        return this._value;
+        return this.value;
     }
 
-    set(value: T)
+    public set(value: T)
     {
-        this._value = value;
+        this.value = value;
+    }
+}
+
+export class ArraySingleton<T extends any[] = unknown[]> extends Singleton<T>
+{
+    public push(...items: T[number][])
+    {
+        this.value.push(items);
     }
 }
