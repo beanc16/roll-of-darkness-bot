@@ -109,28 +109,7 @@ class CoinFlip extends BaseSlashCommand
 
         return `${Text.Ping.user(authorId)} flipped a coin, `
             + `predicted that it would be ${Text.bold(headsOrTails)}, `
-            + ` and got ${Text.bold(result)}${rollName}. `
-            + this.getRandomFlavorText({ headsOrTails, result });
-    }
-
-    private getRandomFlavorText({
-        headsOrTails,
-        result,
-    }: {
-        headsOrTails: string;
-        result: CoinFlipResult;
-    })
-    {
-        // Successfully predicted results
-        if (result === headsOrTails)
-        {
-            return 'You must be so proud of successfully predicting '
-                + 'the correct answer to a 50% chance.';
-        }
-        else
-        {
-            return `It's okay, we can't all be right.`;
-        }
+            + ` and got ${Text.bold(result)}${rollName}.`;
     }
 }
 
