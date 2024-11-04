@@ -1,17 +1,23 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import * as options from './options/index.js';
 import * as rollOptions from './Nwod/options/roll.js';
-import CoinFlipService from '../services/CoinFlipService.js';
-import CoinFlipResponseFormatterService from '../services/CoinFlipResponseFormatterService.js';
 import { ChatInputCommandInteraction } from 'discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
+import { Text } from '@beanc16/discordjs-helpers';
+import { DiceService } from '../services/DiceService.js';
+
+enum CoinFlipResult
+{
+    Heads = 'heads',
+    Tails = 'tails',
+}
 
 class CoinFlip extends BaseSlashCommand
 {
-    private _coinFlipService: CoinFlipService;
+    private diceService: DiceService;
 
-    constructor()
+    public constructor()
     {
         super();
         this._slashCommandData
@@ -21,7 +27,9 @@ class CoinFlip extends BaseSlashCommand
                 commandType: 'coin flip',
             }));
 
-        this._coinFlipService = new CoinFlipService();
+        this.diceService = new DiceService({
+            sides: 2,
+        });
     }
 
     public async run(
@@ -49,18 +57,17 @@ class CoinFlip extends BaseSlashCommand
         }
 
         // Flip the coin
-        const result = this._coinFlipService.flip();
+        const result = this.flipCoin();
 
         // Response
-        const coinFlipResponseFormatterService = new CoinFlipResponseFormatterService({
-            authorId: newCallingUserId ?? interaction.user.id,
-            headsOrTails,
-            name,
-            result,
-        });
         await RerollStrategy.run({
             interaction,
-            options: coinFlipResponseFormatterService.getResponse(),
+            options: this.getResponse({
+                authorId: newCallingUserId ?? interaction.user.id,
+                headsOrTails,
+                name,
+                result,
+            }),
             interactionCallbackType,
             onRerollCallback: (rerollCallbackOptions) => this.run(
                 interaction, 
@@ -70,9 +77,60 @@ class CoinFlip extends BaseSlashCommand
         });
     }
 
-    get description()
+    public get description()
     {
         return `Flip a coin.`;
+    }
+
+    private flipCoin()
+    {
+        const result = this.diceService.roll();
+
+        if (result.get(0).rolls[0][0].number === 1) {
+            return CoinFlipResult.Heads;
+        }
+
+        return CoinFlipResult.Tails;
+    }
+
+    private getResponse({
+        authorId,
+        headsOrTails,
+        name,
+        result,
+    }: {
+        authorId: string;
+        headsOrTails: string;
+        name?: string | null;
+        result: CoinFlipResult;
+    })
+    {
+        const rollName = (name) ? ` for ${name}` : '';
+
+        return `${Text.Ping.user(authorId)} flipped a coin, `
+            + `predicted that it would be ${Text.bold(headsOrTails)}, `
+            + ` and got ${Text.bold(result)}${rollName}. `
+            + this.getRandomFlavorText({ headsOrTails, result });
+    }
+
+    private getRandomFlavorText({
+        headsOrTails,
+        result,
+    }: {
+        headsOrTails: string;
+        result: CoinFlipResult;
+    })
+    {
+        // Successfully predicted results
+        if (result === headsOrTails)
+        {
+            return 'You must be so proud of successfully predicting '
+                + 'the correct answer to a 50% chance.';
+        }
+        else
+        {
+            return `It's okay, we can't all be right.`;
+        }
     }
 }
 
