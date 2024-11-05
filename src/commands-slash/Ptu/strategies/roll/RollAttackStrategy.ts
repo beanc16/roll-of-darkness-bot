@@ -98,7 +98,7 @@ export class RollAttackStrategy
         await this.sendAccuracyRollMessage({
             interaction,
             message: `${Text.Ping.user(interaction.user.id)}${
-                    name ? ` ${name}` : ''
+                    name ? ` ${Text.bold(name)}` : ''
                 } :game_die:\n`
                 + `${Text.bold('Accuracy')}: 1d20${accuracyModifierStr} (${
                     accuracyRoll + accuracyModifier
