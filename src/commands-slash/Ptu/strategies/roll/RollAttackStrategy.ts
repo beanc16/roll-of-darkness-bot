@@ -143,7 +143,6 @@ export class RollAttackStrategy
         this.handleButtonInteractions({
             interaction,
             interactionResponse: response,
-            rerollCallbackOptions,
             damageResultString,
             finalRollResult,
         });
@@ -152,15 +151,11 @@ export class RollAttackStrategy
     private static async handleButtonInteractions({
         interaction,
         interactionResponse,
-        rerollCallbackOptions = {
-            interactionCallbackType: DiscordInteractionCallbackType.Update,
-        },
         damageResultString,
         finalRollResult,
     }: {
         interaction: ChatInputCommandInteraction;
         interactionResponse: Message<boolean>;
-        rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
     })
@@ -180,7 +175,7 @@ export class RollAttackStrategy
                     options: (buttonInteraction as ButtonInteraction).message.content
                         + `\n${Text.bold('Damage')}:${damageResultString}\n`
                         + `${Text.bold('Total')}: ${finalRollResult}`,
-                    interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+                    interactionCallbackType: DiscordInteractionCallbackType.Update,
                     onRerollCallback: (newRerollCallbackOptions) => this.run(
                         interaction,
                         newRerollCallbackOptions,
@@ -191,7 +186,7 @@ export class RollAttackStrategy
                     interaction: buttonInteraction as ButtonInteraction,
                     options: (buttonInteraction as ButtonInteraction).message.content
                         + `\n${Text.bold('❌ Missed')}`,
-                    interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+                    interactionCallbackType: DiscordInteractionCallbackType.Update,
                     onRerollCallback: (newRerollCallbackOptions) => this.run(
                         interaction,
                         newRerollCallbackOptions,
