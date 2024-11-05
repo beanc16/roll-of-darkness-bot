@@ -92,7 +92,9 @@ export class RollAttackStrategy
         // Send message
         const accuracyModifierStr = (accuracyModifier > 0)
             ? `+${accuracyModifier}`
-            : `-${accuracyModifier}`;
+            : (accuracyModifier < 0)
+            ? `-${accuracyModifier}`
+            : '';
         await this.sendAccuracyRollMessage({
             interaction,
             message: `${Text.Ping.user(interaction.user.id)}${
