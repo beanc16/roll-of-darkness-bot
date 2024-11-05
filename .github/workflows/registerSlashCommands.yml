@@ -1,7 +1,6 @@
 name: Register Slash Commands
 
 on:
-  workflow_dispatch:
   push:
     branches: [
       main
