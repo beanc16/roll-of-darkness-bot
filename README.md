@@ -27,7 +27,7 @@ This bot is hosted on Heroku for private use. Please do not copy this repo's cod
 
 ### Why was this bot made?
 
-Since 2014, my friends and I have been playing tabletop RPGs (TTRPGs) remotely on Discord voice chat. Over the years, we've used various dice-rolling Discord bots, and I always wanted to make my own just for fun.
+Since 2014, my friends and I have been playing tabletop role-playing games (TTRPGs) remotely on Discord voice chat. Over the years, we've used various dice-rolling Discord bots, and I always wanted to make my own just for fun.
 
 In April 2023, a friend and I decided to build a prototype of a simple dice-rolling Discord bot, and it quickly became something much more.
 
