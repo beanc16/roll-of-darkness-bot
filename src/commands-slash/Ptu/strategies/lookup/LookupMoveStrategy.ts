@@ -6,7 +6,7 @@ import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { PtuMove, PtuMoveExclude } from '../../models/PtuMove.js';
-import { PtuMovesSearchService } from '../../../../services/SearchService.js';
+import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/pokemon.js';
 import { EqualityOption } from '../../../options/shared.js';
 import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';

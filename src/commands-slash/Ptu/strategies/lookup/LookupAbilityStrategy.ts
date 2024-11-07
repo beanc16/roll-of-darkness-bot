@@ -5,7 +5,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { PtuAbilitiesSearchService } from '../../../../services/SearchService.js';
+import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { getLookupAbilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
