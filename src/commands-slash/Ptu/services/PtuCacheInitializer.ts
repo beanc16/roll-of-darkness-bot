@@ -1,25 +1,39 @@
 import { logger } from '@beanc16/logger';
 
-import { LookupAbilityStrategy } from '../strategies/lookup/LookupAbilityStrategy.js';
-import { LookupMoveStrategy } from '../strategies/lookup/LookupMoveStrategy.js';
+import { PtuStrategyExecutor } from '../strategies/index.js';
+import { PtuSubcommandGroup } from '../subcommand-groups/index.js';
+import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 
 export class PtuCacheInitializer
 {
-    private static lookupStrategiesToInitialize = [
-        LookupMoveStrategy,
-        LookupAbilityStrategy,
-    ];
+    private static isInitialized = false;
 
     public static async initialize(): Promise<void>
     {
         try
         {
-            const promises = this.lookupStrategiesToInitialize.map(async (strategy) =>
-                await strategy.getLookupData()
+            // Early exit if already initialized
+            if (this.isInitialized)
+            {
+                return;
+            }
+
+            // Pokemon lookup data is not cached, so don't initialize it
+            const subcommandsToInitialize = Object.values(PtuLookupSubcommand)
+                .filter((subcommand) => subcommand !== PtuLookupSubcommand.Pokemon);
+
+            // Initialize cachable lookup subcommands
+            const promises = subcommandsToInitialize.map(async (subcommand) =>
+                await PtuStrategyExecutor.getLookupData({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand,
+                })
             );
 
             logger.debug('Initializing Ptu data to cache...');
             await Promise.allSettled(promises);
+
+            this.isInitialized = true;
         }
 
         catch (err)
