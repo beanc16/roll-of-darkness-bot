@@ -10,6 +10,7 @@ import { getLookupAbilitiesEmbedMessages } from '../../../Ptu/embed-messages/loo
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { logger } from '@beanc16/logger';
 
 export interface GetLookupAbilityDataParameters
 {
@@ -24,7 +25,7 @@ export class LookupAbilityStrategy
 {
     public static key = PtuLookupSubcommand.Ability;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('ability_name');
@@ -47,42 +48,51 @@ export class LookupAbilityStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupAbilityDataParameters = {})
+    public static async getLookupData(input: GetLookupAbilityDataParameters = {})
     {
-        const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-            range: `'Abilities Data'!A3:Z`,
-        });
-
-        const abilities = data.reduce<PtuAbility[]>((acc, cur) =>
+        try
         {
-            const ability = new PtuAbility(cur);
+            const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                spreadsheetId: rollOfDarknessPtuSpreadsheetId,
+                range: `'Abilities Data'!A3:Z`,
+            });
 
-            if (!ability.IsValidBasedOnInput(input))
+            const abilities = data.reduce<PtuAbility[]>((acc, cur) =>
             {
+                const ability = new PtuAbility(cur);
+
+                if (!ability.IsValidBasedOnInput(input))
+                {
+                    return acc;
+                }
+
+                acc.push(ability);
+
                 return acc;
+            }, []);
+
+            // Sort manually if there's no searches
+            if (input.nameSearch || input.effectSearch)
+            {
+                const results = PtuAbilitiesSearchService.search(abilities, input);
+                return results;
             }
 
-            acc.push(ability);
-
-            return acc;
-        }, []);
-
-        // Sort manually if there's no searches
-        if (input.nameSearch || input.effectSearch)
-        {
-            const results = PtuAbilitiesSearchService.search(abilities, input);
-            return results;
+            abilities.sort((a, b) =>
+            {
+                /*
+                * Sort by:
+                * 1) Name
+                */
+                return a.name.localeCompare(b.name);
+            });
+            return abilities;
         }
 
-        abilities.sort((a, b) =>
+        catch (error)
         {
-            /*
-             * Sort by:
-             * 1) Name
-             */
-            return a.name.localeCompare(b.name);
-        });
-        return abilities;
+            logger.error('Failed to retrieve ptu abilities', error);
+            return [];
+        }
     }
 }

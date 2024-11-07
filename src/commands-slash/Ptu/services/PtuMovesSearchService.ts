@@ -14,7 +14,7 @@ export class PtuMovesSearchService
     private static searchService?: SearchService<PtuMove>;
     private static index?: FuseIndex<PtuMove>; // Speeds up instantiation once created once
 
-    static search(array: PtuMove[], options: PtuMovesSearchOptions)
+    public static search(array: PtuMove[], options: PtuMovesSearchOptions)
     {
         // Initialize search service parameters
         const searchableKeys = [

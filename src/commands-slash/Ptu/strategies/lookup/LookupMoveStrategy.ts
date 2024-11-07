@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
@@ -35,7 +36,7 @@ export class LookupMoveStrategy
 {
     public static key = PtuLookupSubcommand.Move;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('move_name');
@@ -74,73 +75,82 @@ export class LookupMoveStrategy
 
     public static async getLookupData(input: GetLookupMoveDataParameters = {})
     {
-        const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-            range: `'Moves Data'!A3:Z`,
-        });
-
-        let beyondWeaponMovesAndManuevers = false;
-        const moves = data.reduce((acc, cur) =>
+        try
         {
-            const move = new PtuMove(cur);
+            const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+                spreadsheetId: rollOfDarknessPtuSpreadsheetId,
+                range: `'Moves Data'!A3:Z`,
+            });
 
-            if (!move.ShouldIncludeInOutput())
+            let beyondWeaponMovesAndManuevers = false;
+            const moves = data.reduce((acc, cur) =>
             {
+                const move = new PtuMove(cur);
+
+                if (!move.ShouldIncludeInOutput())
+                {
+                    return acc;
+                }
+
+                if (!move.IsValidBasedOnInput(input))
+                {
+                    return acc;
+                }
+
+                // Assume Arcane Fury marks the start of weapon moves, which are above maneuvers
+                if (move.name.toLowerCase() === 'Arcane Fury'.toLowerCase())
+                {
+                    beyondWeaponMovesAndManuevers = true;
+                }
+
+                if (beyondWeaponMovesAndManuevers && input?.exclude?.weaponMovesAndManuevers)
+                {
+                    return acc;
+                }
+
+                acc.push(move);
+
                 return acc;
-            }
+            }, [] as PtuMove[]);
 
-            if (!move.IsValidBasedOnInput(input))
+            // Sort manually if there's no searches
+            if (input.nameSearch || input.effectSearch)
             {
-                return acc;
+                const results = PtuMovesSearchService.search(moves, input);
+                return results;
             }
 
-            // Assume Arcane Fury marks the start of weapon moves, which are above maneuvers
-            if (move.name.toLowerCase() === 'Arcane Fury'.toLowerCase())
+            moves.sort((a, b) =>
             {
-                beyondWeaponMovesAndManuevers = true;
-            }
+                if (input.sortBy === 'name')
+                {
+                    return a.name.localeCompare(b.name);
+                }
+                else if (input.sortBy === 'type')
+                {
+                    const result = a.type?.localeCompare(b.type ?? '');
 
-            if (beyondWeaponMovesAndManuevers && input?.exclude?.weaponMovesAndManuevers)
-            {
-                return acc;
-            }
+                    if (result)
+                    {
+                        return result;
+                    }
+                }
 
-            acc.push(move);
-
-            return acc;
-        }, [] as PtuMove[]);
-
-        // Sort manually if there's no searches
-        if (input.nameSearch || input.effectSearch)
-        {
-            const results = PtuMovesSearchService.search(moves, input);
-            return results;
+                /*
+                * Sort by:
+                * 1) Type
+                * 2) Name
+                */
+                return a.type?.localeCompare(b.type ?? '')
+                    || a.name.localeCompare(b.name);
+            });
+            return moves;
         }
 
-        moves.sort((a, b) =>
+        catch (error)
         {
-            if (input.sortBy === 'name')
-            {
-                return a.name.localeCompare(b.name);
-            }
-            else if (input.sortBy === 'type')
-            {
-                const result = a.type?.localeCompare(b.type ?? '');
-
-                if (result)
-                {
-                    return result;
-                }
-            }
-
-            /*
-             * Sort by:
-             * 1) Type
-             * 2) Name
-             */
-            return a.type?.localeCompare(b.type ?? '')
-                || a.name.localeCompare(b.name);
-        });
-        return moves;
+            logger.error('Failed to retrieve ptu moves', error);
+            return [];
+        }
     }
 }

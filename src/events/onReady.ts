@@ -3,6 +3,7 @@ import { logger } from '@beanc16/logger';
 // import FlavorTextService from '../services/FlavorTextService.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer.js';
+import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
 
 async function handler(bot: Client)
 {
@@ -20,6 +21,9 @@ async function handler(bot: Client)
         
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
+
+        // Initialize ptu cache
+        await PtuCacheInitializer.initialize();
 
         // Run startup functions
         const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
