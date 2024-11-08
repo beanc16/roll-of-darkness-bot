@@ -1,8 +1,8 @@
 # Roll of Darkness Bot
 
-A discord bot for rolling dice in the [New World of Darkness / Chronicles of Darkness](https://whitewolf.fandom.com/wiki/Chronicles_of_Darkness), [Pokemon Tabletop United](https://pokemontabletop.com), and [Curseborne](https://theonyxpath.com/curseborne-what-is-curseborne) tabletop role-playing game (TTRPG) systems. Additionally, provides quality-of-life features like a coin flip, counter, basic media downloading/editing, and more.
+A discord bot that provides a variety of utility features for looking up game mechanics, boosting morale at the end of sessions, simplifying bookkeeping, and rolling dice in the [New World of Darkness / Chronicles of Darkness](https://whitewolf.fandom.com/wiki/Chronicles_of_Darkness), [Pokemon Tabletop United](https://pokemontabletop.com), and [Curseborne](https://theonyxpath.com/curseborne-what-is-curseborne) tabletop role-playing game (TTRPG) systems. 
 
-This bot is hosted on Heroku for private use. Please do not copy this repo's code or open pull requests for it. This bot is public only for portfolio purposes.
+This bot is hosted on Heroku for private use. Please do not copy this repo's code or open pull requests for it. This bot is only public for portfolio purposes.
 
 
 
