@@ -128,7 +128,7 @@ export class DiceStringParser
                 && !acc.hasDoubledFirstModifier)
             {
                 curDieInfo.modifier *= 2;
-                acc.hasDoubledFirstDie = true;
+                acc.hasDoubledFirstModifier = true;
             }
 
             acc.output.push(curDieInfo);
