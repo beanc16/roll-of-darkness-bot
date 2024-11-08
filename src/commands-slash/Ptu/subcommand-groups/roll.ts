@@ -26,6 +26,11 @@ export const attack = (subcommand: SlashCommandSubcommandBuilder) =>
         return option.setDescription('A mathematical formula of extra modifiers (only addition and subtraction are supported; IE: 5 - 10).');
     });
 
+    subcommand.addBooleanOption((option) => {
+        option.setName('should_use_max_crit_roll');
+        return option.setDescription('Should automatically take the max possible critical hit bonus when auto-criting (default: true).');
+    });
+
     return subcommand;
 };
 

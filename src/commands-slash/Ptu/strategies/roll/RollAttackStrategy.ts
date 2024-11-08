@@ -56,6 +56,7 @@ export class RollAttackStrategy
         const name = interaction.options.getString('name');
         const damageDicePoolExpression = interaction.options.getString('damage_dice_pool', true);
         const accuracyModifierFormula = interaction.options.getString('accuracy_modifier') ?? '0';
+        const shouldUseMaxCritRoll = interaction.options.getBoolean('should_use_max_crit_roll') ?? true;
 
         // Calculate the accuracy modifier
         let accuracyModifier: number;
@@ -86,6 +87,7 @@ export class RollAttackStrategy
                 ? {
                     doubleFirstDie: true,
                     doubleFirstModifier: true,
+                    shouldRollMaxOnSecondHalfOfDicepool: shouldUseMaxCritRoll,
                 }
                 : {};
 

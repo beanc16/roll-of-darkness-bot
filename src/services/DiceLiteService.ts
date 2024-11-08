@@ -1,8 +1,8 @@
-import { DiceService } from './DiceService.js';
+import { DiceService, RollOptions } from './DiceService.js';
 
 export class DiceLiteService
 {
-    #diceService: DiceService;
+    private diceService: DiceService;
 
     constructor({
         sides,
@@ -14,16 +14,16 @@ export class DiceLiteService
         rerollOnGreaterThanOrEqualTo?: number;
     })
     {
-        this.#diceService = new DiceService({
+        this.diceService = new DiceService({
             sides,
             count,
             rerollOnGreaterThanOrEqualTo,
         });
     }
 
-    roll(): number[]
+    roll(options: RollOptions = {}): number[]
     {
-        const dicePoolGroup = this.#diceService.roll();
+        const dicePoolGroup = this.diceService.roll(options);
         const [rollResults] = dicePoolGroup.dicepoolResults;
         return rollResults;
     }

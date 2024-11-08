@@ -1,4 +1,5 @@
 import { DiceLiteService } from './DiceLiteService.js';
+import { RollOptions } from './DiceService.js';
 
 export enum DiceParserType
 {
@@ -33,7 +34,7 @@ export interface ParsedModifier
     type: DiceParserType.Modifier;
 }
 
-export interface ParseOptions
+export interface ParseOptions extends RollOptions
 {
     doubleFirstDie?: boolean;
     doubleFirstModifier?: boolean;
@@ -148,13 +149,14 @@ export class DiceStringParser
         return output;
     }
 
-    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray)
+    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray, options?: RollOptions)
     {
         // Roll each dice and parse results to string for math parser.
         const result = parsedDicePool.reduce<{
             processedDicePool: ProcessedDicePoolArray;
             unparsedMathString: string;
             resultString: string;
+            hasRolledMaxOnFirstDicePool: boolean;
         }>((acc, cur) =>
         {
             if (cur.type === DiceParserType.Die)
@@ -162,10 +164,18 @@ export class DiceStringParser
                 const curParsedDie = cur as ParsedDie;
                 const { numberOfDice, sides } = curParsedDie;
                 const dieString = `${numberOfDice}d${sides}`;
+
+                const rollOptions: RollOptions = {};
+                if (options?.shouldRollMaxOnSecondHalfOfDicepool && !acc.hasRolledMaxOnFirstDicePool)
+                {
+                    rollOptions.shouldRollMaxOnSecondHalfOfDicepool = true;
+                    acc.hasRolledMaxOnFirstDicePool = true;
+                }
+
                 const rollResult = new DiceLiteService({
                     count: numberOfDice,
                     sides,
-                }).roll();
+                }).roll(rollOptions);
                 const rollTotal = rollResult.reduce((acc, cur) => (acc + cur), 0);
                 const rollResultsAsString = rollResult.join(', ');
 
@@ -200,14 +210,15 @@ export class DiceStringParser
             processedDicePool: [],
             unparsedMathString: '',
             resultString: '',
+            hasRolledMaxOnFirstDicePool: false,
         });
 
         return result;
     }
 
-    public static parseAndRoll(initialAllDiceString: string, parseOptionType?: ParseOptions)
+    public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions)
     {
-        const parsedDicePool = this.parse(initialAllDiceString, parseOptionType);
-        return this.rollParsedPool(parsedDicePool);
+        const parsedDicePool = this.parse(initialAllDiceString, options);
+        return this.rollParsedPool(parsedDicePool, options);
     }
 }

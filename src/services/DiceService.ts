@@ -3,6 +3,11 @@ import { DicePoolGroup } from '../models/DicePoolGroup.js';
 import { DicePool } from '../models/DicePool.js';
 import { Roll } from '../types/rolls.js';
 
+export interface RollOptions
+{
+    shouldRollMaxOnSecondHalfOfDicepool?: boolean;
+}
+
 export class DiceService
 {
     public sides: number;
@@ -52,21 +57,23 @@ export class DiceService
         this.extraSuccesses = extraSuccesses ?? rollConstants.defaultParams.extraSuccesses;
     }
 
-    roll(): DicePoolGroup
+    public roll(options: RollOptions = {}): DicePoolGroup
     {
         const dicePoolGroup = new DicePoolGroup({
-            dicepool: this.rollDicepool(),
+            dicepool: this.rollDicepool(options),
         });
 
         if (this.isAdvancedAction)
         {
-            dicePoolGroup.push(this.rollDicepool());
+            dicePoolGroup.push(this.rollDicepool(options));
         }
 
         return dicePoolGroup;
     }
 
-    rollDicepool(): DicePool
+    public rollDicepool({
+        shouldRollMaxOnSecondHalfOfDicepool = false,
+    }: RollOptions = {}): DicePool
     {
         const dicePool = new DicePool({
             exceptionalOn: this.exceptionalOn,
@@ -77,22 +84,27 @@ export class DiceService
 
         for (let i = 0; i < this.count; i++)
         {
-            const result = this.rollOne();
+            const result = this.rollOne({
+                shouldRollMax: (shouldRollMaxOnSecondHalfOfDicepool && i >= Math.ceil(this.count / 2)),
+            });
             dicePool.push(result);
         }
 
         return dicePool;
     }
 
-    rollOne({
+    public rollOne({
         isReroll = false,
         isRote = false,
+        shouldRollMax = false,
     } = {}): Roll[]
     {
         const rolls = [];
 
         // Get a random integer between 1 and sides (inclusive)
-        const randomDecimal = Math.random() * this.sides;
+        const randomDecimal = (!shouldRollMax)
+            ? Math.random() * this.sides
+            : this.sides - 1;
         const randomInteger = Math.floor(randomDecimal) + 1;
 
         rolls.push({
