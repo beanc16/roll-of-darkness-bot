@@ -27,6 +27,18 @@ enum AttackButtonName
     Miss = 'miss',
 }
 
+type GetMessageContentOptions = {
+    type: AttackButtonName.Miss | 'auto_miss';
+    currentMessageContent: string;
+    damageResultString?: never;
+    finalRollResult?: never;
+} | {
+    type: AttackButtonName.Hit | 'auto_crit';
+    currentMessageContent: string;
+    damageResultString: string;
+    finalRollResult: number;
+};
+
 @staticImplements<ChatIteractionStrategy>()
 export class RollAttackStrategy
 {
@@ -95,22 +107,53 @@ export class RollAttackStrategy
             : (accuracyModifier < 0)
             ? `-${accuracyModifier}`
             : '';
-        await this.sendAccuracyRollMessage({
-            interaction,
-            message: `${Text.Ping.user(interaction.user.id)}${
-                    name ? ` ${Text.bold(name)}` : ''
-                } :game_die:\n`
-                + `${Text.bold('Accuracy')}: 1d20${accuracyModifierStr} (${
-                    accuracyRoll + accuracyModifier
-                })`,
-            rerollCallbackOptions,
-            damageResultString,
-            finalRollResult,
-        });
+        const rollName = name ? ` ${Text.bold(name)}` : '';
+        const messagePrefix = `${Text.Ping.user(interaction.user.id)}${rollName} :game_die:\n`
+        + `${Text.bold('Accuracy')}: 1d20${accuracyModifierStr} (${
+            accuracyRoll + accuracyModifier
+        })`;
+
+        // Automatic miss
+        if (accuracyRoll == 1)
+        {
+            await this.skipAccuracyRollMessage({
+                interaction,
+                type: 'auto_miss',
+                currentMessageContent: messagePrefix,
+                rerollCallbackOptions,
+                damageResultString,
+                finalRollResult,
+            });
+        }
+
+        // Automatic hit
+        else if (accuracyRoll === 20)
+        {
+            await this.skipAccuracyRollMessage({
+                interaction,
+                type: 'auto_crit',
+                currentMessageContent: messagePrefix,
+                rerollCallbackOptions,
+                damageResultString,
+                finalRollResult,
+            });
+        }
+
+        else
+        {
+            await this.sendAccuracyRollMessage({
+                interaction,
+                message: messagePrefix,
+                rerollCallbackOptions,
+                damageResultString,
+                finalRollResult,
+            });
+        }
 
         return true;
     }
 
+    // Show accuracy roll with hit/miss confirmation buttons
     private static async sendAccuracyRollMessage({
         interaction,
         message,
@@ -150,6 +193,44 @@ export class RollAttackStrategy
         });
     }
 
+    // Show accuracy and damage roll, skipping 
+    private static async skipAccuracyRollMessage({
+        interaction,
+        type,
+        currentMessageContent,
+        damageResultString,
+        finalRollResult,
+    }: {
+        interaction: ChatInputCommandInteraction;
+        type: 'auto_miss' | 'auto_crit';
+        currentMessageContent: string;
+        rerollCallbackOptions?: OnRerollCallbackOptions;
+        damageResultString: string;
+        finalRollResult: number;
+    })
+    {
+        const messageContentOptions = (type === 'auto_miss')
+            ? {
+                type,
+                currentMessageContent,
+            }
+            : {
+                type,
+                currentMessageContent,
+                damageResultString,
+                finalRollResult,
+            };
+
+        await this.runRerollStrategy({
+            interaction,
+            messageContentOptions,
+            damageResultString,
+            finalRollResult,
+            type,
+            interactionCallbackType: DiscordInteractionCallbackType.Followup,
+        });
+    }
+
     private static async handleButtonInteractions({
         interaction,
         interactionResponse,
@@ -162,7 +243,7 @@ export class RollAttackStrategy
         finalRollResult: number;
     })
     {
-        let buttonInteraction: ButtonInteraction | undefined;
+        let buttonInteraction: ButtonInteraction;
 
         try
         {
@@ -171,35 +252,14 @@ export class RollAttackStrategy
                 componentType: ComponentType.Button,
             });
 
-            const handlerMap: Record<AttackButtonName, () => Promise<void>> = {
-                [AttackButtonName.Hit]: async () => await RerollStrategy.run({
-                    interaction: buttonInteraction as ButtonInteraction,
-                    options: (buttonInteraction as ButtonInteraction).message.content
-                        + `\n${Text.bold('Damage')}:${damageResultString}\n`
-                        + `${Text.bold('Total')}: ${finalRollResult}`,
-                    interactionCallbackType: DiscordInteractionCallbackType.Update,
-                    onRerollCallback: (newRerollCallbackOptions) => this.run(
-                        interaction,
-                        newRerollCallbackOptions,
-                    ),
-                    commandName: 'ptu roll attack',
-                }),
-                [AttackButtonName.Miss]: async () => await RerollStrategy.run({
-                    interaction: buttonInteraction as ButtonInteraction,
-                    options: (buttonInteraction as ButtonInteraction).message.content
-                        + `\n${Text.bold('❌ Missed')}`,
-                    interactionCallbackType: DiscordInteractionCallbackType.Update,
-                    onRerollCallback: (newRerollCallbackOptions) => this.run(
-                        interaction,
-                        newRerollCallbackOptions,
-                    ),
-                    commandName: 'ptu roll attack',
-                }),
-            };
-
-            // Update original message with the same content so
-            // the buttons know that the interaction was successful
-            await handlerMap[buttonInteraction.customId as AttackButtonName]();
+            await this.runRerollStrategy({
+                interaction,
+                buttonInteraction,
+                damageResultString,
+                finalRollResult,
+                type: buttonInteraction.customId as AttackButtonName,
+                interactionCallbackType: DiscordInteractionCallbackType.Update,
+            });
         }
         catch (error)
         {
@@ -209,6 +269,75 @@ export class RollAttackStrategy
                 logger.error(`An unknown error occurred whilst handling hit/miss button interactions for /ptu roll attack`, error);
             }
         }
+    }
+
+    private static async runRerollStrategy({
+        interaction,
+        buttonInteraction,
+        messageContentOptions,
+        damageResultString,
+        finalRollResult,
+        type,
+        interactionCallbackType,
+    }: {
+        interaction: ChatInputCommandInteraction;
+        messageContentOptions?: never;
+        buttonInteraction: ButtonInteraction;
+        damageResultString: string;
+        finalRollResult: number;
+        type: AttackButtonName | 'auto_miss' | 'auto_crit';
+        interactionCallbackType: DiscordInteractionCallbackType.Update;
+    } | {
+        interaction: ChatInputCommandInteraction;
+        messageContentOptions: GetMessageContentOptions;
+        buttonInteraction?: never;
+        damageResultString: string;
+        finalRollResult: number;
+        type: AttackButtonName | 'auto_miss' | 'auto_crit';
+        interactionCallbackType: DiscordInteractionCallbackType.Followup;
+    }): Promise<void>
+    {
+        const typeToButtonAttachName = {
+            [AttackButtonName.Hit]: AttackButtonName.Hit,
+            ['auto_crit']: AttackButtonName.Hit,
+            [AttackButtonName.Miss]: AttackButtonName.Miss,
+            ['auto_miss']: AttackButtonName.Miss,
+        };
+
+        const handlerMap: Record<AttackButtonName, () => Promise<void>> = {
+            [AttackButtonName.Hit]: async () => await RerollStrategy.run({
+                interaction: buttonInteraction ?? interaction,
+                options: this.getMessageContent(messageContentOptions ?? {
+                    type: AttackButtonName.Hit,
+                    currentMessageContent: buttonInteraction.message.content,
+                    damageResultString,
+                    finalRollResult,
+                }),
+                interactionCallbackType,
+                onRerollCallback: (newRerollCallbackOptions) => this.run(
+                    interaction,
+                    newRerollCallbackOptions,
+                ),
+                commandName: 'ptu roll attack',
+            }),
+            [AttackButtonName.Miss]: async () => await RerollStrategy.run({
+                interaction: buttonInteraction ?? interaction,
+                options: this.getMessageContent(messageContentOptions ?? {
+                    type: AttackButtonName.Miss,
+                    currentMessageContent: buttonInteraction.message.content,
+                }),
+                interactionCallbackType,
+                onRerollCallback: (newRerollCallbackOptions) => this.run(
+                    interaction,
+                    newRerollCallbackOptions,
+                ),
+                commandName: 'ptu roll attack',
+            }),
+        };
+
+        // Update original message with the same content so
+        // the buttons know that the interaction was successful
+        await handlerMap[typeToButtonAttachName[type]]();
     }
 
     private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean)
@@ -245,5 +374,31 @@ export class RollAttackStrategy
             );
 
         return row;
+    }
+
+    private static getMessageContent({
+        type,
+        currentMessageContent = '',
+        damageResultString,
+        finalRollResult,
+    }: GetMessageContentOptions): string
+    {
+        if (type === AttackButtonName.Hit || type === 'auto_crit')
+        {
+            const damageLabelStr = (type === 'auto_crit') ? 'Auto-Crit ' : '';
+
+            return currentMessageContent
+                + `\n${Text.bold(`${damageLabelStr}Damage`)}:${damageResultString}`
+                + `\n${Text.bold('Total')}: ${finalRollResult}`
+        }
+
+        else if (type === AttackButtonName.Miss || type === 'auto_miss')
+        {
+            const autoLabelStr = (type === 'auto_miss') ? 'Auto-' : '';
+
+            return `${currentMessageContent}\n${Text.bold(`❌ ${autoLabelStr}Missed`)}`;
+        }
+
+        return currentMessageContent;
     }
 }
