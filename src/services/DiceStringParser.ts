@@ -1,33 +1,46 @@
 import { DiceLiteService } from './DiceLiteService.js';
 
+export enum DiceParserType
+{
+    Die = 'DIE',
+    MathOperator = 'MATH_OPERATOR',
+    Modifier = 'MODIFIER',
+}
+
 export interface ParsedDie
 {
     numberOfDice: number;
     sides: number;
-    type: string;
+    type: DiceParserType.Die;
+}
+
+enum Operator
+{
+    '+' = 'ADD',
+    '-' = 'SUBTRACT',
 }
 
 export interface MathOperator
 {
-    operator: any;
-    name: any;
-    type: string;
+    operator: keyof typeof Operator;
+    name: Operator;
+    type: DiceParserType.MathOperator;
 }
 
 export interface ParsedModifier
 {
     modifier: number;
-    type: string;
+    type: DiceParserType.Modifier;
 }
 
-export const diceParserTypes = {
-    Die: 'DIE',
-    MathOperator: 'MATH_OPERATOR',
-    Modifier: 'MODIFIER',
-};
+export interface ParseOptions
+{
+    doubleFirstDie?: boolean;
+    doubleFirstModifier?: boolean;
+}
 
-export type ParsedDicePool = (ParsedDie | MathOperator | ParsedModifier)[];
-export type ProcessedDicePool = ((ParsedDie & {
+export type ParsedDicePoolArray = (ParsedDie | MathOperator | ParsedModifier)[];
+export type ProcessedDicePoolArray = ((ParsedDie & {
     die: string;
     result: number[];
     total: number;
@@ -38,12 +51,8 @@ export class DiceStringParser
     // private static digitRegex = /\d/;
     private static letterDRegex = /[d]/i;
     private static supportedMathOperatorRegex = /[+-]/g;
-    private static mathOperatorMap = {
-        '+': 'ADD',
-        '-': 'SUBTRACT',
-    };
 
-    static #parseDie(dieString: string): ParsedDie | ParsedModifier
+    private static parseDie(dieString: string): ParsedDie | ParsedModifier
     {
         const [
             unparsedNumberOfDice,
@@ -57,69 +66,98 @@ export class DiceStringParser
             return {
                 numberOfDice: parseInt(numberOfDice, 10),
                 sides: parseInt(sides, 10),
-                type: diceParserTypes.Die,
+                type: DiceParserType.Die,
             };
         }
         else
         {
             return {
                 modifier: parseInt(numberOfDice, 10),
-                type: diceParserTypes.Modifier,
+                type: DiceParserType.Modifier,
             };
         }
     }
 
-    static #parseMathOperators(allDiceString: string)
+    private static parseMathOperators(allDiceString: string)
     {
         const unparsedResults = allDiceString.matchAll(this.supportedMathOperatorRegex);
         const parsedResults = [...unparsedResults];
-        const operators = parsedResults.map(([operatorString]) =>
+        const operators = parsedResults.map<MathOperator>(([operatorString]) =>
         {
+            const operator = operatorString as keyof typeof Operator;
+
             return {
-                operator: operatorString,
-                name: this.mathOperatorMap[
-                    operatorString as keyof typeof this.mathOperatorMap
-                ],
-                type: diceParserTypes.MathOperator,
+                operator,
+                name: Operator[operator],
+                type: DiceParserType.MathOperator,
             }
         });
         return operators;
     }
 
-    private static parse(initialAllDiceString: string): ParsedDicePool
+    private static parse(initialAllDiceString: string, parseOptions: ParseOptions = {}): ParsedDicePoolArray
     {
         const allDiceString = initialAllDiceString.replace(/\s+/g, '');
 
         const diceList = allDiceString.split(this.supportedMathOperatorRegex);
-        const diceInfo = diceList.map((curDieString) => this.#parseDie(curDieString));
+        const diceInfo = diceList.map((curDieString) => this.parseDie(curDieString));
 
-        const mathOperators = this.#parseMathOperators(allDiceString);
+        const mathOperators = this.parseMathOperators(allDiceString);
 
-        const output = diceInfo.reduce<ParsedDicePool>((acc, curDieInfo, index) =>
+        // TODO: Handle DoubleFirstDieAndModifier
+        const { output } = diceInfo.reduce<{
+            output: ParsedDicePoolArray;
+            hasDoubledFirstDie: boolean;
+            hasDoubledFirstModifier: boolean;
+        }>((acc, curDieInfo, index) =>
         {
-            acc.push(curDieInfo);
+            // Double the first die if settings permit
+            if (
+                curDieInfo.type === DiceParserType.Die
+                && parseOptions.doubleFirstDie
+                && !acc.hasDoubledFirstDie)
+            {
+                curDieInfo.numberOfDice *= 2;
+                acc.hasDoubledFirstDie = true;
+            }
+
+            // Double the first modifier if settings permit
+            else if (
+                curDieInfo.type === DiceParserType.Modifier
+                && parseOptions.doubleFirstModifier
+                && !acc.hasDoubledFirstModifier)
+            {
+                curDieInfo.modifier *= 2;
+                acc.hasDoubledFirstDie = true;
+            }
+
+            acc.output.push(curDieInfo);
 
             if (mathOperators[index])
             {
-                acc.push(mathOperators[index]);
+                acc.output.push(mathOperators[index]);
             }
 
             return acc;
-        }, []);
+        }, {
+            output: [],
+            hasDoubledFirstDie: false,
+            hasDoubledFirstModifier: false,
+        });
 
         return output;
     }
 
-    private static rollParsedPool(parsedDicePool: ParsedDicePool)
+    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray)
     {
         // Roll each dice and parse results to string for math parser.
         const result = parsedDicePool.reduce<{
-            processedDicePool: ProcessedDicePool;
+            processedDicePool: ProcessedDicePoolArray;
             unparsedMathString: string;
             resultString: string;
         }>((acc, cur) =>
         {
-            if (cur.type === diceParserTypes.Die)
+            if (cur.type === DiceParserType.Die)
             {
                 const curParsedDie = cur as ParsedDie;
                 const { numberOfDice, sides } = curParsedDie;
@@ -141,7 +179,7 @@ export class DiceStringParser
                 acc.resultString += ` ${dieString} (${rollResultsAsString})`;
             }
 
-            else if (cur.type === diceParserTypes.MathOperator)
+            else if (cur.type === DiceParserType.MathOperator)
             {
                 const curMathOperator = cur as MathOperator;
                 acc.processedDicePool.push(curMathOperator);
@@ -149,7 +187,7 @@ export class DiceStringParser
                 acc.resultString += ` ${curMathOperator.operator}`;
             }
 
-            else if (cur.type === diceParserTypes.Modifier)
+            else if (cur.type === DiceParserType.Modifier)
             {
                 const curParsedModifier = cur as ParsedModifier;
                 acc.processedDicePool.push(curParsedModifier);
@@ -167,9 +205,9 @@ export class DiceStringParser
         return result;
     }
 
-    public static parseAndRoll(initialAllDiceString: string)
+    public static parseAndRoll(initialAllDiceString: string, parseOptionType?: ParseOptions)
     {
-        const parsedDicePool = this.parse(initialAllDiceString);
+        const parsedDicePool = this.parse(initialAllDiceString, parseOptionType);
         return this.rollParsedPool(parsedDicePool);
     }
 }

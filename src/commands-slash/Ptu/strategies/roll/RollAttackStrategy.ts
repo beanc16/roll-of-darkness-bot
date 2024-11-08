@@ -19,7 +19,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { addAndSubtractMathParserOptions } from '../../../../constants/mathParserOptions.js';
 import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { DiceStringParser } from '../../../../services/DiceStringParser.js';
+import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 
 enum AttackButtonName
 {
@@ -57,30 +57,6 @@ export class RollAttackStrategy
         const damageDicePoolExpression = interaction.options.getString('damage_dice_pool', true);
         const accuracyModifierFormula = interaction.options.getString('accuracy_modifier') ?? '0';
 
-        // Get result
-        let unparsedDamageMathString: string, damageResultString: string, finalRollResult: number;
-
-        // TODO: Handle critical hits for damage later
-        try {
-            // Roll each dice and parse results to string for math parser.
-            const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression);
-            unparsedDamageMathString = damageRollResult.unparsedMathString;
-            damageResultString = damageRollResult.resultString;
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
-            await interaction.editReply(`An invalid damage dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
-            return true;
-        }
-
-        // Parse math string for results.
-        try {
-            finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
-            await interaction.editReply(`An invalid damage dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
-            return true;
-        }
-
         // Calculate the accuracy modifier
         let accuracyModifier: number;
         try {
@@ -100,6 +76,37 @@ export class RollAttackStrategy
         })
         .roll()
         .reduce((acc, cur) => (acc + cur), 0);
+
+        // Get damage result
+        let unparsedDamageMathString: string, damageResultString: string, finalRollResult: number;
+
+        try {
+            // Set up dice parser options for auto-crit handling.
+            const options: ParseOptions = (accuracyRoll === 20)
+                ? {
+                    doubleFirstDie: true,
+                    doubleFirstModifier: true,
+                }
+                : {};
+
+            // Roll each dice and parse results to string for math parser.
+            const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression, options);
+            unparsedDamageMathString = damageRollResult.unparsedMathString;
+            damageResultString = damageRollResult.resultString;
+        } catch (err) {
+            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+            await interaction.editReply(`An invalid damage dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
+            return true;
+        }
+
+        // Parse math string for results.
+        try {
+            finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
+        } catch (err) {
+            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+            await interaction.editReply(`An invalid damage dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
+            return true;
+        }
 
         // Send message
         const accuracyModifierStr = (accuracyModifier > 0)
