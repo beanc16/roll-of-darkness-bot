@@ -1,19 +1,18 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { addAndSubtractMathParserOptions } from '../../../../constants/mathParserOptions.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { AddAndSubractMathParser } from '../../../../services/MathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollCaptureStrategy
 {
-    private static mathParser = new Parser(addAndSubtractMathParserOptions);
+    private static mathParser = new AddAndSubractMathParser();
     public static key = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 
@@ -29,11 +28,10 @@ export class RollCaptureStrategy
         const additionalModifierFormula = interaction.options.getString('additional_modifier') ?? '0';
 
         // Calculate the additional modifier
-        let additionalModifier: number;
-        try {
-            additionalModifier = this.mathParser.evaluate(additionalModifierFormula);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        const additionalModifier = this.mathParser.evaluate(additionalModifierFormula);
+
+        if (additionalModifier === undefined)
+        {
             await interaction.editReply(
                 'An invalid additional modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
             );

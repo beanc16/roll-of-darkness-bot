@@ -1,18 +1,17 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { rollLite } from './options/index.js';
 import * as rollOptions from './Nwod/options/roll.js';
-import { addAndSubtractMathParserOptions } from '../constants/mathParserOptions.js';
 import { DiceStringParser } from '../services/DiceStringParser.js';
 import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
+import { AddAndSubractMathParser } from '../services/MathParser.js';
 
 class Roll_Lite extends BaseSlashCommand
 {
-    private mathParser: Parser;
+    private mathParser: AddAndSubractMathParser;
 
     constructor()
     {
@@ -22,7 +21,7 @@ class Roll_Lite extends BaseSlashCommand
             .addStringOption(rollOptions.name)
             .addBooleanOption(rollOptions.secret);
 
-        this.mathParser = new Parser(addAndSubtractMathParserOptions);
+        this.mathParser = new AddAndSubractMathParser();
     }
 
     public async run(
@@ -50,7 +49,7 @@ class Roll_Lite extends BaseSlashCommand
         }
 
         // Get result
-        let unparsedMathString: string, resultString: string, finalRollResult: number;
+        let unparsedMathString: string, resultString: string;
 
         try {
             // Roll each dice and parse results to string for math parser.
@@ -64,10 +63,10 @@ class Roll_Lite extends BaseSlashCommand
         }
 
         // Parse math string for results.
-        try {
-            finalRollResult = this.mathParser.evaluate(unparsedMathString);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        const finalRollResult = this.mathParser.evaluate(unparsedMathString);
+
+        if (finalRollResult === undefined)
+        {
             await interaction.editReply(`An invalid dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
             return;
         }

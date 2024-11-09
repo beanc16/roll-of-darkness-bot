@@ -1,5 +1,4 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -7,15 +6,15 @@ import { NwodSubcommand } from '../options/index.js';
 import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
-import { addAndSubtractMathParserOptions } from '../../../constants/mathParserOptions.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
+import { AddAndSubractMathParser } from '../../../services/MathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy
 {
     public static key = NwodSubcommand.Initiative;
-    private static mathParser = new Parser(addAndSubtractMathParserOptions);
+    private static mathParser = new AddAndSubractMathParser();
 
     public static async run(
         interaction: ChatInputCommandInteraction,
@@ -29,12 +28,10 @@ export class InitiativeStrategy
         const name = interaction.options.getString('name');
 
         // Get result
-        let initiativeModifier = 0;
+        const initiativeModifier = this.mathParser.evaluate(initiativeModifierExpression);
 
-        try {
-            initiativeModifier = this.mathParser.evaluate(initiativeModifierExpression);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        if (initiativeModifier === undefined)
+        {
             await interaction.editReply(`An invalid initiative modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
             return true;
         }

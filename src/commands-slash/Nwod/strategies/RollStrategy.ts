@@ -1,18 +1,17 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { NwodSubcommand } from '../options/index.js';
 import { BaseRollStrategy } from './BaseRollStrategy.js';
 import rollConstants from '../../../constants/roll.js';
-import { addAndSubtractMathParserOptions } from '../../../constants/mathParserOptions.js';
+import { AddAndSubractMathParser } from '../../../services/MathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
     public static key = NwodSubcommand.Roll;
-    private static mathParser = new Parser(addAndSubtractMathParserOptions);
+    private static mathParser = new AddAndSubractMathParser();
 
     public static async run(
         interaction: ChatInputCommandInteraction,
@@ -23,15 +22,13 @@ export class RollStrategy
         const isSecret = interaction.options.getBoolean('secret') || false;
 
         // Get result
-        let numberOfDice = 0;
+        const numberOfDice = this.mathParser.evaluate(dicePoolExpression);
 
-        try {
-            numberOfDice = this.mathParser.evaluate(dicePoolExpression);
-        } catch (err) {
+        if (numberOfDice === undefined)
+        {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
-            await interaction.reply({
+            await interaction.editReply({
                 content: `An invalid dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`,
-                ephemeral: isSecret,
             });
             return true;
         }

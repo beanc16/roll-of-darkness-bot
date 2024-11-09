@@ -10,16 +10,15 @@ import {
     InteractionReplyOptions,
     Message,
 } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { addAndSubtractMathParserOptions } from '../../../../constants/mathParserOptions.js';
 import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
+import { AddAndSubractMathParser } from '../../../../services/MathParser.js';
 
 enum AttackButtonName
 {
@@ -52,7 +51,7 @@ type GetMessageContentOptions = {
 @staticImplements<ChatIteractionStrategy>()
 export class RollAttackStrategy
 {
-    private static mathParser = new Parser(addAndSubtractMathParserOptions);
+    private static mathParser = new AddAndSubractMathParser();
     public static key = PtuRollSubcommand.Attack;
 
     public static async run(
@@ -69,11 +68,10 @@ export class RollAttackStrategy
         const shouldUseMaxCritRoll = interaction.options.getBoolean('should_use_max_crit_roll') ?? true;
 
         // Calculate the accuracy modifier
-        let accuracyModifier: number;
-        try {
-            accuracyModifier = this.mathParser.evaluate(accuracyModifierFormula);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        const accuracyModifier = this.mathParser.evaluate(accuracyModifierFormula);
+
+        if (accuracyModifier === undefined)
+        {
             await interaction.editReply(
                 'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
             );
@@ -89,7 +87,7 @@ export class RollAttackStrategy
         .reduce((acc, cur) => (acc + cur), 0);
 
         // Get damage result
-        let unparsedDamageMathString: string, damageResultString: string, finalRollResult: number;
+        let unparsedDamageMathString: string, damageResultString: string;
 
         try {
             // Set up dice parser options for auto-crit handling.
@@ -112,10 +110,10 @@ export class RollAttackStrategy
         }
 
         // Parse math string for results.
-        try {
-            finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        const finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
+
+        if (finalRollResult === undefined)
+        {
             await interaction.editReply(`An invalid damage dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
             return true;
         }

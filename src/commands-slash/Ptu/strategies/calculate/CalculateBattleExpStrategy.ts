@@ -1,15 +1,14 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { Parser } from 'expr-eval';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
-import { addMathParserOptions } from '../../../../constants/mathParserOptions.js';
+import { AddMathParser } from '../../../../services/MathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateBattleExpStrategy
 {
-    private static mathParser = new Parser(addMathParserOptions);
+    private static mathParser = new AddMathParser();
     public static key = PtuCalculateSubcommand.BattleExp;
 
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
@@ -20,11 +19,10 @@ export class CalculateBattleExpStrategy
         const numOfPlayers = interaction.options.getInteger('num_of_players', true);
 
         // Calculate the total levels of enemies
-        let totalLevelOfEnemies: number;
-        try {
-            totalLevelOfEnemies = this.mathParser.evaluate(totalLevelsOfEnemiesFormula);
-        } catch (err) {
-            // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
+        const totalLevelOfEnemies = this.mathParser.evaluate(totalLevelsOfEnemiesFormula);
+
+        if (totalLevelOfEnemies === undefined)
+        {
             await interaction.editReply(
                 'An invalid dicepool was submitted. Include only numbers and plus signs (+).'
             );
