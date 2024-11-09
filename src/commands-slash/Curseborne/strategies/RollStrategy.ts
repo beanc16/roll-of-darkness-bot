@@ -200,8 +200,8 @@ export class RollStrategy
     })
     {
         const successesAsSingularOrPlural = (numOfSuccesses !== 1)
-            ? 'successes'
-            : 'success';
+            ? 'hits'
+            : 'hit';
 
         return Text.bold(`${numOfSuccesses} ${successesAsSingularOrPlural}`)
             + (rollResults.length > 0 ? '\n' : '')
