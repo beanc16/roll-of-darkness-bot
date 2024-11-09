@@ -36,6 +36,30 @@ enum PtuAttackRollType
     AutoCrit = 'auto_crit',
 }
 
+type RunRerollStrategyOptions = {
+    interaction: ChatInputCommandInteraction;
+    messageContentOptions?: never;
+    buttonInteraction: ButtonInteraction;
+    damageResultString: string;
+    finalRollResult: number;
+    type: PtuAttackRollType;
+    interactionCallbackType: DiscordInteractionCallbackType.Update;
+    accuracyRoll: number;
+    damageDicePoolExpression: string;
+    shouldUseMaxCritRoll: boolean;
+} | {
+    interaction: ChatInputCommandInteraction;
+    messageContentOptions: GetMessageContentOptions;
+    buttonInteraction?: never;
+    damageResultString: string;
+    finalRollResult: number;
+    type: PtuAttackRollType;
+    interactionCallbackType: DiscordInteractionCallbackType.Followup;
+    accuracyRoll?: never;
+    damageDicePoolExpression?: never;
+    shouldUseMaxCritRoll?: never;
+};
+
 type GetMessageContentOptions = {
     type: PtuAttackRollType.Miss | PtuAttackRollType.AutoMiss;
     currentMessageContent: string;
@@ -47,6 +71,14 @@ type GetMessageContentOptions = {
     damageResultString: string;
     finalRollResult: number;
 };
+
+interface RollDamageOptions
+{
+    accuracyRoll: number;
+    damageDicePoolExpression: string;
+    shouldUseMaxCritRoll: boolean;
+    type?: PtuAttackRollType;
+}
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollAttackStrategy
@@ -150,6 +182,9 @@ export class RollAttackStrategy
                 rerollCallbackOptions,
                 damageResultString,
                 finalRollResult,
+                accuracyRoll,
+                damageDicePoolExpression,
+                shouldUseMaxCritRoll,
             });
         }
 
@@ -165,13 +200,16 @@ export class RollAttackStrategy
         },
         damageResultString,
         finalRollResult,
+        accuracyRoll,
+        damageDicePoolExpression,
+        shouldUseMaxCritRoll,
     }: {
         interaction: ChatInputCommandInteraction;
         message: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
-    })
+    } & RollDamageOptions)
     {
         // Send message
         const handlerMap = {
@@ -193,6 +231,9 @@ export class RollAttackStrategy
             interactionResponse: response,
             damageResultString,
             finalRollResult,
+            accuracyRoll,
+            damageDicePoolExpression,
+            shouldUseMaxCritRoll,
         });
     }
 
@@ -239,12 +280,15 @@ export class RollAttackStrategy
         interactionResponse,
         damageResultString,
         finalRollResult,
+        accuracyRoll,
+        damageDicePoolExpression,
+        shouldUseMaxCritRoll,
     }: {
         interaction: ChatInputCommandInteraction;
         interactionResponse: Message<boolean>;
         damageResultString: string;
         finalRollResult: number;
-    })
+    } & RollDamageOptions)
     {
         let buttonInteraction: ButtonInteraction;
 
@@ -262,6 +306,9 @@ export class RollAttackStrategy
                 finalRollResult,
                 type: buttonInteraction.customId as PtuAttackRollType,
                 interactionCallbackType: DiscordInteractionCallbackType.Update,
+                accuracyRoll,
+                damageDicePoolExpression,
+                shouldUseMaxCritRoll,
             });
         }
         catch (error)
@@ -282,24 +329,24 @@ export class RollAttackStrategy
         finalRollResult,
         type,
         interactionCallbackType,
-    }: {
-        interaction: ChatInputCommandInteraction;
-        messageContentOptions?: never;
-        buttonInteraction: ButtonInteraction;
-        damageResultString: string;
-        finalRollResult: number;
-        type: PtuAttackRollType;
-        interactionCallbackType: DiscordInteractionCallbackType.Update;
-    } | {
-        interaction: ChatInputCommandInteraction;
-        messageContentOptions: GetMessageContentOptions;
-        buttonInteraction?: never;
-        damageResultString: string;
-        finalRollResult: number;
-        type: PtuAttackRollType;
-        interactionCallbackType: DiscordInteractionCallbackType.Followup;
-    }): Promise<void>
+        accuracyRoll,
+        damageDicePoolExpression,
+        shouldUseMaxCritRoll,
+    }: RunRerollStrategyOptions): Promise<void>
     {
+        if (type === PtuAttackRollType.Crit)
+        {
+            const critDamageRoll = this.rollDamage({
+                accuracyRoll: accuracyRoll as number,
+                damageDicePoolExpression: damageDicePoolExpression as string,
+                shouldUseMaxCritRoll: shouldUseMaxCritRoll as boolean,
+                type,
+            });
+
+            damageResultString = critDamageRoll?.damageResultString ?? damageResultString;
+            finalRollResult = critDamageRoll?.finalRollResult ?? finalRollResult;
+        }
+
         const getMessageContentOptions = (
             type === PtuAttackRollType.Hit
             || type === PtuAttackRollType.Crit
@@ -307,13 +354,13 @@ export class RollAttackStrategy
         )
             ? messageContentOptions ?? {
                 type,
-                currentMessageContent: buttonInteraction.message.content,
+                currentMessageContent: buttonInteraction?.message.content as string,
                 damageResultString,
                 finalRollResult,
             }
             : messageContentOptions ?? { // Miss & Auto-Miss
                 type,
-                currentMessageContent: buttonInteraction.message.content,
+                currentMessageContent: buttonInteraction?.message.content as string,
             };
 
 
@@ -348,11 +395,11 @@ export class RollAttackStrategy
 
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
-        // const critButton = new ButtonBuilder()
-        //     .setCustomId(AttackButtonName.Crit)
-        //     .setLabel(AttackButtonName.Crit)
-        //     .setEmoji('🗡️')
-        //     .setStyle(ButtonStyle.Primary);
+        const critButton = new ButtonBuilder()
+            .setCustomId(AttackButtonName.Crit)
+            .setLabel(AttackButtonName.Crit)
+            .setEmoji('🗡️')
+            .setStyle(ButtonStyle.Primary);
 
         const hitButton = new ButtonBuilder()
             .setCustomId(AttackButtonName.Hit)
@@ -368,7 +415,7 @@ export class RollAttackStrategy
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
-                // critButton,
+                critButton,
                 hitButton,
                 missButton,
             );
@@ -417,14 +464,11 @@ export class RollAttackStrategy
         accuracyRoll,
         damageDicePoolExpression,
         shouldUseMaxCritRoll,
-    }: {
-        accuracyRoll: number;
-        damageDicePoolExpression: string;
-        shouldUseMaxCritRoll: boolean;
-    })
+        type,
+    }: RollDamageOptions)
     {
         // Set up dice parser options for auto-crit handling.
-        const options: ParseOptions = (accuracyRoll === 20)
+        const options: ParseOptions = (accuracyRoll === 20 || type === PtuAttackRollType.Crit)
             ? {
                 doubleFirstDie: true,
                 doubleFirstModifier: true,
