@@ -48,19 +48,17 @@ class Roll_Lite extends BaseSlashCommand
             });
         }
 
-        // Get result
-        let unparsedMathString: string, resultString: string;
+        // Roll each dice and parse results to string for math parser.
+        const rollResult = DiceStringParser.parseAndRoll(dicePoolExpression);
 
-        try {
-            // Roll each dice and parse results to string for math parser.
-            const rollResult = DiceStringParser.parseAndRoll(dicePoolExpression);
-            unparsedMathString = rollResult.unparsedMathString;
-            resultString = rollResult.resultString;
-        } catch (err) {
+        if (rollResult === undefined)
+        {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             await interaction.editReply(`An invalid dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
             return;
         }
+
+        const { unparsedMathString, resultString } = rollResult;
 
         // Parse math string for results.
         const finalRollResult = this.mathParser.evaluate(unparsedMathString);

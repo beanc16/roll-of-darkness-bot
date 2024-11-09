@@ -49,9 +49,14 @@ export type ProcessedDicePoolArray = ((ParsedDie & {
 
 export class DiceStringParser
 {
-    // private static digitRegex = /\d/;
     private static letterDRegex = /[d]/i;
     private static supportedMathOperatorRegex = /[+-]/g;
+
+    private static isInvalidDicepoolString(input: string): boolean
+    {
+        // Allow digits (numbers), "d", "+", and "-"
+        return !!input.match(/[^\dd+-]/ig);
+    }
 
     private static parseDie(dieString: string): ParsedDie | ParsedModifier
     {
@@ -96,9 +101,15 @@ export class DiceStringParser
         return operators;
     }
 
-    private static parse(initialAllDiceString: string, parseOptions: ParseOptions = {}): ParsedDicePoolArray
+    private static parse(initialAllDiceString: string, parseOptions: ParseOptions = {}): ParsedDicePoolArray | undefined
     {
         const allDiceString = initialAllDiceString.replace(/\s+/g, '');
+
+        // Check if invalid parameters were passed in (return undefined for control flow over throwing an error)
+        if (this.isInvalidDicepoolString(allDiceString))
+        {
+            return undefined;
+        }
 
         const diceList = allDiceString.split(this.supportedMathOperatorRegex);
         const diceInfo = diceList.map((curDieString) => this.parseDie(curDieString));
@@ -218,6 +229,12 @@ export class DiceStringParser
     public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions)
     {
         const parsedDicePool = this.parse(initialAllDiceString, options);
+
+        if (!parsedDicePool)
+        {
+            return undefined;
+        }
+
         return this.rollParsedPool(parsedDicePool, options);
     }
 }

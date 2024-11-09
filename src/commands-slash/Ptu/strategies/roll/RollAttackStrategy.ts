@@ -86,28 +86,29 @@ export class RollAttackStrategy
         .roll()
         .reduce((acc, cur) => (acc + cur), 0);
 
-        // Get damage result
-        let unparsedDamageMathString: string, damageResultString: string;
+        // Set up dice parser options for auto-crit handling.
+        const options: ParseOptions = (accuracyRoll === 20)
+            ? {
+                doubleFirstDie: true,
+                doubleFirstModifier: true,
+                shouldRollMaxOnSecondHalfOfDicepool: shouldUseMaxCritRoll,
+            }
+            : {};
 
-        try {
-            // Set up dice parser options for auto-crit handling.
-            const options: ParseOptions = (accuracyRoll === 20)
-                ? {
-                    doubleFirstDie: true,
-                    doubleFirstModifier: true,
-                    shouldRollMaxOnSecondHalfOfDicepool: shouldUseMaxCritRoll,
-                }
-                : {};
+        // Roll each dice and parse results to string for math parser.
+        const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression, options);
 
-            // Roll each dice and parse results to string for math parser.
-            const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression, options);
-            unparsedDamageMathString = damageRollResult.unparsedMathString;
-            damageResultString = damageRollResult.resultString;
-        } catch (err) {
+        if (damageRollResult === undefined)
+        {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
             await interaction.editReply(`An invalid damage dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
             return true;
         }
+
+        const {
+            unparsedMathString: unparsedDamageMathString,
+            resultString: damageResultString,
+        } = damageRollResult;
 
         // Parse math string for results.
         const finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
