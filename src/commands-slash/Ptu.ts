@@ -31,6 +31,7 @@ import { PtuStatus } from './Ptu/models/PtuStatus.js';
 import { Timer } from '../services/Timer.js';
 import { PtuEdge } from './Ptu/models/PtuEdge.js';
 import { PtuFeature } from './Ptu/models/PtuFeature.js';
+import { logger } from '@beanc16/logger';
 
 export interface RandomResult
 {
@@ -88,6 +89,7 @@ class Ptu extends BaseSlashCommand
 
     async autocomplete(interaction: AutocompleteInteraction)
     {
+        const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
 
         let choices: ApplicationCommandOptionChoiceData<string>[] = [];
@@ -251,7 +253,18 @@ class Ptu extends BaseSlashCommand
         // Discord limits a maximum of 25 choices to display
         const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
 
-		await interaction.respond(limitedChoices);
+        // More than 3 seconds has passed, so we can't respond to the interaction
+        if (Date.now() - startTime >= 3000)
+        {
+            logger.warn('More than 3 seconds has passed to autocomplete in /ptu with the following data:', {
+                lookupOn: focusedValue.name,
+                searchValue: focusedValue.value,
+                results: limitedChoices,
+            });
+            return;
+        }
+
+        await interaction.respond(limitedChoices);
     }
 
     get description()
