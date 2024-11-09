@@ -105,7 +105,6 @@ export class DiceStringParser
 
         const mathOperators = this.parseMathOperators(allDiceString);
 
-        // TODO: Handle DoubleFirstDieAndModifier
         const { output } = diceInfo.reduce<{
             output: ParsedDicePoolArray;
             hasDoubledFirstDie: boolean;
