@@ -23,15 +23,16 @@ import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringP
 
 enum AttackButtonName
 {
-    Hit = 'hit',
-    Miss = 'miss',
+    Hit = 'Hit',
+    Miss = 'Miss',
+    Crit = 'Crit',
 }
 
 enum PtuAttackRollType
 {
     Hit = AttackButtonName.Hit,
     Miss = AttackButtonName.Miss,
-    Crit = 'crit',
+    Crit = AttackButtonName.Crit,
     AutoMiss = 'auto_miss',
     AutoCrit = 'auto_crit',
 }
@@ -363,18 +364,27 @@ export class RollAttackStrategy
 
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
+        // const critButton = new ButtonBuilder()
+        //     .setCustomId(AttackButtonName.Crit)
+        //     .setLabel(AttackButtonName.Crit)
+        //     .setEmoji('🗡️')
+        //     .setStyle(ButtonStyle.Primary);
+
         const hitButton = new ButtonBuilder()
             .setCustomId(AttackButtonName.Hit)
+            .setLabel(AttackButtonName.Hit)
             .setEmoji('🎯')
             .setStyle(ButtonStyle.Success);
 
         const missButton = new ButtonBuilder()
             .setCustomId(AttackButtonName.Miss)
+            .setLabel(AttackButtonName.Miss)
             .setEmoji('✖️')
             .setStyle(ButtonStyle.Danger);
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
+                // critButton,
                 hitButton,
                 missButton,
             );
