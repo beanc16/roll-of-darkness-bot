@@ -391,12 +391,12 @@ export class RollAttackStrategy
         {
             const damageLabelByType = {
                 [PtuAttackRollType.Hit]: '',
-                [PtuAttackRollType.AutoCrit]: 'Auto-Crit',
-                [PtuAttackRollType.Crit]: 'Crit',
+                [PtuAttackRollType.AutoCrit]: 'Auto-Crit ',
+                [PtuAttackRollType.Crit]: 'Crit ',
             };
 
             return currentMessageContent
-                + `\n${Text.bold(`${damageLabelByType[type]} Damage`)}:${damageResultString}`
+                + `\n${Text.bold(`${damageLabelByType[type]}Damage`)}:${damageResultString}`
                 + `\n${Text.bold('Total')}: ${finalRollResult}`
         }
 
