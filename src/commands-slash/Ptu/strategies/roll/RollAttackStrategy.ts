@@ -27,13 +27,22 @@ enum AttackButtonName
     Miss = 'miss',
 }
 
+enum PtuAttackRollType
+{
+    Hit = AttackButtonName.Hit,
+    Miss = AttackButtonName.Miss,
+    Crit = 'crit',
+    AutoMiss = 'auto_miss',
+    AutoCrit = 'auto_crit',
+}
+
 type GetMessageContentOptions = {
-    type: AttackButtonName.Miss | 'auto_miss';
+    type: PtuAttackRollType.Miss | PtuAttackRollType.AutoMiss;
     currentMessageContent: string;
     damageResultString?: never;
     finalRollResult?: never;
 } | {
-    type: AttackButtonName.Hit | 'auto_crit';
+    type: PtuAttackRollType.Hit | PtuAttackRollType.Crit | PtuAttackRollType.AutoCrit;
     currentMessageContent: string;
     damageResultString: string;
     finalRollResult: number;
@@ -127,7 +136,7 @@ export class RollAttackStrategy
         {
             await this.skipAccuracyRollMessage({
                 interaction,
-                type: 'auto_miss',
+                type: PtuAttackRollType.AutoMiss,
                 currentMessageContent: messagePrefix,
                 rerollCallbackOptions,
                 damageResultString,
@@ -140,7 +149,7 @@ export class RollAttackStrategy
         {
             await this.skipAccuracyRollMessage({
                 interaction,
-                type: 'auto_crit',
+                type: PtuAttackRollType.AutoCrit,
                 currentMessageContent: messagePrefix,
                 rerollCallbackOptions,
                 damageResultString,
@@ -211,14 +220,14 @@ export class RollAttackStrategy
         finalRollResult,
     }: {
         interaction: ChatInputCommandInteraction;
-        type: 'auto_miss' | 'auto_crit';
+        type: PtuAttackRollType.AutoMiss | PtuAttackRollType.AutoCrit;
         currentMessageContent: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
     })
     {
-        const messageContentOptions = (type === 'auto_miss')
+        const messageContentOptions = (type === PtuAttackRollType.AutoMiss)
             ? {
                 type,
                 currentMessageContent,
@@ -266,7 +275,7 @@ export class RollAttackStrategy
                 buttonInteraction,
                 damageResultString,
                 finalRollResult,
-                type: buttonInteraction.customId as AttackButtonName,
+                type: buttonInteraction.customId as PtuAttackRollType,
                 interactionCallbackType: DiscordInteractionCallbackType.Update,
             });
         }
@@ -294,7 +303,7 @@ export class RollAttackStrategy
         buttonInteraction: ButtonInteraction;
         damageResultString: string;
         finalRollResult: number;
-        type: AttackButtonName | 'auto_miss' | 'auto_crit';
+        type: PtuAttackRollType;
         interactionCallbackType: DiscordInteractionCallbackType.Update;
     } | {
         interaction: ChatInputCommandInteraction;
@@ -302,51 +311,39 @@ export class RollAttackStrategy
         buttonInteraction?: never;
         damageResultString: string;
         finalRollResult: number;
-        type: AttackButtonName | 'auto_miss' | 'auto_crit';
+        type: PtuAttackRollType;
         interactionCallbackType: DiscordInteractionCallbackType.Followup;
     }): Promise<void>
     {
-        const typeToButtonAttachName = {
-            [AttackButtonName.Hit]: AttackButtonName.Hit,
-            ['auto_crit']: AttackButtonName.Hit,
-            [AttackButtonName.Miss]: AttackButtonName.Miss,
-            ['auto_miss']: AttackButtonName.Miss,
-        };
+        const getMessageContentOptions = (
+            type === PtuAttackRollType.Hit
+            || type === PtuAttackRollType.Crit
+            || type === PtuAttackRollType.AutoCrit
+        )
+            ? messageContentOptions ?? {
+                type,
+                currentMessageContent: buttonInteraction.message.content,
+                damageResultString,
+                finalRollResult,
+            }
+            : messageContentOptions ?? { // Miss & Auto-Miss
+                type,
+                currentMessageContent: buttonInteraction.message.content,
+            };
 
-        const handlerMap: Record<AttackButtonName, () => Promise<void>> = {
-            [AttackButtonName.Hit]: async () => await RerollStrategy.run({
-                interaction: buttonInteraction ?? interaction,
-                options: this.getMessageContent(messageContentOptions ?? {
-                    type: AttackButtonName.Hit,
-                    currentMessageContent: buttonInteraction.message.content,
-                    damageResultString,
-                    finalRollResult,
-                }),
-                interactionCallbackType,
-                onRerollCallback: (newRerollCallbackOptions) => this.run(
-                    interaction,
-                    newRerollCallbackOptions,
-                ),
-                commandName: 'ptu roll attack',
-            }),
-            [AttackButtonName.Miss]: async () => await RerollStrategy.run({
-                interaction: buttonInteraction ?? interaction,
-                options: this.getMessageContent(messageContentOptions ?? {
-                    type: AttackButtonName.Miss,
-                    currentMessageContent: buttonInteraction.message.content,
-                }),
-                interactionCallbackType,
-                onRerollCallback: (newRerollCallbackOptions) => this.run(
-                    interaction,
-                    newRerollCallbackOptions,
-                ),
-                commandName: 'ptu roll attack',
-            }),
-        };
 
         // Update original message with the same content so
         // the buttons know that the interaction was successful
-        await handlerMap[typeToButtonAttachName[type]]();
+        await RerollStrategy.run({
+            interaction: buttonInteraction ?? interaction,
+            options: this.getMessageContent(getMessageContentOptions),
+            interactionCallbackType,
+            onRerollCallback: (newRerollCallbackOptions) => this.run(
+                interaction,
+                newRerollCallbackOptions,
+            ),
+            commandName: 'ptu roll attack',
+        });
     }
 
     private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean)
@@ -392,20 +389,31 @@ export class RollAttackStrategy
         finalRollResult,
     }: GetMessageContentOptions): string
     {
-        if (type === AttackButtonName.Hit || type === 'auto_crit')
+        if (
+            type === PtuAttackRollType.Hit
+            || type === PtuAttackRollType.AutoCrit
+            || type === PtuAttackRollType.Crit
+        )
         {
-            const damageLabelStr = (type === 'auto_crit') ? 'Auto-Crit ' : '';
+            const damageLabelByType = {
+                [PtuAttackRollType.Hit]: '',
+                [PtuAttackRollType.AutoCrit]: 'Auto-Crit',
+                [PtuAttackRollType.Crit]: 'Crit',
+            };
 
             return currentMessageContent
-                + `\n${Text.bold(`${damageLabelStr}Damage`)}:${damageResultString}`
+                + `\n${Text.bold(`${damageLabelByType[type]} Damage`)}:${damageResultString}`
                 + `\n${Text.bold('Total')}: ${finalRollResult}`
         }
 
-        else if (type === AttackButtonName.Miss || type === 'auto_miss')
+        else if (type === PtuAttackRollType.Miss || type === PtuAttackRollType.AutoMiss)
         {
-            const autoLabelStr = (type === 'auto_miss') ? 'Auto-' : '';
+            const autoLabelByType = {
+                [PtuAttackRollType.Miss]: '',
+                [PtuAttackRollType.AutoMiss]: 'Auto-',
+            };
 
-            return `${currentMessageContent}\n${Text.bold(`❌ ${autoLabelStr}Missed`)}`;
+            return `${currentMessageContent}\n${Text.bold(`❌ ${autoLabelByType[type]}Missed`)}`;
         }
 
         return currentMessageContent;
