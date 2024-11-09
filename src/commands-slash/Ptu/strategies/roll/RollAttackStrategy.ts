@@ -86,38 +86,21 @@ export class RollAttackStrategy
         .roll()
         .reduce((acc, cur) => (acc + cur), 0);
 
-        // Set up dice parser options for auto-crit handling.
-        const options: ParseOptions = (accuracyRoll === 20)
-            ? {
-                doubleFirstDie: true,
-                doubleFirstModifier: true,
-                shouldRollMaxOnSecondHalfOfDicepool: shouldUseMaxCritRoll,
-            }
-            : {};
+        // Make damage roll
+        const damageResult = this.rollDamage({
+            accuracyRoll,
+            damageDicePoolExpression,
+            shouldUseMaxCritRoll,
+        });
 
-        // Roll each dice and parse results to string for math parser.
-        const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression, options);
-
-        if (damageRollResult === undefined)
+        if (damageResult === undefined)
         {
             // Don't log any errors. This will occur if users input an invalid mathematical expression. We don't want to log errors from user-driven behavior.
-            await interaction.editReply(`An invalid damage dicepool was submitted. Include only valid dice, plus signs (+), and subtraction signs (-).`);
+            await interaction.editReply(`An invalid damage dicepool was submitted. Include only valid dice, numbers, plus signs (+), and subtraction signs (-).`);
             return true;
         }
 
-        const {
-            unparsedMathString: unparsedDamageMathString,
-            resultString: damageResultString,
-        } = damageRollResult;
-
-        // Parse math string for results.
-        const finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
-
-        if (finalRollResult === undefined)
-        {
-            await interaction.editReply(`An invalid damage dicepool was submitted. Include only numbers, plus signs (+), and subtraction signs (-).`);
-            return true;
-        }
+        const { damageResultString, finalRollResult } = damageResult;
 
         // Send message
         const accuracyModifierStr = (accuracyModifier > 0)
@@ -428,5 +411,51 @@ export class RollAttackStrategy
         }
 
         return currentMessageContent;
+    }
+
+    private static rollDamage({
+        accuracyRoll,
+        damageDicePoolExpression,
+        shouldUseMaxCritRoll,
+    }: {
+        accuracyRoll: number;
+        damageDicePoolExpression: string;
+        shouldUseMaxCritRoll: boolean;
+    })
+    {
+        // Set up dice parser options for auto-crit handling.
+        const options: ParseOptions = (accuracyRoll === 20)
+            ? {
+                doubleFirstDie: true,
+                doubleFirstModifier: true,
+                shouldRollMaxOnSecondHalfOfDicepool: shouldUseMaxCritRoll,
+            }
+            : {};
+
+        // Roll each dice and parse results to string for math parser.
+        const damageRollResult = DiceStringParser.parseAndRoll(damageDicePoolExpression, options);
+
+        if (damageRollResult === undefined)
+        {
+            return undefined;
+        }
+
+        const {
+            unparsedMathString: unparsedDamageMathString,
+            resultString: damageResultString,
+        } = damageRollResult;
+
+        // Parse math string for results.
+        const finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);
+
+        if (finalRollResult === undefined)
+        {
+            return undefined;
+        }
+
+        return {
+            finalRollResult,
+            damageResultString,
+        };
     }
 }
