@@ -34,7 +34,7 @@ export class LuckStrategy
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
-            authorId: interaction.user.id,
+            authorId: rerollCallbackOptions.newCallingUserId ?? interaction.user.id,
             dicePoolGroup,
             numberOfDice,
             name,

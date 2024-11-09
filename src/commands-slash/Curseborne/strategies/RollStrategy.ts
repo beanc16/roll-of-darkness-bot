@@ -18,6 +18,7 @@ export class RollStrategy
         interaction: ChatInputCommandInteraction,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+            newCallingUserId: interaction.user.id,
         },
     ): Promise<boolean>
     {
@@ -65,6 +66,7 @@ export class RollStrategy
             numberOfCursedDice,
             numOfCursedDiceSuccesses,
             cursedDiceRollResults,
+            rerollCallbackOptions,
         });
         await RerollStrategy.run({
             interaction,
@@ -111,6 +113,7 @@ export class RollStrategy
         numberOfCursedDice,
         numOfCursedDiceSuccesses,
         cursedDiceRollResults,
+        rerollCallbackOptions,
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number;
@@ -122,6 +125,7 @@ export class RollStrategy
         numberOfCursedDice: number;
         numOfCursedDiceSuccesses: number;
         cursedDiceRollResults: number[];
+        rerollCallbackOptions: OnRerollCallbackOptions
     }): string
     {
         const againString = (successesKey === TwoSuccessesOption.DoubleNines)
@@ -163,7 +167,7 @@ export class RollStrategy
             );
         }
 
-        return `${Text.Ping.user(interaction.user.id)} rolled ${numberOfDice} dice${
+        return `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} rolled ${numberOfDice} dice${
             this.getCombinedExtrasString(againString, enhancementsString, cursedDiceString)
         }${rollName}.\n\n${rollStrings.join('\n\n')}`;
     }

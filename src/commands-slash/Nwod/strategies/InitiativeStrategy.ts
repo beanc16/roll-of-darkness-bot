@@ -40,7 +40,7 @@ export class InitiativeStrategy
 
         // Response
         const initiativeResponseFormatterService = new InitiativeResponseFormatterService({
-            authorId: interaction.user.id,
+            authorId: rerollCallbackOptions.newCallingUserId ?? interaction.user.id,
             dicePoolGroup,
             initiativeModifier,
             name,

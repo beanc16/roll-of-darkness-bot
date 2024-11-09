@@ -42,7 +42,7 @@ export class ChanceStrategy
 
         // Response
         const rollResponseFormatterService = new RollResponseFormatterService({
-            authorId: interaction.user.id,
+            authorId: rerollCallbackOptions.newCallingUserId ?? interaction.user.id,
             dicePoolGroup,
             name,
             numberOfDice,

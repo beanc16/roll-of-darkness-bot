@@ -52,7 +52,7 @@ export class RollCaptureStrategy
         {
             await this.sendMessage({
                 interaction,
-                message: `${Text.Ping.user(interaction.user.id)} :game_die:\n` +
+                message: `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n` +
                     `${Text.bold('Accuracy')}: ${accuracyRoll}\n` +
                     `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`,
                 rerollCallbackOptions,
@@ -78,8 +78,8 @@ export class RollCaptureStrategy
 
         // Create message text
         const startOfMessage = (captureRoll === 1)
-            ? `${Text.Ping.user(interaction.user.id)} rolled a guaranteed capture!!!\n`
-            : `${Text.Ping.user(interaction.user.id)} :game_die:\n`;
+            ? `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} rolled a guaranteed capture!!!\n`
+            : `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`;
 
         const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll})\n` +
                 `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +

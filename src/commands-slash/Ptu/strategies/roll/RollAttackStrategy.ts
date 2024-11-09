@@ -125,7 +125,9 @@ export class RollAttackStrategy
             ? `-${accuracyModifier}`
             : '';
         const rollName = name ? ` ${Text.bold(name)}` : '';
-        const messagePrefix = `${Text.Ping.user(interaction.user.id)}${rollName} :game_die:\n`
+        const messagePrefix = `${Text.Ping.user(
+            rerollCallbackOptions.newCallingUserId ?? interaction.user.id)
+        }${rollName} :game_die:\n`
         + `${Text.bold('Accuracy')}: 1d20${accuracyModifierStr} (${
             accuracyRoll + accuracyModifier
         })`;
