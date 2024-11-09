@@ -146,7 +146,7 @@ class Ptu extends BaseSlashCommand
             if (this.isQueryingPokemonAutocomplete)
             {
                 await Timer.waitUntilTrue({
-                    seconds: 5,
+                    seconds: 0.2,
                     callback: () => !this.isQueryingPokemonAutocomplete,
                 });
             }
