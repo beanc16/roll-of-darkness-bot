@@ -175,6 +175,10 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setName('include_mega');
         return option.setDescription('Include mega stone in potential results (default: false)');
     });
+    subcommand.addBooleanOption((option) => {
+        option.setName('include_badges');
+        return option.setDescription('Include badges in potential results (default: false)');
+    });
     return subcommand;
 };
 

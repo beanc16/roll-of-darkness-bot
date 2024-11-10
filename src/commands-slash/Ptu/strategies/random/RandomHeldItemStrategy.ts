@@ -12,6 +12,7 @@ enum HeldItemTypes
 {
     Normal = 'Normal',
     Mega = 'Mega',
+    Badge = 'Badge',
 }
 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
@@ -26,23 +27,25 @@ export class RandomHeldItemStrategy
     {
         // Get parameter results
         const includeMega = interaction.options.getBoolean('include_mega') || false;
+        const includeBadges = interaction.options.getBoolean('include_badges') || false;
 
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ type, includeMega }: { type: string, includeMega: boolean }) =>
+        const shouldInclude = ({ type, includeMega, includeBadges }: { type: string; includeMega: boolean; includeBadges: boolean; }) =>
         {
             return (
                 type === HeldItemTypes.Normal
                 || (type === HeldItemTypes.Mega && includeMega)
+                || (type === HeldItemTypes.Badge && includeBadges)
             );
         };
 
         // Parse the data
         const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) => {
-            if (shouldInclude({ type, includeMega }))
+            if (shouldInclude({ type, includeMega, includeBadges }))
             {
                 acc.push({
                     name,
