@@ -2,7 +2,7 @@ import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
-import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer.js';
+import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
 
 async function handler(bot: Client)

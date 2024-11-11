@@ -11,9 +11,7 @@
         "lint": "eslint --ext .ts --ext .js --ext .cjs",
         "start": "npm run build && node dist/bot.js",
         "start:dev": "node --loader ts-node/esm --watch src/bot.ts",
-        "register-slash-commands": "node --loader ts-node/esm src/slash-command-helpers/registerSlashCommands.ts",
-        "first-time-setup": "node node_modules/@beanc16/discordjs-generators/src/runFirstTimeSetup.js",
-        "update-bot-settings": "node node_modules/@beanc16/discordjs-generators/src/updateBotSettings.js",
+        "register-slash-commands": "node --loader ts-node/esm src/scripts/registerSlashCommands.ts",
         "preversion": "npm run lint",
         "version": "git add -A",
         "postversion": "git push && git push --tags"

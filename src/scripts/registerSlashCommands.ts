@@ -1,4 +1,4 @@
-import { SlashCommandsContainer } from './SlashCommandsContainer.js';
+import { SlashCommandsContainer } from './registerSlashCommands/SlashCommandsContainer.js';
 
 async function registerCommands(): Promise<void>
 {

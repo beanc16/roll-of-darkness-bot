@@ -4,8 +4,8 @@ import { Client, REST, Routes } from 'discord.js';
 import { logger } from '@beanc16/logger';
 import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
 
-import { BaseContextMenuCommand } from '../context-menus/base-commands/BaseContextMenuCommand.js';
-import { Timer } from '../services/Timer.js';
+import { BaseContextMenuCommand } from '../../context-menus/base-commands/BaseContextMenuCommand.js';
+import { Timer } from '../../services/Timer.js';
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 
