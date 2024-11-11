@@ -5,7 +5,6 @@ const defaultParams = {
     successOnGreaterThanOrEqualTo: 8,
     exceptionalOn: 5,
     diceToReroll: 1,
-    canBeDramaticFailure: false,
     isRote: false,
     isAdvancedAction: false,
     extraSuccesses: 0,

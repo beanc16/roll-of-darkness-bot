@@ -1,6 +1,5 @@
 import { SlashCommandBooleanOption, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
-import FlavorTextService from '../../../services/FlavorTextService.js';
 import rollConstants from '../../../constants/roll.js';
 
 export function numberOfDice(option: SlashCommandStringOption)
@@ -11,24 +10,10 @@ export function numberOfDice(option: SlashCommandStringOption)
     return option;
 }
 
-export function splat(option: SlashCommandStringOption)
-{
-    const flavorTextService = new FlavorTextService();
-
-    option.setName('splat');
-    option.setDescription('The supernatural splat to get flavor text for (default: General)');
-    option.addChoices(
-        ...flavorTextService.getAllCategoriesAsStringOptionChoices({
-            type: 'Splat',
-        }),
-    );
-    return option;
-}
-
 export function name(option: SlashCommandStringOption)
 {
     option.setName('name');
-    option.setDescription('The name/flavor text of the roll');
+    option.setDescription('The name of the roll');
     option.setMinLength(1);
     option.setMaxLength(100);
     return option;

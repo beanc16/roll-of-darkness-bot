@@ -1,6 +1,6 @@
-import { Client, Events } from 'discord.js';
 import { logger } from '@beanc16/logger';
-// import FlavorTextService from '../services/FlavorTextService.js';
+import { Client, Events } from 'discord.js';
+
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 import { SlashCommandsContainer } from '../slash-command-helpers/SlashCommandsContainer.js';
 import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
@@ -15,10 +15,6 @@ async function handler(bot: Client)
 
     try
     {
-        // Initialize flavor text singleton
-        // const flavorTextService = new FlavorTextService();
-        // await flavorTextService.getCategories();
-        
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
 

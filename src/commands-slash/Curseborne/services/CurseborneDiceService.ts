@@ -25,11 +25,9 @@ export class CurseborneDiceService
             extraSuccesses: enhancements,
             // Never use any of the following:
             rerollOnGreaterThanOrEqualTo: 100,
-            exceptionalOn: 100,
             diceToReroll: 0,
             isRote: false,
             isAdvancedAction: false,
-            canBeDramaticFailure: false,
         });
 
         this.twoSuccessesOn = twoSuccessesOn;

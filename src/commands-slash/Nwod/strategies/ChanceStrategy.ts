@@ -36,7 +36,6 @@ export class ChanceStrategy
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
             successOnGreaterThanOrEqualTo: 10,
-            canBeDramaticFailure: true,
         });
         const dicePoolGroup = diceService.roll();
 

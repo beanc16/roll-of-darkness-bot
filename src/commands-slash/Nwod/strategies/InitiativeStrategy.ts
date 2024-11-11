@@ -72,7 +72,6 @@ export class InitiativeStrategy
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
             successOnGreaterThanOrEqualTo: 10, // You can't succeed at initiative rolls, so just set the number really high
-            canBeDramaticFailure: false,
         });
         const dicePoolGroup = diceService.roll();
 

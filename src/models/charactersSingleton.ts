@@ -10,9 +10,9 @@ class CharactersSingleton
 {
     #singleton: Singleton<CharacterSingletonMap>;
 
-    constructor(categoriesEnum: CharacterSingletonMap = {})
+    constructor(input: CharacterSingletonMap = {})
     {
-        this.#singleton = new Singleton(categoriesEnum);
+        this.#singleton = new Singleton(input);
     }
 
     getAll(): CharacterSingletonMap

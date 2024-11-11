@@ -9,9 +9,9 @@ class StillWaitingForModalSingleton
 {
     #singleton: Singleton<StillWaitingForModalSingletonMap>;
 
-    constructor(categoriesEnum: StillWaitingForModalSingletonMap = {})
+    constructor(input: StillWaitingForModalSingletonMap = {})
     {
-        this.#singleton = new Singleton(categoriesEnum);
+        this.#singleton = new Singleton(input);
     }
 
     getAll(): StillWaitingForModalSingletonMap

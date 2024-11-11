@@ -14,9 +14,7 @@ export class DiceService
     public count: number;
     public rerollOnGreaterThanOrEqualTo: number;
     public successOnGreaterThanOrEqualTo: number;
-    public exceptionalOn: number;
     public diceToReroll: number;
-    public canBeDramaticFailure: boolean;
     public isRote: boolean;
     public isAdvancedAction: boolean;
     public extraSuccesses: number;
@@ -26,9 +24,7 @@ export class DiceService
         count = rollConstants.defaultParams.count,
         rerollOnGreaterThanOrEqualTo = rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo,
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
-        exceptionalOn = rollConstants.defaultParams.exceptionalOn,
         diceToReroll = rollConstants.defaultParams.diceToReroll,
-        canBeDramaticFailure = rollConstants.defaultParams.canBeDramaticFailure,
         isRote = rollConstants.defaultParams.isRote,
         isAdvancedAction = rollConstants.defaultParams.isAdvancedAction,
         extraSuccesses = rollConstants.defaultParams.extraSuccesses,
@@ -37,9 +33,7 @@ export class DiceService
         count?: number | null;
         rerollOnGreaterThanOrEqualTo?: number;
         successOnGreaterThanOrEqualTo?: number;
-        exceptionalOn?: number | null;
         diceToReroll?: number | null;
-        canBeDramaticFailure?: boolean;
         isRote?: boolean | null;
         isAdvancedAction?: boolean | null;
         extraSuccesses?: number | null;
@@ -49,9 +43,7 @@ export class DiceService
         this.count = count ?? rollConstants.defaultParams.count;
         this.rerollOnGreaterThanOrEqualTo = rerollOnGreaterThanOrEqualTo ?? rollConstants.defaultParams.rerollOnGreaterThanOrEqualTo;
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo ?? rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
-        this.exceptionalOn = exceptionalOn ?? rollConstants.defaultParams.exceptionalOn;
         this.diceToReroll = diceToReroll ?? rollConstants.defaultParams.diceToReroll;
-        this.canBeDramaticFailure = canBeDramaticFailure ?? rollConstants.defaultParams.canBeDramaticFailure
         this.isRote = isRote ?? rollConstants.defaultParams.isRote;
         this.isAdvancedAction = isAdvancedAction ?? rollConstants.defaultParams.isAdvancedAction;
         this.extraSuccesses = extraSuccesses ?? rollConstants.defaultParams.extraSuccesses;
@@ -76,9 +68,7 @@ export class DiceService
     }: RollOptions = {}): DicePool
     {
         const dicePool = new DicePool({
-            exceptionalOn: this.exceptionalOn,
             successOnGreaterThanOrEqualTo: this.successOnGreaterThanOrEqualTo,
-            canBeDramaticFailure: this.canBeDramaticFailure,
             extraSuccesses: this.extraSuccesses,
         });
 

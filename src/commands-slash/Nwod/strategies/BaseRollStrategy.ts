@@ -43,7 +43,6 @@ export class BaseRollStrategy
         const diceService = new DiceService({
             count: numberOfDice,
             rerollOnGreaterThanOrEqualTo,
-            exceptionalOn,
             diceToReroll,
             isRote,
             isAdvancedAction,

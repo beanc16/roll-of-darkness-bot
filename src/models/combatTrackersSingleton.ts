@@ -10,9 +10,9 @@ class CombatTrackersSingleton
 {
     #singleton: Singleton<CombatTrackerSingletonMap>;
 
-    constructor(categoriesEnum: CombatTrackerSingletonMap = {})
+    constructor(input: CombatTrackerSingletonMap = {})
     {
-        this.#singleton = new Singleton(categoriesEnum);
+        this.#singleton = new Singleton(input);
     }
 
     getAll(): CombatTrackerSingletonMap
