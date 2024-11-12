@@ -9,7 +9,6 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: [
         '@stylistic',
-        // '@typescript-eslint',
         'destructuring-newline',
         'file-progress',
         'import-newlines',
@@ -132,14 +131,11 @@ module.exports = {
                 'airbnb-typescript/base',
                 'plugin:@stylistic/recommended-extends',
                 'plugin:@stylistic/disable-legacy',
-                // 'plugin:@stylistic/recommended-requiring-type-checking-extends',
-                // 'plugin:@typescript-eslint/recommended',
-                // 'plugin:@typescript-eslint/recommended-requiring-type-checking',
             ],
             parser: '@typescript-eslint/parser',
             parserOptions: {
                 project: [
-                    path.resolve(path.resolve(), 'tsconfig.json'),          // Required for: @stylistic/recommended-requiring-type-checking
+                    path.resolve(path.resolve(), 'tsconfig.json'),          // Required for: @typescript-eslint/recommended-requiring-type-checking
                     path.resolve(path.resolve(), 'tests/tsconfig.json'),    // Required for the below jest overrides to take effect for typescript files
                 ],
             },
@@ -149,7 +145,7 @@ module.exports = {
                 '@stylistic/indent-binary-ops': ['error', 4],               // Do 4-space indentation (not tabs) for binary operations
 
                 // Miscellaneous
-                '@stylistic/brace-style': ['error', 'allman'], // Make curly braces exist on the next line
+                '@stylistic/brace-style': ['error', 'allman'],              // Make curly braces exist on the next line
                 '@stylistic/comma-dangle': ['error', 'always-multiline'],   // Require trailing commas
                 '@stylistic/member-delimiter-style': ['error', {            // Style of delimiter between members
                     multiline: {
