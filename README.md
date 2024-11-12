@@ -31,7 +31,7 @@ npm install
 
 **Step 2:** Enable shared git hooks
 ```bash
-git config --local core.hooksPath .githooks/
+git config core.hooksPath .githooks
 ```
 
 
