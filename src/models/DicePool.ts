@@ -1,47 +1,50 @@
 import rollConstants from '../constants/roll.js';
 import { Roll } from '../types/rolls.js';
 
+export interface DicePoolOptions
+{
+    successOnGreaterThanOrEqualTo?: number;
+    extraSuccesses?: number;
+}
+
 export class DicePool
 {
     private _rolls: Roll[][];
-    private _successOnGreaterThanOrEqualTo: number;
-    private _extraSuccesses: number;
+    private successOnGreaterThanOrEqualTo: number;
+    private extraSuccesses: number;
     private _numOfSuccesses?: number;
 
     constructor({
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         extraSuccesses = rollConstants.defaultParams.extraSuccesses,
-    }: {
-        successOnGreaterThanOrEqualTo?: number;
-        extraSuccesses?: number;
-    } = {})
+    }: DicePoolOptions = {})
     {
         this._rolls = [];
-        this._successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo || rollConstants.defaultParams.successOnGreaterThanOrEqualTo;
-        this._extraSuccesses = extraSuccesses || rollConstants.defaultParams.extraSuccesses;
+        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo;
+        this.extraSuccesses = extraSuccesses;
     }
 
-    get rolls()
+    get rolls(): Roll[][]
     {
         return this._rolls;
     }
 
-    get rollResults()
+    get rollResults(): number[]
     {
         return this._rolls.flatMap((array) => array.map(({ number }) => number));
     }
 
-    get numOfSuccesses()
+    get numOfSuccesses(): number
     {
-        if (!this._numOfSuccesses)
+        if (this._numOfSuccesses === undefined)
         {
             const successfulDiceRolled = this.rolls.flat().filter((result) =>
             {
-                return (result.number >= this._successOnGreaterThanOrEqualTo);
+                return (result.number >= this.successOnGreaterThanOrEqualTo);
             });
 
             const extraSuccesses = (successfulDiceRolled.length > 0)
-                ? this._extraSuccesses
+                ? this.extraSuccesses
                 : 0;
 
             this._numOfSuccesses = successfulDiceRolled.length + extraSuccesses;
