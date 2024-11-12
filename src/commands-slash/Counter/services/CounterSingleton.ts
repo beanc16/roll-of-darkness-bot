@@ -1,8 +1,8 @@
 import { UUID } from 'node:crypto';
 
-import Singleton from '../../../models/Singleton.js';
+import Singleton from '../../../services/Singleton.js';
 import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
-import { CounterEventHandler } from '../services/CounterEventHandler.js';
+import { CounterEventHandler } from './CounterEventHandler.js';
 import { CounterType } from '../../options/counter.js';
 
 interface UpdateCountParameters

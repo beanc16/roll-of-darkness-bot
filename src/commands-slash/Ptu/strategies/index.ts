@@ -14,12 +14,12 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 
 import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuCapability } from '../models/PtuCapability.js';
+import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { PtuNature } from '../models/PtuNature.js';
+import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokemon } from '../types/pokemon.js';
-import { PtuStatus } from '../models/PtuStatus.js';
-import { PtuTm } from '../models/PtuTm.js';
+import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuTm } from '../types/PtuTm.js';
 
 import { GetLookupMoveDataParameters } from './lookup/LookupMoveStrategy.js';
 import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.js';
@@ -29,9 +29,9 @@ import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js'
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
-import { PtuEdge } from '../models/PtuEdge.js';
+import { PtuEdge } from '../types/PtuEdge.js';
 import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
-import { PtuFeature } from '../models/PtuFeature.js';
+import { PtuFeature } from '../types/PtuFeature.js';
 import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
 
 export class PtuStrategyExecutor

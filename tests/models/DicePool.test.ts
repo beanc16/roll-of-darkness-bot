@@ -1,5 +1,5 @@
 import { getFakeRoll } from './fakes/rolls.js';
-import { DicePool, DicePoolOptions } from '../../src/models/DicePool.js';
+import { DicePool, DicePoolOptions } from '../../src/services/DicePool.js';
 import rollConstants from '../../src/constants/roll.js';
 import type { Roll } from '../../src/types/rolls.js';
 

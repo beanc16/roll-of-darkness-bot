@@ -1,4 +1,4 @@
-import { DicePool } from '../../../models/DicePool.js';
+import { DicePool } from '../../../services/DicePool.js';
 
 export class CurseborneDicePool
 {

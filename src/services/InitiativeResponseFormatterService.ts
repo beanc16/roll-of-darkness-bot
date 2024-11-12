@@ -1,6 +1,6 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { ResponseFormatterService } from './ResponseFormatterService.js';
-import { DicePoolGroup } from '../models/DicePoolGroup.js';
+import { DicePoolGroup } from './DicePoolGroup.js';
 
 export class InitiativeResponseFormatterService extends ResponseFormatterService
 {

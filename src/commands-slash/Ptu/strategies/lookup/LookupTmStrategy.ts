@@ -7,7 +7,7 @@ import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { getLookupTmsEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuTm } from '../../models/PtuTm.js';
+import { PtuTm } from '../../types/PtuTm.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 
 export interface GetLookupTmDataParameters

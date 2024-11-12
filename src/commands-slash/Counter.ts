@@ -20,7 +20,7 @@ import {
     name,
     type,
 } from './options/counter.js';
-import counterSingleton from './Counter/models/CounterSingleton.js';
+import counterSingleton from './Counter/services/CounterSingleton.js';
 import {
     Counter as CounterForDb,
     CounterContainer,

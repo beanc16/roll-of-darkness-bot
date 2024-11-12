@@ -2,14 +2,14 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
 import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuCapability } from '../models/PtuCapability.js';
+import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { PtuNature } from '../models/PtuNature.js';
-import { PtuTm } from '../models/PtuTm.js';
+import { PtuNature } from '../types/PtuNature.js';
+import { PtuTm } from '../types/PtuTm.js';
 import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemon.js';
-import { PtuStatus } from '../models/PtuStatus.js';
-import { PtuEdge } from '../models/PtuEdge.js';
-import { PtuFeature } from '../models/PtuFeature.js';
+import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuEdge } from '../types/PtuEdge.js';
+import { PtuFeature } from '../types/PtuFeature.js';
 import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 

@@ -4,7 +4,7 @@ import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js'
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
-import { CurseborneTrick } from '../../models/CurseborneTrick.js';
+import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import {
     BaseGetLookupDataParams,
     BaseGetLookupSearchMatchType,

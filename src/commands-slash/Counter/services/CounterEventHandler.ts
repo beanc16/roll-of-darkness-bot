@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord.js';
 import { Timer } from '../../../services/Timer.js';
 import { CounterController } from '../dal/CounterMongoController.js';
-import counterSingleton from '../models/CounterSingleton.js';
+import counterSingleton from './CounterSingleton.js';
 
 enum CounterEventType
 {

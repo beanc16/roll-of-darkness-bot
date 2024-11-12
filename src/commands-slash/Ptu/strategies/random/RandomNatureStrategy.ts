@@ -7,7 +7,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomNatureEmbedMessage } from '../../../Ptu/embed-messages/random.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
-import { PtuNature } from '../../models/PtuNature.js';
+import { PtuNature } from '../../types/PtuNature.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';

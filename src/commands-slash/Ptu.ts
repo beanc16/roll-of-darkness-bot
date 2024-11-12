@@ -20,17 +20,17 @@ import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 
 import { PtuAbility } from './Ptu/models/PtuAbility.js';
-import { PtuCapability } from './Ptu/models/PtuCapability.js';
+import { PtuCapability } from './Ptu/types/PtuCapability.js';
 import { PtuMove } from './Ptu/models/PtuMove.js';
-import { PtuNature } from './Ptu/models/PtuNature.js';
+import { PtuNature } from './Ptu/types/PtuNature.js';
 import { PtuPokemon } from './Ptu/types/pokemon.js';
-import { PtuTm } from './Ptu/models/PtuTm.js';
+import { PtuTm } from './Ptu/types/PtuTm.js';
 
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
-import { PtuStatus } from './Ptu/models/PtuStatus.js';
+import { PtuStatus } from './Ptu/types/PtuStatus.js';
 import { Timer } from '../services/Timer.js';
-import { PtuEdge } from './Ptu/models/PtuEdge.js';
-import { PtuFeature } from './Ptu/models/PtuFeature.js';
+import { PtuEdge } from './Ptu/types/PtuEdge.js';
+import { PtuFeature } from './Ptu/types/PtuFeature.js';
 import { logger } from '@beanc16/logger';
 
 export interface RandomResult

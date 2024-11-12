@@ -24,4 +24,6 @@ export class ArraySingleton<T extends any[] = unknown[]> extends Singleton<T>
     {
         this.value.push(items);
     }
+
+    // TODO: Add other native array methods like forEach, map, reduce, etc.
 }

@@ -1,7 +1,7 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
 import { RandomPokeball, RandomResult } from '../../Ptu.js';
-import { PtuNature } from '../models/PtuNature.js';
+import { PtuNature } from '../types/PtuNature.js';
 
 const color = 0xCDCDCD;
 const tab = '　';

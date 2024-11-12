@@ -1,6 +1,6 @@
 import rollConstants from '../constants/roll.js';
-import { DicePoolGroup } from '../models/DicePoolGroup.js';
-import { DicePool } from '../models/DicePool.js';
+import { DicePoolGroup } from './DicePoolGroup.js';
+import { DicePool } from './DicePool.js';
 import { Roll } from '../types/rolls.js';
 
 export interface RollOptions
