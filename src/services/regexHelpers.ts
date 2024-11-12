@@ -5,7 +5,9 @@ export enum RegexLookupType
     ExactMatchCaseInsensitive = 'EXACT_MATCH_CASE_INSENSITIVE',
 }
 
-export const parseRegexByType = (string: string, lookupType: RegexLookupType) =>
+const escapeRegex = (string: string): string => string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+
+export const parseRegexByType = (string: string, lookupType: RegexLookupType): string | RegExp | undefined =>
 {
     const escapedRegex = escapeRegex(string);
 
@@ -25,9 +27,4 @@ export const parseRegexByType = (string: string, lookupType: RegexLookupType) =>
     }
 
     return undefined;
-};
-
-const escapeRegex = (string: string) =>
-{
-    return string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 };

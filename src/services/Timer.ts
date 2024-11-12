@@ -44,7 +44,7 @@ export class Timer
                 else
                 {
                     resolve(
-                        await this.waitUntilTrue({ seconds, callback })
+                        await this.waitUntilTrue({ seconds, callback }),
                     );
                 }
             }, seconds * 1000);

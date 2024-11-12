@@ -30,7 +30,7 @@ export class InitiativeResponseFormatterService extends ResponseFormatterService
         this.name = name;
     }
 
-    getResponse()
+    public getResponse(): string
     {
         const optionalPlusSign = (this.initiativeModifier > 0) ? '+' : '';
         const rollName = (this.name) ? ` for ${this.name}` : '';

@@ -55,30 +55,34 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         this.rerollsDisplay = rerollsDisplay;
     }
 
-    getDiceString(dicepoolIndex: number)
+    public getDiceString(dicepoolIndex: number): string
     {
-        const diceString = this.dicePoolGroup.get(dicepoolIndex).reduce(function (acc, result)
+        const diceString = this.dicePoolGroup.get(dicepoolIndex).reduce<string>((acc, result) =>
         {
             // Add commas to the end of the previous success (except for the first roll)
             if (acc !== '')
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += ', ';
             }
 
+            // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
             acc += `${result[0].number}`;
 
             // Add parenthesis around dice that were re-rolled
-            for (let i = 1; i < result.length; i++)
+            for (let i = 1; i < result.length; i += 1)
             {
                 // Format as rote
                 if (result[i].isRote)
                 {
+                    // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                     acc += ` R:${result[i].number}`;
                 }
 
                 // Format as reroll
                 else
                 {
+                    // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                     acc += ` (${result[i].number})`;
                 }
             }
@@ -89,7 +93,7 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         return diceString;
     }
 
-    getWithParametersString(dicepoolIndex: number)
+    public getWithParametersString(dicepoolIndex: number): string
     {
         const results = [];
 
@@ -115,13 +119,14 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
             })}`);
         }
 
-        if (this.diceToReroll && this.diceToReroll !== rollConstants.defaultParams.diceToReroll) {
+        if (this.diceToReroll && this.diceToReroll !== rollConstants.defaultParams.diceToReroll)
+        {
             results.push(`rerolling ${this.diceToReroll} dice on reroll`);
         }
 
         if (this.extraSuccesses)
         {
-            results.push(`${this.extraSuccesses} extra ${this.getSuccessesAsSingularOrPlural(dicepoolIndex, { 
+            results.push(`${this.extraSuccesses} extra ${this.getSuccessesAsSingularOrPlural(dicepoolIndex, {
                 numToTestInstead: this.extraSuccesses,
             })}`);
         }
@@ -131,38 +136,41 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
             return '';
         }
 
-        return results.reduce(function (acc, result, index)
+        return results.reduce((acc, result, index) =>
         {
             // Add commas between results (after the first result) if there's 3 or more results
             if (index !== 0 && results.length >= 3)
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += ',';
             }
 
             // Add "and" between results on the last result if there's 2 or more results
             if (index === results.length - 1 && results.length >= 2)
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += ' and';
             }
 
+            // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
             acc += ` ${result}`;
 
             return acc;
         }, ' with');
     }
 
-    getSuccessesAsSingularOrPlural(dicepoolIndex: number, {
+    public getSuccessesAsSingularOrPlural(dicepoolIndex: number, {
         numToTestInstead,
     }: {
         numToTestInstead?: number;
-    } = {})
+    } = {}): 'successes' | 'success'
     {
         if (!numToTestInstead && this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex) !== 1)
         {
             return 'successes';
         }
 
-        else if (numToTestInstead && numToTestInstead !== 1)
+        if (numToTestInstead && numToTestInstead !== 1)
         {
             return 'successes';
         }
@@ -170,10 +178,13 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         return 'success';
     }
 
-    getDicepoolResponse(dicepoolIndex: number)
+    public getDicepoolResponse(dicepoolIndex: number): {
+        totalNumOfSuccesses: number;
+        response: string;
+    }
     {
         const totalNumOfSuccesses = this.dicePoolGroup.getNumOfSuccessesOfDicepoolAt(dicepoolIndex);
-        const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(dicepoolIndex)
+        const successesSingularOrPlural = this.getSuccessesAsSingularOrPlural(dicepoolIndex);
         const successesText = Text.bold(`${totalNumOfSuccesses} ${successesSingularOrPlural}`);
 
         return {
@@ -182,7 +193,7 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
         };
     }
 
-    getResponse()
+    public getResponse(): string
     {
         const highestDicepool = {
             index: -1,
@@ -201,17 +212,18 @@ export default class RollResponseFormatterService extends ResponseFormatterServi
             return response;
         });
 
-        const responsesStr = responseObjs.reduce(function (acc, responseObj, index)
+        const responsesStr = responseObjs.reduce((acc, responseObj, index) =>
         {
             if (highestDicepool.index === index)
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += responseObj.response;
             }
 
             else
             {
-                acc += `~~${responseObj.response}~~`;
-                //acc += Text.StrikeThrough(responseObj.response);
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
+                acc += Text.strikethrough(responseObj.response);
             }
 
             return acc;

@@ -71,7 +71,7 @@ class NWodDamageManager
         return this.#aggravatedDamage;
     }
 
-    increment(damageType: DamageType): void
+    public increment(damageType: DamageType): void
     {
         if (damageType === 'bashing')
         {
@@ -89,7 +89,7 @@ class NWodDamageManager
         }
     }
 
-    decrement(damageType: DamageType): void
+    public decrement(damageType: DamageType): void
     {
         if (damageType === 'bashing')
         {
@@ -107,7 +107,7 @@ class NWodDamageManager
         }
     }
 
-    upgrade(damageType: DamageType): void
+    public upgrade(damageType: DamageType): void
     {
         // Upgrade to the next damage type
         if (damageType === 'bashing' || damageType === 'lethal')
@@ -125,7 +125,7 @@ class NWodDamageManager
         {
             this.increment('agg');
         }
-        
+
         // Remove from the lowest tier damage type
         if (this.#bashingDamage > 0)
         {
@@ -136,8 +136,8 @@ class NWodDamageManager
             this.decrement('lethal');
         }
     }
-    
-    damage({
+
+    public damage({
         amount,
         damageType,
     }: NWodDamageManagerOperationParameters): void
@@ -155,7 +155,7 @@ class NWodDamageManager
         }
     }
 
-    heal({
+    public heal({
         amount,
         damageType,
     }: NWodDamageManagerOperationParameters): void
@@ -186,7 +186,7 @@ class NWodDamageManager
         }
     }
 
-    downgrade({
+    public downgrade({
         amount,
         damageType,
     }: NWodDamageManagerOperationParameters): void
@@ -219,12 +219,12 @@ class NWodDamageManager
         }
     }
 
-    getTotalDamage(): number
+    public getTotalDamage(): number
     {
         return this.#bashingDamage + this.#lethalDamage + this.#aggravatedDamage;
     };
 
-    getValues(): WorldOfDarknessHpServiceResponse
+    public getValues(): WorldOfDarknessHpServiceResponse
     {
         return {
             newAggravatedDamage: this.#aggravatedDamage,
@@ -236,7 +236,7 @@ class NWodDamageManager
 
 export class WorldOfDarknessHpService
 {
-    static damage({
+    public static damage({
         maxHp,
         bashingDamage,
         lethalDamage,
@@ -260,7 +260,7 @@ export class WorldOfDarknessHpService
         return damageManager.getValues();
     }
 
-    static heal({
+    public static heal({
         maxHp,
         bashingDamage,
         lethalDamage,
@@ -284,7 +284,7 @@ export class WorldOfDarknessHpService
         return damageManager.getValues();
     }
 
-    static downgrade({
+    public static downgrade({
         maxHp,
         bashingDamage,
         lethalDamage,

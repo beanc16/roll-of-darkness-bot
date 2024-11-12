@@ -1,4 +1,9 @@
-import Fuse, { FuseIndex, FuseOptionKey, FuseResult, IFuseOptions } from 'fuse.js';
+import Fuse, {
+    FuseIndex,
+    FuseOptionKey,
+    FuseResult,
+    IFuseOptions,
+} from 'fuse.js';
 
 export class SearchService<T>
 {
@@ -24,7 +29,7 @@ export class SearchService<T>
      *         "tags": ["thriller"]
      *     },
      * ]
-     * 
+     *
      * // Example function signature
      * const searchService = new SearchService(array, ['author.tags.value'])
      */
@@ -32,25 +37,25 @@ export class SearchService<T>
     {
         this.fuse = new Fuse<T>(
             array,
-            this.generateOptions(searchableKeys),
-            index
+            SearchService.generateOptions(searchableKeys),
+            index,
         );
         this.MAX_ALLOWED_SCORE = maxAllowedScore;
     }
 
-    search(key: string)
+    public search(key: string): T[]
     {
         const results = this.fuse.search(key);
         return this.parseOutput(results);
     }
 
-    searchBulk(keys: string[])
+    public searchBulk(keys: string[]): T[]
     {
         const key = keys.join(this.OPERATORS.OR);
         return this.search(key);
     }
 
-    private generateOptions(searchableKeys: FuseOptionKey<T>[]): IFuseOptions<T>
+    private static generateOptions<T>(searchableKeys: FuseOptionKey<T>[]): IFuseOptions<T>
     {
         return {
             includeScore: true,
@@ -58,9 +63,13 @@ export class SearchService<T>
         };
     }
 
-    private parseOutput(results: FuseResult<T>[])
+    private parseOutput(results: FuseResult<T>[]): T[]
     {
-        return results.reduce((acc, { item, score }) => {
+        return results.reduce((acc, {
+            item,
+            score,
+        }) =>
+        {
             if (score && score <= this.MAX_ALLOWED_SCORE)
             {
                 acc.push(item);
