@@ -10,7 +10,7 @@
         "build": "rm -rf dist && tsc",
         "start": "npm run build && node dist/bot.js",
         "start:dev": "node --loader ts-node/esm --watch src/bot.ts",
-        "lint": "eslint --ext .ts --ext .js --ext .cjs",
+        "lint": "echo 'Running linting'; eslint --ext .ts --ext .js --ext .cjs",
         "test": "jest --passWithNoTests",
         "test:watch": "jest --watch",
         "register-slash-commands": "node --loader ts-node/esm src/scripts/registerSlashCommands.ts",
