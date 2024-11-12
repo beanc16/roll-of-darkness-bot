@@ -9,7 +9,7 @@ jobs:
   clean-up-media-resources:
     runs-on: ubuntu-latest
 
-    name: Register Slash Commands
+    name: Clean Up Media Resources
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-      - name: Register Slash Commands
+      - name: Clean Up Media Resources
         env:
           TOKEN: ${{ secrets.BOT_TOKEN }}
           CLIENT_ID: ${{ secrets.BOT_CLIENT_ID }}
