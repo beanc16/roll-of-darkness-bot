@@ -8,7 +8,8 @@ describe('class: DicePool', () =>
     let dicePool: DicePool;
     let rolls: Roll[];
     
-    beforeEach(() => {
+    beforeEach(() =>
+    {
         dicePool = new DicePool();
         rolls = [
             getFakeRoll(4),
