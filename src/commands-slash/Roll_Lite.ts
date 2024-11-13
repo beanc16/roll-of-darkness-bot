@@ -7,7 +7,7 @@ import * as rollOptions from './Nwod/options/roll.js';
 import { DiceStringParser } from '../services/DiceStringParser.js';
 import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
-import { AddAndSubractMathParser } from '../services/MathParser.js';
+import { AddAndSubractMathParser } from '../services/MathParser/AddAndSubtractMathParser.js';
 
 class Roll_Lite extends BaseSlashCommand
 {

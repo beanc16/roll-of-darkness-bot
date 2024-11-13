@@ -5,7 +5,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { NwodSubcommand } from '../options/index.js';
 import { BaseRollStrategy } from './BaseRollStrategy.js';
 import rollConstants from '../../../constants/roll.js';
-import { AddAndSubractMathParser } from '../../../services/MathParser.js';
+import { AddAndSubractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy

@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
-import { AddMathParser } from '../../../../services/MathParser.js';
+import { AddMathParser } from '../../../../services/MathParser/AddMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateBattleExpStrategy

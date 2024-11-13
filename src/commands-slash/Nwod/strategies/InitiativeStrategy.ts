@@ -8,7 +8,7 @@ import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
-import { AddAndSubractMathParser } from '../../../services/MathParser.js';
+import { AddAndSubractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy

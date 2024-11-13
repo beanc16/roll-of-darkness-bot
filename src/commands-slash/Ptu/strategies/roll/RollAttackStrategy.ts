@@ -18,7 +18,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
-import { AddAndSubractMathParser } from '../../../../services/MathParser.js';
+import { AddAndSubractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 
 enum AttackButtonName
 {
