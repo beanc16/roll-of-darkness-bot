@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord.js';
 import { Timer } from '../../../services/Timer.js';
 import { CounterController } from '../dal/CounterMongoController.js';
-import counterSingleton from '../models/CounterSingleton.js';
+import counterSingleton from './CounterSingleton.js';
 
 enum CounterEventType
 {
@@ -21,7 +21,7 @@ export class CounterEventHandler
 
     private static SECONDS_TO_DEBOUNCE = 4; // TODO: Reduce this timer after mongodb-controller won't close connections if a save is in-progress
 
-    public static onUpsert(guid: UUID)
+    public static onUpsert(guid: UUID): void
     {
         // Get debouncability before adding an event timestamp
         const shouldDebounce = !this.eventTimestamps.Has([
@@ -40,7 +40,7 @@ export class CounterEventHandler
     }
 
     // Infinitely debounce until enough time has passed for the given event
-    private static async debounceEvent(key: [UUID, CounterEventType])
+    private static async debounceEvent(key: [UUID, CounterEventType]): Promise<void>
     {
         await Timer.waitUntilTrue({
             seconds: this.SECONDS_TO_DEBOUNCE / 3,
@@ -63,7 +63,7 @@ export class CounterEventHandler
         this.eventTimestamps.Clear(key);
     }
 
-    private static async saveToDb(guid: UUID)
+    private static async saveToDb(guid: UUID): Promise<void>
     {
         const counterContainer = counterSingleton.get(guid);
 

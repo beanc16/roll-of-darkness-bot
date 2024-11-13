@@ -8,8 +8,8 @@ import {
     LookupStrategy,
 } from '../../../strategies/BaseLookupStrategy.js';
 import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
-import { CurseborneTrick } from '../../models/CurseborneTrick.js';
 import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
@@ -45,7 +45,7 @@ export class LookupTrickStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupTrickDataParameters)
+    public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
         const { options, ...remainingProperties } = input;
         const numOfKeys = Object.keys(remainingProperties).length;
@@ -62,7 +62,7 @@ export class LookupTrickStrategy
         }: {
             inputValue?: string | null | undefined;
             elementValue: string;
-        }) =>
+        }): boolean =>
         {
             const map: Record<BaseGetLookupSearchMatchType, boolean> = {
                 [BaseGetLookupSearchMatchType.ExactMatch]: (

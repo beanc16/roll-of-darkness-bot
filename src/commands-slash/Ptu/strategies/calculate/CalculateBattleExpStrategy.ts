@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { AddMathParser } from '../../../../services/MathParser.js';
+import { AddMathParser } from '../../../../services/MathParser/AddMathParser.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
 
@@ -11,7 +11,7 @@ export class CalculateBattleExpStrategy
     private static mathParser = new AddMathParser();
     public static key = PtuCalculateSubcommand.BattleExp;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const totalLevelsOfEnemiesFormula = interaction.options.getString('total_levels_of_enemies', true);

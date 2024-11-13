@@ -1,7 +1,7 @@
 import rollConstants from '../constants/roll.js';
-import { DicePool } from '../models/DicePool.js';
-import { DicePoolGroup } from '../models/DicePoolGroup.js';
 import { Roll } from '../types/rolls.js';
+import { DicePool } from './DicePool.js';
+import { DicePoolGroup } from './DicePoolGroup.js';
 
 export interface RollOptions
 {
@@ -72,7 +72,7 @@ export class DiceService
             extraSuccesses: this.extraSuccesses,
         });
 
-        for (let i = 0; i < this.count; i++)
+        for (let i = 0; i < this.count; i += 1)
         {
             const result = this.rollOne({
                 shouldRollMax: (shouldRollMaxOnSecondHalfOfDicepool && i >= Math.ceil(this.count / 2)),
@@ -104,7 +104,7 @@ export class DiceService
 
         if (randomInteger >= this.rerollOnGreaterThanOrEqualTo)
         {
-            for (let i = 0; i < this.diceToReroll; i++)
+            for (let i = 0; i < this.diceToReroll; i += 1)
             {
                 const results = this.rollOne({ isReroll: true });
                 rolls.push(...results);

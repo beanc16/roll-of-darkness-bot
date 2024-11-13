@@ -9,13 +9,7 @@ import {
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { Timer } from '../services/Timer.js';
 import { PtuAbility } from './Ptu/models/PtuAbility.js';
-import { PtuCapability } from './Ptu/models/PtuCapability.js';
-import { PtuEdge } from './Ptu/models/PtuEdge.js';
-import { PtuFeature } from './Ptu/models/PtuFeature.js';
 import { PtuMove } from './Ptu/models/PtuMove.js';
-import { PtuNature } from './Ptu/models/PtuNature.js';
-import { PtuStatus } from './Ptu/models/PtuStatus.js';
-import { PtuTm } from './Ptu/models/PtuTm.js';
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
     calculate,
@@ -29,6 +23,12 @@ import {
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuPokemon } from './Ptu/types/pokemon.js';
+import { PtuCapability } from './Ptu/types/PtuCapability.js';
+import { PtuEdge } from './Ptu/types/PtuEdge.js';
+import { PtuFeature } from './Ptu/types/PtuFeature.js';
+import { PtuNature } from './Ptu/types/PtuNature.js';
+import { PtuStatus } from './Ptu/types/PtuStatus.js';
+import { PtuTm } from './Ptu/types/PtuTm.js';
 
 export interface RandomResult
 {
@@ -50,6 +50,7 @@ class Ptu extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommandGroup(calculate)
             .addSubcommandGroup(lookup)
@@ -59,7 +60,7 @@ class Ptu extends BaseSlashCommand
             .addSubcommand(train);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    public async run(interaction: ChatInputCommandInteraction)
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -84,7 +85,7 @@ class Ptu extends BaseSlashCommand
         }
     }
 
-    async autocomplete(interaction: AutocompleteInteraction)
+    public async autocomplete(interaction: AutocompleteInteraction)
     {
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
@@ -273,7 +274,7 @@ class Ptu extends BaseSlashCommand
         await interaction.respond(limitedChoices);
     }
 
-    get description()
+    get description(): string
     {
         return `Run PTU commands.`;
     }

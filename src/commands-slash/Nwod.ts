@@ -15,6 +15,7 @@ class Nwod extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommand(roll)
             .addSubcommand(initiative)

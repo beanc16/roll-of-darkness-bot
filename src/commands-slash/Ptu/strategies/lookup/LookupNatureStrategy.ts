@@ -6,8 +6,8 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupNatureEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuNature } from '../../models/PtuNature.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuNature } from '../../types/PtuNature.js';
 
 export interface GetLookupNatureDataParameters
 {
@@ -21,7 +21,7 @@ export class LookupNatureStrategy
 {
     public static key = PtuLookupSubcommand.Nature;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('nature_name');
@@ -52,7 +52,7 @@ export class LookupNatureStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupNatureDataParameters = {})
+    private static async getLookupData(input: GetLookupNatureDataParameters = {}): Promise<PtuNature[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

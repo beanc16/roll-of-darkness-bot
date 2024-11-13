@@ -1,6 +1,6 @@
 import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
-import { CurseborneDicePool } from '../models/CurseborneDicePool.js';
+import { CurseborneDicePool } from './CurseborneDicePool.js';
 
 export class CurseborneDiceService
 {

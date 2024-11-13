@@ -1,6 +1,6 @@
 import { UUID } from 'node:crypto';
 
-import Singleton from '../../../models/Singleton.js';
+import Singleton from '../../../services/Singleton.js';
 import { CounterType } from '../../options/counter.js';
 import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
 import { CounterEventHandler } from '../services/CounterEventHandler.js';
@@ -20,22 +20,22 @@ class CounterSingleton
         this.singleton = new Singleton(params ?? {});
     }
 
-    getAll()
+    public getAll(): Record<UUID, CounterContainer>
     {
         return this.singleton.get() ?? {};
     }
 
-    get(key: UUID)
+    public get(key: UUID): CounterContainer
     {
         return this.getAll()[key];
     }
 
-    set(value: Record<UUID, CounterContainer>)
+    public set(value: Record<UUID, CounterContainer>): void
     {
         this.singleton.set(value);
     }
 
-    upsert(value: CounterContainer)
+    public upsert(value: CounterContainer): void
     {
         const all = this.getAll();
 
@@ -50,10 +50,10 @@ class CounterSingleton
         }
     }
 
-    incrementCount({
+    public incrementCount({
         guid,
         userId,
-    }: UpdateCountParameters)
+    }: UpdateCountParameters): void
     {
         const counterContainer = this.get(guid);
         counterContainer.count += 1;
@@ -65,10 +65,10 @@ class CounterSingleton
         this.upsert(counterContainer);
     }
 
-    decrementCount({
+    public decrementCount({
         guid,
         userId,
-    }: UpdateCountParameters)
+    }: UpdateCountParameters): void
     {
         const counterContainer = this.get(guid);
         counterContainer.count -= 1;

@@ -15,6 +15,7 @@ class Combat_Tracker extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addStringOption(options.name)
             .addStringOption(options.type);

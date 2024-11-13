@@ -4,7 +4,7 @@ import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
-import { AddAndSubractMathParser } from '../../../services/MathParser.js';
+import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
@@ -14,7 +14,7 @@ import { NwodSubcommand } from '../options/index.js';
 export class InitiativeStrategy
 {
     public static key = NwodSubcommand.Initiative;
-    private static mathParser = new AddAndSubractMathParser();
+    private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(
         interaction: ChatInputCommandInteraction,

@@ -3,7 +3,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { DiceStringParser } from '../services/DiceStringParser.js';
-import { AddAndSubractMathParser } from '../services/MathParser.js';
+import { AddAndSubtractMathParser } from '../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
 import * as rollOptions from './Nwod/options/roll.js';
 import { rollLite } from './options/index.js';
@@ -11,17 +11,18 @@ import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStra
 
 class Roll_Lite extends BaseSlashCommand
 {
-    private mathParser: AddAndSubractMathParser;
+    private mathParser: AddAndSubtractMathParser;
 
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addStringOption(rollLite.dicePool)
             .addStringOption(rollOptions.name)
             .addBooleanOption(rollOptions.secret);
 
-        this.mathParser = new AddAndSubractMathParser();
+        this.mathParser = new AddAndSubtractMathParser();
     }
 
     public async run(
@@ -87,7 +88,7 @@ class Roll_Lite extends BaseSlashCommand
         });
     }
 
-    get description()
+    get description():
     {
         return `Roll a dice pool with any number of any sided dice.`;
     }

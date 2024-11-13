@@ -6,8 +6,8 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupTmsEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuTm } from '../../models/PtuTm.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuTm } from '../../types/PtuTm.js';
 
 export interface GetLookupTmDataParameters
 {
@@ -20,7 +20,7 @@ export class LookupTmStrategy
 {
     public static key = PtuLookupSubcommand.Tm;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('tm_name', true);
@@ -40,7 +40,7 @@ export class LookupTmStrategy
 
     private static async getLookupData(input: GetLookupTmDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuTm[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

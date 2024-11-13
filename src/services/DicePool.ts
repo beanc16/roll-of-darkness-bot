@@ -1,0 +1,74 @@
+import rollConstants from '../constants/roll.js';
+import { Roll } from '../types/rolls.js';
+
+export interface DicePoolOptions
+{
+    successOnGreaterThanOrEqualTo?: number;
+    extraSuccesses?: number;
+}
+
+export class DicePool
+{
+    private _rolls: Roll[][];
+    private successOnGreaterThanOrEqualTo: number;
+    private extraSuccesses: number;
+    private _numOfSuccesses?: number;
+
+    constructor({
+        successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
+        extraSuccesses = rollConstants.defaultParams.extraSuccesses,
+    }: DicePoolOptions = {})
+    {
+        this._rolls = [];
+        this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo;
+        this.extraSuccesses = extraSuccesses;
+    }
+
+    get rolls(): Roll[][]
+    {
+        return this._rolls;
+    }
+
+    get rollResults(): number[]
+    {
+        return this.rolls.flatMap(array => array.map(({ number }) => number));
+    }
+
+    get numOfSuccesses(): number
+    {
+        if (this.numOfSuccesses === undefined)
+        {
+            const successfulDiceRolled = this.rolls.flat().filter((result) =>
+                (result.number >= this.successOnGreaterThanOrEqualTo)
+            );
+
+            const extraSuccesses = (successfulDiceRolled.length > 0)
+                ? this.extraSuccesses
+                : 0;
+
+            this._numOfSuccesses = successfulDiceRolled.length + extraSuccesses;
+        }
+
+        return this._numOfSuccesses;
+    }
+
+    public push(value: Roll[])
+    {
+        this._rolls.push(value);
+    }
+
+    public forEach(callbackfn: (value: Roll[], index: number, array: Roll[][]) => void)
+    {
+        return this.rolls.forEach(callbackfn);
+    }
+
+    public map<Response>(callbackfn: (value: Roll[], index: number, array: Roll[][]) => Response)
+    {
+        return this.rolls.map(callbackfn);
+    }
+
+    public reduce<Response>(callbackfn: (acc: Response, currentValue: Roll[], index: number, array: Roll[][]) => Response, initialValue: any)
+    {
+        return this.rolls.reduce(callbackfn, initialValue);
+    }
+}

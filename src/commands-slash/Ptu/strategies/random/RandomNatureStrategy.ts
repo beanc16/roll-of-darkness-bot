@@ -8,8 +8,8 @@ import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/Rer
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomNatureEmbedMessage } from '../../embed-messages/random.js';
-import { PtuNature } from '../../models/PtuNature.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuNature } from '../../types/PtuNature.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()

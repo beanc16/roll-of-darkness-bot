@@ -21,7 +21,7 @@ import {
     CounterContainer,
     CounterController,
 } from './Counter/dal/CounterMongoController.js';
-import counterSingleton from './Counter/models/CounterSingleton.js';
+import counterSingleton from './Counter/services/CounterSingleton.js';
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import {
     CounterType,
@@ -42,6 +42,7 @@ class Counter extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addStringOption(name)
             .addStringOption(type);

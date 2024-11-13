@@ -6,8 +6,8 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupCapabilitiesEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuCapability } from '../../models/PtuCapability.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuCapability } from '../../types/PtuCapability.js';
 
 export interface GetLookupCapabilityDataParameters
 {

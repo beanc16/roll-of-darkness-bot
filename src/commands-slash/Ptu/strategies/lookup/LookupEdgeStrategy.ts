@@ -6,8 +6,8 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuEdge } from '../../models/PtuEdge.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuEdge } from '../../types/PtuEdge.js';
 
 export interface GetLookupEdgeDataParameters
 {
@@ -20,7 +20,7 @@ export class LookupEdgeStrategy
 {
     public static key = PtuLookupSubcommand.Edge;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('edge_name', true);
@@ -40,7 +40,7 @@ export class LookupEdgeStrategy
 
     private static async getLookupData(input: GetLookupEdgeDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuEdge[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

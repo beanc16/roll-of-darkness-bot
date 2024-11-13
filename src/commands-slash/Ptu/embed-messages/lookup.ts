@@ -3,19 +3,19 @@ import { EmbedBuilder } from 'discord.js';
 
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
-import { PtuCapability } from '../models/PtuCapability.js';
-import { PtuEdge } from '../models/PtuEdge.js';
-import { PtuFeature } from '../models/PtuFeature.js';
-import { PtuNature } from '../models/PtuNature.js';
-import { PtuStatus } from '../models/PtuStatus.js';
-import { PtuTm } from '../models/PtuTm.js';
+import { PtuAbility } from '../models/PtuAbility.js';
+import { PtuMove } from '../models/PtuMove.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,
     PtuPokemon,
 } from '../types/pokemon.js';
-import { PtuMove } from '../models/PtuMove.js';
-import { PtuAbility } from '../models/PtuAbility.js';
+import { PtuCapability } from '../types/PtuCapability.js';
+import { PtuEdge } from '../types/PtuEdge.js';
+import { PtuFeature } from '../types/PtuFeature.js';
+import { PtuNature } from '../types/PtuNature.js';
+import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuTm } from '../types/PtuTm.js';
 
 const color = 0xCDCDCD;
 

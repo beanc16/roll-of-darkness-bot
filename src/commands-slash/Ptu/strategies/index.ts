@@ -30,6 +30,8 @@ import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
+import { PtuEdge } from '../types/PtuEdge.js';
+import { PtuFeature } from '../types/PtuFeature.js';
 
 export class PtuStrategyExecutor
 {

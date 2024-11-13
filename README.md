@@ -10,6 +10,7 @@ This bot is hosted on Heroku for private use. Please do not copy this repository
 ## Table of Contents
 - [Roll of Darkness Bot](#roll-of-darkness-bot)
   - [Table of Contents](#table-of-contents)
+  - [Setup](#setup)
   - [The Development Story](#the-development-story)
     - [Why was this bot made?](#why-was-this-bot-made)
     - [The Original Prototype](#the-original-prototype)
@@ -19,6 +20,20 @@ This bot is hosted on Heroku for private use. Please do not copy this repository
     - [Curseborne](#curseborne)
     - [What's next?](#whats-next)
   - [Credits](#credits)
+
+
+## Setup
+
+**Step 1:** Download dependencies (requires a github access token tied to account with access to privately hosted NPM packages in the `@beanc16` namespace)
+```bash
+npm install
+```
+
+**Step 2:** Enable shared git hooks
+```bash
+git config core.hooksPath .githooks
+```
+
 
 
 
