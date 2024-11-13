@@ -1,16 +1,16 @@
 import { ChatInputCommandInteraction, InteractionEditReplyOptions } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { RandomResult } from '../../../Ptu.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage } from '../../../Ptu/embed-messages/random.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { RandomResult } from '../../../Ptu.js';
-import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomDowsingRodStrategy
@@ -46,7 +46,8 @@ export class RandomDowsingRodStrategy
         }).roll();
 
         // Get the number of shards to roll for
-        const numOfShardsToRoll = findingShardsRollResult.reduce((acc, roll) => {
+        const numOfShardsToRoll = findingShardsRollResult.reduce((acc, roll) =>
+        {
             if (roll >= 4)
             {
                 acc += 1;
@@ -84,7 +85,8 @@ export class RandomDowsingRodStrategy
             });
 
             // Parse data
-            const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, description]) => {
+            const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, description]) =>
+            {
                 acc.push({
                     name,
                     cost,
@@ -103,7 +105,8 @@ export class RandomDowsingRodStrategy
             const uniqueRolls = shardColorRollResults.reduce<{
                 result: number;
                 numOfTimesRolled: number;
-            }[]>((acc, cur) => {
+            }[]>((acc, cur) =>
+            {
                 const index = acc.findIndex(({ result }) => result === cur);
 
                 // Increment the number of times rolled
@@ -125,7 +128,8 @@ export class RandomDowsingRodStrategy
             }, []);
 
             // Get random items based on rolls
-            const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+            const results = uniqueRolls.map(({ result, numOfTimesRolled }) =>
+            {
                 return {
                     ...parsedData[result - 1],
                     numOfTimesRolled,
@@ -153,7 +157,7 @@ export class RandomDowsingRodStrategy
             interaction,
             options: responseOptions,
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
@@ -163,7 +167,7 @@ export class RandomDowsingRodStrategy
         return true;
     }
 
-    private static getDiceToRoll ({
+    private static getDiceToRoll({
         numberOfDice,
         hasCrystalResonance,
         hasSkillStuntDowsing,

@@ -22,7 +22,7 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
 
     public Has(key: Key): boolean
     {
-        return !!this.Get(key)
+        return !!this.Get(key);
     }
 
     public Upsert(key: Key, value: Value): void

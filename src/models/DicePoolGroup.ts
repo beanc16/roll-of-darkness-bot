@@ -4,7 +4,7 @@ export class DicePoolGroup
 {
     private _dicepools: DicePool[];
 
-    constructor({ dicepool }: { dicepool?: DicePool; } = {})
+    constructor({ dicepool }: { dicepool?: DicePool } = {})
     {
         this._dicepools = [];
 
@@ -21,7 +21,7 @@ export class DicePoolGroup
 
     get dicepoolResults()
     {
-        return this._dicepools.map((dicepool) => dicepool.rollResults);
+        return this._dicepools.map(dicepool => dicepool.rollResults);
     }
 
     get(dicepoolIndex: number)
@@ -56,7 +56,7 @@ export class DicePoolGroup
 
     getBiggestResult()
     {
-        const biggestResult = this.reduce<DicePool>(function (acc, cur)
+        const biggestResult = this.reduce<DicePool>((acc, cur) =>
         {
             if (cur.numOfSuccesses > acc.numOfSuccesses)
             {

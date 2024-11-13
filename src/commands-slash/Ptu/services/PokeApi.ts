@@ -99,7 +99,8 @@ export class PokeApi
 
     public static parseNames(names?: string[]): string[]
     {
-        const parsedNames = names?.reduce<string[]>((acc, name) => {
+        const parsedNames = names?.reduce<string[]>((acc, name) =>
+        {
             const parsedName = this.parseName(name);
 
             if (parsedName)
@@ -114,9 +115,7 @@ export class PokeApi
             return acc;
         }, []);
 
-        return (parsedNames)
-            ? parsedNames
-            : [];
+        return (parsedNames) || [];
     }
 
     private static async getByName(name?: string)
@@ -129,9 +128,12 @@ export class PokeApi
         }
 
         // Get pokemon from PokeApi
-        try {
+        try
+        {
             return await this.api.getPokemonByName(parsedName);
-        } catch (err) {
+        }
+        catch (err)
+        {
             logger.error('Failed to get Pokémon by name from PokeApi', {
                 name,
                 parsedName,
@@ -145,9 +147,12 @@ export class PokeApi
         const parsedNames = this.parseNames(names);
 
         // Get pokemon from PokeApi
-        try {
+        try
+        {
             return await this.api.getPokemonByName(parsedNames);
-        } catch (err) {
+        }
+        catch (err)
+        {
             logger.error('Failed to get Pokémon by name from PokeApi', {
                 names,
                 parsedNames,
@@ -202,7 +207,8 @@ export class PokeApi
                     } = {},
                 } = {},
             },
-        }) => {
+        }) =>
+        {
             if (imageUrl)
             {
                 acc.push({

@@ -32,7 +32,7 @@ export class PtuAbilitiesSearchService
             array,
             searchableKeys,
             maxAllowedScore,
-            this.index
+            this.index,
         );
 
         // Search
@@ -53,7 +53,7 @@ export class PtuAbilitiesSearchService
         }
 
         // Name
-        else if (options.nameSearch && !options.effectSearch)
+        if (options.nameSearch && !options.effectSearch)
         {
             return 0.3;
         }

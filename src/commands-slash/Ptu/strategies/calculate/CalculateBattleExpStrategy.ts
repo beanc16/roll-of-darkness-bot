@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
 import { AddMathParser } from '../../../../services/MathParser.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateBattleExpStrategy
@@ -24,7 +24,7 @@ export class CalculateBattleExpStrategy
         if (totalLevelOfEnemies === undefined)
         {
             await interaction.editReply(
-                'An invalid dicepool was submitted. Include only numbers and plus signs (+).'
+                'An invalid dicepool was submitted. Include only numbers and plus signs (+).',
             );
             return true;
         }

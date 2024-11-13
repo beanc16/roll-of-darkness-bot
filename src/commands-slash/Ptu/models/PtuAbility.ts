@@ -10,7 +10,7 @@ export class PtuAbility
     public keywords?: string;
     public effect2?: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             untrimmedName,

@@ -1,6 +1,7 @@
-import { PtuCharacterSheetName } from "../types/sheets.js";
+import { PtuCharacterSheetName } from '../types/sheets.js';
 
-enum DiscordUserId {
+enum DiscordUserId
+{
     Bean = '173083328302284800',
     Avery = '389188261731368962',
     Josh = '125738013841031170',

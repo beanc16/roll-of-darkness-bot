@@ -16,7 +16,9 @@ class ProbabilityEndpoints extends RollOfDarknessApi.probability
         try
         {
             return await RollOfDarknessApi.probability.getDiceProbability(parameters);
-        } catch (err: any) {
+        }
+        catch (err: any)
+        {
             CachedRollOfDarknessApi._delayOnError(`Failed to get dice probability for ${process.env.APPLICATION_NAME}. Delaying next call.`, err);
         }
 
@@ -45,7 +47,7 @@ export class CachedRollOfDarknessApi extends RollOfDarknessApi
             errorMessage,
             err?.response?.data || err,
             {
-                msUntilNextCall: CachedRollOfDarknessApi._errorDelay
+                msUntilNextCall: CachedRollOfDarknessApi._errorDelay,
             },
         );
 
@@ -55,7 +57,7 @@ export class CachedRollOfDarknessApi extends RollOfDarknessApi
             {
                 CachedRollOfDarknessApi._hasError = false;
             },
-            CachedRollOfDarknessApi._errorDelay
+            CachedRollOfDarknessApi._errorDelay,
         );
     }
 }

@@ -1,8 +1,5 @@
 import { logger } from '@beanc16/logger';
-import {
-    UserGetServiceToServiceAuthTokenParametersV1,
-    UserMicroservice,
-} from '@beanc16/microservices-abstraction';
+import { UserGetServiceToServiceAuthTokenParametersV1, UserMicroservice } from '@beanc16/microservices-abstraction';
 
 import authTokenSingleton from '../models/authTokenSingleton.js';
 
@@ -42,7 +39,7 @@ export class CachedAuthTokenService
                         token = '',
                     } = {},
                 } = await UserMicroservice.v1.getServiceToServiceAuthToken(this.#parameters);
-    
+
                 authTokenSingleton.set(token);
                 return authTokenSingleton.get();
             }
@@ -53,6 +50,6 @@ export class CachedAuthTokenService
             }
         }
 
-        throw new Error('Maximum number of retries reached.')
+        throw new Error('Maximum number of retries reached.');
     }
 }

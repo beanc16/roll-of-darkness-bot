@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     AttachmentPayload,
@@ -11,10 +12,11 @@ import {
     Message,
     MessageCreateOptions,
 } from 'discord.js';
-import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
-import { logger } from '@beanc16/logger';
 
-enum ButtonName {
+import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
+
+enum ButtonName
+{
     Next = 'next_page',
     Previous = 'previous_page',
     First = 'first_page',
@@ -271,14 +273,8 @@ export class PaginationStrategy
             NonNullable<PaginationStrategyRunParameters['interactionType']>,
             () => Promise<Message>
         > = {
-            editReply: async () =>
-            {
-                return await originalInteraction.editReply(parameters);
-            },
-            dm: () =>
-            {
-                return originalInteraction.user.send(parameters as MessageCreateOptions);
-            },
+            editReply: async () => await originalInteraction.editReply(parameters),
+            dm: () => originalInteraction.user.send(parameters as MessageCreateOptions),
         };
 
         return handlerMap[interactionType]();

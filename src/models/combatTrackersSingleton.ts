@@ -39,6 +39,4 @@ class CombatTrackersSingleton
     }
 }
 
-
-
 export default new CombatTrackersSingleton();

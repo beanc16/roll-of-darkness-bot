@@ -1,18 +1,21 @@
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { EqualityOption } from '../../../options/shared.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove, PtuMoveExclude } from '../../models/PtuMove.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/pokemon.js';
-import { EqualityOption } from '../../../options/shared.js';
-import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import {
+    PokemonMoveCategory,
+    PokemonType,
+    PtuMoveFrequency,
+} from '../../types/pokemon.js';
 
 export interface GetLookupMoveDataParameters
 {
@@ -126,7 +129,8 @@ export class LookupMoveStrategy
                 {
                     return a.name.localeCompare(b.name);
                 }
-                else if (input.sortBy === 'type')
+
+                if (input.sortBy === 'type')
                 {
                     const result = a.type?.localeCompare(b.type ?? '');
 

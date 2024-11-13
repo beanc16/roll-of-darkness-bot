@@ -4,7 +4,7 @@ export class PtuTm
     public cost: number;
     public description: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

@@ -1,11 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { getRandomResultEmbedMessage } from '../../../Ptu/embed-messages/random.js';
-import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getRandomResultEmbedMessage } from '../../embed-messages/random.js';
+import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { PtuRandomPickupSubcommandResponse } from './types.js';
 
 interface RandomResult
@@ -81,7 +82,7 @@ export class BaseRandomStrategy
             data: 'Vitamin',
             plural: 'Vitamins',
         },
-    }
+    };
 
     static async run(
         interaction: ChatInputCommandInteraction,
@@ -90,7 +91,7 @@ export class BaseRandomStrategy
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get setup data
@@ -108,7 +109,8 @@ export class BaseRandomStrategy
         const uniqueRolls = rollResult.reduce<{
             result: number;
             numOfTimesRolled: number;
-        }[]>((acc, cur) => {
+        }[]>((acc, cur) =>
+        {
             const index = acc.findIndex(({ result }) => result === cur);
 
             // Increment the number of times rolled
@@ -130,7 +132,8 @@ export class BaseRandomStrategy
         }, []);
 
         // Get random results based on rolls
-        const results = uniqueRolls.map(({ result, numOfTimesRolled }) => {
+        const results = uniqueRolls.map(({ result, numOfTimesRolled }) =>
+        {
             return {
                 ...parsedData[result - 1],
                 numOfTimesRolled,
@@ -161,7 +164,7 @@ export class BaseRandomStrategy
                 embeds: [embed],
             },
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 subcommand,
                 options,
@@ -186,7 +189,8 @@ export class BaseRandomStrategy
 
     private static async getParsedData(subcommand: PtuRandomSubcommand, options: BaseRandomStrategyOptions)
     {
-        if (options.parsedData) {
+        if (options.parsedData)
+        {
             return options.parsedData;
         }
 
@@ -197,7 +201,8 @@ export class BaseRandomStrategy
         });
 
         // Parse data
-        return data.reduce<RandomResult[]>((acc, [name, cost, description]) => {
+        return data.reduce<RandomResult[]>((acc, [name, cost, description]) =>
+        {
             acc.push({
                 name,
                 cost,

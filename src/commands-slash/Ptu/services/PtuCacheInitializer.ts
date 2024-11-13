@@ -20,14 +20,14 @@ export class PtuCacheInitializer
 
             // Pokemon lookup data is not cached, so don't initialize it
             const subcommandsToInitialize = Object.values(PtuLookupSubcommand)
-                .filter((subcommand) => subcommand !== PtuLookupSubcommand.Pokemon);
+                .filter(subcommand => subcommand !== PtuLookupSubcommand.Pokemon);
 
             // Initialize cachable lookup subcommands
-            const promises = subcommandsToInitialize.map(async (subcommand) =>
+            const promises = subcommandsToInitialize.map(async subcommand =>
                 await PtuStrategyExecutor.getLookupData({
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand,
-                })
+                }),
             );
 
             logger.debug('Initializing Ptu data to cache...');

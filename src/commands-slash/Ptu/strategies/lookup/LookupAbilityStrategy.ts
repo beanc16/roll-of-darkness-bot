@@ -1,16 +1,15 @@
+import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
-import { getLookupAbilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuAbility } from '../../models/PtuAbility.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { logger } from '@beanc16/logger';
+import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuAbility } from '../../models/PtuAbility.js';
+import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 export interface GetLookupAbilityDataParameters
 {
@@ -78,14 +77,7 @@ export class LookupAbilityStrategy
                 return results;
             }
 
-            abilities.sort((a, b) =>
-            {
-                /*
-                * Sort by:
-                * 1) Name
-                */
-                return a.name.localeCompare(b.name);
-            });
+            abilities.sort((a, b) => a.name.localeCompare(b.name));
             return abilities;
         }
 

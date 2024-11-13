@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { getLookupNatureEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuNature } from '../../models/PtuNature.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupNatureEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuNature } from '../../models/PtuNature.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 export interface GetLookupNatureDataParameters
 {
@@ -33,7 +32,8 @@ export class LookupNatureStrategy
         if (
             (name && raisedStat)
             || (name && loweredStat)
-        ) {
+        )
+        {
             await interaction.editReply('Cannot look up a nature by both name and stats at the same time.');
             return true;
         }

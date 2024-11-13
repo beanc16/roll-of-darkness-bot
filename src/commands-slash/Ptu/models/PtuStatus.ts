@@ -5,7 +5,7 @@ export class PtuStatus
     public isHomebrew: boolean;
     public description: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

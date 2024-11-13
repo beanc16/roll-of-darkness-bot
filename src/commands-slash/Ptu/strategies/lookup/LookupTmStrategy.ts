@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { getLookupTmsEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuTm } from '../../models/PtuTm.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupTmsEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuTm } from '../../models/PtuTm.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 export interface GetLookupTmDataParameters
 {
@@ -63,10 +62,7 @@ export class LookupTmStrategy
         }, []);
 
         // Sort by name
-        tms.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        tms.sort((a, b) => a.name.localeCompare(b.name));
 
         return tms;
     }

@@ -81,7 +81,8 @@ export enum PokemonStatusType
 }
 
 // TODO: Move this to a types package owned by an API that controls this data with PtuController later
-export interface PtuPokemon {
+export interface PtuPokemon
+{
     name: string;
     types: string[];
     baseStats: {
@@ -157,8 +158,8 @@ export interface PtuPokemon {
         name: string;
         types: string[];
         ability: string;
-        abilityShift?: string;      // For Necrozma's ultra burst
-        capabilities?: string[];    // For Necrozma's ultra burst
+        abilityShift?: string; // For Necrozma's ultra burst
+        capabilities?: string[]; // For Necrozma's ultra burst
         stats: {
             hp?: string;
             attack?: string;
@@ -174,7 +175,7 @@ export interface PtuPokemon {
         page?: string;
         imageUrl?: string;
     };
-    extras?: {                       // For anything extra that doesn't go anywhere else. Currently just for Oricorio's Forme Change.
+    extras?: { // For anything extra that doesn't go anywhere else. Currently just for Oricorio's Forme Change.
         name: string;
         value: string;
     }[];

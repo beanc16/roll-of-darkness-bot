@@ -12,8 +12,8 @@ import {
     Message,
 } from 'discord.js';
 
-import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 import { DiscordInteractionCallbackType } from '../../types/discord.js';
+import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 
 enum RerollButtonName
 {
@@ -135,8 +135,8 @@ export class RerollStrategy
                 // Update original message with the same content so
                 // the buttons know that the interaction was successful
                 await buttonInteraction.update(
-                    this.getMessageData(buttonInteraction.message.content)
-                )
+                    this.getMessageData(buttonInteraction.message.content),
+                ),
             ]);
         }
         catch (error)

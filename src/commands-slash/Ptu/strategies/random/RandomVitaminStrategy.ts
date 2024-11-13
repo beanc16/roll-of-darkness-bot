@@ -12,7 +12,7 @@ export class RandomVitaminStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         return await BaseRandomStrategy.run(interaction, this.key, {

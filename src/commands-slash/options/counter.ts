@@ -19,18 +19,19 @@ export function name(option: SlashCommandStringOption)
 export function type(option: SlashCommandStringOption)
 {
     const choices = Object.values(CounterType).map<APIApplicationCommandOptionChoice<string>>(
-        (value) => {
+        (value) =>
+        {
             return {
                 name: value,
                 value,
             };
-        }
+        },
     );
 
     option.setName('type');
     option.setDescription('The type of counter to use (default: Temporary).');
     option.setChoices(
-        ...choices
+        ...choices,
     );
     return option;
 }

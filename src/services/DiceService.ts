@@ -1,6 +1,6 @@
 import rollConstants from '../constants/roll.js';
-import { DicePoolGroup } from '../models/DicePoolGroup.js';
 import { DicePool } from '../models/DicePool.js';
+import { DicePoolGroup } from '../models/DicePoolGroup.js';
 import { Roll } from '../types/rolls.js';
 
 export interface RollOptions
@@ -104,7 +104,8 @@ export class DiceService
 
         if (randomInteger >= this.rerollOnGreaterThanOrEqualTo)
         {
-            for (let i = 0; i < this.diceToReroll; i++) {
+            for (let i = 0; i < this.diceToReroll; i++)
+            {
                 const results = this.rollOne({ isReroll: true });
                 rolls.push(...results);
             }

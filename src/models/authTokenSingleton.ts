@@ -25,6 +25,4 @@ class AuthTokenSingleton
     }
 }
 
-
-
 export default new AuthTokenSingleton();

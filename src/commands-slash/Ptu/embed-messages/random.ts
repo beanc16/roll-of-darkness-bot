@@ -21,7 +21,8 @@ export const getRandomResultEmbedMessage = ({
         cost,
         description,
         numOfTimesRolled = 1,
-    }) => {
+    }) =>
+    {
         const descriptionString = (description !== undefined && description !== '--')
             ? `${description}\n`
             : '';
@@ -78,7 +79,8 @@ export const getRandomDowsingRodEmbedMessage = ({
         cost,
         description,
         numOfTimesRolled = 1,
-    }) => {
+    }) =>
+    {
         const descriptionString = (description !== undefined)
             ? `${description}\n`
             : '';
@@ -118,7 +120,8 @@ export const getRandomNatureEmbedMessage = ({
         loweredStat,
         likedFlavor,
         dislikedFlavor,
-    }) => {
+    }) =>
+    {
         const lines = [
             `Raised: ${raisedStat}`,
             `Lowered: ${loweredStat}`,
@@ -158,7 +161,8 @@ export const getRandomPokeballEmbedMessage = ({
         numOfTimesRolled = 1,
         mod,
         jailBreakerInfo,
-    }) => {
+    }) =>
+    {
         const jailbreakerString = (jailBreakerInfo !== undefined)
             ? `\n${tab}*${jailBreakerInfo.name}*\n${tab}${jailBreakerInfo.description}\n${tab}Number: ${numOfTimesRolled}\n${tab}Cost: ${cost}`
             : '';

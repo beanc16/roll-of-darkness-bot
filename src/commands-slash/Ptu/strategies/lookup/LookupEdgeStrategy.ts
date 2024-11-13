@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuEdge } from '../../models/PtuEdge.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuEdge } from '../../models/PtuEdge.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 export interface GetLookupEdgeDataParameters
 {
@@ -68,10 +67,7 @@ export class LookupEdgeStrategy
         }, []);
 
         // Sort by name
-        edges.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        edges.sort((a, b) => a.name.localeCompare(b.name));
 
         return edges;
     }

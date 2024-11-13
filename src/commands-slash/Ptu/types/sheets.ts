@@ -1,4 +1,5 @@
-export enum PtuCharacterSheetName {
+export enum PtuCharacterSheetName
+{
     // Magalam Present Campaign
     Yuki = 'Sano Yukihime',
     Marina = 'Marina Keawe',

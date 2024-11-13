@@ -40,8 +40,6 @@ const rerollsEnum = {
     },
 };
 
-
-
 export default {
     defaultParams,
     maxParams,

@@ -1,6 +1,7 @@
 import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
+
 import rollConstants from '../constants/roll.js';
-import { CachedRollOfDarknessApi } from '../services/CachedRollOfDarknessApi.js';
+import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
 
 export default class DiceProbabilityService
 {

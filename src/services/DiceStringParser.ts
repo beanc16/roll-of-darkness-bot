@@ -83,13 +83,11 @@ export class DiceStringParser
                 type: DiceParserType.Die,
             };
         }
-        else
-        {
-            return {
-                modifier: parseInt(numberOfDice, 10),
-                type: DiceParserType.Modifier,
-            };
-        }
+
+        return {
+            modifier: parseInt(numberOfDice, 10),
+            type: DiceParserType.Modifier,
+        };
     }
 
     private static parseMathOperators(allDiceString: string)
@@ -104,7 +102,7 @@ export class DiceStringParser
                 operator,
                 name: Operator[operator],
                 type: DiceParserType.MathOperator,
-            }
+            };
         });
         return operators;
     }
@@ -120,7 +118,7 @@ export class DiceStringParser
         }
 
         const diceList = allDiceString.split(this.supportedMathOperatorRegex);
-        const diceInfo = diceList.map((curDieString) => this.parseDie(curDieString));
+        const diceInfo = diceList.map(curDieString => this.parseDie(curDieString));
 
         const mathOperators = this.parseMathOperators(allDiceString);
 

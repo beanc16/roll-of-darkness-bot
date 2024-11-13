@@ -1,7 +1,8 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { discordLogger, logger } from '@beanc16/logger';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
+
 import { Timer } from '../services/Timer.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 let exitCode = 0;
 
@@ -63,7 +64,7 @@ catch (error: any)
 {
     logger.error(
         'Errors occurred while Roll of Darkness attempted to bulk delete media resources from the file storage microservice',
-        error?.response?.data ?? error
+        error?.response?.data ?? error,
     );
     exitCode = 1;
 }
@@ -71,14 +72,17 @@ catch (error: any)
 // Close out the process faster
 finally
 {
-    let loggerIsFlushed = false, discordLoggerIsFlushed = false;
+    let loggerIsFlushed = false;
+    let discordLoggerIsFlushed = false;
 
     // Listen for events for logging being finished
-    logger.on('finish', () => {
+    logger.on('finish', () =>
+    {
         loggerIsFlushed = true;
     });
 
-    discordLogger.on('finish', async () => {
+    discordLogger.on('finish', async () =>
+    {
         // Add a short delay, otherwise the log won't send via webhook.
         // This seems to be an underlying issue with the discord webhook transport for winston
         await Timer.wait({ seconds: 0.5 });

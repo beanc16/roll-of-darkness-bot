@@ -37,6 +37,4 @@ class StillWaitingForModalSingleton
     }
 }
 
-
-
 export default new StillWaitingForModalSingleton();

@@ -1,8 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js';
 
-
-
 export class BaseContextMenuCommand
 {
     _isInitialized;
@@ -29,13 +27,11 @@ export class BaseContextMenuCommand
         throw new Error(`${this.commandName} has not yet been implemented!`);
     }
 
-
-
     get commandData()
     {
         return this._commandData;
     }
-    
+
     get commandName()
     {
         return this.constructor.name.toLowerCase();

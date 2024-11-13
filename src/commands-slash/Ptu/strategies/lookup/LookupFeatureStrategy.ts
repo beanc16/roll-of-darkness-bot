@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
-import { getLookupFeaturesEmbedMessages } from '../../embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuFeature } from '../../models/PtuFeature.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupFeaturesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuFeature } from '../../models/PtuFeature.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 export interface GetLookupFeatureDataParameters
 {
@@ -68,10 +67,7 @@ export class LookupFeatureStrategy
         }, []);
 
         // Sort by name
-        features.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        features.sort((a, b) => a.name.localeCompare(b.name));
 
         return features;
     }

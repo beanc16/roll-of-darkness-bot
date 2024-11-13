@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { MongoDbController } from 'mongodb-controller';
+
 import { PtuPokemon } from '../types/pokemon.js';
 
 // TODO: Move this to a dedicated API for roll of darkness to call later instead
@@ -39,7 +40,7 @@ class PtuPokemonCollection
         megaEvolution,
         metadata,
         extras,
-    }: PtuPokemon & { _id: ObjectId; })
+    }: PtuPokemon & { _id: ObjectId })
     {
         if (_id)
         {

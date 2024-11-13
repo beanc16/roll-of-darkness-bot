@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
@@ -5,12 +6,13 @@ import {
     GoogleSheetsMicroservice,
     GoogleSheetsUpdateParametersV1,
 } from '@beanc16/microservices-abstraction';
+
 import { CachedAuthTokenService } from './CachedAuthTokenService.js';
-import { logger } from '@beanc16/logger';
 import { CompositeKeyRecord } from './CompositeKeyRecord.js';
 import { Timer } from './Timer.js';
 
-export enum GoogleSheetsApiErrorType {
+export enum GoogleSheetsApiErrorType
+{
     UserNotAddedToSheet = 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
     UnableToParseRange = 'UNABLE_TO_PARSE_RANGE',
 }
@@ -83,7 +85,7 @@ export class CachedGoogleSheetsApiService
                     return { data };
                 }
 
-                else if (statusCode === 401)
+                if (statusCode === 401)
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRange. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
@@ -92,7 +94,7 @@ export class CachedGoogleSheetsApiService
 
                 else if (
                     statusCode === 400
-                    && (error as { message?: string; }).message?.includes('Unable to parse range'))
+                    && (error as { message?: string }).message?.includes('Unable to parse range'))
                 {
                     return {
                         errorType: GoogleSheetsApiErrorType.UnableToParseRange,
@@ -120,10 +122,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else
-                {
-                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRange', (error as any)?.response?.data || error);
-                }
+                logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRange', (error as any)?.response?.data || error);
             }
         }
 
@@ -154,7 +153,7 @@ export class CachedGoogleSheetsApiService
                     return { data };
                 }
 
-                else if (statusCode === 401)
+                if (statusCode === 401)
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
@@ -178,7 +177,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else if (
+                if (
                     (error as any)?.response?.data?.statusCode === 400
                     && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
                 )
@@ -188,10 +187,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else
-                {
-                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
-                }
+                logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
             }
 
             // Wait half a second between retries
@@ -236,7 +232,7 @@ export class CachedGoogleSheetsApiService
                     return {};
                 }
 
-                else if (statusCode === 401)
+                if (statusCode === 401)
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.update. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
@@ -264,10 +260,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else
-                {
-                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.update', (error as any)?.response?.data || error);
-                }
+                logger.error('An error occurred on GoogleSheetsMicroservice.v1.update', (error as any)?.response?.data || error);
             }
         }
 

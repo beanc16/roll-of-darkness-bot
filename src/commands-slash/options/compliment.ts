@@ -1,4 +1,8 @@
-import { APIApplicationCommandOptionChoice, SlashCommandStringOption, SlashCommandUserOption } from 'discord.js';
+import {
+    APIApplicationCommandOptionChoice,
+    SlashCommandStringOption,
+    SlashCommandUserOption,
+} from 'discord.js';
 
 export enum ComplimentType
 {
@@ -27,12 +31,13 @@ export function type(option: SlashCommandStringOption)
     option.setDescription(`The compliment type to use. (default: Beat)`);
 
     const choices = Object.values(ComplimentType).map<APIApplicationCommandOptionChoice<string>>(
-        (name) => {
+        (name) =>
+        {
             return {
                 name,
                 value: name,
             };
-        }
+        },
     );
     option.addChoices(...choices);
 

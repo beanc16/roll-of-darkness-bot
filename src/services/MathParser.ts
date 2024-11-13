@@ -1,4 +1,9 @@
-import { Expression, Parser, ParserOptions, Value } from 'expr-eval';
+import {
+    Expression,
+    Parser,
+    ParserOptions,
+    Value,
+} from 'expr-eval';
 
 class MathParser
 {

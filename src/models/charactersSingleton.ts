@@ -34,7 +34,7 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter((element) => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element._id?.toString() !== value._id?.toString());
 
         // Insert the given value
         map[key].push(value);
@@ -50,7 +50,7 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter((element) => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element._id?.toString() !== value._id?.toString());
 
         this.set(map);
     }
@@ -60,7 +60,5 @@ class CharactersSingleton
         this.#singleton.set(map);
     }
 }
-
-
 
 export default new CharactersSingleton();

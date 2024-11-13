@@ -28,17 +28,16 @@ export class DicePool
 
     get rollResults()
     {
-        return this._rolls.flatMap((array) => array.map(({ number }) => number));
+        return this._rolls.flatMap(array => array.map(({ number }) => number));
     }
 
     get numOfSuccesses()
     {
         if (!this._numOfSuccesses)
         {
-            const successfulDiceRolled = this.rolls.flat().filter((result) =>
-            {
-                return (result.number >= this._successOnGreaterThanOrEqualTo);
-            });
+            const successfulDiceRolled = this.rolls.flat().filter(result =>
+                (result.number >= this._successOnGreaterThanOrEqualTo)
+            );
 
             const extraSuccesses = (successfulDiceRolled.length > 0)
                 ? this._extraSuccesses

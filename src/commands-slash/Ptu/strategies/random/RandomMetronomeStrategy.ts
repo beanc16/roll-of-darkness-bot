@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
-import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { LookupMoveStrategy } from '../lookup/LookupMoveStrategy.js';
-import { RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { OnRerollCallbackOptions } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { LookupMoveStrategy } from '../lookup/LookupMoveStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomMetronomeStrategy
@@ -79,7 +78,7 @@ export class RandomMetronomeStrategy
                 embeds: [embed],
             },
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
