@@ -1,13 +1,13 @@
-import { getFakeRoll } from './fakes/rolls.js';
-import { DicePool, DicePoolOptions } from '../../src/services/DicePool.js';
 import rollConstants from '../../src/constants/roll.js';
+import { DicePool, DicePoolOptions } from '../../src/services/DicePool.js';
 import type { Roll } from '../../src/types/rolls.js';
+import { getFakeRoll } from './fakes/rolls.js';
 
 describe('class: DicePool', () =>
 {
     let dicePool: DicePool;
     let rolls: Roll[];
-    
+
     beforeEach(() =>
     {
         dicePool = new DicePool();
@@ -25,15 +25,19 @@ describe('class: DicePool', () =>
     {
         it('should initialize with default values if none are provided', () =>
         {
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(dicePool['successOnGreaterThanOrEqualTo']).toEqual(
-                rollConstants.defaultParams.successOnGreaterThanOrEqualTo
+                rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
             );
 
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(dicePool['successOnGreaterThanOrEqualTo']).toEqual(
-                rollConstants.defaultParams.successOnGreaterThanOrEqualTo
+                rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
             );
 
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(dicePool['_rolls']).toEqual([]);
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(dicePool['_numOfSuccesses']).toEqual(undefined);
         });
 
@@ -46,11 +50,13 @@ describe('class: DicePool', () =>
 
             const customPool = new DicePool(expectedResult);
 
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(customPool['successOnGreaterThanOrEqualTo']).toEqual(
-                expectedResult.successOnGreaterThanOrEqualTo
+                expectedResult.successOnGreaterThanOrEqualTo,
             );
+            // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
             expect(customPool['extraSuccesses']).toEqual(
-                expectedResult.extraSuccesses
+                expectedResult.extraSuccesses,
             );
         });
     });
@@ -123,7 +129,7 @@ describe('class: DicePool', () =>
             const expectedResults = [rolls[0], rolls[1]];
 
             dicePool.push(expectedResults);
-            dicePool.forEach((roll) => results.push(...roll));
+            dicePool.forEach(roll => results.push(...roll));
 
             expect(results).toEqual(expectedResults);
         });
@@ -136,8 +142,8 @@ describe('class: DicePool', () =>
             const input = [rolls[0], rolls[1]];
             dicePool.push(input);
 
-            const results = dicePool.map((roll) => roll.map(({ number }) => number * 2));
-            const expectedResults = input.map((roll) => roll.number * 2);
+            const results = dicePool.map(roll => roll.map(({ number }) => number * 2));
+            const expectedResults = input.map(roll => roll.number * 2);
             expect(results).toEqual([expectedResults]);
         });
     });
@@ -149,8 +155,9 @@ describe('class: DicePool', () =>
             const input = [rolls[0], rolls[1]];
             dicePool.push(input);
 
-            const sum = dicePool.reduce<number>((acc, innerRolls) => {
-                innerRolls.forEach(({ number }) => acc += number);
+            const sum = dicePool.reduce<number>((acc, innerRolls) =>
+            {
+                innerRolls.forEach(({ number }) => acc + number);
                 return acc;
             }, 0);
             const expectedSum = input.reduce<number>((acc, roll) => acc + roll.number, 0);

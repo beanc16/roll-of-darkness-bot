@@ -36,10 +36,10 @@ export class DicePool
 
     get numOfSuccesses(): number
     {
-        if (this.numOfSuccesses === undefined)
+        if (this._numOfSuccesses === undefined)
         {
-            const successfulDiceRolled = this.rolls.flat().filter((result) =>
-                (result.number >= this.successOnGreaterThanOrEqualTo)
+            const successfulDiceRolled = this.rolls.flat().filter(result =>
+                (result.number >= this.successOnGreaterThanOrEqualTo),
             );
 
             const extraSuccesses = (successfulDiceRolled.length > 0)

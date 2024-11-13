@@ -88,9 +88,9 @@ class Roll_Lite extends BaseSlashCommand
         });
     }
 
-    get description():
+    get description(): string
     {
-        return `Roll a dice pool with any number of any sided dice.`;
+        return 'Roll a dice pool with any number of any sided dice.';
     }
 }
 
