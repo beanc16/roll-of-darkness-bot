@@ -4,13 +4,14 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
+
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 
 export enum RemoveCharacterCustomIds
 {
@@ -32,9 +33,9 @@ export class RemoveCharacterModal extends BaseCustomModal
     static getTextInputs(): TextInputBuilder[]
     {
         const nameInput = new TextInputBuilder()
-			.setCustomId(RemoveCharacterCustomIds.Name)
-			.setLabel(`What's the character's name?`)
-			.setStyle(this._styleMap[RemoveCharacterCustomIds.Name])
+            .setCustomId(RemoveCharacterCustomIds.Name)
+            .setLabel(`What's the character's name?`)
+            .setStyle(this._styleMap[RemoveCharacterCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -48,7 +49,7 @@ export class RemoveCharacterModal extends BaseCustomModal
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,

@@ -19,7 +19,7 @@ export class CurseborneDicePool
 
     get numOfSuccesses()
     {
-        const numOfSuccesses = this.dicePool.numOfSuccesses;
+        const { numOfSuccesses } = this.dicePool;
 
         return this.dicePool.reduce<number>((acc, cur) =>
         {

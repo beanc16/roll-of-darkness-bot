@@ -11,7 +11,8 @@ export const getLookupCurseborneEmbedMessages = <ClassInstance extends { formatt
 {
     if (data.length === 0) return [];
 
-    const { pages } = data.reduce((acc, { formattedDescription }, index) => {
+    const { pages } = data.reduce((acc, { formattedDescription }, index) =>
+    {
         // Don't let descriptions exceed the max limit
         if (acc.pages[acc.curPage].length + formattedDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
         {

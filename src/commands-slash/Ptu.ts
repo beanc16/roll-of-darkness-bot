@@ -1,4 +1,5 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { logger } from '@beanc16/logger';
 import {
     ApplicationCommandOptionChoiceData,
     AutocompleteInteraction,
@@ -6,32 +7,28 @@ import {
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
-
+import { Timer } from '../services/Timer.js';
+import { PtuAbility } from './Ptu/models/PtuAbility.js';
+import { PtuCapability } from './Ptu/models/PtuCapability.js';
+import { PtuEdge } from './Ptu/models/PtuEdge.js';
+import { PtuFeature } from './Ptu/models/PtuFeature.js';
+import { PtuMove } from './Ptu/models/PtuMove.js';
+import { PtuNature } from './Ptu/models/PtuNature.js';
+import { PtuStatus } from './Ptu/models/PtuStatus.js';
+import { PtuTm } from './Ptu/models/PtuTm.js';
+import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
-    PtuSubcommandGroup,
     calculate,
     lookup,
+    PtuSubcommandGroup,
     quickReference,
     random,
     roll,
     train,
 } from './Ptu/subcommand-groups/index.js';
-import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
-
-import { PtuAbility } from './Ptu/models/PtuAbility.js';
-import { PtuCapability } from './Ptu/models/PtuCapability.js';
-import { PtuMove } from './Ptu/models/PtuMove.js';
-import { PtuNature } from './Ptu/models/PtuNature.js';
+import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuPokemon } from './Ptu/types/pokemon.js';
-import { PtuTm } from './Ptu/models/PtuTm.js';
-
-import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
-import { PtuStatus } from './Ptu/models/PtuStatus.js';
-import { Timer } from '../services/Timer.js';
-import { PtuEdge } from './Ptu/models/PtuEdge.js';
-import { PtuFeature } from './Ptu/models/PtuFeature.js';
-import { logger } from '@beanc16/logger';
 
 export interface RandomResult
 {
@@ -104,7 +101,8 @@ class Ptu extends BaseSlashCommand
                 subcommand: PtuLookupSubcommand.Move,
                 options: { sortBy: 'name' },
             });
-            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -119,7 +117,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
             });
-            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -134,7 +133,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
             });
-            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -161,7 +161,8 @@ class Ptu extends BaseSlashCommand
                     name: focusedValue.value,
                 },
             });
-            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -177,7 +178,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
             });
-            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -192,7 +194,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,
             });
-            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -207,7 +210,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             });
-            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -222,7 +226,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             });
-            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -237,7 +242,8 @@ class Ptu extends BaseSlashCommand
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
             });
-            choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -246,8 +252,8 @@ class Ptu extends BaseSlashCommand
         }
 
         // Get the choices matching the search
-		const filteredChoices = choices.filter((choice) =>
-            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0)
+        const filteredChoices = choices.filter(choice =>
+            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
         );
 
         // Discord limits a maximum of 25 choices to display

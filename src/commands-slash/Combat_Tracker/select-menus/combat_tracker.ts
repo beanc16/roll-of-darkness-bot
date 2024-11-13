@@ -1,7 +1,7 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
+import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
 import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker.js';
-import { CombatTrackerType, CombatTrackerStatus } from '../constants.js';
 
 interface GetCombatTrackerSelectMenusParamters
 {
@@ -29,7 +29,8 @@ function parseSelectMenuOptions({
     const {
         hpCombatTrackers,
         initiativeCombatTrackers,
-    } = combatTrackerOptions.reduce((acc, cur) => {
+    } = combatTrackerOptions.reduce((acc, cur) =>
+    {
         // The option should be included in the select menu
         const shouldIncludeOptionByType = (
             typeOfTracker === cur.type

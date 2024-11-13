@@ -1,12 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
-
-import { RollStrategy } from './RollStrategy.js';
 import { NwodSubcommand } from '../options/index.js';
-import { InitiativeStrategy } from './InitiativeStrategy.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
+import { InitiativeStrategy } from './InitiativeStrategy.js';
 import { LuckStrategy } from './LuckStrategy.js';
+import { RollStrategy } from './RollStrategy.js';
 
 interface NwodStrategyExecutorRunParameters
 {

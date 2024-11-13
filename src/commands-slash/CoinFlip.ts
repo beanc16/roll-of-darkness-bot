@@ -1,11 +1,12 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import * as options from './options/index.js';
-import * as rollOptions from './Nwod/options/roll.js';
-import { ChatInputCommandInteraction } from 'discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../types/discord.js';
 import { Text } from '@beanc16/discordjs-helpers';
+import { ChatInputCommandInteraction } from 'discord.js';
+
 import { DiceService } from '../services/DiceService.js';
+import { DiscordInteractionCallbackType } from '../types/discord.js';
+import * as rollOptions from './Nwod/options/roll.js';
+import * as options from './options/index.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 
 enum CoinFlipResult
 {
@@ -17,13 +18,13 @@ class CoinFlip extends BaseSlashCommand
 {
     private diceService: DiceService;
 
-    public constructor()
+    constructor()
     {
         super();
         this._slashCommandData
             .addStringOption(options.coinFlip.headsOrTails)
             .addStringOption(rollOptions.name)
-            .addBooleanOption((option) => rollOptions.secret(option, {
+            .addBooleanOption(option => rollOptions.secret(option, {
                 commandType: 'coin flip',
             }));
 
@@ -69,15 +70,15 @@ class CoinFlip extends BaseSlashCommand
                 result,
             }),
             interactionCallbackType,
-            onRerollCallback: (rerollCallbackOptions) => this.run(
-                interaction, 
-                rerollCallbackOptions
+            onRerollCallback: rerollCallbackOptions => this.run(
+                interaction,
+                rerollCallbackOptions,
             ),
             commandName: this.commandName,
         });
     }
 
-    public get description()
+    get description()
     {
         return `Flip a coin.`;
     }
@@ -86,7 +87,8 @@ class CoinFlip extends BaseSlashCommand
     {
         const result = this.diceService.roll();
 
-        if (result.get(0).rolls[0][0].number === 1) {
+        if (result.get(0).rolls[0][0].number === 1)
+        {
             return CoinFlipResult.Heads;
         }
 
@@ -112,7 +114,5 @@ class CoinFlip extends BaseSlashCommand
             + ` and got ${Text.bold(result)}${rollName}.`;
     }
 }
-
-
 
 export default new CoinFlip();

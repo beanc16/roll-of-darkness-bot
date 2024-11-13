@@ -1,15 +1,14 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { NwodStrategyExecutor } from './Nwod/strategies/index.js';
-import { NwodSubcommand } from './Nwod/options/index.js';
-
 import {
     chance,
     initiative,
     luck,
+    NwodSubcommand,
     roll,
 } from './Nwod/options/index.js';
+import { NwodStrategyExecutor } from './Nwod/strategies/index.js';
 
 class Nwod extends BaseSlashCommand
 {

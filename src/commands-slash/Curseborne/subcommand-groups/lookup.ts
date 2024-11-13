@@ -11,7 +11,8 @@ export function trick(subcommand: SlashCommandSubcommandBuilder)
     subcommand.setDescription('Get one or more tricks based on the given parameters.');
 
     // Name
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('trick_name');
         option.setDescription(`The trick's name.`);
         option.setRequired(true);

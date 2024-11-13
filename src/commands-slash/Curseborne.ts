@@ -5,6 +5,8 @@ import {
     ChatInputCommandInteraction,
 } from 'discord.js';
 
+import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
+import { CursebourneStrategyExecutor } from './Curseborne/strategies/index.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
@@ -12,9 +14,7 @@ import {
     lookup,
     roll,
 } from './Curseborne/subcommand-groups/index.js';
-import { CursebourneStrategyExecutor } from './Curseborne/strategies/index.js';
 import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
-import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
 
 class Cursebourne extends BaseSlashCommand
@@ -73,7 +73,8 @@ class Cursebourne extends BaseSlashCommand
                     },
                 },
             });
-            choices = results.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = results.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -82,14 +83,14 @@ class Cursebourne extends BaseSlashCommand
         }
 
         // Get the choices matching the search
-		const filteredChoices = choices.filter((choice) =>
-            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0)
+        const filteredChoices = choices.filter(choice =>
+            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
         );
 
         // Discord limits a maximum of 25 choices to display
         const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
 
-		await interaction.respond(limitedChoices);
+        await interaction.respond(limitedChoices);
     }
 
     get commandName()

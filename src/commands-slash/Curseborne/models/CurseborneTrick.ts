@@ -5,7 +5,7 @@ export class CurseborneTrick
     public description: string;
     public formattedDescription: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

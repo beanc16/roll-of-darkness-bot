@@ -1,5 +1,6 @@
-import { MongoDbControllerWithEnv, MongoDbResults } from 'mongodb-controller';
 import { ObjectId } from 'mongodb';
+import { MongoDbControllerWithEnv, MongoDbResults } from 'mongodb-controller';
+
 import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
 
 // Shared values
@@ -253,7 +254,7 @@ export class AggregatedTrackerWithCharactersController extends MongoDbController
         },
         {
             // Exclude characterIds from the output (since it was only used for initial aggregation)
-            $unset: "characterIds",
+            $unset: 'characterIds',
         },
     ];
 

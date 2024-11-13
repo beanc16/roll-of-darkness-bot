@@ -2,14 +2,14 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import {
-    MediaSubcommandGroup,
-    image,
-    instagram,
-} from './Media/subcommand-groups/index.js';
-import { MediaInstagramSubcommand } from './Media/subcommand-groups/instagram.js';
 import { MediaStrategyExecutor } from './Media/strategies/index.js';
 import { MediaImageSubcommand } from './Media/subcommand-groups/image.js';
+import {
+    image,
+    instagram,
+    MediaSubcommandGroup,
+} from './Media/subcommand-groups/index.js';
+import { MediaInstagramSubcommand } from './Media/subcommand-groups/instagram.js';
 
 class Media extends BaseSlashCommand
 {
@@ -32,7 +32,8 @@ class Media extends BaseSlashCommand
         const subcommandGroup = interaction.options.getSubcommandGroup(true) as MediaSubcommandGroup;
         const subcommand = interaction.options.getSubcommand(true) as MediaImageSubcommand | MediaInstagramSubcommand;
 
-        try {
+        try
+        {
             // Run subcommand
             const response = MediaStrategyExecutor.run({
                 subcommandGroup,
@@ -45,7 +46,9 @@ class Media extends BaseSlashCommand
             {
                 await interaction.editReply('Subcommand Group or subcommand not yet implemented');
             }
-        } catch (err) {
+        }
+        catch (err)
+        {
             logger.error('An error occurred while processing media', err, {
                 subcommandGroup,
                 subcommand,

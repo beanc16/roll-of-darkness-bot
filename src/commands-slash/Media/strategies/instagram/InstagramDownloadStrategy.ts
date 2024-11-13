@@ -1,9 +1,9 @@
 import { AttachmentPayload, ChatInputCommandInteraction } from 'discord.js';
 
+import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { InstagramMediaDownloader } from '../../services/MediaDownloaders.js';
 import { MediaInstagramSubcommand } from '../../subcommand-groups/instagram.js';
-import { staticImplements } from '../../../../decorators/staticImplements.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InstagramDownloadStrategy
@@ -33,17 +33,19 @@ export class InstagramDownloadStrategy
 
         // Get results
         const pagedDownloadBuffers = await InstagramMediaDownloader.getPagedDownloadUrls(
-            inputUrls
+            inputUrls,
         );
 
         // Parse to attachments array
-        const pagedAttachments = pagedDownloadBuffers.reduce<AttachmentPayload[][]>((acc, buffers) => {
+        const pagedAttachments = pagedDownloadBuffers.reduce<AttachmentPayload[][]>((acc, buffers) =>
+        {
             if (buffers.length === 0)
             {
                 return acc;
             }
 
-            const attachments = buffers.map<AttachmentPayload>((buffer) => {
+            const attachments = buffers.map<AttachmentPayload>((buffer) =>
+            {
                 return {
                     attachment: buffer,
                 };
@@ -68,7 +70,7 @@ export class InstagramDownloadStrategy
         for (const attachments of pagedAttachments.slice(1))
         {
             await interaction.followUp({
-                files: attachments
+                files: attachments,
             });
         }
 

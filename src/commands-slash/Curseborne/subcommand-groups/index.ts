@@ -1,7 +1,8 @@
 import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
-import * as rollOptions from './roll.js';
-import * as lookupSubcommands from './lookup.js';
+
 import * as sharedOptions from '../../options/shared.js';
+import * as lookupSubcommands from './lookup.js';
+import * as rollOptions from './roll.js';
 
 export enum CurseborneSubcommandGroup
 {
@@ -19,7 +20,7 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
 {
     subcommandGroup.setName(CurseborneSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run Cursebourne lookup commands.');
-    Object.values(lookupSubcommands).forEach(subcommand => 
+    Object.values(lookupSubcommands).forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {

@@ -1,16 +1,16 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
-import { CurseborneTrick } from '../../models/CurseborneTrick.js';
 import {
     BaseGetLookupDataParams,
     BaseGetLookupSearchMatchType,
     BaseLookupStrategy,
     LookupStrategy,
 } from '../../../strategies/BaseLookupStrategy.js';
+import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
+import { CurseborneTrick } from '../../models/CurseborneTrick.js';
+import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {

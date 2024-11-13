@@ -1,12 +1,13 @@
 import { SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
 export {
-    numberOfDice,
     name,
+    numberOfDice,
     secret,
 } from '../../Nwod/options/roll.js';
 
-export enum TwoSuccessesOption {
+export enum TwoSuccessesOption
+{
     DoubleTens = 'double_10s',
     DoubleNines = 'double_9s',
     NoDoubles = 'no_doubles',

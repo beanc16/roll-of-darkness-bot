@@ -1,8 +1,8 @@
 import { FileStorageMicroserviceImageBackground } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { MediaImageSubcommand } from '../../subcommand-groups/image.js';
 import { BaseImageStrategy } from './BaseImageStrategy.js';
 

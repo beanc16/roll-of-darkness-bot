@@ -1,5 +1,6 @@
 // @ts-ignore -- This package doesn't have any types.
 import instagramGetUrlUntyped from 'instagram-url-direct';
+
 import { staticImplements } from '../../../decorators/staticImplements.js';
 
 type InstagramGetUrl = (url: string) => Promise<{
@@ -22,7 +23,7 @@ export class InstagramMediaDownloader
      */
     static async getPagedDownloadUrls(urls: string[]): Promise<Buffer[][]>
     {
-        const promises = urls.map((url) => instagramGetUrl(url));
+        const promises = urls.map(url => instagramGetUrl(url));
         const unparsedResults = await Promise.all(promises);
 
         const pagedDownloadUrls = unparsedResults.reduce<string[][]>((acc, { url_list }, index) =>
@@ -31,7 +32,7 @@ export class InstagramMediaDownloader
             return acc;
         }, []);
 
-        return this.convertUrlsToBuffers(pagedDownloadUrls);
+        return await this.convertUrlsToBuffers(pagedDownloadUrls);
     }
 
     /**

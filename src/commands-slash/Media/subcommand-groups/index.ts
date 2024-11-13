@@ -1,4 +1,5 @@
 import { SlashCommandSubcommandGroupBuilder } from 'discord.js';
+
 import * as imageSubcommands from './image.js';
 import * as instagramSubcommands from './instagram.js';
 

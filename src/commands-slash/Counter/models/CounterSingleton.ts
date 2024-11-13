@@ -1,9 +1,9 @@
 import { UUID } from 'node:crypto';
 
 import Singleton from '../../../models/Singleton.js';
+import { CounterType } from '../../options/counter.js';
 import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
 import { CounterEventHandler } from '../services/CounterEventHandler.js';
-import { CounterType } from '../../options/counter.js';
 
 interface UpdateCountParameters
 {
@@ -80,7 +80,5 @@ class CounterSingleton
         this.upsert(counterContainer);
     }
 }
-
-
 
 export default new CounterSingleton();

@@ -1,8 +1,13 @@
-import { ChatInputCommandInteraction, User } from 'discord.js';
-
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
-import { ComplimentType, friend, reason, type } from './options/compliment.js';
+import { ChatInputCommandInteraction, User } from 'discord.js';
+
+import {
+    ComplimentType,
+    friend,
+    reason,
+    type,
+} from './options/compliment.js';
 
 class Compliment extends BaseSlashCommand
 {
@@ -76,7 +81,5 @@ class Compliment extends BaseSlashCommand
         return `Compliment your friend.`;
     }
 }
-
-
 
 export default new Compliment();

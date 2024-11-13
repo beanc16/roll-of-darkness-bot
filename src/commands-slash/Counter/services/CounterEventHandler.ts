@@ -1,4 +1,5 @@
 import { UUID } from 'node:crypto';
+
 import dayjs from 'dayjs';
 
 import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord.js';
@@ -17,6 +18,7 @@ export class CounterEventHandler
         [UUID, CounterEventType],
         dayjs.Dayjs
     > = new CompositeKeyRecord();
+
     private static SECONDS_TO_DEBOUNCE = 4; // TODO: Reduce this timer after mongodb-controller won't close connections if a save is in-progress
 
     public static onUpsert(guid: UUID)
@@ -24,7 +26,7 @@ export class CounterEventHandler
         // Get debouncability before adding an event timestamp
         const shouldDebounce = !this.eventTimestamps.Has([
             guid,
-            CounterEventType.Upsert
+            CounterEventType.Upsert,
         ]);
 
         // Add event timestamp
@@ -50,7 +52,7 @@ export class CounterEventHandler
                 const secondsPassed = currentTimestamp.diff(
                     prevTimestamp,
                     'seconds',
-                    true
+                    true,
                 );
 
                 return secondsPassed > this.SECONDS_TO_DEBOUNCE;
@@ -70,7 +72,7 @@ export class CounterEventHandler
         {
             await CounterController.findOneAndUpdate(
                 { guid },
-                counterContainer.getCounter()
+                counterContainer.getCounter(),
             );
         }
 

@@ -1,6 +1,8 @@
 import { UUID } from 'node:crypto';
+
 import { ObjectId } from 'mongodb';
 import { MongoDbControllerWithEnv } from 'mongodb-controller';
+
 import { CounterType } from '../../options/counter.js';
 
 export enum CounterOperation
@@ -47,22 +49,22 @@ export class CounterContainer
         this.isInDatabase = !!isInDatabase;
     }
 
-    public get guid()
+    get guid()
     {
         return this.counter.guid;
     }
 
-    public get count()
+    get count()
     {
         return this.counter.count;
     }
 
-    public set count(value: number)
+    set count(value: number)
     {
         this.counter.count = value;
     }
 
-    public get counterType()
+    get counterType()
     {
         return this.type;
     }

@@ -4,14 +4,19 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
+
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import {
+    CombatTrackerType,
+    DamageType,
+    HpType,
+} from '../constants.js';
+import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
-import { CombatTrackerType, DamageType, HpType } from '../constants.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 
 export enum EditCharacterHpCustomIds
 {
@@ -54,12 +59,12 @@ export class EditCharacterHpModal extends BaseCustomModal
 
     static getTextInputs<TextInputParamaters = Tracker>(mistypedTracker: TextInputParamaters): TextInputBuilder[]
     {
-        const type = (mistypedTracker as Tracker).type;
+        const { type } = mistypedTracker as Tracker;
 
         const nameInput = new TextInputBuilder()
-			.setCustomId(EditCharacterHpCustomIds.Name)
-			.setLabel(`What character's HP should be updated?`)
-			.setStyle(this._styleMap[EditCharacterHpCustomIds.Name])
+            .setCustomId(EditCharacterHpCustomIds.Name)
+            .setLabel(`What character's HP should be updated?`)
+            .setStyle(this._styleMap[EditCharacterHpCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -72,7 +77,7 @@ export class EditCharacterHpModal extends BaseCustomModal
             .setMaxLength(9)
             .setRequired(true)
             .setValue(
-                this.getInputValues(EditCharacterHpCustomIds.HpType)
+                this.getInputValues(EditCharacterHpCustomIds.HpType),
             );
 
         const hpInput = new TextInputBuilder()
@@ -91,7 +96,7 @@ export class EditCharacterHpModal extends BaseCustomModal
             .setMaxLength(7)
             .setRequired(true)
             .setValue(
-                this.getInputValues(EditCharacterHpCustomIds.DamageType)
+                this.getInputValues(EditCharacterHpCustomIds.DamageType),
             );
 
         return [
@@ -111,7 +116,7 @@ export class EditCharacterHpModal extends BaseCustomModal
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,

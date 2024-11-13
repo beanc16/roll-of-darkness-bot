@@ -12,7 +12,8 @@ export const getPagedEmbedBuilders = ({
     url?: string;
 }) =>
 {
-    return pages.map((description, index) => {
+    const embeds = pages.map((description, index) =>
+    {
         const embed = new EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
@@ -20,7 +21,7 @@ export const getPagedEmbedBuilders = ({
 
         if (pages.length > 1)
         {
-            embed.setFooter({ text: `Page ${index + 1}/${pages.length}`})
+            embed.setFooter({ text: `Page ${index + 1}/${pages.length}` });
         }
 
         if (url)
@@ -30,4 +31,6 @@ export const getPagedEmbedBuilders = ({
 
         return embed;
     });
+
+    return embeds;
 };

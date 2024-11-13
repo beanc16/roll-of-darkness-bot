@@ -18,16 +18,16 @@ export const download = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setDescription('Get a list of images to download based on the given post urls.');
 
     // URLs
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 1, true));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 2));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 3));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 4));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 5));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 6));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 7));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 8));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 9));
-    subcommand.addStringOption((option) => instagramPostUrlOption(option, 10));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 1, true));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 2));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 3));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 4));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 5));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 6));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 7));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 8));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 9));
+    subcommand.addStringOption(option => instagramPostUrlOption(option, 10));
 
     return subcommand;
 };

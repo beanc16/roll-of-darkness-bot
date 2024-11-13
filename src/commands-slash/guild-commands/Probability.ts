@@ -1,12 +1,12 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import * as probabilityOptions from '../options/probability.js';
-import * as rollOptions from '../Nwod/options/roll.js';
-import { numberOfDice } from '../options/shared.js';
 import DiceProbabilityService from '../../services/DiceProbabilityService.js';
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
-import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
+import * as rollOptions from '../Nwod/options/roll.js';
+import * as probabilityOptions from '../options/probability.js';
+import { numberOfDice } from '../options/shared.js';
 
 class Probability extends BaseSlashCommand
 {
@@ -62,7 +62,7 @@ class Probability extends BaseSlashCommand
                 probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
             });
             await interaction.editReply(
-                probabilityResponseFormatterService.getResponse()
+                probabilityResponseFormatterService.getResponse(),
             );
         }
 
@@ -77,7 +77,5 @@ class Probability extends BaseSlashCommand
         return `Check the probability of getting a certain number of successes with a certain number of dice.`;
     }
 }
-
-
 
 export default new Probability();

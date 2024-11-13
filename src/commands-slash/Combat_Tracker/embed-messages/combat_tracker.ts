@@ -1,4 +1,14 @@
-import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, ModalSubmitInteraction, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
+import {
+    ActionRowBuilder,
+    APIEmbedField,
+    CommandInteraction,
+    EmbedBuilder,
+    ModalSubmitInteraction,
+    RestOrArray,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+} from 'discord.js';
+
 import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 
@@ -45,7 +55,7 @@ const hpTypeToBoxMap = {
 function getHpBoxes({
     hpType,
     hpValue,
-} : {
+}: {
     hpType: HpType;
     hpValue: number;
 }): string[]
@@ -118,7 +128,7 @@ function getCharacterNameString({
     isTurn,
     initiative,
     tracker,
-} : {
+}: {
     name: Character['name'];
     isTurn: boolean;
     initiative: Character['initiative'];
@@ -126,8 +136,8 @@ function getCharacterNameString({
 }): string
 {
     const currentTurnMarkerOrEmptyString = (isTurn)
-            ? '-->'
-            : '';
+        ? '-->'
+        : '';
 
     const initiativeOrEmptyString = (
         initiative !== undefined
@@ -186,7 +196,8 @@ function getCharacterFields({
         initiative,
         maxHp,
         currentDamage,
-    }, index) => {
+    }, index) =>
+    {
         const characterString = getCharacterNameString({
             name,
             initiative,
@@ -199,7 +210,7 @@ function getCharacterFields({
                 && index === tracker.currentTurn
             ),
             tracker,
-        })
+        });
 
         const hpString = (tracker.type === CombatTrackerType.All || tracker.type === CombatTrackerType.Hp)
             ? getCharacterHpString({
@@ -229,12 +240,12 @@ function getDescription(tracker: Tracker)
         return `Round ${tracker.round}`;
     }
 
-    else if (tracker.status === CombatTrackerStatus.NotStarted)
+    if (tracker.status === CombatTrackerStatus.NotStarted)
     {
         return 'Not Started';
     }
 
-    else if (tracker.status === CombatTrackerStatus.Completed)
+    if (tracker.status === CombatTrackerStatus.Completed)
     {
         return 'Complete';
     }
@@ -264,8 +275,8 @@ function getCombatTrackerEmbedMessage({
 }
 
 export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerEmbedParameters & {
-    interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction,
-    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[],
+    interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
+    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
 })
 {
     // Get embed message

@@ -1,13 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { CurseborneDiceService } from '../services/CurseborneDiceService.js';
 import { CurseborneSubcommand } from '../subcommand-groups/index.js';
 import { TwoSuccessesOption } from '../subcommand-groups/roll.js';
-import { CurseborneDiceService } from '../services/CurseborneDiceService.js';
-import { Text } from '@beanc16/discordjs-helpers';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
@@ -72,7 +72,7 @@ export class RollStrategy
             interaction,
             options: response,
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
@@ -89,12 +89,12 @@ export class RollStrategy
             return 10;
         }
 
-        else if (twoSuccessesOn === TwoSuccessesOption.DoubleNines)
+        if (twoSuccessesOn === TwoSuccessesOption.DoubleNines)
         {
             return 9;
         }
 
-        else if (twoSuccessesOn === TwoSuccessesOption.NoDoubles)
+        if (twoSuccessesOn === TwoSuccessesOption.NoDoubles)
         {
             return 100;
         }
@@ -125,19 +125,19 @@ export class RollStrategy
         numberOfCursedDice: number;
         numOfCursedDiceSuccesses: number;
         cursedDiceRollResults: number[];
-        rerollCallbackOptions: OnRerollCallbackOptions
+        rerollCallbackOptions: OnRerollCallbackOptions;
     }): string
     {
         const againString = (successesKey === TwoSuccessesOption.DoubleNines)
             ? 'double 9s'
             : (successesKey === TwoSuccessesOption.NoDoubles)
-            ? 'no double 10s'
-            : '';
+                ? 'no double 10s'
+                : '';
 
         const enhancementsString = (enhancements > 0)
             ? `${enhancements} enhancements`
             : '';
-        
+
         const cursedDiceString = (numberOfCursedDice > 0)
             ? `${numberOfCursedDice} cursed dice`
             : '';
@@ -152,7 +152,7 @@ export class RollStrategy
                 this.getRollString({
                     numOfSuccesses,
                     rollResults,
-                })
+                }),
             );
         }
 
@@ -163,7 +163,7 @@ export class RollStrategy
                 + this.getRollString({
                     numOfSuccesses: numOfCursedDiceSuccesses,
                     rollResults: cursedDiceRollResults,
-                })
+                }),
             );
         }
 
@@ -175,7 +175,7 @@ export class RollStrategy
     private static getCombinedExtrasString(...input: string[]): string
     {
         const inputWithNoEmptyStrings = input.filter(
-            str => str.trim().length > 0
+            str => str.trim().length > 0,
         );
         let output = ' with ';
 

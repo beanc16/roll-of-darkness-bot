@@ -1,4 +1,8 @@
 import { randomUUID, UUID } from 'node:crypto';
+
+import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { Text } from '@beanc16/discordjs-helpers';
+import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -11,22 +15,19 @@ import {
     MessageInteraction,
     TextChannel,
 } from 'discord.js';
-import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { Text } from '@beanc16/discordjs-helpers';
-import { logger } from '@beanc16/logger';
 
-import {
-    CounterType,
-    name,
-    type,
-} from './options/counter.js';
-import counterSingleton from './Counter/models/CounterSingleton.js';
 import {
     Counter as CounterForDb,
     CounterContainer,
     CounterController,
 } from './Counter/dal/CounterMongoController.js';
+import counterSingleton from './Counter/models/CounterSingleton.js';
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
+import {
+    CounterType,
+    name,
+    type,
+} from './options/counter.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 
 enum CounterButtonName
@@ -62,7 +63,7 @@ class Counter extends BaseSlashCommand
 
         // Send message
         const response = await interaction.editReply(
-            this.getMessageData(name, guid)
+            this.getMessageData(name, guid),
         );
         this.initializeCounter({
             guid,
@@ -108,8 +109,8 @@ class Counter extends BaseSlashCommand
             auditLogs: [],
             discordCreator: {
                 userId: interaction.user.id,
-                ...(!!interaction.guildId
-                    ? { serverId: interaction.guildId}
+                ...(interaction.guildId
+                    ? { serverId: interaction.guildId }
                     : {}
                 ),
                 channelId: interaction.channelId,
@@ -182,7 +183,7 @@ class Counter extends BaseSlashCommand
             // Update count based on interaction
             this.updateCount(buttonInteraction, guid);
             await buttonInteraction.update(
-                this.getMessageData(name, guid)
+                this.getMessageData(name, guid),
             );
         }
         catch (error)
@@ -211,11 +212,11 @@ class Counter extends BaseSlashCommand
         const handlerMap: Record<CounterButtonName, () => void> = {
             [CounterButtonName.Plus]: () => counterSingleton.incrementCount({
                 guid,
-                userId: buttonInteraction.user.id
+                userId: buttonInteraction.user.id,
             }),
             [CounterButtonName.Minus]: () => counterSingleton.decrementCount({
                 guid,
-                userId: buttonInteraction.user.id
+                userId: buttonInteraction.user.id,
             }),
             [CounterButtonName.AuditLog]: () => this.getAuditLogMessage(guid, buttonInteraction),
         };
@@ -276,7 +277,8 @@ class Counter extends BaseSlashCommand
                 results: CounterForDb[];
             };
 
-            const promises = results.map(async (counter) => {
+            const promises = results.map(async (counter) =>
+            {
                 const {
                     discordCreator: {
                         channelId,
@@ -297,12 +299,12 @@ class Counter extends BaseSlashCommand
                 {
                     // Save the counter to the cache
                     counterSingleton.upsert(
-                        new CounterContainer(counter, CounterType.Permanent, true)
+                        new CounterContainer(counter, CounterType.Permanent, true),
                     );
 
                     // Add buttons to the message for counter
                     await message.edit(
-                        this.getMessageData(counter.name, counter.guid)
+                        this.getMessageData(counter.name, counter.guid),
                     );
 
                     // Listen for button interactions
@@ -333,7 +335,5 @@ class Counter extends BaseSlashCommand
         return parseInt(countStr, 10);
     }
 }
-
-
 
 export default new Counter();

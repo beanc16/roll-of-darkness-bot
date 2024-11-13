@@ -1,4 +1,8 @@
-import { SlashCommandBooleanOption, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
+import {
+    SlashCommandBooleanOption,
+    SlashCommandIntegerOption,
+    SlashCommandStringOption,
+} from 'discord.js';
 
 import rollConstants from '../../../constants/roll.js';
 

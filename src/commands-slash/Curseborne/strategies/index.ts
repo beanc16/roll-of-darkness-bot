@@ -1,16 +1,19 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy, ChatIteractionStrategyRecord, NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
-
-import { RollStrategy } from './RollStrategy.js';
+import { BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
+import {
+    ChatIteractionStrategy,
+    ChatIteractionStrategyRecord,
+    NestedChatIteractionStrategyRecord,
+} from '../../strategies/types/ChatIteractionStrategy.js';
 import {
     CurseborneAllNestedSubcommands,
-    CurseborneSubcommandGroup,
     CurseborneSubcommand,
+    CurseborneSubcommandGroup,
 } from '../subcommand-groups/index.js';
 import { CurseborneLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { GetLookupTrickDataParameters, LookupTrickStrategy } from './lookup/LookupTrickStrategy.js';
-import { BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
+import { RollStrategy } from './RollStrategy.js';
 
 interface CursebourneStrategyExecutorRunParameters
 {

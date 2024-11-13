@@ -4,15 +4,16 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
+
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { InitiativeStrategy } from '../../Nwod/strategies/InitiativeStrategy.js';
-import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
-import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
-import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { CombatTrackerType } from '../constants.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
+import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
+import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 
 export enum AddCharacterCustomIds
 {
@@ -91,9 +92,9 @@ export class AddCharacterModal extends BaseCustomModal
         const type = tracker?.type;
 
         const nameInput = new TextInputBuilder()
-			.setCustomId(AddCharacterCustomIds.Name)
-			.setLabel(`What's the character's name?`)
-			.setStyle(this._styleMap[AddCharacterCustomIds.Name])
+            .setCustomId(AddCharacterCustomIds.Name)
+            .setLabel(`What's the character's name?`)
+            .setStyle(this._styleMap[AddCharacterCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -123,7 +124,7 @@ export class AddCharacterModal extends BaseCustomModal
             .setMaxLength(100)
             .setRequired(false)
             .setValue(
-                this.getInputValues(AddCharacterCustomIds.Hp)
+                this.getInputValues(AddCharacterCustomIds.Hp),
             );
 
         const secretsInput = new TextInputBuilder()
@@ -134,7 +135,7 @@ export class AddCharacterModal extends BaseCustomModal
             .setMaxLength(100)
             .setRequired(false)
             .setValue(
-                this.getInputValues(AddCharacterCustomIds.Secrets)
+                this.getInputValues(AddCharacterCustomIds.Secrets),
             );
 
         return [
@@ -161,7 +162,7 @@ export class AddCharacterModal extends BaseCustomModal
         if (shouldRollInitiativeAsModifierInput?.toLowerCase() === 'yes' && initiativeModifier)
         {
             initiative = InitiativeStrategy.rollWithModifier(
-                parseInt(initiativeModifier, 10)
+                parseInt(initiativeModifier, 10),
             );
         }
 
@@ -177,7 +178,7 @@ export class AddCharacterModal extends BaseCustomModal
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,
