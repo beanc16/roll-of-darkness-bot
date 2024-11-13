@@ -5,13 +5,13 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { NwodSubcommand } from '../options/index.js';
 import { BaseRollStrategy } from './BaseRollStrategy.js';
 import rollConstants from '../../../constants/roll.js';
-import { AddAndSubractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
+import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
     public static key = NwodSubcommand.Roll;
-    private static mathParser = new AddAndSubractMathParser();
+    private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(
         interaction: ChatInputCommandInteraction,

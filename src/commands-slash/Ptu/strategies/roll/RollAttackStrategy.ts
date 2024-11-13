@@ -18,7 +18,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
-import { AddAndSubractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
+import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 
 enum AttackButtonName
 {
@@ -83,7 +83,7 @@ interface RollDamageOptions
 @staticImplements<ChatIteractionStrategy>()
 export class RollAttackStrategy
 {
-    private static mathParser = new AddAndSubractMathParser();
+    private static mathParser = new AddAndSubtractMathParser();
     public static key = PtuRollSubcommand.Attack;
 
     public static async run(

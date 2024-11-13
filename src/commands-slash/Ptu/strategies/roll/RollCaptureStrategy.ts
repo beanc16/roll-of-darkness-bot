@@ -7,12 +7,12 @@ import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { AddAndSubractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
+import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollCaptureStrategy
 {
-    private static mathParser = new AddAndSubractMathParser();
+    private static mathParser = new AddAndSubtractMathParser();
     public static key = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 

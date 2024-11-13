@@ -1,7 +1,7 @@
 import { addAndSubtractMathParserOptions } from './constants.js';
 import { MathParser } from './MathParser.js';
 
-export class AddAndSubractMathParser extends MathParser
+export class AddAndSubtractMathParser extends MathParser
 {
     constructor()
     {

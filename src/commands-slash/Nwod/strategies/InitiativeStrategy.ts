@@ -8,13 +8,13 @@ import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
-import { AddAndSubractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
+import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy
 {
     public static key = NwodSubcommand.Initiative;
-    private static mathParser = new AddAndSubractMathParser();
+    private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(
         interaction: ChatInputCommandInteraction,
