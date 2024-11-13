@@ -1,38 +1,35 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../subcommand-groups/index.js';
+import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
+import { PtuAbility } from '../models/PtuAbility.js';
+import { PtuCapability } from '../models/PtuCapability.js';
+import { PtuEdge } from '../models/PtuEdge.js';
+import { PtuFeature } from '../models/PtuFeature.js';
+import { PtuMove } from '../models/PtuMove.js';
+import { PtuNature } from '../models/PtuNature.js';
+import { PtuStatus } from '../models/PtuStatus.js';
+import { PtuTm } from '../models/PtuTm.js';
 import { PtuCalculateSubcommand } from '../subcommand-groups/calculate.js';
+import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../subcommand-groups/index.js';
 import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
-import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
-
+import { PtuPokemon } from '../types/pokemon.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
-import quickReferenceStrategies from './quickReference/index.js';
-import randomStrategies from './random/index.js';
-import rollStrategies from './roll/index.js';
-
-import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuCapability } from '../models/PtuCapability.js';
-import { PtuMove } from '../models/PtuMove.js';
-import { PtuNature } from '../models/PtuNature.js';
-import { PtuPokemon } from '../types/pokemon.js';
-import { PtuStatus } from '../models/PtuStatus.js';
-import { PtuTm } from '../models/PtuTm.js';
-
-import { GetLookupMoveDataParameters } from './lookup/LookupMoveStrategy.js';
 import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
-import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
+import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
+import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
+import { GetLookupMoveDataParameters } from './lookup/LookupMoveStrategy.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
+import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
+import quickReferenceStrategies from './quickReference/index.js';
+import randomStrategies from './random/index.js';
+import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
-import { PtuEdge } from '../models/PtuEdge.js';
-import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
-import { PtuFeature } from '../models/PtuFeature.js';
-import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
 
 export class PtuStrategyExecutor
 {
@@ -110,29 +107,29 @@ export class PtuStrategyExecutor
     public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuEdge | PtuFeature | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
         subcommandGroup,
         subcommand,
-        options
+        options,
     }: {
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
-        options?: PtuLookupModel extends PtuMove    // Move
+        options?: PtuLookupModel extends PtuMove // Move
             ? GetLookupMoveDataParameters
-            : PtuLookupModel extends PtuAbility     // Ability
-            ? GetLookupAbilityDataParameters
-            : PtuLookupModel extends PtuCapability  // Capability
-            ? GetLookupCapabilityDataParameters
-            : PtuLookupModel extends PtuEdge        // Edge
-            ? GetLookupEdgeDataParameters
-            : PtuLookupModel extends PtuFeature     // Feature
-            ? GetLookupFeatureDataParameters
-            : PtuLookupModel extends PtuNature      // Nature
-            ? GetLookupNatureDataParameters
-            : PtuLookupModel extends PtuPokemon     // Pokemon
-            ? GetLookupPokemonDataParameters
-            : PtuLookupModel extends PtuStatus      // Status
-            ? GetLookupStatusDataParameters
-            : PtuLookupModel extends PtuTm          // TM
-            ? GetLookupTmDataParameters
-            : never;
+            : PtuLookupModel extends PtuAbility // Ability
+                ? GetLookupAbilityDataParameters
+                : PtuLookupModel extends PtuCapability // Capability
+                    ? GetLookupCapabilityDataParameters
+                    : PtuLookupModel extends PtuEdge // Edge
+                        ? GetLookupEdgeDataParameters
+                        : PtuLookupModel extends PtuFeature // Feature
+                            ? GetLookupFeatureDataParameters
+                            : PtuLookupModel extends PtuNature // Nature
+                                ? GetLookupNatureDataParameters
+                                : PtuLookupModel extends PtuPokemon // Pokemon
+                                    ? GetLookupPokemonDataParameters
+                                    : PtuLookupModel extends PtuStatus // Status
+                                        ? GetLookupStatusDataParameters
+                                        : PtuLookupModel extends PtuTm // TM
+                                            ? GetLookupTmDataParameters
+                                            : never;
     }): Promise<PtuLookupModel[]>
     {
         // @ts-ignore -- TODO: Fix this type later

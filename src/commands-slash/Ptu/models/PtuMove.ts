@@ -1,10 +1,16 @@
 import { logger } from '@beanc16/logger';
-import { EqualityOption } from '../../options/shared.js';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../types/pokemon.js';
-import { EnumParserService } from '../../../services/EnumParserService.js';
-import { GetLookupMoveDataParameters } from '../strategies/lookup/LookupMoveStrategy.js';
 
-export interface PtuMoveExclude {
+import { EnumParserService } from '../../../services/EnumParserService.js';
+import { EqualityOption } from '../../options/shared.js';
+import { GetLookupMoveDataParameters } from '../strategies/lookup/LookupMoveStrategy.js';
+import {
+    PokemonMoveCategory,
+    PokemonType,
+    PtuMoveFrequency,
+} from '../types/pokemon.js';
+
+export interface PtuMoveExclude
+{
     names?: string[];
     rangeSearch?: string;
     weaponMovesAndManuevers?: boolean;
@@ -34,7 +40,7 @@ export class PtuMove
         recklessErrata: boolean;
     };
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

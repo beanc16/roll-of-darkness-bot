@@ -1,15 +1,22 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
-import { getLookupPokemonByAbilityEmbedMessages, getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PokemonController } from '../../dal/PtuController.js';
-import { PokeApi } from '../../services/PokeApi.js';
-import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../types/pokemon.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
+import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PokemonController } from '../../dal/PtuController.js';
+import {
+    getLookupPokemonByAbilityEmbedMessages,
+    getLookupPokemonByMoveEmbedMessages,
+    getLookupPokemonEmbedMessages,
+} from '../../embed-messages/lookup.js';
+import { PokeApi } from '../../services/PokeApi.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import {
+    PtuAbilityListType,
+    PtuMoveListType,
+    PtuPokemon,
+} from '../../types/pokemon.js';
 
 export interface GetLookupPokemonDataParameters
 {
@@ -31,7 +38,7 @@ export class LookupPokemonStrategy
 {
     public static key = PtuLookupSubcommand.Pokemon;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('pokemon_name');
@@ -46,7 +53,8 @@ export class LookupPokemonStrategy
             await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
             return true;
         }
-        else if (numOfTruthyValues > 1)
+
+        if (numOfTruthyValues > 1)
         {
             await interaction.editReply('Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.');
             return true;
@@ -83,7 +91,7 @@ export class LookupPokemonStrategy
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
-    }: GetLookupPokemonDataParameters = {})
+    }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemon[]>
     {
         if (!(name || moveName || abilityName))
         {
@@ -101,7 +109,7 @@ export class LookupPokemonStrategy
 
         const { results = [] } = await PokemonController.getAll(searchParams);
 
-        const names = results.map(({ name }: PtuPokemon) => name);
+        const names = results.map((pokemon: PtuPokemon) => pokemon.name);
 
         // Don't include images for substring searches
         const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
@@ -109,11 +117,10 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const pokemon = results.map((result: PtuPokemon) => {
-            const { name } = result;
-
-            const { imageUrl } = imageUrlResults?.find((result) =>
-                result.name === PokeApi.parseName(name)
+        const pokemon = results.map((result: PtuPokemon) =>
+        {
+            const { imageUrl } = imageUrlResults?.find(curImageResult =>
+                curImageResult.name === PokeApi.parseName(result.name),
             ) ?? {};
 
             if (!imageUrl)
@@ -131,10 +138,7 @@ export class LookupPokemonStrategy
         }) as PtuPokemon[];
 
         // Sort by name
-        pokemon.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        pokemon.sort((a, b) => a.name.localeCompare(b.name));
 
         return pokemon;
     }
@@ -146,7 +150,7 @@ export class LookupPokemonStrategy
         lookupType = RegexLookupType.SubstringCaseInsensitive,
         abilityName,
         abilityListType = PtuAbilityListType.All,
-    }: GetLookupPokemonDataParameters = {})
+    }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
         if (name)
         {
@@ -158,6 +162,7 @@ export class LookupPokemonStrategy
         if (moveName)
         {
             let key: string;
+            // eslint-disable-next-line default-case
             switch (moveListType)
             {
                 case PtuMoveListType.EggMoves:
@@ -173,7 +178,7 @@ export class LookupPokemonStrategy
                     return {
                         [key]: parseRegexByType(
                             moveName,
-                            RegexLookupType.SubstringCaseInsensitive
+                            RegexLookupType.SubstringCaseInsensitive,
                         ),
                     };
                     break;
@@ -186,13 +191,14 @@ export class LookupPokemonStrategy
                             },
                         },
                     };
-                    break;
                 case PtuMoveListType.All:
+                    // eslint-disable-next-line no-case-declarations
                     const searchParams: object[] = [
                         PtuMoveListType.EggMoves,
                         PtuMoveListType.TutorMoves,
                         PtuMoveListType.ZygardeCubeMoves,
-                    ].map((listType) => {
+                    ].map((listType) =>
+                    {
                         key = `moveList.${listType}`;
                         return {
                             [key]: moveName,
@@ -203,7 +209,7 @@ export class LookupPokemonStrategy
                     searchParams.push({
                         [key]: parseRegexByType(
                             moveName,
-                            RegexLookupType.SubstringCaseInsensitive
+                            RegexLookupType.SubstringCaseInsensitive,
                         ),
                     });
 
@@ -226,6 +232,7 @@ export class LookupPokemonStrategy
         if (abilityName)
         {
             let key: string;
+            // eslint-disable-next-line default-case
             switch (abilityListType)
             {
                 case PtuAbilityListType.Basic:
@@ -237,11 +244,13 @@ export class LookupPokemonStrategy
                     };
                     break;
                 case PtuAbilityListType.All:
+                    // eslint-disable-next-line no-case-declarations
                     const searchParams: object[] = [
                         PtuAbilityListType.Basic,
                         PtuAbilityListType.Advanced,
                         PtuAbilityListType.High,
-                    ].map((listType) => {
+                    ].map((listType) =>
+                    {
                         key = `abilities.${listType}`;
                         return {
                             [key]: abilityName,
@@ -251,7 +260,6 @@ export class LookupPokemonStrategy
                     return {
                         $or: searchParams,
                     };
-                    break;
             }
         }
 

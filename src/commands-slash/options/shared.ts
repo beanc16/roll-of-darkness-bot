@@ -12,7 +12,7 @@ export enum EqualityOption
 
 export const equalityOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
 {
-    return option.setChoices(
+    option.setChoices(
         {
             name: 'Equal',
             value: EqualityOption.Equal,
@@ -38,6 +38,8 @@ export const equalityOption = (option: SlashCommandStringOption): SlashCommandSt
             value: EqualityOption.NotEqualTo,
         },
     );
+
+    return option;
 };
 
 export const numberOfDice = (option: SlashCommandIntegerOption) =>
