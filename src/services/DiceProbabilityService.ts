@@ -5,7 +5,7 @@ import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
 
 export default class DiceProbabilityService
 {
-    async getProbabilityOfRolling({
+    public async getProbabilityOfRolling({
         numberOfDice = rollConstants.defaultParams.count,
         desiredNumberOfSuccesses = 1,
         rerolls = '10again',

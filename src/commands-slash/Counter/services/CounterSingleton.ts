@@ -1,6 +1,6 @@
 import { UUID } from 'node:crypto';
 
-import Singleton from '../../../services/Singleton.js';
+import Singleton from '../../../services/Singleton/Singleton.js';
 import { CounterType } from '../../options/counter.js';
 import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
 import { CounterEventHandler } from '../services/CounterEventHandler.js';

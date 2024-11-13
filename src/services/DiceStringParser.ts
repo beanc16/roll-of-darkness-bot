@@ -90,7 +90,7 @@ export class DiceStringParser
         };
     }
 
-    private static parseMathOperators(allDiceString: string)
+    private static parseMathOperators(allDiceString: string): MathOperator[]
     {
         const unparsedResults = allDiceString.matchAll(this.supportedMathOperatorRegex);
         const parsedResults = [...unparsedResults];
@@ -232,7 +232,7 @@ export class DiceStringParser
         return result;
     }
 
-    public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions)
+    public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions): RollParsedDicePoolResponse | undefined
     {
         const parsedDicePool = this.parse(initialAllDiceString, options);
 

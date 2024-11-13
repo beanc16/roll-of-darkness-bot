@@ -1,4 +1,4 @@
-import Singleton from '../services/Singleton.js';
+import Singleton from '../services/Singleton/Singleton.js';
 
 interface StillWaitingForModalSingletonMap
 {
