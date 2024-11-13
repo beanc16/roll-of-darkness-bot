@@ -11,7 +11,7 @@ import {
     CombatTrackerType,
     DamageType,
     HpType,
-} from '../constants.js';
+} from '../types.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';

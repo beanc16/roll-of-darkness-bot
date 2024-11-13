@@ -1,21 +1,5 @@
-type DamageType = 'bashing' | 'lethal' | 'agg';
-
-interface WorldOfDarknessHpServiceParameters
-{
-    maxHp: number;
-    bashingDamage: number;
-    lethalDamage: number;
-    aggravatedDamage: number;
-    amount: number;
-    damageType: DamageType;
-}
-
-interface WorldOfDarknessHpServiceResponse
-{
-    newBashingDamage: number;
-    newLethalDamage: number;
-    newAggravatedDamage: number;
-}
+import { DamageType } from '../types.js';
+import { WorldOfDarknessHpServiceResponse } from './types.js';
 
 interface NWodDamageManagerConstructorParameters
 {
@@ -31,7 +15,7 @@ interface NWodDamageManagerOperationParameters
     damageType: DamageType;
 }
 
-class NWodDamageManager
+export class NWodDamageManager
 {
     #bashingDamage: number;
     #lethalDamage: number;
@@ -110,30 +94,30 @@ class NWodDamageManager
     public upgrade(damageType: DamageType): void
     {
         // Upgrade to the next damage type
-        if (damageType === 'bashing' || damageType === 'lethal')
+        if (damageType === DamageType.Bashing || damageType === DamageType.Lethal)
         {
             if (this.#lethalDamage + this.#aggravatedDamage < this.#maxHp)
             {
-                this.increment('lethal');
+                this.increment(DamageType.Lethal);
             }
             else
             {
-                this.increment('agg');
+                this.increment(DamageType.Aggravated);
             }
         }
-        else if (damageType === 'agg')
+        else if (damageType === DamageType.Aggravated)
         {
-            this.increment('agg');
+            this.increment(DamageType.Aggravated);
         }
 
         // Remove from the lowest tier damage type
         if (this.#bashingDamage > 0)
         {
-            this.decrement('bashing');
+            this.decrement(DamageType.Bashing);
         }
         else if (this.#lethalDamage > 0)
         {
-            this.decrement('lethal');
+            this.decrement(DamageType.Lethal);
         }
     }
 
@@ -164,24 +148,24 @@ class NWodDamageManager
         {
             if (
                 this.#aggravatedDamage > 0
-                && damageType === 'agg'
+                && damageType === DamageType.Aggravated
             )
             {
-                this.decrement('agg');
+                this.decrement(DamageType.Aggravated);
             }
             else if (
                 this.#lethalDamage > 0
-                && (damageType === 'agg' || damageType === 'lethal')
+                && (damageType === DamageType.Aggravated || damageType === DamageType.Lethal)
             )
             {
-                this.decrement('lethal');
+                this.decrement(DamageType.Lethal);
             }
             else if (
                 this.#bashingDamage > 0
-                && (damageType === 'agg' || damageType === 'lethal' || damageType === 'bashing')
+                && (damageType === DamageType.Aggravated || damageType === DamageType.Lethal || damageType === DamageType.Bashing)
             )
             {
-                this.decrement('bashing');
+                this.decrement(DamageType.Bashing);
             }
         }
     }
@@ -195,26 +179,26 @@ class NWodDamageManager
         {
             if (
                 this.#aggravatedDamage > 0
-                && damageType === 'agg'
+                && damageType === DamageType.Aggravated
             )
             {
-                this.decrement('agg');
-                this.increment('lethal');
+                this.decrement(DamageType.Aggravated);
+                this.increment(DamageType.Lethal);
             }
             else if (
                 this.#lethalDamage > 0
-                && (damageType === 'agg' || damageType === 'lethal')
+                && (damageType === DamageType.Aggravated || damageType === DamageType.Lethal)
             )
             {
-                this.decrement('lethal');
-                this.increment('bashing');
+                this.decrement(DamageType.Lethal);
+                this.increment(DamageType.Bashing);
             }
             else if (
                 this.#bashingDamage > 0
-                && (damageType === 'agg' || damageType === 'lethal' || damageType === 'bashing')
+                && (damageType === DamageType.Aggravated || damageType === DamageType.Lethal || damageType === DamageType.Bashing)
             )
             {
-                this.decrement('bashing');
+                this.decrement(DamageType.Bashing);
             }
         }
     }
@@ -231,80 +215,5 @@ class NWodDamageManager
             newLethalDamage: this.#lethalDamage,
             newBashingDamage: this.#bashingDamage,
         };
-    }
-}
-
-export class WorldOfDarknessHpService
-{
-    public static damage({
-        maxHp,
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-        damageType,
-    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
-    {
-        const damageManager = new NWodDamageManager({
-            maxHp,
-            bashingDamage,
-            lethalDamage,
-            aggravatedDamage,
-        });
-
-        damageManager.damage({
-            amount,
-            damageType,
-        });
-
-        return damageManager.getValues();
-    }
-
-    public static heal({
-        maxHp,
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-        damageType,
-    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
-    {
-        const damageManager = new NWodDamageManager({
-            maxHp,
-            bashingDamage,
-            lethalDamage,
-            aggravatedDamage,
-        });
-
-        damageManager.heal({
-            amount,
-            damageType,
-        });
-
-        return damageManager.getValues();
-    }
-
-    public static downgrade({
-        maxHp,
-        bashingDamage,
-        lethalDamage,
-        aggravatedDamage,
-        amount,
-        damageType,
-    }: WorldOfDarknessHpServiceParameters): WorldOfDarknessHpServiceResponse
-    {
-        const damageManager = new NWodDamageManager({
-            maxHp,
-            bashingDamage,
-            lethalDamage,
-            aggravatedDamage,
-        });
-
-        damageManager.downgrade({
-            amount,
-            damageType,
-        });
-
-        return damageManager.getValues();
     }
 }

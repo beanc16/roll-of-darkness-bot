@@ -8,7 +8,7 @@ import {
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { InitiativeStrategy } from '../../Nwod/strategies/InitiativeStrategy.js';
-import { CombatTrackerType } from '../constants.js';
+import { CombatTrackerType } from '../types.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';

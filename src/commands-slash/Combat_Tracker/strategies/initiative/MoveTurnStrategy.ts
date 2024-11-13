@@ -2,7 +2,7 @@ import { logger } from '@beanc16/logger';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
-import { CombatTrackerStatus } from '../../constants.js';
+import { CombatTrackerStatus } from '../../types.js';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../../embed-messages/combat_tracker.js';

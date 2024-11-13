@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { MongoDbControllerWithEnv, MongoDbResults } from 'mongodb-controller';
 
-import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
+import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 
 // Shared values
 interface DiscordCreator

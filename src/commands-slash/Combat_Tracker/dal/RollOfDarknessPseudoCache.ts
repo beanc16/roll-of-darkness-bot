@@ -6,13 +6,13 @@ import {
 
 import charactersSingleton from '../../../models/charactersSingleton.js';
 import combatTrackersSingleton from '../../../models/combatTrackersSingleton.js';
-import { WorldOfDarknessHpService } from '../../../services/WorldOfDarknessHpService.js';
+import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService.js';
 import {
     CombatTrackerStatus,
     CombatTrackerType,
     DamageType,
     HpType,
-} from '../constants.js';
+} from '../types.js';
 import {
     AggregatedTrackerWithCharactersController,
     Character,
