@@ -1,8 +1,12 @@
+import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
+import { logger } from '@beanc16/logger';
+import {
+    Client,
+    REST,
+    Routes,
+} from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import { Client, REST, Routes } from 'discord.js';
-import { logger } from '@beanc16/logger';
-import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
 
 import { BaseContextMenuCommand } from '../../context-menus/base-commands/BaseContextMenuCommand.js';
 import { Timer } from '../../services/Timer.js';
@@ -13,16 +17,19 @@ type Command = typeof commonSlashCommands['Ping'];
 const baseContextMenuCommand = new BaseContextMenuCommand();
 type ContextMenuCommand = typeof baseContextMenuCommand;
 
-interface AddCommandParameters {
+interface AddCommandParameters
+{
     commandName: string;
     command: Command;
 }
-interface AddContextMenuCommandParameters {
+interface AddContextMenuCommandParameters
+{
     commandName: string;
     command: ContextMenuCommand;
 }
 
-interface RegisterCommandParameters {
+interface RegisterCommandParameters
+{
     guildId: string;
 }
 const defaultRegisterCommandParameters = {
@@ -36,7 +43,8 @@ export class SlashCommandsContainer
     static #contextMenuCommands: Record<string, ContextMenuCommand> = {};
     private static isInitialized: boolean;
 
-    static {
+    static
+    {
         this.isInitialized = false;
         this.initialize();
     }
@@ -46,7 +54,7 @@ export class SlashCommandsContainer
         this.#slashCommands = {};
         this.#guildCommands = {};
         this.#contextMenuCommands = {};
-        
+
         // Initialize common commands
         Object.values(commonSlashCommands).forEach((command: Command) =>
         {
@@ -77,11 +85,11 @@ export class SlashCommandsContainer
         const commandPromises = files.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
                 const command = (await import(commandPath)).default as Command;
@@ -97,11 +105,11 @@ export class SlashCommandsContainer
         const guildCommandPromises = guildCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
                 const command = (await import(commandPath)).default as Command;
@@ -117,11 +125,11 @@ export class SlashCommandsContainer
         const contextMenuCommandPromises = contextMenuCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
                 const command = (await import(commandPath)).default as ContextMenuCommand;
@@ -142,8 +150,6 @@ export class SlashCommandsContainer
         this.isInitialized = true;
     }
 
-
-
     static getCommand(commandName: string)
     {
         return SlashCommandsContainer.#slashCommands[commandName];
@@ -162,7 +168,8 @@ export class SlashCommandsContainer
     static async getAllCommandsData()
     {
         const slashCommands = Object.values(SlashCommandsContainer.#slashCommands);
-        const promises = slashCommands.map(async (slashCommand) => {
+        const promises = slashCommands.map(async (slashCommand) =>
+        {
             await slashCommand.init();
             return slashCommand.slashCommandData;
         });
@@ -172,7 +179,8 @@ export class SlashCommandsContainer
     static async getAllGuildCommandsData()
     {
         const guildCommands = Object.values(SlashCommandsContainer.#guildCommands);
-        const promises = guildCommands.map(async (guildCommand) => {
+        const promises = guildCommands.map(async (guildCommand) =>
+        {
             await guildCommand.init();
             return guildCommand.slashCommandData;
         });
@@ -182,7 +190,8 @@ export class SlashCommandsContainer
     static async getAllContextMenuCommandsData()
     {
         const slashCommands = Object.values(SlashCommandsContainer.#contextMenuCommands);
-        const promises = slashCommands.map(async (slashCommand) => {
+        const promises = slashCommands.map(async (slashCommand) =>
+        {
             await slashCommand.init();
             return slashCommand.commandData;
         });
@@ -199,15 +208,15 @@ export class SlashCommandsContainer
         });
 
         // @ts-ignore -- TODO: Fix this later
-        return Object.values(SlashCommandsContainer.#slashCommands).filter((command) =>
-            ('runOnStartup' in command && typeof command.runOnStartup === 'function')
+        return Object.values(SlashCommandsContainer.#slashCommands).filter(command =>
+            ('runOnStartup' in command && typeof command.runOnStartup === 'function'),
         );
     }
 
     static addCommand({
         commandName,
         command,
-    } : AddCommandParameters)
+    }: AddCommandParameters)
     {
         if (!commandName)
         {
@@ -220,7 +229,7 @@ export class SlashCommandsContainer
     static addGuildCommand({
         commandName,
         command,
-    } : AddCommandParameters)
+    }: AddCommandParameters)
     {
         if (!commandName)
         {
@@ -233,7 +242,7 @@ export class SlashCommandsContainer
     static addContextMenuCommand({
         commandName,
         command,
-    } : AddContextMenuCommandParameters)
+    }: AddContextMenuCommandParameters)
     {
         if (!commandName)
         {
@@ -243,7 +252,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#contextMenuCommands[commandName] = command;
     }
 
-    static async registerAllCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters)
+    static async registerAllCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters)
     {
         await this.initialize();
 
@@ -289,7 +298,7 @@ export class SlashCommandsContainer
         return undefined;
     }
 
-    static async registerGuildCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
+    static async registerGuildCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
     {
         const guildCommandsData = await SlashCommandsContainer.getAllGuildCommandsData();
         if (Object.keys(guildCommandsData).length > 0)

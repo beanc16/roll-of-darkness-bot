@@ -41,7 +41,7 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
     option.setMaxValue(25);
     option.setRequired(true);
     return option;
-}
+};
 
 // const numberOfIterations = (option: SlashCommandIntegerOption) =>
 // {
@@ -58,7 +58,8 @@ export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setDescription('Get a random Apricorn.');
     // TODO: Add number of iterations
     // subcommand.addIntegerOption(numberOfIterations);
-    subcommand.addIntegerOption((option) => {
+    subcommand.addIntegerOption((option) =>
+    {
         option.setName('survival_rank');
         option.setDescription('Your Survival rank.');
         option.setMinValue(1);
@@ -74,7 +75,8 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.Berry);
     subcommand.setDescription('Get one or more random berries.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('berry_tier');
         option.setDescription('The tier of berries to roll for (default: 1+)');
         return option.setChoices(
@@ -109,7 +111,8 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setDescription('Get a random item using a Dowsing Rod.');
     // TODO: Add number of iterations
     // subcommand.addIntegerOption(numberOfIterations);
-    subcommand.addIntegerOption((option) => {
+    subcommand.addIntegerOption((option) =>
+    {
         option.setName('occult_education_rank');
         option.setDescription('Your Occult Education rank.');
         option.setMinValue(1);
@@ -117,15 +120,18 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setRequired(true);
         return option;
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('has_crystal_resonance');
         return option.setDescription('You have the Crystal Resonance Feature (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('has_skill_stunt_dowsing');
         return option.setDescription('You have the Skill Stunt (Dowsing) Edge (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('is_sandy_or_rocky');
         return option.setDescription(`You're searching in a sandy or rocky area (default: false)`);
     });
@@ -145,7 +151,8 @@ export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.HealingItem);
     subcommand.setDescription('Get one or more random healing/status items.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('type');
         option.setDescription('The type of healing/status item to roll for (default: Healing & Status)');
         return option.setChoices(
@@ -171,11 +178,13 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.HeldItem);
     subcommand.setDescription('Get one or more random held items.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_mega');
         return option.setDescription('Include mega stone in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_badges');
         return option.setDescription('Include badges in potential results (default: false)');
     });
@@ -193,7 +202,8 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
 {
     subcommand.setName(PtuRandomSubcommand.Nature);
     subcommand.setDescription('Get a random nature.');
-    subcommand.addIntegerOption((option) => {
+    subcommand.addIntegerOption((option) =>
+    {
         option = numberOfDice(option);
         option.setDescription('The number of dice to roll (default: 1)');
         return option.setRequired(false);
@@ -214,27 +224,33 @@ export const pokeball = (subcommand: SlashCommandSubcommandBuilder) =>
     subcommand.setName(PtuRandomSubcommand.Pokeball);
     subcommand.setDescription('Get one or more random pokeballs.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_special');
         return option.setDescription('Include premier and cherish balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_safari');
         return option.setDescription('Include sport and park balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_jailbreaker');
         return option.setDescription('Include jailbroken balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_cases');
         return option.setDescription('Include pokeballs in cases in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_attachments');
         return option.setDescription('Include pokeballs in attachments in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_master');
         return option.setDescription('Include master balls in potential results (default: false)');
     });

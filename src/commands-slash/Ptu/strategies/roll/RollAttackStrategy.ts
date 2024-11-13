@@ -11,14 +11,18 @@ import {
     Message,
 } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import {
+    OnRerollCallbackOptions,
+    RerollInteractionOptions,
+    RerollStrategy,
+} from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 
 enum AttackButtonName
 {
@@ -105,7 +109,7 @@ export class RollAttackStrategy
         if (accuracyModifier === undefined)
         {
             await interaction.editReply(
-                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).',
             );
             return true;
         }
@@ -115,8 +119,8 @@ export class RollAttackStrategy
             count: 1,
             sides: 20,
         })
-        .roll()
-        .reduce((acc, cur) => (acc + cur), 0);
+            .roll()
+            .reduce((acc, cur) => (acc + cur), 0);
 
         // Make damage roll
         const damageResult = this.rollDamage({
@@ -132,14 +136,15 @@ export class RollAttackStrategy
             return true;
         }
 
-        const { damageResultString, finalRollResult } = damageResult;
+        const { damageResultString,
+            finalRollResult } = damageResult;
 
         // Send message
         const accuracyModifierStr = (accuracyModifier > 0)
             ? `+${accuracyModifier}`
             : (accuracyModifier < 0)
-            ? `-${accuracyModifier}`
-            : '';
+                ? `-${accuracyModifier}`
+                : '';
         const rollName = name ? ` ${Text.bold(name)}` : '';
         const messagePrefix = `${Text.Ping.user(
             rerollCallbackOptions.newCallingUserId ?? interaction.user.id)
@@ -214,13 +219,13 @@ export class RollAttackStrategy
         // Send message
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(
-                this.getMessageData(message, true)
+                this.getMessageData(message, true),
             ),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(
-                this.getMessageData(message, true) as InteractionReplyOptions
+                this.getMessageData(message, true) as InteractionReplyOptions,
             ),
             [DiscordInteractionCallbackType.Update]: () => interaction.editReply(
-                this.getMessageData(message, true)
+                this.getMessageData(message, true),
             ),
         };
         const response = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
@@ -237,7 +242,7 @@ export class RollAttackStrategy
         });
     }
 
-    // Show accuracy and damage roll, skipping 
+    // Show accuracy and damage roll, skipping
     private static async skipAccuracyRollMessage({
         interaction,
         type,
@@ -363,14 +368,13 @@ export class RollAttackStrategy
                 currentMessageContent: buttonInteraction?.message.content as string,
             };
 
-
         // Update original message with the same content so
         // the buttons know that the interaction was successful
         await RerollStrategy.run({
             interaction: buttonInteraction ?? interaction,
             options: this.getMessageContent(getMessageContentOptions),
             interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
@@ -444,10 +448,10 @@ export class RollAttackStrategy
 
             return currentMessageContent
                 + `\n${Text.bold(`${damageLabelByType[type]}Damage`)}:${damageResultString}`
-                + `\n${Text.bold('Total')}: ${finalRollResult}`
+                + `\n${Text.bold('Total')}: ${finalRollResult}`;
         }
 
-        else if (type === PtuAttackRollType.Miss || type === PtuAttackRollType.AutoMiss)
+        if (type === PtuAttackRollType.Miss || type === PtuAttackRollType.AutoMiss)
         {
             const autoLabelByType = {
                 [PtuAttackRollType.Miss]: '',

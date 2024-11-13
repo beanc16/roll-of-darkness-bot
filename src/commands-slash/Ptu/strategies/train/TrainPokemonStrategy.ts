@@ -1,15 +1,16 @@
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 
 const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
 
-interface GetSpreadsheetValuesResponse {
+interface GetSpreadsheetValuesResponse
+{
     nicknameLabel: string;
     nickname: string;
     speciesLabel: string;
@@ -37,9 +38,11 @@ export class TrainPokemonStrategy
         trainingExp: 'L10:N10',
         level: 'B2',
     };
+
     private static spreadsheetRangesForMiscellaneous = {
         totalExpForUpdate: 'E2',
     };
+
     private static spreadsheetLabels = {
         nickname: 'Nickname',
         species: 'Species',
@@ -68,7 +71,7 @@ export class TrainPokemonStrategy
         {
             await interaction.editReply(
                 `The owner of this bot has not given you permission to train Pokémon on this character sheet. `
-                + `If you feel that you should have permission to train this character's Pokémon, please contact this bot's owner.`
+                + `If you feel that you should have permission to train this character's Pokémon, please contact this bot's owner.`,
             );
             return true;
         }
@@ -83,7 +86,7 @@ export class TrainPokemonStrategy
         if (!spreadsheetValuesResult)
         {
             await interaction.editReply(
-                `Failed to retrieve data for training. Please contact this bot's owner for help fixing the issue.`
+                `Failed to retrieve data for training. Please contact this bot's owner for help fixing the issue.`,
             );
             logger.warn('Failed to retrieve data for training a pokemon', {
                 characterName,
@@ -104,14 +107,14 @@ export class TrainPokemonStrategy
             else if (errorType === GoogleSheetsApiErrorType.UnableToParseRange)
             {
                 await interaction.editReply(
-                    `I'm unable to parse data on the page named "${pokemonName}". ` +
-                    `Please double check to make sure the page's name is spelled correctly and try again.`
+                    `I'm unable to parse data on the page named "${pokemonName}". `
+                    + `Please double check to make sure the page's name is spelled correctly and try again.`,
                 );
             }
             else
             {
                 await interaction.editReply(
-                    `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`
+                    `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`,
                 );
                 logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
                     errorType,
@@ -158,9 +161,9 @@ export class TrainPokemonStrategy
         )
         {
             await interaction.editReply(
-                `The given page was found on the character sheet, but doesn't appear to follow the expected Pokémon template. ` +
-                `Please check to make sure the "Nickname", "Species", "Total EXP", "To Next Lvl", and "Training Exp:" ` +
-                `parts of the given page are named as such and are in the same place on the Pokémon template page.`
+                `The given page was found on the character sheet, but doesn't appear to follow the expected Pokémon template. `
+                + `Please check to make sure the "Nickname", "Species", "Total EXP", "To Next Lvl", and "Training Exp:" `
+                + `parts of the given page are named as such and are in the same place on the Pokémon template page.`,
             );
             logger.warn('Data for training a pokemon does not match the expected Pokémon template', {
                 characterName,
@@ -187,9 +190,9 @@ export class TrainPokemonStrategy
         if (shouldUseBabyFood && startingLevel > 15)
         {
             await interaction.editReply(
-                `Tried to use baby food, but ${nickname ?? pokemonName} is level ${startingLevel}. ` +
-                `Baby food can only be used by pokemon of level 15 or lower. ` +
-                `Please try again without using baby food.`
+                `Tried to use baby food, but ${nickname ?? pokemonName} is level ${startingLevel}. `
+                + `Baby food can only be used by pokemon of level 15 or lower. `
+                + `Please try again without using baby food.`,
             );
             return true;
         }
@@ -242,7 +245,8 @@ export class TrainPokemonStrategy
     }): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
     {
         // Parse data for the spreadsheet
-        const ranges = Object.values(this.spreadsheetRangesToGetForTraining).map((range) => {
+        const ranges = Object.values(this.spreadsheetRangesToGetForTraining).map((range) =>
+        {
             return {
                 spreadsheetId,
                 range: `'${pokemonName}'!${range}`,
@@ -347,7 +351,7 @@ export class TrainPokemonStrategy
     {
         const {
             data: [
-                [level]
+                [level],
             ] = [[]],
         } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId,
@@ -390,7 +394,7 @@ export class TrainPokemonStrategy
         numOfTrainingSessions: number;
         expPerTrainingSessionOverride: number | null;
         shouldUseBabyFood: boolean;
-    }): Promise<{ newTotalExp: number; errorType?: GoogleSheetsApiErrorType; }>
+    }): Promise<{ newTotalExp: number; errorType?: GoogleSheetsApiErrorType }>
     {
         const {
             newTotalExp,
@@ -497,12 +501,12 @@ export class TrainPokemonStrategy
     private static async sendPermissionError(interaction: ChatInputCommandInteraction, action: 'view' | 'edit')
     {
         await interaction.editReply(
-            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me edit permissions here shortly.`
+            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me edit permissions here shortly.`,
         );
         await interaction.user.send(
-            `If you want to use \`/ptu train\`, then I need edit access to your character sheet. ` +
-            `If you aren't sure how to give me edit permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n` +
-            `You can either make your sheet editable by anyone with the URL or add this email as an editor (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``
+            `If you want to use \`/ptu train\`, then I need edit access to your character sheet. `
+            + `If you aren't sure how to give me edit permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n`
+            + `You can either make your sheet editable by anyone with the URL or add this email as an editor (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``,
         );
     }
 }

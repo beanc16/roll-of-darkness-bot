@@ -93,11 +93,9 @@ export abstract class BaseCustomModal
 
     static getActionRows<TextInputParamaters = object>(data?: TextInputParamaters): ActionRowBuilder<ModalActionRowComponentBuilder>[]
     {
-        return this.getTextInputs<TextInputParamaters>(data).map((textInput) =>
-        {
-            return new ActionRowBuilder<ModalActionRowComponentBuilder>()
-                .addComponents(textInput);
-        })
+        return this.getTextInputs<TextInputParamaters>(data).map(textInput =>
+            new ActionRowBuilder<ModalActionRowComponentBuilder>()
+                .addComponents(textInput));
     }
 
     static getModal<TextInputParamaters = object>(data?: TextInputParamaters): ModalBuilder
@@ -131,7 +129,8 @@ export abstract class BaseCustomModal
         const data = fields?.reduce((acc, {
             customId,
             value,
-        }) => {
+        }) =>
+        {
             // Parse paragraph input fields
             if (this._styleMap[customId] === TextInputStyle.Paragraph)
             {

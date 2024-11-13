@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { HealingAndStatusOption, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
-import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { HealingAndStatusOption, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 enum HealingItemTypes
@@ -21,7 +21,7 @@ export class RandomHealingItemStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
@@ -32,17 +32,17 @@ export class RandomHealingItemStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ inputType, type }: { inputType: string, type: string }) =>
-        {
-            return (
+        const shouldInclude = ({ inputType,
+            type }: { inputType: string; type: string }) =>
+            (
                 inputType === HealingAndStatusOption.HealingAndStatus
                 || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
                 || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
             );
-        };
 
         // Parse the data
-        const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) => {
+        const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) =>
+        {
             if (shouldInclude({ inputType, type }))
             {
                 acc.push({
