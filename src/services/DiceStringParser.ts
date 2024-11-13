@@ -47,6 +47,14 @@ export type ProcessedDicePoolArray = ((ParsedDie & {
     total: number;
 }) | MathOperator | ParsedModifier)[];
 
+interface RollParsedDicePoolResponse
+{
+    processedDicePool: ProcessedDicePoolArray;
+    unparsedMathString: string;
+    resultString: string;
+    hasRolledMaxOnFirstDicePool: boolean;
+}
+
 export class DiceStringParser
 {
     private static letterDRegex = /[d]/i;
@@ -159,7 +167,7 @@ export class DiceStringParser
         return output;
     }
 
-    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray, options?: RollOptions)
+    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray, options?: RollOptions): RollParsedDicePoolResponse
     {
         // Roll each dice and parse results to string for math parser.
         const result = parsedDicePool.reduce<{
@@ -186,7 +194,7 @@ export class DiceStringParser
                     count: numberOfDice,
                     sides,
                 }).roll(rollOptions);
-                const rollTotal = rollResult.reduce((acc, cur) => (acc + cur), 0);
+                const rollTotal = rollResult.reduce((acc2, cur2) => (acc2 + cur2), 0);
                 const rollResultsAsString = rollResult.join(', ');
 
                 acc.processedDicePool.push({
