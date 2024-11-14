@@ -13,17 +13,19 @@ import {
     DamageType,
     HpType,
 } from '../types.js';
+import { AggregatedTrackerWithCharactersController } from './AggregatedTrackerWithCharactersController.js';
 import {
-    AggregatedTrackerWithCharactersController,
-    Character,
     CharacterController,
     CharacterResponse,
     CharacterUpdateResponse,
-    Tracker,
+} from './CharacterController.js';
+import {
     TrackerController,
     TrackerResponse,
     TrackerUpdateResponse,
-} from './RollOfDarknessMongoControllers.js';
+} from './TrackerController.js';
+import { Character } from './types/Character.js';
+import { Tracker } from './types/Tracker.js';
 
 interface CreateTrackerParameters
 {
@@ -57,6 +59,12 @@ interface GetCharactersParameters
     tracker: Tracker;
 }
 
+interface GetCharactersAndCurrentTurnResponse
+{
+    characters: Character[];
+    currentTurn: number;
+}
+
 interface CreateCharacterParameters
 {
     characterName: string;
@@ -73,6 +81,12 @@ interface CreateCharacterParameters
     tracker: Tracker;
 }
 
+interface CreateCharacterResponse
+{
+    character: CharacterResponse['results']['model'];
+    tracker: TrackerResponse['results']['model'];
+}
+
 interface EditCharacterHpParameters
 {
     tracker: Tracker;
@@ -82,6 +96,12 @@ interface EditCharacterHpParameters
     damageType: DamageType;
     damageToDo: number;
     onCharacterNotFound?: (interaction: ModalSubmitInteraction) => Promise<void>;
+}
+
+interface EditCharacterHpResponse
+{
+    character?: CharacterResponse['results']['model'];
+    tracker?: TrackerResponse['results']['model'];
 }
 
 interface DeleteCharacterParameters
@@ -101,15 +121,15 @@ interface UpdateTurnParameters
 
 export class RollOfDarknessPseudoCache
 {
-    static async createTracker({
+    public static async createTracker({
         trackerName,
         trackerType,
         interaction,
         message,
-        onTrackerAlreadyExists = async (interaction) =>
+        onTrackerAlreadyExists = async (trackerAlreadyExistsInteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await trackerAlreadyExistsInteraction.followUp({
                 ephemeral: true,
                 content: `Failed to create tracker because a tracker named ${trackerName} already exists`,
             });
@@ -150,7 +170,7 @@ export class RollOfDarknessPseudoCache
         }
     }
 
-    static async updateTrackerStatus({ status, tracker: oldTracker }: UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
+    public static async updateTrackerStatus({ status, tracker: oldTracker }: UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
         // TODO: Handle tracker does not exists.
         const {
@@ -173,7 +193,7 @@ export class RollOfDarknessPseudoCache
         return tracker;
     }
 
-    static async nextTurn({
+    public static async nextTurn({
         tracker: oldTracker,
     }: NextTurnParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
@@ -194,7 +214,7 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async previousTurn({
+    public static async previousTurn({
         tracker: oldTracker,
     }: PreviousTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
@@ -220,7 +240,7 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async moveTurn({ tracker: oldTracker, turn }: MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    public static async moveTurn({ tracker: oldTracker, turn }: MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
         const characters = await this.getCharacters({ tracker: oldTracker });
 
@@ -240,11 +260,11 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async getCharacters({
+    public static async getCharacters({
         tracker,
     }: GetCharactersParameters): Promise<Character[]>
     {
-        const trackerId = tracker._id?.toString() as string;
+        const trackerId = tracker.id.toString();
         const characters = charactersSingleton.get(trackerId);
 
         if (characters)
@@ -263,7 +283,7 @@ export class RollOfDarknessPseudoCache
         return charactersFromDb;
     }
 
-    static async getCharacterByName({ tracker, characterName }: {
+    private static async getCharacterByName({ tracker, characterName }: {
         tracker: Tracker;
         characterName: string;
     }): Promise<Character | undefined>
@@ -272,7 +292,7 @@ export class RollOfDarknessPseudoCache
         return characters.find(character => character.name === characterName);
     }
 
-    static async createCharacter({
+    public static async createCharacter({
         characterName,
         initiative,
         maxHp,
@@ -285,10 +305,7 @@ export class RollOfDarknessPseudoCache
         interaction,
         message,
         tracker: oldTracker,
-    }: CreateCharacterParameters): Promise<{
-            character: CharacterResponse['results']['model'];
-            tracker: TrackerResponse['results']['model'];
-        }>
+    }: CreateCharacterParameters): Promise<CreateCharacterResponse>
     {
         const character = await CharacterController.insertOne({
             name: characterName,
@@ -334,7 +351,7 @@ export class RollOfDarknessPseudoCache
             // If one is found, push into the characterIds array.
             characterIds: [
                 ...oldTracker.characterIds,
-                character._id,
+                character.id,
             ],
 
             // If the current turn should be updated, add 1
@@ -345,7 +362,7 @@ export class RollOfDarknessPseudoCache
         }) as TrackerUpdateResponse;
 
         combatTrackersSingleton.upsert(tracker);
-        charactersSingleton.upsert(tracker._id?.toString() as string, character);
+        charactersSingleton.upsert(tracker.id.toString(), character);
 
         return {
             character,
@@ -353,25 +370,22 @@ export class RollOfDarknessPseudoCache
         };
     }
 
-    static async editCharacterHp({
+    public static async editCharacterHp({
         tracker,
         interaction,
         characterName,
         hpType,
         damageType,
         damageToDo,
-        onCharacterNotFound = async (interaction) =>
+        onCharacterNotFound = async (characterNotFoundInteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await characterNotFoundInteraction.followUp({
                 ephemeral: true,
                 content: `Failed to edit character hp because a character named ${characterName} was not found`,
             });
         },
-    }: EditCharacterHpParameters): Promise<{
-            character?: CharacterResponse['results']['model'];
-            tracker?: TrackerResponse['results']['model'];
-        }>
+    }: EditCharacterHpParameters): Promise<EditCharacterHpResponse>
     {
         const character = await this.getCharacterByName({
             tracker,
@@ -423,7 +437,7 @@ export class RollOfDarknessPseudoCache
                 new: editedCharacter,
             },
         } = await CharacterController.findOneAndUpdate({
-            _id: character._id,
+            _id: character.id,
         }, {
             // If one is found, update the current damage
             currentDamage: {
@@ -433,7 +447,7 @@ export class RollOfDarknessPseudoCache
             },
         }) as CharacterUpdateResponse;
 
-        charactersSingleton.upsert(tracker._id?.toString() as string, editedCharacter);
+        charactersSingleton.upsert(tracker.id.toString(), editedCharacter);
 
         return {
             character: editedCharacter,
@@ -441,14 +455,14 @@ export class RollOfDarknessPseudoCache
         };
     };
 
-    static async deleteCharacter({
+    public static async deleteCharacter({
         tracker,
         interaction,
         characterName,
-        onCharacterNotFound = async (interaction) =>
+        onCharacterNotFound = async (characterNotFoundnteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await characterNotFoundnteraction.followUp({
                 ephemeral: true,
                 content: `Failed to remove character because a character named ${characterName} was not found`,
             });
@@ -468,12 +482,12 @@ export class RollOfDarknessPseudoCache
         {
             // TODO: Handle character does not exist.
             await CharacterController.findOneAndDelete({
-                _id: character._id,
+                _id: character.id,
             });
 
             // Remove the deleted character from the list of character IDs
             const newCharacterIds = tracker.characterIds.filter(element =>
-                element.toString() === character._id?.toString(),
+                element.toString() === character.id.toString(),
             );
 
             // TODO: Handle tracker does not exists.
@@ -490,18 +504,15 @@ export class RollOfDarknessPseudoCache
             }) as TrackerUpdateResponse;
 
             combatTrackersSingleton.upsert(editedTracker);
-            charactersSingleton.delete(editedTracker._id?.toString() as string, character);
+            charactersSingleton.delete(editedTracker.id.toString(), character);
         }
     }
 
     private static async getCharactersAndCurrentTurn({
         tracker,
-    }: GetCharactersParameters): Promise<{
-            characters: Character[];
-            currentTurn: number;
-        }>
+    }: GetCharactersParameters): Promise<GetCharactersAndCurrentTurnResponse>
     {
-        const trackerId = tracker._id?.toString() as string;
+        const trackerId = tracker.id.toString();
         const cachedTracker = combatTrackersSingleton.get(trackerId);
         const characters = charactersSingleton.get(trackerId);
 
@@ -529,7 +540,7 @@ export class RollOfDarknessPseudoCache
         oldTracker,
         updatedTurn,
         updatedRound,
-    }: UpdateTurnParameters)
+    }: UpdateTurnParameters): Promise<Tracker>
     {
         // TODO: Handle tracker does not exists.
         const {

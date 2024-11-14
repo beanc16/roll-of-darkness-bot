@@ -1,6 +1,6 @@
 import { StringSelectMenuInteraction } from 'discord.js';
 
-import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
+import { Tracker } from '../../dal/AggregatedTrackerWithCharactersController.js';
 
 export interface CombatTrackerMessageComponentHandlerParameters
 {

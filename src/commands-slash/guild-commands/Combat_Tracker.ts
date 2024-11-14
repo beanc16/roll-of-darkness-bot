@@ -2,8 +2,8 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { CommandInteraction } from 'discord.js';
 
-import { Tracker } from '../Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../Combat_Tracker/dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../Combat_Tracker/dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../Combat_Tracker/embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../Combat_Tracker/message-component-handlers/combat_tracker.js';
 import * as options from '../Combat_Tracker/options.js';

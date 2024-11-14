@@ -10,7 +10,7 @@ import {
 
 import { timeToWaitForCommandInteractions } from '../../../constants/discord.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
 import { CombatTrackerStrategyExecutor } from '../strategies/index.js';
 
 async function handleMessageComponentsForCombatTracker({

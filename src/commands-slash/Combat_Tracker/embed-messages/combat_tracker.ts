@@ -9,7 +9,7 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
 import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 
 const combatTrackerColor = 0xCDCDCD;

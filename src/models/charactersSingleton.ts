@@ -1,4 +1,4 @@
-import { Character } from '../commands-slash/Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
+import { Character } from '../commands-slash/Combat_Tracker/dal/types/Character.js';
 import Singleton from '../services/Singleton/Singleton.js';
 
 type CharacterSingletonMap = Record<string, Character[]>;
@@ -31,7 +31,7 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter(element => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element.id.toString() !== value.id.toString());
 
         // Insert the given value
         map[key].push(value);
@@ -47,7 +47,7 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter(element => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element.id.toString() !== value.id.toString());
 
         this.set(map);
     }
