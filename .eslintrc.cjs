@@ -99,7 +99,7 @@ module.exports = {
         }],
         'object-curly-spacing': 'error',            // Enforce consistent spacing inside curly brackets
         '@stylistic/object-property-newline': ['error', {   // Enforce placing object properties on separate lines such that...
-            allowAllPropertiesOnSameLine: false,            // ...all properties are on separate lines
+            allowAllPropertiesOnSameLine: true,            // ...properties can be on the same line, with newline-destructuring/newline handling the max number of properties
         }],
         'newline-destructuring/newline': 'error',   // Deconstruct object properties on separate lines if objects have more than 3 or more properties
         'simple-import-sort/imports': 'error',      // Enforce sorting of imports
