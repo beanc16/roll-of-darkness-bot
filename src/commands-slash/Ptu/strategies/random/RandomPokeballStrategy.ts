@@ -23,6 +23,28 @@ enum PokeballType
     Master = 'Master',
 }
 
+interface ShouldIncludeParameters
+{
+    type: string;
+    includeSpecial: boolean;
+    includeSafari: boolean;
+    includeJailbreaker: boolean;
+    includeCases: boolean;
+    includeAttachments: boolean;
+    includeMaster: boolean;
+}
+
+interface RerollForPokeballsOnlyResponse
+{
+    numOfTimesRolled: number;
+    jailBreakerInfo: RandomPokeball;
+    mod?: string;
+    type?: string;
+    name: string;
+    cost?: string;
+    description: string;
+}
+
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomPokeballStrategy
 {
@@ -52,29 +74,10 @@ export class RandomPokeballStrategy
             ].data} Data'!A2:E`,
         });
 
-        const shouldInclude = ({
-            type,
-            includeSpecial,
-            includeSafari,
-            includeJailbreaker,
-            includeCases,
-            includeAttachments,
-            includeMaster,
-        }: { type: string; includeSpecial: boolean; includeSafari: boolean; includeJailbreaker: boolean; includeCases: boolean; includeAttachments: boolean; includeMaster: boolean }) =>
-            (
-                type === PokeballType.Normal
-                || (type === PokeballType.Special && includeSpecial)
-                || (type === PokeballType.Safari && includeSafari)
-                || (type === PokeballType.Jailbreaker && includeJailbreaker)
-                || (type === PokeballType.Case && includeCases)
-                || (type === PokeballType.Attachment && includeAttachments)
-                || (type === PokeballType.Master && includeMaster)
-            );
-
         // Parse the data
         const parsedData = data.reduce<RandomPokeball[]>((acc, [name, cost, mod, type, description]) =>
         {
-            if (shouldInclude({
+            if (this.shouldInclude({
                 type,
                 includeSpecial,
                 includeSafari,
@@ -104,7 +107,7 @@ export class RandomPokeballStrategy
             description,
         ]) =>
         {
-            if (shouldInclude({
+            if (this.shouldInclude({
                 type,
                 includeSpecial,
                 includeSafari,
@@ -219,11 +222,29 @@ export class RandomPokeballStrategy
         return true;
     }
 
+    private static shouldInclude = ({
+        type,
+        includeSpecial,
+        includeSafari,
+        includeJailbreaker,
+        includeCases,
+        includeAttachments,
+        includeMaster,
+    }: ShouldIncludeParameters): boolean => (
+        type === PokeballType.Normal
+        || (type === PokeballType.Special && includeSpecial)
+        || (type === PokeballType.Safari && includeSafari)
+        || (type === PokeballType.Jailbreaker && includeJailbreaker)
+        || (type === PokeballType.Case && includeCases)
+        || (type === PokeballType.Attachment && includeAttachments)
+        || (type === PokeballType.Master && includeMaster)
+    );
+
     private static rerollForPokeballsOnly = (
         numberOfTimesToRoll: number,
         jailbreakerInfo: RandomPokeball,
         parsedDataOnlyPokeballs: RandomPokeball[],
-    ) =>
+    ): RerollForPokeballsOnlyResponse[] =>
     {
         const rollResult = new DiceLiteService({
             count: numberOfTimesToRoll,
