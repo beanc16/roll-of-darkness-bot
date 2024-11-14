@@ -128,13 +128,17 @@ export class DiceStringParser
             hasDoubledFirstModifier: boolean;
         }>((acc, curDieInfo, index) =>
         {
+            const duplicateOfCurDiceInfo = {
+                ...curDieInfo,
+            };
+
             // Double the first die if settings permit
             if (
                 curDieInfo.type === DiceParserType.Die
                 && parseOptions.doubleFirstDie
                 && !acc.hasDoubledFirstDie)
             {
-                curDieInfo.numberOfDice *= 2;
+                (duplicateOfCurDiceInfo as ParsedDie).numberOfDice *= 2;
                 acc.hasDoubledFirstDie = true;
             }
 
@@ -144,7 +148,7 @@ export class DiceStringParser
                 && parseOptions.doubleFirstModifier
                 && !acc.hasDoubledFirstModifier)
             {
-                curDieInfo.modifier *= 2;
+                (duplicateOfCurDiceInfo as ParsedModifier).modifier *= 2;
                 acc.hasDoubledFirstModifier = true;
             }
 

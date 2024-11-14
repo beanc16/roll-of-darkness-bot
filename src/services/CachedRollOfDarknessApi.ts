@@ -3,9 +3,9 @@ import { RollOfDarknessApi, RollOfDarknessProbabiltityDiceGetParameters } from '
 
 class ProbabilityEndpoints extends RollOfDarknessApi.probability
 {
-    static async getDiceProbability(parameters?: RollOfDarknessProbabiltityDiceGetParameters)
+    public static async getDiceProbability(parameters?: RollOfDarknessProbabiltityDiceGetParameters)
     {
-        if (CachedRollOfDarknessApi._hasError)
+        if (CachedRollOfDarknessApi.hasError)
         {
             return {
                 cumulative_probability: 0,
@@ -19,7 +19,7 @@ class ProbabilityEndpoints extends RollOfDarknessApi.probability
         }
         catch (err: any)
         {
-            CachedRollOfDarknessApi._delayOnError(`Failed to get dice probability for ${process.env.APPLICATION_NAME}. Delaying next call.`, err);
+            CachedRollOfDarknessApi.delayOnError(`Failed to get dice probability for ${process.env.APPLICATION_NAME}. Delaying next call.`, err);
         }
 
         return {
@@ -32,12 +32,12 @@ class ProbabilityEndpoints extends RollOfDarknessApi.probability
 // @ts-ignore -- TODO: Fix this later
 export class CachedRollOfDarknessApi extends RollOfDarknessApi
 {
-    static probability = ProbabilityEndpoints;
+    public static probability = ProbabilityEndpoints;
 
-    static _hasError = false;
-    static _errorDelay = 900000; // 15 minutes
+    public static hasError = false;
+    private static errorDelay = 900000; // 15 minutes
 
-    static _delayOnError(errorMessage: string, err?: {
+    public static delayOnError(errorMessage: string, err?: {
         response?: {
             data?: any;
         };
@@ -47,17 +47,17 @@ export class CachedRollOfDarknessApi extends RollOfDarknessApi
             errorMessage,
             err?.response?.data || err,
             {
-                msUntilNextCall: CachedRollOfDarknessApi._errorDelay,
+                msUntilNextCall: CachedRollOfDarknessApi.errorDelay,
             },
         );
 
-        CachedRollOfDarknessApi._hasError = true;
+        CachedRollOfDarknessApi.hasError = true;
         setTimeout(
             () =>
             {
-                CachedRollOfDarknessApi._hasError = false;
+                CachedRollOfDarknessApi.hasError = false;
             },
-            CachedRollOfDarknessApi._errorDelay,
+            CachedRollOfDarknessApi.errorDelay,
         );
     }
 }

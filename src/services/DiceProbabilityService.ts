@@ -3,6 +3,12 @@ import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservi
 import rollConstants from '../constants/roll.js';
 import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
 
+interface GetProbabilityOfRollingResponse
+{
+    cumulativeProbability: number;
+    individualProbability: number;
+}
+
 export default class DiceProbabilityService
 {
     public async getProbabilityOfRolling({
@@ -17,7 +23,7 @@ export default class DiceProbabilityService
         rerolls?: RollOfDarknessProbabiltityDiceGetParameters['rerolls'];
         rote?: RollOfDarknessProbabiltityDiceGetParameters['rote'] | null;
         advancedAction?: RollOfDarknessProbabiltityDiceGetParameters['advancedAction'] | null;
-    } = {})
+    } = {}): Promise<GetProbabilityOfRollingResponse>
     {
         /*
          * Cumulative probability is the probability of getting
@@ -28,6 +34,8 @@ export default class DiceProbabilityService
          * EXACTLY the given number of successes on the given
          * number of dice.
          */
+
+        // eslint-disable-next-line newline-destructuring/newline -- Allow multiline destructuring due to length of renaming the output
         const {
             cumulative_probability: cumulativeProbability,
             individual_probability: individualProbability,

@@ -5,10 +5,7 @@ export class CurseborneDicePool
     private dicePool: DicePool;
     private twoSuccessesOn: number;
 
-    constructor({
-        dicePool,
-        twoSuccessesOn,
-    }: {
+    constructor({ dicePool, twoSuccessesOn }: {
         dicePool: DicePool;
         twoSuccessesOn: number;
     })
@@ -17,7 +14,7 @@ export class CurseborneDicePool
         this.twoSuccessesOn = twoSuccessesOn;
     }
 
-    get numOfSuccesses()
+    get numOfSuccesses(): number
     {
         const { numOfSuccesses } = this.dicePool;
 
@@ -36,7 +33,7 @@ export class CurseborneDicePool
         }, 0 + numOfSuccesses);
     }
 
-    get rollResults()
+    get rollResults(): number[]
     {
         return this.dicePool.rollResults;
     }

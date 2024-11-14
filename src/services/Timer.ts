@@ -24,10 +24,7 @@ export class Timer
         });
     }
 
-    public static waitUntilTrue({
-        seconds,
-        callback,
-    }: {
+    public static waitUntilTrue({ seconds, callback }: {
         seconds: number;
         callback: () => boolean;
     }): Promise<void>

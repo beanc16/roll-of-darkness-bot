@@ -43,7 +43,11 @@ describe('class: Timer', () =>
             const parameters = { data: 'test' };
             const callback = jest.fn();
 
-            const waitPromise = Timer.wait({ seconds, parameters, callback });
+            const waitPromise = Timer.wait({
+                seconds,
+                parameters,
+                callback,
+            });
             jest.advanceTimersByTime(seconds * 1000);
 
             await waitPromise;
