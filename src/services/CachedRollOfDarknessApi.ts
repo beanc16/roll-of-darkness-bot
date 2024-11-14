@@ -3,7 +3,7 @@ import { RollOfDarknessApi, RollOfDarknessProbabiltityDiceGetParameters } from '
 
 class ProbabilityEndpoints extends RollOfDarknessApi.probability
 {
-    public static async getDiceProbability(parameters?: RollOfDarknessProbabiltityDiceGetParameters)
+    public static async getDiceProbability(parameters?: RollOfDarknessProbabiltityDiceGetParameters): Promise<RollOfDarknessProbabiltityDiceGetResponse>
     {
         if (CachedRollOfDarknessApi.hasError)
         {
@@ -41,7 +41,7 @@ export class CachedRollOfDarknessApi extends RollOfDarknessApi
         response?: {
             data?: any;
         };
-    })
+    }): void
     {
         logger.warn(
             errorMessage,

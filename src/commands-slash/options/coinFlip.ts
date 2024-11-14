@@ -1,6 +1,6 @@
 import { SlashCommandStringOption } from 'discord.js';
 
-export function headsOrTails(option: SlashCommandStringOption)
+export function headsOrTails(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('heads_or_tails');
     option.setDescription('The face that you would like to get in the coin flip');

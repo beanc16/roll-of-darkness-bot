@@ -12,7 +12,7 @@ export class DicePool
     private rollsList: Roll[][];
     private successOnGreaterThanOrEqualTo: number;
     private extraSuccesses: number;
-    private _numOfSuccesses?: number;
+    private successCount?: number;
 
     // eslint-disable-next-line newline-destructuring/newline -- Allow two properties to go on separate lines for long defaulting
     constructor({
@@ -37,7 +37,7 @@ export class DicePool
 
     get numOfSuccesses(): number
     {
-        if (this._numOfSuccesses === undefined)
+        if (this.successCount === undefined)
         {
             const successfulDiceRolled = this.rolls.flat().filter(result =>
                 (result.number >= this.successOnGreaterThanOrEqualTo),
@@ -47,10 +47,10 @@ export class DicePool
                 ? this.extraSuccesses
                 : 0;
 
-            this._numOfSuccesses = successfulDiceRolled.length + extraSuccesses;
+            this.successCount = successfulDiceRolled.length + extraSuccesses;
         }
 
-        return this._numOfSuccesses;
+        return this.successCount;
     }
 
     public push(value: Roll[]): void

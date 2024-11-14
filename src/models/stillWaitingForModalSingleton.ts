@@ -1,30 +1,27 @@
 import Singleton from '../services/Singleton/Singleton.js';
 
-interface StillWaitingForModalSingletonMap
-{
-    [key: string]: boolean;
-}
+type StillWaitingForModalSingletonMap = Record<string, boolean>;
 
 class StillWaitingForModalSingleton
 {
-    #singleton: Singleton<StillWaitingForModalSingletonMap>;
+    private singleton: Singleton<StillWaitingForModalSingletonMap>;
 
     constructor(input: StillWaitingForModalSingletonMap = {})
     {
-        this.#singleton = new Singleton(input);
+        this.singleton = new Singleton(input);
     }
 
-    getAll(): StillWaitingForModalSingletonMap
+    public getAll(): StillWaitingForModalSingletonMap
     {
-        return this.#singleton.get() || {};
+        return this.singleton.get() || {};
     }
 
-    get(key: string): boolean
+    public get(key: string): boolean
     {
         return this.getAll()[key];
     }
 
-    set(key?: string, value: boolean = true): void
+    public set(key?: string, value: boolean = true): void
     {
         if (!key)
         {
@@ -33,7 +30,7 @@ class StillWaitingForModalSingleton
 
         const map = this.getAll();
         map[key] = value;
-        this.#singleton.set(map);
+        this.singleton.set(map);
     }
 }
 

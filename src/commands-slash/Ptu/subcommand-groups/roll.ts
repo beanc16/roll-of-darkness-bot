@@ -9,7 +9,7 @@ export enum PtuRollSubcommand
     Capture = 'capture',
 }
 
-export const attack = (subcommand: SlashCommandSubcommandBuilder) =>
+export const attack = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRollSubcommand.Attack);
     subcommand.setDescription('Roll to attack with damage.');
@@ -37,7 +37,7 @@ export const attack = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const capture = (subcommand: SlashCommandSubcommandBuilder) =>
+export const capture = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRollSubcommand.Capture);
     subcommand.setDescription('Roll to capture a Pokémon.');

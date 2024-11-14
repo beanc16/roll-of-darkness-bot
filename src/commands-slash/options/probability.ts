@@ -1,6 +1,6 @@
 import { SlashCommandIntegerOption } from 'discord.js';
 
-export function desiredNumberOfSuccesses(option: SlashCommandIntegerOption)
+export function desiredNumberOfSuccesses(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('desired_number_of_successes');
     option.setDescription('The desired number of successes to roll');

@@ -10,7 +10,7 @@ import {
 import { modalMap } from '../modals/index.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 
-async function handler(bot: Client, interaction: CommandInteraction | AutocompleteInteraction)
+async function handler(bot: Client, interaction: CommandInteraction | AutocompleteInteraction): Promise<void>
 {
     if (interaction.isChatInputCommand())
     {

@@ -20,16 +20,10 @@ export const selectMenuCustomIds = {
     initiativeSelect: 'initiative_select',
 };
 
-function parseSelectMenuOptions({
-    typeOfTracker,
-    combatTrackerStatus,
-}: GetCombatTrackerSelectMenusParamters)
+function parseSelectMenuOptions({ typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters)
 {
     // Get the relevant combat trackers based on the type of combat tracker
-    const {
-        hpCombatTrackers,
-        initiativeCombatTrackers,
-    } = combatTrackerOptions.reduce((acc, cur) =>
+    const { hpCombatTrackers, initiativeCombatTrackers } = combatTrackerOptions.reduce((acc, cur) =>
     {
         // The option should be included in the select menu
         const shouldIncludeOptionByType = (
@@ -75,15 +69,9 @@ function parseSelectMenuOptions({
     };
 }
 
-function getCombatTrackerSelectMenus({
-    typeOfTracker,
-    combatTrackerStatus,
-}: GetCombatTrackerSelectMenusParamters): GetCombatTrackerSelectMenusResponse
+function getCombatTrackerSelectMenus({ typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters): GetCombatTrackerSelectMenusResponse
 {
-    const {
-        hpOptions,
-        initiativeOptions,
-    } = parseSelectMenuOptions({
+    const { hpOptions, initiativeOptions } = parseSelectMenuOptions({
         typeOfTracker,
         combatTrackerStatus,
     });
@@ -111,15 +99,9 @@ function getCombatTrackerSelectMenus({
     return response;
 }
 
-export function getCombatTrackerActionRows({
-    typeOfTracker,
-    combatTrackerStatus,
-}: GetCombatTrackerSelectMenusParamters)
+export function getCombatTrackerActionRows({ typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters)
 {
-    const {
-        characterOptionSelectMenu,
-        initiativeSelectMenu,
-    } = getCombatTrackerSelectMenus({
+    const { characterOptionSelectMenu, initiativeSelectMenu } = getCombatTrackerSelectMenus({
         typeOfTracker,
         combatTrackerStatus,
     });

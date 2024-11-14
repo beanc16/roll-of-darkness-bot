@@ -20,12 +20,13 @@ export enum RemoveCharacterCustomIds
 
 export class RemoveCharacterModal extends BaseCustomModal
 {
-    static {
-        this._id = 'remove-character-modal';
-        this._title = 'Remove Character';
-        this._inputValuesMap = {
+    static
+    {
+        this.id = 'remove-character-modal';
+        this.title = 'Remove Character';
+        this.inputValuesMap = {
         };
-        this._styleMap = {
+        this.styleMap = {
             [RemoveCharacterCustomIds.Name]: TextInputStyle.Short,
         };
     }
@@ -35,7 +36,7 @@ export class RemoveCharacterModal extends BaseCustomModal
         const nameInput = new TextInputBuilder()
             .setCustomId(RemoveCharacterCustomIds.Name)
             .setLabel(`What's the character's name?`)
-            .setStyle(this._styleMap[RemoveCharacterCustomIds.Name])
+            .setStyle(this.styleMap[RemoveCharacterCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -55,7 +56,7 @@ export class RemoveCharacterModal extends BaseCustomModal
             fetchReply: true,
         });
 
-        const tracker = this._inputData as Tracker;
+        const tracker = this.inputData as Tracker;
 
         const data = this.parseInput<RemoveCharacterCustomIds>(interaction);
 

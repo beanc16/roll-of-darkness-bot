@@ -21,9 +21,9 @@ interface TrackerConstructor
     currentTurn: number;
     characterIds: ObjectId[];
     discordCreator: (DiscordCreator &
-    {
-        messageId: string;
-    });
+        {
+            messageId: string;
+        });
     createdAt: Date;
 }
 

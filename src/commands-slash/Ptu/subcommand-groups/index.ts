@@ -32,7 +32,7 @@ export enum PtuQuickReferenceInfo
     TypeChart = 'type_chart',
 }
 
-export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Calculate);
     subcommandGroup.setDescription('Run PTU calculate commands.');
@@ -46,7 +46,7 @@ export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =
     return subcommandGroup;
 };
 
-export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run PTU lookup commands.');
@@ -60,7 +60,7 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const quickReference = (subcommand: SlashCommandSubcommandBuilder) =>
+export const quickReference = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuSubcommandGroup.QuickReference);
     subcommand.setDescription('Get PTU quick reference information.');
@@ -91,7 +91,7 @@ export const quickReference = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Random);
     subcommandGroup.setDescription('Run PTU randomization commands.');
@@ -105,7 +105,7 @@ export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const roll = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const roll = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Roll);
     subcommandGroup.setDescription('Run PTU roll commands.');
@@ -119,7 +119,7 @@ export const roll = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const train = (subcommand: SlashCommandSubcommandBuilder) =>
+export const train = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuSubcommandGroup.Train);
     subcommand.setDescription('Train a pokemon on your character sheet.');

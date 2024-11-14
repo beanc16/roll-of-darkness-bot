@@ -9,10 +9,7 @@ export class EditCharacterHpStrategy
 {
     public static key = selectMenuValues.editHp;
 
-    static async run({
-        interaction,
-        tracker,
-    }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Send the modal.
         await EditCharacterHpModal.showModal(interaction, tracker);

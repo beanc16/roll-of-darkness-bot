@@ -32,8 +32,7 @@ export class RandomHealingItemStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ inputType,
-            type }: { inputType: string; type: string }) =>
+        const shouldInclude = ({ inputType, type }: { inputType: string; type: string }) =>
             (
                 inputType === HealingAndStatusOption.HealingAndStatus
                 || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)

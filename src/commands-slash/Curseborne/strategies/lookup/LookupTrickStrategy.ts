@@ -47,7 +47,10 @@ export class LookupTrickStrategy
 
     public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
-        const { options, ...remainingProperties } = input;
+        const {
+            options,
+            ...remainingProperties
+        } = input;
         const numOfKeys = Object.keys(remainingProperties).length;
 
         const {
@@ -56,10 +59,7 @@ export class LookupTrickStrategy
             },
         } = input;
 
-        const hasMatch = ({
-            inputValue,
-            elementValue,
-        }: {
+        const hasMatch = ({ inputValue, elementValue }: {
             inputValue?: string | null | undefined;
             elementValue: string;
         }): boolean =>

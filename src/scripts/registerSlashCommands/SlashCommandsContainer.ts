@@ -2,8 +2,10 @@ import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-
 import { logger } from '@beanc16/logger';
 import {
     Client,
+    ContextMenuCommandBuilder,
     REST,
     Routes,
+    SlashCommandBuilder,
 } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
@@ -36,20 +38,25 @@ const defaultRegisterCommandParameters = {
     guildId: '',
 };
 
+interface RegisterAllCommandsResponse
+{
+    registeredGlobalSlashCommandData: unknown[] | undefined;
+    registeredGuildSlashCommandData: unknown[] | undefined;
+}
+
 export class SlashCommandsContainer
 {
     static #slashCommands: Record<string, Command> = {};
     static #guildCommands: Record<string, Command> = {};
     static #contextMenuCommands: Record<string, ContextMenuCommand> = {};
-    private static isInitialized: boolean;
+    private static isInitialized = false;
 
-    static
-    {
-        this.isInitialized = false;
+    // eslint-disable-next-line @stylistic/brace-style -- We need static constructors to be formatted this way to initialize
+    static {
         this.initialize();
     }
 
-    static async initialize()
+    public static async initialize(): Promise<void>
     {
         this.#slashCommands = {};
         this.#guildCommands = {};
@@ -150,22 +157,22 @@ export class SlashCommandsContainer
         this.isInitialized = true;
     }
 
-    static getCommand(commandName: string)
+    public static getCommand(commandName: string): Command
     {
         return SlashCommandsContainer.#slashCommands[commandName];
     }
 
-    static getGuildCommand(commandName: string)
+    public static getGuildCommand(commandName: string): Command
     {
         return SlashCommandsContainer.#guildCommands[commandName];
     }
 
-    static getContextMenuCommand(commandName: string)
+    public static getContextMenuCommand(commandName: string): BaseContextMenuCommand
     {
         return SlashCommandsContainer.#contextMenuCommands[commandName];
     }
 
-    static async getAllCommandsData()
+    public static async getAllCommandsData(): Promise<SlashCommandBuilder[]>
     {
         const slashCommands = Object.values(SlashCommandsContainer.#slashCommands);
         const promises = slashCommands.map(async (slashCommand) =>
@@ -176,7 +183,7 @@ export class SlashCommandsContainer
         return await Promise.all(promises);
     }
 
-    static async getAllGuildCommandsData()
+    public static async getAllGuildCommandsData(): Promise<SlashCommandBuilder[]>
     {
         const guildCommands = Object.values(SlashCommandsContainer.#guildCommands);
         const promises = guildCommands.map(async (guildCommand) =>
@@ -187,18 +194,18 @@ export class SlashCommandsContainer
         return await Promise.all(promises);
     }
 
-    static async getAllContextMenuCommandsData()
+    public static async getAllContextMenuCommandsData(): Promise<ContextMenuCommandBuilder[]>
     {
         const slashCommands = Object.values(SlashCommandsContainer.#contextMenuCommands);
         const promises = slashCommands.map(async (slashCommand) =>
         {
             await slashCommand.init();
-            return slashCommand.commandData;
+            return slashCommand.contextMenuCommandData;
         });
         return await Promise.all(promises);
     }
 
-    static async getAllStartupCommandsData(): Promise<(Command & {
+    public static async getAllStartupCommandsData(): Promise<(Command & {
         runOnStartup: (bot: Client) => Promise<void>;
     })[]>
     {
@@ -213,10 +220,7 @@ export class SlashCommandsContainer
         );
     }
 
-    static addCommand({
-        commandName,
-        command,
-    }: AddCommandParameters)
+    public static addCommand({ commandName, command }: AddCommandParameters): void
     {
         if (!commandName)
         {
@@ -226,10 +230,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#slashCommands[commandName] = command;
     }
 
-    static addGuildCommand({
-        commandName,
-        command,
-    }: AddCommandParameters)
+    public static addGuildCommand({ commandName, command }: AddCommandParameters): void
     {
         if (!commandName)
         {
@@ -239,10 +240,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#guildCommands[commandName] = command;
     }
 
-    static addContextMenuCommand({
-        commandName,
-        command,
-    }: AddContextMenuCommandParameters)
+    public static addContextMenuCommand({ commandName, command }: AddContextMenuCommandParameters): void
     {
         if (!commandName)
         {
@@ -252,7 +250,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#contextMenuCommands[commandName] = command;
     }
 
-    static async registerAllCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters)
+    public static async registerAllCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<RegisterAllCommandsResponse>
     {
         await this.initialize();
 
@@ -270,7 +268,7 @@ export class SlashCommandsContainer
         };
     }
 
-    static async registerGlobalAndContextMenuCommands(): Promise<unknown[] | undefined>
+    public static async registerGlobalAndContextMenuCommands(): Promise<unknown[] | undefined>
     {
         const [
             allCommandsData,
@@ -298,7 +296,7 @@ export class SlashCommandsContainer
         return undefined;
     }
 
-    static async registerGuildCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
+    public static async registerGuildCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
     {
         const guildCommandsData = await SlashCommandsContainer.getAllGuildCommandsData();
         if (Object.keys(guildCommandsData).length > 0)

@@ -24,7 +24,7 @@ export enum PtuLookupSubcommand
     Tm = 'tm',
 }
 
-export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
+export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Ability);
     subcommand.setDescription('Get a list of abilities based on the given parameters.');
@@ -59,7 +59,7 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const capability = (subcommand: SlashCommandSubcommandBuilder) =>
+export const capability = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Capability);
     subcommand.setDescription('Get a capability based on the given parameters.');
@@ -76,7 +76,7 @@ export const capability = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const edge = (subcommand: SlashCommandSubcommandBuilder) =>
+export const edge = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Edge);
     subcommand.setDescription('Get a edge based on the given parameters.');
@@ -93,7 +93,7 @@ export const edge = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const feature = (subcommand: SlashCommandSubcommandBuilder) =>
+export const feature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Feature);
     subcommand.setDescription('Get a feature based on the given parameters.');
@@ -110,7 +110,7 @@ export const feature = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const move = (subcommand: SlashCommandSubcommandBuilder) =>
+export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Move);
     subcommand.setDescription('Get a list of moves based on the given parameters.');
@@ -230,7 +230,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
+export const nature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Nature);
     subcommand.setDescription('Get a list of natures based on the given parameters.');
@@ -276,7 +276,7 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
+export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Pokemon);
     subcommand.setDescription('Get a Pokémon based on the given parameters.');
@@ -348,7 +348,7 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const status = (subcommand: SlashCommandSubcommandBuilder) =>
+export const status = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Status);
     subcommand.setDescription('Get a status based on the given parameters.');
@@ -383,7 +383,7 @@ export const status = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
+export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Tm);
     subcommand.setDescription('Get a tm based on the given parameters.');

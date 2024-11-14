@@ -3,6 +3,7 @@ import { UserGetServiceToServiceAuthTokenParametersV1, UserMicroservice } from '
 
 import authTokenSingleton from '../models/authTokenSingleton.js';
 
+/* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 export class CachedAuthTokenService
 {
     static #retries = 1;
@@ -11,7 +12,7 @@ export class CachedAuthTokenService
         expiresInSeconds: 86400, // 86400 seconds = 24 hours
     };
 
-    static async getAuthToken(): Promise<string>
+    public static async getAuthToken(): Promise<string>
     {
         if (!authTokenSingleton.isEmpty())
         {
@@ -28,7 +29,7 @@ export class CachedAuthTokenService
         return authTokenSingleton.get();
     }
 
-    static async resetAuthToken(): Promise<string>
+    public static async resetAuthToken(): Promise<string>
     {
         for (let i = 0; i <= this.#retries; i += 1)
         {

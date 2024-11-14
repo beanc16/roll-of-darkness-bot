@@ -33,7 +33,7 @@ export enum PtuRandomSubcommand
     XItem = 'x-item',
 };
 
-const numberOfDice = (option: SlashCommandIntegerOption) =>
+const numberOfDice = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
 {
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll');
@@ -52,7 +52,7 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
 //     return option;
 // };
 
-export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
+export const apricorn = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Apricorn);
     subcommand.setDescription('Get a random Apricorn.');
@@ -70,7 +70,7 @@ export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
+export const berry = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Berry);
     subcommand.setDescription('Get one or more random berries.');
@@ -105,7 +105,7 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
+export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.DowsingRod);
     subcommand.setDescription('Get a random item using a Dowsing Rod.');
@@ -138,7 +138,7 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
+export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
@@ -146,7 +146,7 @@ export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const healingItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.HealingItem);
     subcommand.setDescription('Get one or more random healing/status items.');
@@ -173,7 +173,7 @@ export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.HeldItem);
     subcommand.setDescription('Get one or more random held items.');
@@ -191,27 +191,27 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const metronome = (subcommand: SlashCommandSubcommandBuilder) =>
+export const metronome = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Metronome);
     subcommand.setDescription('Get a random move using the Metronome move.');
     return subcommand;
 };
 
-export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
+export const nature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Nature);
     subcommand.setDescription('Get a random nature.');
     subcommand.addIntegerOption((option) =>
     {
-        option = numberOfDice(option);
-        option.setDescription('The number of dice to roll (default: 1)');
-        return option.setRequired(false);
+        const diceOption = numberOfDice(option);
+        diceOption.setDescription('The number of dice to roll (default: 1)');
+        return diceOption.setRequired(false);
     });
     return subcommand;
 };
 
-export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
+export const pickup = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Pickup);
     subcommand.setDescription('Get a random item using the Pickup ability.');
@@ -219,7 +219,7 @@ export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const pokeball = (subcommand: SlashCommandSubcommandBuilder) =>
+export const pokeball = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Pokeball);
     subcommand.setDescription('Get one or more random pokeballs.');
@@ -257,7 +257,7 @@ export const pokeball = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const xItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.XItem);
     subcommand.setDescription('Get one or more random x-items.');
@@ -265,7 +265,7 @@ export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
+export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.TM);
     subcommand.setDescription('Get one or more random TMs/HMs.');
@@ -273,7 +273,7 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const vitamin = (subcommand: SlashCommandSubcommandBuilder) =>
+export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Vitamin);
     subcommand.setDescription('Get one or more random vitamins.');

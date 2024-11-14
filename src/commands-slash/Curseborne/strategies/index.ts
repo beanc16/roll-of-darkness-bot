@@ -36,7 +36,8 @@ export class CursebourneStrategyExecutor
     private static strategies: AllNestedCursebourneChatInteractions
         | AllSubcommandCurseborneChatInteractions;
 
-    static {
+    static
+    {
         this.strategies = {
             [CurseborneSubcommandGroup.Lookup]: {
                 [LookupTrickStrategy.key]: LookupTrickStrategy,
@@ -83,10 +84,7 @@ export class CursebourneStrategyExecutor
         return [];
     }
 
-    private static getStrategy({
-        subcommandGroup,
-        subcommand,
-    }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'>): ChatIteractionStrategy | undefined
+    private static getStrategy({ subcommandGroup, subcommand }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'>): ChatIteractionStrategy | undefined
     {
         if (subcommandGroup)
         {

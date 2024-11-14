@@ -7,16 +7,16 @@ import {
 
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
-import {
-    CombatTrackerType,
-    DamageType,
-    HpType,
-} from '../types.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import {
+    CombatTrackerType,
+    DamageType,
+    HpType,
+} from '../types.js';
 
 export enum EditCharacterHpCustomIds
 {
@@ -28,10 +28,11 @@ export enum EditCharacterHpCustomIds
 
 export class EditCharacterHpModal extends BaseCustomModal
 {
-    static {
-        this._id = 'edit-character-modal';
-        this._title = 'Edit Character';
-        this._inputValuesMap = {
+    static
+    {
+        this.id = 'edit-character-modal';
+        this.title = 'Edit Character';
+        this.inputValuesMap = {
             [EditCharacterHpCustomIds.HpType]: [
                 {
                     key: 'hpType',
@@ -49,7 +50,7 @@ export class EditCharacterHpModal extends BaseCustomModal
                 },
             ],
         };
-        this._styleMap = {
+        this.styleMap = {
             [EditCharacterHpCustomIds.Name]: TextInputStyle.Short,
             [EditCharacterHpCustomIds.HpType]: TextInputStyle.Short,
             [EditCharacterHpCustomIds.Hp]: TextInputStyle.Short,
@@ -64,7 +65,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         const nameInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.Name)
             .setLabel(`What character's HP should be updated?`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.Name])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -72,7 +73,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         const hpTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.HpType)
             .setLabel(`Change HP? (damage / heal / downgrade)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.HpType])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.HpType])
             .setMinLength(1)
             .setMaxLength(9)
             .setRequired(true)
@@ -83,7 +84,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         const hpInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.Hp)
             .setLabel(`How much HP? (number)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.Hp])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.Hp])
             .setMinLength(1)
             .setMaxLength(3)
             .setRequired(true);
@@ -91,7 +92,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         const damageTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.DamageType)
             .setLabel(`Type of damage? (bashing / lethal / agg)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.DamageType])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.DamageType])
             .setMinLength(1)
             .setMaxLength(7)
             .setRequired(true)
@@ -122,7 +123,7 @@ export class EditCharacterHpModal extends BaseCustomModal
             fetchReply: true,
         });
 
-        const tracker = this._inputData as Tracker;
+        const tracker = this.inputData as Tracker;
 
         const {
             [EditCharacterHpCustomIds.Name]: characterName,

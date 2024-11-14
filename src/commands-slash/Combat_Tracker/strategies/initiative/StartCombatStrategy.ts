@@ -2,13 +2,13 @@ import { logger } from '@beanc16/logger';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
-import { CombatTrackerStatus } from '../../types.js';
 import { Tracker } from '../../dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
 import { selectMenuValues } from '../../select-menus/options/combat_tracker.js';
+import { CombatTrackerStatus } from '../../types.js';
 import { CombatTrackerIteractionStrategy } from '../types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from '../types/CombatTrackerMessageComponentHandlerParameters.js';
 
@@ -17,10 +17,7 @@ export class StartCombatStrategy
 {
     public static key = selectMenuValues.startCombat;
 
-    static async run({
-        interaction,
-        tracker,
-    }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

@@ -6,7 +6,7 @@ import DiceProbabilityService from '../../services/DiceProbabilityService.js';
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
 import * as rollOptions from '../Nwod/options/roll.js';
 import * as probabilityOptions from '../options/probability.js';
-import { numberOfDice } from '../options/shared.js';
+import { numberOfDice as numberOfDiceOption } from '../options/shared.js';
 
 class Probability extends BaseSlashCommand
 {
@@ -15,14 +15,15 @@ class Probability extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addIntegerOption(numberOfDice)
+            .addIntegerOption(numberOfDiceOption)
             .addIntegerOption(probabilityOptions.desiredNumberOfSuccesses)
             .addStringOption(rollOptions.rerolls)
             .addBooleanOption(rollOptions.rote)
             .addBooleanOption(rollOptions.advancedAction);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -73,7 +74,8 @@ class Probability extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Check the probability of getting a certain number of successes with a certain number of dice.`;
     }

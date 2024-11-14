@@ -10,7 +10,7 @@ export const getPagedEmbedBuilders = ({
     title: string;
     pages: string[];
     url?: string;
-}) =>
+}): EmbedBuilder[] =>
 {
     const embeds = pages.map((description, index) =>
     {

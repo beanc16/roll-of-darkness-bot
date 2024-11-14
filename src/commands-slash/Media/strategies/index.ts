@@ -17,7 +17,8 @@ export class MediaStrategyExecutor
         MediaInstagramSubcommand
     >);
 
-    static {
+    static
+    {
         // @ts-ignore -- TODO: Fix this type later
         this.strategies = {
             [MediaSubcommandGroup.Image]: imageStrategies,

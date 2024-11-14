@@ -3,7 +3,7 @@ import { UUID } from 'node:crypto';
 import Singleton from '../../../services/Singleton/Singleton.js';
 import { CounterType } from '../../options/counter.js';
 import { CounterContainer, CounterOperation } from '../dal/CounterMongoController.js';
-import { CounterEventHandler } from '../services/CounterEventHandler.js';
+import { CounterEventHandler } from './CounterEventHandler.js';
 
 interface UpdateCountParameters
 {
@@ -50,10 +50,7 @@ class CounterSingleton
         }
     }
 
-    public incrementCount({
-        guid,
-        userId,
-    }: UpdateCountParameters): void
+    public incrementCount({ guid, userId }: UpdateCountParameters): void
     {
         const counterContainer = this.get(guid);
         counterContainer.count += 1;
@@ -65,10 +62,7 @@ class CounterSingleton
         this.upsert(counterContainer);
     }
 
-    public decrementCount({
-        guid,
-        userId,
-    }: UpdateCountParameters): void
+    public decrementCount({ guid, userId }: UpdateCountParameters): void
     {
         const counterContainer = this.get(guid);
         counterContainer.count -= 1;

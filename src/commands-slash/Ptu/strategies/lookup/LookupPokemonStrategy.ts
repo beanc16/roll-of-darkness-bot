@@ -165,67 +165,67 @@ export class LookupPokemonStrategy
             // eslint-disable-next-line default-case
             switch (moveListType)
             {
-                case PtuMoveListType.EggMoves:
-                case PtuMoveListType.TutorMoves:
-                case PtuMoveListType.ZygardeCubeMoves:
-                    key = `moveList.${moveListType}`;
+            case PtuMoveListType.EggMoves:
+            case PtuMoveListType.TutorMoves:
+            case PtuMoveListType.ZygardeCubeMoves:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: moveName,
+                };
+                break;
+            case PtuMoveListType.TmHm:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: parseRegexByType(
+                        moveName,
+                        RegexLookupType.SubstringCaseInsensitive,
+                    ),
+                };
+                break;
+            case PtuMoveListType.LevelUp:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: {
+                        $elemMatch: {
+                            move: moveName,
+                        },
+                    },
+                };
+            case PtuMoveListType.All:
+                // eslint-disable-next-line no-case-declarations
+                const searchParams: object[] = [
+                    PtuMoveListType.EggMoves,
+                    PtuMoveListType.TutorMoves,
+                    PtuMoveListType.ZygardeCubeMoves,
+                ].map((listType) =>
+                {
+                    key = `moveList.${listType}`;
                     return {
                         [key]: moveName,
                     };
-                    break;
-                case PtuMoveListType.TmHm:
-                    key = `moveList.${moveListType}`;
-                    return {
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    };
-                    break;
-                case PtuMoveListType.LevelUp:
-                    key = `moveList.${moveListType}`;
-                    return {
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
+                });
+
+                key = `moveList.${PtuMoveListType.TmHm}`;
+                searchParams.push({
+                    [key]: parseRegexByType(
+                        moveName,
+                        RegexLookupType.SubstringCaseInsensitive,
+                    ),
+                });
+
+                key = `moveList.${PtuMoveListType.LevelUp}`;
+                searchParams.push({
+                    [key]: {
+                        $elemMatch: {
+                            move: moveName,
                         },
-                    };
-                case PtuMoveListType.All:
-                    // eslint-disable-next-line no-case-declarations
-                    const searchParams: object[] = [
-                        PtuMoveListType.EggMoves,
-                        PtuMoveListType.TutorMoves,
-                        PtuMoveListType.ZygardeCubeMoves,
-                    ].map((listType) =>
-                    {
-                        key = `moveList.${listType}`;
-                        return {
-                            [key]: moveName,
-                        };
-                    });
+                    },
+                });
 
-                    key = `moveList.${PtuMoveListType.TmHm}`;
-                    searchParams.push({
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    });
-
-                    key = `moveList.${PtuMoveListType.LevelUp}`;
-                    searchParams.push({
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    });
-
-                    return {
-                        $or: searchParams,
-                    };
-                    break;
+                return {
+                    $or: searchParams,
+                };
+                break;
             }
         }
 
@@ -235,31 +235,31 @@ export class LookupPokemonStrategy
             // eslint-disable-next-line default-case
             switch (abilityListType)
             {
-                case PtuAbilityListType.Basic:
-                case PtuAbilityListType.Advanced:
-                case PtuAbilityListType.High:
-                    key = `abilities.${abilityListType}`;
+            case PtuAbilityListType.Basic:
+            case PtuAbilityListType.Advanced:
+            case PtuAbilityListType.High:
+                key = `abilities.${abilityListType}`;
+                return {
+                    [key]: abilityName,
+                };
+                break;
+            case PtuAbilityListType.All:
+                // eslint-disable-next-line no-case-declarations
+                const searchParams: object[] = [
+                    PtuAbilityListType.Basic,
+                    PtuAbilityListType.Advanced,
+                    PtuAbilityListType.High,
+                ].map((listType) =>
+                {
+                    key = `abilities.${listType}`;
                     return {
                         [key]: abilityName,
                     };
-                    break;
-                case PtuAbilityListType.All:
-                    // eslint-disable-next-line no-case-declarations
-                    const searchParams: object[] = [
-                        PtuAbilityListType.Basic,
-                        PtuAbilityListType.Advanced,
-                        PtuAbilityListType.High,
-                    ].map((listType) =>
-                    {
-                        key = `abilities.${listType}`;
-                        return {
-                            [key]: abilityName,
-                        };
-                    });
+                });
 
-                    return {
-                        $or: searchParams,
-                    };
+                return {
+                    $or: searchParams,
+                };
             }
         }
 

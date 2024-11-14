@@ -6,6 +6,7 @@ import { Timer } from '../services/Timer.js';
 
 let exitCode = 0;
 
+/* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 try
 {
     logger.debug('Starting to bulk delete images for /media image...');
@@ -20,7 +21,7 @@ try
     let wasSuccessful = false;
 
     // Retry bulk delete with a delay until it works or the max number of retries is reached
-    for (let index = 0; index < maxNumberOfRetries; index++)
+    for (let index = 0; index < maxNumberOfRetries; index += 1)
     {
         // Delete all images used by /media image that are older than the specified time
         const {

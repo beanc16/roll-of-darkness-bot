@@ -38,6 +38,11 @@ export interface OnRerollCallbackOptions
 
 type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
 
+export interface GetRerollMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
+{
+    components: ActionRowBuilder<ButtonBuilder>[];
+}
+
 export class RerollStrategy
 {
     /**
@@ -56,7 +61,7 @@ export class RerollStrategy
         interactionCallbackType: RerollInteractionCallbackType;
         onRerollCallback: OnRerollCallback;
         commandName: string;
-    })
+    }): Promise<void>
     {
         // Set up message response
         const rerollOptions = this.getMessageData(options);
@@ -79,7 +84,7 @@ export class RerollStrategy
         });
     }
 
-    private static getMessageData(options: RerollInteractionOptions)
+    private static getMessageData(options: RerollInteractionOptions): GetRerollMessageDataResponse
     {
         const buttonRow = this.getButtonRowComponent();
         const typedOptions = (typeof options === 'string')
@@ -114,7 +119,7 @@ export class RerollStrategy
         interactionResponse: Message<boolean>;
         onRerollCallback: OnRerollCallback;
         commandName: string;
-    })
+    }): Promise<void>
     {
         let buttonInteraction: ButtonInteraction | undefined;
 

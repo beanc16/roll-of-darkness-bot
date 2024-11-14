@@ -202,24 +202,24 @@ export class PtuMove
             if (this.damageBase === undefined) return false;
             switch (input.dbEquality)
             {
-                case EqualityOption.GreaterThanOrEqualTo:
-                    if (!(this.damageBase >= input.db)) return false;
-                    break;
-                case EqualityOption.GreaterThan:
-                    if (!(this.damageBase > input.db)) return false;
-                    break;
-                case EqualityOption.LessThanOrEqualTo:
-                    if (!(this.damageBase <= input.db)) return false;
-                    break;
-                case EqualityOption.LessThan:
-                    if (!(this.damageBase < input.db)) return false;
-                    break;
-                case EqualityOption.NotEqualTo:
-                    if (!(this.damageBase !== input.db)) return false;
-                    break;
-                case EqualityOption.Equal:
-                default:
-                    if (!(this.damageBase === input.db)) return false;
+            case EqualityOption.GreaterThanOrEqualTo:
+                if (!(this.damageBase >= input.db)) return false;
+                break;
+            case EqualityOption.GreaterThan:
+                if (!(this.damageBase > input.db)) return false;
+                break;
+            case EqualityOption.LessThanOrEqualTo:
+                if (!(this.damageBase <= input.db)) return false;
+                break;
+            case EqualityOption.LessThan:
+                if (!(this.damageBase < input.db)) return false;
+                break;
+            case EqualityOption.NotEqualTo:
+                if (!(this.damageBase !== input.db)) return false;
+                break;
+            case EqualityOption.Equal:
+            default:
+                if (!(this.damageBase === input.db)) return false;
             }
         }
 
@@ -235,24 +235,24 @@ export class PtuMove
             if (this.ac === undefined) return false;
             switch (input.acEquality)
             {
-                case EqualityOption.GreaterThanOrEqualTo:
-                    if (!(this.ac >= input.ac)) return false;
-                    break;
-                case EqualityOption.GreaterThan:
-                    if (!(this.ac > input.ac)) return false;
-                    break;
-                case EqualityOption.LessThanOrEqualTo:
-                    if (!(this.ac <= input.ac)) return false;
-                    break;
-                case EqualityOption.LessThan:
-                    if (!(this.ac < input.ac)) return false;
-                    break;
-                case EqualityOption.NotEqualTo:
-                    if (!(this.ac !== input.ac)) return false;
-                    break;
-                case EqualityOption.Equal:
-                default:
-                    if (!(this.ac === input.ac)) return false;
+            case EqualityOption.GreaterThanOrEqualTo:
+                if (!(this.ac >= input.ac)) return false;
+                break;
+            case EqualityOption.GreaterThan:
+                if (!(this.ac > input.ac)) return false;
+                break;
+            case EqualityOption.LessThanOrEqualTo:
+                if (!(this.ac <= input.ac)) return false;
+                break;
+            case EqualityOption.LessThan:
+                if (!(this.ac < input.ac)) return false;
+                break;
+            case EqualityOption.NotEqualTo:
+                if (!(this.ac !== input.ac)) return false;
+                break;
+            case EqualityOption.Equal:
+            default:
+                if (!(this.ac === input.ac)) return false;
             }
         }
 

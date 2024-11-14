@@ -65,10 +65,7 @@ export class SearchService<T>
 
     private parseOutput(results: FuseResult<T>[]): T[]
     {
-        return results.reduce((acc, {
-            item,
-            score,
-        }) =>
+        return results.reduce((acc, { item, score }) =>
         {
             if (score && score <= this.MAX_ALLOWED_SCORE)
             {

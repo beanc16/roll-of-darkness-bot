@@ -10,10 +10,7 @@ export class ShowSecretCharactersStrategy
 {
     public static key = selectMenuValues.showSecretCharacters;
 
-    static async run({
-        interaction,
-        tracker,
-    }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

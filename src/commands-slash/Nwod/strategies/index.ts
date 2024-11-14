@@ -19,7 +19,8 @@ export class NwodStrategyExecutor
 {
     private static strategies: AllSubcommandNwoChatInteractions;
 
-    static {
+    static
+    {
         this.strategies = [
             RollStrategy,
             InitiativeStrategy,
@@ -32,10 +33,7 @@ export class NwodStrategyExecutor
         }, {} as any);
     }
 
-    public static async run({
-        subcommand,
-        interaction,
-    }: NwodStrategyExecutorRunParameters): Promise<boolean>
+    public static async run({ subcommand, interaction }: NwodStrategyExecutorRunParameters): Promise<boolean>
     {
         const Strategy = this.strategies[subcommand];
 

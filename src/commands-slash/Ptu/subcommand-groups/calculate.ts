@@ -22,7 +22,7 @@ export enum PtuPokemonEvolutionaryStage
     Two = 'two_remaining',
 }
 
-export const battleExp = (subcommand: SlashCommandSubcommandBuilder) =>
+export const battleExp = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuCalculateSubcommand.BattleExp);
     subcommand.setDescription('Calculate the experience players receive after a battle.');
@@ -51,7 +51,7 @@ export const battleExp = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const captureRating = (subcommand: SlashCommandSubcommandBuilder) =>
+export const captureRating = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuCalculateSubcommand.CaptureRating);
     subcommand.setDescription('Calculate the capture rating of a Pokémon.');

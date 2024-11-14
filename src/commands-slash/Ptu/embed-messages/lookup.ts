@@ -77,10 +77,7 @@ export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]
 {
     if (capabilities.length === 0) return [];
 
-    const { pages } = capabilities.reduce((acc, {
-        name,
-        description,
-    }, index) =>
+    const { pages } = capabilities.reduce((acc, { name, description }, index) =>
     {
         // Stage the individual lines of the description
         const lines = [
@@ -346,10 +343,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             highAbility,
         },
         evolution,
-        sizeInformation: {
-            height,
-            weight,
-        },
+        sizeInformation: { height, weight },
         breedingInformation: {
             genderRatio,
             eggGroups,
@@ -536,10 +530,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
     });
 };
 
-export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
-    moveName,
-    moveListType,
-}: {
+export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { moveName, moveListType }: {
     moveName: string;
     moveListType: PtuMoveListType;
 }): EmbedBuilder[] =>
@@ -547,12 +538,9 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
     if (pokemon.length === 0) return [];
 
     const {
-        // Level up
         levelUp,
         totalLevelUpMoveLearnedValue,
         outliersInLevelUpData,
-
-        // Everything else
         eggMoves,
         tmHm,
         tutorMoves,
@@ -764,10 +752,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
     });
 };
 
-export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
-    abilityName,
-    abilityListType,
-}: {
+export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { abilityName, abilityListType }: {
     abilityName: string;
     abilityListType: PtuAbilityListType;
 }): EmbedBuilder[] =>

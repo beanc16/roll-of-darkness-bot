@@ -9,10 +9,7 @@ export class RemoveCharacterStrategy
 {
     public static key = selectMenuValues.removeCharacter;
 
-    static async run({
-        interaction,
-        tracker,
-    }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Send the modal.
         await RemoveCharacterModal.showModal(interaction, tracker);

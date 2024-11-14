@@ -46,10 +46,7 @@ export const getRandomResultEmbedMessage = ({
     return embed;
 };
 
-export const getRandomYouFoundNothingEmbedMessage = ({
-    itemNamePluralized,
-    rollResults,
-}: {
+export const getRandomYouFoundNothingEmbedMessage = ({ itemNamePluralized, rollResults }: {
     itemNamePluralized: string;
     rollResults: string;
 }) =>

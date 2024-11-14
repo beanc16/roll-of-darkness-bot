@@ -36,10 +36,7 @@ class CoinFlip extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        {
-            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
-            newCallingUserId,
-        }: OnRerollCallbackOptions = {
+        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
     )

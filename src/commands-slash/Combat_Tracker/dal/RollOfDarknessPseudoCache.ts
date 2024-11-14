@@ -150,10 +150,7 @@ export class RollOfDarknessPseudoCache
         }
     }
 
-    static async updateTrackerStatus({
-        status,
-        tracker: oldTracker,
-    }: UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
+    static async updateTrackerStatus({ status, tracker: oldTracker }: UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
         // TODO: Handle tracker does not exists.
         const {
@@ -180,10 +177,7 @@ export class RollOfDarknessPseudoCache
         tracker: oldTracker,
     }: NextTurnParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
-        const {
-            characters,
-            currentTurn,
-        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+        const { characters, currentTurn } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
 
         const updatedTurn = (currentTurn + 1 < characters.length)
             ? currentTurn + 1
@@ -204,10 +198,7 @@ export class RollOfDarknessPseudoCache
         tracker: oldTracker,
     }: PreviousTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
-        const {
-            characters,
-            currentTurn,
-        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+        const { characters, currentTurn } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
 
         const updatedTurn = (currentTurn - 1 >= 0)
             ? currentTurn - 1
@@ -229,10 +220,7 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async moveTurn({
-        tracker: oldTracker,
-        turn,
-    }: MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    static async moveTurn({ tracker: oldTracker, turn }: MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
         const characters = await this.getCharacters({ tracker: oldTracker });
 
@@ -275,10 +263,7 @@ export class RollOfDarknessPseudoCache
         return charactersFromDb;
     }
 
-    static async getCharacterByName({
-        tracker,
-        characterName,
-    }: {
+    static async getCharacterByName({ tracker, characterName }: {
         tracker: Tracker;
         characterName: string;
     }): Promise<Character | undefined>
@@ -301,9 +286,9 @@ export class RollOfDarknessPseudoCache
         message,
         tracker: oldTracker,
     }: CreateCharacterParameters): Promise<{
-        character: CharacterResponse['results']['model'];
-        tracker: TrackerResponse['results']['model'];
-    }>
+            character: CharacterResponse['results']['model'];
+            tracker: TrackerResponse['results']['model'];
+        }>
     {
         const character = await CharacterController.insertOne({
             name: characterName,
@@ -384,9 +369,9 @@ export class RollOfDarknessPseudoCache
             });
         },
     }: EditCharacterHpParameters): Promise<{
-        character?: CharacterResponse['results']['model'];
-        tracker?: TrackerResponse['results']['model'];
-    }>
+            character?: CharacterResponse['results']['model'];
+            tracker?: TrackerResponse['results']['model'];
+        }>
     {
         const character = await this.getCharacterByName({
             tracker,
@@ -488,7 +473,7 @@ export class RollOfDarknessPseudoCache
 
             // Remove the deleted character from the list of character IDs
             const newCharacterIds = tracker.characterIds.filter(element =>
-                element.toString() === character._id?.toString()
+                element.toString() === character._id?.toString(),
             );
 
             // TODO: Handle tracker does not exists.
@@ -512,9 +497,9 @@ export class RollOfDarknessPseudoCache
     private static async getCharactersAndCurrentTurn({
         tracker,
     }: GetCharactersParameters): Promise<{
-        characters: Character[];
-        currentTurn: number;
-    }>
+            characters: Character[];
+            currentTurn: number;
+        }>
     {
         const trackerId = tracker._id?.toString() as string;
         const cachedTracker = combatTrackersSingleton.get(trackerId);
@@ -530,10 +515,7 @@ export class RollOfDarknessPseudoCache
 
         const {
             results: [
-                {
-                    characters: charactersFromDb = [],
-                    currentTurn = 0,
-                } = {},
+                { characters: charactersFromDb = [], currentTurn = 0 } = {},
             ] = [{}],
         } = await AggregatedTrackerWithCharactersController.getByTrackerName(tracker.name);
 

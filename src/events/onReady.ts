@@ -5,7 +5,7 @@ import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInit
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 
-async function handler(bot: Client)
+async function handler(bot: Client): Promise<void>
 {
     const devStr = (process.env.STAGE && process.env.STAGE === 'dev')
         ? '-dev'

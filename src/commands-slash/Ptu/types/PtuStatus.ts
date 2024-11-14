@@ -15,9 +15,7 @@ export class PtuStatus
         ] = input;
 
         // Parse numbers
-        const isHomebrew = (isHomebrewUnparsed.toLowerCase() === 'true')
-            ? true
-            : false;
+        const isHomebrew = (isHomebrewUnparsed.toLowerCase() === 'true');
 
         // Base values
         this.name = name;

@@ -11,7 +11,8 @@ export class CombatTrackerStrategyExecutor
         string
     >);
 
-    static {
+    static
+    {
         this.strategies = {
             [selectMenuCustomIds.characterOptionSelect]: characterOptionStrategies,
             [selectMenuCustomIds.initiativeSelect]: initiativeStrategies,

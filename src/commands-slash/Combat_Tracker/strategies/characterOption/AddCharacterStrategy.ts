@@ -9,10 +9,7 @@ export class AddCharacterStrategy
 {
     public static key = selectMenuValues.addCharacter;
 
-    static async run({
-        interaction,
-        tracker,
-    }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Send the modal.
         await AddCharacterModal.showModal(interaction, tracker);

@@ -52,13 +52,15 @@ export class RandomPokeballStrategy
             ].data} Data'!A2:E`,
         });
 
-        const shouldInclude = ({ type,
+        const shouldInclude = ({
+            type,
             includeSpecial,
             includeSafari,
             includeJailbreaker,
             includeCases,
             includeAttachments,
-            includeMaster }: { type: string; includeSpecial: boolean; includeSafari: boolean; includeJailbreaker: boolean; includeCases: boolean; includeAttachments: boolean; includeMaster: boolean }) =>
+            includeMaster,
+        }: { type: string; includeSpecial: boolean; includeSafari: boolean; includeJailbreaker: boolean; includeCases: boolean; includeAttachments: boolean; includeMaster: boolean }) =>
             (
                 type === PokeballType.Normal
                 || (type === PokeballType.Special && includeSpecial)
@@ -154,8 +156,7 @@ export class RandomPokeballStrategy
         }[]); // TODO: Make unique rolls for rerolls be grouped together with a CompositeKeyRecord for ball name and jailbreak info name later
 
         // Get random items
-        const results = uniqueRolls.reduce<RandomPokeball[]>((acc, { result,
-            numOfTimesRolled }) =>
+        const results = uniqueRolls.reduce<RandomPokeball[]>((acc, { result, numOfTimesRolled }) =>
         {
             const pokeball = parsedData[result - 1];
 
@@ -251,8 +252,7 @@ export class RandomPokeballStrategy
             numOfTimesRolled: number;
         }[]);
 
-        return uniqueRolls.map(({ result,
-            numOfTimesRolled }) =>
+        return uniqueRolls.map(({ result, numOfTimesRolled }) =>
         {
             return {
                 ...parsedDataOnlyPokeballs[result - 1],

@@ -121,10 +121,7 @@ export class NWodDamageManager
         }
     }
 
-    public damage({
-        amount,
-        damageType,
-    }: NWodDamageManagerOperationParameters): void
+    public damage({ amount, damageType }: NWodDamageManagerOperationParameters): void
     {
         for (let i = 0; i < amount; i += 1)
         {
@@ -139,10 +136,7 @@ export class NWodDamageManager
         }
     }
 
-    public heal({
-        amount,
-        damageType,
-    }: NWodDamageManagerOperationParameters): void
+    public heal({ amount, damageType }: NWodDamageManagerOperationParameters): void
     {
         for (let i = 0; i < amount; i += 1)
         {
@@ -170,10 +164,7 @@ export class NWodDamageManager
         }
     }
 
-    public downgrade({
-        amount,
-        damageType,
-    }: NWodDamageManagerOperationParameters): void
+    public downgrade({ amount, damageType }: NWodDamageManagerOperationParameters): void
     {
         for (let i = 0; i < amount; i += 1)
         {

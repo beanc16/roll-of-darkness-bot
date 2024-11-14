@@ -10,7 +10,13 @@ enum DiscordUserId
     Joel = '191607823292039169',
 }
 
-export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName) =>
+interface GetSpreadsheetIdFromCharacterSheetNameResponse
+{
+    spreadsheetId: string;
+    discordUserIdsOfSpreadsheetEditors: string[];
+}
+
+export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName): GetSpreadsheetIdFromCharacterSheetNameResponse =>
 {
     const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, {
         spreadsheetId: string;

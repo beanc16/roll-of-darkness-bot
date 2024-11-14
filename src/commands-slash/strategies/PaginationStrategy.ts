@@ -53,7 +53,7 @@ export class PaginationStrategy
         embeds,
         files,
         interactionType = 'editReply',
-    }: PaginationStrategyRunParameters)
+    }: PaginationStrategyRunParameters): Promise<void>
     {
         const shouldPaginate = (
             (embeds && embeds.length > 1)
@@ -101,7 +101,7 @@ export class PaginationStrategy
         files,
         interactionResponse,
         pageIndex,
-    }: PaginationStrategySendPagedMessagesParameters)
+    }: PaginationStrategySendPagedMessagesParameters): Promise<void>
     {
         let hasUpdated = false;
 
@@ -177,7 +177,7 @@ export class PaginationStrategy
         buttonInteraction,
         embeds,
         files,
-        pageIndex,
+        pageIndex: startingPageIndex,
     }: {
         buttonInteraction: ButtonInteraction;
         embeds?: EmbedBuilder[];
@@ -185,6 +185,7 @@ export class PaginationStrategy
         pageIndex: number;
     }): number
     {
+        let pageIndex = startingPageIndex;
         const array = (embeds ?? files) as unknown[];
 
         if (buttonInteraction.customId === ButtonName.Next)
@@ -267,7 +268,7 @@ export class PaginationStrategy
         originalInteraction: PaginationStrategyRunParameters['originalInteraction'];
         interactionType: NonNullable<PaginationStrategyRunParameters['interactionType']>;
         parameters: InteractionEditReplyOptions | MessageCreateOptions;
-    })
+    }): Promise<Message>
     {
         const handlerMap: Record<
             NonNullable<PaginationStrategyRunParameters['interactionType']>,

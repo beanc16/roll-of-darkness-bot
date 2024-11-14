@@ -42,7 +42,7 @@ export const equalityOption = (option: SlashCommandStringOption): SlashCommandSt
     return option;
 };
 
-export const numberOfDice = (option: SlashCommandIntegerOption) =>
+export const numberOfDice = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
 {
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll');

@@ -1,45 +1,47 @@
-/* eslint-disable no-unused-vars */
-import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js';
+import {
+    ApplicationCommandType,
+    Client,
+    ContextMenuCommandBuilder,
+    Permissions,
+} from 'discord.js';
 
 export class BaseContextMenuCommand
 {
-    _isInitialized;
-    _commandData;
+    protected isInitialized: boolean;
+    protected contextMenuCommandData: ContextMenuCommandBuilder;
 
     constructor()
     {
-        this._isInitialized = false;
-        this._commandData = new ContextMenuCommandBuilder()
+        this.isInitialized = false;
+        this.contextMenuCommandData = new ContextMenuCommandBuilder()
             .setName(this.commandName)
             .setType(ApplicationCommandType.Message)
             .setDefaultMemberPermissions(this.requiredPermissions);
     }
 
-    async init()
+    public async init(): Promise<void>
     {
-        this._isInitialized = true;
+        this.isInitialized = true;
     }
 
-    // TODO: Add types here later.
-    // @ts-ignore
-    async run(bot, interaction)
+    public async run(_bot: Client<boolean>, _interaction: BaseContextMenuCommand): Promise<void>
     {
         throw new Error(`${this.commandName} has not yet been implemented!`);
     }
 
-    get commandData()
+    get commandData(): ContextMenuCommandBuilder
     {
-        return this._commandData;
+        return this.contextMenuCommandData;
     }
 
-    get commandName()
+    get commandName(): string
     {
         return this.constructor.name.toLowerCase();
     }
 
-    get requiredPermissions()
+    // eslint-disable-next-line class-methods-use-this -- Leave this here for subclasses
+    get requiredPermissions(): Permissions | undefined
     {
-        // eslint-disable-next-line getter-return
         return undefined;
     }
 }

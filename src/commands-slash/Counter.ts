@@ -281,10 +281,7 @@ class Counter extends BaseSlashCommand
             const promises = results.map(async (counter) =>
             {
                 const {
-                    discordCreator: {
-                        channelId,
-                        messageId,
-                    },
+                    discordCreator: { channelId, messageId },
                 } = counter;
 
                 // Get the message that the counter belongs to

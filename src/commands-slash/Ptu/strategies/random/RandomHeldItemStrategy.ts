@@ -48,7 +48,9 @@ export class RandomHeldItemStrategy
         // Parse the data
         const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) =>
         {
-            if (shouldInclude({ type, includeMega, includeBadges }))
+            if (shouldInclude({
+                type, includeMega, includeBadges,
+            }))
             {
                 acc.push({
                     name,

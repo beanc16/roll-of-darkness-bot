@@ -38,10 +38,7 @@ export class RollStrategy
             twoSuccessesOn,
             enhancements,
         });
-        const {
-            numOfSuccesses,
-            rollResults,
-        } = diceService.roll();
+        const { numOfSuccesses, rollResults } = diceService.roll();
 
         // Roll cursed dice
         const cursedDiceService = new CurseborneDiceService({
@@ -49,10 +46,7 @@ export class RollStrategy
                 ? numberOfCursedDice
                 : numberOfDice,
         });
-        const {
-            numOfSuccesses: numOfCursedDiceSuccesses,
-            rollResults: cursedDiceRollResults,
-        } = cursedDiceService.roll();
+        const { numOfSuccesses: numOfCursedDiceSuccesses, rollResults: cursedDiceRollResults } = cursedDiceService.roll();
 
         // Send message
         const response = this.getResponse({
@@ -195,10 +189,7 @@ export class RollStrategy
         return '';
     }
 
-    private static getRollString({
-        numOfSuccesses,
-        rollResults,
-    }: {
+    private static getRollString({ numOfSuccesses, rollResults }: {
         numOfSuccesses: number;
         rollResults: number[];
     })

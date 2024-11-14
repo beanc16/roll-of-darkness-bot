@@ -39,6 +39,7 @@ interface WithCacheOptions
     shouldNotCache?: boolean;
 }
 
+/* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 export class CachedGoogleSheetsApiService
 {
     private static retries = 4;
@@ -89,7 +90,6 @@ export class CachedGoogleSheetsApiService
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRange. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
-                    continue;
                 }
 
                 else if (
@@ -101,8 +101,12 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.getRange', { statusCode }, data, (error as any)?.response);
-                throw error;
+                else
+                {
+                    logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.getRange', { statusCode }, data, (error as any)?.response);
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
+                    throw error;
+                }
             }
             catch (error)
             {
@@ -150,6 +154,18 @@ export class CachedGoogleSheetsApiService
 
                 if (statusCode === 200)
                 {
+                    // Save to cache by spreadsheet / spreadsheetId
+                    if (!shouldNotCache)
+                    {
+                        data.forEach(({ spreadsheetId, valueRanges }) =>
+                        {
+                            valueRanges.forEach(({ range, values }) =>
+                            {
+                                this.cache.Upsert([spreadsheetId, range], values);
+                            });
+                        });
+                    }
+
                     return { data };
                 }
 
@@ -157,10 +173,13 @@ export class CachedGoogleSheetsApiService
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
-                    continue;
                 }
 
-                throw error;
+                else
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
+                    throw error;
+                }
             }
             catch (error)
             {
@@ -236,11 +255,14 @@ export class CachedGoogleSheetsApiService
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.update. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
-                    continue;
                 }
 
-                logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.update', { statusCode }, data, (error as any)?.response);
-                throw error;
+                else
+                {
+                    logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.update', { statusCode }, data, (error as any)?.response);
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
+                    throw error;
+                }
             }
             catch (error)
             {
@@ -268,7 +290,7 @@ export class CachedGoogleSheetsApiService
     }
 
     // TODO: Make ptu or ptu_admin command that calls this
-    public static async clearCache(keys?: [string, string])
+    public static async clearCache(keys?: [string, string]): Promise<void>
     {
         this.cache.Clear(keys);
     }

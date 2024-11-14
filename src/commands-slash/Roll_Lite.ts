@@ -27,13 +27,10 @@ class Roll_Lite extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        {
-            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
-            newCallingUserId,
-        }: OnRerollCallbackOptions = {
+        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    )
+    ): Promise<void>
     {
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool', true);
@@ -88,6 +85,7 @@ class Roll_Lite extends BaseSlashCommand
         });
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     get description(): string
     {
         return 'Roll a dice pool with any number of any sided dice.';

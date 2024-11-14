@@ -15,6 +15,8 @@ import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
 import { PtuPokemon } from '../types/pokemon.js';
+import { PtuEdge } from '../types/PtuEdge.js';
+import { PtuFeature } from '../types/PtuFeature.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
 import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.js';
@@ -30,8 +32,6 @@ import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
-import { PtuEdge } from '../types/PtuEdge.js';
-import { PtuFeature } from '../types/PtuFeature.js';
 
 export class PtuStrategyExecutor
 {
@@ -52,7 +52,8 @@ export class PtuStrategyExecutor
         PtuRollSubcommand
     >);
 
-    static {
+    static
+    {
         // @ts-ignore -- TODO: Fix this type later
         this.strategies = {
             // @ts-ignore -- TODO: Fix this type later

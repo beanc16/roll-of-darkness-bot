@@ -2,13 +2,13 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { CommandInteraction } from 'discord.js';
 
-import { CombatTrackerType } from '../Combat_Tracker/types.js';
 import { Tracker } from '../Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import { RollOfDarknessPseudoCache } from '../Combat_Tracker/dal/RollOfDarknessPseudoCache.js';
 import { updateCombatTrackerEmbedMessage } from '../Combat_Tracker/embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../Combat_Tracker/message-component-handlers/combat_tracker.js';
 import * as options from '../Combat_Tracker/options.js';
 import { getCombatTrackerActionRows } from '../Combat_Tracker/select-menus/combat_tracker.js';
+import { CombatTrackerType } from '../Combat_Tracker/types.js';
 
 class Combat_Tracker extends BaseSlashCommand
 {
@@ -21,7 +21,8 @@ class Combat_Tracker extends BaseSlashCommand
             .addStringOption(options.type);
     }
 
-    async run(interaction: CommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: CommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         const message = await interaction.deferReply({
@@ -76,7 +77,8 @@ class Combat_Tracker extends BaseSlashCommand
             });
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Track characters' HP and/or initiative in combat.`;
     }

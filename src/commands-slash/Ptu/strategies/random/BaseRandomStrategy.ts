@@ -30,59 +30,59 @@ export class BaseRandomStrategy
         data: string;
         plural: string;
     }> = {
-        [PtuRandomSubcommand.Apricorn]: {
-            data: 'Apricorn',
-            plural: 'Apricorns',
-        },
-        [PtuRandomSubcommand.Berry]: {
-            data: 'Berry',
-            plural: 'Berries',
-        },
-        [PtuRandomSubcommand.DowsingRod]: {
-            data: 'Dowsing Rod Shard',
-            plural: 'Dowsing Rod Shards',
-        },
-        [PtuRandomSubcommand.EvolutionaryStone]: {
-            data: 'Evolutionary Stone',
-            plural: 'Evolutionary Stones',
-        },
-        [PtuRandomSubcommand.HealingItem]: {
-            data: 'Healing Item',
-            plural: 'Healing Items',
-        },
-        [PtuRandomSubcommand.HeldItem]: {
-            data: 'Held Item',
-            plural: 'Held Items',
-        },
-        [PtuRandomSubcommand.Metronome]: {
-            data: 'Moves',
-            plural: 'Metronomes',
-        },
-        [PtuRandomSubcommand.Nature]: {
-            data: 'Nature',
-            plural: 'Natures',
-        },
-        [PtuRandomSubcommand.Pickup]: {
-            data: 'Pickup',
-            plural: 'Pickups',
-        },
-        [PtuRandomSubcommand.Pokeball]: {
-            data: 'Pokeball',
-            plural: 'Pokeballs',
-        },
-        [PtuRandomSubcommand.XItem]: {
-            data: 'X-Item',
-            plural: 'X-Items',
-        },
-        [PtuRandomSubcommand.TM]: {
-            data: 'TM',
-            plural: 'TMs',
-        },
-        [PtuRandomSubcommand.Vitamin]: {
-            data: 'Vitamin',
-            plural: 'Vitamins',
-        },
-    };
+            [PtuRandomSubcommand.Apricorn]: {
+                data: 'Apricorn',
+                plural: 'Apricorns',
+            },
+            [PtuRandomSubcommand.Berry]: {
+                data: 'Berry',
+                plural: 'Berries',
+            },
+            [PtuRandomSubcommand.DowsingRod]: {
+                data: 'Dowsing Rod Shard',
+                plural: 'Dowsing Rod Shards',
+            },
+            [PtuRandomSubcommand.EvolutionaryStone]: {
+                data: 'Evolutionary Stone',
+                plural: 'Evolutionary Stones',
+            },
+            [PtuRandomSubcommand.HealingItem]: {
+                data: 'Healing Item',
+                plural: 'Healing Items',
+            },
+            [PtuRandomSubcommand.HeldItem]: {
+                data: 'Held Item',
+                plural: 'Held Items',
+            },
+            [PtuRandomSubcommand.Metronome]: {
+                data: 'Moves',
+                plural: 'Metronomes',
+            },
+            [PtuRandomSubcommand.Nature]: {
+                data: 'Nature',
+                plural: 'Natures',
+            },
+            [PtuRandomSubcommand.Pickup]: {
+                data: 'Pickup',
+                plural: 'Pickups',
+            },
+            [PtuRandomSubcommand.Pokeball]: {
+                data: 'Pokeball',
+                plural: 'Pokeballs',
+            },
+            [PtuRandomSubcommand.XItem]: {
+                data: 'X-Item',
+                plural: 'X-Items',
+            },
+            [PtuRandomSubcommand.TM]: {
+                data: 'TM',
+                plural: 'TMs',
+            },
+            [PtuRandomSubcommand.Vitamin]: {
+                data: 'Vitamin',
+                plural: 'Vitamins',
+            },
+        };
 
     static async run(
         interaction: ChatInputCommandInteraction,

@@ -25,8 +25,7 @@ export class RandomBerryStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ inputTier,
-            tier }: { inputTier: string; tier: number }) =>
+        const shouldInclude = ({ inputTier, tier }: { inputTier: string; tier: number }) =>
         {
             if (inputTier === BerryTier.OnePlus && tier >= 1) return true;
             if (inputTier === BerryTier.One && tier === 1) return true;

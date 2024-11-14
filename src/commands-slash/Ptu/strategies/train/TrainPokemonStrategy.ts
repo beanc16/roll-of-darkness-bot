@@ -27,10 +27,17 @@ interface GetSpreadsheetValuesResponse
     startingLevel?: number;
 }
 
+interface CalculateTrainingExpResponse
+{
+    newTotalExp: number;
+    newExpToNextLevel?: number;
+    newNumOfTrainingSessionsLeft: number;
+}
+
 @staticImplements<ChatIteractionStrategy>()
 export class TrainPokemonStrategy
 {
-    static key = ''; // Not necessary since train only has one strategy
+    public static key = ''; // Not necessary since train only has one strategy
     private static spreadsheetRangesToGetForTraining = {
         nickname: 'A1:B1',
         species: 'H1:J1',
@@ -51,7 +58,7 @@ export class TrainPokemonStrategy
         trainingExp: 'Training Exp:',
     };
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const characterName = interaction.options.getString('character_name', true) as PtuCharacterSheetName;
@@ -61,10 +68,7 @@ export class TrainPokemonStrategy
         const shouldUseBabyFood = interaction.options.getBoolean('should_use_baby_food') ?? false;
 
         // Parse spreadsheet id
-        const {
-            spreadsheetId,
-            discordUserIdsOfSpreadsheetEditors,
-        } = getSpreadsheetIdFromCharacterSheetName(characterName);
+        const { spreadsheetId, discordUserIdsOfSpreadsheetEditors } = getSpreadsheetIdFromCharacterSheetName(characterName);
 
         // Someone is trying to train a pokemon on a sheet they don't own
         if (!discordUserIdsOfSpreadsheetEditors.includes(interaction.user.id))
@@ -198,10 +202,7 @@ export class TrainPokemonStrategy
         }
 
         // Train the pokemon
-        const {
-            errorType,
-            newTotalExp,
-        } = await this.train({
+        const { errorType, newTotalExp } = await this.train({
             interaction,
             spreadsheetId,
             pokemonName,
@@ -236,10 +237,7 @@ export class TrainPokemonStrategy
         return true;
     }
 
-    private static async getSpreadsheetValues({
-        spreadsheetId,
-        pokemonName,
-    }: {
+    private static async getSpreadsheetValues({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
     }): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
@@ -341,13 +339,10 @@ export class TrainPokemonStrategy
         };
     }
 
-    private static async getLevel({
-        spreadsheetId,
-        pokemonName,
-    }: {
+    private static async getLevel({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
-    })
+    }): Promise<number | undefined>
     {
         const {
             data: [
@@ -396,10 +391,7 @@ export class TrainPokemonStrategy
         shouldUseBabyFood: boolean;
     }): Promise<{ newTotalExp: number; errorType?: GoogleSheetsApiErrorType }>
     {
-        const {
-            newTotalExp,
-            newNumOfTrainingSessionsLeft,
-        } = this.calculateTrainingExp({
+        const { newTotalExp, newNumOfTrainingSessionsLeft } = this.calculateTrainingExp({
             totalExp,
             expToNextLevel,
             trainingExp,
@@ -431,7 +423,7 @@ export class TrainPokemonStrategy
         {
             // Get updated data from the spreadsheet (in case training exp has been updated)
             const {
-                expToNextLevel,
+                expToNextLevel: newExpToNextLevel,
                 trainingExp: updatedTrainingExp,
                 startingLevel,
             } = await this.getSpreadsheetValues({
@@ -445,7 +437,7 @@ export class TrainPokemonStrategy
                 spreadsheetId,
                 pokemonName,
                 totalExp: newTotalExp,
-                expToNextLevel: expToNextLevel as number,
+                expToNextLevel: newExpToNextLevel as number,
                 trainingExp: updatedTrainingExp as number,
                 numOfTrainingSessions: newNumOfTrainingSessionsLeft,
                 expPerTrainingSessionOverride,
@@ -470,14 +462,14 @@ export class TrainPokemonStrategy
         numOfTrainingSessions: number;
         expPerTrainingSessionOverride: number | null;
         shouldUseBabyFood: boolean;
-    })
+    }): CalculateTrainingExpResponse
     {
         let newTotalExp = totalExp;
         let newExpToNextLevel = expToNextLevel;
         const babyFoodMultiplier = (shouldUseBabyFood) ? 1.2 : 1;
         const expToTrainWith = Math.floor((expPerTrainingSessionOverride ?? trainingExp) * babyFoodMultiplier);
 
-        for (let index = 1; index <= numOfTrainingSessions; index++)
+        for (let index = 1; index <= numOfTrainingSessions; index += 1)
         {
             newTotalExp += expToTrainWith;
             newExpToNextLevel -= expToTrainWith;
@@ -498,11 +490,12 @@ export class TrainPokemonStrategy
         };
     }
 
-    private static async sendPermissionError(interaction: ChatInputCommandInteraction, action: 'view' | 'edit')
+    private static async sendPermissionError(interaction: ChatInputCommandInteraction, action: 'view' | 'edit'): Promise<void>
     {
         await interaction.editReply(
             `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me edit permissions here shortly.`,
         );
+
         await interaction.user.send(
             `If you want to use \`/ptu train\`, then I need edit access to your character sheet. `
             + `If you aren't sure how to give me edit permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n`

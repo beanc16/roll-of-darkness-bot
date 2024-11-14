@@ -1,31 +1,28 @@
 import { Tracker } from '../commands-slash/Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
 import Singleton from '../services/Singleton/Singleton.js';
 
-interface CombatTrackerSingletonMap
-{
-    [key: string]: Tracker;
-}
+type CombatTrackerSingletonMap = Record<string, Tracker>;
 
 class CombatTrackersSingleton
 {
-    #singleton: Singleton<CombatTrackerSingletonMap>;
+    private singleton: Singleton<CombatTrackerSingletonMap>;
 
     constructor(input: CombatTrackerSingletonMap = {})
     {
-        this.#singleton = new Singleton(input);
+        this.singleton = new Singleton(input);
     }
 
-    getAll(): CombatTrackerSingletonMap
+    public getAll(): CombatTrackerSingletonMap
     {
-        return this.#singleton.get() || {};
+        return this.singleton.get() || {};
     }
 
-    get(key: string): Tracker
+    public get(key: string): Tracker
     {
         return this.getAll()[key];
     }
 
-    upsert(tracker: Tracker): void
+    public upsert(tracker: Tracker): void
     {
         const trackerId = tracker._id?.toString() as string;
         const map = this.getAll();
@@ -33,9 +30,9 @@ class CombatTrackersSingleton
         this.set(map);
     }
 
-    set(map: CombatTrackerSingletonMap = {}): void
+    public set(map: CombatTrackerSingletonMap = {}): void
     {
-        this.#singleton.set(map);
+        this.singleton.set(map);
     }
 }
 

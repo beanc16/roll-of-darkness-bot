@@ -9,8 +9,8 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 
 const combatTrackerColor = 0xCDCDCD;
 
@@ -52,10 +52,7 @@ const hpTypeToBoxMap = {
     [HpType.Aggravated]: '[ ✱ ]',
 };
 
-function getHpBoxes({
-    hpType,
-    hpValue,
-}: {
+function getHpBoxes({ hpType, hpValue }: {
     hpType: HpType;
     hpValue: number;
 }): string[]
@@ -184,10 +181,7 @@ function sortCharacterFields(characters: Character[] = []): Character[]
     return chractersClone;
 }
 
-function getCharacterFields({
-    tracker,
-    characters,
-}: CombatTrackerEmbedParameters): RestOrArray<APIEmbedField>
+function getCharacterFields({ tracker, characters }: CombatTrackerEmbedParameters): RestOrArray<APIEmbedField>
 {
     const sortedCharacters = sortCharacterFields(characters);
 
@@ -253,10 +247,7 @@ function getDescription(tracker: Tracker)
     return ' ';
 }
 
-function getCombatTrackerEmbedMessage({
-    tracker,
-    characters,
-}: CombatTrackerEmbedParameters)
+function getCombatTrackerEmbedMessage({ tracker, characters }: CombatTrackerEmbedParameters)
 {
     const fields = getCharacterFields({
         tracker,

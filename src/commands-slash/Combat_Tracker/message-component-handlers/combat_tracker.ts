@@ -23,10 +23,7 @@ async function handleMessageComponentsForCombatTracker({
     user?: User | APIUser | undefined;
 }): Promise<void>
 {
-    const {
-        componentType,
-        customId,
-    } = interaction;
+    const { componentType, customId } = interaction;
 
     if (componentType === ComponentType.StringSelect)
     {
