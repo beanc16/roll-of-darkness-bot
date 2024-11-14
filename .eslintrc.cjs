@@ -9,10 +9,10 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: [
         '@stylistic',
-        'destructuring-newline',
         'file-progress',
         'import-newlines',
         'import',
+        'newline-destructuring',
         'simple-import-sort',
     ],
     ignorePatterns: [
@@ -60,7 +60,10 @@ module.exports = {
         'no-shadow': 'off',                     // Disallow variable declarations from shadowing variables declared in the outer scope (turned off, as it causes a bug with the below typescript version of this same rule)
         '@typescript-eslint/no-shadow': 'error', // Disallow variable declarations from shadowing variables declared in the outer scope (but it's for TypeScript and JavaScript)
         'no-param-reassign': ['error', {        // Disallow reassigning function parameters within functions...
-            props: false,                       // ...but allow reassigning properties on objects
+            props: true,                        // ...but allow reassigning properties on objects
+            ignorePropertyModificationsFor: [   // ...ignore property changes for .reduce functions
+                'acc',
+            ],
         }],
         'no-unused-vars': ['error', {           // Disallow unused variables
             args: 'all',                        // All function parameters/arguments must be used
@@ -70,42 +73,40 @@ module.exports = {
         'prefer-template': 'off',               // Do not prefer template strings over string concatenation
 
         // Objects, Imports, & Exports
-        'destructuring-newline/object-property-newline': ['error', { // Deconstruct object properties on separate lines...
-            maxProperties: 3,                                       // ...if there's more than 3 properties
-        }],
         'import/prefer-default-export': 'off',                      // Do not prefer default export over named export
         'import-newlines/enforce': ['error', {                      // Import values on a new line...
             items: 2,                                               // ...when importing more than 2 items with one import statement
         }],
-        'object-curly-newline': ['error', {     // Enforce consistent line breaks after opening and before closing braces for...
-            ObjectExpression: {                 // ...object literals with at least 3 properties
+        '@stylistic/object-curly-newline': ['error', {  // Enforce consistent line breaks after opening and before closing braces for...
+            ObjectExpression: {                         // ...object literals with at least 3 properties
                 multiline: true,
                 minProperties: 3,
                 consistent: true,
             },
-            ObjectPattern: {                    // ...object patterns of destructuring assignments with at least 3 properties
+            ObjectPattern: {                            // ...object patterns of destructuring assignments with at least 3 properties
                 multiline: true,
                 minProperties: 3,
                 consistent: true,
             },
-            ImportDeclaration: {                // ...named imports with at least 3 properties
+            ImportDeclaration: {                        // ...named imports with at least 3 properties
                 multiline: true,
                 minProperties: 3,
             },
-            ExportDeclaration: {                // ...named exports with at least 3 properties
+            ExportDeclaration: {                        // ...named exports with at least 3 properties
                 multiline: true,
                 minProperties: 3,
             },
         }],
-        'object-curly-spacing': 'error',        // Enforce consistent spacing inside curly brackets
-        'object-property-newline': ['error', {          // Enforce placing object properties on separate lines such that...
-            allowAllPropertiesOnSameLine: false,        // ...all properties are on separate lines
+        'object-curly-spacing': 'error',            // Enforce consistent spacing inside curly brackets
+        '@stylistic/object-property-newline': ['error', {   // Enforce placing object properties on separate lines such that...
+            allowAllPropertiesOnSameLine: false,            // ...all properties are on separate lines
         }],
-        'simple-import-sort/imports': 'error',  // Enforce sorting of imports
-        'simple-import-sort/exports': 'error',  // Enforce sorting of exports
-        'import/extensions': ['error', {    // Require extensions for imports...
-            ts: 'never',                    // ... except for .ts files since this plugin doesn't allow .js imports in .ts files which is needed for our TS config, but the compiler will catch any import issues anyways
-            js: 'always',                   // ... in .js files for ESM compatibility
+        'newline-destructuring/newline': 'error',   // Deconstruct object properties on separate lines if objects have more than 3 or more properties
+        'simple-import-sort/imports': 'error',      // Enforce sorting of imports
+        'simple-import-sort/exports': 'error',      // Enforce sorting of exports
+        'import/extensions': ['error', {        // Require extensions for imports...
+            ts: 'never',                        // ... except for .ts files since this plugin doesn't allow .js imports in .ts files which is needed for our TS config, but the compiler will catch any import issues anyways
+            js: 'always',                       // ... in .js files for ESM compatibility
         }],
 
         // Promises & Async
@@ -141,7 +142,18 @@ module.exports = {
             },
             rules: {
                 // Spacing, Whitespace, Padding, Etc.
-                '@stylistic/indent': ['error', 4],                          // Do 4-space indentation (not tabs)
+                '@stylistic/indent': ['error', 4, {                             // Do 4-space indentation (not tabs)
+                    // Ignore indents
+                    ignoredNodes: [
+                        'FunctionExpression > .params[decorators.length > 0]',  // Ignore indentation rules for parameters in function expressions with decorators
+                        'FunctionDeclaration > .params[decorators.length > 0]', // Ignore indentation rules for parameters in function declarations with decorators
+                    ],
+                    FunctionDeclaration: { parameters: 'first' },               // For function declarations, align parameters with the first parameter on the next line
+                    FunctionExpression: { parameters: 'first' },                // For function expressions, align parameters with the first parameter on the next line
+                    CallExpression: { arguments: 'first' },                     // For function calls, align arguments with the first argument on the next line
+                    ArrayExpression: 'first',                                   // For array literals, align elements with the first element on the next line
+                    ObjectExpression: 'first',                                  // For object literals, align properties with the first property on the next line
+                }],
                 '@stylistic/indent-binary-ops': ['error', 4],               // Do 4-space indentation (not tabs) for binary operations
 
                 // Miscellaneous
