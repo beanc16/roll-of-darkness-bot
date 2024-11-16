@@ -14,6 +14,12 @@ enum HealingItemTypes
     Status = 'Status',
 }
 
+interface ShouldIncludeParameters
+{
+    inputType: string;
+    type: string;
+}
+
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHealingItemStrategy
 {
@@ -32,17 +38,10 @@ export class RandomHealingItemStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ inputType, type }: { inputType: string; type: string }) =>
-            (
-                inputType === HealingAndStatusOption.HealingAndStatus
-                || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
-                || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
-            );
-
         // Parse the data
         const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) =>
         {
-            if (shouldInclude({ inputType, type }))
+            if (this.shouldInclude({ inputType, type }))
             {
                 acc.push({
                     name,
@@ -58,5 +57,14 @@ export class RandomHealingItemStrategy
             commandName: `ptu random ${this.key}`,
             parsedData,
         }, undefined, shouldReturnMessageOptions);
+    }
+
+    private static shouldInclude({ inputType, type }: ShouldIncludeParameters): boolean
+    {
+        return (
+            inputType === HealingAndStatusOption.HealingAndStatus
+            || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
+            || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
+        );
     }
 }

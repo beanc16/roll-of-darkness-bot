@@ -38,10 +38,9 @@ class Probability extends BaseSlashCommand
         const isAdvancedAction = interaction.options.getBoolean('advanced_action');
 
         // Check probability
-        const probabilityService = new DiceProbabilityService();
         const {
             cumulativeProbability: probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-        } = await probabilityService.getProbabilityOfRolling({
+        } = await DiceProbabilityService.getProbabilityOfRolling({
             numberOfDice,
             desiredNumberOfSuccesses,
             rerolls: rollOptions.rerollChoices[

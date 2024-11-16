@@ -1,7 +1,7 @@
 import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
 
 import rollConstants from '../constants/roll.js';
-import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
+import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi/CachedRollOfDarknessApi.js';
 
 interface GetProbabilityOfRollingResponse
 {
@@ -11,7 +11,7 @@ interface GetProbabilityOfRollingResponse
 
 export default class DiceProbabilityService
 {
-    public async getProbabilityOfRolling({
+    public static async getProbabilityOfRolling({
         numberOfDice = rollConstants.defaultParams.count,
         desiredNumberOfSuccesses = 1,
         rerolls = '10again',

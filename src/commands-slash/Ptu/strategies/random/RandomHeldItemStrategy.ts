@@ -15,6 +15,13 @@ enum HeldItemTypes
     Badge = 'Badge',
 }
 
+interface ShouldIncludeParameters
+{
+    type: string;
+    includeMega: boolean;
+    includeBadges: boolean;
+}
+
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHeldItemStrategy
 {
@@ -34,22 +41,13 @@ export class RandomHeldItemStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({
-            type,
-            includeMega,
-            includeBadges,
-        }: { type: string; includeMega: boolean; includeBadges: boolean }) =>
-            (
-                type === HeldItemTypes.Normal
-                || (type === HeldItemTypes.Mega && includeMega)
-                || (type === HeldItemTypes.Badge && includeBadges)
-            );
-
         // Parse the data
         const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) =>
         {
-            if (shouldInclude({
-                type, includeMega, includeBadges,
+            if (this.shouldInclude({
+                type,
+                includeMega,
+                includeBadges,
             }))
             {
                 acc.push({
@@ -67,4 +65,17 @@ export class RandomHeldItemStrategy
             parsedData,
         }, undefined, shouldReturnMessageOptions);
     }
+
+    private static shouldInclude({
+        type,
+        includeMega,
+        includeBadges,
+    }: ShouldIncludeParameters): boolean
+    {
+        return (
+            type === HeldItemTypes.Normal
+            || (type === HeldItemTypes.Mega && includeMega)
+            || (type === HeldItemTypes.Badge && includeBadges)
+        );
+    };
 }
