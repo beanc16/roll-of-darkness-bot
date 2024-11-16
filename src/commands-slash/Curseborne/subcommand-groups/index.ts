@@ -16,7 +16,7 @@ export enum CurseborneSubcommand
 
 export type CurseborneAllNestedSubcommands = lookupSubcommands.CurseborneLookupSubcommand;
 
-export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(CurseborneSubcommandGroup.Lookup);
     subcommandGroup.setDescription('Run Cursebourne lookup commands.');
@@ -30,7 +30,7 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
+export const roll = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(CurseborneSubcommand.Roll);
     subcommand.setDescription('Run d10s following Cursebourne rules.');

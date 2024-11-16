@@ -5,7 +5,7 @@ import { PtuQuickReferenceInfo } from '../../subcommand-groups/index.js';
 
 export class BaseQuickReferenceStrategy
 {
-    static async run(
+    public static async run(
         interaction: ChatInputCommandInteraction,
         subcommand: PtuQuickReferenceInfo,
     ): Promise<boolean>

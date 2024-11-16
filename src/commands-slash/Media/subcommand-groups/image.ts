@@ -12,32 +12,32 @@ export enum MediaImageSubcommand
     Upscale = 'upscale',
 }
 
-const imageOption = (option: SlashCommandAttachmentOption) =>
+const imageOption = (option: SlashCommandAttachmentOption): SlashCommandAttachmentOption =>
 {
     option.setName('image');
     return option.setDescription('An image. This will take precedence over image_url.');
 };
 
-const imageUrlOption = (option: SlashCommandStringOption) =>
+const imageUrlOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
 {
     option.setName('image_url');
     return option.setDescription('The URL of an image.');
 };
 
-const fileNameOption = (option: SlashCommandStringOption) =>
+const fileNameOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
 {
     option.setName('file_name');
     return option.setDescription('The name to give the image file.');
 };
 
-const baseImageSubcommand = (subcommand: SlashCommandSubcommandBuilder) =>
+const baseImageSubcommand = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.addAttachmentOption(imageOption);
     subcommand.addStringOption(imageUrlOption);
     return subcommand.addStringOption(fileNameOption);
 };
 
-export const background = (subcommand: SlashCommandSubcommandBuilder) =>
+export const background = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName('background');
     subcommand.setDescription('Change the image\'s background color.');
@@ -73,7 +73,7 @@ export const background = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const upscale = (subcommand: SlashCommandSubcommandBuilder) =>
+export const upscale = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName('upscale');
     subcommand.setDescription('Upscale an image by 4x.');

@@ -10,7 +10,7 @@ export class QrTypeChartStrategy
 {
     public static key = PtuQuickReferenceInfo.TypeChart;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseQuickReferenceStrategy.run(interaction, this.key);
     }

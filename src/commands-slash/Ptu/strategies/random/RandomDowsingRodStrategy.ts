@@ -50,7 +50,7 @@ export class RandomDowsingRodStrategy
         {
             if (roll >= 4)
             {
-                acc += 1;
+                return acc + 1;
             }
 
             return acc;

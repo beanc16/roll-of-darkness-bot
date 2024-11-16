@@ -84,7 +84,7 @@ export class BaseRandomStrategy
             },
         };
 
-    static async run(
+    public static async run(
         interaction: ChatInputCommandInteraction,
         subcommand: PtuRandomSubcommand,
         options: BaseRandomStrategyOptions,
@@ -176,7 +176,7 @@ export class BaseRandomStrategy
         return true;
     }
 
-    private static getNumberOfDice(interaction: ChatInputCommandInteraction, options: BaseRandomStrategyOptions)
+    private static getNumberOfDice(interaction: ChatInputCommandInteraction, options: BaseRandomStrategyOptions): number | null
     {
         if (options.numberOfDice)
         {
@@ -187,7 +187,7 @@ export class BaseRandomStrategy
         return interaction.options.getInteger('number_of_dice');
     }
 
-    private static async getParsedData(subcommand: PtuRandomSubcommand, options: BaseRandomStrategyOptions)
+    private static async getParsedData(subcommand: PtuRandomSubcommand, options: BaseRandomStrategyOptions): Promise<RandomResult[]>
     {
         if (options.parsedData)
         {

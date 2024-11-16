@@ -5,14 +5,18 @@ export enum MediaInstagramSubcommand
     Download = 'download',
 }
 
-const instagramPostUrlOption = (option: SlashCommandStringOption, index: number, isRequired: boolean = false) =>
+const instagramPostUrlOption = (
+    option: SlashCommandStringOption,
+    index: number,
+    isRequired: boolean = false,
+): SlashCommandStringOption =>
 {
     option.setName(`url_${index}`);
     option.setDescription('A URL of an instagram post.');
     return option.setRequired(isRequired);
 };
 
-export const download = (subcommand: SlashCommandSubcommandBuilder) =>
+export const download = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(MediaInstagramSubcommand.Download);
     subcommand.setDescription('Get a list of images to download based on the given post urls.');

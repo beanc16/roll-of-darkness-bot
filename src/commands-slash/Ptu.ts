@@ -60,7 +60,8 @@ class Ptu extends BaseSlashCommand
             .addSubcommand(train);
     }
 
-    public async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -85,7 +86,7 @@ class Ptu extends BaseSlashCommand
         }
     }
 
-    public async autocomplete(interaction: AutocompleteInteraction)
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
@@ -274,6 +275,7 @@ class Ptu extends BaseSlashCommand
         await interaction.respond(limitedChoices);
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     get description(): string
     {
         return `Run PTU commands.`;

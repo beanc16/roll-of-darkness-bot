@@ -7,7 +7,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 export class BaseImageStrategy
 {
-    static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
     {
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');

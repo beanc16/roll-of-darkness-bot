@@ -47,7 +47,7 @@ export class LookupAbilityStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupAbilityDataParameters = {})
+    public static async getLookupData(input: GetLookupAbilityDataParameters = {}): Promise<PtuAbility[]>
     {
         try
         {

@@ -10,7 +10,7 @@ export class QrDamageChartsStrategy
 {
     public static key = PtuQuickReferenceInfo.DamageCharts;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseQuickReferenceStrategy.run(interaction, this.key);
     }

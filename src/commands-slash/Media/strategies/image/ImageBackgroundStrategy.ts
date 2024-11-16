@@ -11,7 +11,7 @@ export class ImageBackgroundStrategy
 {
     public static key = MediaImageSubcommand.Background;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         const backgroundColor = interaction.options.getString('color') as FileStorageMicroserviceImageBackground | null;
         const rgbHexCode = interaction.options.getString('hex_code');

@@ -10,7 +10,7 @@ export class QrNatureChartStrategy
 {
     public static key = PtuQuickReferenceInfo.NatureChart;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseQuickReferenceStrategy.run(interaction, this.key);
     }

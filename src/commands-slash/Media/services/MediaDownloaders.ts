@@ -21,7 +21,7 @@ export class InstagramMediaDownloader
     /**
      * Get a list of download urls. Each nested array maps to a given url.
      */
-    static async getPagedDownloadUrls(urls: string[]): Promise<Buffer[][]>
+    public static async getPagedDownloadUrls(urls: string[]): Promise<Buffer[][]>
     {
         const promises = urls.map(url => instagramGetUrl(url));
         const unparsedResults = await Promise.all(promises);
@@ -46,12 +46,15 @@ export class InstagramMediaDownloader
         {
             const imageBuffers: Buffer[] = [];
 
+            // eslint-disable-next-line no-restricted-syntax -- Allow this for sequential followup messages
             for (const url of pages)
             {
                 // Get image
+                // eslint-disable-next-line no-await-in-loop -- Send sequential await messages
                 const response = await fetch(url);
 
                 // Convert to Buffer
+                // eslint-disable-next-line no-await-in-loop -- Send sequential await messages
                 const arrayBuffer = await response.arrayBuffer();
                 const buffer = this.toBuffer(arrayBuffer);
 
@@ -69,6 +72,7 @@ export class InstagramMediaDownloader
         const buffer = Buffer.alloc(arrayBuffer.byteLength);
         const view = new Uint8Array(arrayBuffer);
 
+        // eslint-disable-next-line no-plusplus -- TODO: Fix this later
         for (let i = 0; i < buffer.length; ++i)
         {
             buffer[i] = view[i];

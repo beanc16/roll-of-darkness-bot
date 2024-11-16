@@ -10,7 +10,7 @@ export class QrSwitchingPokemonStrategy
 {
     public static key = PtuQuickReferenceInfo.SwitchingPokemon;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseQuickReferenceStrategy.run(interaction, this.key);
     }

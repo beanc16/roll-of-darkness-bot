@@ -27,7 +27,7 @@ export class RollStrategy
         const name = interaction.options.getString('name');
         const numberOfCursedDice = interaction.options.getInteger('cursed_dice') ?? 0;
         const enhancements = interaction.options.getInteger('enhancements') ?? 0;
-        const successesKey = interaction.options.getString('double_successes') as TwoSuccessesOption | null;
+        const successesKey = interaction.options.getString('double_successes') as TwoSuccessesOption.DoubleTens;
 
         // Convert parameters to necessary inputs for service calls
         const twoSuccessesOn = this.getTwoSuccessesOn(successesKey);
@@ -76,7 +76,7 @@ export class RollStrategy
         return true;
     }
 
-    private static getTwoSuccessesOn(twoSuccessesOn: TwoSuccessesOption | null): number
+    private static getTwoSuccessesOn(twoSuccessesOn: TwoSuccessesOption): number
     {
         if (twoSuccessesOn === TwoSuccessesOption.DoubleTens)
         {
@@ -112,7 +112,7 @@ export class RollStrategy
         interaction: ChatInputCommandInteraction;
         numberOfDice: number;
         enhancements: number;
-        successesKey: TwoSuccessesOption | null;
+        successesKey: TwoSuccessesOption;
         name: string | null;
         numOfSuccesses: number;
         rollResults: number[];
@@ -122,11 +122,12 @@ export class RollStrategy
         rerollCallbackOptions: OnRerollCallbackOptions;
     }): string
     {
-        const againString = (successesKey === TwoSuccessesOption.DoubleNines)
-            ? 'double 9s'
-            : (successesKey === TwoSuccessesOption.NoDoubles)
-                ? 'no double 10s'
-                : '';
+        const twoSuccessesOptionToAgainString: Record<TwoSuccessesOption, string> = {
+            [TwoSuccessesOption.DoubleNines]: 'double 9s',
+            [TwoSuccessesOption.NoDoubles]: 'no double 10s',
+            [TwoSuccessesOption.DoubleTens]: '',
+        };
+        const againString = twoSuccessesOptionToAgainString[successesKey];
 
         const enhancementsString = (enhancements > 0)
             ? `${enhancements} enhancements`
@@ -192,7 +193,7 @@ export class RollStrategy
     private static getRollString({ numOfSuccesses, rollResults }: {
         numOfSuccesses: number;
         rollResults: number[];
-    })
+    }): string
     {
         const successesAsSingularOrPlural = (numOfSuccesses !== 1)
             ? 'hits'

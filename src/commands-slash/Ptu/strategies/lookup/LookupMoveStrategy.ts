@@ -76,7 +76,7 @@ export class LookupMoveStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupMoveDataParameters = {})
+    public static async getLookupData(input: GetLookupMoveDataParameters = {}): Promise<PtuMove[]>
     {
         try
         {

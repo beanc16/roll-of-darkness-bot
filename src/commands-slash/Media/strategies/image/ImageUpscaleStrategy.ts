@@ -11,7 +11,7 @@ export class ImageUpscaleStrategy
 {
     public static key = MediaImageSubcommand.Upscale;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseImageStrategy.run(interaction, {
             effect: FileStorageMicroserviceImageEffect.Upscale,

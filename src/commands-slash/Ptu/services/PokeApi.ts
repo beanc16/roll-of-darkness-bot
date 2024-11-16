@@ -118,7 +118,7 @@ export class PokeApi
         return (parsedNames) || [];
     }
 
-    private static async getByName(name?: string)
+    private static async getByName(name?: string): Promise<Pokedex.Pokemon | undefined>
     {
         const parsedName = this.parseName(name);
 
@@ -142,7 +142,7 @@ export class PokeApi
         }
     }
 
-    private static async getByNames(names?: string[])
+    private static async getByNames(names?: string[]): Promise<Pokedex.Pokemon[] | undefined>
     {
         const parsedNames = this.parseNames(names);
 

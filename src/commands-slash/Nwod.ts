@@ -23,7 +23,8 @@ class Nwod extends BaseSlashCommand
             .addSubcommand(luck);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Get parameter results
         const isSecret = interaction.options.getBoolean('secret') ?? false;
@@ -48,7 +49,8 @@ class Nwod extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run nWOD commands.`;
     }

@@ -13,7 +13,7 @@ export class CalculateCaptureRatingStrategy
 {
     public static key = PtuCalculateSubcommand.CaptureRating;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const pokemonLevel = interaction.options.getInteger('pokemon_level', true);
@@ -122,7 +122,7 @@ export class CalculateCaptureRatingStrategy
         isShiny: boolean;
         isParadox: boolean;
         isLegendary: boolean;
-    })
+    }): number
     {
         let modifier = 0;
 

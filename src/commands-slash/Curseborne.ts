@@ -28,7 +28,8 @@ class Cursebourne extends BaseSlashCommand
             .addSubcommand(roll);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Get parameter results
         const isSecret = interaction.options.getBoolean('secret') ?? false;
@@ -55,7 +56,8 @@ class Cursebourne extends BaseSlashCommand
         }
     }
 
-    async autocomplete(interaction: AutocompleteInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const focusedValue = interaction.options.getFocused(true);
 
@@ -94,12 +96,14 @@ class Cursebourne extends BaseSlashCommand
         await interaction.respond(limitedChoices);
     }
 
-    get commandName()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get commandName(): string
     {
         return 'cb';
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run Cursebourne commands.`;
     }

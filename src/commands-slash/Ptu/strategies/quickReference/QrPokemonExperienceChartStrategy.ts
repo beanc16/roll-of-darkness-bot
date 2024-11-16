@@ -10,7 +10,7 @@ export class QrPokemonExperienceChartStrategy
 {
     public static key = PtuQuickReferenceInfo.PokemonExperienceChart;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         return await BaseQuickReferenceStrategy.run(interaction, this.key);
     }

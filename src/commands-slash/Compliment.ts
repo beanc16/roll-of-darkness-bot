@@ -21,7 +21,7 @@ class Compliment extends BaseSlashCommand
             .addStringOption(type);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -77,7 +77,8 @@ class Compliment extends BaseSlashCommand
         return '❤️'; // Red heart
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Compliment your friend.`;
     }

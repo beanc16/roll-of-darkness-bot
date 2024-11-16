@@ -22,7 +22,8 @@ class Media extends BaseSlashCommand
             .addSubcommandGroup(instagram);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -58,7 +59,8 @@ class Media extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run media commands.`;
     }

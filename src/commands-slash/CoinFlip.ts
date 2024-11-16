@@ -76,7 +76,8 @@ class CoinFlip extends BaseSlashCommand
         });
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Flip a coin.`;
     }

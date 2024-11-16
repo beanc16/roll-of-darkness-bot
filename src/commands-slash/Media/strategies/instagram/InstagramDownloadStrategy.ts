@@ -10,14 +10,14 @@ export class InstagramDownloadStrategy
 {
     public static key = MediaInstagramSubcommand.Download;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results as an array
         const inputUrls: string[] = [];
 
-        for (let i = 1; i <= 10; i++)
+        for (let index = 1; index <= 10; index += 1)
         {
-            const curUrl = interaction.options.getString(`url_${i}`);
+            const curUrl = interaction.options.getString(`url_${index}`);
 
             if (curUrl !== null)
             {
@@ -67,8 +67,10 @@ export class InstagramDownloadStrategy
         });
 
         // Reply to the original message with all files after the first
+        // eslint-disable-next-line no-restricted-syntax -- Allow this for sequential followup messages
         for (const attachments of pagedAttachments.slice(1))
         {
+            // eslint-disable-next-line no-await-in-loop -- Send sequential await messages
             await interaction.followUp({
                 files: attachments,
             });

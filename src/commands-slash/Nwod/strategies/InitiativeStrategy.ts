@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { DicePoolGroup } from '../../../services/DicePoolGroup.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
 import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
@@ -58,7 +59,7 @@ export class InitiativeStrategy
         return true;
     }
 
-    private static roll()
+    private static roll(): DicePoolGroup
     {
         // Get parameter results
         const numberOfDice = 1;
@@ -78,7 +79,7 @@ export class InitiativeStrategy
         return dicePoolGroup;
     }
 
-    public static rollWithModifier(modifier = 0)
+    public static rollWithModifier(modifier = 0): number
     {
         const dicePoolGroup = this.roll();
         const [result] = dicePoolGroup.getBiggestResult().rollResults;

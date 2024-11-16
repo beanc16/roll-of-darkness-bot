@@ -381,7 +381,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             `Special Attack: ${baseStats.specialAttack}`,
             `Special Defense: ${baseStats.specialDefense}`,
             `Speed: ${baseStats.speed}`,
-            `Total: ${Object.values(baseStats).reduce((acc, val) => acc + val, 0)}`,
+            `Total: ${Object.values(baseStats).reduce((acc2, val) => acc2 + val, 0)}`,
             '',
             Text.bold('Basic Information'),
             `Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`,
@@ -680,9 +680,9 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
             return acc;
         }, description);
 
-        description = levelUp.reduce((acc, { level, pokemon }) =>
+        description = levelUp.reduce((acc, { level, pokemon: curPokemon }) =>
         {
-            acc += `${level} ${pokemon.name}\n`;
+            acc += `${level} ${curPokemon.name}\n`;
             return acc;
         }, description);
     }
@@ -765,13 +765,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { 
         highAbility: highAbilities,
     } = pokemon.reduce((acc, curPokemon) =>
     {
-        const {
-            abilities: {
-                basicAbilities,
-                advancedAbilities,
-                highAbility,
-            },
-        } = curPokemon;
+        const { abilities } = curPokemon;
 
         if (abilityListType !== PtuAbilityListType.All)
         {
@@ -779,21 +773,21 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { 
             return acc;
         }
 
-        const basicAbility = basicAbilities.find(ability => ability === abilityName);
+        const basicAbility = abilities.basicAbilities.find(ability => ability === abilityName);
         if (basicAbility)
         {
             acc[PtuAbilityListType.Basic].push(curPokemon);
             return acc;
         }
 
-        const advancedAbility = advancedAbilities.find(ability => ability === abilityName);
+        const advancedAbility = abilities.advancedAbilities.find(ability => ability === abilityName);
         if (advancedAbility)
         {
             acc[PtuAbilityListType.Advanced].push(curPokemon);
             return acc;
         }
 
-        if (highAbility === abilityName)
+        if (abilities.highAbility === abilityName)
         {
             acc[PtuAbilityListType.High].push(curPokemon);
             return acc;

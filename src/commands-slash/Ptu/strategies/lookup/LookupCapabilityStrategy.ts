@@ -20,7 +20,7 @@ export class LookupCapabilityStrategy
 {
     public static key = PtuLookupSubcommand.Capability;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('capability_name');
@@ -40,7 +40,7 @@ export class LookupCapabilityStrategy
 
     private static async getLookupData(input: GetLookupCapabilityDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuCapability[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

@@ -14,7 +14,7 @@ export const getRandomResultEmbedMessage = ({
     itemNamePluralized: string;
     results: RandomResult[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
@@ -49,7 +49,7 @@ export const getRandomResultEmbedMessage = ({
 export const getRandomYouFoundNothingEmbedMessage = ({ itemNamePluralized, rollResults }: {
     itemNamePluralized: string;
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const embed = new EmbedBuilder()
         .setTitle(`Random ${itemNamePluralized}`)
@@ -69,7 +69,7 @@ export const getRandomDowsingRodEmbedMessage = ({
     results: RandomResult[];
     findingShardRollResults: string;
     shardColorRollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
@@ -109,7 +109,7 @@ export const getRandomNatureEmbedMessage = ({
     itemNamePluralized: string;
     results: PtuNature[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
@@ -149,7 +149,7 @@ export const getRandomPokeballEmbedMessage = ({
     itemNamePluralized: string;
     results: RandomPokeball[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,

@@ -5,7 +5,7 @@ export enum CurseborneLookupSubcommand
     Trick = 'trick',
 }
 
-export function trick(subcommand: SlashCommandSubcommandBuilder)
+export function trick(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
 {
     subcommand.setName(CurseborneLookupSubcommand.Trick);
     subcommand.setDescription('Get one or more tricks based on the given parameters.');
