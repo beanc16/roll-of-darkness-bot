@@ -111,9 +111,6 @@ export class CachedGoogleSheetsApiService
                         ...(parameters?.spreadsheetId && {
                             spreadsheetId: parameters?.spreadsheetId,
                         }),
-                        ...(parameters?.spreadsheet && {
-                            spreadsheet: parameters?.spreadsheet,
-                        }),
                     });
                     return {
                         errorType: GoogleSheetsApiErrorType.UserNotAddedToSheet,
@@ -210,7 +207,7 @@ export class CachedGoogleSheetsApiService
             ...parameters
         } = initialParameters;
 
-        const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
+        const cacheSpreadsheetKey = parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
         for (let i = 0; i <= this.retries; i += 1)
@@ -254,9 +251,6 @@ export class CachedGoogleSheetsApiService
                     logger.warn('The automated user is not added to the queried sheet. Please add them.', {
                         ...(parameters?.spreadsheetId && {
                             spreadsheetId: parameters?.spreadsheetId,
-                        }),
-                        ...(parameters?.spreadsheet && {
-                            spreadsheet: parameters?.spreadsheet,
                         }),
                     });
                     return {
