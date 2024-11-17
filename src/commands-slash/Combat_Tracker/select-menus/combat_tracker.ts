@@ -1,4 +1,8 @@
-import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
+import {
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
+} from 'discord.js';
 
 import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 import { CombatTrackerOption, combatTrackerOptions } from './options/combat_tracker.js';
@@ -20,7 +24,9 @@ export const selectMenuCustomIds = {
     initiativeSelect: 'initiative_select',
 };
 
-function parseSelectMenuOptions({ typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters)
+function parseSelectMenuOptions(
+    { typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters,
+): { hpOptions: StringSelectMenuOptionBuilder[]; initiativeOptions: StringSelectMenuOptionBuilder[] }
 {
     // Get the relevant combat trackers based on the type of combat tracker
     const { hpCombatTrackers, initiativeCombatTrackers } = combatTrackerOptions.reduce((acc, cur) =>
@@ -99,7 +105,9 @@ function getCombatTrackerSelectMenus({ typeOfTracker, combatTrackerStatus }: Get
     return response;
 }
 
-export function getCombatTrackerActionRows({ typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters)
+export function getCombatTrackerActionRows(
+    { typeOfTracker, combatTrackerStatus }: GetCombatTrackerSelectMenusParamters,
+): ActionRowBuilder<StringSelectMenuBuilder>[]
 {
     const { characterOptionSelectMenu, initiativeSelectMenu } = getCombatTrackerSelectMenus({
         typeOfTracker,

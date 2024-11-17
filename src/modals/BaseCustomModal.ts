@@ -16,11 +16,13 @@ interface InputValue
     typeOfValue: 'string' | 'integer' | 'boolean';
 }
 
+export type InputValuesMap = Record<string, InputValue[]>;
+
 export abstract class BaseCustomModal
 {
     public static id: string;
     public static title: string;
-    protected static inputValuesMap: Record<string, InputValue[]>;
+    protected static inputValuesMap: InputValuesMap;
     protected static styleMap: Record<string, TextInputStyle>;
     protected static inputData: unknown;
 

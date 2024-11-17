@@ -4,9 +4,9 @@ import { ChatInputCommandInteraction, User } from 'discord.js';
 
 import {
     ComplimentType,
-    friend,
-    reason,
-    type,
+    friend as friendOption,
+    reason as reasonOption,
+    type as typeOption,
 } from './options/compliment.js';
 
 class Compliment extends BaseSlashCommand
@@ -16,11 +16,12 @@ class Compliment extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addUserOption(friend)
-            .addStringOption(reason)
-            .addStringOption(type);
+            .addUserOption(friendOption)
+            .addStringOption(reasonOption)
+            .addStringOption(typeOption);
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
@@ -33,7 +34,7 @@ class Compliment extends BaseSlashCommand
         const unparsedReason = interaction.options.getString('reason');
         const type = interaction.options.getString('type') as ComplimentType ?? ComplimentType.Beat;
 
-        const message = this.getMessage({
+        const message = Compliment.getMessage({
             interaction,
             friend,
             type,
@@ -43,7 +44,7 @@ class Compliment extends BaseSlashCommand
         await interaction.editReply(message);
     }
 
-    getMessage({
+    private static getMessage({
         interaction,
         friend,
         type,
@@ -53,7 +54,7 @@ class Compliment extends BaseSlashCommand
         friend: User;
         unparsedReason: string | null;
         type: ComplimentType;
-    })
+    }): string
     {
         const reason = (unparsedReason)
             ? `\n> ${unparsedReason}`
@@ -64,10 +65,10 @@ class Compliment extends BaseSlashCommand
             : 'complimented';
 
         return `${Text.Ping.user(interaction.user.id)} ${complimentText} `
-            + `${Text.Ping.user(friend.id)} ${this.getEmoji(type)}${reason}`;
+            + `${Text.Ping.user(friend.id)} ${Compliment.getEmoji(type)}${reason}`;
     }
 
-    getEmoji(type: ComplimentType)
+    private static getEmoji(type: ComplimentType): string
     {
         if (type === ComplimentType.Beat)
         {

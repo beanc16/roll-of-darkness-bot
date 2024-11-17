@@ -5,10 +5,10 @@ import {
     TextInputStyle,
 } from 'discord.js';
 
-import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import { BaseCustomModal, InputValuesMap } from '../../../modals/BaseCustomModal.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
-import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
@@ -21,44 +21,44 @@ import {
 export enum EditCharacterHpCustomIds
 {
     Name = 'name-text-input',
+    // eslint-disable-next-line @typescript-eslint/no-shadow -- This is an enum property and not an import, so allow the similar name.
     HpType = 'hp-type-text-input',
     Hp = 'hp-text-input',
+    // eslint-disable-next-line @typescript-eslint/no-shadow -- This is an enum property and not an import, so allow the similar name.
     DamageType = 'damage-type-text-input',
 }
 
 export class EditCharacterHpModal extends BaseCustomModal
 {
-    static
-    {
-        this.id = 'edit-character-modal';
-        this.title = 'Edit Character';
-        this.inputValuesMap = {
-            [EditCharacterHpCustomIds.HpType]: [
-                {
-                    key: 'hpType',
-                    label: '',
-                    value: HpType.Damage,
-                    typeOfValue: 'string',
-                },
-            ],
-            [EditCharacterHpCustomIds.DamageType]: [
-                {
-                    key: 'damageType',
-                    label: '',
-                    value: DamageType.Lethal,
-                    typeOfValue: 'string',
-                },
-            ],
-        };
-        this.styleMap = {
-            [EditCharacterHpCustomIds.Name]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.HpType]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.Hp]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.DamageType]: TextInputStyle.Short,
-        };
-    }
+    public static id = 'edit-character-modal';
+    public static title = 'Edit Character';
+    protected static inputValuesMap: InputValuesMap = {
+        [EditCharacterHpCustomIds.HpType]: [
+            {
+                key: 'hpType',
+                label: '',
+                value: HpType.Damage,
+                typeOfValue: 'string',
+            },
+        ],
+        [EditCharacterHpCustomIds.DamageType]: [
+            {
+                key: 'damageType',
+                label: '',
+                value: DamageType.Lethal,
+                typeOfValue: 'string',
+            },
+        ],
+    };
 
-    static getTextInputs<TextInputParamaters = Tracker>(mistypedTracker: TextInputParamaters): TextInputBuilder[]
+    protected static styleMap = {
+        [EditCharacterHpCustomIds.Name]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.HpType]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.Hp]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.DamageType]: TextInputStyle.Short,
+    };
+
+    public static getTextInputs<TextInputParamaters = Tracker>(mistypedTracker: TextInputParamaters): TextInputBuilder[]
     {
         const { type } = mistypedTracker as Tracker;
 
@@ -113,7 +113,7 @@ export class EditCharacterHpModal extends BaseCustomModal
         ];
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

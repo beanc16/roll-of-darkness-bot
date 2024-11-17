@@ -39,7 +39,7 @@ class CoinFlip extends BaseSlashCommand
         { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    )
+    ): Promise<void>
     {
         // Get initial parameter result
         const headsOrTails = interaction.options.getString('heads_or_tails', true);
@@ -61,7 +61,7 @@ class CoinFlip extends BaseSlashCommand
         // Response
         await RerollStrategy.run({
             interaction,
-            options: this.getResponse({
+            options: CoinFlip.getResponse({
                 authorId: newCallingUserId ?? interaction.user.id,
                 headsOrTails,
                 name,
@@ -82,7 +82,7 @@ class CoinFlip extends BaseSlashCommand
         return `Flip a coin.`;
     }
 
-    private flipCoin()
+    private flipCoin(): CoinFlipResult
     {
         const result = this.diceService.roll();
 
@@ -94,7 +94,7 @@ class CoinFlip extends BaseSlashCommand
         return CoinFlipResult.Tails;
     }
 
-    private getResponse({
+    private static getResponse({
         authorId,
         headsOrTails,
         name,
@@ -104,7 +104,7 @@ class CoinFlip extends BaseSlashCommand
         headsOrTails: string;
         name?: string | null;
         result: CoinFlipResult;
-    })
+    }): string
     {
         const rollName = (name) ? ` for ${name}` : '';
 

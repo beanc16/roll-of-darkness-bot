@@ -7,8 +7,8 @@ import {
 
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
-import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
@@ -20,18 +20,14 @@ export enum RemoveCharacterCustomIds
 
 export class RemoveCharacterModal extends BaseCustomModal
 {
-    static
-    {
-        this.id = 'remove-character-modal';
-        this.title = 'Remove Character';
-        this.inputValuesMap = {
-        };
-        this.styleMap = {
-            [RemoveCharacterCustomIds.Name]: TextInputStyle.Short,
-        };
-    }
+    public static id = 'remove-character-modal';
+    public static title = 'Remove Character';
+    protected static inputValuesMap = {};
+    protected static styleMap = {
+        [RemoveCharacterCustomIds.Name]: TextInputStyle.Short,
+    };
 
-    static getTextInputs(): TextInputBuilder[]
+    public static getTextInputs(): TextInputBuilder[]
     {
         const nameInput = new TextInputBuilder()
             .setCustomId(RemoveCharacterCustomIds.Name)
@@ -46,7 +42,7 @@ export class RemoveCharacterModal extends BaseCustomModal
         ];
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

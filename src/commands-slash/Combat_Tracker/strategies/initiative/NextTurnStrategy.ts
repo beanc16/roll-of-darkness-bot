@@ -2,8 +2,8 @@ import { logger } from '@beanc16/logger';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
-import { Tracker } from '../../dal/AggregatedTrackerWithCharactersController.js';
 import { RollOfDarknessPseudoCache } from '../../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../../select-menus/combat_tracker.js';
@@ -17,7 +17,7 @@ export class NextTurnStrategy
 {
     public static key = selectMenuValues.nextTurn;
 
-    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    public static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

@@ -10,7 +10,7 @@ import {
 
 import { timeToWaitForCommandInteractions } from '../../../constants/discord.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
-import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { CombatTrackerStrategyExecutor } from '../strategies/index.js';
 
 async function handleMessageComponentsForCombatTracker({
@@ -50,6 +50,7 @@ async function handleMessageComponentsForCombatTracker({
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define -- TODO: Fix this later
     awaitCombatTrackerMessageComponents({
         message: interaction.message,
         tracker,
@@ -66,7 +67,7 @@ export function awaitCombatTrackerMessageComponents({
     message: Message;
     tracker: Tracker;
     user: User | APIUser | undefined;
-})
+}): void
 {
     // Set the user's current action as having not finished yet (this enables listening even after canceling)
     stillWaitingForModalSingleton.set(user?.id, true);

@@ -5,11 +5,11 @@ import {
     TextInputStyle,
 } from 'discord.js';
 
-import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import { BaseCustomModal, InputValuesMap } from '../../../modals/BaseCustomModal.js';
 import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { InitiativeStrategy } from '../../Nwod/strategies/InitiativeStrategy.js';
-import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
 import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
@@ -26,68 +26,66 @@ export enum AddCharacterCustomIds
 
 export class AddCharacterModal extends BaseCustomModal
 {
-    static
-    {
-        this.id = 'add-character-modal';
-        this.title = 'Add Character';
-        this.inputValuesMap = {
-            [AddCharacterCustomIds.Hp]: [
-                {
-                    key: 'maxHp',
-                    label: 'Max HP: ',
-                    value: 6,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'bashingDamage',
-                    label: 'Bashing Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'lethalDamage',
-                    label: 'Lethal Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'aggravatedDamage',
-                    label: 'Aggravated Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-            ],
-            [AddCharacterCustomIds.Secrets]: [
-                {
-                    key: 'nameIsSecret',
-                    label: 'Name: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-                {
-                    key: 'initiativeIsSecret',
-                    label: 'Initiative: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-                {
-                    key: 'hpIsSecret',
-                    label: 'HP: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-            ],
-        };
-        this.styleMap = {
-            [AddCharacterCustomIds.Name]: TextInputStyle.Short,
-            [AddCharacterCustomIds.Initiative]: TextInputStyle.Short,
-            [AddCharacterCustomIds.ShouldRollInitiativeAsModifier]: TextInputStyle.Short,
-            [AddCharacterCustomIds.Hp]: TextInputStyle.Paragraph,
-            [AddCharacterCustomIds.Secrets]: TextInputStyle.Paragraph,
-        };
-    }
+    public static id = 'add-character-modal';
+    public static title = 'Add Character';
+    protected static inputValuesMap: InputValuesMap = {
+        [AddCharacterCustomIds.Hp]: [
+            {
+                key: 'maxHp',
+                label: 'Max HP: ',
+                value: 6,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'bashingDamage',
+                label: 'Bashing Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'lethalDamage',
+                label: 'Lethal Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'aggravatedDamage',
+                label: 'Aggravated Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+        ],
+        [AddCharacterCustomIds.Secrets]: [
+            {
+                key: 'nameIsSecret',
+                label: 'Name: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+            {
+                key: 'initiativeIsSecret',
+                label: 'Initiative: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+            {
+                key: 'hpIsSecret',
+                label: 'HP: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+        ],
+    };
 
-    static getTextInputs<TextInputParamaters = Tracker>(input: TextInputParamaters): TextInputBuilder[]
+    protected static styleMap = {
+        [AddCharacterCustomIds.Name]: TextInputStyle.Short,
+        [AddCharacterCustomIds.Initiative]: TextInputStyle.Short,
+        [AddCharacterCustomIds.ShouldRollInitiativeAsModifier]: TextInputStyle.Short,
+        [AddCharacterCustomIds.Hp]: TextInputStyle.Paragraph,
+        [AddCharacterCustomIds.Secrets]: TextInputStyle.Paragraph,
+    };
+
+    public static getTextInputs<TextInputParamaters = Tracker>(input: TextInputParamaters): TextInputBuilder[]
     {
         const tracker = input as Tracker | undefined;
         const type = tracker?.type;
@@ -153,7 +151,7 @@ export class AddCharacterModal extends BaseCustomModal
         ];
     }
 
-    private static parseInitiative(data: Record<AddCharacterCustomIds, string | number | boolean | Record<string, unknown> | undefined>)
+    private static parseInitiative(data: Record<AddCharacterCustomIds, string | number | boolean | Record<string, unknown> | undefined>): number | undefined
     {
         const shouldRollInitiativeAsModifierInput = data[AddCharacterCustomIds.ShouldRollInitiativeAsModifier] as string | undefined;
         const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
@@ -175,7 +173,7 @@ export class AddCharacterModal extends BaseCustomModal
         return initiative;
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);

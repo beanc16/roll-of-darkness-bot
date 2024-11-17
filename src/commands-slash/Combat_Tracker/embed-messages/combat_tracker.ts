@@ -9,7 +9,7 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { Tracker } from '../dal/AggregatedTrackerWithCharactersController.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 
 const combatTrackerColor = 0xCDCDCD;
@@ -59,7 +59,7 @@ function getHpBoxes({ hpType, hpValue }: {
 {
     const boxes: string[] = [];
 
-    for (let i = 0; i < hpValue; i++)
+    for (let i = 0; i < hpValue; i += 1)
     {
         boxes.push(hpTypeToBoxMap[hpType]);
     }
@@ -222,7 +222,7 @@ function getCharacterFields({ tracker, characters }: CombatTrackerEmbedParameter
     return fields;
 }
 
-function getDescription(tracker: Tracker)
+function getDescription(tracker: Tracker): string
 {
     if (tracker.status === CombatTrackerStatus.InProgress)
     {
@@ -247,7 +247,7 @@ function getDescription(tracker: Tracker)
     return ' ';
 }
 
-function getCombatTrackerEmbedMessage({ tracker, characters }: CombatTrackerEmbedParameters)
+function getCombatTrackerEmbedMessage({ tracker, characters }: CombatTrackerEmbedParameters): EmbedBuilder
 {
     const fields = getCharacterFields({
         tracker,
@@ -268,7 +268,7 @@ function getCombatTrackerEmbedMessage({ tracker, characters }: CombatTrackerEmbe
 export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerEmbedParameters & {
     interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
     actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
-})
+}): Promise<void>
 {
     // Get embed message
     const embedMessage = getCombatTrackerEmbedMessage(parameters);

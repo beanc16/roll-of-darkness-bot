@@ -10,7 +10,7 @@ export class EditCharacterStrategy
 {
     public static key = selectMenuValues.editCharacter;
 
-    static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
+    public static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
