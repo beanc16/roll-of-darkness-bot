@@ -547,16 +547,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
         zygardeCubeMoves,
     } = pokemon.reduce((acc, curPokemon) =>
     {
-        const {
-            name,
-            moveList: {
-                levelUp,
-                eggMoves,
-                tmHm,
-                tutorMoves,
-                zygardeCubeMoves = [],
-            },
-        } = curPokemon;
+        const { name, moveList } = curPokemon;
 
         if (
             moveListType === PtuMoveListType.EggMoves
@@ -569,35 +560,35 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
             return acc;
         }
 
-        const zygardeMove = zygardeCubeMoves.find(move => move === moveName);
+        const zygardeMove = (moveList?.zygardeCubeMoves ?? []).find(move => move === moveName);
         if (zygardeMove)
         {
             acc[PtuMoveListType.ZygardeCubeMoves].push(curPokemon);
             return acc;
         }
 
-        const eggMove = eggMoves.find(move => move === moveName);
+        const eggMove = moveList.eggMoves.find(move => move === moveName);
         if (eggMove)
         {
             acc[PtuMoveListType.EggMoves].push(curPokemon);
             return acc;
         }
 
-        const tutorMove = tutorMoves.find(move => move === moveName);
+        const tutorMove = moveList.tutorMoves.find(move => move === moveName);
         if (tutorMove)
         {
             acc[PtuMoveListType.TutorMoves].push(curPokemon);
             // Don't return acc
         }
 
-        const tmHmMove = tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
+        const tmHmMove = moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
         if (tmHmMove)
         {
             acc[PtuMoveListType.TmHm].push(curPokemon);
             // Don't return acc
         }
 
-        const levelUpMove = levelUp.find(({ move }) => move === moveName);
+        const levelUpMove = moveList.levelUp.find(({ move }) => move === moveName);
         if (
             (moveListType === PtuMoveListType.LevelUp || moveListType === PtuMoveListType.All)
             && levelUpMove
@@ -674,73 +665,66 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
             (totalLevelUpMoveLearnedValue / levelUp.length).toFixed(1)
         } Average Level\n`;
 
-        description = outliersInLevelUpData.reduce((acc, { level, name }) =>
-        {
-            acc += `${level} ${name}\n`;
-            return acc;
-        }, description);
+        description = outliersInLevelUpData.reduce(
+            (acc, { level, name }) => acc + `${level} ${name}\n`,
+            description,
+        );
 
-        description = levelUp.reduce((acc, { level, pokemon: curPokemon }) =>
-        {
-            acc += `${level} ${curPokemon.name}\n`;
-            return acc;
-        }, description);
+        description = levelUp.reduce(
+            (acc, { level, pokemon: curPokemon }) => (
+                acc + `${level} ${curPokemon.name}\n`
+            ),
+            description,
+        );
     }
 
     // Egg Move
     if (eggMoves.length > 0)
     {
-        description = eggMoves.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Egg Move:')}\n`);
+        description = eggMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Egg Move:')}\n`,
+        );
     }
 
     // TM/HM
     if (tmHm.length > 0)
     {
-        description = tmHm.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as TM/HM:')}\n`);
+        description = tmHm.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as TM/HM:')}\n`,
+        );
     }
 
     // Tutor Move
     if (tutorMoves.length > 0)
     {
-        description = tutorMoves.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Tutor Move:')}\n`);
+        description = tutorMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Tutor Move:')}\n`,
+        );
     }
 
     // Zygarde Cube Move
     if (zygardeCubeMoves.length > 0)
     {
-        description = zygardeCubeMoves.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`);
+        description = zygardeCubeMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`,
+        );
     }
 
     const lines = description.split('\n');
-    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    const { pages } = lines.reduce((acc, line) =>
     {
-        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
         {
-            curPageIndex += 1;
+            acc.curPageIndex += 1;
         }
 
-        allPages[curPageIndex] += `${line}\n`;
+        acc.pages[acc.curPageIndex] += `${line}\n`;
 
-        return {
-            pages: allPages,
-            curPageIndex,
-        };
+        return acc;
     }, {
         pages: [''] as string[],
         curPageIndex: 0,
@@ -811,47 +795,41 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { 
     // Basic Ability
     if (basicAbilities.length > 0)
     {
-        description = basicAbilities.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Basic Ability:')}\n`);
+        description = basicAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Basic Ability:')}\n`,
+        );
     }
 
     // Advanced Ability
     if (advancedAbilities.length > 0)
     {
-        description = advancedAbilities.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Advanced Ability:')}\n`);
+        description = advancedAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Advanced Ability:')}\n`,
+        );
     }
 
     // Tutor Move
     if (highAbilities.length > 0)
     {
-        description = highAbilities.reduce((acc, { name }) =>
-        {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as High Ability:')}\n`);
+        description = highAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as High Ability:')}\n`,
+        );
     }
 
     const lines = description.split('\n');
-    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    const { pages } = lines.reduce((acc, line) =>
     {
-        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
         {
-            curPageIndex += 1;
+            acc.curPageIndex += 1;
         }
 
-        allPages[curPageIndex] += `${line}\n`;
+        acc.pages[acc.curPageIndex] += `${line}\n`;
 
-        return {
-            pages: allPages,
-            curPageIndex,
-        };
+        return acc;
     }, {
         pages: [''] as string[],
         curPageIndex: 0,
