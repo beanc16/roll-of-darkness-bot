@@ -18,7 +18,7 @@ export interface GetLookupCapabilityDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupCapabilityStrategy
 {
-    public static key = PtuLookupSubcommand.Capability;
+    public static key: PtuLookupSubcommand.Capability = PtuLookupSubcommand.Capability;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

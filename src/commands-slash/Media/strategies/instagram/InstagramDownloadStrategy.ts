@@ -8,7 +8,7 @@ import { MediaInstagramSubcommand } from '../../subcommand-groups/instagram.js';
 @staticImplements<ChatIteractionStrategy>()
 export class InstagramDownloadStrategy
 {
-    public static key = MediaInstagramSubcommand.Download;
+    public static key: MediaInstagramSubcommand.Download = MediaInstagramSubcommand.Download;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

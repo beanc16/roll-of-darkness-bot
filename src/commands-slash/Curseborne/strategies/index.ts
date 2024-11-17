@@ -1,11 +1,8 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
-import {
-    ChatIteractionStrategy,
-    ChatIteractionStrategyRecord,
-    NestedChatIteractionStrategyRecord,
-} from '../../strategies/types/ChatIteractionStrategy.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
@@ -20,31 +17,23 @@ interface CursebourneStrategyExecutorRunParameters
     subcommandGroup?: CurseborneSubcommandGroup;
     subcommand: CurseborneSubcommand | CurseborneAllNestedSubcommands;
     interaction: ChatInputCommandInteraction;
-};
-
-type AllNestedCursebourneChatInteractions = NestedChatIteractionStrategyRecord<
-    CurseborneSubcommandGroup.Lookup,
-    CurseborneLookupSubcommand
->;
-
-type AllSubcommandCurseborneChatInteractions = ChatIteractionStrategyRecord<CurseborneSubcommand>;
+}
 
 type AllLookupParams = GetLookupTrickDataParameters;
 
-export class CursebourneStrategyExecutor
-{
-    private static strategies: AllNestedCursebourneChatInteractions
-        | AllSubcommandCurseborneChatInteractions;
+type CurseborneStrategyMap = StrategyMap<
+    CurseborneSubcommandGroup,
+    CurseborneSubcommand | CurseborneLookupSubcommand
+>;
 
-    static
-    {
-        this.strategies = {
-            [CurseborneSubcommandGroup.Lookup]: {
-                [LookupTrickStrategy.key]: LookupTrickStrategy,
-            },
-            [RollStrategy.key]: RollStrategy,
-        };
-    }
+export class CurseborneStrategyExecutor extends BaseStrategyExecutor
+{
+    protected static strategies: CurseborneStrategyMap = {
+        [CurseborneSubcommandGroup.Lookup]: {
+            [LookupTrickStrategy.key]: LookupTrickStrategy,
+        },
+        [RollStrategy.key]: RollStrategy,
+    };
 
     public static async run({
         subcommandGroup,
@@ -53,6 +42,7 @@ export class CursebourneStrategyExecutor
     }: CursebourneStrategyExecutorRunParameters): Promise<boolean>
     {
         const Strategy = this.getStrategy({
+            strategies: this.strategies,
             subcommandGroup,
             subcommand,
         });
@@ -72,6 +62,7 @@ export class CursebourneStrategyExecutor
     }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'> & { lookupParams: AllLookupParams }): Promise<ClassInstance[]>
     {
         const Strategy = this.getStrategy({
+            strategies: this.strategies,
             subcommandGroup,
             subcommand,
         }) as BaseLookupStrategy<AllLookupParams, ClassInstance>;
@@ -82,19 +73,5 @@ export class CursebourneStrategyExecutor
         }
 
         return [];
-    }
-
-    private static getStrategy({ subcommandGroup, subcommand }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'>): ChatIteractionStrategy | undefined
-    {
-        if (subcommandGroup)
-        {
-            const strategies = this.strategies as AllNestedCursebourneChatInteractions;
-            const nestedSubcommand = subcommand as CurseborneAllNestedSubcommands;
-            return strategies[subcommandGroup][nestedSubcommand];
-        }
-
-        const strategies = this.strategies as AllSubcommandCurseborneChatInteractions;
-        const unnestedSubcommand = subcommand as CurseborneSubcommand;
-        return strategies[unnestedSubcommand];
     }
 }

@@ -19,7 +19,7 @@ export interface GetLookupStatusDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupStatusStrategy
 {
-    public static key = PtuLookupSubcommand.Status;
+    public static key: PtuLookupSubcommand.Status = PtuLookupSubcommand.Status;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

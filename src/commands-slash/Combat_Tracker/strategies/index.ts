@@ -6,18 +6,14 @@ import { CombatTrackerMessageComponentHandlerParameters } from './types/CombatTr
 
 export class CombatTrackerStrategyExecutor
 {
+    // TODO: Update this to use StrategyMap type later.
     private static strategies: (NestedCombatTrackerIteractionStrategyRecord<
         string,
         string
-    >);
-
-    static
-    {
-        this.strategies = {
+    >) = {
             [selectMenuCustomIds.characterOptionSelect]: characterOptionStrategies,
             [selectMenuCustomIds.initiativeSelect]: initiativeStrategies,
         };
-    }
 
     public static async run({
         subcommandGroup,

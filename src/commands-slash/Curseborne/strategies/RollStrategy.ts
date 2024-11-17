@@ -12,7 +12,7 @@ import { TwoSuccessesOption } from '../subcommand-groups/roll.js';
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
-    public static key = CurseborneSubcommand.Roll;
+    public static key: CurseborneSubcommand.Roll = CurseborneSubcommand.Roll;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

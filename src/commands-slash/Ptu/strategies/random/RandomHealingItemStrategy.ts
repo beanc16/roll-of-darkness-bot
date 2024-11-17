@@ -23,7 +23,7 @@ interface ShouldIncludeParameters
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHealingItemStrategy
 {
-    public static key = PtuRandomSubcommand.HealingItem;
+    public static key: PtuRandomSubcommand.HealingItem = PtuRandomSubcommand.HealingItem;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

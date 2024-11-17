@@ -48,7 +48,7 @@ interface RerollForPokeballsOnlyResponse
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomPokeballStrategy
 {
-    public static key = PtuRandomSubcommand.Pokeball;
+    public static key: PtuRandomSubcommand.Pokeball = PtuRandomSubcommand.Pokeball;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

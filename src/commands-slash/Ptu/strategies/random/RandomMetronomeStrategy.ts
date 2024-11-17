@@ -12,7 +12,7 @@ import { LookupMoveStrategy } from '../lookup/LookupMoveStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class RandomMetronomeStrategy
 {
-    public static key = PtuRandomSubcommand.Metronome;
+    public static key: PtuRandomSubcommand.Metronome = PtuRandomSubcommand.Metronome;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

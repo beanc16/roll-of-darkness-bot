@@ -15,7 +15,7 @@ import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
 @staticImplements<ChatIteractionStrategy>()
 export class LookupAbilityStrategy
 {
-    public static key = PtuLookupSubcommand.Ability;
+    public static key: PtuLookupSubcommand.Ability = PtuLookupSubcommand.Ability;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

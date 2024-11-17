@@ -10,7 +10,7 @@ import { BaseRollStrategy } from './BaseRollStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
-    public static key = NwodSubcommand.Roll;
+    public static key: NwodSubcommand.Roll = NwodSubcommand.Roll;
     private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(

@@ -11,7 +11,7 @@ import {
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateCaptureRatingStrategy
 {
-    public static key = PtuCalculateSubcommand.CaptureRating;
+    public static key: PtuCalculateSubcommand.CaptureRating = PtuCalculateSubcommand.CaptureRating;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

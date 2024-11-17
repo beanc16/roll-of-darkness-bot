@@ -9,7 +9,7 @@ import { BaseImageStrategy } from './BaseImageStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class ImageBackgroundStrategy
 {
-    public static key = MediaImageSubcommand.Background;
+    public static key: MediaImageSubcommand.Background = MediaImageSubcommand.Background;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

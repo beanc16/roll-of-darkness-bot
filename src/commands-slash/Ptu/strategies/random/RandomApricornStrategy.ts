@@ -11,7 +11,7 @@ import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomApricornStrategy
 {
-    public static key = PtuRandomSubcommand.Apricorn;
+    public static key: PtuRandomSubcommand.Apricorn = PtuRandomSubcommand.Apricorn;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

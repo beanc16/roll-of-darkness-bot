@@ -21,7 +21,7 @@ import {
 @staticImplements<ChatIteractionStrategy>()
 export class LookupMoveStrategy
 {
-    public static key = PtuLookupSubcommand.Move;
+    public static key: PtuLookupSubcommand.Move = PtuLookupSubcommand.Move;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

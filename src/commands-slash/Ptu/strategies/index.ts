@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuCalculateSubcommand } from '../subcommand-groups/calculate.js';
@@ -8,6 +9,8 @@ import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../subcommand-groups/
 import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
+import { PtuTrainSubcommand } from '../subcommand-groups/train.js';
+import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
@@ -17,11 +20,9 @@ import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
-import { GetLookupAbilityDataParameters } from './lookup/LookupAbilityStrategy.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
 import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
-import { GetLookupMoveDataParameters } from './lookup/LookupMoveStrategy.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
@@ -31,41 +32,71 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 
-export class PtuStrategyExecutor
-{
-    private static strategies: (NestedChatIteractionStrategyRecord<
-        PtuSubcommandGroup.Lookup,
-        PtuLookupSubcommand
-    > | NestedChatIteractionStrategyRecord<
-        PtuSubcommandGroup.QuickReference,
-        PtuQuickReferenceInfo
-    > | NestedChatIteractionStrategyRecord<
-        PtuSubcommandGroup.Random,
-        PtuRandomSubcommand
-    > | NestedChatIteractionStrategyRecord<
-        PtuSubcommandGroup.Calculate,
-        PtuCalculateSubcommand
-    > | NestedChatIteractionStrategyRecord<
-        PtuSubcommandGroup.Roll,
-        PtuRollSubcommand
-    >);
+type AllPtuLookupModels = PtuAbility
+    | PtuCapability
+    | PtuEdge
+    | PtuFeature
+    | PtuMove
+    | PtuNature
+    | PtuPokemon
+    | PtuStatus
+    | PtuTm;
 
-    static
-    {
-        // @ts-ignore -- TODO: Fix this type later
-        this.strategies = {
-            // @ts-ignore -- TODO: Fix this type later
-            [PtuSubcommandGroup.Calculate]: calculateStrategies,
-            [PtuSubcommandGroup.Lookup]: lookupStrategies,
-            // @ts-ignore -- TODO: Fix this type later
-            [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
-            // @ts-ignore -- TODO: Fix this type later
-            [PtuSubcommandGroup.Random]: randomStrategies,
-            // @ts-ignore -- TODO: Fix this type later
-            [PtuSubcommandGroup.Roll]: rollStrategies,
-            [PtuSubcommandGroup.Train]: TrainPokemonStrategy,
-        };
-    }
+type LookupParamsFromLookupModel<PtuLookupModel extends AllPtuLookupModels> = PtuLookupModel extends PtuMove // Move
+    ? GetLookupMoveDataParameters
+    : PtuLookupModel extends PtuAbility // Ability
+        ? GetLookupAbilityDataParameters
+        : PtuLookupModel extends PtuCapability // Capability
+            ? GetLookupCapabilityDataParameters
+            : PtuLookupModel extends PtuEdge // Edge
+                ? GetLookupEdgeDataParameters
+                : PtuLookupModel extends PtuFeature // Feature
+                    ? GetLookupFeatureDataParameters
+                    : PtuLookupModel extends PtuNature // Nature
+                        ? GetLookupNatureDataParameters
+                        : PtuLookupModel extends PtuPokemon // Pokemon
+                            ? GetLookupPokemonDataParameters
+                            : PtuLookupModel extends PtuStatus // Status
+                                ? GetLookupStatusDataParameters
+                                : PtuLookupModel extends PtuTm // TM
+                                    ? GetLookupTmDataParameters
+                                    : never;
+
+type AllLookupParams = GetLookupMoveDataParameters
+    | GetLookupAbilityDataParameters
+    | GetLookupCapabilityDataParameters
+    | GetLookupEdgeDataParameters
+    | GetLookupFeatureDataParameters
+    | GetLookupNatureDataParameters
+    | GetLookupPokemonDataParameters
+    | GetLookupStatusDataParameters
+    | GetLookupTmDataParameters;
+
+interface BasePtuLookupStrategy<PtuLookupModel extends AllPtuLookupModels> extends ChatIteractionStrategy
+{
+    getLookupData(input?: AllLookupParams): Promise<PtuLookupModel[]>;
+};
+
+type PtuStrategyMap = StrategyMap<
+    PtuSubcommandGroup,
+    PtuLookupSubcommand
+    | PtuQuickReferenceInfo
+    | PtuRandomSubcommand
+    | PtuCalculateSubcommand
+    | PtuRollSubcommand
+    | PtuTrainSubcommand
+>;
+
+export class PtuStrategyExecutor extends BaseStrategyExecutor
+{
+    private static strategies: PtuStrategyMap = {
+        [PtuSubcommandGroup.Calculate]: calculateStrategies,
+        [PtuSubcommandGroup.Lookup]: lookupStrategies,
+        [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
+        [PtuSubcommandGroup.Random]: randomStrategies,
+        [PtuSubcommandGroup.Roll]: rollStrategies,
+        [PtuSubcommandGroup.Train]: TrainPokemonStrategy,
+    };
 
     public static async run({
         subcommandGroup,
@@ -77,25 +108,11 @@ export class PtuStrategyExecutor
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
-        let Strategy;
-
-        if (subcommand === PtuSubcommandGroup.QuickReference)
-        {
-            const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
-
-            // @ts-ignore -- TODO: Fix this type later
-            Strategy = this.strategies[subcommand][referenceInfo];
-        }
-        else if (subcommand === PtuSubcommandGroup.Train)
-        {
-            // @ts-ignore -- TODO: Fix this type later
-            Strategy = this.strategies[subcommand];
-        }
-        else
-        {
-            // @ts-ignore -- TODO: Fix this type later
-            Strategy = this.strategies[subcommandGroup][subcommand];
-        }
+        const Strategy = this.getPtuStrategy({
+            subcommandGroup,
+            subcommand,
+            interaction,
+        });
 
         if (Strategy)
         {
@@ -105,36 +122,21 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuEdge | PtuFeature | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends AllPtuLookupModels>({
         subcommandGroup,
         subcommand,
         options,
     }: {
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
-        options?: PtuLookupModel extends PtuMove // Move
-            ? GetLookupMoveDataParameters
-            : PtuLookupModel extends PtuAbility // Ability
-                ? GetLookupAbilityDataParameters
-                : PtuLookupModel extends PtuCapability // Capability
-                    ? GetLookupCapabilityDataParameters
-                    : PtuLookupModel extends PtuEdge // Edge
-                        ? GetLookupEdgeDataParameters
-                        : PtuLookupModel extends PtuFeature // Feature
-                            ? GetLookupFeatureDataParameters
-                            : PtuLookupModel extends PtuNature // Nature
-                                ? GetLookupNatureDataParameters
-                                : PtuLookupModel extends PtuPokemon // Pokemon
-                                    ? GetLookupPokemonDataParameters
-                                    : PtuLookupModel extends PtuStatus // Status
-                                        ? GetLookupStatusDataParameters
-                                        : PtuLookupModel extends PtuTm // TM
-                                            ? GetLookupTmDataParameters
-                                            : never;
+        options?: LookupParamsFromLookupModel<PtuLookupModel>;
     }): Promise<PtuLookupModel[]>
     {
-        // @ts-ignore -- TODO: Fix this type later
-        const Strategy = this.strategies[subcommandGroup][subcommand];
+        const Strategy = super.getStrategy({
+            strategies: this.strategies,
+            subcommandGroup,
+            subcommand,
+        }) as BasePtuLookupStrategy<PtuLookupModel> | undefined;
 
         if (Strategy)
         {
@@ -142,5 +144,39 @@ export class PtuStrategyExecutor
         }
 
         return [];
+    }
+
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
+        interaction: ChatInputCommandInteraction;
+    }): ChatIteractionStrategy | undefined
+    {
+        let Strategy: ChatIteractionStrategy | undefined;
+
+        if (subcommand === PtuSubcommandGroup.QuickReference)
+        {
+            const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
+
+            Strategy = super.getStrategy({
+                strategies: this.strategies,
+                subcommandGroup: subcommand,
+                subcommand: referenceInfo,
+            });
+        }
+        else
+        {
+            Strategy = super.getStrategy({
+                strategies: this.strategies,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+
+        return Strategy;
     }
 }

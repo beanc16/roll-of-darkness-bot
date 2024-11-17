@@ -25,7 +25,7 @@ interface ShouldIncludeParameters
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHeldItemStrategy
 {
-    public static key = PtuRandomSubcommand.HeldItem;
+    public static key: PtuRandomSubcommand.HeldItem = PtuRandomSubcommand.HeldItem;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

@@ -9,7 +9,7 @@ import { PtuCalculateSubcommand } from '../../subcommand-groups/calculate.js';
 export class CalculateBattleExpStrategy
 {
     private static mathParser = new AddMathParser();
-    public static key = PtuCalculateSubcommand.BattleExp;
+    public static key: PtuCalculateSubcommand.BattleExp = PtuCalculateSubcommand.BattleExp;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

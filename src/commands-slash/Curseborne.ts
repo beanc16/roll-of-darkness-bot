@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
-import { CursebourneStrategyExecutor } from './Curseborne/strategies/index.js';
+import { CurseborneStrategyExecutor } from './Curseborne/strategies/index.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
@@ -43,7 +43,7 @@ class Cursebourne extends BaseSlashCommand
         });
 
         // Run subcommand
-        const response = await CursebourneStrategyExecutor.run({
+        const response = await CurseborneStrategyExecutor.run({
             interaction,
             subcommandGroup,
             subcommand,
@@ -66,7 +66,7 @@ class Cursebourne extends BaseSlashCommand
         // Move Name
         if (focusedValue.name === 'trick_name')
         {
-            const results = await CursebourneStrategyExecutor.getLookupData({
+            const results = await CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
                 lookupParams: {

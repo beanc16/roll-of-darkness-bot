@@ -13,7 +13,7 @@ import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 export class RollCaptureStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
-    public static key = PtuRollSubcommand.Capture;
+    public static key: PtuRollSubcommand.Capture = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 
     public static async run(

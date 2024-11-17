@@ -4,7 +4,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
+import { getSpreadsheetIdFromCharacterSheetName, PtuTrainSubcommand } from '../../subcommand-groups/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 
 const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
@@ -37,7 +37,7 @@ interface CalculateTrainingExpResponse
 @staticImplements<ChatIteractionStrategy>()
 export class TrainPokemonStrategy
 {
-    public static key = ''; // Not necessary since train only has one strategy
+    public static key = PtuTrainSubcommand.Train;
     private static spreadsheetRangesToGetForTraining = {
         nickname: 'A1:B1',
         species: 'H1:J1',
@@ -202,7 +202,7 @@ export class TrainPokemonStrategy
         }
 
         // Train the pokemon
-        const { errorType, newTotalExp } = await this.train({
+        const { errorType, newTotalExp } = await this.trainPokemon({
             interaction,
             spreadsheetId,
             pokemonName,
@@ -369,7 +369,7 @@ export class TrainPokemonStrategy
         return output;
     }
 
-    private static async train({
+    private static async trainPokemon({
         interaction,
         spreadsheetId,
         pokemonName,
@@ -432,7 +432,7 @@ export class TrainPokemonStrategy
             }) as GetSpreadsheetValuesResponse ?? {};
 
             // Continue training
-            return await this.train({
+            return await this.trainPokemon({
                 interaction,
                 spreadsheetId,
                 pokemonName,

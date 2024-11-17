@@ -8,7 +8,7 @@ import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomEvolutionaryStoneStrategy
 {
-    public static key = PtuRandomSubcommand.EvolutionaryStone;
+    public static key: PtuRandomSubcommand.EvolutionaryStone = PtuRandomSubcommand.EvolutionaryStone;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

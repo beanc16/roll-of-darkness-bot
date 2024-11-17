@@ -18,7 +18,7 @@ export interface GetLookupEdgeDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupEdgeStrategy
 {
-    public static key = PtuLookupSubcommand.Edge;
+    public static key: PtuLookupSubcommand.Edge = PtuLookupSubcommand.Edge;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

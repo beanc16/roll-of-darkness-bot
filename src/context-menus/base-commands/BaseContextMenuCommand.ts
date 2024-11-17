@@ -2,13 +2,14 @@ import {
     ApplicationCommandType,
     Client,
     ContextMenuCommandBuilder,
+    MessageContextMenuCommandInteraction,
     Permissions,
 } from 'discord.js';
 
 export class BaseContextMenuCommand
 {
     protected isInitialized: boolean;
-    protected contextMenuCommandData: ContextMenuCommandBuilder;
+    public contextMenuCommandData: ContextMenuCommandBuilder;
 
     constructor()
     {
@@ -24,7 +25,7 @@ export class BaseContextMenuCommand
         this.isInitialized = true;
     }
 
-    public async run(_bot: Client<boolean>, _interaction: BaseContextMenuCommand): Promise<void>
+    public async run(_bot: Client<boolean>, _interaction: MessageContextMenuCommandInteraction): Promise<void>
     {
         throw new Error(`${this.commandName} has not yet been implemented!`);
     }

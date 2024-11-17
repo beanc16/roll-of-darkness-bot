@@ -12,7 +12,7 @@ import { NwodSubcommand } from '../options/index.js';
 @staticImplements<ChatIteractionStrategy>()
 export class ChanceStrategy
 {
-    public static key = NwodSubcommand.Chance;
+    public static key: NwodSubcommand.Chance = NwodSubcommand.Chance;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

@@ -1,4 +1,8 @@
-import { RollOfDarknessApi, RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
+import {
+    RollOfDarknessApi,
+    RollOfDarknessProbabiltityDiceGetParameters,
+    RollOfDarknessProbabiltityDiceGetResponse,
+} from '@beanc16/microservices-abstraction';
 
 import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
 import rollOfDarknessApiHasErrorSingleton from './rollOfDarknessApiHasErrorSingleton.js';

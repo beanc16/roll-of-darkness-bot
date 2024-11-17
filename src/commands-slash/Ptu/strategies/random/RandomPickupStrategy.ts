@@ -21,7 +21,7 @@ import { PtuRandomPickupSubcommandResponse } from './types.js';
 @staticImplements<ChatIteractionStrategy>()
 export class RandomPickupStrategy
 {
-    public static key = PtuRandomSubcommand.Pickup;
+    public static key: PtuRandomSubcommand.Pickup = PtuRandomSubcommand.Pickup;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

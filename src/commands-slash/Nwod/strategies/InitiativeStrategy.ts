@@ -14,7 +14,7 @@ import { NwodSubcommand } from '../options/index.js';
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy
 {
-    public static key = NwodSubcommand.Initiative;
+    public static key: NwodSubcommand.Initiative = NwodSubcommand.Initiative;
     private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(

@@ -20,7 +20,7 @@ export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 @staticImplements<BaseLookupStrategy<GetLookupTrickDataParameters, CurseborneTrick>>()
 export class LookupTrickStrategy
 {
-    public static key = CurseborneLookupSubcommand.Trick;
+    public static key: CurseborneLookupSubcommand.Trick = CurseborneLookupSubcommand.Trick;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

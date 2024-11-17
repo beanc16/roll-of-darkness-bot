@@ -18,7 +18,7 @@ export interface GetLookupTmDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupTmStrategy
 {
-    public static key = PtuLookupSubcommand.Tm;
+    public static key: PtuLookupSubcommand.Tm = PtuLookupSubcommand.Tm;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

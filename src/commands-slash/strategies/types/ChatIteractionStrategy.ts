@@ -20,3 +20,11 @@ export type NestedChatIteractionStrategyRecord<
     Key1 extends string,
     Key2 extends string,
 > = NestedBaseStrategyRecord<Key1, ChatIteractionStrategyRecord<Key2>>;
+
+export type StrategyMap<SubcommandGroup extends string, Subcommand extends string> = {
+    [Group in SubcommandGroup]: {
+        [Command in Subcommand]?: ChatIteractionStrategy;
+    };
+} & {
+    [Command in Subcommand]?: ChatIteractionStrategy;
+};

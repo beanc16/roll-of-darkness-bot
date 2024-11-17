@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { ChatIteractionStrategyRecord, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { NwodSubcommand } from '../options/index.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
@@ -15,27 +16,30 @@ interface NwodStrategyExecutorRunParameters
 
 type AllSubcommandNwoChatInteractions = ChatIteractionStrategyRecord<NwodSubcommand>;
 
-export class NwodStrategyExecutor
-{
-    private static strategies: AllSubcommandNwoChatInteractions;
+type NwodStrategyMap = StrategyMap<
+    string, // This is actually never, but the types get messed up if never is used
+    NwodSubcommand
+>;
 
-    static
+export class NwodStrategyExecutor extends BaseStrategyExecutor
+{
+    private static strategies: NwodStrategyMap = [
+        RollStrategy,
+        InitiativeStrategy,
+        ChanceStrategy,
+        LuckStrategy,
+    ].reduce<AllSubcommandNwoChatInteractions>((acc, cur) =>
     {
-        this.strategies = [
-            RollStrategy,
-            InitiativeStrategy,
-            ChanceStrategy,
-            LuckStrategy,
-        ].reduce<AllSubcommandNwoChatInteractions>((acc, cur) =>
-        {
-            acc[cur.key] = cur;
-            return acc;
-        }, {} as any);
-    }
+        acc[cur.key] = cur;
+        return acc;
+    }, {} as AllSubcommandNwoChatInteractions);
 
     public static async run({ subcommand, interaction }: NwodStrategyExecutorRunParameters): Promise<boolean>
     {
-        const Strategy = this.strategies[subcommand];
+        const Strategy = this.getStrategy({
+            strategies: this.strategies,
+            subcommand,
+        });
 
         if (Strategy)
         {

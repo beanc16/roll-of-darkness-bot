@@ -19,7 +19,7 @@ export interface GetLookupNatureDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupNatureStrategy
 {
-    public static key = PtuLookupSubcommand.Nature;
+    public static key: PtuLookupSubcommand.Nature = PtuLookupSubcommand.Nature;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

@@ -8,7 +8,7 @@ import { BaseQuickReferenceStrategy } from './BaseQuickReferenceStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class QrDamageChartsStrategy
 {
-    public static key = PtuQuickReferenceInfo.DamageCharts;
+    public static key: PtuQuickReferenceInfo.DamageCharts = PtuQuickReferenceInfo.DamageCharts;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

@@ -15,7 +15,7 @@ import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class RandomNatureStrategy
 {
-    public static key = PtuRandomSubcommand.Nature;
+    public static key: PtuRandomSubcommand.Nature = PtuRandomSubcommand.Nature;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

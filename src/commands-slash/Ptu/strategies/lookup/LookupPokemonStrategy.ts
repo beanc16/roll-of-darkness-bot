@@ -36,7 +36,7 @@ interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataPara
 @staticImplements<ChatIteractionStrategy>()
 export class LookupPokemonStrategy
 {
-    public static key = PtuLookupSubcommand.Pokemon;
+    public static key: PtuLookupSubcommand.Pokemon = PtuLookupSubcommand.Pokemon;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

@@ -9,7 +9,7 @@ import { BaseImageStrategy } from './BaseImageStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class ImageUpscaleStrategy
 {
-    public static key = MediaImageSubcommand.Upscale;
+    public static key: MediaImageSubcommand.Upscale = MediaImageSubcommand.Upscale;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {

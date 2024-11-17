@@ -100,7 +100,7 @@ type RollDamageResponse = {
 export class RollAttackStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
-    public static key = PtuRollSubcommand.Attack;
+    public static key: PtuRollSubcommand.Attack = PtuRollSubcommand.Attack;
 
     public static async run(
         interaction: ChatInputCommandInteraction,

@@ -1,4 +1,10 @@
 import { PtuCharacterSheetName } from '../types/sheets.js';
+import { PtuSubcommandGroup } from './index.js';
+
+export enum PtuTrainSubcommand
+{
+    Train = PtuSubcommandGroup.Train,
+}
 
 enum DiscordUserId
 {
