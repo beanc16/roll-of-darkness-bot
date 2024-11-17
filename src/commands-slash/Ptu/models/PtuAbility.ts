@@ -1,4 +1,4 @@
-import { GetLookupAbilityDataParameters } from '../strategies/lookup/LookupAbilityStrategy.js';
+import { GetLookupAbilityDataParameters } from '../types/modelParameters.js';
 
 export class PtuAbility
 {

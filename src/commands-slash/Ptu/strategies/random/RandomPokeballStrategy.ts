@@ -4,11 +4,11 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { RandomPokeball } from '../../../Ptu.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomPokeballEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { RandomPokeball } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 

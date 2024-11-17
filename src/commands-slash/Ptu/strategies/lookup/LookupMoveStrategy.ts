@@ -8,31 +8,15 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuMove, PtuMoveExclude } from '../../models/PtuMove.js';
+import { PtuMove } from '../../models/PtuMove.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
 import {
     PokemonMoveCategory,
     PokemonType,
     PtuMoveFrequency,
 } from '../../types/pokemon.js';
-
-export interface GetLookupMoveDataParameters
-{
-    name?: string | null;
-    type?: PokemonType | null;
-    category?: PokemonMoveCategory | null;
-    db?: number | null;
-    dbEquality?: EqualityOption | null;
-    frequency?: PtuMoveFrequency | null;
-    ac?: number | null;
-    acEquality?: EqualityOption | null;
-    nameSearch?: string | null;
-    rangeSearch?: string | null;
-    effectSearch?: string | null;
-    exclude?: PtuMoveExclude;
-    sortBy?: 'all' | 'name' | 'type';
-}
 
 @staticImplements<ChatIteractionStrategy>()
 export class LookupMoveStrategy

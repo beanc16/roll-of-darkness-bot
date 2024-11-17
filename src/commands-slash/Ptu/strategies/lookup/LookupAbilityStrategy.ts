@@ -10,14 +10,7 @@ import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js'
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
-export interface GetLookupAbilityDataParameters
-{
-    name?: string | null;
-    nameSearch?: string | null;
-    frequencySearch?: string | null;
-    effectSearch?: string | null;
-}
+import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class LookupAbilityStrategy
