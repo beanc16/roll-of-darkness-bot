@@ -48,7 +48,7 @@ export class LookupTrickStrategy
     public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
         const {
-            options,
+            options: _options,
             ...remainingProperties
         } = input;
         const numOfKeys = Object.keys(remainingProperties).length;

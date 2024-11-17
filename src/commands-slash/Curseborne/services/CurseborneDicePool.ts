@@ -21,15 +21,17 @@ export class CurseborneDicePool
         return this.dicePool.reduce<number>((acc, cur) =>
         {
             // Add 1 to numOfSuccesses for each roll above twoSuccessesOn
-            cur.forEach((roll) =>
+            const newAcc = cur.reduce<number>((acc2, roll) =>
             {
                 if (roll.number >= this.twoSuccessesOn)
                 {
-                    acc += 1;
+                    return acc2 + 1;
                 }
-            });
 
-            return acc;
+                return acc2;
+            }, 0 + acc);
+
+            return newAcc;
         }, 0 + numOfSuccesses);
     }
 

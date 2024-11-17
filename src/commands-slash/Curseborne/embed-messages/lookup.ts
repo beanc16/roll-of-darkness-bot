@@ -1,10 +1,12 @@
+import { EmbedBuilder } from 'discord.js';
+
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 
 export const getLookupCurseborneEmbedMessages = <ClassInstance extends { formattedDescription: string }>({ data, title }: {
     data: ClassInstance[];
     title: string;
-}) =>
+}): EmbedBuilder[] =>
 {
     if (data.length === 0) return [];
 
