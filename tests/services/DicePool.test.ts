@@ -36,9 +36,9 @@ describe('class: DicePool', () =>
             );
 
             // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
-            expect(dicePool['_rolls']).toEqual([]);
+            expect(dicePool['rollsList']).toEqual([]);
             // eslint-disable-next-line @typescript-eslint/dot-notation -- This notation is necessary for private class variables
-            expect(dicePool['_numOfSuccesses']).toEqual(undefined);
+            expect(dicePool['successCount']).toEqual(undefined);
         });
 
         it('should initialize with provided values', () =>
@@ -157,8 +157,12 @@ describe('class: DicePool', () =>
 
             const sum = dicePool.reduce<number>((acc, innerRolls) =>
             {
-                innerRolls.forEach(({ number }) => acc + number);
-                return acc;
+                const innerSum = innerRolls.reduce((acc2, { number }) => 
+                {
+                    return acc2 + number;
+                }, 0);
+
+                return acc + innerSum;
             }, 0);
             const expectedSum = input.reduce<number>((acc, roll) => acc + roll.number, 0);
             expect(sum).toBe(expectedSum);
