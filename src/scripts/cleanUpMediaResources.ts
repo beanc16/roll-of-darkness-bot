@@ -61,10 +61,12 @@ try
     discordLogger.info(logMessage);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
 catch (error: any)
 {
     logger.error(
         'Errors occurred while Roll of Darkness attempted to bulk delete media resources from the file storage microservice',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Fix this later if necessary
         error?.response?.data ?? error,
     );
     exitCode = 1;

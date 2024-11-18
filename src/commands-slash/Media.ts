@@ -37,7 +37,7 @@ class Media extends BaseSlashCommand
         try
         {
             // Run subcommand
-            const response = MediaStrategyExecutor.run({
+            const response = await MediaStrategyExecutor.run({
                 subcommandGroup,
                 subcommand,
                 interaction,

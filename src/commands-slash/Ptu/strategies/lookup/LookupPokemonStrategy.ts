@@ -107,9 +107,11 @@ export class LookupPokemonStrategy
             abilityListType,
         });
 
-        const { results = [] } = await PokemonController.getAll(searchParams);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
+        const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
+        const results = untypedResults as PtuPokemon[];
 
-        const names = results.map((pokemon: PtuPokemon) => pokemon.name);
+        const names = results.map(({ name: pokemonName }) => pokemonName);
 
         // Don't include images for substring searches
         const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
@@ -117,7 +119,7 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const pokemon = results.map((result: PtuPokemon) =>
+        const pokemon = results.map((result) =>
         {
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
@@ -134,8 +136,8 @@ export class LookupPokemonStrategy
                     ...result.metadata,
                     imageUrl,
                 },
-            } as PtuPokemon;
-        }) as PtuPokemon[];
+            };
+        });
 
         // Sort by name
         pokemon.sort((a, b) => a.name.localeCompare(b.name));
@@ -283,7 +285,7 @@ export class LookupPokemonStrategy
         if (moveName)
         {
             return getLookupPokemonByMoveEmbedMessages(pokemon, {
-                moveName: moveName as string,
+                moveName,
                 moveListType,
             });
         }
@@ -291,7 +293,7 @@ export class LookupPokemonStrategy
         if (abilityName)
         {
             return getLookupPokemonByAbilityEmbedMessages(pokemon, {
-                abilityName: abilityName as string,
+                abilityName,
                 abilityListType,
             });
         }

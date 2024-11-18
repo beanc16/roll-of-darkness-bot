@@ -11,4 +11,4 @@ async function registerCommands(): Promise<void>
     process.exit();
 }
 
-registerCommands();
+await registerCommands();

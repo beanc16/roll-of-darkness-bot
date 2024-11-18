@@ -20,12 +20,13 @@ export class BaseContextMenuCommand
             .setDefaultMemberPermissions(this.requiredPermissions);
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await -- This is meant to be inherited by subclasses, leave it as is.
     public async init(): Promise<void>
     {
         this.isInitialized = true;
     }
 
-    public async run(_bot: Client<boolean>, _interaction: MessageContextMenuCommandInteraction): Promise<void>
+    public run(_bot: Client<boolean>, _interaction: MessageContextMenuCommandInteraction): Promise<void>
     {
         throw new Error(`${this.commandName} has not yet been implemented!`);
     }

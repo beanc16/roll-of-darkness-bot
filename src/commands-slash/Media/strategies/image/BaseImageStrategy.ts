@@ -49,8 +49,10 @@ export class BaseImageStrategy
 
             return true;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
         catch (err: any)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
             logger.warn('An unknown error occurred while upscaling an image', err?.response?.data ?? err, {
                 imageUrl: processedImageUrl,
             });

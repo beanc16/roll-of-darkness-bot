@@ -55,7 +55,7 @@ export class DicePoolGroup
         currentValue: DicePool,
         index: number,
         array: DicePool[],
-    ) => Response, initialValue: any): Response
+    ) => Response, initialValue: Response): Response
     {
         return this.dicepools.reduce(callbackfn, initialValue);
     }

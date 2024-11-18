@@ -61,7 +61,7 @@ export class NextTurnStrategy
 
         try
         {
-            RollOfDarknessPseudoCache.nextTurn({
+            await RollOfDarknessPseudoCache.nextTurn({
                 tracker,
             })
                 .then(async (newTracker: Tracker) =>

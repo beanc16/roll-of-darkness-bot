@@ -8,6 +8,7 @@ export class RollOfDarknessApiErrorHandler
 
     public static delayOnError(errorMessage: string, err?: {
         response?: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this type later if necessary.
             data?: any;
         };
     }): void

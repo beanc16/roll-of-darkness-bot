@@ -103,6 +103,7 @@ export class CachedGoogleSheetsApiService
 
                 else
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                     logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.getRange', { statusCode }, data, (error as any)?.response);
                     // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
                     throw error;
@@ -111,6 +112,7 @@ export class CachedGoogleSheetsApiService
             catch (error)
             {
                 // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 if ((error as any)?.response?.data?.statusCode === 403)
                 {
                     logger.warn('The automated user is not added to the queried sheet. Please add them.', {
@@ -126,6 +128,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRange', (error as any)?.response?.data || error);
             }
         }
@@ -184,6 +187,7 @@ export class CachedGoogleSheetsApiService
             catch (error)
             {
                 // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 if ((error as any)?.response?.data?.statusCode === 403)
                 {
                     logger.warn('The automated user is not added to the queried sheet. Please add them.', {
@@ -197,7 +201,9 @@ export class CachedGoogleSheetsApiService
                 }
 
                 if (
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                     (error as any)?.response?.data?.statusCode === 400
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
                     && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
                 )
                 {
@@ -206,6 +212,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
             }
 
@@ -259,6 +266,7 @@ export class CachedGoogleSheetsApiService
 
                 else
                 {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                     logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.update', { statusCode }, data, (error as any)?.response);
                     // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
                     throw error;
@@ -267,6 +275,7 @@ export class CachedGoogleSheetsApiService
             catch (error)
             {
                 // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 if ((error as any)?.response?.data?.statusCode === 403)
                 {
                     logger.warn('The automated user is not added to the queried sheet. Please add them.', {
@@ -282,6 +291,7 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.error('An error occurred on GoogleSheetsMicroservice.v1.update', (error as any)?.response?.data || error);
             }
         }
@@ -290,7 +300,7 @@ export class CachedGoogleSheetsApiService
     }
 
     // TODO: Make ptu or ptu_admin command that calls this
-    public static async clearCache(keys?: [string, string]): Promise<void>
+    public static clearCache(keys?: [string, string]): void
     {
         this.cache.Clear(keys);
     }

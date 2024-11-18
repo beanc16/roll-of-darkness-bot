@@ -181,8 +181,7 @@ export class DiceStringParser
         {
             if (cur.type === DiceParserType.Die)
             {
-                const curParsedDie = cur as ParsedDie;
-                const { numberOfDice, sides } = curParsedDie;
+                const { numberOfDice, sides } = cur;
                 const dieString = `${numberOfDice}d${sides}`;
 
                 const rollOptions: RollOptions = {};
@@ -200,7 +199,7 @@ export class DiceStringParser
                 const rollResultsAsString = rollResult.join(', ');
 
                 acc.processedDicePool.push({
-                    ...curParsedDie,
+                    ...cur,
                     die: dieString,
                     result: rollResult,
                     total: rollTotal,
@@ -211,18 +210,16 @@ export class DiceStringParser
 
             else if (cur.type === DiceParserType.MathOperator)
             {
-                const curMathOperator = cur as MathOperator;
-                acc.processedDicePool.push(curMathOperator);
-                acc.unparsedMathString += curMathOperator.operator;
-                acc.resultString += ` ${curMathOperator.operator}`;
+                acc.processedDicePool.push(cur);
+                acc.unparsedMathString += cur.operator;
+                acc.resultString += ` ${cur.operator}`;
             }
 
             else if (cur.type === DiceParserType.Modifier)
             {
-                const curParsedModifier = cur as ParsedModifier;
-                acc.processedDicePool.push(curParsedModifier);
-                acc.unparsedMathString += curParsedModifier.modifier;
-                acc.resultString += ` ${curParsedModifier.modifier}`;
+                acc.processedDicePool.push(cur);
+                acc.unparsedMathString += cur.modifier;
+                acc.resultString += ` ${cur.modifier}`;
             }
 
             return acc;

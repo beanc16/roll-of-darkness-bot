@@ -34,7 +34,7 @@ export class EnumParserService
         EnumVal,
     >(enumToSearch: SomeEnum<EnumKey, EnumVal>, value: EnumVal): boolean
     {
-        const values = Object.values(enumToSearch) as EnumVal[];
+        const values = Object.values(enumToSearch);
 
         return values.includes(value);
     }

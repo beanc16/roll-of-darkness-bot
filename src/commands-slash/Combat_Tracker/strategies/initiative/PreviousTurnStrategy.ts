@@ -61,7 +61,7 @@ export class PreviousTurnStrategy
 
         try
         {
-            RollOfDarknessPseudoCache.previousTurn({
+            await RollOfDarknessPseudoCache.previousTurn({
                 tracker,
             })
                 .then(async (result: Tracker | boolean) =>

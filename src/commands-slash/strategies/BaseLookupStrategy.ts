@@ -43,6 +43,7 @@ export class LookupStrategy
         }
 
         // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: interaction,
             embeds,
@@ -62,6 +63,7 @@ export class LookupStrategy
         },
         sortCallback = (a, b) => a.name.localeCompare(b.name),
     }: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow in this case so it's a generic class
         Class: new (...args: any[]) => ClassInstance; // Constructor type for any class
         range: string;
         spreadsheetId: string;

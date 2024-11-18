@@ -57,17 +57,17 @@ export class NWodDamageManager
 
     public increment(damageType: DamageType): void
     {
-        if (damageType === 'bashing')
+        if (damageType === DamageType.Bashing)
         {
             this.#bashingDamage += 1;
         }
 
-        else if (damageType === 'lethal')
+        else if (damageType === DamageType.Lethal)
         {
             this.#lethalDamage += 1;
         }
 
-        else if (damageType === 'agg')
+        else if (damageType === DamageType.Aggravated)
         {
             this.#aggravatedDamage += 1;
         }
@@ -75,17 +75,17 @@ export class NWodDamageManager
 
     public decrement(damageType: DamageType): void
     {
-        if (damageType === 'bashing')
+        if (damageType === DamageType.Bashing)
         {
             this.#bashingDamage -= 1;
         }
 
-        else if (damageType === 'lethal')
+        else if (damageType === DamageType.Lethal)
         {
             this.#lethalDamage -= 1;
         }
 
-        else if (damageType === 'agg')
+        else if (damageType === DamageType.Aggravated)
         {
             this.#aggravatedDamage -= 1;
         }

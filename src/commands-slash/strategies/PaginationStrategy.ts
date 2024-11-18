@@ -134,6 +134,7 @@ export class PaginationStrategy
 
             hasUpdated = true;
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.sendPagedMessages({
                 originalInteraction,
                 interactionType: 'editReply',
@@ -154,6 +155,7 @@ export class PaginationStrategy
             // Remove paginated buttons upon timeout
             if (!hasUpdated)
             {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
                 this.replyToOriginalInteraction({
                     originalInteraction,
                     interactionType: 'editReply',
@@ -188,7 +190,9 @@ export class PaginationStrategy
         let pageIndex = startingPageIndex;
         const array = (embeds ?? files) as unknown[];
 
-        if (buttonInteraction.customId === ButtonName.Next)
+        const customId = buttonInteraction.customId as ButtonName;
+
+        if (customId === ButtonName.Next)
         {
             pageIndex += 1;
 
@@ -199,7 +203,7 @@ export class PaginationStrategy
             }
         }
 
-        else if (buttonInteraction.customId === ButtonName.Previous)
+        else if (customId === ButtonName.Previous)
         {
             pageIndex -= 1;
 
@@ -210,12 +214,12 @@ export class PaginationStrategy
             }
         }
 
-        else if (buttonInteraction.customId === ButtonName.First)
+        else if (customId === ButtonName.First)
         {
             pageIndex = 0;
         }
 
-        else if (buttonInteraction.customId === ButtonName.Last)
+        else if (customId === ButtonName.Last)
         {
             pageIndex = array.length - 1;
         }

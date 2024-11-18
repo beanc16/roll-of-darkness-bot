@@ -231,6 +231,7 @@ export class RandomPokeballStrategy
         includeAttachments,
         includeMaster,
     }: ShouldIncludeParameters): boolean => (
+        /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
         type === PokeballType.Normal
         || (type === PokeballType.Special && includeSpecial)
         || (type === PokeballType.Safari && includeSafari)
@@ -238,6 +239,7 @@ export class RandomPokeballStrategy
         || (type === PokeballType.Case && includeCases)
         || (type === PokeballType.Attachment && includeAttachments)
         || (type === PokeballType.Master && includeMaster)
+        /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     );
 
     private static rerollForPokeballsOnly = (

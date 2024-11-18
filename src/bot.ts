@@ -15,10 +15,11 @@ const bot = new Client({
         GatewayIntentBits.GuildMessages,
     ],
 });
-bot.login(process.env.TOKEN);
+await bot.login(process.env.TOKEN);
 
 events.forEach((event) =>
 {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Allow the parameters to be any since that's what the library gives us
     // @ts-ignore
-    bot.on(event.name as string, (...params) => event.handler(bot, ...params));
+    bot.on(event.name as string, (...params) => event.handler(bot, ...params)); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 });

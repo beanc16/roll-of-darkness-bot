@@ -51,8 +51,9 @@ export class SlashCommandsContainer
     static #contextMenuCommands: Record<string, ContextMenuCommand> = {};
     private static isInitialized = false;
 
-    // eslint-disable-next-line @stylistic/brace-style -- We need static constructors to be formatted this way to initialize
+    // eslint-disable-next-line @stylistic/brace-style -- We need a static constructor to be formatted this way to initialize
     static {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- This is necessary for initiailization and we can't await in a constructor
         this.initialize();
     }
 
@@ -99,6 +100,7 @@ export class SlashCommandsContainer
                     : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addCommand({
@@ -119,6 +121,7 @@ export class SlashCommandsContainer
                     : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addGuildCommand({
@@ -139,6 +142,7 @@ export class SlashCommandsContainer
                     : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as ContextMenuCommand;
 
                 SlashCommandsContainer.addContextMenuCommand({
@@ -214,6 +218,7 @@ export class SlashCommandsContainer
             callback: () => this.isInitialized,
         });
 
+        // eslint-disable-next-line -- @typescript-eslint/ban-ts-comment -- Fix this later
         // @ts-ignore -- TODO: Fix this later
         return Object.values(SlashCommandsContainer.#slashCommands).filter(command =>
             ('runOnStartup' in command && typeof command.runOnStartup === 'function'),

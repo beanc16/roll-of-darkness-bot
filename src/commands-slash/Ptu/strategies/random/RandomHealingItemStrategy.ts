@@ -61,10 +61,12 @@ export class RandomHealingItemStrategy
 
     private static shouldInclude({ inputType, type }: ShouldIncludeParameters): boolean
     {
+        /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
         return (
             inputType === HealingAndStatusOption.HealingAndStatus
             || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
             || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
         );
+        /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     }
 }

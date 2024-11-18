@@ -70,6 +70,7 @@ class Counter extends BaseSlashCommand
         });
 
         // Handle button interactions
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             originalInteraction: interaction,
             interactionResponse: response,
@@ -200,6 +201,7 @@ class Counter extends BaseSlashCommand
         finally
         {
             // Restart listener upon timeout
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleButtonInteractions({
                 name,
                 originalInteraction,
@@ -271,6 +273,7 @@ class Counter extends BaseSlashCommand
         });
 
         // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: buttonInteraction,
             interactionType: 'dm',
@@ -316,6 +319,7 @@ class Counter extends BaseSlashCommand
                     );
 
                     // Listen for button interactions
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
                     this.handleButtonInteractions({
                         originalInteraction: message.interaction as MessageInteraction,
                         interactionResponse: message,

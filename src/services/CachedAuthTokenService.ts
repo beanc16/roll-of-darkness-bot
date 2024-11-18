@@ -47,6 +47,7 @@ export class CachedAuthTokenService
 
             catch (error)
             {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.warn('Failed to CachedAuthTokenService.resetAuthToken', (error as any)?.response?.data || error);
             }
         }

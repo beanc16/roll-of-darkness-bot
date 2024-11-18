@@ -73,7 +73,7 @@ export class DicePool
         currentValue: Roll[],
         index: number,
         array: Roll[][],
-    ) => Response, initialValue: any): Response
+    ) => Response, initialValue: Response): Response
     {
         return this.rolls.reduce(callbackfn, initialValue);
     }

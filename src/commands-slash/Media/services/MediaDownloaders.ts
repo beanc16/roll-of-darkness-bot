@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -- This package doesn't have any types.
 import instagramGetUrlUntyped from 'instagram-url-direct';
 
@@ -8,6 +9,7 @@ type InstagramGetUrl = (url: string) => Promise<{
     url_list: string[];
 }>;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- The package doesn't have any types, so it thinks this is any
 const instagramGetUrl: InstagramGetUrl = instagramGetUrlUntyped;
 
 export interface MediaDownloader

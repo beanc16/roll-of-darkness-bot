@@ -159,8 +159,10 @@ export class RollOfDarknessPseudoCache
             combatTrackersSingleton.upsert(tracker);
             return tracker;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
         catch ({ error }: any)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Fix this later if necessary
             if (onTrackerAlreadyExists && error.name === 'DocumentAlreadyExistsError')
             {
                 await onTrackerAlreadyExists(interaction);
@@ -394,6 +396,7 @@ export class RollOfDarknessPseudoCache
 
         if (!character)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Respond back to the base command quicker
             onCharacterNotFound(interaction);
             return {};
         }
@@ -476,6 +479,7 @@ export class RollOfDarknessPseudoCache
 
         if (!character)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Respond back to the base command quicker
             onCharacterNotFound(interaction);
         }
         else

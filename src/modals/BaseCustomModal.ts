@@ -134,7 +134,7 @@ export abstract class BaseCustomModal
         return data || {} as Record<KeyType, Record<string, unknown> | string | number | boolean | undefined>;
     }
 
-    public static async run(_interaction: ModalSubmitInteraction): Promise<void>
+    public static run(_interaction: ModalSubmitInteraction): Promise<void>
     {
         throw new Error(`${this.constructor.name}.run has not yet been implemented`);
     }

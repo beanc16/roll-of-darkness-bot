@@ -72,10 +72,12 @@ export class RandomHeldItemStrategy
         includeBadges,
     }: ShouldIncludeParameters): boolean
     {
+        /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
         return (
             type === HeldItemTypes.Normal
             || (type === HeldItemTypes.Mega && includeMega)
             || (type === HeldItemTypes.Badge && includeBadges)
         );
+        /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     };
 }

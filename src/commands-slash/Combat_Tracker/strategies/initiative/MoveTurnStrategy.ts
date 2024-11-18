@@ -61,7 +61,7 @@ export class MoveTurnStrategy
 
         try
         {
-            RollOfDarknessPseudoCache.moveTurn({
+            await RollOfDarknessPseudoCache.moveTurn({
                 tracker,
                 turn: 0, // TODO: Move this to a modal later
             })

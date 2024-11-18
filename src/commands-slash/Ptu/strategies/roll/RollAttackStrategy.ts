@@ -248,6 +248,7 @@ export class RollAttackStrategy
         const response = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
 
         // Handle any interactions on the buttons
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             interaction,
             interactionResponse: response,
@@ -378,13 +379,13 @@ export class RollAttackStrategy
         )
             ? messageContentOptions ?? {
                 type,
-                currentMessageContent: buttonInteraction?.message.content as string,
+                currentMessageContent: buttonInteraction.message.content,
                 damageResultString: newDamageResultString,
                 finalRollResult: newFinalRollResult,
             }
             : messageContentOptions ?? { // Miss & Auto-Miss
                 type,
-                currentMessageContent: buttonInteraction?.message.content as string,
+                currentMessageContent: buttonInteraction.message.content,
             };
 
         // Update original message with the same content so

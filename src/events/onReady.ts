@@ -33,6 +33,7 @@ async function handler(bot: Client): Promise<void>
     }
     catch (error)
     {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
         logger.error(`Failed to initialize ${process.env.APPLICATION_NAME}.`, (error as any)?.response?.data || error);
     }
 }

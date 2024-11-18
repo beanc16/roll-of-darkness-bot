@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */ // Allow anys for these types
+
 export interface BaseStrategy<Params, Response>
 {
     key: string;

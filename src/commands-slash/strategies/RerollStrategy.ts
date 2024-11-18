@@ -75,6 +75,7 @@ export class RerollStrategy
         const response = await handlerMap[interactionCallbackType]();
 
         // Handle any interactions on the buttons
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             interactionResponse: (interactionCallbackType === DiscordInteractionCallbackType.Update)
                 ? (interaction as ButtonInteraction).message
@@ -155,6 +156,7 @@ export class RerollStrategy
         finally
         {
             // Restart listener upon timeout
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleButtonInteractions({
                 interactionResponse: buttonInteraction?.message ?? interactionResponse,
                 onRerollCallback,

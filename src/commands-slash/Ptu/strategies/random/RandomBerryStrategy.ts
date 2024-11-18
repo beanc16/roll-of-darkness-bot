@@ -56,11 +56,13 @@ export class RandomBerryStrategy
 
     private static shouldInclude({ inputTier, tier }: ShouldIncludeParameters): boolean
     {
+        /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
         if (inputTier === BerryTier.OnePlus && tier >= 1) return true;
         if (inputTier === BerryTier.One && tier === 1) return true;
         if (inputTier === BerryTier.TwoPlus && tier >= 2) return true;
         if (inputTier === BerryTier.Two && tier === 2) return true;
         if (inputTier === BerryTier.Three && tier === 3) return true;
         return false;
+        /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     };
 }

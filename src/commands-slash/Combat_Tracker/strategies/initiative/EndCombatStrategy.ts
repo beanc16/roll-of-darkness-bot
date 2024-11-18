@@ -27,7 +27,7 @@ export class EndCombatStrategy
         {
             try
             {
-                RollOfDarknessPseudoCache.updateTrackerStatus({
+                await RollOfDarknessPseudoCache.updateTrackerStatus({
                     status: CombatTrackerStatus.Completed,
                     tracker,
                 })

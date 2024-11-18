@@ -61,7 +61,7 @@ export class StartCombatStrategy
 
         try
         {
-            RollOfDarknessPseudoCache.updateTrackerStatus({
+            await RollOfDarknessPseudoCache.updateTrackerStatus({
                 status: CombatTrackerStatus.InProgress,
                 tracker,
             })

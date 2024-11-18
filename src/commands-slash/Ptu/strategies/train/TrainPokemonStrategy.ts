@@ -102,13 +102,11 @@ export class TrainPokemonStrategy
 
         if (typeof spreadsheetValuesResult === 'string')
         {
-            const errorType = spreadsheetValuesResult as GoogleSheetsApiErrorType;
-
-            if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
+            if (spreadsheetValuesResult === GoogleSheetsApiErrorType.UserNotAddedToSheet)
             {
                 await this.sendPermissionError(interaction, 'view');
             }
-            else if (errorType === GoogleSheetsApiErrorType.UnableToParseRange)
+            else if (spreadsheetValuesResult === GoogleSheetsApiErrorType.UnableToParseRange)
             {
                 await interaction.editReply(
                     `I'm unable to parse data on the page named "${pokemonName}". `
@@ -121,7 +119,7 @@ export class TrainPokemonStrategy
                     `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`,
                 );
                 logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
-                    errorType,
+                    errorType: spreadsheetValuesResult,
                     characterName,
                     spreadsheetId,
                     pokemonName,
@@ -129,9 +127,6 @@ export class TrainPokemonStrategy
             }
             return true;
         }
-
-        // This is safe to typecast after the prior type guards
-        const spreadsheetValues = spreadsheetValuesResult as GetSpreadsheetValuesResponse;
 
         // Deconstruct values
         const {
@@ -149,7 +144,7 @@ export class TrainPokemonStrategy
             trainingExp,
             unparsedTrainingExp,
             startingLevel,
-        } = spreadsheetValues;
+        } = spreadsheetValuesResult;
 
         // Add safety rail for a non-pokemon sheet getting used
         if (
@@ -211,7 +206,7 @@ export class TrainPokemonStrategy
             trainingExp,
             numOfTrainingSessions,
             expPerTrainingSessionOverride: expPerTrainingSession,
-            shouldUseBabyFood: (shouldUseBabyFood && startingLevel! <= 15),
+            shouldUseBabyFood: (shouldUseBabyFood && startingLevel <= 15),
         });
 
         if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)

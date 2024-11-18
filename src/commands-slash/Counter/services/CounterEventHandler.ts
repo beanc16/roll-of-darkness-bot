@@ -35,6 +35,7 @@ export class CounterEventHandler
         // Only debounce if it isn't already debouncing
         if (shouldDebounce)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.debounceEvent([guid, CounterEventType.Upsert]);
         }
     }
