@@ -4,7 +4,7 @@ import {
     RollOfDarknessProbabiltityDiceGetResponse,
 } from '@beanc16/microservices-abstraction';
 
-import { CachedRollOfDarknessApi } from './CachedRollOfDarknessApi.js';
+import { RollOfDarknessApiErrorHandler } from './RollOfDarknessApiErrorHandler.js';
 import rollOfDarknessApiHasErrorSingleton from './rollOfDarknessApiHasErrorSingleton.js';
 
 export class ProbabilityEndpoints extends RollOfDarknessApi.probability
@@ -25,7 +25,7 @@ export class ProbabilityEndpoints extends RollOfDarknessApi.probability
         }
         catch (err: any)
         {
-            CachedRollOfDarknessApi.delayOnError(`Failed to get dice probability for ${process.env.APPLICATION_NAME}. Delaying next call.`, err);
+            RollOfDarknessApiErrorHandler.delayOnError(`Failed to get dice probability for ${process.env.APPLICATION_NAME}. Delaying next call.`, err);
         }
 
         return {
