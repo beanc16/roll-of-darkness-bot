@@ -20,6 +20,7 @@ import { CounterController } from './Counter/dal/CounterMongoController.js';
 import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
 import counterSingleton from './Counter/services/CounterSingleton.js';
+import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCounterCountainer.js';
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
@@ -98,21 +99,24 @@ class Counter extends BaseSlashCommand
         type: options.CounterType;
     }): void
     {
-        counterSingleton.upsert(new CounterContainer({
-            guid,
-            name,
-            count: 0,
-            auditLogs: [],
-            discordCreator: {
-                userId: interaction.user.id,
-                ...(interaction.guildId
-                    ? { serverId: interaction.guildId }
-                    : {}
-                ),
-                channelId: interaction.channelId,
-                messageId: response.id,
+        upsertCounterCountainerWithDbUpdate(new CounterContainer(
+            {
+                guid,
+                name,
+                count: 0,
+                auditLogs: [],
+                discordCreator: {
+                    userId: interaction.user.id,
+                    ...(interaction.guildId
+                        ? { serverId: interaction.guildId }
+                        : {}
+                    ),
+                    channelId: interaction.channelId,
+                    messageId: response.id,
+                },
             },
-        }, type));
+            type,
+        ));
     }
 
     private static getMessageData(name: string, guid: UUID): {
@@ -209,14 +213,22 @@ class Counter extends BaseSlashCommand
     private static updateCount(buttonInteraction: ButtonInteraction, guid: UUID): void
     {
         const handlerMap: Record<CounterButtonName, () => void> = {
-            [CounterButtonName.Plus]: () => counterSingleton.incrementCount({
-                guid,
-                userId: buttonInteraction.user.id,
-            }),
-            [CounterButtonName.Minus]: () => counterSingleton.decrementCount({
-                guid,
-                userId: buttonInteraction.user.id,
-            }),
+            [CounterButtonName.Plus]: () =>
+            {
+                counterSingleton.incrementCount({
+                    guid,
+                    userId: buttonInteraction.user.id,
+                });
+                upsertCounterCountainerWithDbUpdate(guid);
+            },
+            [CounterButtonName.Minus]: () =>
+            {
+                counterSingleton.decrementCount({
+                    guid,
+                    userId: buttonInteraction.user.id,
+                });
+                upsertCounterCountainerWithDbUpdate(guid);
+            },
             [CounterButtonName.AuditLog]: () => Counter.getAuditLogMessage(guid, buttonInteraction),
         };
 
