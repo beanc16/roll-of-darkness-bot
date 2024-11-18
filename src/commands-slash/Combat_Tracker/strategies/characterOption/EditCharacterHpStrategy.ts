@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { EditCharacterHpModal } from '../../modals/EditCharacterHp.js';
 import { selectMenuValues } from '../../select-menus/options/combat_tracker.js';

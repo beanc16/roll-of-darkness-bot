@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { selectMenuCustomIds } from '../select-menus/combat_tracker.js';
 import characterOptionStrategies from './characterOption/index.js';
 import initiativeStrategies from './initiative/index.js';

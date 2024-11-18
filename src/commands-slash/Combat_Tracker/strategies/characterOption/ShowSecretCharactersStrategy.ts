@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import stillWaitingForModalSingleton from '../../../../models/stillWaitingForModalSingleton.js';
 import { awaitCombatTrackerMessageComponents } from '../../message-component-handlers/combat_tracker.js';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { AddCharacterStrategy } from './AddCharacterStrategy.js';
 import { EditCharacterHpStrategy } from './EditCharacterHpStrategy.js';
 import { EditCharacterStrategy } from './EditCharacterStrategy.js';

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { logger } from '@beanc16/logger';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';

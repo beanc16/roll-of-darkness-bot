@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { EndCombatStrategy } from './EndCombatStrategy.js';
 import { MoveTurnStrategy } from './MoveTurnStrategy.js';
 import { NextTurnStrategy } from './NextTurnStrategy.js';
