@@ -157,11 +157,7 @@ describe('class: DicePool', () =>
 
             const sum = dicePool.reduce<number>((acc, innerRolls) =>
             {
-                const innerSum = innerRolls.reduce((acc2, { number }) => 
-                {
-                    return acc2 + number;
-                }, 0);
-
+                const innerSum = innerRolls.reduce((acc2, { number }) => acc2 + number, 0);
                 return acc + innerSum;
             }, 0);
             const expectedSum = input.reduce<number>((acc, roll) => acc + roll.number, 0);
