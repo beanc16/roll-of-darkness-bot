@@ -1,8 +1,13 @@
-import type { GoogleSheetsGetRangeParametersV1 } from '@beanc16/microservices-abstraction';
+import {
+    type GoogleSheetsGetPageTitleSpreadsheet,
+    GoogleSheetsMicroserviceFilterType,
+    type GoogleSheetsGetRangeParametersV1,
+} from '@beanc16/microservices-abstraction';
 
 import { CachedGoogleSheetsApiService } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
 import { ChatInputCommandInteraction } from 'discord.js';
+import { characterSheetSpreadsheetIds } from '../constants.js';
 
 export interface GetSpreadsheetValuesOptions
 {
@@ -240,6 +245,50 @@ export class CharacterSheetStrategy
         }
 
         return result;
+    }
+
+    protected static async getAllPokemonNames(): Promise<GoogleSheetsGetPageTitleSpreadsheet[] | GoogleSheetsApiErrorType | undefined>
+    {
+        const spreadsheetMetadata = characterSheetSpreadsheetIds.map(spreadsheetId =>
+        {
+            return { spreadsheetId };
+        });
+
+        const {
+            spreadsheets,
+            errorType,
+        } = await CachedGoogleSheetsApiService.getPageTitlesBatch({
+            spreadsheetMetadata,
+            filters: [
+                {
+                    type: GoogleSheetsMicroserviceFilterType.CaseInsensitiveExcludes,
+                    values: [
+                        'Trainer',
+                        'Features',
+                        'Edges',
+                        'Extras',
+                        'Inventory',
+                        'Combat',
+                        ' Data',
+                        ' Template',
+                        ' Skills',
+                        'Pokédex',
+                        'Pokedex',
+                        'Calculations',
+                        'Poke Edges',
+                        'Poké Edges',
+                    ],
+                },
+            ],
+        });
+
+        // There was an error
+        if (errorType)
+        {
+            return errorType;
+        }
+
+        return spreadsheets;
     }
 
     protected static async getNickname({

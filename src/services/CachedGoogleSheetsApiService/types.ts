@@ -1,4 +1,4 @@
-import type { GoogleSheetsGetRangesResponseV1 } from '@beanc16/microservices-abstraction';
+import type { GoogleSheetsGetPageTitleSpreadsheet, GoogleSheetsGetRangesResponseV1 } from '@beanc16/microservices-abstraction';
 
 export enum GoogleSheetsApiErrorType {
     UserNotAddedToSheet = 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
@@ -9,5 +9,11 @@ export enum GoogleSheetsApiErrorType {
 export interface GoogleSheetsGetRangesResponse
 {
     data?: GoogleSheetsGetRangesResponseV1['data'];
+    errorType?: GoogleSheetsApiErrorType;
+}
+
+export interface GoogleSheetsGetPageTitlesBatchResponse
+{
+    spreadsheets?: GoogleSheetsGetPageTitleSpreadsheet[];
     errorType?: GoogleSheetsApiErrorType;
 }

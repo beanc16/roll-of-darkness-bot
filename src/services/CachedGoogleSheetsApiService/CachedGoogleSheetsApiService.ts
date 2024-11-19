@@ -1,5 +1,6 @@
 import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
 import type {
+    GoogleSheetsGetPageTitlesBatchParametersV1,
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
     GoogleSheetsUpdateParametersV1,
@@ -8,7 +9,11 @@ import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
 import { logger } from '@beanc16/logger';
 import { CompositeKeyRecord } from '../CompositeKeyRecord.js';
 import { Timer } from '../Timer.js';
-import { GoogleSheetsApiErrorType, GoogleSheetsGetRangesResponse } from './types.js';
+import {
+    GoogleSheetsApiErrorType,
+    type GoogleSheetsGetPageTitlesBatchResponse,
+    type GoogleSheetsGetRangesResponse,
+} from './types.js';
 
 interface GetRangeResponse
 {
@@ -179,6 +184,85 @@ export class CachedGoogleSheetsApiService
                 else
                 {
                     logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
+                }
+            }
+
+            // Wait half a second between retries
+            await Timer.wait({
+                seconds: 0.5,
+            });
+        }
+
+        return {
+            errorType: GoogleSheetsApiErrorType.UnknownError,
+        };
+    }
+
+    public static async getPageTitlesBatch(initialParameters: GoogleSheetsGetPageTitlesBatchParametersV1 & WithCacheOptions): Promise<GoogleSheetsGetPageTitlesBatchResponse>
+    {
+        const {
+            shouldNotCache = false, // Add caching so this does something later
+            ...parameters
+        } = initialParameters;
+
+        for (let i = 0; i <= this.retries; i += 1)
+        {
+            const authToken = await CachedAuthTokenService.getAuthToken();
+
+            try
+            {
+                const {
+                    statusCode = 200,
+                    data,
+                    error,
+                } = await GoogleSheetsMicroservice.v1.getPageTitlesBatch(authToken, parameters);
+
+                if (statusCode === 200)
+                {
+                    const { spreadsheets = [] } = data;
+                    return { spreadsheets };
+                }
+
+                else if (statusCode === 401)
+                {
+                    logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
+                    await CachedAuthTokenService.resetAuthToken();
+                    continue;
+                }
+
+                throw error;
+            }
+            catch (error)
+            {
+                // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                if ((error as any)?.response?.data?.statusCode === 403)
+                {
+                    logger.warn('The automated user is not added to the queried sheet. Please add them.', {
+                        ...(parameters?.spreadsheetMetadata && {
+                            ranges: parameters?.spreadsheetMetadata,
+                        }),
+                        ...(parameters?.filters && {
+                            ranges: parameters?.filters,
+                        }),
+                    });
+                    return {
+                        errorType: GoogleSheetsApiErrorType.UserNotAddedToSheet,
+                    };
+                }
+
+                else if (
+                    (error as any)?.response?.data?.statusCode === 400
+                    && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
+                )
+                {
+                    return {
+                        errorType: GoogleSheetsApiErrorType.UnableToParseRange,
+                    };
+                }
+
+                else
+                {
+                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.getPageTitlesBatch', (error as any)?.response?.data || error);
                 }
             }
 

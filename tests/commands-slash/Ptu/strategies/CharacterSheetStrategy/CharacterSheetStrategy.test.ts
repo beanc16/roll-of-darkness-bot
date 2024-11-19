@@ -1,3 +1,4 @@
+import { characterSheetSpreadsheetIds } from '../../../../../src/commands-slash/Ptu/constants.js';
 import {
     CharacterSheetStrategy,
     GetSpreadsheetValuesBatchResponse,
@@ -5,13 +6,23 @@ import {
     GetSpreadsheetValuesResponse,
 } from '../../../../../src/commands-slash/Ptu/strategies/CharacterSheetStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../../src/services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { GoogleSheetsApiErrorType, GoogleSheetsGetRangesResponse } from '../../../../../src/services/CachedGoogleSheetsApiService/types.js';
+import {
+    GoogleSheetsApiErrorType,
+    type GoogleSheetsGetPageTitlesBatchResponse,
+    type GoogleSheetsGetRangesResponse,
+} from '../../../../../src/services/CachedGoogleSheetsApiService/types.js';
+import { getFakeSpreadsheetId, getFakeSpreadsheetIds } from '../../fakes/spreadsheets.js';
 
 // This mock is necessary to prevent an ESM export error with @swc/jest
 jest.mock('@beanc16/microservices-abstraction', () =>
-({
-    GoogleSheetsMicroservice: jest.fn(),
-}));
+{
+    return {
+        GoogleSheetsMicroservice: jest.fn(),
+        GoogleSheetsMicroserviceFilterType: {
+            CaseInsensitiveExcludes: 'case_insensitive_excludes'
+        },
+    };
+});
 
 const mockedCachedGoogleSheetsApiService = jest.mock('../../../../../src/services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js');
 
@@ -57,7 +68,7 @@ describe('class: CharacterSheetStrategy', () =>
 
         beforeEach(() =>
         {
-            spreadsheetId = 'test-spreadsheet-id';
+            spreadsheetId = getFakeSpreadsheetId();
             pokemonName = 'Pikachu';
             validGetRangesResponse = {
                 data: [
@@ -176,10 +187,7 @@ describe('class: CharacterSheetStrategy', () =>
 
             beforeEach(() =>
             {
-                spreadsheetIds = Array.from(
-                    { length: 3 },
-                    (_, index) => `${spreadsheetId}-${index}`
-                );
+                spreadsheetIds = getFakeSpreadsheetIds(3);
 
                 input = spreadsheetIds.map(curSpreadsheetId =>
                 {
@@ -281,6 +289,65 @@ describe('class: CharacterSheetStrategy', () =>
 
                 expect(result).toBeUndefined();
             });
+        });
+    });
+
+    describe('method: getAllPokemonNames', () =>
+    {
+        let validGetPageTitlesBatchResponse: GoogleSheetsGetPageTitlesBatchResponse;
+
+        beforeEach(() =>
+        {
+            validGetPageTitlesBatchResponse = {
+                spreadsheets: characterSheetSpreadsheetIds.map(spreadsheetId => {
+                    return {
+                        spreadsheetId,
+                        titles: ['Pikachu'],
+                    };
+                }),
+            };
+        });
+
+        it('should return an array of spreadsheets with titles when no error occurs', async () =>
+        {
+            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getPageTitlesBatch').mockResolvedValue(
+                validGetPageTitlesBatchResponse,
+            );
+
+            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+
+            expect(result).toEqual(validGetPageTitlesBatchResponse.spreadsheets);
+            expect(CachedGoogleSheetsApiService.getPageTitlesBatch).toHaveBeenCalledWith({
+                spreadsheetMetadata: characterSheetSpreadsheetIds.map(spreadsheetId =>
+                {
+                    return { spreadsheetId };
+                }),
+                filters: expect.any(Array),
+            });
+        });
+
+        it.each(
+            Object.entries(GoogleSheetsApiErrorType)
+        )('should return %s error type if API returns an error', async (_, errorType) =>
+        {
+            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getPageTitlesBatch').mockResolvedValue({
+                errorType,
+            });
+
+            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+
+            expect(result).toEqual(errorType);
+        });
+
+        it('should return undefined if the API response is empty', async () =>
+        {
+            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getPageTitlesBatch').mockResolvedValue({
+                // No data or errorType
+            });
+
+            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+
+            expect(result).toBeUndefined();
         });
     });
 });
