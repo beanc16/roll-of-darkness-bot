@@ -37,6 +37,7 @@
         "pokedex-promise-v2": "^4.2.0"
     },
     "devDependencies": {
+        "@beanc16/utility-types": "^1.1.0",
         "@swc/core": "^1.9.2",
         "@swc/jest": "^0.2.37",
         "@types/jest": "^29.5.14",

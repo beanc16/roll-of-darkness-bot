@@ -10,7 +10,7 @@ export interface GetSpreadsheetValuesOptions
     pokemonName: string;
 }
 
-interface GetSpreadsheetValuesResponse {
+export interface GetSpreadsheetValuesResponse {
     nicknameLabel: string;
     nickname: string;
     speciesLabel: string;
@@ -25,9 +25,10 @@ interface GetSpreadsheetValuesResponse {
     trainingExp?: number;
     unparsedTrainingExp: string;
     startingLevel?: number;
+    isValid: boolean;
 }
 
-interface GetSpreadsheetValuesBatchResponse
+export interface GetSpreadsheetValuesBatchResponse
 {
     spreadsheetId: string;
     values: GetSpreadsheetValuesResponse;
@@ -47,6 +48,13 @@ export class CharacterSheetStrategy
         totalExp: 'D2:H2',
         trainingExp: 'L10:N10',
         level: 'B2',
+    };
+    protected static spreadsheetLabels = {
+        nickname: 'Nickname',
+        species: 'Species',
+        totalExp: 'Total EXP',
+        expToNextLevel: 'To Next Lvl',
+        trainingExp: 'Training Exp:',
     };
 
     // Does full success or failures, no partial successes
@@ -145,10 +153,10 @@ export class CharacterSheetStrategy
                     values: [
                         [
                             totalExpLabel,
-                            totalExp,
+                            unparsedTotalExp,
                             _2,
                             expToNextLevelLabel,
-                            expToNextLevel,
+                            unparsedExpToNextLevel,
                         ],
                     ] = [[]],
                 } = {},
@@ -157,7 +165,7 @@ export class CharacterSheetStrategy
                         [
                             trainingExpLabel,
                             _3,
-                            trainingExp,
+                            unparsedTrainingExp,
                         ],
                     ] = [[]],
                 } = {},
@@ -170,6 +178,11 @@ export class CharacterSheetStrategy
                 } = {},
             ] = valueRanges;
 
+            const totalExp = this.parseToInt(unparsedTotalExp);
+            const expToNextLevel = this.parseToInt(unparsedExpToNextLevel);
+            const trainingExp = this.parseToInt(unparsedTrainingExp);
+            const startingLevel = this.parseToInt(level);
+
             acc.output.push({
                 spreadsheetId,
                 values: {
@@ -178,15 +191,26 @@ export class CharacterSheetStrategy
                     speciesLabel,
                     species,
                     totalExpLabel,
-                    totalExp: this.parseToInt(totalExp),
-                    unparsedTotalExp: totalExp,
+                    totalExp,
+                    unparsedTotalExp,
                     expToNextLevelLabel,
-                    expToNextLevel: this.parseToInt(expToNextLevel),
-                    unparsedExpToNextLevel: expToNextLevel,
+                    expToNextLevel,
+                    unparsedExpToNextLevel: unparsedExpToNextLevel,
                     trainingExpLabel,
-                    trainingExp: this.parseToInt(trainingExp),
-                    unparsedTrainingExp: trainingExp,
-                    startingLevel: this.parseToInt(level),
+                    trainingExp,
+                    unparsedTrainingExp: unparsedTrainingExp,
+                    startingLevel,
+                    isValid: this.isValidPokemonPage({
+                        nicknameLabel,
+                        speciesLabel,
+                        totalExpLabel,
+                        expToNextLevelLabel,
+                        trainingExpLabel,
+                        totalExp,
+                        expToNextLevel,
+                        trainingExp,
+                        startingLevel,
+                    }),
                 },
             });
 
@@ -273,6 +297,41 @@ export class CharacterSheetStrategy
         }
 
         return output;
+    }
+
+    protected static isValidPokemonPage({
+        nicknameLabel,
+        speciesLabel,
+        totalExpLabel,
+        expToNextLevelLabel,
+        trainingExpLabel,
+        totalExp,
+        expToNextLevel,
+        trainingExp,
+        startingLevel,
+    }: {
+        nicknameLabel?: string;
+        speciesLabel?: string;
+        totalExpLabel?: string;
+        expToNextLevelLabel?: string;
+        trainingExpLabel?: string;
+        totalExp?: number;
+        expToNextLevel?: number;
+        trainingExp?: number;
+        startingLevel?: number;
+    }): boolean
+    {
+        return (
+            nicknameLabel === this.spreadsheetLabels.nickname
+            && speciesLabel === this.spreadsheetLabels.species
+            && totalExpLabel === this.spreadsheetLabels.totalExp
+            && expToNextLevelLabel === this.spreadsheetLabels.expToNextLevel
+            && trainingExpLabel === this.spreadsheetLabels.trainingExp
+            && totalExp !== undefined
+            && expToNextLevel !== undefined
+            && trainingExp !== undefined
+            && startingLevel !== undefined
+        );
     }
 
     protected static async handleGoogleSheetsApiError(

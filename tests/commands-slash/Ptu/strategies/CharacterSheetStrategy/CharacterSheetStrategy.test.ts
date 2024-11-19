@@ -1,4 +1,9 @@
-import { CharacterSheetStrategy, GetSpreadsheetValuesOptions } from '../../../../../src/commands-slash/Ptu/strategies/CharacterSheetStrategy.js';
+import {
+    CharacterSheetStrategy,
+    GetSpreadsheetValuesBatchResponse,
+    GetSpreadsheetValuesOptions,
+    GetSpreadsheetValuesResponse,
+} from '../../../../../src/commands-slash/Ptu/strategies/CharacterSheetStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../../src/services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType, GoogleSheetsGetRangesResponse } from '../../../../../src/services/CachedGoogleSheetsApiService/types.js';
 
@@ -98,8 +103,7 @@ describe('class: CharacterSheetStrategy', () =>
                 );
 
                 const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
-
-                expect(result).toEqual({
+                const expectedResult: GetSpreadsheetValuesResponse = {
                     nicknameLabel: 'Nickname',
                     nickname: 'Pika',
                     speciesLabel: 'Species',
@@ -114,7 +118,10 @@ describe('class: CharacterSheetStrategy', () =>
                     trainingExp: 44,
                     unparsedTrainingExp: '44',
                     startingLevel: 49,
-                });
+                    isValid: true,
+                };
+
+                expect(result).toEqual(expectedResult);
             });
 
             it.each(
@@ -195,7 +202,7 @@ describe('class: CharacterSheetStrategy', () =>
                     input,
                 );
 
-                const expectedResult = spreadsheetIds.map(curSpreadsheetId =>
+                const expectedResult = spreadsheetIds.map<GetSpreadsheetValuesBatchResponse>(curSpreadsheetId =>
                 {
                     return {
                         spreadsheetId: curSpreadsheetId,
@@ -214,6 +221,7 @@ describe('class: CharacterSheetStrategy', () =>
                             trainingExp: 44,
                             unparsedTrainingExp: '44',
                             startingLevel: 49,
+                            isValid: true,
                         },
                     };
                 });

@@ -1,3 +1,4 @@
+import type { NonOptional } from '@beanc16/utility-types';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
@@ -32,13 +33,6 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
     static key = ''; // Not necessary since train only has one strategy
     private static spreadsheetRangesForMiscellaneous = {
         totalExpForUpdate: 'E2',
-    };
-    private static spreadsheetLabels = {
-        nickname: 'Nickname',
-        species: 'Species',
-        totalExp: 'Total EXP',
-        expToNextLevel: 'To Next Lvl',
-        trainingExp: 'Training Exp:',
     };
 
     static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
@@ -115,39 +109,8 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             return true;
         }
 
-        // This is safe to typecast after the prior type guards
-        const spreadsheetValues = spreadsheetValuesResult as GetSpreadsheetValuesResponse;
-
-        // Deconstruct values
-        const {
-            nicknameLabel,
-            nickname,
-            speciesLabel,
-            species,
-            totalExpLabel,
-            totalExp,
-            unparsedTotalExp,
-            expToNextLevelLabel,
-            expToNextLevel,
-            unparsedExpToNextLevel,
-            trainingExpLabel,
-            trainingExp,
-            unparsedTrainingExp,
-            startingLevel,
-        } = spreadsheetValues;
-
         // Add safety rail for a non-pokemon sheet getting used
-        if (
-            nicknameLabel !== this.spreadsheetLabels.nickname
-            || speciesLabel !== this.spreadsheetLabels.species
-            || totalExpLabel !== this.spreadsheetLabels.totalExp
-            || expToNextLevelLabel !== this.spreadsheetLabels.expToNextLevel
-            || trainingExpLabel !== this.spreadsheetLabels.trainingExp
-            || totalExp === undefined
-            || expToNextLevel === undefined
-            || trainingExp === undefined
-            || startingLevel === undefined
-        )
+        if (!spreadsheetValuesResult.isValid)
         {
             await interaction.editReply(
                 `The given page was found on the character sheet, but doesn't appear to follow the expected Pokémon template. ` +
@@ -158,22 +121,19 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
                 characterName,
                 spreadsheetId,
                 pokemonName,
-                nicknameLabel,
-                nickname,
-                speciesLabel,
-                species,
-                totalExpLabel,
-                totalExp,
-                unparsedTotalExp,
-                expToNextLevelLabel,
-                expToNextLevel,
-                unparsedExpToNextLevel,
-                trainingExpLabel,
-                trainingExp,
-                unparsedTrainingExp,
+                ...spreadsheetValuesResult,
             });
             return true;
         }
+
+        // This is safe to typecast after the prior type guards
+        const {
+            nickname,
+            totalExp,
+            expToNextLevel,
+            trainingExp,
+            startingLevel,
+        } = spreadsheetValuesResult as NonOptional<GetSpreadsheetValuesResponse>;
 
         // Add baby food safety rail
         if (shouldUseBabyFood && startingLevel > 15)
