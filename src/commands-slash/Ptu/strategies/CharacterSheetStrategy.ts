@@ -88,7 +88,7 @@ export class CharacterSheetStrategy
         } = await CachedGoogleSheetsApiService.getRanges({
             ranges,
             shouldNotCache: true,
-        }) ?? [];
+        });
 
         // There was an error
         if (errorType)
