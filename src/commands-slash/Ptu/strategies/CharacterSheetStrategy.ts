@@ -3,7 +3,7 @@ import type { GoogleSheetsGetRangeParametersV1 } from '@beanc16/microservices-ab
 import { CachedGoogleSheetsApiService } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
 
-interface GetSpreadsheetValuesOptions
+export interface GetSpreadsheetValuesOptions
 {
     spreadsheetId: string;
     pokemonName: string;

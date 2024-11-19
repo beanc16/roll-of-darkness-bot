@@ -1,4 +1,4 @@
-import { CharacterSheetStrategy } from '../../../../../src/commands-slash/Ptu/strategies/CharacterSheetStrategy.js';
+import { CharacterSheetStrategy, GetSpreadsheetValuesOptions } from '../../../../../src/commands-slash/Ptu/strategies/CharacterSheetStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../../src/services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType, GoogleSheetsGetRangesResponse } from '../../../../../src/services/CachedGoogleSheetsApiService/types.js';
 
@@ -26,7 +26,7 @@ describe('class: CharacterSheetStrategy', () =>
                 expectedResult.toString()
             );
 
-            expect(result).toBe(expectedResult);
+            expect(result).toEqual(expectedResult);
         });
 
         it('should return undefined for an invalid number string', () =>
@@ -44,7 +44,7 @@ describe('class: CharacterSheetStrategy', () =>
         });
     });
 
-    describe('method: getSpreadsheetValues', () =>
+    describe('get spreadsheet data', () =>
     {
         let spreadsheetId: string;
         let pokemonName: string;
@@ -90,73 +90,189 @@ describe('class: CharacterSheetStrategy', () =>
             };
         });
 
-        it('should return parsed data when the API successfully returns the correct response structure', async () => {
-            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue(
-                validGetRangesResponse
-            );
+        describe('method: getSpreadsheetValues', () =>
+        {
+            it('should return parsed data when the API successfully returns the correct response structure', async () => {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue(
+                    validGetRangesResponse
+                );
 
-            const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+                const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
 
-            expect(result).toEqual({
-                nicknameLabel: 'Nickname',
-                nickname: 'Pika',
-                speciesLabel: 'Species',
-                species: 'Pikachu',
-                totalExpLabel: 'Total EXP',
-                totalExp: 3445,
-                unparsedTotalExp: '3445',
-                expToNextLevelLabel: 'To Next Lvl',
-                expToNextLevel: 200,
-                unparsedExpToNextLevel: '200',
-                trainingExpLabel: 'Training Exp:',
-                trainingExp: 44,
-                unparsedTrainingExp: '44',
-                startingLevel: 49,
+                expect(result).toEqual({
+                    nicknameLabel: 'Nickname',
+                    nickname: 'Pika',
+                    speciesLabel: 'Species',
+                    species: 'Pikachu',
+                    totalExpLabel: 'Total EXP',
+                    totalExp: 3445,
+                    unparsedTotalExp: '3445',
+                    expToNextLevelLabel: 'To Next Lvl',
+                    expToNextLevel: 200,
+                    unparsedExpToNextLevel: '200',
+                    trainingExpLabel: 'Training Exp:',
+                    trainingExp: 44,
+                    unparsedTrainingExp: '44',
+                    startingLevel: 49,
+                });
+            });
+
+            it.each(
+                Object.entries(GoogleSheetsApiErrorType)
+            )('should return %s error type if API returns an error', async (_, errorType) =>
+            {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    errorType,
+                });
+
+                const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+
+                expect(result).toEqual(errorType);
+            });
+
+            it('should return undefined if the value ranges length does not match the expected ranges length', async () =>
+            {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    data: [
+                        {
+                            spreadsheetId,
+                            valueRanges: [{
+                                majorDimension: 'ROWS',
+                                range: `${pokemonName}!${CharacterSheetStrategy['baseSpreadsheetRangesToGet'].nickname}`,
+                                values: [['Partial Data']],
+                            }],
+                        },
+                    ],
+                });
+
+                const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+
+                expect(result).toBeUndefined();
+            });
+
+            it('should return undefined if API response is malformed', async () =>
+            {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    // No data or errorType
+                });
+
+                const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+
+                expect(result).toBeUndefined();
             });
         });
 
-        it.each(
-            Object.entries(GoogleSheetsApiErrorType)
-        )('should return %s error type if API returns an error', async (_, errorType) =>
+        describe('method: getBatchSpreadsheetValues', () =>
         {
-            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
-                errorType,
+            let spreadsheetIds: string[];
+            let input: GetSpreadsheetValuesOptions[];
+
+            beforeEach(() =>
+            {
+                spreadsheetIds = Array.from(
+                    { length: 3 },
+                    (_, index) => `${spreadsheetId}-${index}`
+                );
+
+                input = spreadsheetIds.map(curSpreadsheetId =>
+                {
+                    return { spreadsheetId: curSpreadsheetId, pokemonName };
+                });
             });
 
-            const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
-
-            expect(result).toBe(errorType);
-        });
-
-        it('should return undefined if the value ranges length does not match the expected ranges length', async () =>
-        {
-            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
-                data: [
+            it('should return parsed data for a valid batch request', async () => {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    data: spreadsheetIds.map(curSpreadsheetId =>
                     {
-                        spreadsheetId,
-                        valueRanges: [{
-                            majorDimension: 'ROWS',
-                            range: `${pokemonName}!${CharacterSheetStrategy['baseSpreadsheetRangesToGet'].nickname}`,
-                            values: [['Partial Data']],
-                        }],
-                    },
-                ],
+                        return {
+                            ...validGetRangesResponse.data![0],
+                            spreadsheetId: curSpreadsheetId,
+                        };
+                    }),
+                } as GoogleSheetsGetRangesResponse);
+
+                const result = await CharacterSheetStrategy['getBatchSpreadsheetValues'](
+                    input,
+                );
+
+                const expectedResult = spreadsheetIds.map(curSpreadsheetId =>
+                {
+                    return {
+                        spreadsheetId: curSpreadsheetId,
+                        values: {
+                            nicknameLabel: 'Nickname',
+                            nickname: 'Pika',
+                            speciesLabel: 'Species',
+                            species: 'Pikachu',
+                            totalExpLabel: 'Total EXP',
+                            totalExp: 3445,
+                            unparsedTotalExp: '3445',
+                            expToNextLevelLabel: 'To Next Lvl',
+                            expToNextLevel: 200,
+                            unparsedExpToNextLevel: '200',
+                            trainingExpLabel: 'Training Exp:',
+                            trainingExp: 44,
+                            unparsedTrainingExp: '44',
+                            startingLevel: 49,
+                        },
+                    };
+                });
+                expect(result).toEqual(expectedResult);
             });
 
-            const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+            it.each(
+                Object.entries(GoogleSheetsApiErrorType)
+            )('should return %s error type if API returns an error', async (_, errorType) =>
+            {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    errorType,
+                });
 
-            expect(result).toBeUndefined();
-        });
+                const result = await CharacterSheetStrategy['getBatchSpreadsheetValues'](
+                    input,
+                );
 
-        it('should return undefined if API response is malformed', async () =>
-        {
-            mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
-                // No data or errorType
+                expect(result).toEqual(errorType);
             });
 
-            const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
+            it('should return undefined if the value ranges length does not match the expected ranges length', async () => {
+                const invalidBatchResponse: GoogleSheetsGetRangesResponse = {
+                    data: [
+                        {
+                            spreadsheetId,
+                            valueRanges: [
+                                {
+                                    majorDimension: 'ROWS',
+                                    range: `${pokemonName}!${CharacterSheetStrategy['baseSpreadsheetRangesToGet'].nickname}`,
+                                    values: [['Nickname', 'Pika']],
+                                },
+                            ],
+                        },
+                    ],
+                };
 
-            expect(result).toBeUndefined();
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue(
+                    invalidBatchResponse,
+                );
+
+                const result = await CharacterSheetStrategy['getBatchSpreadsheetValues'](
+                    input,
+                );
+
+                expect(result).toBeUndefined();
+            });
+
+            it('should return undefined if the API response is malformed', async () => {
+                mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
+                    // No data or errorType
+                });
+
+                const result = await CharacterSheetStrategy['getBatchSpreadsheetValues'](
+                    input,
+                );
+
+                expect(result).toBeUndefined();
+            });
         });
     });
 });
