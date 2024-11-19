@@ -42,20 +42,32 @@ export class CharacterSheetStrategy
         level: 'B2',
     };
 
+    // Does full success or failures, no partial successes
     protected static async getBatchSpreadsheetValues(input: GetSpreadsheetValuesOptions[]): Promise<GetSpreadsheetValuesBatchResponse[] | GoogleSheetsApiErrorType | undefined>
     {
         // Parse input data for the spreadsheets
-        const { ranges, spreadsheetIdsSet } = input.reduce<{
+        const {
+            ranges,
+            spreadsheetIdsSet,
+            spreadsheetIdToNumOfExpectedValueRanges,
+        } = input.reduce<{
             ranges: GoogleSheetsGetRangeParametersV1[];
             spreadsheetIdsSet: Set<string>;
+            spreadsheetIdToNumOfExpectedValueRanges: Record<string, number>;
         }>((acc, cur) =>
         {
             const { pokemonName, spreadsheetId } = cur;
 
-            spreadsheetIdsSet.add(spreadsheetId);
+            acc.spreadsheetIdsSet.add(spreadsheetId);
+
+            if (!acc.spreadsheetIdToNumOfExpectedValueRanges[spreadsheetId])
+            {
+                acc.spreadsheetIdToNumOfExpectedValueRanges[spreadsheetId] = 0;
+            }
 
             Object.values(this.baseSpreadsheetRangesToGet).forEach((range) =>
             {
+                acc.spreadsheetIdToNumOfExpectedValueRanges[spreadsheetId] += 1;
                 acc.ranges.push({
                     spreadsheetId,
                     range: `'${pokemonName}'!${range}`,
@@ -63,7 +75,11 @@ export class CharacterSheetStrategy
             });
 
             return acc;
-        }, { ranges: [], spreadsheetIdsSet: new Set<string>() });
+        }, {
+            ranges: [],
+            spreadsheetIdsSet: new Set<string>(),
+            spreadsheetIdToNumOfExpectedValueRanges: {},
+        });
 
         // Get data from the spreadsheet
         const {
@@ -87,8 +103,19 @@ export class CharacterSheetStrategy
         }
 
         // Parse output
-        return data.map<GetSpreadsheetValuesBatchResponse>(({ spreadsheetId, valueRanges = [] }) =>
+        const { output, receivedUnexpectedNumberOfValueRanges } = data.reduce<{
+            output: GetSpreadsheetValuesBatchResponse[];
+            receivedUnexpectedNumberOfValueRanges: boolean;
+        }>((acc, { spreadsheetId, valueRanges = [] }) =>
         {
+            const numOfExpectedValueRanges = spreadsheetIdToNumOfExpectedValueRanges[spreadsheetId];
+
+            if (numOfExpectedValueRanges !== valueRanges.length)
+            {
+                acc.receivedUnexpectedNumberOfValueRanges = true;
+                return acc;
+            }
+
             const [
                 {
                     values: [
@@ -136,7 +163,7 @@ export class CharacterSheetStrategy
                 } = {},
             ] = valueRanges;
 
-            return {
+            acc.output.push({
                 spreadsheetId,
                 values: {
                     nicknameLabel,
@@ -148,23 +175,30 @@ export class CharacterSheetStrategy
                     unparsedTotalExp: totalExp,
                     expToNextLevelLabel,
                     expToNextLevel: this.parseToInt(expToNextLevel),
-                    unparsedExpToNextLevel: totalExp,
+                    unparsedExpToNextLevel: expToNextLevel,
                     trainingExpLabel,
                     trainingExp: this.parseToInt(trainingExp),
                     unparsedTrainingExp: trainingExp,
                     startingLevel: this.parseToInt(level),
                 },
-            };
+            });
+
+            return acc;
+        }, {
+            output: [],
+            receivedUnexpectedNumberOfValueRanges: false,
         });
+
+        if (receivedUnexpectedNumberOfValueRanges)
+        {
+            return undefined;
+        }
+
+        return output;
     }
 
-    protected static async getSpreadsheetValues({
-        spreadsheetId,
-        pokemonName,
-    }: GetSpreadsheetValuesOptions): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
+    protected static async getSpreadsheetValues(input: GetSpreadsheetValuesOptions): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
     {
-        /*
-
         const result = await this.getBatchSpreadsheetValues([input]);
 
         if (Array.isArray(result))
@@ -175,102 +209,6 @@ export class CharacterSheetStrategy
         }
 
         return result;
-        */
-
-        // Parse data for the spreadsheet
-        const ranges = Object.values(this.baseSpreadsheetRangesToGet).map((range) => {
-            return {
-                spreadsheetId,
-                range: `'${pokemonName}'!${range}`,
-            };
-        });
-
-        // Get data from the spreadsheet
-        const {
-            data: [
-                {
-                    valueRanges = [],
-                } = {},
-            ] = [{}],
-            errorType,
-        } = await CachedGoogleSheetsApiService.getRanges({
-            ranges,
-            shouldNotCache: true,
-        }) ?? [];
-
-        if (errorType)
-        {
-            return errorType;
-        }
-
-        if (ranges.length !== valueRanges.length)
-        {
-            return undefined;
-        }
-
-        const [
-            {
-                values: [
-                    [
-                        nicknameLabel,
-                        nickname,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        speciesLabel,
-                        _1,
-                        species,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        totalExpLabel,
-                        totalExp,
-                        _2,
-                        expToNextLevelLabel,
-                        expToNextLevel,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        trainingExpLabel,
-                        _3,
-                        trainingExp,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        level,
-                    ],
-                ] = [[]],
-            } = {},
-        ] = valueRanges;
-
-        return {
-            nicknameLabel,
-            nickname,
-            speciesLabel,
-            species,
-            totalExpLabel,
-            totalExp: this.parseToInt(totalExp),
-            unparsedTotalExp: totalExp,
-            expToNextLevelLabel,
-            expToNextLevel: this.parseToInt(expToNextLevel),
-            unparsedExpToNextLevel: expToNextLevel,
-            trainingExpLabel,
-            trainingExp: this.parseToInt(trainingExp),
-            unparsedTrainingExp: trainingExp,
-            startingLevel: this.parseToInt(level),
-        };
     }
 
     protected static parseToInt(input: string): number | undefined
