@@ -2,6 +2,7 @@ import type { GoogleSheetsGetRangeParametersV1 } from '@beanc16/microservices-ab
 
 import { CachedGoogleSheetsApiService } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
+import { ChatInputCommandInteraction } from 'discord.js';
 
 export interface GetSpreadsheetValuesOptions
 {
@@ -221,5 +222,49 @@ export class CharacterSheetStrategy
         }
 
         return output;
+    }
+
+    protected static async handleGoogleSheetsApiError(
+        errorType: GoogleSheetsApiErrorType | undefined,
+        errorTypeToCallbackMap: Partial<Record<GoogleSheetsApiErrorType, () => Promise<any>>>
+    ): Promise<boolean>
+    {
+        if (errorType === undefined || !errorTypeToCallbackMap[errorType])
+        {
+            return false;
+        }
+
+        await errorTypeToCallbackMap[errorType]();
+        return true;
+    }
+
+    protected static async sendPermissionError({
+        interaction,
+        commandName,
+        action,
+        maxActionPermission = 'edit',
+    }: {
+        interaction: ChatInputCommandInteraction;
+        commandName: `/${string}`;
+        action: 'view' | 'edit';
+        maxActionPermission?: 'view' | 'edit';
+    })
+    {
+        const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
+
+        await interaction.editReply(
+            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me ${maxActionPermission} permissions here shortly.`
+        );
+
+        const maxActionPermissionToRoleName: Record<'view' | 'edit', string> = {
+            view: 'viewer',
+            edit: 'editor',
+        };
+
+        await interaction.user.send(
+            `If you want to use \`${commandName}\`, then I need ${maxActionPermission} access on your character sheet. ` +
+            `If you aren't sure how to give me ${maxActionPermission} permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n` +
+            `You can either make your sheet editable by anyone with the URL or add this email as an ${maxActionPermissionToRoleName[maxActionPermission]} (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``
+        );
     }
 }

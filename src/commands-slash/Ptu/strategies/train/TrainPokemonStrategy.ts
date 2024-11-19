@@ -9,8 +9,6 @@ import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
 
-const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
-
 interface GetSpreadsheetValuesResponse {
     nicknameLabel: string;
     nickname: string;
@@ -75,7 +73,7 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
         });
 
         // Add safety rail for missing data
-        if (!spreadsheetValuesResult)
+        if (spreadsheetValuesResult === undefined)
         {
             await interaction.editReply(
                 `Failed to retrieve data for training. Please contact this bot's owner for help fixing the issue.`
@@ -90,31 +88,30 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
 
         if (typeof spreadsheetValuesResult === 'string')
         {
-            const errorType = spreadsheetValuesResult as GoogleSheetsApiErrorType;
-
-            if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
-            {
-                await this.sendPermissionError(interaction, 'view');
-            }
-            else if (errorType === GoogleSheetsApiErrorType.UnableToParseRange)
-            {
-                await interaction.editReply(
+            await this.handleGoogleSheetsApiError(spreadsheetValuesResult, {
+                [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({
+                    interaction,
+                    commandName: '/ptu train',
+                    action: 'view',
+                }),
+                [GoogleSheetsApiErrorType.UnableToParseRange]: async () => await interaction.editReply(
                     `I'm unable to parse data on the page named "${pokemonName}". ` +
                     `Please double check to make sure the page's name is spelled correctly and try again.`
-                );
-            }
-            else
-            {
-                await interaction.editReply(
-                    `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`
-                );
-                logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
-                    errorType,
-                    characterName,
-                    spreadsheetId,
-                    pokemonName,
-                });
-            }
+                ),
+                [GoogleSheetsApiErrorType.UnknownError]: async () =>
+                {
+                    await interaction.editReply(
+                        `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`
+                    );
+                    logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
+                        errorType: spreadsheetValuesResult,
+                        characterName,
+                        spreadsheetId,
+                        pokemonName,
+                    });
+                },
+            });
+
             return true;
         }
 
@@ -205,17 +202,21 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             shouldUseBabyFood: (shouldUseBabyFood && startingLevel! <= 15),
         });
 
-        if (errorType === GoogleSheetsApiErrorType.UserNotAddedToSheet)
+        const wasError = await this.handleGoogleSheetsApiError(errorType,
         {
-            await this.sendPermissionError(interaction, 'edit');
-            return true;
-        }
-        else if (errorType === GoogleSheetsApiErrorType.UnknownError)
-        {
-            await interaction.editReply(
+            [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({ 
+                interaction,
+                commandName: '/ptu train',
+                action: 'edit',
+            }),
+            [GoogleSheetsApiErrorType.UnknownError]: async () => await interaction.editReply(
                 `An unknown error occurred whilst trying to update data on the character sheet. Please contact this bot's owner for help fixing the issue.`
-            );
-            return true;
+            ),
+        });
+        
+        if (wasError) 
+        {
+            return wasError;
         }
 
         const newLevel = await this.getLevel({
@@ -378,17 +379,5 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             newTotalExp,
             newNumOfTrainingSessionsLeft: 0,
         };
-    }
-
-    private static async sendPermissionError(interaction: ChatInputCommandInteraction, action: 'view' | 'edit')
-    {
-        await interaction.editReply(
-            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me edit permissions here shortly.`
-        );
-        await interaction.user.send(
-            `If you want to use \`/ptu train\`, then I need edit access to your character sheet. ` +
-            `If you aren't sure how to give me edit permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n` +
-            `You can either make your sheet editable by anyone with the URL or add this email as an editor (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``
-        );
     }
 }
