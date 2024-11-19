@@ -236,27 +236,6 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
         return true;
     }
 
-    private static async getLevel({
-        spreadsheetId,
-        pokemonName,
-    }: {
-        spreadsheetId: string;
-        pokemonName: string;
-    })
-    {
-        const {
-            data: [
-                [level]
-            ] = [[]],
-        } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId,
-            range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.level}`,
-            shouldNotCache: true,
-        });
-
-        return this.parseToInt(level);
-    }
-
     private static async train({
         interaction,
         spreadsheetId,

@@ -33,6 +33,12 @@ interface GetSpreadsheetValuesBatchResponse
     values: GetSpreadsheetValuesResponse;
 }
 
+interface GetNicknameResponse
+{
+    nicknameLabel: string;
+    nickname: string;
+}
+
 export class CharacterSheetStrategy
 {
     protected static baseSpreadsheetRangesToGet = {
@@ -212,6 +218,51 @@ export class CharacterSheetStrategy
         return result;
     }
 
+    protected static async getNickname({
+        spreadsheetId,
+        pokemonName,
+    }: {
+        spreadsheetId: string;
+        pokemonName: string;
+    }): Promise<GetNicknameResponse>
+    {
+        const {
+            data: [
+                [nicknameLabel, nickname]
+            ] = [[]],
+        } = await CachedGoogleSheetsApiService.getRange({
+            spreadsheetId,
+            range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.nickname}`,
+            shouldNotCache: true,
+        });
+
+        return {
+            nicknameLabel,
+            nickname,
+        };
+    }
+
+    protected static async getLevel({
+        spreadsheetId,
+        pokemonName,
+    }: {
+        spreadsheetId: string;
+        pokemonName: string;
+    }): Promise<number | undefined>
+    {
+        const {
+            data: [
+                [level]
+            ] = [[]],
+        } = await CachedGoogleSheetsApiService.getRange({
+            spreadsheetId,
+            range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.level}`,
+            shouldNotCache: true,
+        });
+
+        return this.parseToInt(level);
+    }
+
     protected static parseToInt(input: string): number | undefined
     {
         const output = parseInt(input, 10);
@@ -248,7 +299,7 @@ export class CharacterSheetStrategy
         commandName: `/${string}`;
         action: 'view' | 'edit';
         maxActionPermission?: 'view' | 'edit';
-    })
+    }): Promise<void>
     {
         const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
 
