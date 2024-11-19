@@ -128,7 +128,7 @@ describe('class: CharacterSheetStrategy', () =>
             expect(result).toBe(errorType);
         });
 
-        it('should return undefined if the value ranges length does not match the expected ranges lenght', async () =>
+        it('should return undefined if the value ranges length does not match the expected ranges length', async () =>
         {
             mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
                 data: [
@@ -138,7 +138,7 @@ describe('class: CharacterSheetStrategy', () =>
                             majorDimension: 'ROWS',
                             range: `${pokemonName}!${CharacterSheetStrategy['baseSpreadsheetRangesToGet'].nickname}`,
                             values: [['Partial Data']],
-                        }], // Mismatch in range lengths
+                        }],
                     },
                 ],
             });
