@@ -210,6 +210,13 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             await this.sendPermissionError(interaction, 'edit');
             return true;
         }
+        else if (errorType === GoogleSheetsApiErrorType.UnknownError)
+        {
+            await interaction.editReply(
+                `An unknown error occurred whilst trying to update data on the character sheet. Please contact this bot's owner for help fixing the issue.`
+            );
+            return true;
+        }
 
         const newLevel = await this.getLevel({
             spreadsheetId,

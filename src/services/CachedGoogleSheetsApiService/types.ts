@@ -3,6 +3,7 @@ import type { GoogleSheetsGetRangesResponseV1 } from '@beanc16/microservices-abs
 export enum GoogleSheetsApiErrorType {
     UserNotAddedToSheet = 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
     UnableToParseRange = 'UNABLE_TO_PARSE_RANGE',
+    UnknownError = 'UNKNOWN_ERROR',
 }
 
 export interface GoogleSheetsGetRangesResponse

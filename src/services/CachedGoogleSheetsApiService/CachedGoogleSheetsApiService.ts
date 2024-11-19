@@ -113,7 +113,9 @@ export class CachedGoogleSheetsApiService
             }
         }
 
-        return {};
+        return {
+            errorType: GoogleSheetsApiErrorType.UnknownError,
+        };
     }
 
     public static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GoogleSheetsGetRangesResponse>
@@ -186,7 +188,9 @@ export class CachedGoogleSheetsApiService
             });
         }
 
-        return {};
+        return {
+            errorType: GoogleSheetsApiErrorType.UnknownError,
+        };
     }
 
     public static async update(initialParameters: GoogleSheetsUpdateParametersV1 & WithCacheOptions): Promise<UpdateResponse>
@@ -254,7 +258,9 @@ export class CachedGoogleSheetsApiService
             }
         }
 
-        return {};
+        return {
+            errorType: GoogleSheetsApiErrorType.UnknownError,
+        };
     }
 
     // TODO: Make ptu or ptu_admin command that calls this
