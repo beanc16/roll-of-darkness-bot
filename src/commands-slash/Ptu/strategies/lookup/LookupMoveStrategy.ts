@@ -5,7 +5,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { PtuMove, PtuMoveExclude } from '../../models/PtuMove.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/pokemon.js';

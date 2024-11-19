@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomResultEmbedMessage } from '../../../Ptu/embed-messages/random.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';

@@ -5,7 +5,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomNatureEmbedMessage } from '../../../Ptu/embed-messages/random.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuNature } from '../../types/PtuNature.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';

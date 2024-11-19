@@ -6,7 +6,7 @@ import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage } from '../../../Ptu/embed-messages/random.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';

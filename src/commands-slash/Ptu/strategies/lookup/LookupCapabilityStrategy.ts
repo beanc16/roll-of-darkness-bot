@@ -4,7 +4,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getLookupCapabilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PtuCapability } from '../../types/PtuCapability.js';

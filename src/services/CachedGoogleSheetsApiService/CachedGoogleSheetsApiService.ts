@@ -1,29 +1,18 @@
-import {
+import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
+import type {
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
-    GoogleSheetsGetRangesResponseV1,
-    GoogleSheetsMicroservice,
     GoogleSheetsUpdateParametersV1,
 } from '@beanc16/microservices-abstraction';
-import { CachedAuthTokenService } from './CachedAuthTokenService.js';
+import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
 import { logger } from '@beanc16/logger';
-import { CompositeKeyRecord } from './CompositeKeyRecord.js';
-import { Timer } from './Timer.js';
-
-export enum GoogleSheetsApiErrorType {
-    UserNotAddedToSheet = 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
-    UnableToParseRange = 'UNABLE_TO_PARSE_RANGE',
-}
+import { CompositeKeyRecord } from '../CompositeKeyRecord.js';
+import { Timer } from '../Timer.js';
+import { GoogleSheetsApiErrorType, GoogleSheetsGetRangesResponse } from './types.js';
 
 interface GetRangeResponse
 {
     data?: string[][];
-    errorType?: GoogleSheetsApiErrorType;
-}
-
-interface GetRangesResponse
-{
-    data?: GoogleSheetsGetRangesResponseV1['data'];
     errorType?: GoogleSheetsApiErrorType;
 }
 
@@ -49,7 +38,7 @@ export class CachedGoogleSheetsApiService
             ...parameters
         } = initialParameters;
 
-        const cacheSpreadsheetKey = parameters?.spreadsheet || parameters?.spreadsheetId as string;
+        const cacheSpreadsheetKey = parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
         const cachedData = this.cache.Get([cacheSpreadsheetKey, cacheRangeKey]);
@@ -127,7 +116,7 @@ export class CachedGoogleSheetsApiService
         return {};
     }
 
-    public static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GetRangesResponse>
+    public static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GoogleSheetsGetRangesResponse>
     {
         const {
             shouldNotCache = false, // Add caching so this does something later

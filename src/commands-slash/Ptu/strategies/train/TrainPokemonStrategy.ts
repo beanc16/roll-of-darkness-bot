@@ -3,9 +3,10 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
+import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
 
 const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
 
@@ -27,16 +28,9 @@ interface GetSpreadsheetValuesResponse {
 }
 
 @staticImplements<ChatIteractionStrategy>()
-export class TrainPokemonStrategy
+export class TrainPokemonStrategy extends CharacterSheetStrategy
 {
     static key = ''; // Not necessary since train only has one strategy
-    private static spreadsheetRangesToGetForTraining = {
-        nickname: 'A1:B1',
-        species: 'H1:J1',
-        totalExp: 'D2:H2',
-        trainingExp: 'L10:N10',
-        level: 'B2',
-    };
     private static spreadsheetRangesForMiscellaneous = {
         totalExpForUpdate: 'E2',
     };
@@ -233,110 +227,6 @@ export class TrainPokemonStrategy
         return true;
     }
 
-    private static async getSpreadsheetValues({
-        spreadsheetId,
-        pokemonName,
-    }: {
-        spreadsheetId: string;
-        pokemonName: string;
-    }): Promise<GetSpreadsheetValuesResponse | GoogleSheetsApiErrorType | undefined>
-    {
-        // Parse data for the spreadsheet
-        const ranges = Object.values(this.spreadsheetRangesToGetForTraining).map((range) => {
-            return {
-                spreadsheetId,
-                range: `'${pokemonName}'!${range}`,
-            };
-        });
-
-        // Get data from the spreadsheet
-        const {
-            data: [
-                {
-                    valueRanges = [],
-                } = {},
-            ] = [{}],
-            errorType,
-        } = await CachedGoogleSheetsApiService.getRanges({
-            ranges,
-            shouldNotCache: true,
-        }) ?? [];
-
-        if (errorType)
-        {
-            return errorType;
-        }
-
-        if (ranges.length !== valueRanges.length)
-        {
-            return undefined;
-        }
-
-        const [
-            {
-                values: [
-                    [
-                        nicknameLabel,
-                        nickname,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        speciesLabel,
-                        _1,
-                        species,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        totalExpLabel,
-                        totalExp,
-                        _2,
-                        expToNextLevelLabel,
-                        expToNextLevel,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        trainingExpLabel,
-                        _3,
-                        trainingExp,
-                    ],
-                ] = [[]],
-            } = {},
-            {
-                values: [
-                    [
-                        level,
-                    ],
-                ] = [[]],
-            } = {},
-        ] = valueRanges;
-
-        return {
-            nicknameLabel,
-            nickname,
-            speciesLabel,
-            species,
-            totalExpLabel,
-            totalExp: this.parseToInt(totalExp),
-            unparsedTotalExp: totalExp,
-            expToNextLevelLabel,
-            expToNextLevel: this.parseToInt(expToNextLevel),
-            unparsedExpToNextLevel: totalExp,
-            trainingExpLabel,
-            trainingExp: this.parseToInt(trainingExp),
-            unparsedTrainingExp: trainingExp,
-            startingLevel: this.parseToInt(level),
-        };
-    }
-
     private static async getLevel({
         spreadsheetId,
         pokemonName,
@@ -351,23 +241,11 @@ export class TrainPokemonStrategy
             ] = [[]],
         } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId,
-            range: `'${pokemonName}'!${this.spreadsheetRangesToGetForTraining.level}`,
+            range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.level}`,
             shouldNotCache: true,
         });
 
         return this.parseToInt(level);
-    }
-
-    private static parseToInt(input: string): number | undefined
-    {
-        const output = parseInt(input, 10);
-
-        if (Number.isNaN(output))
-        {
-            return undefined;
-        }
-
-        return output;
     }
 
     private static async train({
