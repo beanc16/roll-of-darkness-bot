@@ -3,7 +3,8 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CachedGoogleSheetsApiService, GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService/types.js';
 import { getSpreadsheetIdFromCharacterSheetName } from '../../subcommand-groups/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
