@@ -21,6 +21,8 @@ interface GetRangeResponse
     errorType?: GoogleSheetsApiErrorType;
 }
 
+export type GetRangesOptions = GoogleSheetsGetRangesParametersV1 & WithCacheOptions;
+
 interface UpdateResponse
 {
     errorType?: GoogleSheetsApiErrorType;
@@ -123,7 +125,7 @@ export class CachedGoogleSheetsApiService
         };
     }
 
-    public static async getRanges(initialParameters: GoogleSheetsGetRangesParametersV1 & WithCacheOptions): Promise<GoogleSheetsGetRangesResponse>
+    public static async getRanges(initialParameters: GetRangesOptions): Promise<GoogleSheetsGetRangesResponse>
     {
         const {
             shouldNotCache = false, // Add caching so this does something later

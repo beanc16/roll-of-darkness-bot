@@ -45,6 +45,11 @@ interface GetNicknameResponse
     nickname: string;
 }
 
+interface GetNicknamesResponse extends GetNicknameResponse
+{
+    spreadsheetId: string;
+}
+
 export class CharacterSheetStrategy
 {
     protected static baseSpreadsheetRangesToGet = {
@@ -313,6 +318,45 @@ export class CharacterSheetStrategy
             nicknameLabel,
             nickname,
         };
+    }
+
+    protected static async getNicknames(options: {
+        spreadsheetId: string;
+        pokemonName: string;
+    }[]): Promise<GetNicknamesResponse[]>
+    {
+        const input = options.map<GoogleSheetsGetRangeParametersV1>(({ spreadsheetId, pokemonName }) =>
+        {
+            return {
+                spreadsheetId,
+                range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.nickname}`,
+                shouldNotCache: true,
+            };
+        });
+
+        const {
+            data = []
+        } = await CachedGoogleSheetsApiService.getRanges({
+            ranges: input,
+            shouldNotCache: true,
+        });
+
+        return data.map(({ spreadsheetId, valueRanges }) =>
+        {
+            const [
+                {
+                    values: [
+                        [nicknameLabel, nickname],
+                    ] = [[]],
+                },
+            ] = valueRanges;
+
+            return {
+                spreadsheetId,
+                nicknameLabel,
+                nickname,
+            };
+        });
     }
 
     protected static async getLevel({
