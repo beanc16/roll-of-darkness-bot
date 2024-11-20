@@ -15,7 +15,8 @@ export interface GetSpreadsheetValuesOptions
     pokemonName: string;
 }
 
-export interface GetSpreadsheetValuesResponse {
+export interface GetSpreadsheetValuesResponse
+{
     nicknameLabel: string;
     nickname: string;
     speciesLabel: string;
@@ -45,9 +46,19 @@ interface GetNicknameResponse
     nickname: string;
 }
 
-interface GetNicknamesResponse extends GetNicknameResponse
+export interface GetNicknamesOptions
 {
     spreadsheetId: string;
+    pokemonNames: string[];
+}
+
+export interface GetNicknamesResponse
+{
+    spreadsheetId: string;
+    names: {
+        nickname: string;
+        pageName: string;
+    }[];
 }
 
 export class CharacterSheetStrategy
@@ -296,23 +307,49 @@ export class CharacterSheetStrategy
         return spreadsheets;
     }
 
+    protected static async getAllPokemonNamesAndNicknames(): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
+    {
+        const pokemonNamesResponse = await this.getAllPokemonNames();
+
+        if (!Array.isArray(pokemonNamesResponse))
+        {
+            return pokemonNamesResponse;
+        }
+
+        const nicknameInput = pokemonNamesResponse.map(({ spreadsheetId, titles }) => {
+            return {
+                spreadsheetId,
+                pokemonNames: titles,
+            }
+        });
+
+        return this.getNicknames(nicknameInput);
+    }
+
     protected static async getNickname({
         spreadsheetId,
         pokemonName,
     }: {
         spreadsheetId: string;
         pokemonName: string;
-    }): Promise<GetNicknameResponse>
+    }): Promise<GetNicknameResponse | GoogleSheetsApiErrorType | undefined>
     {
         const {
             data: [
                 [nicknameLabel, nickname]
             ] = [[]],
+            errorType,
         } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId,
             range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.nickname}`,
             shouldNotCache: true,
         });
+
+        // There was an error
+        if (errorType)
+        {
+            return errorType;
+        }
 
         return {
             nicknameLabel,
@@ -320,43 +357,85 @@ export class CharacterSheetStrategy
         };
     }
 
-    protected static async getNicknames(options: {
-        spreadsheetId: string;
-        pokemonName: string;
-    }[]): Promise<GetNicknamesResponse[]>
+    // Does full success or failures, no partial successes
+    protected static async getNicknames(options: GetNicknamesOptions[]): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
     {
-        const input = options.map<GoogleSheetsGetRangeParametersV1>(({ spreadsheetId, pokemonName }) =>
+        const { input, spreadsheetIdToPokemonNames } = options.reduce<{
+            input: GoogleSheetsGetRangeParametersV1[];
+            spreadsheetIdToPokemonNames: Record<string, string[]>;
+        }>((
+            acc,
+            { spreadsheetId, pokemonNames },
+        ) =>
         {
-            return {
-                spreadsheetId,
-                range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.nickname}`,
-                shouldNotCache: true,
-            };
-        });
+            acc.spreadsheetIdToPokemonNames[spreadsheetId] = pokemonNames;
+            pokemonNames.forEach((pokemonName) =>
+            {
+                acc.input.push({
+                    spreadsheetId,
+                    range: `'${pokemonName}'!${this.baseSpreadsheetRangesToGet.nickname}`,
+                });
+            });
+
+            return acc;
+        }, { input: [], spreadsheetIdToPokemonNames: {} });
 
         const {
-            data = []
+            data = [],
+            errorType,
         } = await CachedGoogleSheetsApiService.getRanges({
             ranges: input,
             shouldNotCache: true,
         });
 
-        return data.map(({ spreadsheetId, valueRanges }) =>
+        // There was an error
+        if (errorType)
         {
-            const [
-                {
-                    values: [
-                        [nicknameLabel, nickname],
-                    ] = [[]],
-                },
-            ] = valueRanges;
+            return errorType;
+        }
 
-            return {
+        // We didn't receive data for the same number of spreadsheets in the output that were in the input
+        if (data.length !== options.length)
+        {
+            return undefined;
+        }
+
+        const { output, receivedUnexpectedNumberOfValueRanges } = data.reduce<{
+            output: GetNicknamesResponse[];
+            receivedUnexpectedNumberOfValueRanges: boolean;
+        }>((acc, { spreadsheetId, valueRanges }) =>
+        {
+            const [{ values = [] }] = valueRanges;
+
+            const pokemonNames = spreadsheetIdToPokemonNames[spreadsheetId] ?? [];
+
+            if (pokemonNames.length !== values.length)
+            {
+                acc.receivedUnexpectedNumberOfValueRanges = true;
+                return acc;
+            }
+
+            const names = values.map(([_, nickname], index) => {
+                return {
+                    nickname,
+                    pageName: pokemonNames[index],
+                };
+            });
+
+            acc.output.push({
                 spreadsheetId,
-                nicknameLabel,
-                nickname,
-            };
-        });
+                names,
+            });
+
+            return acc;
+        }, { output: [], receivedUnexpectedNumberOfValueRanges: false });
+
+        if (receivedUnexpectedNumberOfValueRanges)
+        {
+            return undefined;
+        }
+
+        return output;
     }
 
     protected static async getLevel({
