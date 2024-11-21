@@ -134,7 +134,7 @@ const parseTableColumnsToDescription = (tableColumns: TableColumn[] = []): strin
 export const getPagedEmbedBuilders = ({
     title,
     pages,
-    tableColumns,
+    tableColumns = [],
     tableParsingStyle = TableParsingStyle.Description,
     url,
 }: {
@@ -146,10 +146,10 @@ export const getPagedEmbedBuilders = ({
 }) =>
 {
     return pages.map((initialDescription, index) => {
-        const tableResult = (tableParsingStyle === TableParsingStyle.Fields)
-            ? parseTableColumnsToFields(tableColumns)
-            : (tableParsingStyle === TableParsingStyle.Description)
+        const tableResult = (tableParsingStyle === TableParsingStyle.Description && tableColumns.length > 0)
             ? parseTableColumnsToDescription(tableColumns)
+            : (tableParsingStyle === TableParsingStyle.Fields && tableColumns.length > 0)
+            ? parseTableColumnsToFields(tableColumns)
             : [];
 
         // Delete the end of the code block for description in table parsing
