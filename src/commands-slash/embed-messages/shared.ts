@@ -7,6 +7,11 @@ export interface TableColumn
     rows: string[];
 }
 
+export enum TableParsingStyle
+{
+    Fields = 'Fields',
+}
+
 const color = 0xCDCDCD;
 
 // Discord only allows 3 in-line columns to be displayed at a time
@@ -21,7 +26,7 @@ const emptyColumn: APIEmbedField = {
     inline: true,
 };
 
-export const parseTableColumns = (tableColumns: TableColumn[] = []): APIEmbedField[] =>
+export const parseTableColumnsToFields = (tableColumns: TableColumn[] = []): APIEmbedField[] =>
 {
     const columnsChunkedIntoThrees = chunkArray({
         array: tableColumns,
@@ -100,11 +105,13 @@ export const getPagedEmbedBuilders = ({
     title,
     pages,
     tableColumns,
+    tableParsingStyle = TableParsingStyle.Fields,
     url,
 }: {
     title: string;
     pages: string[];
     tableColumns?: TableColumn[];
+    tableParsingStyle?: TableParsingStyle;
     url?: string;
 }) =>
 {
@@ -119,7 +126,9 @@ export const getPagedEmbedBuilders = ({
             embed.setFooter({ text: `Page ${index + 1}/${pages.length}`})
         }
 
-        const tableFields = parseTableColumns(tableColumns);
+        const tableFields = (tableParsingStyle === TableParsingStyle.Fields)
+            ? parseTableColumnsToFields(tableColumns)
+            : [];
 
         if (tableFields.length > 0)
         {
