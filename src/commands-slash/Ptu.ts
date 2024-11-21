@@ -32,6 +32,7 @@ import { Timer } from '../services/Timer.js';
 import { PtuEdge } from './Ptu/types/PtuEdge.js';
 import { PtuFeature } from './Ptu/types/PtuFeature.js';
 import { logger } from '@beanc16/logger';
+import { PtuKeyword } from './Ptu/types/PtuKeyword.js';
 
 export interface RandomResult
 {
@@ -238,6 +239,21 @@ class Ptu extends BaseSlashCommand
                 subcommand: PtuLookupSubcommand.Edge,
             });
             choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Keyword Name
+        if (focusedValue.name === 'keyword_name')
+        {
+            const keywords = await PtuStrategyExecutor.getLookupData<PtuKeyword>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Keyword,
+            });
+            choices = keywords.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
                 return {
                     name,
                     value: name,
