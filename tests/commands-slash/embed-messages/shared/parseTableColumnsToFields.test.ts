@@ -1,18 +1,18 @@
-import { MAX_EMBED_FIELD_VALUE_LENGTH, parseTableColumns, type TableColumn } from '../../../../src/commands-slash/embed-messages/shared.js';
+import { MAX_EMBED_FIELD_VALUE_LENGTH, parseTableColumnsToFields, type TableColumn } from '../../../../src/commands-slash/embed-messages/shared.js';
 
-describe('function: parseTableColumns', () =>
+describe('function: parseTableColumnsToFields', () =>
 {
     describe('empty state', () =>
     {
         it('should return an empty array if no columns are provided', () =>
         {
-            const result = parseTableColumns();
+            const result = parseTableColumnsToFields();
             expect(result).toEqual([]);
         });
 
         it('should return an empty array if an empty array of columns is provided', () =>
         {
-            const result = parseTableColumns([]);
+            const result = parseTableColumnsToFields([]);
             expect(result).toEqual([]);
         });
     });
@@ -25,7 +25,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 1', rows: [] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: '', inline: true },
@@ -41,7 +41,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 1', rows: ['Row 1', 'Row 2', 'Row 3'] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\nRow 2\nRow 3', inline: true },
@@ -57,7 +57,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Header & Name', rows: ['Row #1', 'Row #2'] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Header & Name', value: 'Row #1\nRow #2', inline: true },
@@ -78,7 +78,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 2', rows: ['Row 3', 'Row 4'] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
@@ -96,7 +96,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 3', rows: ['Row 5', 'Row 6'] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
@@ -115,7 +115,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 4', rows: ['Row 7', 'Row 8'] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
@@ -136,7 +136,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 2', rows: [maxLengthString, maxLengthString] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
@@ -156,7 +156,7 @@ describe('function: parseTableColumns', () =>
                 { header: 'Column 2', rows: [] },
             ];
 
-            const result = parseTableColumns(input);
+            const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
                 { name: 'Column 1', value: 'Row 1\n', inline: true },

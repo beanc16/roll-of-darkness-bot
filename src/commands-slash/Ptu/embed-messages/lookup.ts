@@ -10,8 +10,9 @@ import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemo
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
-import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
+import { getPagedEmbedBuilders, type TableColumn } from '../../embed-messages/shared.js';
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
+import { PtuKeyword } from '../types/PtuKeyword.js';
 
 const color = 0xCDCDCD;
 
@@ -240,6 +241,81 @@ export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]) =>
     return getPagedEmbedBuilders({
         title: 'Features',
         pages,
+    });
+};
+
+export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]) =>
+{
+    if (keywords.length === 0) return [];
+
+    const { pages, tableColumns } = keywords.reduce<{
+        pages: string[];
+        tableColumns: TableColumn[];
+        curPage: number;
+    }>((acc, {
+        name,
+        description,
+        tableData,
+    }, index) => {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(description !== undefined && description !== '--' ? [
+                `Description:\n\`\`\`\n${description}\`\`\``
+            ] : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === keywords.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        if (tableData !== undefined && tableData !== '--' && tableData.length > 0)
+        {
+            const columns = tableData.split('\n');
+
+            columns.forEach(column =>
+            {
+                const [header, ...rows] = column.split('|');
+
+                acc.tableColumns.push({
+                    header,
+                    rows,
+                });
+            });
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        tableColumns: [],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Keywords',
+        pages,
+        tableColumns,
     });
 };
 

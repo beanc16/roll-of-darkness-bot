@@ -33,6 +33,8 @@ import { PtuEdge } from '../types/PtuEdge.js';
 import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 import { PtuFeature } from '../types/PtuFeature.js';
 import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
+import { PtuKeyword } from '../types/PtuKeyword.js';
+import { GetLookupKeywordDataParameters } from './lookup/LookupKeywordStrategy.js';
 
 export class PtuStrategyExecutor
 {
@@ -107,7 +109,7 @@ export class PtuStrategyExecutor
         return false;
     }
 
-    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuEdge | PtuFeature | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
+    public static async getLookupData<PtuLookupModel extends PtuAbility | PtuCapability | PtuEdge | PtuFeature | PtuKeyword | PtuMove | PtuNature | PtuPokemon | PtuStatus | PtuTm>({
         subcommandGroup,
         subcommand,
         options
@@ -123,6 +125,8 @@ export class PtuStrategyExecutor
             : PtuLookupModel extends PtuEdge        // Edge
             ? GetLookupEdgeDataParameters
             : PtuLookupModel extends PtuFeature     // Feature
+            ? GetLookupKeywordDataParameters
+            : PtuLookupModel extends PtuKeyword      // Keyword
             ? GetLookupFeatureDataParameters
             : PtuLookupModel extends PtuNature      // Nature
             ? GetLookupNatureDataParameters
