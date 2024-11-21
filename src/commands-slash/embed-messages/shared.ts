@@ -10,6 +10,7 @@ export interface TableColumn
 export enum TableParsingStyle
 {
     Fields = 'Fields',
+    Description = 'Description',
 }
 
 const color = 0xCDCDCD;
@@ -101,11 +102,40 @@ export const parseTableColumnsToFields = (tableColumns: TableColumn[] = []): API
     }, []);
 };
 
+const parseTableColumnsToDescription = (tableColumns: TableColumn[] = []): string =>
+{
+    let description = '';
+
+    // Determine the maximum number of rows in any column
+    const maxRows = Math.max(...tableColumns.map(column => column.rows.length));
+
+    // Parse all entries
+    for (let index = 0; index < maxRows; index++)
+    {
+        // Parse one entry
+        description += tableColumns.reduce((acc, column) =>
+        {
+            // Only add the row if it exists
+            if (column.rows[index])
+            {
+                acc += `${column.header}: ${column.rows[index]}\n`;
+            }
+
+            return acc;
+        }, '');
+
+        // Add a blank line after each group
+        description += '\n';
+    }
+
+    return `${description}\`\`\``;
+};
+
 export const getPagedEmbedBuilders = ({
     title,
     pages,
     tableColumns,
-    tableParsingStyle = TableParsingStyle.Fields,
+    tableParsingStyle = TableParsingStyle.Description,
     url,
 }: {
     title: string;
@@ -115,7 +145,27 @@ export const getPagedEmbedBuilders = ({
     url?: string;
 }) =>
 {
-    return pages.map((description, index) => {
+    return pages.map((initialDescription, index) => {
+        const tableResult = (tableParsingStyle === TableParsingStyle.Fields)
+            ? parseTableColumnsToFields(tableColumns)
+            : (tableParsingStyle === TableParsingStyle.Description)
+            ? parseTableColumnsToDescription(tableColumns)
+            : [];
+
+        // Delete the end of the code block for description in table parsing
+        let parsedDescription = initialDescription;
+        if (!Array.isArray(tableResult))
+        {
+            const index = initialDescription.lastIndexOf('\`\`\`');
+            parsedDescription = (index === -1)
+                ? initialDescription
+                : initialDescription.slice(0, index);
+        }
+
+        const description = (Array.isArray(tableResult))
+            ? parsedDescription
+            : [parsedDescription, tableResult].join('\n\n');
+
         const embed = new EmbedBuilder()
             .setTitle(title)
             .setDescription(description)
@@ -126,13 +176,9 @@ export const getPagedEmbedBuilders = ({
             embed.setFooter({ text: `Page ${index + 1}/${pages.length}`})
         }
 
-        const tableFields = (tableParsingStyle === TableParsingStyle.Fields)
-            ? parseTableColumnsToFields(tableColumns)
-            : [];
-
-        if (tableFields.length > 0)
+        if (Array.isArray(tableResult) && tableResult.length > 0)
         {
-            embed.addFields(tableFields);
+            embed.addFields(tableResult);
         }
 
         if (url)
