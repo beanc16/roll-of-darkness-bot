@@ -26,6 +26,7 @@ export class RollCaptureStrategy
         // Get parameter results
         const trainerLevel = interaction.options.getInteger('trainer_level', true);
         const additionalModifierFormula = interaction.options.getString('additional_modifier') ?? '0';
+        const accuracyModifierFormula = interaction.options.getString('accuracy_modifier') ?? '0';
 
         // Calculate the additional modifier
         const additionalModifier = this.mathParser.evaluate(additionalModifierFormula);
@@ -34,6 +35,17 @@ export class RollCaptureStrategy
         {
             await interaction.editReply(
                 'An invalid additional modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+            );
+            return true;
+        }
+
+        // Calculate the accuracy modifier
+        const accuracyModifier = this.mathParser.evaluate(accuracyModifierFormula);
+
+        if (accuracyModifier === undefined)
+        {
+            await interaction.editReply(
+                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
             );
             return true;
         }
@@ -71,19 +83,27 @@ export class RollCaptureStrategy
         );
 
         // Calculate the result
-        const accuracyModifier = (accuracyRoll === 20)
+        const accuracyModifierToResult = (accuracyRoll === 20)
             ? -10
             : 0;
-        const result = captureRoll - trainerLevel + accuracyModifier + additionalModifier;
+        const result = captureRoll - trainerLevel + accuracyModifierToResult + additionalModifier;
 
         // Create message text
+        const finalAccuracyModifierFormula = this.getAccuracyModifierFormulaForResponse(accuracyModifierFormula);
+        const resultFormula = this.getFinalResultModifierFormulaForResponse({
+            captureRoll,
+            trainerLevel,
+            accuracyModifierToResult,
+            additionalModifier,
+        });
+
         const startOfMessage = (captureRoll === 1)
             ? `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} rolled a guaranteed capture!!!\n`
             : `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`;
 
-        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll})\n` +
+        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll}) ${finalAccuracyModifierFormula}\n` +
                 `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +
-                `${Text.bold('Result')}: ${result}`;
+                `${Text.bold('Result')}: ${result} (${resultFormula})`;
 
         // Send message
         await this.sendMessage({
@@ -117,5 +137,69 @@ export class RollCaptureStrategy
             ),
             commandName: 'ptu roll capture',
         });
+    }
+
+    private static getAccuracyModifierFormulaForResponse(accuracyModifierFormula: string): string
+    {
+        if (accuracyModifierFormula.trim() !== '0')
+        {
+            return accuracyModifierFormula;
+        }
+
+        return '';
+    }
+
+    private static getFinalResultModifierFormulaForResponse({
+        captureRoll,
+        trainerLevel,
+        accuracyModifierToResult,
+        additionalModifier,
+    }: {
+        captureRoll: number;
+        trainerLevel: number;
+        accuracyModifierToResult: number;
+        additionalModifier: number;
+    }): string
+    {
+        const accuracyModifierSign = this.getDisplaySign(accuracyModifierToResult);
+        const additionalModifierSign = this.getDisplaySign(additionalModifier);
+
+        const displayAccuracyModifier = this.getDisplayModifier(accuracyModifierToResult);
+        const displayAdditionalModifier = this.getDisplayModifier(additionalModifier);
+
+        const accuracyDisplay = [accuracyModifierSign, displayAccuracyModifier].join(' ');
+        const additionalDisplay = [additionalModifierSign, displayAdditionalModifier].join(' ');
+
+        return `${captureRoll} - ${trainerLevel}${accuracyDisplay.trim() !== '' ? ` ${accuracyDisplay}` : ''}${additionalDisplay.trim() !== '' ? ` ${additionalDisplay}` : ''}`;
+    }
+
+    private static getDisplaySign(modifier: number): string
+    {
+        if (modifier === 0)
+        {
+            return '';
+        }
+
+        if (modifier >= 0)
+        {
+            return '+';
+        }
+
+        return '-';
+    }
+
+    private static getDisplayModifier(modifier: number): string
+    {
+        if (modifier === 0)
+        {
+            return '';
+        }
+
+        if (modifier >= 0)
+        {
+            return modifier.toString();
+        }
+
+        return (modifier * -1).toString();
     }
 }
