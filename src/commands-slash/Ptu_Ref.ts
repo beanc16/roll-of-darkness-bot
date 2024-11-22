@@ -5,10 +5,8 @@ import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
     PtuSubcommandGroup,
-    calculate,
-    random,
-    roll,
-    train,
+    lookup,
+    quickReference,
 } from './Ptu/subcommand-groups/index.js';
 import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
@@ -28,16 +26,14 @@ export interface RandomPokeball extends RandomResult
     jailBreakerInfo?: RandomPokeball;
 }
 
-class Ptu extends BaseSlashCommand
+class Ptu_Ref extends BaseSlashCommand
 {
     constructor()
     {
         super();
         this._slashCommandData
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(random)
-            .addSubcommandGroup(roll)
-            .addSubcommand(train);
+            .addSubcommandGroup(lookup)
+            .addSubcommand(quickReference);
     }
 
     async run(interaction: ChatInputCommandInteraction)
@@ -75,7 +71,7 @@ class Ptu extends BaseSlashCommand
         // More than 3 seconds has passed, so we can't respond to the interaction
         if (Date.now() - startTime >= 3000)
         {
-            logger.warn('More than 3 seconds has passed to autocomplete in /ptu with the following data:', {
+            logger.warn('More than 3 seconds has passed to autocomplete in /ptu_ref with the following data:', {
                 lookupOn: focusedValue.name,
                 searchValue: focusedValue.value,
                 results: choices,
@@ -88,8 +84,8 @@ class Ptu extends BaseSlashCommand
 
     get description()
     {
-        return `Run Pokemon Tabletop United commands.`;
+        return `Run commands to reference mechanics for Pokemon Tabletop United.`;
     }
 }
 
-export default new Ptu();
+export default new Ptu_Ref();
