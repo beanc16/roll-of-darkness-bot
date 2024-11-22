@@ -279,6 +279,7 @@ export class CharacterSheetStrategy
                 {
                     type: GoogleSheetsMicroserviceFilterType.CaseInsensitiveExcludes,
                     values: [
+                        'Read First',
                         'Trainer',
                         'Features',
                         'Edges',
@@ -307,7 +308,7 @@ export class CharacterSheetStrategy
         return spreadsheets;
     }
 
-    protected static async getAllPokemonNamesAndNicknames(): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
+    public static async getAllPokemonNamesAndNicknames(): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
     {
         const pokemonNamesResponse = await this.getAllPokemonNames();
 
@@ -323,7 +324,7 @@ export class CharacterSheetStrategy
             }
         });
 
-        return this.getNicknames(nicknameInput);
+        return await this.getNicknames(nicknameInput);
     }
 
     protected static async getNickname({
