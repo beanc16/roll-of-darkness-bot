@@ -3,6 +3,7 @@ import type {
     GoogleSheetsGetPageTitlesBatchParametersV1,
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
+    GoogleSheetsMicroserviceFilter,
     GoogleSheetsUpdateParametersV1,
 } from '@beanc16/microservices-abstraction';
 import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
@@ -15,13 +16,25 @@ import {
     type GoogleSheetsGetRangesResponse,
 } from './types.js';
 
+export interface RetryOptions
+{
+    secondsBetweenRetries?: number;
+    numOfRetries?: number;
+}
+
+interface GetPageTitleCacheKeysByParametersResponse
+{
+    spreadsheetIdToKeysMap: Record<string, string[]>;
+    allMetadataIsCacheable: boolean;
+}
+
 interface GetRangeResponse
 {
     data?: string[][];
     errorType?: GoogleSheetsApiErrorType;
 }
 
-export type GetRangesOptions = GoogleSheetsGetRangesParametersV1 & WithCacheOptions;
+export type GetRangesOptions = GoogleSheetsGetRangesParametersV1 & WithCacheOptions & RetryOptions;
 
 interface UpdateResponse
 {
@@ -37,6 +50,67 @@ export class CachedGoogleSheetsApiService
 {
     private static retries = 4;
     private static cache: CompositeKeyRecord<[string, string], string[][]> = new CompositeKeyRecord();
+
+    // Key is spreadsheetId, then all filters
+    private static pageTitleCache: CompositeKeyRecord<string[], string[]> = new CompositeKeyRecord();
+
+    private static getPageTitleCacheKeys({
+        spreadsheetId,
+        topLevelFilters = [],
+        currentFilters = [],
+    }: {
+        spreadsheetId: string;
+        topLevelFilters?: GoogleSheetsMicroserviceFilter[];
+        currentFilters?: GoogleSheetsMicroserviceFilter[];
+    }): string[]
+    {
+        const keys = topLevelFilters.reduce<string[]>((acc, { type, values }) =>
+        {
+            acc.push(type);
+            acc.push(...values);
+            return acc;
+        }, [spreadsheetId]);
+
+        currentFilters.forEach(({ type, values }) =>
+        {
+            keys.push(type);
+            keys.push(...values);
+        });
+
+        return keys;
+    }
+
+    private static getPageTitleCacheKeysByParameters({
+        spreadsheetMetadata = [],
+        filters: topLevelFilters = [],
+    }: GoogleSheetsGetPageTitlesBatchParametersV1): GetPageTitleCacheKeysByParametersResponse
+    {
+        const results = spreadsheetMetadata.reduce<GetPageTitleCacheKeysByParametersResponse>((
+            acc,
+            { spreadsheetId, filters = [] },
+        ) =>
+        {
+            if (spreadsheetId)
+            {
+                const keys = this.getPageTitleCacheKeys({
+                    spreadsheetId,
+                    topLevelFilters,
+                    currentFilters: filters,
+                });
+
+                acc.spreadsheetIdToKeysMap[spreadsheetId] = keys;
+            }
+
+            else
+            {
+                acc.allMetadataIsCacheable = false;
+            }
+
+            return acc
+        }, { spreadsheetIdToKeysMap: {}, allMetadataIsCacheable: true });
+
+        return results;
+    }
 
     public static async getRange(initialParameters: GoogleSheetsGetRangeParametersV1 & WithCacheOptions): Promise<GetRangeResponse>
     {
@@ -129,10 +203,12 @@ export class CachedGoogleSheetsApiService
     {
         const {
             shouldNotCache = false, // Add caching so this does something later
+            secondsBetweenRetries = 0.5,
+            numOfRetries = this.retries,
             ...parameters
         } = initialParameters;
 
-        for (let i = 0; i <= this.retries; i += 1)
+        for (let i = 0; i <= numOfRetries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();
 
@@ -191,7 +267,7 @@ export class CachedGoogleSheetsApiService
 
             // Wait half a second between retries
             await Timer.wait({
-                seconds: 0.5,
+                seconds: secondsBetweenRetries,
             });
         }
 
@@ -206,6 +282,35 @@ export class CachedGoogleSheetsApiService
             shouldNotCache = false, // Add caching so this does something later
             ...parameters
         } = initialParameters;
+
+        const { spreadsheetIdToKeysMap, allMetadataIsCacheable } = this.getPageTitleCacheKeysByParameters(parameters);
+
+        if (allMetadataIsCacheable)
+        {
+            const { allCachedDataWasFound, ...response } = Object.entries(spreadsheetIdToKeysMap).reduce<GoogleSheetsGetPageTitlesBatchResponse & {
+                allCachedDataWasFound: boolean;
+            }>((acc, [
+                spreadsheetId,
+                keys,
+            ]) =>
+            {
+                const cachedTitles = this.pageTitleCache.Get(keys);
+
+                if (cachedTitles === undefined)
+                {
+                    acc.allCachedDataWasFound = false;
+                    return acc;
+                }
+
+                acc.spreadsheets?.push({ spreadsheetId, titles: cachedTitles });
+                return acc;
+            }, { spreadsheets: [], allCachedDataWasFound: true });
+
+            if (allCachedDataWasFound)
+            {
+                return response;
+            }
+        }
 
         for (let i = 0; i <= this.retries; i += 1)
         {
@@ -222,6 +327,40 @@ export class CachedGoogleSheetsApiService
                 if (statusCode === 200)
                 {
                     const { spreadsheets = [] } = data;
+
+                    // Save to cache by spreadsheet / spreadsheetId
+                    if (!shouldNotCache)
+                    {
+                        const { spreadsheetMetadata = [], filters: topLevelFilters = [] } = parameters;
+
+                        // Convert to a record for faster retrieval in loops
+                        const spreadsheetIdToTitles = spreadsheets.reduce<Record<string, string[]>>((
+                            acc,
+                            { spreadsheetId, titles }
+                        ) =>
+                        {
+                            acc[spreadsheetId] = titles;
+                            return acc;
+                        }, {});
+
+                        // Cache data
+                        spreadsheetMetadata.forEach(({ spreadsheetId, filters = [] }) =>
+                        {
+                            if (spreadsheetId && filters.length > 0)
+                            {
+                                const keys = this.getPageTitleCacheKeys({
+                                    spreadsheetId,
+                                    topLevelFilters,
+                                    currentFilters: filters,
+                                });
+
+                                const titles = spreadsheetIdToTitles[spreadsheetId];
+
+                                this.pageTitleCache.Upsert(keys, titles);
+                            }
+                        });
+                    }
+
                     return { spreadsheets };
                 }
 
