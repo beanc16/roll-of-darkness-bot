@@ -119,6 +119,7 @@ describe('class: CharacterSheetStrategy', () =>
 
                 const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
                 const expectedResult: GetSpreadsheetValuesResponse = {
+                    pageName: 'Pikachu',
                     nicknameLabel: 'Nickname',
                     nickname: 'Pika',
                     speciesLabel: 'Species',
@@ -216,6 +217,7 @@ describe('class: CharacterSheetStrategy', () =>
                     return {
                         spreadsheetId: curSpreadsheetId,
                         values: {
+                            pageName: 'Pikachu',
                             nicknameLabel: 'Nickname',
                             nickname: 'Pika',
                             speciesLabel: 'Species',
