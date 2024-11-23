@@ -19,6 +19,7 @@ import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } fro
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
+import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 
 enum AttackButtonName
 {
@@ -297,6 +298,7 @@ export class RollAttackStrategy
             // Wait for button interactions
             buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
             });
 
             await this.runRerollStrategy({

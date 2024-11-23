@@ -60,7 +60,7 @@ export class PaginationStrategy
 
         // Only include pagination buttons if there's more than one embed message
         const components = (shouldPaginate)
-            ? [this.getPaginationRowComponent()]
+            ? [this.getPaginationRowComponent(false)]
             : [];
 
         // Send first embed message
@@ -117,7 +117,7 @@ export class PaginationStrategy
                 pageIndex,
             });
 
-            const paginationRow = PaginationStrategy.getPaginationRowComponent();
+            const paginationRow = PaginationStrategy.getPaginationRowComponent(false);
             await buttonInteraction.update({
                 ...(embeds
                     ? { embeds: [embeds[newPageIndex]] }
@@ -149,9 +149,10 @@ export class PaginationStrategy
                 logger.error('An unknown error occurred whilst collecting pages', error);
             }
 
-            // Remove paginated buttons upon timeout
+            // Disable paginated buttons upon timeout
             if (!hasUpdated)
             {
+                const paginationRow = this.getPaginationRowComponent(true);
                 this.replyToOriginalInteraction({
                     originalInteraction,
                     interactionType: 'editReply',
@@ -164,7 +165,7 @@ export class PaginationStrategy
                             ? { files: [files[pageIndex]] }
                             : {}
                         ),
-                        components: [],
+                        components: [paginationRow],
                     },
                 });
             }
@@ -220,31 +221,35 @@ export class PaginationStrategy
         return pageIndex;
     }
 
-    private static getPaginationRowComponent(): ActionRowBuilder<ButtonBuilder>
+    private static getPaginationRowComponent(isDisabled: boolean): ActionRowBuilder<ButtonBuilder>
     {
         const prevButton = new ButtonBuilder()
             .setCustomId(ButtonName.Previous)
             .setLabel('Previous')
             .setEmoji('⬅️')
-            .setStyle(ButtonStyle.Secondary);
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(isDisabled);
 
         const nextButton = new ButtonBuilder()
             .setCustomId(ButtonName.Next)
             .setLabel('Next')
             .setEmoji('➡️')
-            .setStyle(ButtonStyle.Secondary);
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(isDisabled);
 
         const firstButton = new ButtonBuilder()
             .setCustomId(ButtonName.First)
             .setLabel('First')
             .setEmoji('⏪')
-            .setStyle(ButtonStyle.Secondary);
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(isDisabled);
 
         const lastButton = new ButtonBuilder()
             .setCustomId(ButtonName.Last)
             .setLabel('Last')
             .setEmoji('⏩')
-            .setStyle(ButtonStyle.Secondary);
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(isDisabled);
 
         const row = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -275,9 +280,9 @@ export class PaginationStrategy
             {
                 return await originalInteraction.editReply(parameters);
             },
-            dm: () =>
+            dm: async () =>
             {
-                return originalInteraction.user.send(parameters as MessageCreateOptions);
+                return await originalInteraction.user.send(parameters as MessageCreateOptions);
             },
         };
 

@@ -28,6 +28,7 @@ import {
 } from './Counter/dal/CounterMongoController.js';
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
+import { timeToWaitForCommandInteractions } from '../constants/discord.js';
 
 enum CounterButtonName
 {
@@ -177,6 +178,7 @@ class Counter extends BaseSlashCommand
             // Wait for button interactions
             buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
             });
 
             // Update count based on interaction

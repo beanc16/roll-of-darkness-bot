@@ -14,6 +14,7 @@ import {
 
 import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 import { DiscordInteractionCallbackType } from '../../types/discord.js';
+import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 
 enum RerollButtonName
 {
@@ -123,6 +124,7 @@ export class RerollStrategy
             // Wait for button interactions
             buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
             });
 
             await Promise.all([
