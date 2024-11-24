@@ -139,7 +139,7 @@ export class RollAttackStrategy
         const accuracyModifierStr = (accuracyModifier > 0)
             ? `+${accuracyModifier}`
             : (accuracyModifier < 0)
-            ? `-${accuracyModifier}`
+            ? `${accuracyModifier}`
             : '';
         const rollName = name ? ` ${Text.bold(name)}` : '';
         const messagePrefix = `${Text.Ping.user(
