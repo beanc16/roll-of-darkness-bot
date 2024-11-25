@@ -425,7 +425,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             page,
             imageUrl,
         },
-        megaEvolution,
+        megaEvolutions,
         extras,
     }) => {
         // Stage the individual lines of the description
@@ -511,25 +511,26 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
                 zygardeCubeMoves.join(', '),
                 '',
             ] : []),
-            ...(megaEvolution !== undefined ? [
-                Text.bold('Mega Evolution'),
-                megaEvolution.name,
-                `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
-                `Stats: ${[
-                    (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
-                    (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
-                    (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
-                    (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
-                    (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
-                    (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
-                ].filter((str) => str.length > 0).join(', ')}`,
-                `Ability: ${megaEvolution.ability}`,
+            (megaEvolutions !== undefined && megaEvolutions.length > 0 ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
                 [
-                    (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
-                    (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
-                    '',
-                ].filter((str) => str.length > 0),
-            ] : []),
+                    megaEvolution.name,
+                    `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
+                    `Stats: ${[
+                        (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
+                        (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
+                        (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
+                        (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
+                        (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
+                        (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
+                    ].filter((str) => str.length > 0).join(', ')}`,
+                    `Ability: ${megaEvolution.ability}`,
+                    [
+                        (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
+                        (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
+                        '',
+                    ].filter((str) => str.length > 0).join('\n'),
+                ].join('\n'),
+            ).join('\n') : []),
             ...(extras && extras.length > 0 ? [
                 ...extras.map(({ name, value }) => `${Text.bold(name)}\n${value}`),
                 '',
