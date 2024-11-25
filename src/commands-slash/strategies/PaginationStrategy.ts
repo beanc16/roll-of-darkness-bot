@@ -143,14 +143,17 @@ export class PaginationStrategy
         }
         catch (error)
         {
+            const errorPrefix = 'Collector received no interactions before ending with reason:';
+            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
             // Ignore timeouts
-            if ((error as Error).message !== 'Collector received no interactions before ending with reason: time')
+            if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error('An unknown error occurred whilst collecting pages', error);
             }
 
             // Disable paginated buttons upon timeout
-            if (!hasUpdated)
+            if (!hasUpdated && !messageTimedOut && !messageWasDeleted)
             {
                 const paginationRow = this.getPaginationRowComponent(true);
                 this.replyToOriginalInteraction({
