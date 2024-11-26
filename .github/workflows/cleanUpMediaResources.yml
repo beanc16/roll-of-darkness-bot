@@ -2,7 +2,7 @@ name: Clean Up Media Resources
 
 on:
   schedule:
-    - cron: '0 6 * * SAT'
+    - cron: '0 11 * * SAT'
 
 jobs:
   clean-up-media-resources:

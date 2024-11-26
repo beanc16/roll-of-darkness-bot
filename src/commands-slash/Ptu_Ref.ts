@@ -4,30 +4,39 @@ import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js
 
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
-    calculate,
     PtuSubcommandGroup,
-    random,
-    roll,
-    train,
+    lookup,
+    quickReference,
 } from './Ptu/subcommand-groups/index.js';
-import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
+import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 
-class Ptu extends BaseSlashCommand
+export interface RandomResult
+{
+    name: string;
+    cost?: string;
+    description: string;
+    numOfTimesRolled?: number;
+}
+
+export interface RandomPokeball extends RandomResult
+{
+    mod?: string;
+    type?: string;
+    jailBreakerInfo?: RandomPokeball;
+}
+
+class Ptu_Ref extends BaseSlashCommand
 {
     constructor()
     {
         super();
-        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(random)
-            .addSubcommandGroup(roll)
-            .addSubcommand(train);
+            .addSubcommandGroup(lookup)
+            .addSubcommand(quickReference);
     }
 
-    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
-    public async run(interaction: ChatInputCommandInteraction): Promise<void>
+    async run(interaction: ChatInputCommandInteraction)
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -52,7 +61,7 @@ class Ptu extends BaseSlashCommand
         }
     }
 
-    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
+    async autocomplete(interaction: AutocompleteInteraction)
     {
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
@@ -62,7 +71,7 @@ class Ptu extends BaseSlashCommand
         // More than 3 seconds has passed, so we can't respond to the interaction
         if (Date.now() - startTime >= 3000)
         {
-            logger.warn('More than 3 seconds has passed to autocomplete in /ptu with the following data:', {
+            logger.warn('More than 3 seconds has passed to autocomplete in /ptu_ref with the following data:', {
                 lookupOn: focusedValue.name,
                 searchValue: focusedValue.value,
                 results: choices,
@@ -73,11 +82,10 @@ class Ptu extends BaseSlashCommand
         await interaction.respond(choices);
     }
 
-    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
-    get description(): string
+    get description()
     {
-        return `Run Pokemon Tabletop United commands.`;
+        return `Run commands to reference mechanics for Pokemon Tabletop United.`;
     }
 }
 
-export default new Ptu();
+export default new Ptu_Ref();

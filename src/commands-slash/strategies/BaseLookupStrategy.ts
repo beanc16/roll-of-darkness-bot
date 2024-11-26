@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
-import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { PaginationStrategy } from './PaginationStrategy.js';
 import { ChatIteractionStrategy } from './types/ChatIteractionStrategy.js';
 

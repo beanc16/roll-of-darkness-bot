@@ -161,7 +161,7 @@ describe('class: DicePool', () =>
                 return acc + innerSum;
             }, 0);
             const expectedSum = input.reduce<number>((acc, roll) => acc + roll.number, 0);
-            expect(sum).toBe(expectedSum);
+            expect(sum).toEqual(expectedSum);
         });
     });
 });

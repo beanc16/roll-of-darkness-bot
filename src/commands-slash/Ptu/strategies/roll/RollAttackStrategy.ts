@@ -13,6 +13,7 @@ import {
     Message,
 } from 'discord.js';
 
+import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
@@ -151,17 +152,11 @@ export class RollAttackStrategy
         const { damageResultString, finalRollResult } = damageResult;
 
         // Send message
-        let accuracyModifierStr = '';
-
-        if (accuracyModifier > 0)
-        {
-            accuracyModifierStr = `+${accuracyModifier}`;
-        }
-        else if (accuracyModifier < 0)
-        {
-            accuracyModifierStr = `-${accuracyModifier}`;
-        }
-
+        const accuracyModifierStr = (accuracyModifier > 0)
+            ? `+${accuracyModifier}`
+            : (accuracyModifier < 0)
+            ? `${accuracyModifier}`
+            : '';
         const rollName = name ? ` ${Text.bold(name)}` : '';
         const messagePrefix = `${Text.Ping.user(
             rerollCallbackOptions.newCallingUserId ?? interaction.user.id)
@@ -320,6 +315,7 @@ export class RollAttackStrategy
             // Wait for button interactions
             buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
             });
 
             await this.runRerollStrategy({

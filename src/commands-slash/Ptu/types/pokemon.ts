@@ -154,7 +154,7 @@ export interface PtuPokemon
         tutorMoves: string[];
         zygardeCubeMoves?: string[];
     };
-    megaEvolution?: {
+    megaEvolutions?: {
         name: string;
         types: string[];
         ability: string;
@@ -168,7 +168,7 @@ export interface PtuPokemon
             specialDefense?: string;
             speed?: string;
         };
-    };
+    }[];
     metadata: {
         dexNumber?: string;
         source: string;

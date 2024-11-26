@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { BerryTier, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';

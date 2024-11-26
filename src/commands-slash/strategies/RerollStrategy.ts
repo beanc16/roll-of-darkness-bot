@@ -12,6 +12,7 @@ import {
     Message,
 } from 'discord.js';
 
+import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import { DiscordInteractionCallbackType } from '../../types/discord.js';
 import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 
@@ -129,6 +130,7 @@ export class RerollStrategy
             // Wait for button interactions
             buttonInteraction = await interactionResponse.awaitMessageComponent({
                 componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
             });
 
             await Promise.all([

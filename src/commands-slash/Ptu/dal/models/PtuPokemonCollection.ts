@@ -18,7 +18,7 @@ export class PtuPokemonCollection
     public capabilities: PtuPokemon['capabilities'];
     public skills: PtuPokemon['skills'];
     public moveList: PtuPokemon['moveList'];
-    public megaEvolution: PtuPokemon['megaEvolution'];
+    public megaEvolutions: PtuPokemon['megaEvolutions'];
     public metadata: PtuPokemon['metadata'];
     public extras: PtuPokemon['extras'];
 
@@ -36,7 +36,7 @@ export class PtuPokemonCollection
         capabilities,
         skills,
         moveList,
-        megaEvolution,
+        megaEvolutions,
         metadata,
         extras,
     }: PtuPokemon & { _id: ObjectId })
@@ -64,7 +64,7 @@ export class PtuPokemonCollection
         this.capabilities = capabilities;
         this.skills = skills;
         this.moveList = moveList;
-        this.megaEvolution = megaEvolution;
+        this.megaEvolutions = megaEvolutions;
         this.metadata = metadata;
         this.extras = extras;
     }

@@ -2,7 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
-import { getPagedEmbedBuilders } from '../../embed-messages/shared.js';
+import { getPagedEmbedBuilders, TableColumn } from '../../embed-messages/shared.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
 import {
@@ -13,6 +13,7 @@ import {
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
+import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
@@ -262,6 +263,81 @@ export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]): EmbedBui
     });
 };
 
+export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]): EmbedBuilder[] =>
+{
+    if (keywords.length === 0) return [];
+
+    const { pages, tableColumns } = keywords.reduce<{
+        pages: string[];
+        tableColumns: TableColumn[];
+        curPage: number;
+    }>((acc, {
+        name,
+        description,
+        tableData,
+    }, index) => {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(description !== undefined && description !== '--' ? [
+                `Description:\n\`\`\`\n${description}\`\`\``
+            ] : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === keywords.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        if (tableData !== undefined && tableData !== '--' && tableData.length > 0)
+        {
+            const columns = tableData.split('\n');
+
+            columns.forEach(column =>
+            {
+                const [header, ...rows] = column.split('|');
+
+                acc.tableColumns.push({
+                    header,
+                    rows,
+                });
+            });
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        tableColumns: [],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Keywords',
+        pages,
+        tableColumns,
+    });
+};
+
 export const getLookupMovesEmbedMessages = (moves: PtuMove[]): EmbedBuilder[] =>
 {
     if (moves.length === 0) return [];
@@ -366,7 +442,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             page,
             imageUrl,
         },
-        megaEvolution,
+        megaEvolutions,
         extras,
     }) =>
     {
@@ -442,37 +518,28 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
                 type,
             }) => `${level} ${move} - ${type}`),
             '',
-            ...(eggMoves.length > 0
-                ? [
-                    Text.bold('Egg Move List'),
-                    eggMoves.join(', '),
-                    '',
-                ]
-                : []),
-            ...(tmHm.length > 0
-                ? [
-                    Text.bold('TM/HM Move List'),
-                    tmHm.join(', '),
-                    '',
-                ]
-                : []),
-            ...(tutorMoves.length > 0
-                ? [
-                    Text.bold('Tutor Move List'),
-                    tutorMoves.join(', '),
-                    '',
-                ]
-                : []),
-            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0
-                ? [
-                    Text.bold('Zygarde Cube Move List'),
-                    zygardeCubeMoves.join(', '),
-                    '',
-                ]
-                : []),
-            ...(megaEvolution !== undefined
-                ? [
-                    Text.bold('Mega Evolution'),
+            ...(eggMoves.length > 0 ? [
+                Text.bold('Egg Move List'),
+                eggMoves.join(', '),
+                '',
+            ] : []),
+            ...(tmHm.length > 0 ? [
+                Text.bold('TM/HM Move List'),
+                tmHm.join(', '),
+                '',
+            ] : []),
+            ...(tutorMoves.length > 0 ? [
+                Text.bold('Tutor Move List'),
+                tutorMoves.join(', '),
+                '',
+            ] : []),
+            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0 ? [
+                Text.bold('Zygarde Cube Move List'),
+                zygardeCubeMoves.join(', '),
+                '',
+            ] : []),
+            (megaEvolutions !== undefined && megaEvolutions.length > 0 ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
+                [
                     megaEvolution.name,
                     `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
                     `Stats: ${[
@@ -488,15 +555,13 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
                         (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
                         (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
                         '',
-                    ].filter(str => str.length > 0),
-                ]
-                : []),
-            ...(extras && extras.length > 0
-                ? [
-                    ...extras.map(({ name: extraName, value }) => `${Text.bold(extraName)}\n${value}`),
-                    '',
-                ]
-                : []),
+                    ].filter((str) => str.length > 0).join('\n'),
+                ].join('\n'),
+            ).join('\n') : []),
+            ...(extras && extras.length > 0 ? [
+                ...extras.map(({ name, value }) => `${Text.bold(name)}\n${value}`),
+                '',
+            ] : []),
             `${source}: ${page}`,
         ];
 
@@ -550,6 +615,17 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
         const { name, moveList } = curPokemon;
 
         if (
+            (moveListType === PtuMoveListType.LevelUp && !moveList.levelUp.find(({ move }) => move === moveName))
+            || (moveListType === PtuMoveListType.TmHm && !moveList.tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase())))
+            || (moveListType === PtuMoveListType.EggMoves && !moveList.eggMoves.find((move) => move === moveName))
+            || (moveListType === PtuMoveListType.TutorMoves && !moveList.tutorMoves.find((move) => move === moveName))
+            || (moveListType === PtuMoveListType.ZygardeCubeMoves && !moveList.zygardeCubeMoves || (moveList.zygardeCubeMoves && !moveList.zygardeCubeMoves.find((move) => move === moveName)))
+        )
+        {
+            return acc;
+        }
+
+        if (
             moveListType === PtuMoveListType.EggMoves
             || moveListType === PtuMoveListType.TmHm
             || moveListType === PtuMoveListType.TutorMoves
@@ -561,28 +637,28 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
         }
 
         const zygardeMove = (moveList?.zygardeCubeMoves ?? []).find(move => move === moveName);
-        if (zygardeMove)
+        if (zygardeMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.ZygardeCubeMoves].push(curPokemon);
             return acc;
         }
 
         const eggMove = moveList.eggMoves.find(move => move === moveName);
-        if (eggMove)
+        if (eggMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.EggMoves].push(curPokemon);
             return acc;
         }
 
         const tutorMove = moveList.tutorMoves.find(move => move === moveName);
-        if (tutorMove)
+        if (tutorMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TutorMoves].push(curPokemon);
             // Don't return acc
         }
 
         const tmHmMove = moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
-        if (tmHmMove)
+        if (tmHmMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TmHm].push(curPokemon);
             // Don't return acc
