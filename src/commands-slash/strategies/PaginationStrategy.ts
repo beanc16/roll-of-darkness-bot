@@ -8,8 +8,11 @@ import {
     ComponentType,
     EmbedBuilder,
     InteractionEditReplyOptions,
+    InteractionUpdateOptions,
     Message,
     MessageCreateOptions,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import { logger } from '@beanc16/logger';
@@ -21,12 +24,20 @@ enum ButtonName {
     Last = 'last_page',
 }
 
+export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
+
 interface PaginationStrategyRunParameters
 {
-    originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
+    originalInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
     embeds?: EmbedBuilder[];
     files?: AttachmentPayload[];
-    interactionType?: 'editReply' | 'dm';
+    interactionType?: PaginationInteractionType;
+    rowsAbovePagination?: [
+        ActionRowBuilder<StringSelectMenuBuilder>?,
+        ActionRowBuilder<StringSelectMenuBuilder>?,
+        ActionRowBuilder<StringSelectMenuBuilder>?,
+        ActionRowBuilder<StringSelectMenuBuilder>?,
+    ];
 }
 
 interface PaginationStrategySendPagedMessagesParameters extends PaginationStrategyRunParameters
@@ -51,6 +62,7 @@ export class PaginationStrategy
         embeds,
         files,
         interactionType = 'editReply',
+        rowsAbovePagination = [],
     }: PaginationStrategyRunParameters)
     {
         const shouldPaginate = (
@@ -58,10 +70,12 @@ export class PaginationStrategy
             || (files && files.length > 1)
         );
 
+        const validRowsAbovePagination = rowsAbovePagination.filter(row => !!row);
+
         // Only include pagination buttons if there's more than one embed message
         const components = (shouldPaginate)
-            ? [this.getPaginationRowComponent(false)]
-            : [];
+            ? [...validRowsAbovePagination, this.getPaginationRowComponent(false)]
+            : validRowsAbovePagination;
 
         // Send first embed message
         const response = await this.replyToOriginalInteraction({
@@ -83,14 +97,16 @@ export class PaginationStrategy
         // Only listen for pagination buttons if there's more than one embed message
         if (shouldPaginate)
         {
-            await this.sendPagedMessages({
+            this.sendPagedMessages({
                 originalInteraction,
                 embeds,
                 files,
-                interactionResponse: response,
+                interactionResponse: response as Message,
                 pageIndex: 0,
             });
         }
+
+        return response;
     }
 
     private static async sendPagedMessages({
@@ -272,7 +288,7 @@ export class PaginationStrategy
     }: {
         originalInteraction: PaginationStrategyRunParameters['originalInteraction'];
         interactionType: NonNullable<PaginationStrategyRunParameters['interactionType']>;
-        parameters: InteractionEditReplyOptions | MessageCreateOptions;
+        parameters: InteractionEditReplyOptions | InteractionUpdateOptions | MessageCreateOptions;
     })
     {
         const handlerMap: Record<
@@ -286,6 +302,11 @@ export class PaginationStrategy
             dm: async () =>
             {
                 return await originalInteraction.user.send(parameters as MessageCreateOptions);
+            },
+            update: async () =>
+            {
+                await (originalInteraction as StringSelectMenuInteraction).update(parameters as InteractionUpdateOptions);
+                return (originalInteraction as StringSelectMenuInteraction).message;
             },
         };
 
