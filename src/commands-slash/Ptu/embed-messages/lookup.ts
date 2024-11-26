@@ -602,6 +602,17 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         } = curPokemon;
 
         if (
+            (moveListType === PtuMoveListType.LevelUp && !levelUp.find(({ move }) => move === moveName))
+            || (moveListType === PtuMoveListType.TmHm && !tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase())))
+            || (moveListType === PtuMoveListType.EggMoves && !eggMoves.find((move) => move === moveName))
+            || (moveListType === PtuMoveListType.TutorMoves && !tutorMoves.find((move) => move === moveName))
+            || (moveListType === PtuMoveListType.ZygardeCubeMoves && !zygardeCubeMoves.find((move) => move === moveName))
+        )
+        {
+            return acc;
+        }
+
+        if (
             moveListType === PtuMoveListType.EggMoves
             || moveListType === PtuMoveListType.TmHm
             || moveListType === PtuMoveListType.TutorMoves
@@ -613,28 +624,28 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         }
 
         const zygardeMove = zygardeCubeMoves.find((move) => move === moveName);
-        if (zygardeMove)
+        if (zygardeMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.ZygardeCubeMoves].push(curPokemon);
             return acc;
         }
 
         const eggMove = eggMoves.find((move) => move === moveName);
-        if (eggMove)
+        if (eggMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.EggMoves].push(curPokemon);
             return acc;
         }
 
         const tutorMove = tutorMoves.find((move) => move === moveName);
-        if (tutorMove)
+        if (tutorMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TutorMoves].push(curPokemon);
             // Don't return acc
         }
 
         const tmHmMove = tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
-        if (tmHmMove)
+        if (tmHmMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TmHm].push(curPokemon);
             // Don't return acc
