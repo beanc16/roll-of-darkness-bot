@@ -1,5 +1,4 @@
 import { logger } from '@beanc16/logger';
-import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
 import type {
     GoogleSheetsGetPageTitlesBatchParametersV1,
     GoogleSheetsGetRangeParametersV1,
@@ -7,6 +6,7 @@ import type {
     GoogleSheetsMicroserviceFilter,
     GoogleSheetsUpdateParametersV1,
 } from '@beanc16/microservices-abstraction';
+import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
 
 import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
 import { CompositeKeyRecord } from '../CompositeKeyRecord.js';
@@ -16,7 +16,6 @@ import {
     type GoogleSheetsGetPageTitlesBatchResponse,
     type GoogleSheetsGetRangesResponse,
 } from './types.js';
-
 
 export interface RetryOptions
 {
@@ -83,10 +82,7 @@ export class CachedGoogleSheetsApiService
         return keys;
     }
 
-    private static getPageTitleCacheKeysByParameters({
-        spreadsheetMetadata = [],
-        filters: topLevelFilters = [],
-    }: GoogleSheetsGetPageTitlesBatchParametersV1): GetPageTitleCacheKeysByParametersResponse
+    private static getPageTitleCacheKeysByParameters({ spreadsheetMetadata = [], filters: topLevelFilters = [] }: GoogleSheetsGetPageTitlesBatchParametersV1): GetPageTitleCacheKeysByParametersResponse
     {
         const results = spreadsheetMetadata.reduce<GetPageTitleCacheKeysByParametersResponse>((
             acc,
@@ -109,7 +105,7 @@ export class CachedGoogleSheetsApiService
                 acc.allMetadataIsCacheable = false;
             }
 
-            return acc
+            return acc;
         }, { spreadsheetIdToKeysMap: {}, allMetadataIsCacheable: true });
 
         return results;
@@ -309,7 +305,10 @@ export class CachedGoogleSheetsApiService
 
         if (allMetadataIsCacheable)
         {
-            const { allCachedDataWasFound, ...response } = Object.entries(spreadsheetIdToKeysMap).reduce<GoogleSheetsGetPageTitlesBatchResponse & {
+            const {
+                allCachedDataWasFound,
+                ...response
+            } = Object.entries(spreadsheetIdToKeysMap).reduce<GoogleSheetsGetPageTitlesBatchResponse & {
                 allCachedDataWasFound: boolean;
             }>((acc, [
                 spreadsheetId,
@@ -358,7 +357,7 @@ export class CachedGoogleSheetsApiService
                         // Convert to a record for faster retrieval in loops
                         const spreadsheetIdToTitles = spreadsheets.reduce<Record<string, string[]>>((
                             acc,
-                            { spreadsheetId, titles }
+                            { spreadsheetId, titles },
                         ) =>
                         {
                             acc[spreadsheetId] = titles;
@@ -386,18 +385,21 @@ export class CachedGoogleSheetsApiService
                     return { spreadsheets };
                 }
 
-                else if (statusCode === 401)
+                if (statusCode === 401)
                 {
                     logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
                     await CachedAuthTokenService.resetAuthToken();
+                    // eslint-disable-next-line no-continue -- Allow in this case
                     continue;
                 }
 
+                // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
                 throw error;
             }
             catch (error)
             {
                 // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
                 if ((error as any)?.response?.data?.statusCode === 403)
                 {
                     logger.warn('The automated user is not added to the queried sheet. Please add them.', {
@@ -413,8 +415,10 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else if (
+                if (
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
                     (error as any)?.response?.data?.statusCode === 400
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
                     && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
                 )
                 {
@@ -423,10 +427,8 @@ export class CachedGoogleSheetsApiService
                     };
                 }
 
-                else
-                {
-                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.getPageTitlesBatch', (error as any)?.response?.data || error);
-                }
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
+                logger.error('An error occurred on GoogleSheetsMicroservice.v1.getPageTitlesBatch', (error as any)?.response?.data || error);
             }
 
             // Wait half a second between retries

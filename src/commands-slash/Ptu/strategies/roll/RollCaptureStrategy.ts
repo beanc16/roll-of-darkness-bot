@@ -45,7 +45,7 @@ export class RollCaptureStrategy
         if (accuracyModifier === undefined)
         {
             await interaction.editReply(
-                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).',
             );
             return true;
         }
@@ -101,9 +101,9 @@ export class RollCaptureStrategy
             ? `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} rolled a guaranteed capture!!!\n`
             : `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`;
 
-        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll}) ${finalAccuracyModifierFormula}\n` +
-                `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +
-                `${Text.bold('Result')}: ${result} (${resultFormula})`;
+        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll}) ${finalAccuracyModifierFormula}\n`
+            + `${Text.bold('Capture')}: 1d100 (${captureRoll})\n`
+            + `${Text.bold('Result')}: ${result} (${resultFormula})`;
 
         // Send message
         await this.sendMessage({

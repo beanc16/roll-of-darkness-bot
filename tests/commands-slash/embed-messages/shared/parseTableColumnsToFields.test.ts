@@ -1,4 +1,8 @@
-import { MAX_EMBED_FIELD_VALUE_LENGTH, parseTableColumnsToFields, type TableColumn } from '../../../../src/commands-slash/embed-messages/shared.js';
+import {
+    MAX_EMBED_FIELD_VALUE_LENGTH,
+    parseTableColumnsToFields,
+    type TableColumn,
+} from '../../../../src/commands-slash/embed-messages/shared.js';
 
 describe('function: parseTableColumnsToFields', () =>
 {
@@ -28,9 +32,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: '', inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: '', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -44,9 +54,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\nRow 2\nRow 3', inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\nRow 2\nRow 3', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -60,9 +76,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Header & Name', value: 'Row #1\nRow #2', inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Header & Name', value: 'Row #1\nRow #2', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -81,9 +103,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
-                { name: 'Column 2', value: 'Row 3\nRow 4', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\nRow 2', inline: true,
+                },
+                {
+                    name: 'Column 2', value: 'Row 3\nRow 4', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -99,9 +127,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
-                { name: 'Column 2', value: 'Row 3\nRow 4', inline: true },
-                { name: 'Column 3', value: 'Row 5\nRow 6', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\nRow 2', inline: true,
+                },
+                {
+                    name: 'Column 2', value: 'Row 3\nRow 4', inline: true,
+                },
+                {
+                    name: 'Column 3', value: 'Row 5\nRow 6', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -118,12 +152,24 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
-                { name: 'Column 2', value: 'Row 3\nRow 4', inline: true },
-                { name: 'Column 3', value: 'Row 5\nRow 6', inline: true },
-                { name: 'Column 4', value: 'Row 7\nRow 8', inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\nRow 2', inline: true,
+                },
+                {
+                    name: 'Column 2', value: 'Row 3\nRow 4', inline: true,
+                },
+                {
+                    name: 'Column 3', value: 'Row 5\nRow 6', inline: true,
+                },
+                {
+                    name: 'Column 4', value: 'Row 7\nRow 8', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -139,12 +185,24 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\nRow 2', inline: true },
-                { name: 'Column 2', value: maxLengthString, inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: ' ', inline: true },
-                { name: ' ', value: maxLengthString, inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\nRow 2', inline: true,
+                },
+                {
+                    name: 'Column 2', value: maxLengthString, inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
+                {
+                    name: ' ', value: maxLengthString, inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });
@@ -159,9 +217,15 @@ describe('function: parseTableColumnsToFields', () =>
             const result = parseTableColumnsToFields(input);
 
             const expectedResult = [
-                { name: 'Column 1', value: 'Row 1\n', inline: true },
-                { name: 'Column 2', value: '', inline: true },
-                { name: ' ', value: ' ', inline: true },
+                {
+                    name: 'Column 1', value: 'Row 1\n', inline: true,
+                },
+                {
+                    name: 'Column 2', value: '', inline: true,
+                },
+                {
+                    name: ' ', value: ' ', inline: true,
+                },
             ];
             expect(result).toEqual(expectedResult);
         });

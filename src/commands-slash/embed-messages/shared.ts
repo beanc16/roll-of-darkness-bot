@@ -1,4 +1,5 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
+
 import { chunkArray } from '../../services/chunkArray.js';
 
 export interface TableColumn
@@ -39,7 +40,7 @@ export const parseTableColumnsToFields = (tableColumns: TableColumn[] = []): API
         const { tableFields, futureColumnIndexToColumnMap } = columns.reduce<{
             tableFields: APIEmbedField[];
             futureColumnIndexToColumnMap: Record<number, APIEmbedField>;
-        }>((acc, column) =>
+        }>((acc2, column) =>
         {
             const [curRows = [], ...rowsForFutureColumns] = chunkArray({
                 array: column.rows,
@@ -48,25 +49,25 @@ export const parseTableColumnsToFields = (tableColumns: TableColumn[] = []): API
                 ),
             });
 
-            acc.tableFields.push({
+            acc2.tableFields.push({
                 name: column.header,
                 value: curRows.join('\n'),
                 inline: true,
             });
 
-            acc.futureColumnIndexToColumnMap = rowsForFutureColumns.reduce<Record<number, APIEmbedField>>((acc, row, index) =>
+            acc2.futureColumnIndexToColumnMap = rowsForFutureColumns.reduce<Record<number, APIEmbedField>>((acc3, row, index) =>
             {
                 const columnIndex = 3 * (index + 1) + 1;
-                acc[columnIndex] = {
+                acc3[columnIndex] = {
                     name: ' ', // Leave an empty header so it looks like the same column still
                     value: row.join('\n'),
                     inline: true,
                 };
 
-                return acc;
+                return acc3;
             }, {});
 
-            return acc;
+            return acc2;
         }, { tableFields: [], futureColumnIndexToColumnMap: {} });
 
         // Fill in remaining empty columns to get a multiple of MAX_EMBED_FIELD_COLUMNS
@@ -110,18 +111,18 @@ const parseTableColumnsToDescription = (tableColumns: TableColumn[] = []): strin
     const maxRows = Math.max(...tableColumns.map(column => column.rows.length));
 
     // Parse all entries
-    for (let index = 0; index < maxRows; index++)
+    for (let index = 0; index < maxRows; index += 1)
     {
         // Parse one entry
-        description += tableColumns.reduce((acc, column) =>
+        description += tableColumns.reduce((acc2, column) =>
         {
             // Only add the row if it exists
             if (column.rows[index])
             {
-                acc += `${column.header}: ${column.rows[index]}\n`;
+                return acc2 + `${column.header}: ${column.rows[index]}\n`;
             }
 
-            return acc;
+            return acc2;
         }, '');
 
         // Add a blank line after each group
@@ -147,20 +148,22 @@ export const getPagedEmbedBuilders = ({
 {
     const embeds = pages.map((initialDescription, index) =>
     {
-        const tableResult = (tableParsingStyle === TableParsingStyle.Description && tableColumns.length > 0)
-            ? parseTableColumnsToDescription(tableColumns)
-            : (tableParsingStyle === TableParsingStyle.Fields && tableColumns.length > 0)
-            ? parseTableColumnsToFields(tableColumns)
+        const tableParsingStyleToParser: Record<TableParsingStyle, () => string | APIEmbedField[]> = {
+            [TableParsingStyle.Description]: () => parseTableColumnsToDescription(tableColumns),
+            [TableParsingStyle.Fields]: () => parseTableColumnsToFields(tableColumns),
+        };
+        const tableResult = (tableColumns.length > 0)
+            ? tableParsingStyleToParser[tableParsingStyle]()
             : [];
 
         // Delete the end of the code block for description in table parsing
         let parsedDescription = initialDescription;
         if (!Array.isArray(tableResult))
         {
-            const index = initialDescription.lastIndexOf('\`\`\`');
-            parsedDescription = (index === -1)
+            const indexOfEndOfCodeBlock = initialDescription.lastIndexOf('```');
+            parsedDescription = (indexOfEndOfCodeBlock === -1)
                 ? initialDescription
-                : initialDescription.slice(0, index);
+                : initialDescription.slice(0, indexOfEndOfCodeBlock);
         }
 
         const description = (Array.isArray(tableResult))

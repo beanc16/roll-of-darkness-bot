@@ -4,10 +4,7 @@ interface ChunkArrayOptions<Element>
     shouldMoveToNextChunk: (item: Element, index: number, currentChunk: Element[]) => boolean;
 }
 
-export const chunkArray = <Element>({
-    array,
-    shouldMoveToNextChunk,
-}: ChunkArrayOptions<Element>) =>
+export const chunkArray = <Element>({ array, shouldMoveToNextChunk }: ChunkArrayOptions<Element>): Element[][] =>
 {
     const output = array.reduce<Element[][]>((acc, cur, index) =>
     {

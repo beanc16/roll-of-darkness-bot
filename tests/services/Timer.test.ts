@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals';
+
 import { Timer } from '../../src/services/Timer.js';
 
 jest.useFakeTimers();
@@ -66,7 +68,7 @@ describe('class: Timer', () =>
 
         it('should resolve after the specified number of seconds when callback returns true', async () =>
         {
-            const callback = jest.fn().mockReturnValue(true);
+            const callback = jest.fn<() => boolean>().mockReturnValue(true);
 
             const waitUntilTruePromise = Timer.waitUntilTrue({ seconds, callback });
             jest.advanceTimersByTime(seconds * 1000);

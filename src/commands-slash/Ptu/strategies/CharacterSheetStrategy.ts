@@ -1,14 +1,14 @@
 import {
     type GoogleSheetsGetPageTitleSpreadsheet,
-    GoogleSheetsMicroserviceFilterType,
     type GoogleSheetsGetRangeParametersV1,
+    GoogleSheetsMicroserviceFilterType,
 } from '@beanc16/microservices-abstraction';
+import { ChatInputCommandInteraction } from 'discord.js';
 
 import { CachedGoogleSheetsApiService, RetryOptions } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
-import { ChatInputCommandInteraction } from 'discord.js';
-import { characterSheetSpreadsheetIds } from '../constants.js';
 import { chunkArray } from '../../../services/chunkArray.js';
+import { characterSheetSpreadsheetIds } from '../constants.js';
 
 export interface GetSpreadsheetValuesOptions
 {
@@ -72,6 +72,7 @@ export class CharacterSheetStrategy
         trainingExp: 'L10:N10',
         level: 'B2',
     };
+
     protected static spreadsheetLabels = {
         nickname: 'Nickname',
         species: 'Species',
@@ -120,10 +121,7 @@ export class CharacterSheetStrategy
         });
 
         // Get data from the spreadsheet
-        const {
-            data = [],
-            errorType,
-        } = await CachedGoogleSheetsApiService.getRanges({
+        const { data = [], errorType } = await CachedGoogleSheetsApiService.getRanges({
             ranges,
             shouldNotCache: true,
             ...options,
@@ -233,10 +231,10 @@ export class CharacterSheetStrategy
                         unparsedTotalExp,
                         expToNextLevelLabel,
                         expToNextLevel,
-                        unparsedExpToNextLevel: unparsedExpToNextLevel,
+                        unparsedExpToNextLevel,
                         trainingExpLabel,
                         trainingExp,
-                        unparsedTrainingExp: unparsedTrainingExp,
+                        unparsedTrainingExp,
                         startingLevel,
                         isValid: this.isValidPokemonPage({
                             nicknameLabel,
@@ -283,15 +281,12 @@ export class CharacterSheetStrategy
 
     protected static async getAllPokemonNames(): Promise<GoogleSheetsGetPageTitleSpreadsheet[] | GoogleSheetsApiErrorType | undefined>
     {
-        const spreadsheetMetadata = characterSheetSpreadsheetIds.map(spreadsheetId =>
+        const spreadsheetMetadata = characterSheetSpreadsheetIds.map((spreadsheetId) =>
         {
             return { spreadsheetId };
         });
 
-        const {
-            spreadsheets,
-            errorType,
-        } = await CachedGoogleSheetsApiService.getPageTitlesBatch({
+        const { spreadsheets, errorType } = await CachedGoogleSheetsApiService.getPageTitlesBatch({
             spreadsheetMetadata,
             filters: [
                 {
@@ -335,28 +330,26 @@ export class CharacterSheetStrategy
             return pokemonNamesResponse;
         }
 
-        const nicknameInput = pokemonNamesResponse.map(({ spreadsheetId, titles }) => {
+        const nicknameInput = pokemonNamesResponse.map(({ spreadsheetId, titles }) =>
+        {
             return {
                 spreadsheetId,
                 pokemonNames: titles,
-            }
+            };
         });
 
         const nicknames = await this.getNicknames(nicknameInput);
         return nicknames;
     }
 
-    protected static async getNickname({
-        spreadsheetId,
-        pokemonName,
-    }: {
+    protected static async getNickname({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
     }): Promise<GetNicknameResponse | GoogleSheetsApiErrorType | undefined>
     {
         const {
             data: [
-                [nicknameLabel, nickname]
+                [nicknameLabel, nickname],
             ] = [[]],
             errorType,
         } = await CachedGoogleSheetsApiService.getRange({
@@ -382,10 +375,10 @@ export class CharacterSheetStrategy
     {
         const input = options.reduce<GetSpreadsheetValuesOptions[]>((
             acc,
-            { spreadsheetId, pokemonNames }
+            { spreadsheetId, pokemonNames },
         ) =>
         {
-            pokemonNames.forEach((pokemonName) => acc.push({ spreadsheetId, pokemonName }));
+            pokemonNames.forEach(pokemonName => acc.push({ spreadsheetId, pokemonName }));
             return acc;
         }, []);
 
@@ -436,17 +429,14 @@ export class CharacterSheetStrategy
         return output;
     }
 
-    protected static async getLevel({
-        spreadsheetId,
-        pokemonName,
-    }: {
+    protected static async getLevel({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
     }): Promise<number | undefined>
     {
         const {
             data: [
-                [level]
+                [level],
             ] = [[]],
         } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId,
@@ -506,7 +496,8 @@ export class CharacterSheetStrategy
 
     protected static async handleGoogleSheetsApiError(
         errorType: GoogleSheetsApiErrorType | undefined,
-        errorTypeToCallbackMap: Partial<Record<GoogleSheetsApiErrorType, () => Promise<any>>>
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow for generic callback handling
+        errorTypeToCallbackMap: Partial<Record<GoogleSheetsApiErrorType, () => Promise<any>>>,
     ): Promise<boolean>
     {
         if (errorType === undefined || !errorTypeToCallbackMap[errorType])
@@ -533,7 +524,7 @@ export class CharacterSheetStrategy
         const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
 
         await interaction.editReply(
-            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me ${maxActionPermission} permissions here shortly.`
+            `I don't have permission to ${action} that character sheet. You will be DM'd instructions for how to give me ${maxActionPermission} permissions here shortly.`,
         );
 
         const maxActionPermissionToRoleName: Record<'view' | 'edit', string> = {
@@ -542,9 +533,9 @@ export class CharacterSheetStrategy
         };
 
         await interaction.user.send(
-            `If you want to use \`${commandName}\`, then I need ${maxActionPermission} access on your character sheet. ` +
-            `If you aren't sure how to give me ${maxActionPermission} permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n` +
-            `You can either make your sheet editable by anyone with the URL or add this email as an ${maxActionPermissionToRoleName[maxActionPermission]} (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``
+            `If you want to use \`${commandName}\`, then I need ${maxActionPermission} access on your character sheet. `
+            + `If you aren't sure how to give me ${maxActionPermission} permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n`
+            + `You can either make your sheet editable by anyone with the URL or add this email as an ${maxActionPermissionToRoleName[maxActionPermission]} (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``,
         );
     }
 }

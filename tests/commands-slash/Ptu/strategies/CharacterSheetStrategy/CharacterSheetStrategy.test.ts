@@ -1,3 +1,5 @@
+import { it, jest } from '@jest/globals';
+
 import { characterSheetSpreadsheetIds } from '../../../../../src/commands-slash/Ptu/constants.js';
 import {
     CharacterSheetStrategy,
@@ -21,7 +23,7 @@ jest.mock('@beanc16/microservices-abstraction', () =>
     return {
         GoogleSheetsMicroservice: jest.fn(),
         GoogleSheetsMicroserviceFilterType: {
-            CaseInsensitiveExcludes: 'case_insensitive_excludes'
+            CaseInsensitiveExcludes: 'case_insensitive_excludes',
         },
     };
 });
@@ -41,7 +43,7 @@ describe('class: CharacterSheetStrategy', () =>
         {
             const expectedResult = 123;
             const result = CharacterSheetStrategy['parseToInt'](
-                expectedResult.toString()
+                expectedResult.toString(),
             );
 
             expect(result).toEqual(expectedResult);
@@ -112,9 +114,10 @@ describe('class: CharacterSheetStrategy', () =>
 
         describe('method: getSpreadsheetValues', () =>
         {
-            it('should return parsed data when the API successfully returns the correct response structure', async () => {
+            it('should return parsed data when the API successfully returns the correct response structure', async () =>
+            {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue(
-                    validGetRangesResponse
+                    validGetRangesResponse,
                 );
 
                 const result = await CharacterSheetStrategy['getSpreadsheetValues']({ spreadsheetId, pokemonName });
@@ -141,7 +144,7 @@ describe('class: CharacterSheetStrategy', () =>
             });
 
             it.each(
-                Object.entries(GoogleSheetsApiErrorType)
+                Object.entries(GoogleSheetsApiErrorType),
             )('should return %s error type if API returns an error', async (_, errorType) =>
             {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
@@ -191,15 +194,16 @@ describe('class: CharacterSheetStrategy', () =>
 
             beforeEach(() =>
             {
-                input = spreadsheetIds.map(curSpreadsheetId =>
+                input = spreadsheetIds.map((curSpreadsheetId) =>
                 {
                     return { spreadsheetId: curSpreadsheetId, pokemonName };
                 });
             });
 
-            it('should return parsed data for a valid batch request', async () => {
+            it('should return parsed data for a valid batch request', async () =>
+            {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
-                    data: spreadsheetIds.map(curSpreadsheetId =>
+                    data: spreadsheetIds.map((curSpreadsheetId) =>
                     {
                         return {
                             ...validGetRangesResponse.data![0],
@@ -212,7 +216,7 @@ describe('class: CharacterSheetStrategy', () =>
                     input,
                 );
 
-                const expectedResult = spreadsheetIds.map<GetSpreadsheetValuesBatchResponse>(curSpreadsheetId =>
+                const expectedResult = spreadsheetIds.map<GetSpreadsheetValuesBatchResponse>((curSpreadsheetId) =>
                 {
                     return {
                         spreadsheetId: curSpreadsheetId,
@@ -240,7 +244,7 @@ describe('class: CharacterSheetStrategy', () =>
             });
 
             it.each(
-                Object.entries(GoogleSheetsApiErrorType)
+                Object.entries(GoogleSheetsApiErrorType),
             )('should return %s error type if API returns an error', async (_, errorType) =>
             {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
@@ -254,7 +258,8 @@ describe('class: CharacterSheetStrategy', () =>
                 expect(result).toEqual(errorType);
             });
 
-            it('should return undefined if the value ranges length does not match the expected ranges length', async () => {
+            it('should return undefined if the value ranges length does not match the expected ranges length', async () =>
+            {
                 const invalidBatchResponse: GoogleSheetsGetRangesResponse = {
                     data: [
                         {
@@ -281,7 +286,8 @@ describe('class: CharacterSheetStrategy', () =>
                 expect(result).toBeUndefined();
             });
 
-            it('should return undefined if the API response is malformed', async () => {
+            it('should return undefined if the API response is malformed', async () =>
+            {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
                     // No data or errorType
                 });
@@ -300,15 +306,16 @@ describe('class: CharacterSheetStrategy', () =>
 
             beforeEach(() =>
             {
-                input = spreadsheetIds.map<GetNicknamesOptions>(curSpreadsheetId =>
+                input = spreadsheetIds.map<GetNicknamesOptions>((curSpreadsheetId) =>
                 {
                     return { spreadsheetId: curSpreadsheetId, pokemonNames: ['Pikachu'] };
                 });
             });
 
-            it('should return parsed data for a valid batch request', async () => {
+            it('should return parsed data for a valid batch request', async () =>
+            {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
-                    data: spreadsheetIds.map(curSpreadsheetId =>
+                    data: spreadsheetIds.map((curSpreadsheetId) =>
                     {
                         return {
                             ...validGetRangesResponse.data![0],
@@ -321,7 +328,7 @@ describe('class: CharacterSheetStrategy', () =>
                     input,
                 );
 
-                const expectedResult = spreadsheetIds.map<GetNicknamesResponse>(curSpreadsheetId =>
+                const expectedResult = spreadsheetIds.map<GetNicknamesResponse>((curSpreadsheetId) =>
                 {
                     return {
                         spreadsheetId: curSpreadsheetId,
@@ -332,7 +339,7 @@ describe('class: CharacterSheetStrategy', () =>
             });
 
             it.each(
-                Object.entries(GoogleSheetsApiErrorType)
+                Object.entries(GoogleSheetsApiErrorType),
             )('should return %s error type if API returns an error', async (_, errorType) =>
             {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
@@ -346,7 +353,8 @@ describe('class: CharacterSheetStrategy', () =>
                 expect(result).toEqual(errorType);
             });
 
-            it('should return undefined if the value ranges length does not match the expected ranges length', async () => {
+            it('should return undefined if the value ranges length does not match the expected ranges length', async () =>
+            {
                 const invalidBatchResponse: GoogleSheetsGetRangesResponse = {
                     data: [
                         {
@@ -373,7 +381,8 @@ describe('class: CharacterSheetStrategy', () =>
                 expect(result).toBeUndefined();
             });
 
-            it('should return undefined if the API response is malformed', async () => {
+            it('should return undefined if the API response is malformed', async () =>
+            {
                 mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getRanges').mockResolvedValue({
                     // No data or errorType
                 });
@@ -394,7 +403,8 @@ describe('class: CharacterSheetStrategy', () =>
         beforeEach(() =>
         {
             validGetPageTitlesBatchResponse = {
-                spreadsheets: characterSheetSpreadsheetIds.map(spreadsheetId => {
+                spreadsheets: characterSheetSpreadsheetIds.map((spreadsheetId) =>
+                {
                     return {
                         spreadsheetId,
                         titles: ['Pikachu'],
@@ -410,19 +420,21 @@ describe('class: CharacterSheetStrategy', () =>
             );
 
             const result = await CharacterSheetStrategy['getAllPokemonNames']();
+            const spreadsheetMetadata = characterSheetSpreadsheetIds.map((spreadsheetId) =>
+            {
+                return { spreadsheetId };
+            });
 
             expect(result).toEqual(validGetPageTitlesBatchResponse.spreadsheets);
-            expect(CachedGoogleSheetsApiService.getPageTitlesBatch).toHaveBeenCalledWith({
-                spreadsheetMetadata: characterSheetSpreadsheetIds.map(spreadsheetId =>
-                {
-                    return { spreadsheetId };
-                }),
+            expect(CachedGoogleSheetsApiService['getPageTitlesBatch']).toHaveBeenCalledWith({
+                spreadsheetMetadata,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- We want to expect any array
                 filters: expect.any(Array),
             });
         });
 
         it.each(
-            Object.entries(GoogleSheetsApiErrorType)
+            Object.entries(GoogleSheetsApiErrorType),
         )('should return %s error type if API returns an error', async (_, errorType) =>
         {
             mockedCachedGoogleSheetsApiService.spyOn(CachedGoogleSheetsApiService, 'getPageTitlesBatch').mockResolvedValue({

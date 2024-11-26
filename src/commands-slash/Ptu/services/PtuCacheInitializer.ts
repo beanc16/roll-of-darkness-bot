@@ -24,7 +24,8 @@ export class PtuCacheInitializer
                 .filter(subcommand => subcommand !== PtuLookupSubcommand.Pokemon);
 
             // Initialize cachable lookup subcommands
-            const promises = subcommandsToInitialize.map<Promise<any>>(async (subcommand) =>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow so that multi-response type callbacks are easily supported
+            const promises = subcommandsToInitialize.map<Promise<any>>(async subcommand =>
                 await PtuStrategyExecutor.getLookupData({
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand,

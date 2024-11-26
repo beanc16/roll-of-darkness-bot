@@ -117,7 +117,8 @@ export const keyword = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     subcommand.setDescription('Get a keyword based on the given parameters.');
 
     // Name
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('keyword_name');
         option.setDescription(`The keyword's name.`);
         option.setRequired(true);

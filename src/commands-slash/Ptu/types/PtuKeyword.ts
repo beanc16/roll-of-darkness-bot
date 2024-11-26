@@ -16,7 +16,7 @@ export class PtuKeyword
     */
     public tableData: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

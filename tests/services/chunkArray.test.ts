@@ -6,7 +6,7 @@ describe('function: chunkArray', () =>
 
     beforeEach(() =>
     {
-        array = [1, 2, 3, 4, 5]
+        array = [1, 2, 3, 4, 5];
     });
 
     afterEach(() =>
@@ -17,7 +17,7 @@ describe('function: chunkArray', () =>
     it('should handle an empty array', () =>
     {
         const input: number[] = [];
-        const callback = (item: number) => item % 2 === 0;
+        const callback = (item: number): boolean => item % 2 === 0;
 
         const result = chunkArray({
             array: input,
@@ -30,7 +30,7 @@ describe('function: chunkArray', () =>
 
     it('should put all elements in a single chunk if callback always returns false', () =>
     {
-        const callback = () => false;
+        const callback = (): boolean => false;
 
         const result = chunkArray({
             array,
@@ -43,7 +43,7 @@ describe('function: chunkArray', () =>
 
     it('should create a new chunk for every element if callback always returns true', () =>
     {
-        const callback = () => true;
+        const callback = (): boolean => true;
 
         const result = chunkArray({
             array,
@@ -56,7 +56,7 @@ describe('function: chunkArray', () =>
 
     it('should chunk the array based on the callback condition', () =>
     {
-        const shouldMoveToNextChunk = (item: number) => item % 3 === 0;
+        const shouldMoveToNextChunk = (item: number): boolean => item % 3 === 0;
 
         const result = chunkArray({
             array: [...array, 6],

@@ -275,13 +275,17 @@ export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]): EmbedBui
         name,
         description,
         tableData,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
-            ...(description !== undefined && description !== '--' ? [
-                `Description:\n\`\`\`\n${description}\`\`\``
-            ] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []
+            ),
         ];
 
         // Create the description
@@ -313,7 +317,7 @@ export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]): EmbedBui
         {
             const columns = tableData.split('\n');
 
-            columns.forEach(column =>
+            columns.forEach((column) =>
             {
                 const [header, ...rows] = column.split('|');
 
@@ -518,50 +522,68 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
                 type,
             }) => `${level} ${move} - ${type}`),
             '',
-            ...(eggMoves.length > 0 ? [
-                Text.bold('Egg Move List'),
-                eggMoves.join(', '),
-                '',
-            ] : []),
-            ...(tmHm.length > 0 ? [
-                Text.bold('TM/HM Move List'),
-                tmHm.join(', '),
-                '',
-            ] : []),
-            ...(tutorMoves.length > 0 ? [
-                Text.bold('Tutor Move List'),
-                tutorMoves.join(', '),
-                '',
-            ] : []),
-            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0 ? [
-                Text.bold('Zygarde Cube Move List'),
-                zygardeCubeMoves.join(', '),
-                '',
-            ] : []),
-            (megaEvolutions !== undefined && megaEvolutions.length > 0 ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
-                [
-                    megaEvolution.name,
-                    `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
-                    `Stats: ${[
-                        (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
-                        (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
-                        (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
-                        (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
-                        (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
-                        (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
-                    ].filter(str => str.length > 0).join(', ')}`,
-                    `Ability: ${megaEvolution.ability}`,
+            ...(eggMoves.length > 0
+                ? [
+                    Text.bold('Egg Move List'),
+                    eggMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(tmHm.length > 0
+                ? [
+                    Text.bold('TM/HM Move List'),
+                    tmHm.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(tutorMoves.length > 0
+                ? [
+                    Text.bold('Tutor Move List'),
+                    tutorMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0
+                ? [
+                    Text.bold('Zygarde Cube Move List'),
+                    zygardeCubeMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            (megaEvolutions !== undefined && megaEvolutions.length > 0
+                ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
                     [
-                        (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
-                        (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
-                        '',
-                    ].filter((str) => str.length > 0).join('\n'),
-                ].join('\n'),
-            ).join('\n') : []),
-            ...(extras && extras.length > 0 ? [
-                ...extras.map(({ name, value }) => `${Text.bold(name)}\n${value}`),
-                '',
-            ] : []),
+                        megaEvolution.name,
+                        `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
+                        `Stats: ${[
+                            (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
+                            (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
+                            (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
+                            (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
+                            (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
+                            (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
+                        ].filter(str => str.length > 0).join(', ')}`,
+                        `Ability: ${megaEvolution.ability}`,
+                        [
+                            (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
+                            (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
+                            '',
+                        ].filter(str => str.length > 0).join('\n'),
+                    ].join('\n'),
+                ).join('\n')
+                : []
+            ),
+            ...(extras && extras.length > 0
+                ? [
+                    ...extras.map(({ name: extraName, value }) => `${Text.bold(extraName)}\n${value}`),
+                    '',
+                ]
+                : []
+            ),
             `${source}: ${page}`,
         ];
 
@@ -616,10 +638,10 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
 
         if (
             (moveListType === PtuMoveListType.LevelUp && !moveList.levelUp.find(({ move }) => move === moveName))
-            || (moveListType === PtuMoveListType.TmHm && !moveList.tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase())))
-            || (moveListType === PtuMoveListType.EggMoves && !moveList.eggMoves.find((move) => move === moveName))
-            || (moveListType === PtuMoveListType.TutorMoves && !moveList.tutorMoves.find((move) => move === moveName))
-            || (moveListType === PtuMoveListType.ZygardeCubeMoves && !moveList.zygardeCubeMoves || (moveList.zygardeCubeMoves && !moveList.zygardeCubeMoves.find((move) => move === moveName)))
+            || (moveListType === PtuMoveListType.TmHm && !moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase())))
+            || (moveListType === PtuMoveListType.EggMoves && !moveList.eggMoves.find(move => move === moveName))
+            || (moveListType === PtuMoveListType.TutorMoves && !moveList.tutorMoves.find(move => move === moveName))
+            || ((moveListType === PtuMoveListType.ZygardeCubeMoves && !moveList.zygardeCubeMoves) || (moveList.zygardeCubeMoves && !moveList.zygardeCubeMoves.find(move => move === moveName)))
         )
         {
             return acc;

@@ -52,6 +52,7 @@ class Ptu extends BaseSlashCommand
         }
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const startTime = Date.now();

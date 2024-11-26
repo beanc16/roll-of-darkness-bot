@@ -144,7 +144,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: PtuLookupSubcommand.Move,
                 options: { sortBy: 'name' },
             });
-            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -159,7 +160,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
             });
-            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -174,7 +176,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
             });
-            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -201,7 +204,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     name: focusedValue.value,
                 },
             });
-            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -217,7 +221,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
             });
-            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -232,7 +237,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,
             });
-            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -247,7 +253,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             });
-            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -262,7 +269,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             });
-            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -277,7 +285,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
             });
-            choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -292,7 +301,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Keyword,
             });
-            choices = keywords.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = keywords.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -301,8 +311,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         }
 
         // Get the choices matching the search
-		const filteredChoices = choices.filter((choice) =>
-            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0)
+        const filteredChoices = choices.filter(choice =>
+            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
         );
 
         // Discord limits a maximum of 25 choices to display

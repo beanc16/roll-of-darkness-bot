@@ -16,6 +16,7 @@ import {
     TextChannel,
 } from 'discord.js';
 
+import { timeToWaitForCommandInteractions } from '../constants/discord.js';
 import { CounterController } from './Counter/dal/CounterMongoController.js';
 import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
@@ -24,7 +25,6 @@ import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCo
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
-import { timeToWaitForCommandInteractions } from '../constants/discord.js';
 
 enum CounterButtonName
 {

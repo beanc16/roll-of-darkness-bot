@@ -1,8 +1,9 @@
-import { PtuCharacterSheetName } from "./types/sheets.js";
+import { PtuCharacterSheetName } from './types/sheets.js';
 
 export const rollOfDarknessPtuSpreadsheetId = '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI';
 
-enum DiscordUserId {
+enum DiscordUserId
+{
     Bean = '173083328302284800',
     Avery = '389188261731368962',
     Josh = '125738013841031170',

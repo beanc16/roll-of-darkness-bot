@@ -15,5 +15,6 @@ interface GetSpreadsheetIdFromCharacterSheetNameResponse
 
 export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName): GetSpreadsheetIdFromCharacterSheetNameResponse =>
 {
-    return characterNameToSpreadsheetInfo[characterSheetName];
+    const spreadsheetInfo = characterNameToSpreadsheetInfo[characterSheetName];
+    return spreadsheetInfo;
 };

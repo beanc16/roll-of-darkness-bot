@@ -152,11 +152,17 @@ export class RollAttackStrategy
         const { damageResultString, finalRollResult } = damageResult;
 
         // Send message
-        const accuracyModifierStr = (accuracyModifier > 0)
-            ? `+${accuracyModifier}`
-            : (accuracyModifier < 0)
-            ? `${accuracyModifier}`
-            : '';
+        let accuracyModifierStr = '';
+
+        if (accuracyModifier > 0)
+        {
+            accuracyModifierStr = `+${accuracyModifier}`;
+        }
+        else if (accuracyModifier < 0)
+        {
+            accuracyModifierStr = `${accuracyModifier}`;
+        }
+
         const rollName = name ? ` ${Text.bold(name)}` : '';
         const messagePrefix = `${Text.Ping.user(
             rerollCallbackOptions.newCallingUserId ?? interaction.user.id)

@@ -55,7 +55,8 @@ export const capture = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setDescription('A math formula of extra capture modifiers (only addition and subtraction are supported; IE: 5 - 10)');
     });
 
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('accuracy_modifier');
         return option.setDescription('A math formula of extra accuracy modifiers (only addition and subtraction are supported; IE: 5 - 10)');
     });

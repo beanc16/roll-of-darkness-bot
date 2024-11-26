@@ -1,5 +1,5 @@
-import type { NonOptional } from '@beanc16/utility-types';
 import { logger } from '@beanc16/logger';
+import type { NonOptional } from '@beanc16/utility-types';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
@@ -94,13 +94,13 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
                     action: 'view',
                 }),
                 [GoogleSheetsApiErrorType.UnableToParseRange]: async () => await interaction.editReply(
-                    `I'm unable to parse data on the page named "${pokemonName}". ` +
-                    `Please double check to make sure the page's name is spelled correctly and try again.`
+                    `I'm unable to parse data on the page named "${pokemonName}". `
+                    + `Please double check to make sure the page's name is spelled correctly and try again.`,
                 ),
                 [GoogleSheetsApiErrorType.UnknownError]: async () =>
                 {
                     await interaction.editReply(
-                        `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`
+                        `An unknown error occurred whilst trying to pull data for the character sheet. Please contact this bot's owner for help fixing the issue.`,
                     );
                     logger.error(`An unknown error occurred whilst trying to pull data for a character sheet in ${this.name}.`, {
                         errorType: spreadsheetValuesResult,
@@ -164,19 +164,18 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             shouldUseBabyFood: (shouldUseBabyFood && startingLevel <= 15),
         });
 
-        const wasError = await this.handleGoogleSheetsApiError(errorType,
-        {
-            [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({ 
+        const wasError = await this.handleGoogleSheetsApiError(errorType, {
+            [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({
                 interaction,
                 commandName: '/ptu train',
                 action: 'edit',
             }),
             [GoogleSheetsApiErrorType.UnknownError]: async () => await interaction.editReply(
-                `An unknown error occurred whilst trying to update data on the character sheet. Please contact this bot's owner for help fixing the issue.`
+                `An unknown error occurred whilst trying to update data on the character sheet. Please contact this bot's owner for help fixing the issue.`,
             ),
         });
-        
-        if (wasError) 
+
+        if (wasError)
         {
             return wasError;
         }

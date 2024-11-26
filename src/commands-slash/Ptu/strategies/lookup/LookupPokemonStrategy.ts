@@ -14,6 +14,7 @@ import {
 import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
+import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
@@ -28,7 +29,6 @@ import {
     PtuMoveListType,
     PtuPokemon,
 } from '../../types/pokemon.js';
-import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 
 export interface GetLookupPokemonDataParameters
 {
@@ -198,6 +198,7 @@ export class LookupPokemonStrategy
                 PtuMoveListType.ZygardeCubeMoves,
             ];
 
+            // eslint-disable-next-line no-restricted-syntax -- Allow this for early returning
             for (const moveListType of moveListTypes)
             {
                 const embeds = this.getLookupPokemonEmbeds({
@@ -233,10 +234,10 @@ export class LookupPokemonStrategy
         interactionType?: PaginationInteractionType;
         defaultMoveListType: PtuMoveListType;
         isDisabled?: boolean;
-    })
+    }): Promise<void>
     {
         // Only get the select menu for looking up by move name
-        const selectMenu = !!moveName
+        const selectMenu = moveName
             ? this.getLookupPokemonByMoveSelectMenu({
                 defaultMoveListType,
                 moveName,
@@ -246,8 +247,8 @@ export class LookupPokemonStrategy
             : undefined;
 
         const rowsAbovePagination: [
-            ActionRowBuilder<StringSelectMenuBuilder>?
-        ] = !!selectMenu
+            ActionRowBuilder<StringSelectMenuBuilder>?,
+        ] = selectMenu
             ? [selectMenu]
             : [];
 
@@ -259,9 +260,10 @@ export class LookupPokemonStrategy
             rowsAbovePagination,
         });
 
-        if (!!moveName)
+        if (moveName)
         {
             // Handle select menu options (fire and forget)
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleSelectMenuOptions({
                 originalInteraction,
                 interactionResponse: response,
@@ -463,10 +465,10 @@ export class LookupPokemonStrategy
         }) =>
         {
             const hasAsLevelUpMove = !!levelUp.find(({ move }) => move === moveName);
-            const hasAsTmHmMove = !!tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
-            const hasAsEggMove = !!eggMoves.find((move) => move === moveName);
-            const hasAsTutorMove = !!tutorMoves.find((move) => move === moveName);
-            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find((move) => move === moveName);
+            const hasAsTmHmMove = !!tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
+            const hasAsEggMove = !!eggMoves.find(move => move === moveName);
+            const hasAsTutorMove = !!tutorMoves.find(move => move === moveName);
+            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find(move => move === moveName);
 
             return {
                 [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove,
@@ -518,7 +520,7 @@ export class LookupPokemonStrategy
             .setDisabled(isDisabled);
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-			.addComponents(selectMenu);
+            .addComponents(selectMenu);
 
         return row;
     }
@@ -529,7 +531,7 @@ export class LookupPokemonStrategy
         moveName,
         pokemon,
         currentMoveListType,
-    }: HandleSelectMenuOptionsParameters)
+    }: HandleSelectMenuOptionsParameters): Promise<void>
     {
         let hasUpdated = false;
 

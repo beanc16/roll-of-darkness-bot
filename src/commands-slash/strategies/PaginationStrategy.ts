@@ -99,11 +99,12 @@ export class PaginationStrategy
         // Only listen for pagination buttons if there's more than one embed message
         if (shouldPaginate)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.sendPagedMessages({
                 originalInteraction,
                 embeds,
                 files,
-                interactionResponse: response as Message,
+                interactionResponse: response,
                 pageIndex: 0,
             });
         }
@@ -302,14 +303,8 @@ export class PaginationStrategy
             NonNullable<PaginationStrategyRunParameters['interactionType']>,
             () => Promise<Message>
         > = {
-            editReply: async () =>
-            {
-                return await originalInteraction.editReply(parameters);
-            },
-            dm: async () =>
-            {
-                return await originalInteraction.user.send(parameters as MessageCreateOptions);
-            },
+            editReply: async () => await originalInteraction.editReply(parameters),
+            dm: async () => await originalInteraction.user.send(parameters as MessageCreateOptions),
             update: async () =>
             {
                 await (originalInteraction as StringSelectMenuInteraction).update(parameters as InteractionUpdateOptions);

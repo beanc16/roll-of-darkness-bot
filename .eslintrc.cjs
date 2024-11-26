@@ -61,8 +61,8 @@ module.exports = {
         '@typescript-eslint/no-shadow': 'error', // Disallow variable declarations from shadowing variables declared in the outer scope (but it's for TypeScript and JavaScript)
         'no-param-reassign': ['error', {        // Disallow reassigning function parameters within functions...
             props: true,                        // ...but allow reassigning properties on objects
-            ignorePropertyModificationsFor: [   // ...ignore property changes for .reduce functions
-                'acc',
+            ignorePropertyModificationsForRegex: [   // ...ignore property changes for .reduce functions
+                '^acc[0-9]?$',
             ],
         }],
         'no-unused-vars': ['error', {           // Disallow unused variables
@@ -239,6 +239,9 @@ module.exports = {
                 'plugin:jest/recommended',
             ],
             parser: '@typescript-eslint/parser',
+            rules: {
+                '@typescript-eslint/dot-notation': 'off', // Allow for object['property'] notation for testing of protected/private classes
+            },
         },
     ],
 };
