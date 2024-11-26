@@ -168,8 +168,8 @@ export class PaginationStrategy
                 logger.error('An unknown error occurred whilst collecting pages', error);
             }
 
-            // Disable paginated buttons upon timeout
-            if (!hasUpdated && !messageTimedOut && !messageWasDeleted)
+            // Disable paginated buttons upon delete
+            if (!hasUpdated && !messageWasDeleted)
             {
                 const paginationRow = this.getPaginationRowComponent(true);
                 this.replyToOriginalInteraction({
