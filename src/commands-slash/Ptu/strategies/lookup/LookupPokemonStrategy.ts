@@ -1,15 +1,27 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import type { Entries } from '@beanc16/utility-types';
+import {
+    ActionRowBuilder,
+    ChatInputCommandInteraction,
+    ComponentType,
+    EmbedBuilder,
+    Message,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+    StringSelectMenuOptionBuilder,
+} from 'discord.js';
 
+import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 
 import { getLookupPokemonByAbilityEmbedMessages, getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../types/pokemon.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
+import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 
 export interface GetLookupPokemonDataParameters
 {
@@ -21,6 +33,15 @@ export interface GetLookupPokemonDataParameters
     abilityListType?: PtuAbilityListType;
 }
 
+export interface HandleSelectMenuOptionsParameters
+{
+    originalInteraction: ChatInputCommandInteraction;
+    interactionResponse: Message<boolean>;
+    moveName: string;
+    pokemon: PtuPokemon[];
+    currentMoveListType: PtuMoveListType;
+}
+
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
 {
     pokemon: PtuPokemon[];
@@ -30,8 +51,11 @@ interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataPara
 export class LookupPokemonStrategy
 {
     public static key = PtuLookupSubcommand.Pokemon;
+    private static selectMenuCustomIds = {
+        MoveViewSelect: 'move_view_select',
+    };
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('pokemon_name');
@@ -62,7 +86,7 @@ export class LookupPokemonStrategy
         });
 
         // Get message
-        const embeds = this.getLookupPokemonEmbeds({
+        const embeds = this.getFirstEmbeds({
             name,
             moveName,
             moveListType,
@@ -71,9 +95,23 @@ export class LookupPokemonStrategy
             pokemon,
         });
 
-        return await LookupStrategy.run(interaction, embeds, {
-            noEmbedsErrorMessage: 'No Pokémon were found.',
+        // Send no results found
+        if (embeds.length === 0)
+        {
+            await interaction.editReply('No Pokémon were found.');
+            return true;
+        }
+
+        await this.sendMessage({
+            originalInteraction: interaction,
+            interaction,
+            embeds,
+            moveName,
+            pokemon,
+            defaultMoveListType: PtuMoveListType.LevelUp,
         });
+
+        return true;
     }
 
     public static async getLookupData({
@@ -137,6 +175,95 @@ export class LookupPokemonStrategy
         });
 
         return pokemon;
+    }
+
+    // Get embeds for the very first message
+    private static getFirstEmbeds(options: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
+    {
+        // Searching by move name on all move types
+        if (!!options.moveName && options.moveListType === PtuMoveListType.All)
+        {
+            // Find the embeds of the first move type in this order
+            const moveListTypes: Exclude<PtuMoveListType, PtuMoveListType.All>[] = [
+                PtuMoveListType.LevelUp,
+                PtuMoveListType.TmHm,
+                PtuMoveListType.EggMoves,
+                PtuMoveListType.TutorMoves,
+                PtuMoveListType.ZygardeCubeMoves,
+            ];
+
+            for (const moveListType of moveListTypes)
+            {
+                const embeds = this.getLookupPokemonEmbeds({
+                    ...options,
+                    moveListType,
+                });
+
+                if (embeds.length > 0)
+                {
+                    return embeds;
+                }
+            }
+        }
+
+        return this.getLookupPokemonEmbeds(options);
+    }
+
+    private static async sendMessage({
+        originalInteraction,
+        interaction,
+        embeds,
+        moveName,
+        pokemon,
+        interactionType,
+        defaultMoveListType,
+        isDisabled = false,
+    }: {
+        originalInteraction: ChatInputCommandInteraction;
+        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction;
+        embeds: EmbedBuilder[];
+        moveName?: string | null;
+        pokemon: PtuPokemon[];
+        interactionType?: PaginationInteractionType;
+        defaultMoveListType: PtuMoveListType;
+        isDisabled?: boolean;
+    })
+    {
+        // Only get the select menu for looking up by move name
+        const selectMenu = !!moveName
+            ? this.getLookupPokemonByMoveSelectMenu({
+                defaultMoveListType,
+                moveName,
+                pokemon,
+                isDisabled,
+            })
+            : undefined;
+
+        const rowsAbovePagination: [
+            ActionRowBuilder<StringSelectMenuBuilder>?
+        ] = !!selectMenu
+            ? [selectMenu]
+            : [];
+
+        // Send messages with pagination (fire and forget)
+        const response = await PaginationStrategy.run({
+            originalInteraction: interaction,
+            embeds,
+            interactionType,
+            rowsAbovePagination,
+        });
+
+        if (!!moveName)
+        {
+            // Handle select menu options (fire and forget)
+            this.handleSelectMenuOptions({
+                originalInteraction,
+                interactionResponse: response,
+                moveName,
+                pokemon,
+                currentMoveListType: defaultMoveListType,
+            });
+        }
     }
 
     private static parseSearchParameters({
@@ -289,5 +416,177 @@ export class LookupPokemonStrategy
         }
 
         return [];
+    }
+
+    private static getLookupPokemonByMoveSelectMenu({
+        defaultMoveListType,
+        moveName,
+        pokemon,
+        isDisabled,
+    }: {
+        defaultMoveListType: PtuMoveListType;
+        moveName: string;
+        pokemon: PtuPokemon[];
+        isDisabled: boolean;
+    }): ActionRowBuilder<StringSelectMenuBuilder> | undefined
+    {
+        type MoveListTypeToChoiceName = Record<Exclude<PtuMoveListType, PtuMoveListType.All>, string>;
+        const moveListTypeToChoiceName: MoveListTypeToChoiceName = {
+            [PtuMoveListType.LevelUp]: 'Level Up Moves',
+            [PtuMoveListType.TmHm]: 'TM/HM Moves',
+            [PtuMoveListType.EggMoves]: 'Egg Moves',
+            [PtuMoveListType.TutorMoves]: 'Tutor Moves',
+            [PtuMoveListType.ZygardeCubeMoves]: 'Zygarde Cube Moves',
+        };
+
+        // Figure out what types of moves all pokemon have at least one of
+        const shouldInclude = pokemon.reduce<
+            Record<Exclude<PtuMoveListType, PtuMoveListType.All>, boolean>
+        >((acc, {
+            moveList: {
+                levelUp,
+                eggMoves,
+                tmHm,
+                tutorMoves,
+                zygardeCubeMoves = [],
+            },
+        }) =>
+        {
+            const hasAsLevelUpMove = !!levelUp.find(({ move }) => move === moveName);
+            const hasAsTmHmMove = !!tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
+            const hasAsEggMove = !!eggMoves.find((move) => move === moveName);
+            const hasAsTutorMove = !!tutorMoves.find((move) => move === moveName);
+            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find((move) => move === moveName);
+
+            return {
+                [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove,
+                [PtuMoveListType.TmHm]: acc[PtuMoveListType.TmHm] || hasAsTmHmMove,
+                [PtuMoveListType.EggMoves]: acc[PtuMoveListType.EggMoves] || hasAsEggMove,
+                [PtuMoveListType.TutorMoves]: acc[PtuMoveListType.TutorMoves] || hasAsTutorMove,
+                [PtuMoveListType.ZygardeCubeMoves]: acc[PtuMoveListType.ZygardeCubeMoves] || hasAsZygardeCubeMove,
+            };
+        }, {
+            [PtuMoveListType.LevelUp]: false,
+            [PtuMoveListType.TmHm]: false,
+            [PtuMoveListType.EggMoves]: false,
+            [PtuMoveListType.TutorMoves]: false,
+            [PtuMoveListType.ZygardeCubeMoves]: false,
+        });
+
+        // Get select menu options
+        const options = (
+            Object.entries(moveListTypeToChoiceName) as Entries<MoveListTypeToChoiceName>
+        ).reduce<StringSelectMenuOptionBuilder[]>((acc, [moveListType, choiceName]) =>
+        {
+            if (!shouldInclude[moveListType])
+            {
+                return acc;
+            }
+
+            const option = new StringSelectMenuOptionBuilder()
+                .setLabel(choiceName)
+                .setValue(moveListType);
+
+            if (moveListType === defaultMoveListType)
+            {
+                option.setDefault(true);
+            }
+
+            acc.push(option);
+            return acc;
+        }, []);
+
+        // Only show the select menu if there's 2 or more options to show
+        if (options.length <= 1)
+        {
+            return undefined;
+        }
+
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId(this.selectMenuCustomIds.MoveViewSelect)
+            .addOptions(...options)
+            .setDisabled(isDisabled);
+
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+			.addComponents(selectMenu);
+
+        return row;
+    }
+
+    private static async handleSelectMenuOptions({
+        originalInteraction,
+        interactionResponse,
+        moveName,
+        pokemon,
+        currentMoveListType,
+    }: HandleSelectMenuOptionsParameters)
+    {
+        let hasUpdated = false;
+
+        try
+        {
+            const responseInteraction = await interactionResponse.awaitMessageComponent({
+                componentType: ComponentType.StringSelect,
+                time: timeToWaitForCommandInteractions,
+            });
+
+            const { customId, values = [] } = responseInteraction;
+            const [moveListType] = values as PtuMoveListType[];
+
+            if (customId === this.selectMenuCustomIds.MoveViewSelect)
+            {
+                const embeds = this.getLookupPokemonEmbeds({
+                    moveName,
+                    moveListType,
+                    pokemon,
+                });
+
+                hasUpdated = true;
+
+                await this.sendMessage({
+                    originalInteraction,
+                    interaction: responseInteraction,
+                    embeds,
+                    moveName,
+                    pokemon,
+                    interactionType: 'update',
+                    defaultMoveListType: moveListType,
+                });
+            }
+        }
+
+        catch (error)
+        {
+            const errorPrefix = 'Collector received no interactions before ending with reason:';
+            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
+
+            // Ignore timeouts
+            if (!messageTimedOut && !messageWasDeleted)
+            {
+                logger.error('An unknown error occurred whilst handling select menu interactions on /ptu lookup pokemon', error);
+            }
+
+            // Disable select menu upon timeout or delete
+            if (!hasUpdated && !messageWasDeleted)
+            {
+                const embeds = this.getLookupPokemonEmbeds({
+                    moveName,
+                    moveListType: currentMoveListType,
+                    pokemon,
+                });
+
+                await this.sendMessage({
+                    originalInteraction,
+                    interaction: originalInteraction,
+                    embeds,
+                    moveName,
+                    pokemon,
+                    interactionType: 'editReply',
+                    defaultMoveListType: currentMoveListType,
+                    isDisabled: true,
+                });
+            }
+        }
     }
 }
