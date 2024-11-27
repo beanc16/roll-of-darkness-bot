@@ -74,7 +74,7 @@ export class InstagramMediaDownloader
         const buffer = Buffer.alloc(arrayBuffer.byteLength);
         const view = new Uint8Array(arrayBuffer);
 
-        // eslint-disable-next-line no-plusplus -- TODO: Fix this later
+        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < buffer.length; ++i)
         {
             buffer[i] = view[i];

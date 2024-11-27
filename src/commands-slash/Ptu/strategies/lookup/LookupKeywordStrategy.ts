@@ -51,7 +51,6 @@ export class LookupKeywordStrategy
         {
             const keyword = new PtuKeyword(cur);
 
-            // TODO: Remove this once all keywords are defined
             if (keyword.name === undefined || keyword.name.trim() === '')
             {
                 return acc;

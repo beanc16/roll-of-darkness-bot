@@ -30,13 +30,11 @@ export class AggregatedTrackerWithCharactersController extends MongoDbController
         },
     ];
 
-    // TODO: Update type for accuracy.
     public static async getAll(): Promise<AggregatedTrackerWithCharactersResponse>
     {
         return await this.aggregate(this.aggregateArrayOptions);
     }
 
-    // TODO: Update type for accuracy.
     public static async getByTrackerName(name: string): Promise<AggregatedTrackerWithCharactersResponse>
     {
         return await this.aggregate([

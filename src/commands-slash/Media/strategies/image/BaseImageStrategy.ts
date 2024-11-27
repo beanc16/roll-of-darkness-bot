@@ -3,8 +3,6 @@ import { FileStorageMicroservice, FileStorageMicroserviceImageOptionsV1 } from '
 import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-// TODO: Add cleanup script later. Probably a GHA.
-
 export class BaseImageStrategy
 {
     public static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
