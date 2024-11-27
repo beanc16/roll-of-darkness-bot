@@ -27,7 +27,7 @@ export class RollStrategy
         const name = interaction.options.getString('name');
         const numberOfCursedDice = interaction.options.getInteger('cursed_dice') ?? 0;
         const enhancements = interaction.options.getInteger('enhancements') ?? 0;
-        const successesKey = interaction.options.getString('double_successes') as TwoSuccessesOption.DoubleTens;
+        const successesKey = interaction.options.getString('double_successes') as TwoSuccessesOption ?? TwoSuccessesOption.DoubleTens;
 
         // Convert parameters to necessary inputs for service calls
         const twoSuccessesOn = this.getTwoSuccessesOn(successesKey);
