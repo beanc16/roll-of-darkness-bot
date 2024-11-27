@@ -12,7 +12,7 @@
         "start:dev": "node --loader ts-node/esm --watch src/bot.ts",
         "lint": "eslint --cache --ext js --ext ts ./",
         "lint:fix": "eslint --cache --fix --ext js --ext ts ./",
-        "test": "jest --passWithNoTests",
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
         "test:watch": "jest --watch",
         "register-slash-commands": "node --loader ts-node/esm src/scripts/registerSlashCommands.ts",
         "clean-up-media-resources": "node --loader ts-node/esm src/scripts/cleanUpMediaResources.ts",
