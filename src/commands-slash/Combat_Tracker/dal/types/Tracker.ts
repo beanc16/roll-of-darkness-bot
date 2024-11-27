@@ -15,7 +15,8 @@ interface TrackerConstructor
     discordCreator: (DiscordCreator &
         {
             messageId: string;
-        });
+        }
+    );
     createdAt: Date;
 }
 
