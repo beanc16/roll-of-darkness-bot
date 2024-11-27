@@ -20,8 +20,8 @@ export class CurseborneDiceService
     {
         this.diceService = new DiceService({
             count,
-            successOnGreaterThanOrEqualTo: 8, // Always succeed on 8 or higher
-            sides: 10, // Always use 10-sided die
+            successOnGreaterThanOrEqualTo: 8,   // Always succeed on 8 or higher
+            sides: 10,                          // Always use 10-sided die
             extraSuccesses: enhancements,
             // Never use any of the following:
             rerollOnGreaterThanOrEqualTo: 100,

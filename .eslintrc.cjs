@@ -43,6 +43,9 @@ module.exports = {
         'no-multi-spaces': ['error', {          // Disallow multiple spaces...
             ignoreEOLComments: true,            // ...unless there's a trailing (EOL) comment (like this one)
         }],
+        '@stylistic/no-multi-spaces': ['error', {       // Disallow multiple spaces...
+            ignoreEOLComments: true,                    // ...unless there's a trailing (EOL) comment (like this one)
+        }],
         'no-trailing-spaces': ['error', {       // Disallow trailing spaces...
             skipBlankLines: true,               // ...but, do allow it on blank lines
         }],
