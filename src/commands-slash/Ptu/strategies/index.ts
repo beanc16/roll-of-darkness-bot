@@ -30,6 +30,7 @@ import lookupStrategies from './lookup/index.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
 import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
+import { GetLookupKeywordDataParameters } from './lookup/LookupKeywordStrategy.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
@@ -60,15 +61,17 @@ type LookupParamsFromLookupModel<PtuLookupModel extends AllPtuLookupModels> = Pt
                 ? GetLookupEdgeDataParameters
                 : PtuLookupModel extends PtuFeature // Feature
                     ? GetLookupFeatureDataParameters
-                    : PtuLookupModel extends PtuNature // Nature
-                        ? GetLookupNatureDataParameters
-                        : PtuLookupModel extends PtuPokemon // Pokemon
-                            ? GetLookupPokemonDataParameters
-                            : PtuLookupModel extends PtuStatus // Status
-                                ? GetLookupStatusDataParameters
-                                : PtuLookupModel extends PtuTm // TM
-                                    ? GetLookupTmDataParameters
-                                    : never;
+                    : PtuLookupModel extends PtuKeyword // Keyword
+                        ? GetLookupKeywordDataParameters
+                        : PtuLookupModel extends PtuNature // Nature
+                            ? GetLookupNatureDataParameters
+                            : PtuLookupModel extends PtuPokemon // Pokemon
+                                ? GetLookupPokemonDataParameters
+                                : PtuLookupModel extends PtuStatus // Status
+                                    ? GetLookupStatusDataParameters
+                                    : PtuLookupModel extends PtuTm // TM
+                                        ? GetLookupTmDataParameters
+                                        : never;
 
 type AllLookupParams = GetLookupMoveDataParameters
     | GetLookupAbilityDataParameters

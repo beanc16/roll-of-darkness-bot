@@ -1,5 +1,3 @@
-import { ChatIteractionStrategyRecord } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuQuickReferenceInfo } from '../../subcommand-groups/index.js';
 import { QrDamageChartsStrategy } from './QrDamageChartsStrategy.js';
 import { QrNatureChartStrategy } from './QrNatureChartStrategy.js';
 import { QrPokemonExperienceChartStrategy } from './QrPokemonExperienceChartStrategy.js';
@@ -18,4 +16,4 @@ export default {
     [QrTrainingPokemonStrategy.key]: QrTrainingPokemonStrategy,
     [QrWeightClassChartStrategy.key]: QrWeightClassChartStrategy,
     [QrTypeChartStrategy.key]: QrTypeChartStrategy,
-} as ChatIteractionStrategyRecord<PtuQuickReferenceInfo>;
+};

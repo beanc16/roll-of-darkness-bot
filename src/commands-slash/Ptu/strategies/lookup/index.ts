@@ -1,5 +1,3 @@
-import { ChatIteractionStrategyRecord } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
@@ -22,4 +20,4 @@ export default {
     [LookupPokemonStrategy.key]: LookupPokemonStrategy,
     [LookupStatusStrategy.key]: LookupStatusStrategy,
     [LookupTmStrategy.key]: LookupTmStrategy,
-} as ChatIteractionStrategyRecord<PtuLookupSubcommand>;
+};
