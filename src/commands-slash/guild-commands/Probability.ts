@@ -1,27 +1,29 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import * as probabilityOptions from '../options/probability.js';
-import * as rollOptions from '../Nwod/options/roll.js';
-import { numberOfDice } from '../options/shared.js';
 import DiceProbabilityService from '../../services/DiceProbabilityService.js';
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
-import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
+import * as rollOptions from '../Nwod/options/roll.js';
+import * as probabilityOptions from '../options/probability.js';
+import { numberOfDice as numberOfDiceOption } from '../options/shared.js';
 
 class Probability extends BaseSlashCommand
 {
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addIntegerOption(numberOfDice)
+            .addIntegerOption(numberOfDiceOption)
             .addIntegerOption(probabilityOptions.desiredNumberOfSuccesses)
             .addStringOption(rollOptions.rerolls)
             .addBooleanOption(rollOptions.rote)
             .addBooleanOption(rollOptions.advancedAction);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -36,10 +38,9 @@ class Probability extends BaseSlashCommand
         const isAdvancedAction = interaction.options.getBoolean('advanced_action');
 
         // Check probability
-        const probabilityService = new DiceProbabilityService();
         const {
             cumulativeProbability: probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
-        } = await probabilityService.getProbabilityOfRolling({
+        } = await DiceProbabilityService.getProbabilityOfRolling({
             numberOfDice,
             desiredNumberOfSuccesses,
             rerolls: rollOptions.rerollChoices[
@@ -62,7 +63,7 @@ class Probability extends BaseSlashCommand
                 probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice,
             });
             await interaction.editReply(
-                probabilityResponseFormatterService.getResponse()
+                probabilityResponseFormatterService.getResponse(),
             );
         }
 
@@ -72,12 +73,11 @@ class Probability extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Check the probability of getting a certain number of successes with a certain number of dice.`;
     }
 }
-
-
 
 export default new Probability();

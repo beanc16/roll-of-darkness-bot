@@ -1,22 +1,20 @@
-import initiativeStrategies from './initiative/index.js';
-import characterOptionStrategies from './characterOption/index.js';
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import { selectMenuCustomIds } from '../select-menus/combat_tracker.js';
+import characterOptionStrategies from './characterOption/index.js';
+import initiativeStrategies from './initiative/index.js';
 import { NestedCombatTrackerIteractionStrategyRecord } from './types/CombatTrackerIteractionStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from './types/CombatTrackerMessageComponentHandlerParameters.js';
 
 export class CombatTrackerStrategyExecutor
 {
+    // TODO: Update this to use StrategyMap type later.
     private static strategies: (NestedCombatTrackerIteractionStrategyRecord<
         string,
         string
-    >);
-
-    static {
-        this.strategies = {
+    >) = {
             [selectMenuCustomIds.characterOptionSelect]: characterOptionStrategies,
             [selectMenuCustomIds.initiativeSelect]: initiativeStrategies,
         };
-    }
 
     public static async run({
         subcommandGroup,

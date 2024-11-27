@@ -1,18 +1,19 @@
 import { SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
 export {
-    numberOfDice,
     name,
+    numberOfDice,
     secret,
 } from '../../Nwod/options/roll.js';
 
-export enum TwoSuccessesOption {
+export enum TwoSuccessesOption
+{
     DoubleTens = 'double_10s',
     DoubleNines = 'double_9s',
     NoDoubles = 'no_doubles',
 }
 
-export function cursedDice(option: SlashCommandIntegerOption)
+export function cursedDice(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('cursed_dice');
     option.setDescription('The number of cursed dice to roll (default: 0)');
@@ -21,7 +22,7 @@ export function cursedDice(option: SlashCommandIntegerOption)
     return option;
 }
 
-export function enhancements(option: SlashCommandIntegerOption)
+export function enhancements(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('enhancements');
     option.setDescription('The number of enhancements to add to your result (default: 0)');
@@ -30,7 +31,7 @@ export function enhancements(option: SlashCommandIntegerOption)
     return option;
 }
 
-export function twoSuccesses(option: SlashCommandStringOption)
+export function twoSuccesses(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('double_successes');
     option.setDescription('The minimum value that dice get two successes on (default: 10again)');

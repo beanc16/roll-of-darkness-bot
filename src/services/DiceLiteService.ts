@@ -21,7 +21,7 @@ export class DiceLiteService
         });
     }
 
-    roll(options: RollOptions = {}): number[]
+    public roll(options: RollOptions = {}): number[]
     {
         const dicePoolGroup = this.diceService.roll(options);
         const [rollResults] = dicePoolGroup.dicepoolResults;

@@ -1,18 +1,20 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import {
     Message,
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
-import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+
+import { BaseCustomModal, InputValuesMap } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { InitiativeStrategy } from '../../Nwod/strategies/InitiativeStrategy.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
-import { CombatTrackerType } from '../constants.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { CombatTrackerType } from '../types.js';
 
 export enum AddCharacterCustomIds
 {
@@ -25,75 +27,74 @@ export enum AddCharacterCustomIds
 
 export class AddCharacterModal extends BaseCustomModal
 {
-    static {
-        this._id = 'add-character-modal';
-        this._title = 'Add Character';
-        this._inputValuesMap = {
-            [AddCharacterCustomIds.Hp]: [
-                {
-                    key: 'maxHp',
-                    label: 'Max HP: ',
-                    value: 6,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'bashingDamage',
-                    label: 'Bashing Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'lethalDamage',
-                    label: 'Lethal Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-                {
-                    key: 'aggravatedDamage',
-                    label: 'Aggravated Damage: ',
-                    value: 0,
-                    typeOfValue: 'integer',
-                },
-            ],
-            [AddCharacterCustomIds.Secrets]: [
-                {
-                    key: 'nameIsSecret',
-                    label: 'Name: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-                {
-                    key: 'initiativeIsSecret',
-                    label: 'Initiative: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-                {
-                    key: 'hpIsSecret',
-                    label: 'HP: ',
-                    value: 'no',
-                    typeOfValue: 'boolean',
-                },
-            ],
-        };
-        this._styleMap = {
-            [AddCharacterCustomIds.Name]: TextInputStyle.Short,
-            [AddCharacterCustomIds.Initiative]: TextInputStyle.Short,
-            [AddCharacterCustomIds.ShouldRollInitiativeAsModifier]: TextInputStyle.Short,
-            [AddCharacterCustomIds.Hp]: TextInputStyle.Paragraph,
-            [AddCharacterCustomIds.Secrets]: TextInputStyle.Paragraph,
-        };
-    }
+    public static id = 'add-character-modal';
+    public static title = 'Add Character';
+    protected static inputValuesMap: InputValuesMap = {
+        [AddCharacterCustomIds.Hp]: [
+            {
+                key: 'maxHp',
+                label: 'Max HP: ',
+                value: 6,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'bashingDamage',
+                label: 'Bashing Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'lethalDamage',
+                label: 'Lethal Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+            {
+                key: 'aggravatedDamage',
+                label: 'Aggravated Damage: ',
+                value: 0,
+                typeOfValue: 'integer',
+            },
+        ],
+        [AddCharacterCustomIds.Secrets]: [
+            {
+                key: 'nameIsSecret',
+                label: 'Name: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+            {
+                key: 'initiativeIsSecret',
+                label: 'Initiative: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+            {
+                key: 'hpIsSecret',
+                label: 'HP: ',
+                value: 'no',
+                typeOfValue: 'boolean',
+            },
+        ],
+    };
 
-    static getTextInputs<TextInputParamaters = Tracker>(input: TextInputParamaters): TextInputBuilder[]
+    protected static styleMap = {
+        [AddCharacterCustomIds.Name]: TextInputStyle.Short,
+        [AddCharacterCustomIds.Initiative]: TextInputStyle.Short,
+        [AddCharacterCustomIds.ShouldRollInitiativeAsModifier]: TextInputStyle.Short,
+        [AddCharacterCustomIds.Hp]: TextInputStyle.Paragraph,
+        [AddCharacterCustomIds.Secrets]: TextInputStyle.Paragraph,
+    };
+
+    public static getTextInputs<TextInputParamaters = Tracker>(input: TextInputParamaters): TextInputBuilder[]
     {
         const tracker = input as Tracker | undefined;
         const type = tracker?.type;
 
         const nameInput = new TextInputBuilder()
-			.setCustomId(AddCharacterCustomIds.Name)
-			.setLabel(`What's the character's name?`)
-			.setStyle(this._styleMap[AddCharacterCustomIds.Name])
+            .setCustomId(AddCharacterCustomIds.Name)
+            .setLabel(`What's the character's name?`)
+            .setStyle(this.styleMap[AddCharacterCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -101,7 +102,7 @@ export class AddCharacterModal extends BaseCustomModal
         const initiativeInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.Initiative)
             .setLabel(`What's their initiative? (number)`)
-            .setStyle(this._styleMap[AddCharacterCustomIds.Initiative])
+            .setStyle(this.styleMap[AddCharacterCustomIds.Initiative])
             .setMinLength(1)
             .setMaxLength(3)
             .setRequired(false);
@@ -109,7 +110,7 @@ export class AddCharacterModal extends BaseCustomModal
         const shouldRollInitiativeAsModifierInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.ShouldRollInitiativeAsModifier)
             .setLabel(`Should the initiative be rolled? (yes/no)`)
-            .setStyle(this._styleMap[AddCharacterCustomIds.ShouldRollInitiativeAsModifier])
+            .setStyle(this.styleMap[AddCharacterCustomIds.ShouldRollInitiativeAsModifier])
             .setMinLength(2)
             .setMaxLength(3)
             .setRequired(false)
@@ -118,23 +119,23 @@ export class AddCharacterModal extends BaseCustomModal
         const hpInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.Hp)
             .setLabel(`What's their HP and current damage? (numbers)`)
-            .setStyle(this._styleMap[AddCharacterCustomIds.Hp])
+            .setStyle(this.styleMap[AddCharacterCustomIds.Hp])
             .setMinLength(1)
             .setMaxLength(100)
             .setRequired(false)
             .setValue(
-                this.getInputValues(AddCharacterCustomIds.Hp)
+                this.getInputValues(AddCharacterCustomIds.Hp),
             );
 
         const secretsInput = new TextInputBuilder()
             .setCustomId(AddCharacterCustomIds.Secrets)
             .setLabel(`Which of these should be secret? (yes/no)`)
-            .setStyle(this._styleMap[AddCharacterCustomIds.Secrets])
+            .setStyle(this.styleMap[AddCharacterCustomIds.Secrets])
             .setMinLength(1)
             .setMaxLength(100)
             .setRequired(false)
             .setValue(
-                this.getInputValues(AddCharacterCustomIds.Secrets)
+                this.getInputValues(AddCharacterCustomIds.Secrets),
             );
 
         return [
@@ -151,7 +152,7 @@ export class AddCharacterModal extends BaseCustomModal
         ];
     }
 
-    private static parseInitiative(data: Record<AddCharacterCustomIds, string | number | boolean | Record<string, unknown> | undefined>)
+    private static parseInitiative(data: Record<AddCharacterCustomIds, string | number | boolean | Record<string, unknown> | undefined>): number | undefined
     {
         const shouldRollInitiativeAsModifierInput = data[AddCharacterCustomIds.ShouldRollInitiativeAsModifier] as string | undefined;
         const initiativeModifier = data[AddCharacterCustomIds.Initiative] as string | undefined;
@@ -161,7 +162,7 @@ export class AddCharacterModal extends BaseCustomModal
         if (shouldRollInitiativeAsModifierInput?.toLowerCase() === 'yes' && initiativeModifier)
         {
             initiative = InitiativeStrategy.rollWithModifier(
-                parseInt(initiativeModifier, 10)
+                parseInt(initiativeModifier, 10),
             );
         }
 
@@ -173,11 +174,11 @@ export class AddCharacterModal extends BaseCustomModal
         return initiative;
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,
@@ -204,7 +205,7 @@ export class AddCharacterModal extends BaseCustomModal
             hpIsSecret: (data[AddCharacterCustomIds.Secrets] as Record<string, unknown>).hpIsSecret as boolean,
             interaction,
             message: interaction.message as Message,
-            tracker: this._inputData as Tracker,
+            tracker: this.inputData as Tracker,
         });
 
         // Get components.

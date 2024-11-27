@@ -1,8 +1,8 @@
 import { SlashCommandStringOption } from 'discord.js';
 
-import { CombatTrackerType } from './constants.js';
+import { CombatTrackerType } from './types.js';
 
-export function name(option: SlashCommandStringOption)
+export function name(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('name');
     option.setDescription('The unique name of the combat.');
@@ -11,7 +11,7 @@ export function name(option: SlashCommandStringOption)
     return option;
 }
 
-export function type(option: SlashCommandStringOption)
+export function type(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('type');
     option.setDescription('The type of combat tracker to use (default: All).');

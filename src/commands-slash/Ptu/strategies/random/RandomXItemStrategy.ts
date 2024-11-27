@@ -8,11 +8,11 @@ import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomXItemStrategy
 {
-    public static key = PtuRandomSubcommand.XItem;
+    public static key: PtuRandomSubcommand.XItem = PtuRandomSubcommand.XItem;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         return await BaseRandomStrategy.run(interaction, this.key, {

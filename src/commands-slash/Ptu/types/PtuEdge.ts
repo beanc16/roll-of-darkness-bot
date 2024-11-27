@@ -4,7 +4,7 @@ export class PtuEdge
     public prerequisites: string;
     public effect: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

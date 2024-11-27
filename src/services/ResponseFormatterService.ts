@@ -6,17 +6,18 @@ export class ResponseFormatterService
 
     constructor({
         authorId,
-    }: { authorId: string; })
+    }: { authorId: string })
     {
         this.authorId = authorId;
     }
 
-    get authorPing()
+    get authorPing(): string
     {
         return Text.Ping.user(this.authorId);
     }
 
-    getSuccessesAsSingularOrPlural(numOfSuccesses: number)
+    // eslint-disable-next-line class-methods-use-this -- We want subclasses to inherit this
+    public getSuccessesAsSingularOrPlural(numOfSuccesses: number): 'success' | 'successes'
     {
         if (numOfSuccesses === 1)
         {
@@ -24,15 +25,5 @@ export class ResponseFormatterService
         }
 
         return 'successes';
-    }
-
-    getDiceAsSingularOrPlural(numOfDice: number)
-    {
-        if (numOfDice === 1)
-        {
-            return 'die';
-        }
-
-        return 'dice';
     }
 }

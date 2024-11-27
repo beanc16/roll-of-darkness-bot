@@ -1,4 +1,5 @@
 import { UUID } from 'node:crypto';
+
 import dayjs from 'dayjs';
 
 import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord.js';
@@ -17,14 +18,15 @@ export class CounterEventHandler
         [UUID, CounterEventType],
         dayjs.Dayjs
     > = new CompositeKeyRecord();
+
     private static SECONDS_TO_DEBOUNCE = 4; // TODO: Reduce this timer after mongodb-controller won't close connections if a save is in-progress
 
-    public static onUpsert(guid: UUID)
+    public static onUpsert(guid: UUID): void
     {
         // Get debouncability before adding an event timestamp
         const shouldDebounce = !this.eventTimestamps.Has([
             guid,
-            CounterEventType.Upsert
+            CounterEventType.Upsert,
         ]);
 
         // Add event timestamp
@@ -33,12 +35,13 @@ export class CounterEventHandler
         // Only debounce if it isn't already debouncing
         if (shouldDebounce)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.debounceEvent([guid, CounterEventType.Upsert]);
         }
     }
 
     // Infinitely debounce until enough time has passed for the given event
-    private static async debounceEvent(key: [UUID, CounterEventType])
+    private static async debounceEvent(key: [UUID, CounterEventType]): Promise<void>
     {
         await Timer.waitUntilTrue({
             seconds: this.SECONDS_TO_DEBOUNCE / 3,
@@ -50,7 +53,7 @@ export class CounterEventHandler
                 const secondsPassed = currentTimestamp.diff(
                     prevTimestamp,
                     'seconds',
-                    true
+                    true,
                 );
 
                 return secondsPassed > this.SECONDS_TO_DEBOUNCE;
@@ -61,7 +64,7 @@ export class CounterEventHandler
         this.eventTimestamps.Clear(key);
     }
 
-    private static async saveToDb(guid: UUID)
+    private static async saveToDb(guid: UUID): Promise<void>
     {
         const counterContainer = counterSingleton.get(guid);
 
@@ -70,7 +73,7 @@ export class CounterEventHandler
         {
             await CounterController.findOneAndUpdate(
                 { guid },
-                counterContainer.getCounter()
+                counterContainer.getCounter(),
             );
         }
 

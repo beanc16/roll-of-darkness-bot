@@ -1,27 +1,27 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { getRandomYouFoundNothingEmbedMessage } from '../../../Ptu/embed-messages/random.js';
-import { RandomXItemStrategy } from './RandomXItemStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
-import { RandomPokeballStrategy } from './RandomPokeballStrategy.js';
-import { RandomHealingItemStrategy } from './RandomHealingItemStrategy.js';
 import { RandomEvolutionaryStoneStrategy } from './RandomEvolutionaryStoneStrategy.js';
-import { RandomVitaminStrategy } from './RandomVitaminStrategy.js';
+import { RandomHealingItemStrategy } from './RandomHealingItemStrategy.js';
 import { RandomHeldItemStrategy } from './RandomHeldItemStrategy.js';
+import { RandomPokeballStrategy } from './RandomPokeballStrategy.js';
 import { RandomTmStrategy } from './RandomTmStrategy.js';
+import { RandomVitaminStrategy } from './RandomVitaminStrategy.js';
+import { RandomXItemStrategy } from './RandomXItemStrategy.js';
 import { PtuRandomPickupSubcommandResponse } from './types.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RandomPickupStrategy
 {
-    public static key = PtuRandomSubcommand.Pickup;
+    public static key: PtuRandomSubcommand.Pickup = PtuRandomSubcommand.Pickup;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
@@ -113,7 +113,7 @@ export class RandomPickupStrategy
         }
 
         // Send response with reroll button
-        const subcommandStr = (!!subcommandResponse.commandName)
+        const subcommandStr = (subcommandResponse.commandName)
             ? ` | ${subcommandResponse.commandName}`
             : '';
 
@@ -121,7 +121,7 @@ export class RandomPickupStrategy
             interaction,
             options: subcommandResponse.options,
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),

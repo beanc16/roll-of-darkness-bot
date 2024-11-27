@@ -1,10 +1,12 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { discordLogger, logger } from '@beanc16/logger';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
+
 import { Timer } from '../services/Timer.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 let exitCode = 0;
 
+/* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 try
 {
     logger.debug('Starting to bulk delete images for /media image...');
@@ -19,7 +21,7 @@ try
     let wasSuccessful = false;
 
     // Retry bulk delete with a delay until it works or the max number of retries is reached
-    for (let index = 0; index < maxNumberOfRetries; index++)
+    for (let index = 0; index < maxNumberOfRetries; index += 1)
     {
         // Delete all images used by /media image that are older than the specified time
         const {
@@ -59,11 +61,13 @@ try
     discordLogger.info(logMessage);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
 catch (error: any)
 {
     logger.error(
         'Errors occurred while Roll of Darkness attempted to bulk delete media resources from the file storage microservice',
-        error?.response?.data ?? error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Fix this later if necessary
+        error?.response?.data ?? error,
     );
     exitCode = 1;
 }
@@ -71,14 +75,17 @@ catch (error: any)
 // Close out the process faster
 finally
 {
-    let loggerIsFlushed = false, discordLoggerIsFlushed = false;
+    let loggerIsFlushed = false;
+    let discordLoggerIsFlushed = false;
 
     // Listen for events for logging being finished
-    logger.on('finish', () => {
+    logger.on('finish', () =>
+    {
         loggerIsFlushed = true;
     });
 
-    discordLogger.on('finish', async () => {
+    discordLogger.on('finish', async () =>
+    {
         // Add a short delay, otherwise the log won't send via webhook.
         // This seems to be an underlying issue with the discord webhook transport for winston
         await Timer.wait({ seconds: 0.5 });

@@ -4,7 +4,7 @@ export function getFakeRoll(number: number, isRote?: boolean): Roll;
 export function getFakeRoll(params: Roll): Roll;
 export function getFakeRoll(
     arg1: number | Roll,
-    arg2?: boolean
+    arg2?: boolean,
 ): Roll
 {
     if (typeof arg1 === 'number')
@@ -15,11 +15,8 @@ export function getFakeRoll(
         };
     }
 
-    else
-    {
-        return {
-            number: arg1.number,
-            isRote: arg1.isRote,
-        };
-    }
+    return {
+        number: arg1.number,
+        isRote: arg1.isRote,
+    };
 }

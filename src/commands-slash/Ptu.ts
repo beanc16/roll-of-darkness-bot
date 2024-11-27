@@ -4,35 +4,21 @@ import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js
 
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
-    PtuSubcommandGroup,
     calculate,
+    PtuSubcommandGroup,
     random,
     roll,
     train,
 } from './Ptu/subcommand-groups/index.js';
-import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
-
-export interface RandomResult
-{
-    name: string;
-    cost?: string;
-    description: string;
-    numOfTimesRolled?: number;
-}
-
-export interface RandomPokeball extends RandomResult
-{
-    mod?: string;
-    type?: string;
-    jailBreakerInfo?: RandomPokeball;
-}
+import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 
 class Ptu extends BaseSlashCommand
 {
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommandGroup(calculate)
             .addSubcommandGroup(random)
@@ -40,7 +26,8 @@ class Ptu extends BaseSlashCommand
             .addSubcommand(train);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -65,7 +52,8 @@ class Ptu extends BaseSlashCommand
         }
     }
 
-    async autocomplete(interaction: AutocompleteInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
@@ -86,7 +74,8 @@ class Ptu extends BaseSlashCommand
         await interaction.respond(choices);
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run Pokemon Tabletop United commands.`;
     }

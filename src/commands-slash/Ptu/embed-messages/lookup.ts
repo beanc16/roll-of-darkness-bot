@@ -1,22 +1,26 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
+import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
+import { getPagedEmbedBuilders, TableColumn } from '../../embed-messages/shared.js';
 import { PtuAbility } from '../models/PtuAbility.js';
-import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { PtuNature } from '../types/PtuNature.js';
-import { PtuTm } from '../types/PtuTm.js';
-import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../types/pokemon.js';
-import { PtuStatus } from '../types/PtuStatus.js';
+import {
+    PtuAbilityListType,
+    PtuMoveListType,
+    PtuPokemon,
+} from '../types/pokemon.js';
+import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
-import { getPagedEmbedBuilders, type TableColumn } from '../../embed-messages/shared.js';
-import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
+import { PtuNature } from '../types/PtuNature.js';
+import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuTm } from '../types/PtuTm.js';
 
 const color = 0xCDCDCD;
 
-export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
+export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]): EmbedBuilder[] =>
 {
     if (abilities.length === 0) return [];
 
@@ -24,7 +28,8 @@ export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
         name,
         frequency,
         effect2,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
@@ -69,20 +74,20 @@ export const getLookupAbilitiesEmbedMessages = (abilities: PtuAbility[]) =>
     });
 };
 
-export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]) =>
+export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]): EmbedBuilder[] =>
 {
     if (capabilities.length === 0) return [];
 
-    const { pages } = capabilities.reduce((acc, {
-        name,
-        description,
-    }, index) => {
+    const { pages } = capabilities.reduce((acc, { name, description }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
-            ...(description !== undefined && description !== '--' ? [
-                `Description:\n\`\`\`\n${description}\`\`\``
-            ] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []),
         ];
 
         // Create the description
@@ -122,7 +127,7 @@ export const getLookupCapabilitiesEmbedMessages = (capabilities: PtuCapability[]
     });
 };
 
-export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]) =>
+export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]): EmbedBuilder[] =>
 {
     if (edges.length === 0) return [];
 
@@ -130,16 +135,21 @@ export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]) =>
         name,
         prerequisites,
         effect,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
-            ...(prerequisites !== undefined && prerequisites !== '-' ? [
-                `Prerequisites: ${prerequisites}`
-            ] : []),
-            ...(effect !== undefined && effect !== '--' ? [
-                `Effect:\n\`\`\`\n${effect}\`\`\``
-            ] : []),
+            ...(prerequisites !== undefined && prerequisites !== '-'
+                ? [
+                    `Prerequisites: ${prerequisites}`,
+                ]
+                : []),
+            ...(effect !== undefined && effect !== '--'
+                ? [
+                    `Effect:\n\`\`\`\n${effect}\`\`\``,
+                ]
+                : []),
         ];
 
         // Create the description
@@ -179,7 +189,7 @@ export const getLookupEdgesEmbedMessages = (edges: PtuEdge[]) =>
     });
 };
 
-export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]) =>
+export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]): EmbedBuilder[] =>
 {
     if (features.length === 0) return [];
 
@@ -189,22 +199,31 @@ export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]) =>
         prerequisites,
         frequencyAndAction,
         effect,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
-            ...(tags !== undefined && tags !== '-' ? [
-                `Tags: ${tags}`
-            ] : []),
-            ...(prerequisites !== undefined && prerequisites !== '-' ? [
-                `Prerequisites: ${prerequisites}`
-            ] : []),
-            ...(frequencyAndAction !== undefined && frequencyAndAction !== '-' ? [
-                `Frequency / Action: ${frequencyAndAction}`
-            ] : []),
-            ...(effect !== undefined && effect !== '--' ? [
-                `Effect:\n\`\`\`\n${effect}\`\`\``
-            ] : []),
+            ...(tags !== undefined && tags !== '-'
+                ? [
+                    `Tags: ${tags}`,
+                ]
+                : []),
+            ...(prerequisites !== undefined && prerequisites !== '-'
+                ? [
+                    `Prerequisites: ${prerequisites}`,
+                ]
+                : []),
+            ...(frequencyAndAction !== undefined && frequencyAndAction !== '-'
+                ? [
+                    `Frequency / Action: ${frequencyAndAction}`,
+                ]
+                : []),
+            ...(effect !== undefined && effect !== '--'
+                ? [
+                    `Effect:\n\`\`\`\n${effect}\`\`\``,
+                ]
+                : []),
         ];
 
         // Create the description
@@ -244,7 +263,7 @@ export const getLookupFeaturesEmbedMessages = (features: PtuFeature[]) =>
     });
 };
 
-export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]) =>
+export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]): EmbedBuilder[] =>
 {
     if (keywords.length === 0) return [];
 
@@ -256,13 +275,17 @@ export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]) =>
         name,
         description,
         tableData,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
-            ...(description !== undefined && description !== '--' ? [
-                `Description:\n\`\`\`\n${description}\`\`\``
-            ] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []
+            ),
         ];
 
         // Create the description
@@ -294,7 +317,7 @@ export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]) =>
         {
             const columns = tableData.split('\n');
 
-            columns.forEach(column =>
+            columns.forEach((column) =>
             {
                 const [header, ...rows] = column.split('|');
 
@@ -319,7 +342,7 @@ export const getLookupKeywordsEmbedMessages = (keywords: PtuKeyword[]) =>
     });
 };
 
-export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
+export const getLookupMovesEmbedMessages = (moves: PtuMove[]): EmbedBuilder[] =>
 {
     if (moves.length === 0) return [];
 
@@ -332,7 +355,8 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
         ac,
         range,
         effects,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
@@ -382,7 +406,7 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]) =>
     });
 };
 
-export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
+export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuilder[] =>
 {
     if (pokemon.length === 0) return [];
 
@@ -399,10 +423,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             highAbility,
         },
         evolution,
-        sizeInformation: {
-            height,
-            weight,
-        },
+        sizeInformation: { height, weight },
         breedingInformation: {
             genderRatio,
             eggGroups,
@@ -427,7 +448,8 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
         },
         megaEvolutions,
         extras,
-    }) => {
+    }) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(`${dexNumber !== undefined ? `${dexNumber} ` : ''}${name}`),
@@ -439,7 +461,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             `Special Attack: ${baseStats.specialAttack}`,
             `Special Defense: ${baseStats.specialDefense}`,
             `Speed: ${baseStats.speed}`,
-            `Total: ${Object.values(baseStats).reduce((acc, val) => acc + val, 0)}`,
+            `Total: ${Object.values(baseStats).reduce((acc2, val) => acc2 + val, 0)}`,
             '',
             Text.bold('Basic Information'),
             `Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`,
@@ -448,12 +470,17 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             `High Ability: ${highAbility}`,
             '',
             Text.bold('Evolution'),
-            ...evolution.sort((a, b) => a.stage - b.stage).map(({ name, level, stage }) => {
+            ...evolution.sort((a, b) => a.stage - b.stage).map(({
+                name: evolutionName,
+                level,
+                stage,
+            }) =>
+            {
                 const minimumLevelString = (stage >= 2 && level > 1)
                     ? ` Minimum ${level}`
                     : ''; // Don't include minimum level for 2+ stage evolutions that're level 1. They probably evolve with an evolution stone, which is included in the name.
 
-                return `${stage} - ${name}${minimumLevelString}`;
+                return `${stage} - ${evolutionName}${minimumLevelString}`;
             }),
             '',
             Text.bold('Size Information'),
@@ -489,52 +516,74 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
             ].join(', '),
             '',
             Text.bold('Level Up Move List'),
-            ...levelUp.map(({ level, move, type }) => `${level} ${move} - ${type}`),
+            ...levelUp.map(({
+                level,
+                move,
+                type,
+            }) => `${level} ${move} - ${type}`),
             '',
-            ...(eggMoves.length > 0 ? [
-                Text.bold('Egg Move List'),
-                eggMoves.join(', '),
-                '',
-            ] : []),
-            ...(tmHm.length > 0 ? [
-                Text.bold('TM/HM Move List'),
-                tmHm.join(', '),
-                '',
-            ] : []),
-            ...(tutorMoves.length > 0 ? [
-                Text.bold('Tutor Move List'),
-                tutorMoves.join(', '),
-                '',
-            ] : []),
-            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0 ? [
-                Text.bold('Zygarde Cube Move List'),
-                zygardeCubeMoves.join(', '),
-                '',
-            ] : []),
-            (megaEvolutions !== undefined && megaEvolutions.length > 0 ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
-                [
-                    megaEvolution.name,
-                    `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
-                    `Stats: ${[
-                        (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
-                        (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
-                        (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
-                        (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
-                        (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
-                        (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
-                    ].filter((str) => str.length > 0).join(', ')}`,
-                    `Ability: ${megaEvolution.ability}`,
+            ...(eggMoves.length > 0
+                ? [
+                    Text.bold('Egg Move List'),
+                    eggMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(tmHm.length > 0
+                ? [
+                    Text.bold('TM/HM Move List'),
+                    tmHm.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(tutorMoves.length > 0
+                ? [
+                    Text.bold('Tutor Move List'),
+                    tutorMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0
+                ? [
+                    Text.bold('Zygarde Cube Move List'),
+                    zygardeCubeMoves.join(', '),
+                    '',
+                ]
+                : []
+            ),
+            (megaEvolutions !== undefined && megaEvolutions.length > 0
+                ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
                     [
-                        (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
-                        (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
-                        '',
-                    ].filter((str) => str.length > 0).join('\n'),
-                ].join('\n'),
-            ).join('\n') : []),
-            ...(extras && extras.length > 0 ? [
-                ...extras.map(({ name, value }) => `${Text.bold(name)}\n${value}`),
-                '',
-            ] : []),
+                        megaEvolution.name,
+                        `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
+                        `Stats: ${[
+                            (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
+                            (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
+                            (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
+                            (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
+                            (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
+                            (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
+                        ].filter(str => str.length > 0).join(', ')}`,
+                        `Ability: ${megaEvolution.ability}`,
+                        [
+                            (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
+                            (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
+                            '',
+                        ].filter(str => str.length > 0).join('\n'),
+                    ].join('\n'),
+                ).join('\n')
+                : []
+            ),
+            ...(extras && extras.length > 0
+                ? [
+                    ...extras.map(({ name: extraName, value }) => `${Text.bold(extraName)}\n${value}`),
+                    '',
+                ]
+                : []
+            ),
             `${source}: ${page}`,
         ];
 
@@ -547,15 +596,16 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
         return acc;
     }, []);
 
-    return pages.map(({ description, imageUrl }, index) => {
+    return pages.map(({ description, imageUrl }, index) =>
+    {
         const embed = new EmbedBuilder()
-        .setTitle('Pokemon')
-        .setDescription(description)
-        .setColor(color);
+            .setTitle('Pokemon')
+            .setDescription(description)
+            .setColor(color);
 
         if (pages.length > 1)
         {
-            embed.setFooter({ text: `Page ${index + 1}/${pages.length}`});
+            embed.setFooter({ text: `Page ${index + 1}/${pages.length}` });
         }
 
         if (imageUrl)
@@ -567,46 +617,31 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]) =>
     });
 };
 
-export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
-    moveName,
-    moveListType,
-}: {
+export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { moveName, moveListType }: {
     moveName: string;
     moveListType: PtuMoveListType;
-}) =>
+}): EmbedBuilder[] =>
 {
     if (pokemon.length === 0) return [];
 
     const {
-        // Level up
         levelUp,
         totalLevelUpMoveLearnedValue,
         outliersInLevelUpData,
-
-        // Everything else
         eggMoves,
         tmHm,
         tutorMoves,
         zygardeCubeMoves,
     } = pokemon.reduce((acc, curPokemon) =>
     {
-        const {
-            name,
-            moveList: {
-                levelUp,
-                eggMoves,
-                tmHm,
-                tutorMoves,
-                zygardeCubeMoves = [],
-            },
-        } = curPokemon;
+        const { name, moveList } = curPokemon;
 
         if (
-            (moveListType === PtuMoveListType.LevelUp && !levelUp.find(({ move }) => move === moveName))
-            || (moveListType === PtuMoveListType.TmHm && !tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase())))
-            || (moveListType === PtuMoveListType.EggMoves && !eggMoves.find((move) => move === moveName))
-            || (moveListType === PtuMoveListType.TutorMoves && !tutorMoves.find((move) => move === moveName))
-            || (moveListType === PtuMoveListType.ZygardeCubeMoves && !zygardeCubeMoves.find((move) => move === moveName))
+            (moveListType === PtuMoveListType.LevelUp && !moveList.levelUp.find(({ move }) => move === moveName))
+            || (moveListType === PtuMoveListType.TmHm && !moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase())))
+            || (moveListType === PtuMoveListType.EggMoves && !moveList.eggMoves.find(move => move === moveName))
+            || (moveListType === PtuMoveListType.TutorMoves && !moveList.tutorMoves.find(move => move === moveName))
+            || ((moveListType === PtuMoveListType.ZygardeCubeMoves && !moveList.zygardeCubeMoves) || (moveList.zygardeCubeMoves && !moveList.zygardeCubeMoves.find(move => move === moveName)))
         )
         {
             return acc;
@@ -623,35 +658,35 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
             return acc;
         }
 
-        const zygardeMove = zygardeCubeMoves.find((move) => move === moveName);
+        const zygardeMove = (moveList?.zygardeCubeMoves ?? []).find(move => move === moveName);
         if (zygardeMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.ZygardeCubeMoves].push(curPokemon);
             return acc;
         }
 
-        const eggMove = eggMoves.find((move) => move === moveName);
+        const eggMove = moveList.eggMoves.find(move => move === moveName);
         if (eggMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.EggMoves].push(curPokemon);
             return acc;
         }
 
-        const tutorMove = tutorMoves.find((move) => move === moveName);
+        const tutorMove = moveList.tutorMoves.find(move => move === moveName);
         if (tutorMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TutorMoves].push(curPokemon);
             // Don't return acc
         }
 
-        const tmHmMove = tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
+        const tmHmMove = moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
         if (tmHmMove && moveListType === PtuMoveListType.All)
         {
             acc[PtuMoveListType.TmHm].push(curPokemon);
             // Don't return acc
         }
 
-        const levelUpMove = levelUp.find(({ move }) => move === moveName);
+        const levelUpMove = moveList.levelUp.find(({ move }) => move === moveName);
         if (
             (moveListType === PtuMoveListType.LevelUp || moveListType === PtuMoveListType.All)
             && levelUpMove
@@ -662,6 +697,12 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
             if (!Number.isNaN(level))
             {
                 acc.totalLevelUpMoveLearnedValue += level;
+                acc[PtuMoveListType.LevelUp].push({
+                    pokemon: curPokemon,
+                    level: (!Number.isNaN(level))
+                        ? levelUpMove.level
+                        : level,
+                });
             }
             else
             {
@@ -670,11 +711,6 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
                     level: levelUpMove.level,
                 });
             }
-
-            acc[PtuMoveListType.LevelUp].push({
-                pokemon: curPokemon,
-                level,
-            });
         }
 
         return acc;
@@ -688,120 +724,106 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
         [PtuMoveListType.TutorMoves]: [] as PtuPokemon[],
         [PtuMoveListType.ZygardeCubeMoves]: [] as PtuPokemon[],
         totalLevelUpMoveLearnedValue: 0,
-        outliersInLevelUpData: [] as { name: string; level: string | number; }[],
+        outliersInLevelUpData: [] as { name: string; level: string | number }[],
     });
 
     // Sort level up move results by their level
-    levelUp.sort((a, b) => {
+    levelUp.sort((a, b) =>
+    {
         const aLevel = parseInt(a.level as string, 10);
-        if (!Number.isNaN(aLevel))
+        if (Number.isNaN(aLevel))
         {
-            1;
+            return 1;
         }
 
         const bLevel = parseInt(b.level as string, 10);
-        if (!Number.isNaN(bLevel))
+        if (Number.isNaN(bLevel))
         {
-            -1;
+            return -1;
         }
 
         return aLevel - bLevel;
     });
 
-    let endOfTitle = '';
-    switch (moveListType)
-    {
-        case PtuMoveListType.All:
-            endOfTitle = '';
-            break;
-        case PtuMoveListType.LevelUp:
-            endOfTitle = ' as a Level-Up Move';
-            break;
-        case PtuMoveListType.EggMoves:
-            endOfTitle = ' as an Egg Move';
-            break;
-        case PtuMoveListType.TmHm:
-            endOfTitle = ' as a TM/HM';
-            break;
-        case PtuMoveListType.TutorMoves:
-            endOfTitle = ' as a Tutor Move';
-            break;
-        case PtuMoveListType.ZygardeCubeMoves:
-            endOfTitle = ' as a Zygarde Cube Move';
-            break;
-    }
-    let description = `${Text.bold(`Pokemon that can learn ${moveName}${endOfTitle}`)}\n`;
+    const moveListTypeToEndOfTitle: Record<PtuMoveListType, string> = {
+        [PtuMoveListType.All]: '',
+        [PtuMoveListType.LevelUp]: ' as a Level-Up Move',
+        [PtuMoveListType.EggMoves]: ' as an Egg Move',
+        [PtuMoveListType.TmHm]: ' as a TM/HM',
+        [PtuMoveListType.TutorMoves]: ' as a Tutor Move',
+        [PtuMoveListType.ZygardeCubeMoves]: ' as a Zygarde Cube Move',
+    };
+    let description = `${Text.bold(`Pokemon that can learn ${moveName}${moveListTypeToEndOfTitle[moveListType]}`)}\n`;
 
     // Level Up
-    if (levelUp.length > 0)
+    if (levelUp.length > 0 || outliersInLevelUpData.length > 0)
     {
         if (description.length > 0) description += '\n';
         description += Text.bold('Learn as Level-Up Move:') + '\n';
         description += `${
-            (totalLevelUpMoveLearnedValue / levelUp.length).toFixed(1)
+            ((totalLevelUpMoveLearnedValue / levelUp.length) || 0).toFixed(1)
         } Average Level\n`;
 
-        description = outliersInLevelUpData.reduce((acc, { level, name }) => {
-            acc += `${level} ${name}\n`;
-            return acc;
-        }, description);
+        description = outliersInLevelUpData.reduce(
+            (acc, { level, name }) => acc + `${level} ${name}\n`,
+            description,
+        );
 
-        description = levelUp.reduce((acc, { level, pokemon }) => {
-            acc += `${level} ${pokemon.name}\n`;
-            return acc;
-        }, description);
+        description = levelUp.reduce(
+            (acc, { level, pokemon: curPokemon }) => (
+                acc + `${level} ${curPokemon.name}\n`
+            ),
+            description,
+        );
     }
 
     // Egg Move
     if (eggMoves.length > 0)
     {
-        description = eggMoves.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Egg Move:')}\n`);
+        description = eggMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Egg Move:')}\n`,
+        );
     }
 
     // TM/HM
     if (tmHm.length > 0)
     {
-        description = tmHm.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as TM/HM:')}\n`);
+        description = tmHm.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as TM/HM:')}\n`,
+        );
     }
 
     // Tutor Move
     if (tutorMoves.length > 0)
     {
-        description = tutorMoves.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Tutor Move:')}\n`);
+        description = tutorMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Tutor Move:')}\n`,
+        );
     }
 
     // Zygarde Cube Move
     if (zygardeCubeMoves.length > 0)
     {
-        description = zygardeCubeMoves.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`);
+        description = zygardeCubeMoves.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`,
+        );
     }
 
     const lines = description.split('\n');
-    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    const { pages } = lines.reduce((acc, line) =>
     {
-        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
         {
-            curPageIndex += 1;
+            acc.curPageIndex += 1;
         }
 
-        allPages[curPageIndex] += `${line}\n`;
+        acc.pages[acc.curPageIndex] += `${line}\n`;
 
-        return {
-            pages: allPages,
-            curPageIndex,
-        };
+        return acc;
     }, {
         pages: [''] as string[],
         curPageIndex: 0,
@@ -813,13 +835,10 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], {
     });
 };
 
-export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
-    abilityName,
-    abilityListType,
-}: {
+export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { abilityName, abilityListType }: {
     abilityName: string;
     abilityListType: PtuAbilityListType;
-}) =>
+}): EmbedBuilder[] =>
 {
     if (pokemon.length === 0) return [];
 
@@ -829,13 +848,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
         highAbility: highAbilities,
     } = pokemon.reduce((acc, curPokemon) =>
     {
-        const {
-            abilities: {
-                basicAbilities,
-                advancedAbilities,
-                highAbility,
-            },
-        } = curPokemon;
+        const { abilities } = curPokemon;
 
         if (abilityListType !== PtuAbilityListType.All)
         {
@@ -843,21 +856,21 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
             return acc;
         }
 
-        const basicAbility = basicAbilities.find((ability) => ability === abilityName);
+        const basicAbility = abilities.basicAbilities.find(ability => ability === abilityName);
         if (basicAbility)
         {
             acc[PtuAbilityListType.Basic].push(curPokemon);
             return acc;
         }
 
-        const advancedAbility = advancedAbilities.find((ability) => ability === abilityName);
+        const advancedAbility = abilities.advancedAbilities.find(ability => ability === abilityName);
         if (advancedAbility)
         {
             acc[PtuAbilityListType.Advanced].push(curPokemon);
             return acc;
         }
 
-        if (highAbility == abilityName)
+        if (abilities.highAbility === abilityName)
         {
             acc[PtuAbilityListType.High].push(curPokemon);
             return acc;
@@ -870,65 +883,52 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
         [PtuAbilityListType.High]: [] as PtuPokemon[],
     });
 
-    let endOfTitle = '';
-    switch (abilityListType)
-    {
-        case PtuAbilityListType.All:
-            endOfTitle = '';
-            break;
-        case PtuAbilityListType.Basic:
-            endOfTitle = ' as a Basic Ability';
-            break;
-        case PtuAbilityListType.Advanced:
-            endOfTitle = ' as an Advanced Ability';
-            break;
-        case PtuAbilityListType.High:
-            endOfTitle = ' as a High Ability';
-            break;
-    }
-    let description = `${Text.bold(`Pokemon that can learn ${abilityName}${endOfTitle}`)}\n`;
+    const abilityListTypeToEndOfTitle: Record<PtuAbilityListType, string> = {
+        [PtuAbilityListType.All]: '',
+        [PtuAbilityListType.Basic]: ' as a Basic Ability',
+        [PtuAbilityListType.Advanced]: ' as an Advanced Ability',
+        [PtuAbilityListType.High]: ' as a High Ability',
+    };
+    let description = `${Text.bold(`Pokemon that can learn ${abilityName}${abilityListTypeToEndOfTitle[abilityListType]}`)}\n`;
 
     // Basic Ability
     if (basicAbilities.length > 0)
     {
-        description = basicAbilities.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Basic Ability:')}\n`);
+        description = basicAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Basic Ability:')}\n`,
+        );
     }
 
     // Advanced Ability
     if (advancedAbilities.length > 0)
     {
-        description = advancedAbilities.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as Advanced Ability:')}\n`);
+        description = advancedAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Advanced Ability:')}\n`,
+        );
     }
 
     // Tutor Move
     if (highAbilities.length > 0)
     {
-        description = highAbilities.reduce((acc, { name }) => {
-            acc += `${name}\n`;
-            return acc;
-        }, `${description}\n${Text.bold('Learn as High Ability:')}\n`);
+        description = highAbilities.reduce(
+            (acc, { name }) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as High Ability:')}\n`,
+        );
     }
 
     const lines = description.split('\n');
-    const { pages } = lines.reduce(({ pages: allPages, curPageIndex }, line) =>
+    const { pages } = lines.reduce((acc, line) =>
     {
-        if (allPages[curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
         {
-            curPageIndex += 1;
+            acc.curPageIndex += 1;
         }
 
-        allPages[curPageIndex] += `${line}\n`;
+        acc.pages[acc.curPageIndex] += `${line}\n`;
 
-        return {
-            pages: allPages,
-            curPageIndex,
-        };
+        return acc;
     }, {
         pages: [''] as string[],
         curPageIndex: 0,
@@ -940,7 +940,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], {
     });
 };
 
-export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
+export const getLookupNatureEmbedMessages = (natures: PtuNature[]): EmbedBuilder[] =>
 {
     if (natures.length === 0) return [];
 
@@ -950,7 +950,8 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
         loweredStat,
         likedFlavor,
         dislikedFlavor,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
@@ -997,7 +998,7 @@ export const getLookupNatureEmbedMessages = (natures: PtuNature[]) =>
     });
 };
 
-export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
+export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]): EmbedBuilder[] =>
 {
     if (statuses.length === 0) return [];
 
@@ -1006,7 +1007,8 @@ export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
         type,
         isHomebrew,
         description,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name) + ((isHomebrew !== undefined && isHomebrew)
@@ -1014,9 +1016,11 @@ export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
                 : ''
             ),
             ...(type !== undefined ? [`Type: ${type}`] : []),
-            ...(description !== undefined && description !== '--' ? [
-                `Description:\n\`\`\`\n${description}\`\`\``
-            ] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []),
         ];
 
         // Create the description
@@ -1056,7 +1060,7 @@ export const getLookupStatusesEmbedMessages = (statuses: PtuStatus[]) =>
     });
 };
 
-export const getLookupTmsEmbedMessages = (tms: PtuTm[]) =>
+export const getLookupTmsEmbedMessages = (tms: PtuTm[]): EmbedBuilder[] =>
 {
     if (tms.length === 0) return [];
 
@@ -1064,14 +1068,17 @@ export const getLookupTmsEmbedMessages = (tms: PtuTm[]) =>
         name,
         cost,
         description,
-    }, index) => {
+    }, index) =>
+    {
         // Stage the individual lines of the description
         const lines = [
             Text.bold(name),
             ...(cost !== undefined ? [`Cost: ${cost}`] : []),
-            ...(description !== undefined && description !== '--' ? [
-                `Description:\n\`\`\`\n${description}\`\`\``
-            ] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []),
         ];
 
         // Create the description

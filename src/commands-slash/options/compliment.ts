@@ -1,4 +1,8 @@
-import { APIApplicationCommandOptionChoice, SlashCommandStringOption, SlashCommandUserOption } from 'discord.js';
+import {
+    APIApplicationCommandOptionChoice,
+    SlashCommandStringOption,
+    SlashCommandUserOption,
+} from 'discord.js';
 
 export enum ComplimentType
 {
@@ -6,7 +10,7 @@ export enum ComplimentType
     Beat = 'Beat',
 }
 
-export function friend(option: SlashCommandUserOption)
+export function friend(option: SlashCommandUserOption): SlashCommandUserOption
 {
     option.setName('friend');
     option.setDescription(`The person you're giving a compliment to.`);
@@ -14,25 +18,26 @@ export function friend(option: SlashCommandUserOption)
     return option;
 }
 
-export function reason(option: SlashCommandStringOption)
+export function reason(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('reason');
     option.setDescription(`Why you're giving a compliment to this person.`);
     return option;
 }
 
-export function type(option: SlashCommandStringOption)
+export function type(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('type');
     option.setDescription(`The compliment type to use. (default: Beat)`);
 
     const choices = Object.values(ComplimentType).map<APIApplicationCommandOptionChoice<string>>(
-        (name) => {
+        (name) =>
+        {
             return {
                 name,
                 value: name,
             };
-        }
+        },
     );
     option.addChoices(...choices);
 

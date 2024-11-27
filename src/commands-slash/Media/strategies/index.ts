@@ -1,30 +1,24 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
+import { MediaImageSubcommand } from '../subcommand-groups/image.js';
 import { MediaSubcommandGroup } from '../subcommand-groups/index.js';
 import { MediaInstagramSubcommand } from '../subcommand-groups/instagram.js';
-
 import imageStrategies from './image/index.js';
 import instagramStrategies from './instagram/index.js';
-import { MediaImageSubcommand } from '../subcommand-groups/image.js';
-import { NestedChatIteractionStrategyRecord } from '../../strategies/types/ChatIteractionStrategy.js';
 
-export class MediaStrategyExecutor
+type MediaStrategyMap = StrategyMap<
+    MediaSubcommandGroup,
+    MediaImageSubcommand | MediaInstagramSubcommand
+>;
+
+export class MediaStrategyExecutor extends BaseStrategyExecutor
 {
-    private static strategies: (NestedChatIteractionStrategyRecord<
-        MediaSubcommandGroup.Image,
-        MediaImageSubcommand
-    > | NestedChatIteractionStrategyRecord<
-        MediaSubcommandGroup.Instagram,
-        MediaInstagramSubcommand
-    >);
-
-    static {
-        // @ts-ignore -- TODO: Fix this type later
-        this.strategies = {
-            [MediaSubcommandGroup.Image]: imageStrategies,
-            [MediaSubcommandGroup.Instagram]: instagramStrategies,
-        };
-    }
+    private static strategies: MediaStrategyMap = {
+        [MediaSubcommandGroup.Image]: imageStrategies,
+        [MediaSubcommandGroup.Instagram]: instagramStrategies,
+    };
 
     public static async run({
         subcommandGroup,
@@ -36,8 +30,11 @@ export class MediaStrategyExecutor
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
-        // @ts-ignore -- TODO: Fix this type later
-        const Strategy = this.strategies[subcommandGroup][subcommand];
+        const Strategy = this.getStrategy({
+            strategies: this.strategies,
+            subcommandGroup,
+            subcommand,
+        });
 
         if (Strategy)
         {

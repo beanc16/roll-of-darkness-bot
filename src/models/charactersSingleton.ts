@@ -1,31 +1,28 @@
-import { Character } from '../commands-slash/Combat_Tracker/dal/RollOfDarknessMongoControllers.js';
-import Singleton from '../services/Singleton.js';
+import { Character } from '../commands-slash/Combat_Tracker/dal/types/Character.js';
+import Singleton from '../services/Singleton/Singleton.js';
 
-interface CharacterSingletonMap
-{
-    [key: string]: Character[];
-}
+type CharacterSingletonMap = Record<string, Character[]>;
 
 class CharactersSingleton
 {
-    #singleton: Singleton<CharacterSingletonMap>;
+    public singleton: Singleton<CharacterSingletonMap>;
 
     constructor(input: CharacterSingletonMap = {})
     {
-        this.#singleton = new Singleton(input);
+        this.singleton = new Singleton(input);
     }
 
-    getAll(): CharacterSingletonMap
+    public getAll(): CharacterSingletonMap
     {
-        return this.#singleton.get() || {};
+        return this.singleton.get() || {};
     }
 
-    get(key: string): Character[] | undefined
+    public get(key: string): Character[] | undefined
     {
         return this.getAll()[key];
     }
 
-    upsert(key: string, value: Character): void
+    public upsert(key: string, value: Character): void
     {
         const map = this.getAll();
         if (!map[key])
@@ -34,14 +31,14 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter((element) => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element.id.toString() !== value.id.toString());
 
         // Insert the given value
         map[key].push(value);
         this.set(map);
     }
 
-    delete(key: string, value: Character): void
+    public delete(key: string, value: Character): void
     {
         const map = this.getAll();
         if (!map[key])
@@ -50,17 +47,15 @@ class CharactersSingleton
         }
 
         // Remove the given value if it exists
-        map[key] = map[key].filter((element) => element._id?.toString() !== value._id?.toString());
+        map[key] = map[key].filter(element => element.id.toString() !== value.id.toString());
 
         this.set(map);
     }
 
-    set(map: CharacterSingletonMap = {}): void
+    public set(map: CharacterSingletonMap = {}): void
     {
-        this.#singleton.set(map);
+        this.singleton.set(map);
     }
 }
-
-
 
 export default new CharactersSingleton();

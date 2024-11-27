@@ -1,4 +1,8 @@
 import { randomUUID, UUID } from 'node:crypto';
+
+import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
+import { Text } from '@beanc16/discordjs-helpers';
+import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
@@ -11,24 +15,16 @@ import {
     MessageInteraction,
     TextChannel,
 } from 'discord.js';
-import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { Text } from '@beanc16/discordjs-helpers';
-import { logger } from '@beanc16/logger';
 
-import {
-    CounterType,
-    name,
-    type,
-} from './options/counter.js';
-import counterSingleton from './Counter/services/CounterSingleton.js';
-import {
-    Counter as CounterForDb,
-    CounterContainer,
-    CounterController,
-} from './Counter/dal/CounterMongoController.js';
-import { getPagedEmbedBuilders } from './embed-messages/shared.js';
-import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 import { timeToWaitForCommandInteractions } from '../constants/discord.js';
+import { CounterController } from './Counter/dal/CounterMongoController.js';
+import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
+import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
+import counterSingleton from './Counter/services/CounterSingleton.js';
+import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCounterCountainer.js';
+import { getPagedEmbedBuilders } from './embed-messages/shared.js';
+import * as options from './options/counter.js';
+import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 
 enum CounterButtonName
 {
@@ -42,12 +38,13 @@ class Counter extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addStringOption(name)
-            .addStringOption(type);
+            .addStringOption(options.name)
+            .addStringOption(options.type);
     }
 
-    public async run(interaction: ChatInputCommandInteraction)
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -56,16 +53,16 @@ class Counter extends BaseSlashCommand
 
         // Get parameter results
         const name = interaction.options.getString('name', true);
-        const type = interaction.options.getString('type') as CounterType ?? CounterType.Temporary;
+        const type = interaction.options.getString('type') as options.CounterType ?? options.CounterType.Temporary;
 
         // Setup variables
         const guid = randomUUID();
 
         // Send message
         const response = await interaction.editReply(
-            this.getMessageData(name, guid)
+            Counter.getMessageData(name, guid),
         );
-        this.initializeCounter({
+        Counter.initializeCounter({
             guid,
             name,
             interaction,
@@ -74,6 +71,7 @@ class Counter extends BaseSlashCommand
         });
 
         // Handle button interactions
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             originalInteraction: interaction,
             interactionResponse: response,
@@ -83,12 +81,13 @@ class Counter extends BaseSlashCommand
         });
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Add a basic counter for adding/subtracting numbers.`;
     }
 
-    private initializeCounter({
+    private static initializeCounter({
         guid,
         name,
         interaction,
@@ -99,30 +98,36 @@ class Counter extends BaseSlashCommand
         name: string;
         interaction: ChatInputCommandInteraction;
         response: Message;
-        type: CounterType;
-    })
+        type: options.CounterType;
+    }): void
     {
-        counterSingleton.upsert(new CounterContainer({
-            guid,
-            name,
-            count: 0,
-            auditLogs: [],
-            discordCreator: {
-                userId: interaction.user.id,
-                ...(!!interaction.guildId
-                    ? { serverId: interaction.guildId}
-                    : {}
-                ),
-                channelId: interaction.channelId,
-                messageId: response.id,
+        upsertCounterCountainerWithDbUpdate(new CounterContainer(
+            {
+                guid,
+                name,
+                count: 0,
+                auditLogs: [],
+                discordCreator: {
+                    userId: interaction.user.id,
+                    ...(interaction.guildId
+                        ? { serverId: interaction.guildId }
+                        : {}
+                    ),
+                    channelId: interaction.channelId,
+                    messageId: response.id,
+                },
             },
-        }, type));
+            type,
+        ));
     }
 
-    private getMessageData(name: string, guid: UUID)
+    private static getMessageData(name: string, guid: UUID): {
+        content: string;
+        components: ActionRowBuilder<ButtonBuilder>[];
+    }
     {
         const message = `${Text.bold(`${name}:`)} ${counterSingleton.get(guid)?.count ?? 0}`;
-        const buttonRow = this.getButtonRowComponent();
+        const buttonRow = Counter.getButtonRowComponent();
 
         return {
             content: message,
@@ -130,7 +135,7 @@ class Counter extends BaseSlashCommand
         };
     }
 
-    private getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
+    private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
         const plusButton = new ButtonBuilder()
             .setCustomId(CounterButtonName.Plus)
@@ -168,8 +173,8 @@ class Counter extends BaseSlashCommand
         interactionResponse: Message<boolean>;
         name: string;
         guid: UUID;
-        type: CounterType;
-    })
+        type: options.CounterType;
+    }): Promise<void>
     {
         let buttonInteraction: ButtonInteraction | undefined;
 
@@ -182,9 +187,9 @@ class Counter extends BaseSlashCommand
             });
 
             // Update count based on interaction
-            this.updateCount(buttonInteraction, guid);
+            Counter.updateCount(buttonInteraction, guid);
             await buttonInteraction.update(
-                this.getMessageData(name, guid)
+                Counter.getMessageData(name, guid),
             );
         }
         catch (error)
@@ -198,6 +203,7 @@ class Counter extends BaseSlashCommand
         finally
         {
             // Restart listener upon timeout
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleButtonInteractions({
                 name,
                 originalInteraction,
@@ -208,24 +214,32 @@ class Counter extends BaseSlashCommand
         }
     }
 
-    private updateCount(buttonInteraction: ButtonInteraction, guid: UUID)
+    private static updateCount(buttonInteraction: ButtonInteraction, guid: UUID): void
     {
         const handlerMap: Record<CounterButtonName, () => void> = {
-            [CounterButtonName.Plus]: () => counterSingleton.incrementCount({
-                guid,
-                userId: buttonInteraction.user.id
-            }),
-            [CounterButtonName.Minus]: () => counterSingleton.decrementCount({
-                guid,
-                userId: buttonInteraction.user.id
-            }),
-            [CounterButtonName.AuditLog]: () => this.getAuditLogMessage(guid, buttonInteraction),
+            [CounterButtonName.Plus]: () =>
+            {
+                counterSingleton.incrementCount({
+                    guid,
+                    userId: buttonInteraction.user.id,
+                });
+                upsertCounterCountainerWithDbUpdate(guid);
+            },
+            [CounterButtonName.Minus]: () =>
+            {
+                counterSingleton.decrementCount({
+                    guid,
+                    userId: buttonInteraction.user.id,
+                });
+                upsertCounterCountainerWithDbUpdate(guid);
+            },
+            [CounterButtonName.AuditLog]: () => Counter.getAuditLogMessage(guid, buttonInteraction),
         };
 
         return handlerMap[buttonInteraction.customId as CounterButtonName]();
     }
 
-    private getAuditLogMessage(guid: UUID, buttonInteraction: ButtonInteraction)
+    private static getAuditLogMessage(guid: UUID, buttonInteraction: ButtonInteraction): void
     {
         const { auditLogs = [] } = counterSingleton.get(guid).getCounter();
 
@@ -261,6 +275,7 @@ class Counter extends BaseSlashCommand
         });
 
         // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: buttonInteraction,
             interactionType: 'dm',
@@ -268,7 +283,7 @@ class Counter extends BaseSlashCommand
         });
     }
 
-    public async runOnStartup(bot: Client)
+    public async runOnStartup(bot: Client): Promise<void>
     {
         try
         {
@@ -278,12 +293,10 @@ class Counter extends BaseSlashCommand
                 results: CounterForDb[];
             };
 
-            const promises = results.map(async (counter) => {
+            const promises = results.map(async (counter) =>
+            {
                 const {
-                    discordCreator: {
-                        channelId,
-                        messageId,
-                    },
+                    discordCreator: { channelId, messageId },
                 } = counter;
 
                 // Get the message that the counter belongs to
@@ -291,29 +304,30 @@ class Counter extends BaseSlashCommand
                 const message = await channel.messages.fetch(messageId);
 
                 // Overwrite the count from the database with whatever's in the message
-                const count = this.getCount(message);
-                counter.count = count;
+                const count = Counter.getCount(message);
+                const newCounter = { ...counter, count };
 
                 // Only update messages owned by the bot
                 if (message.author.id === bot.user?.id)
                 {
                     // Save the counter to the cache
                     counterSingleton.upsert(
-                        new CounterContainer(counter, CounterType.Permanent, true)
+                        new CounterContainer(newCounter, options.CounterType.Permanent, true),
                     );
 
                     // Add buttons to the message for counter
                     await message.edit(
-                        this.getMessageData(counter.name, counter.guid)
+                        Counter.getMessageData(newCounter.name, newCounter.guid),
                     );
 
                     // Listen for button interactions
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
                     this.handleButtonInteractions({
                         originalInteraction: message.interaction as MessageInteraction,
                         interactionResponse: message,
-                        name: counter.name,
-                        guid: counter.guid,
-                        type: CounterType.Permanent,
+                        name: newCounter.name,
+                        guid: newCounter.guid,
+                        type: options.CounterType.Permanent,
                     });
                 }
             });
@@ -328,14 +342,12 @@ class Counter extends BaseSlashCommand
         }
     }
 
-    private getCount(message: Message)
+    private static getCount(message: Message): number
     {
         const indexOfAfterColon = message.content.indexOf(':') + 1;
         const countStr = message.content.slice(indexOfAfterColon).trim().replaceAll('*', '');
         return parseInt(countStr, 10);
     }
 }
-
-
 
 export default new Counter();

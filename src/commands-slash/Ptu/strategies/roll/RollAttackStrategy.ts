@@ -7,19 +7,25 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     ComponentType,
+    InteractionEditReplyOptions,
     InteractionReplyOptions,
+    InteractionUpdateOptions,
     Message,
 } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { OnRerollCallbackOptions, RerollInteractionOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
-import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import {
+    OnRerollCallbackOptions,
+    RerollInteractionOptions,
+    RerollStrategy,
+} from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 
 enum AttackButtonName
 {
@@ -73,6 +79,11 @@ type GetMessageContentOptions = {
     finalRollResult: number;
 };
 
+interface GetAttackMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
+{
+    components: ActionRowBuilder<ButtonBuilder>[];
+}
+
 interface RollDamageOptions
 {
     accuracyRoll: number;
@@ -81,11 +92,16 @@ interface RollDamageOptions
     type?: PtuAttackRollType;
 }
 
+type RollDamageResponse = {
+    finalRollResult: number;
+    damageResultString: string;
+} | undefined;
+
 @staticImplements<ChatIteractionStrategy>()
 export class RollAttackStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
-    public static key = PtuRollSubcommand.Attack;
+    public static key: PtuRollSubcommand.Attack = PtuRollSubcommand.Attack;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
@@ -106,7 +122,7 @@ export class RollAttackStrategy
         if (accuracyModifier === undefined)
         {
             await interaction.editReply(
-                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).',
             );
             return true;
         }
@@ -116,8 +132,8 @@ export class RollAttackStrategy
             count: 1,
             sides: 20,
         })
-        .roll()
-        .reduce((acc, cur) => (acc + cur), 0);
+            .roll()
+            .reduce((acc, cur) => (acc + cur), 0);
 
         // Make damage roll
         const damageResult = this.rollDamage({
@@ -136,11 +152,17 @@ export class RollAttackStrategy
         const { damageResultString, finalRollResult } = damageResult;
 
         // Send message
-        const accuracyModifierStr = (accuracyModifier > 0)
-            ? `+${accuracyModifier}`
-            : (accuracyModifier < 0)
-            ? `${accuracyModifier}`
-            : '';
+        let accuracyModifierStr = '';
+
+        if (accuracyModifier > 0)
+        {
+            accuracyModifierStr = `+${accuracyModifier}`;
+        }
+        else if (accuracyModifier < 0)
+        {
+            accuracyModifierStr = `${accuracyModifier}`;
+        }
+
         const rollName = name ? ` ${Text.bold(name)}` : '';
         const messagePrefix = `${Text.Ping.user(
             rerollCallbackOptions.newCallingUserId ?? interaction.user.id)
@@ -150,7 +172,7 @@ export class RollAttackStrategy
         })`;
 
         // Automatic miss
-        if (accuracyRoll == 1)
+        if (accuracyRoll === 1)
         {
             await this.skipAccuracyRollMessage({
                 interaction,
@@ -210,23 +232,24 @@ export class RollAttackStrategy
         rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
-    } & RollDamageOptions)
+    } & RollDamageOptions): Promise<void>
     {
         // Send message
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(
-                this.getMessageData(message, true)
+                this.getMessageData(message, true),
             ),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(
-                this.getMessageData(message, true) as InteractionReplyOptions
+                this.getMessageData(message, true) as InteractionReplyOptions,
             ),
             [DiscordInteractionCallbackType.Update]: () => interaction.editReply(
-                this.getMessageData(message, true)
+                this.getMessageData(message, true),
             ),
         };
         const response = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
 
         // Handle any interactions on the buttons
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             interaction,
             interactionResponse: response,
@@ -238,7 +261,7 @@ export class RollAttackStrategy
         });
     }
 
-    // Show accuracy and damage roll, skipping 
+    // Show accuracy and damage roll, skipping
     private static async skipAccuracyRollMessage({
         interaction,
         type,
@@ -252,7 +275,7 @@ export class RollAttackStrategy
         rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
-    })
+    }): Promise<void>
     {
         const messageContentOptions = (type === PtuAttackRollType.AutoMiss)
             ? {
@@ -289,7 +312,7 @@ export class RollAttackStrategy
         interactionResponse: Message<boolean>;
         damageResultString: string;
         finalRollResult: number;
-    } & RollDamageOptions)
+    } & RollDamageOptions): Promise<void>
     {
         let buttonInteraction: ButtonInteraction;
 
@@ -336,6 +359,8 @@ export class RollAttackStrategy
         shouldUseMaxCritRoll,
     }: RunRerollStrategyOptions): Promise<void>
     {
+        let newDamageResultString = damageResultString;
+        let newFinalRollResult = finalRollResult;
         if (type === PtuAttackRollType.Crit)
         {
             const critDamageRoll = this.rollDamage({
@@ -345,8 +370,8 @@ export class RollAttackStrategy
                 type,
             });
 
-            damageResultString = critDamageRoll?.damageResultString ?? damageResultString;
-            finalRollResult = critDamageRoll?.finalRollResult ?? finalRollResult;
+            newDamageResultString = critDamageRoll?.damageResultString ?? damageResultString;
+            newFinalRollResult = critDamageRoll?.finalRollResult ?? finalRollResult;
         }
 
         const getMessageContentOptions = (
@@ -356,15 +381,14 @@ export class RollAttackStrategy
         )
             ? messageContentOptions ?? {
                 type,
-                currentMessageContent: buttonInteraction?.message.content as string,
-                damageResultString,
-                finalRollResult,
+                currentMessageContent: buttonInteraction.message.content,
+                damageResultString: newDamageResultString,
+                finalRollResult: newFinalRollResult,
             }
             : messageContentOptions ?? { // Miss & Auto-Miss
                 type,
-                currentMessageContent: buttonInteraction?.message.content as string,
+                currentMessageContent: buttonInteraction.message.content,
             };
-
 
         // Update original message with the same content so
         // the buttons know that the interaction was successful
@@ -372,7 +396,7 @@ export class RollAttackStrategy
             interaction: buttonInteraction ?? interaction,
             options: this.getMessageContent(getMessageContentOptions),
             interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
@@ -380,7 +404,7 @@ export class RollAttackStrategy
         });
     }
 
-    private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean)
+    private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean): GetAttackMessageDataResponse
     {
         const buttonRow = this.getButtonRowComponent();
         const typedOptions = (typeof options === 'string')
@@ -446,10 +470,10 @@ export class RollAttackStrategy
 
             return currentMessageContent
                 + `\n${Text.bold(`${damageLabelByType[type]}Damage`)}:${damageResultString}`
-                + `\n${Text.bold('Total')}: ${finalRollResult}`
+                + `\n${Text.bold('Total')}: ${finalRollResult}`;
         }
 
-        else if (type === PtuAttackRollType.Miss || type === PtuAttackRollType.AutoMiss)
+        if (type === PtuAttackRollType.Miss || type === PtuAttackRollType.AutoMiss)
         {
             const autoLabelByType = {
                 [PtuAttackRollType.Miss]: '',
@@ -467,7 +491,7 @@ export class RollAttackStrategy
         damageDicePoolExpression,
         shouldUseMaxCritRoll,
         type,
-    }: RollDamageOptions)
+    }: RollDamageOptions): RollDamageResponse
     {
         // Set up dice parser options for auto-crit handling.
         const options: ParseOptions = (accuracyRoll === 20 || type === PtuAttackRollType.Crit)
@@ -486,10 +510,7 @@ export class RollAttackStrategy
             return undefined;
         }
 
-        const {
-            unparsedMathString: unparsedDamageMathString,
-            resultString: damageResultString,
-        } = damageRollResult;
+        const { unparsedMathString: unparsedDamageMathString, resultString: damageResultString } = damageRollResult;
 
         // Parse math string for results.
         const finalRollResult = this.mathParser.evaluate(unparsedDamageMathString);

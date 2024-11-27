@@ -1,4 +1,8 @@
-import { Parser, ParserOptions, Value } from 'expr-eval';
+import {
+    Parser,
+    ParserOptions,
+    Value,
+} from 'expr-eval';
 
 export class MathParser
 {

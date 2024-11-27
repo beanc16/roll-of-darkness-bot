@@ -1,19 +1,20 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
-import { staticImplements } from '../../../decorators/staticImplements.js';
-import { NwodSubcommand } from '../options/index.js';
 import rollConstants from '../../../constants/roll.js';
+import { staticImplements } from '../../../decorators/staticImplements.js';
+import { DicePoolGroup } from '../../../services/DicePoolGroup.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { InitiativeResponseFormatterService } from '../../../services/InitiativeResponseFormatterService.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
+import { DiscordInteractionCallbackType } from '../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { NwodSubcommand } from '../options/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class InitiativeStrategy
 {
-    public static key = NwodSubcommand.Initiative;
+    public static key: NwodSubcommand.Initiative = NwodSubcommand.Initiative;
     private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(
@@ -49,7 +50,7 @@ export class InitiativeStrategy
             interaction,
             options: initiativeResponseFormatterService.getResponse(),
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),
@@ -58,7 +59,7 @@ export class InitiativeStrategy
         return true;
     }
 
-    private static roll()
+    private static roll(): DicePoolGroup
     {
         // Get parameter results
         const numberOfDice = 1;
@@ -78,7 +79,7 @@ export class InitiativeStrategy
         return dicePoolGroup;
     }
 
-    public static rollWithModifier(modifier = 0)
+    public static rollWithModifier(modifier = 0): number
     {
         const dicePoolGroup = this.roll();
         const [result] = dicePoolGroup.getBiggestResult().rollResults;

@@ -1,7 +1,7 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
-import { RandomPokeball, RandomResult } from '../../Ptu.js';
 import { PtuNature } from '../types/PtuNature.js';
+import { RandomPokeball, RandomResult } from '../types/PtuRandom.js';
 
 const color = 0xCDCDCD;
 const tab = '　';
@@ -14,14 +14,15 @@ export const getRandomResultEmbedMessage = ({
     itemNamePluralized: string;
     results: RandomResult[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
         cost,
         description,
         numOfTimesRolled = 1,
-    }) => {
+    }) =>
+    {
         const descriptionString = (description !== undefined && description !== '--')
             ? `${description}\n`
             : '';
@@ -45,13 +46,10 @@ export const getRandomResultEmbedMessage = ({
     return embed;
 };
 
-export const getRandomYouFoundNothingEmbedMessage = ({
-    itemNamePluralized,
-    rollResults,
-}: {
+export const getRandomYouFoundNothingEmbedMessage = ({ itemNamePluralized, rollResults }: {
     itemNamePluralized: string;
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const embed = new EmbedBuilder()
         .setTitle(`Random ${itemNamePluralized}`)
@@ -71,14 +69,15 @@ export const getRandomDowsingRodEmbedMessage = ({
     results: RandomResult[];
     findingShardRollResults: string;
     shardColorRollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
         cost,
         description,
         numOfTimesRolled = 1,
-    }) => {
+    }) =>
+    {
         const descriptionString = (description !== undefined)
             ? `${description}\n`
             : '';
@@ -110,7 +109,7 @@ export const getRandomNatureEmbedMessage = ({
     itemNamePluralized: string;
     results: PtuNature[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
@@ -118,7 +117,8 @@ export const getRandomNatureEmbedMessage = ({
         loweredStat,
         likedFlavor,
         dislikedFlavor,
-    }) => {
+    }) =>
+    {
         const lines = [
             `Raised: ${raisedStat}`,
             `Lowered: ${loweredStat}`,
@@ -149,7 +149,7 @@ export const getRandomPokeballEmbedMessage = ({
     itemNamePluralized: string;
     results: RandomPokeball[];
     rollResults: string;
-}) =>
+}): EmbedBuilder =>
 {
     const fields = results.map(({
         name,
@@ -158,7 +158,8 @@ export const getRandomPokeballEmbedMessage = ({
         numOfTimesRolled = 1,
         mod,
         jailBreakerInfo,
-    }) => {
+    }) =>
+    {
         const jailbreakerString = (jailBreakerInfo !== undefined)
             ? `\n${tab}*${jailBreakerInfo.name}*\n${tab}${jailBreakerInfo.description}\n${tab}Number: ${numOfTimesRolled}\n${tab}Cost: ${cost}`
             : '';

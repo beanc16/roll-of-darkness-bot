@@ -16,18 +16,18 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
 
     public Get(key: Key): Value
     {
-        const parsedKey = this.ParseKey(key);
+        const parsedKey = CompositeKeyRecord.ParseKey(key);
         return this.record[parsedKey];
     }
 
     public Has(key: Key): boolean
     {
-        return !!this.Get(key)
+        return !!this.Get(key);
     }
 
     public Upsert(key: Key, value: Value): void
     {
-        const parsedKey = this.ParseKey(key);
+        const parsedKey = CompositeKeyRecord.ParseKey(key);
         this.record[parsedKey] = value;
     }
 
@@ -35,7 +35,7 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
     {
         if (key)
         {
-            const parsedKey = this.ParseKey(key);
+            const parsedKey = CompositeKeyRecord.ParseKey(key);
 
             const {
                 [parsedKey]: _,
@@ -49,7 +49,7 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
         this.record = {};
     }
 
-    private ParseKey(key: Key): string
+    private static ParseKey<Key extends CompositeKey>(key: Key): string
     {
         const parsedKey = key.join(',');
         return parsedKey;

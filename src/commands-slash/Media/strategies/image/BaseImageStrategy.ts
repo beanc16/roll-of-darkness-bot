@@ -3,11 +3,9 @@ import { FileStorageMicroservice, FileStorageMicroserviceImageOptionsV1 } from '
 import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-// TODO: Add cleanup script later. Probably a GHA.
-
 export class BaseImageStrategy
 {
-    static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
     {
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
@@ -21,7 +19,8 @@ export class BaseImageStrategy
             return false;
         }
 
-        try {
+        try
+        {
             // Upload the image with the corresponding effects
             const {
                 data: {
@@ -47,7 +46,11 @@ export class BaseImageStrategy
             });
 
             return true;
-        } catch (err: any) {
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
+        catch (err: any)
+        {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
             logger.warn('An unknown error occurred while upscaling an image', err?.response?.data ?? err, {
                 imageUrl: processedImageUrl,
             });

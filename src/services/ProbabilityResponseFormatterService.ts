@@ -1,5 +1,5 @@
-import { ResponseFormatterService } from './ResponseFormatterService.js';
 import rollConstants from '../constants/roll.js';
+import { ResponseFormatterService } from './ResponseFormatterService.js';
 
 export default class ProbabilityResponseFormatterService extends ResponseFormatterService
 {
@@ -25,7 +25,7 @@ export default class ProbabilityResponseFormatterService extends ResponseFormatt
         numberOfDice: number;
         rerolls: string;
         rote: boolean | null;
-        advancedAction: boolean| null;
+        advancedAction: boolean | null;
         probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice: number;
         roundToDecimalPlaces?: number;
     })
@@ -41,7 +41,7 @@ export default class ProbabilityResponseFormatterService extends ResponseFormatt
         this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice = probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice.toFixed(roundToDecimalPlaces);
     }
 
-    getWithParametersString()
+    public getWithParametersString(): string
     {
         const results = [];
 
@@ -70,27 +70,30 @@ export default class ProbabilityResponseFormatterService extends ResponseFormatt
             return '';
         }
 
-        return results.reduce(function (acc, result, index)
+        return results.reduce((acc, result, index) =>
         {
             // Add commas between results (after the first result) if there's 3 or more results
             if (index !== 0 && results.length >= 3)
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += ',';
             }
 
             // Add "and" between results on the last result if there's 2 or more results
             if (index === results.length - 1 && results.length >= 2)
             {
+                // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
                 acc += ' and';
             }
 
+            // eslint-disable-next-line no-param-reassign -- Necessary for .reduce that returns a string
             acc += ` ${result}`;
 
             return acc;
         }, ' with');
     }
 
-    getResponse()
+    public getResponse(): string
     {
         return `${this.authorPing}, you have a ${this.probabilityOfRollingTheDesiredNumberOfSuccessesWithTheGivenNumberOfDice}% chance of getting ${this.desiredNumberOfSuccesses} ${this.getSuccessesAsSingularOrPlural(this.desiredNumberOfSuccesses)}${this.getWithParametersString()}.`;
     }

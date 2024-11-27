@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { HealingAndStatusOption, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
-import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { HealingAndStatusOption, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { RandomResult } from '../../types/PtuRandom.js';
+import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 enum HealingItemTypes
@@ -14,14 +14,20 @@ enum HealingItemTypes
     Status = 'Status',
 }
 
+interface ShouldIncludeParameters
+{
+    inputType: string;
+    type: string;
+}
+
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomHealingItemStrategy
 {
-    public static key = PtuRandomSubcommand.HealingItem;
+    public static key: PtuRandomSubcommand.HealingItem = PtuRandomSubcommand.HealingItem;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
@@ -32,18 +38,10 @@ export class RandomHealingItemStrategy
             range: `'${BaseRandomStrategy.subcommandToStrings[this.key].data} Data'!A2:D`,
         });
 
-        const shouldInclude = ({ inputType, type }: { inputType: string, type: string }) =>
-        {
-            return (
-                inputType === HealingAndStatusOption.HealingAndStatus
-                || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
-                || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
-            );
-        };
-
         // Parse the data
-        const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) => {
-            if (shouldInclude({ inputType, type }))
+        const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, type, description]) =>
+        {
+            if (this.shouldInclude({ inputType, type }))
             {
                 acc.push({
                     name,
@@ -59,5 +57,16 @@ export class RandomHealingItemStrategy
             commandName: `ptu random ${this.key}`,
             parsedData,
         }, undefined, shouldReturnMessageOptions);
+    }
+
+    private static shouldInclude({ inputType, type }: ShouldIncludeParameters): boolean
+    {
+        /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
+        return (
+            inputType === HealingAndStatusOption.HealingAndStatus
+            || (inputType === HealingAndStatusOption.Healing && type === HealingItemTypes.Healing)
+            || (inputType === HealingAndStatusOption.Status && type === HealingItemTypes.Status)
+        );
+        /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     }
 }

@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupTmsEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuTm } from '../../types/PtuTm.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupTmsEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuTm } from '../../types/PtuTm.js';
 
 export interface GetLookupTmDataParameters
 {
@@ -19,9 +18,9 @@ export interface GetLookupTmDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupTmStrategy
 {
-    public static key = PtuLookupSubcommand.Tm;
+    public static key: PtuLookupSubcommand.Tm = PtuLookupSubcommand.Tm;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('tm_name', true);
@@ -41,7 +40,7 @@ export class LookupTmStrategy
 
     private static async getLookupData(input: GetLookupTmDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuTm[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -63,10 +62,7 @@ export class LookupTmStrategy
         }, []);
 
         // Sort by name
-        tms.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        tms.sort((a, b) => a.name.localeCompare(b.name));
 
         return tms;
     }

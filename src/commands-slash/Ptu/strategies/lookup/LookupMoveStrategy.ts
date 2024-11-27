@@ -1,40 +1,27 @@
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { PtuMove, PtuMoveExclude } from '../../models/PtuMove.js';
-import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
-import { PokemonMoveCategory, PokemonType, PtuMoveFrequency } from '../../types/pokemon.js';
 import { EqualityOption } from '../../../options/shared.js';
-import { getLookupMovesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-
-export interface GetLookupMoveDataParameters
-{
-    name?: string | null;
-    type?: PokemonType | null;
-    category?: PokemonMoveCategory | null;
-    db?: number | null;
-    dbEquality?: EqualityOption | null;
-    frequency?: PtuMoveFrequency | null;
-    ac?: number | null;
-    acEquality?: EqualityOption | null;
-    nameSearch?: string | null;
-    rangeSearch?: string | null;
-    effectSearch?: string | null;
-    exclude?: PtuMoveExclude;
-    sortBy?: 'all' | 'name' | 'type';
-}
+import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuMove } from '../../models/PtuMove.js';
+import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
+import {
+    PokemonMoveCategory,
+    PokemonType,
+    PtuMoveFrequency,
+} from '../../types/pokemon.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class LookupMoveStrategy
 {
-    public static key = PtuLookupSubcommand.Move;
+    public static key: PtuLookupSubcommand.Move = PtuLookupSubcommand.Move;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -73,7 +60,7 @@ export class LookupMoveStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupMoveDataParameters = {})
+    public static async getLookupData(input: GetLookupMoveDataParameters = {}): Promise<PtuMove[]>
     {
         try
         {
@@ -126,7 +113,8 @@ export class LookupMoveStrategy
                 {
                     return a.name.localeCompare(b.name);
                 }
-                else if (input.sortBy === 'type')
+
+                if (input.sortBy === 'type')
                 {
                     const result = a.type?.localeCompare(b.type ?? '');
 

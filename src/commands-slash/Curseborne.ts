@@ -5,6 +5,8 @@ import {
     ChatInputCommandInteraction,
 } from 'discord.js';
 
+import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
+import { CurseborneStrategyExecutor } from './Curseborne/strategies/index.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
@@ -12,9 +14,7 @@ import {
     lookup,
     roll,
 } from './Curseborne/subcommand-groups/index.js';
-import { CursebourneStrategyExecutor } from './Curseborne/strategies/index.js';
 import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
-import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
 
 class Cursebourne extends BaseSlashCommand
@@ -22,12 +22,14 @@ class Cursebourne extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommandGroup(lookup)
             .addSubcommand(roll);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Get parameter results
         const isSecret = interaction.options.getBoolean('secret') ?? false;
@@ -41,7 +43,7 @@ class Cursebourne extends BaseSlashCommand
         });
 
         // Run subcommand
-        const response = await CursebourneStrategyExecutor.run({
+        const response = await CurseborneStrategyExecutor.run({
             interaction,
             subcommandGroup,
             subcommand,
@@ -54,7 +56,8 @@ class Cursebourne extends BaseSlashCommand
         }
     }
 
-    async autocomplete(interaction: AutocompleteInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const focusedValue = interaction.options.getFocused(true);
 
@@ -63,7 +66,7 @@ class Cursebourne extends BaseSlashCommand
         // Move Name
         if (focusedValue.name === 'trick_name')
         {
-            const results = await CursebourneStrategyExecutor.getLookupData({
+            const results = await CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
                 lookupParams: {
@@ -73,7 +76,8 @@ class Cursebourne extends BaseSlashCommand
                     },
                 },
             });
-            choices = results.map<ApplicationCommandOptionChoiceData<string>>(({ name }) => {
+            choices = results.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
                 return {
                     name,
                     value: name,
@@ -82,22 +86,24 @@ class Cursebourne extends BaseSlashCommand
         }
 
         // Get the choices matching the search
-		const filteredChoices = choices.filter((choice) =>
-            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0)
+        const filteredChoices = choices.filter(choice =>
+            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
         );
 
         // Discord limits a maximum of 25 choices to display
         const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
 
-		await interaction.respond(limitedChoices);
+        await interaction.respond(limitedChoices);
     }
 
-    get commandName()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get commandName(): string
     {
         return 'cb';
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run Cursebourne commands.`;
     }

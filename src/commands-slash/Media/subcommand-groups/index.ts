@@ -1,4 +1,5 @@
 import { SlashCommandSubcommandGroupBuilder } from 'discord.js';
+
 import * as imageSubcommands from './image.js';
 import * as instagramSubcommands from './instagram.js';
 
@@ -8,7 +9,7 @@ export enum MediaSubcommandGroup
     Instagram = 'instagram',
 }
 
-export const image = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const image = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(MediaSubcommandGroup.Image);
     subcommandGroup.setDescription('Run Image commands.');
@@ -17,7 +18,7 @@ export const image = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
     return subcommandGroup;
 };
 
-export const instagram = (subcommandGroup: SlashCommandSubcommandGroupBuilder) =>
+export const instagram = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(MediaSubcommandGroup.Instagram);
     subcommandGroup.setDescription('Run Instagram commands.');

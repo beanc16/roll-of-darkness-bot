@@ -11,7 +11,7 @@ export enum NwodSubcommand
     Luck = 'luck',
 }
 
-export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
+export const roll = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(NwodSubcommand.Roll);
     subcommand.setDescription('Roll a dice pool of d10s with math (only addition and subtraction are supported; IE: 5 - 10).');
@@ -29,7 +29,7 @@ export const roll = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const initiative = (subcommand: SlashCommandSubcommandBuilder) =>
+export const initiative = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(NwodSubcommand.Initiative);
     subcommand.setDescription('Roll one d10 with no rerolls to determine initiative order.');
@@ -41,7 +41,7 @@ export const initiative = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const chance = (subcommand: SlashCommandSubcommandBuilder) =>
+export const chance = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(NwodSubcommand.Chance);
     subcommand.setDescription('Roll one d10 with no rerolls or modifiers.');
@@ -52,7 +52,7 @@ export const chance = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const luck = (subcommand: SlashCommandSubcommandBuilder) =>
+export const luck = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(NwodSubcommand.Luck);
     subcommand.setDescription('Roll three d10s with no extra modifiers.');

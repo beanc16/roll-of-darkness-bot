@@ -1,19 +1,19 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
+import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollCaptureStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
-    public static key = PtuRollSubcommand.Capture;
+    public static key: PtuRollSubcommand.Capture = PtuRollSubcommand.Capture;
     public static ACCURACY_ROLL_AC = 6;
 
     public static async run(
@@ -34,7 +34,7 @@ export class RollCaptureStrategy
         if (additionalModifier === undefined)
         {
             await interaction.editReply(
-                'An invalid additional modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+                'An invalid additional modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).',
             );
             return true;
         }
@@ -45,7 +45,7 @@ export class RollCaptureStrategy
         if (accuracyModifier === undefined)
         {
             await interaction.editReply(
-                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).'
+                'An invalid accuracy modifier was submitted. Include only numbers, plus signs (+), and subtraction signs (-).',
             );
             return true;
         }
@@ -55,18 +55,18 @@ export class RollCaptureStrategy
             count: 1,
             sides: 20,
         })
-        .roll()
-        .reduce((acc, cur) =>
-            (acc + cur), 0
-        );
+            .roll()
+            .reduce((acc, cur) =>
+                (acc + cur), 0,
+            );
 
         if (accuracyRoll <= this.ACCURACY_ROLL_AC)
         {
             await this.sendMessage({
                 interaction,
-                message: `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n` +
-                    `${Text.bold('Accuracy')}: ${accuracyRoll}\n` +
-                    `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`,
+                message: `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`
+                    + `${Text.bold('Accuracy')}: ${accuracyRoll}\n`
+                    + `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`,
                 rerollCallbackOptions,
             });
             return true;
@@ -77,10 +77,10 @@ export class RollCaptureStrategy
             count: 1,
             sides: 100,
         })
-        .roll()
-        .reduce((acc, cur) =>
-            (acc + cur), 0
-        );
+            .roll()
+            .reduce((acc, cur) =>
+                (acc + cur), 0,
+            );
 
         // Calculate the result
         const accuracyModifierToResult = (accuracyRoll === 20)
@@ -101,9 +101,9 @@ export class RollCaptureStrategy
             ? `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} rolled a guaranteed capture!!!\n`
             : `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`;
 
-        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll}) ${finalAccuracyModifierFormula}\n` +
-                `${Text.bold('Capture')}: 1d100 (${captureRoll})\n` +
-                `${Text.bold('Result')}: ${result} (${resultFormula})`;
+        const endOfMessage = `${Text.bold('Accuracy')}: 1d20 (${accuracyRoll}) ${finalAccuracyModifierFormula}\n`
+            + `${Text.bold('Capture')}: 1d100 (${captureRoll})\n`
+            + `${Text.bold('Result')}: ${result} (${resultFormula})`;
 
         // Send message
         await this.sendMessage({
@@ -125,13 +125,13 @@ export class RollCaptureStrategy
         interaction: ChatInputCommandInteraction;
         message: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
-    })
+    }): Promise<void>
     {
         await RerollStrategy.run({
             interaction,
             options: message,
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
-            onRerollCallback: (newRerollCallbackOptions) => this.run(
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
             ),

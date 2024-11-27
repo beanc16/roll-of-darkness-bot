@@ -1,8 +1,12 @@
-import { SlashCommandBooleanOption, SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
+import {
+    SlashCommandBooleanOption,
+    SlashCommandIntegerOption,
+    SlashCommandStringOption,
+} from 'discord.js';
 
 import rollConstants from '../../../constants/roll.js';
 
-export function numberOfDice(option: SlashCommandStringOption)
+export function numberOfDice(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('number_of_dice');
     option.setDescription('A mathematical formula of dice to roll (only addition and subtraction are supported; IE: 4 + 3 - 2).');
@@ -10,7 +14,7 @@ export function numberOfDice(option: SlashCommandStringOption)
     return option;
 }
 
-export function name(option: SlashCommandStringOption)
+export function name(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('name');
     option.setDescription('The name of the roll');
@@ -32,7 +36,7 @@ export const rerollChoices = {
     'no_again': 'noagain',
 };
 
-export function rerolls(option: SlashCommandStringOption)
+export function rerolls(option: SlashCommandStringOption): SlashCommandStringOption
 {
     option.setName('rerolls');
     option.setDescription('The minimum value that dice reroll on (default: 10again)');
@@ -57,14 +61,14 @@ export function rerolls(option: SlashCommandStringOption)
     return option;
 }
 
-export function rote(option: SlashCommandBooleanOption)
+export function rote(option: SlashCommandBooleanOption): SlashCommandBooleanOption
 {
     option.setName('rote');
     option.setDescription('Failed rolls are rerolled once (default: False)');
     return option;
 }
 
-export function exceptionalOn(option: SlashCommandIntegerOption)
+export function exceptionalOn(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('exceptional_on');
     option.setDescription('The number of successes it takes to get an exceptional success (default: 5)');
@@ -73,7 +77,7 @@ export function exceptionalOn(option: SlashCommandIntegerOption)
     return option;
 }
 
-export function diceToReroll(option: SlashCommandIntegerOption)
+export function diceToReroll(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('dice_to_reroll');
     option.setDescription('The number of dice to reroll on reroll (default: 1)');
@@ -82,7 +86,7 @@ export function diceToReroll(option: SlashCommandIntegerOption)
     return option;
 }
 
-export function extraSuccesses(option: SlashCommandIntegerOption)
+export function extraSuccesses(option: SlashCommandIntegerOption): SlashCommandIntegerOption
 {
     option.setName('extra_successes');
     option.setDescription('The number of successes to add to your result - useful for weapon rating (default: 0)');
@@ -91,7 +95,7 @@ export function extraSuccesses(option: SlashCommandIntegerOption)
     return option;
 }
 
-export function advancedAction(option: SlashCommandBooleanOption)
+export function advancedAction(option: SlashCommandBooleanOption): SlashCommandBooleanOption
 {
     option.setName('advanced_action');
     option.setDescription('Roll the dice pool twice, take the higher result (default: False)');
@@ -100,7 +104,7 @@ export function advancedAction(option: SlashCommandBooleanOption)
 
 export function secret(option: SlashCommandBooleanOption, {
     commandType = 'roll',
-} = {})
+} = {}): SlashCommandBooleanOption
 {
     option.setName('secret');
     option.setDescription(`Makes a temporary ${commandType} message that only you can see (default: false)`);

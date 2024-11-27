@@ -1,16 +1,16 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
+import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { NwodSubcommand } from '../options/index.js';
 import { BaseRollStrategy } from './BaseRollStrategy.js';
-import rollConstants from '../../../constants/roll.js';
-import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollStrategy
 {
-    public static key = NwodSubcommand.Roll;
+    public static key: NwodSubcommand.Roll = NwodSubcommand.Roll;
     private static mathParser = new AddAndSubtractMathParser();
 
     public static async run(
@@ -42,13 +42,11 @@ export class RollStrategy
                 commandName: 'nwod roll',
             });
         }
-        else
-        {
-            await interaction.reply({
-                content: `The calculated number of dice to roll is ${numberOfDice}, but it must be a number between 1 and ${rollConstants.maxParams.numberOfDice}.`,
-                ephemeral: isSecret,
-            });
-            return true;
-        }
+
+        await interaction.reply({
+            content: `The calculated number of dice to roll is ${numberOfDice}, but it must be a number between 1 and ${rollConstants.maxParams.numberOfDice}.`,
+            ephemeral: isSecret,
+        });
+        return true;
     }
 }

@@ -2,12 +2,12 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { rollLite } from './options/index.js';
-import * as rollOptions from './Nwod/options/roll.js';
 import { DiceStringParser } from '../services/DiceStringParser.js';
-import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../types/discord.js';
 import { AddAndSubtractMathParser } from '../services/MathParser/AddAndSubtractMathParser.js';
+import { DiscordInteractionCallbackType } from '../types/discord.js';
+import * as rollOptions from './Nwod/options/roll.js';
+import { rollLite } from './options/index.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 
 class Roll_Lite extends BaseSlashCommand
 {
@@ -16,6 +16,7 @@ class Roll_Lite extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addStringOption(rollLite.dicePool)
             .addStringOption(rollOptions.name)
@@ -26,13 +27,10 @@ class Roll_Lite extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        {
-            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
-            newCallingUserId,
-        }: OnRerollCallbackOptions = {
+        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    )
+    ): Promise<void>
     {
         // Get parameter results
         const dicePoolExpression = interaction.options.getString('dice_pool', true);
@@ -79,20 +77,19 @@ class Roll_Lite extends BaseSlashCommand
             interaction,
             options: responseMessage,
             interactionCallbackType,
-            onRerollCallback: (rerollCallbackOptions) => this.run(
-                interaction, 
-                rerollCallbackOptions
+            onRerollCallback: rerollCallbackOptions => this.run(
+                interaction,
+                rerollCallbackOptions,
             ),
             commandName: this.commandName,
         });
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
-        return `Roll a dice pool with any number of any sided dice.`;
+        return 'Roll a dice pool with any number of any sided dice.';
     }
 }
-
-
 
 export default new Roll_Lite();

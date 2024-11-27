@@ -4,12 +4,12 @@ import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js
 
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
-    PtuSubcommandGroup,
     lookup,
+    PtuSubcommandGroup,
     quickReference,
 } from './Ptu/subcommand-groups/index.js';
-import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
+import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
 
 export interface RandomResult
 {
@@ -31,12 +31,14 @@ class Ptu_Ref extends BaseSlashCommand
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommandGroup(lookup)
             .addSubcommand(quickReference);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -61,7 +63,8 @@ class Ptu_Ref extends BaseSlashCommand
         }
     }
 
-    async autocomplete(interaction: AutocompleteInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
@@ -82,7 +85,8 @@ class Ptu_Ref extends BaseSlashCommand
         await interaction.respond(choices);
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run commands to reference mechanics for Pokemon Tabletop United.`;
     }

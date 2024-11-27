@@ -1,6 +1,16 @@
-import { APIEmbedField, ActionRowBuilder, CommandInteraction, EmbedBuilder, ModalSubmitInteraction, RestOrArray, StringSelectMenuBuilder, StringSelectMenuInteraction } from 'discord.js';
-import { CombatTrackerStatus, CombatTrackerType } from '../constants.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
+import {
+    ActionRowBuilder,
+    APIEmbedField,
+    CommandInteraction,
+    EmbedBuilder,
+    ModalSubmitInteraction,
+    RestOrArray,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+} from 'discord.js';
+
+import { Tracker } from '../dal/types/Tracker.js';
+import { CombatTrackerStatus, CombatTrackerType } from '../types.js';
 
 const combatTrackerColor = 0xCDCDCD;
 
@@ -42,17 +52,14 @@ const hpTypeToBoxMap = {
     [HpType.Aggravated]: '[ ✱ ]',
 };
 
-function getHpBoxes({
-    hpType,
-    hpValue,
-} : {
+function getHpBoxes({ hpType, hpValue }: {
     hpType: HpType;
     hpValue: number;
 }): string[]
 {
     const boxes: string[] = [];
 
-    for (let i = 0; i < hpValue; i++)
+    for (let i = 0; i < hpValue; i += 1)
     {
         boxes.push(hpTypeToBoxMap[hpType]);
     }
@@ -118,7 +125,7 @@ function getCharacterNameString({
     isTurn,
     initiative,
     tracker,
-} : {
+}: {
     name: Character['name'];
     isTurn: boolean;
     initiative: Character['initiative'];
@@ -126,8 +133,8 @@ function getCharacterNameString({
 }): string
 {
     const currentTurnMarkerOrEmptyString = (isTurn)
-            ? '-->'
-            : '';
+        ? '-->'
+        : '';
 
     const initiativeOrEmptyString = (
         initiative !== undefined
@@ -174,10 +181,7 @@ function sortCharacterFields(characters: Character[] = []): Character[]
     return chractersClone;
 }
 
-function getCharacterFields({
-    tracker,
-    characters,
-}: CombatTrackerEmbedParameters): RestOrArray<APIEmbedField>
+function getCharacterFields({ tracker, characters }: CombatTrackerEmbedParameters): RestOrArray<APIEmbedField>
 {
     const sortedCharacters = sortCharacterFields(characters);
 
@@ -186,7 +190,8 @@ function getCharacterFields({
         initiative,
         maxHp,
         currentDamage,
-    }, index) => {
+    }, index) =>
+    {
         const characterString = getCharacterNameString({
             name,
             initiative,
@@ -199,7 +204,7 @@ function getCharacterFields({
                 && index === tracker.currentTurn
             ),
             tracker,
-        })
+        });
 
         const hpString = (tracker.type === CombatTrackerType.All || tracker.type === CombatTrackerType.Hp)
             ? getCharacterHpString({
@@ -217,7 +222,7 @@ function getCharacterFields({
     return fields;
 }
 
-function getDescription(tracker: Tracker)
+function getDescription(tracker: Tracker): string
 {
     if (tracker.status === CombatTrackerStatus.InProgress)
     {
@@ -229,12 +234,12 @@ function getDescription(tracker: Tracker)
         return `Round ${tracker.round}`;
     }
 
-    else if (tracker.status === CombatTrackerStatus.NotStarted)
+    if (tracker.status === CombatTrackerStatus.NotStarted)
     {
         return 'Not Started';
     }
 
-    else if (tracker.status === CombatTrackerStatus.Completed)
+    if (tracker.status === CombatTrackerStatus.Completed)
     {
         return 'Complete';
     }
@@ -242,10 +247,7 @@ function getDescription(tracker: Tracker)
     return ' ';
 }
 
-function getCombatTrackerEmbedMessage({
-    tracker,
-    characters,
-}: CombatTrackerEmbedParameters)
+function getCombatTrackerEmbedMessage({ tracker, characters }: CombatTrackerEmbedParameters): EmbedBuilder
 {
     const fields = getCharacterFields({
         tracker,
@@ -264,9 +266,9 @@ function getCombatTrackerEmbedMessage({
 }
 
 export async function updateCombatTrackerEmbedMessage(parameters: CombatTrackerEmbedParameters & {
-    interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction,
-    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[],
-})
+    interaction: CommandInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
+    actionRows: ActionRowBuilder<StringSelectMenuBuilder>[];
+}): Promise<void>
 {
     // Get embed message
     const embedMessage = getCombatTrackerEmbedMessage(parameters);

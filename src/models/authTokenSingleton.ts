@@ -1,30 +1,28 @@
-import Singleton from '../services/Singleton.js';
+import Singleton from '../services/Singleton/Singleton.js';
 
 class AuthTokenSingleton
 {
-    #singleton: Singleton<string>;
+    private singleton: Singleton<string>;
 
     constructor()
     {
-        this.#singleton = new Singleton('');
+        this.singleton = new Singleton('');
     }
 
-    isEmpty(): boolean
+    public isEmpty(): boolean
     {
         return this.get() === '';
     }
 
-    get(): string
+    public get(): string
     {
-        return this.#singleton.get();
+        return this.singleton.get();
     }
 
-    set(authToken: string): void
+    public set(authToken: string): void
     {
-        this.#singleton.set(authToken);
+        this.singleton.set(authToken);
     }
 }
-
-
 
 export default new AuthTokenSingleton();

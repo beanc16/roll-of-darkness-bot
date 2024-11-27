@@ -6,7 +6,7 @@ export class PtuNature
     public likedFlavor: string;
     public dislikedFlavor: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

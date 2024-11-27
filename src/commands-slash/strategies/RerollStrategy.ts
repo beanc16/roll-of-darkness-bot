@@ -12,9 +12,9 @@ import {
     Message,
 } from 'discord.js';
 
-import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
-import { DiscordInteractionCallbackType } from '../../types/discord.js';
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
+import { DiscordInteractionCallbackType } from '../../types/discord.js';
+import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 
 enum RerollButtonName
 {
@@ -39,6 +39,11 @@ export interface OnRerollCallbackOptions
 
 type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
 
+export interface GetRerollMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
+{
+    components: ActionRowBuilder<ButtonBuilder>[];
+}
+
 export class RerollStrategy
 {
     /**
@@ -57,7 +62,7 @@ export class RerollStrategy
         interactionCallbackType: RerollInteractionCallbackType;
         onRerollCallback: OnRerollCallback;
         commandName: string;
-    })
+    }): Promise<void>
     {
         // Set up message response
         const rerollOptions = this.getMessageData(options);
@@ -71,6 +76,7 @@ export class RerollStrategy
         const response = await handlerMap[interactionCallbackType]();
 
         // Handle any interactions on the buttons
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         this.handleButtonInteractions({
             interactionResponse: (interactionCallbackType === DiscordInteractionCallbackType.Update)
                 ? (interaction as ButtonInteraction).message
@@ -80,7 +86,7 @@ export class RerollStrategy
         });
     }
 
-    private static getMessageData(options: RerollInteractionOptions)
+    private static getMessageData(options: RerollInteractionOptions): GetRerollMessageDataResponse
     {
         const buttonRow = this.getButtonRowComponent();
         const typedOptions = (typeof options === 'string')
@@ -115,7 +121,7 @@ export class RerollStrategy
         interactionResponse: Message<boolean>;
         onRerollCallback: OnRerollCallback;
         commandName: string;
-    })
+    }): Promise<void>
     {
         let buttonInteraction: ButtonInteraction | undefined;
 
@@ -137,8 +143,8 @@ export class RerollStrategy
                 // Update original message with the same content so
                 // the buttons know that the interaction was successful
                 await buttonInteraction.update(
-                    this.getMessageData(buttonInteraction.message.content)
-                )
+                    this.getMessageData(buttonInteraction.message.content),
+                ),
             ]);
         }
         catch (error)
@@ -152,6 +158,7 @@ export class RerollStrategy
         finally
         {
             // Restart listener upon timeout
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleButtonInteractions({
                 interactionResponse: buttonInteraction?.message ?? interactionResponse,
                 onRerollCallback,

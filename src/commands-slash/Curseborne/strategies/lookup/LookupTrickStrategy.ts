@@ -1,16 +1,16 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
-import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import {
     BaseGetLookupDataParams,
     BaseGetLookupSearchMatchType,
     BaseLookupStrategy,
     LookupStrategy,
 } from '../../../strategies/BaseLookupStrategy.js';
+import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
+import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { CurseborneTrick } from '../../types/CurseborneTrick.js';
+import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {
@@ -20,7 +20,7 @@ export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 @staticImplements<BaseLookupStrategy<GetLookupTrickDataParameters, CurseborneTrick>>()
 export class LookupTrickStrategy
 {
-    public static key = CurseborneLookupSubcommand.Trick;
+    public static key: CurseborneLookupSubcommand.Trick = CurseborneLookupSubcommand.Trick;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
@@ -45,9 +45,12 @@ export class LookupTrickStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupTrickDataParameters)
+    public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
-        const { options, ...remainingProperties } = input;
+        const {
+            options: _options,
+            ...remainingProperties
+        } = input;
         const numOfKeys = Object.keys(remainingProperties).length;
 
         const {
@@ -56,13 +59,10 @@ export class LookupTrickStrategy
             },
         } = input;
 
-        const hasMatch = ({
-            inputValue,
-            elementValue,
-        }: {
+        const hasMatch = ({ inputValue, elementValue }: {
             inputValue?: string | null | undefined;
             elementValue: string;
-        }) =>
+        }): boolean =>
         {
             const map: Record<BaseGetLookupSearchMatchType, boolean> = {
                 [BaseGetLookupSearchMatchType.ExactMatch]: (

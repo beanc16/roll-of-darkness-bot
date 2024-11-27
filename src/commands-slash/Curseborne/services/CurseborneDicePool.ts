@@ -5,10 +5,7 @@ export class CurseborneDicePool
     private dicePool: DicePool;
     private twoSuccessesOn: number;
 
-    constructor({
-        dicePool,
-        twoSuccessesOn,
-    }: {
+    constructor({ dicePool, twoSuccessesOn }: {
         dicePool: DicePool;
         twoSuccessesOn: number;
     })
@@ -17,26 +14,28 @@ export class CurseborneDicePool
         this.twoSuccessesOn = twoSuccessesOn;
     }
 
-    get numOfSuccesses()
+    get numOfSuccesses(): number
     {
-        const numOfSuccesses = this.dicePool.numOfSuccesses;
+        const { numOfSuccesses } = this.dicePool;
 
         return this.dicePool.reduce<number>((acc, cur) =>
         {
             // Add 1 to numOfSuccesses for each roll above twoSuccessesOn
-            cur.forEach((roll) =>
+            const newAcc = cur.reduce<number>((acc2, roll) =>
             {
                 if (roll.number >= this.twoSuccessesOn)
                 {
-                    acc += 1;
+                    return acc2 + 1;
                 }
-            });
 
-            return acc;
+                return acc2;
+            }, 0 + acc);
+
+            return newAcc;
         }, 0 + numOfSuccesses);
     }
 
-    get rollResults()
+    get rollResults(): number[]
     {
         return this.dicePool.rollResults;
     }

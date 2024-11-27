@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupNatureEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuNature } from '../../types/PtuNature.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupNatureEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuNature } from '../../types/PtuNature.js';
 
 export interface GetLookupNatureDataParameters
 {
@@ -20,9 +19,9 @@ export interface GetLookupNatureDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupNatureStrategy
 {
-    public static key = PtuLookupSubcommand.Nature;
+    public static key: PtuLookupSubcommand.Nature = PtuLookupSubcommand.Nature;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('nature_name');
@@ -33,7 +32,8 @@ export class LookupNatureStrategy
         if (
             (name && raisedStat)
             || (name && loweredStat)
-        ) {
+        )
+        {
             await interaction.editReply('Cannot look up a nature by both name and stats at the same time.');
             return true;
         }
@@ -52,7 +52,7 @@ export class LookupNatureStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupNatureDataParameters = {})
+    private static async getLookupData(input: GetLookupNatureDataParameters = {}): Promise<PtuNature[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

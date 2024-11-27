@@ -16,50 +16,39 @@ interface InputValue
     typeOfValue: 'string' | 'integer' | 'boolean';
 }
 
+export type InputValuesMap = Record<string, InputValue[]>;
+
 export abstract class BaseCustomModal
 {
-    protected static _id: string;
-    protected static _title: string;
-    protected static _inputValuesMap: Record<string, InputValue[]>;
-    protected static _styleMap: Record<string, TextInputStyle>;
-    protected static _inputData: unknown;
+    public static id: string;
+    public static title: string;
+    protected static inputValuesMap: InputValuesMap;
+    protected static styleMap: Record<string, TextInputStyle>;
+    protected static inputData: unknown;
 
-    static get id()
-    {
-        return this._id;
-    }
-
-    static get title()
-    {
-        return this._title;
-    }
-
-    static getTextInputs<TextInputParamaters = object>(_data?: TextInputParamaters): TextInputBuilder[]
+    public static getTextInputs<TextInputParamaters = object>(_data?: TextInputParamaters): TextInputBuilder[]
     {
         return [];
     }
 
-    static getInputValues(key: string): string
+    public static getInputValues(key: string): string
     {
-        const inputValues = this._inputValuesMap[key];
+        const inputValues = this.inputValuesMap[key];
 
         return inputValues.reduce((acc, cur, index) =>
         {
-            acc += `${cur.label || ''}${cur.value}`;
+            // Add a line break between each input value, but not on the last value
+            const endingLineBreak = (index < inputValues.length - 1)
+                ? '\n'
+                : '';
 
-            // Add a line break between each input value, but not at the end
-            if (index < inputValues.length - 1)
-            {
-                acc += '\n';
-            }
-
-            return acc;
+            return acc + `${cur.label || ''}${cur.value}${endingLineBreak}`;
         }, '');
     }
 
-    static parseInputValues<KeyType extends string = string>(key: string, input: string): Record<KeyType, unknown>
+    public static parseInputValues<KeyType extends string = string>(key: string, input: string): Record<KeyType, unknown>
     {
-        const defaultInputValues = this._inputValuesMap[key];
+        const defaultInputValues = this.inputValuesMap[key];
 
         return input.split('\n').reduce((acc, cur, index) =>
         {
@@ -91,20 +80,18 @@ export abstract class BaseCustomModal
         }, {} as Record<KeyType, unknown>);
     }
 
-    static getActionRows<TextInputParamaters = object>(data?: TextInputParamaters): ActionRowBuilder<ModalActionRowComponentBuilder>[]
+    public static getActionRows<TextInputParamaters = object>(data?: TextInputParamaters): ActionRowBuilder<ModalActionRowComponentBuilder>[]
     {
-        return this.getTextInputs<TextInputParamaters>(data).map((textInput) =>
-        {
-            return new ActionRowBuilder<ModalActionRowComponentBuilder>()
-                .addComponents(textInput);
-        })
+        return this.getTextInputs<TextInputParamaters>(data).map(textInput =>
+            new ActionRowBuilder<ModalActionRowComponentBuilder>()
+                .addComponents(textInput));
     }
 
-    static getModal<TextInputParamaters = object>(data?: TextInputParamaters): ModalBuilder
+    public static getModal<TextInputParamaters = object>(data?: TextInputParamaters): ModalBuilder
     {
         const modal = new ModalBuilder()
-            .setCustomId(this._id)
-            .setTitle(this._title);
+            .setCustomId(this.id)
+            .setTitle(this.title);
 
         const actionRows = this.getActionRows<TextInputParamaters>(data);
         modal.addComponents(actionRows);
@@ -112,14 +99,14 @@ export abstract class BaseCustomModal
         return modal;
     }
 
-    static async showModal<TextInputParamaters = object>(interaction: MessageComponentInteraction, data?: TextInputParamaters): Promise<void>
+    public static async showModal<TextInputParamaters = object>(interaction: MessageComponentInteraction, data?: TextInputParamaters): Promise<void>
     {
-        this._inputData = data;
+        this.inputData = data;
         const modal = this.getModal<TextInputParamaters>(data);
         await interaction.showModal(modal);
     }
 
-    static parseInput<KeyType extends string = string>(interaction: ModalSubmitInteraction)
+    public static parseInput<KeyType extends string = string>(interaction: ModalSubmitInteraction): Record<KeyType, string | number | boolean | Record<string, unknown> | undefined>
     {
         // TODO: Add way to handle invalid inputted data. Probably with JOI schemas.
         const {
@@ -128,12 +115,10 @@ export abstract class BaseCustomModal
             } = {},
         } = interaction;
 
-        const data = fields?.reduce((acc, {
-            customId,
-            value,
-        }) => {
+        const data = fields?.reduce((acc, { customId, value }) =>
+        {
             // Parse paragraph input fields
-            if (this._styleMap[customId] === TextInputStyle.Paragraph)
+            if (this.styleMap[customId] === TextInputStyle.Paragraph)
             {
                 const map = this.parseInputValues<KeyType>(customId, value);
                 acc[customId as KeyType] = map;
@@ -149,7 +134,7 @@ export abstract class BaseCustomModal
         return data || {} as Record<KeyType, Record<string, unknown> | string | number | boolean | undefined>;
     }
 
-    public static async run(_interaction: ModalSubmitInteraction)
+    public static run(_interaction: ModalSubmitInteraction): Promise<void>
     {
         throw new Error(`${this.constructor.name}.run has not yet been implemented`);
     }

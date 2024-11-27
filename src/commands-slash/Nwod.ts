@@ -1,21 +1,21 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { NwodStrategyExecutor } from './Nwod/strategies/index.js';
-import { NwodSubcommand } from './Nwod/options/index.js';
-
 import {
     chance,
     initiative,
     luck,
+    NwodSubcommand,
     roll,
 } from './Nwod/options/index.js';
+import { NwodStrategyExecutor } from './Nwod/strategies/index.js';
 
 class Nwod extends BaseSlashCommand
 {
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommand(roll)
             .addSubcommand(initiative)
@@ -23,7 +23,8 @@ class Nwod extends BaseSlashCommand
             .addSubcommand(luck);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Get parameter results
         const isSecret = interaction.options.getBoolean('secret') ?? false;
@@ -48,7 +49,8 @@ class Nwod extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run nWOD commands.`;
     }

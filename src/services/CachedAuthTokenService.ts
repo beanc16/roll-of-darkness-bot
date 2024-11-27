@@ -1,11 +1,9 @@
 import { logger } from '@beanc16/logger';
-import {
-    UserGetServiceToServiceAuthTokenParametersV1,
-    UserMicroservice,
-} from '@beanc16/microservices-abstraction';
+import { UserGetServiceToServiceAuthTokenParametersV1, UserMicroservice } from '@beanc16/microservices-abstraction';
 
 import authTokenSingleton from '../models/authTokenSingleton.js';
 
+/* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 export class CachedAuthTokenService
 {
     static #retries = 1;
@@ -14,7 +12,7 @@ export class CachedAuthTokenService
         expiresInSeconds: 86400, // 86400 seconds = 24 hours
     };
 
-    static async getAuthToken(): Promise<string>
+    public static async getAuthToken(): Promise<string>
     {
         if (!authTokenSingleton.isEmpty())
         {
@@ -31,7 +29,7 @@ export class CachedAuthTokenService
         return authTokenSingleton.get();
     }
 
-    static async resetAuthToken(): Promise<string>
+    public static async resetAuthToken(): Promise<string>
     {
         for (let i = 0; i <= this.#retries; i += 1)
         {
@@ -42,17 +40,18 @@ export class CachedAuthTokenService
                         token = '',
                     } = {},
                 } = await UserMicroservice.v1.getServiceToServiceAuthToken(this.#parameters);
-    
+
                 authTokenSingleton.set(token);
                 return authTokenSingleton.get();
             }
 
             catch (error)
             {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.warn('Failed to CachedAuthTokenService.resetAuthToken', (error as any)?.response?.data || error);
             }
         }
 
-        throw new Error('Maximum number of retries reached.')
+        throw new Error('Maximum number of retries reached.');
     }
 }

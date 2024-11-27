@@ -1,29 +1,21 @@
+import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
-import { getLookupAbilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuAbility } from '../../models/PtuAbility.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { logger } from '@beanc16/logger';
-
-export interface GetLookupAbilityDataParameters
-{
-    name?: string | null;
-    nameSearch?: string | null;
-    frequencySearch?: string | null;
-    effectSearch?: string | null;
-}
+import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuAbility } from '../../models/PtuAbility.js';
+import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class LookupAbilityStrategy
 {
-    public static key = PtuLookupSubcommand.Ability;
+    public static key: PtuLookupSubcommand.Ability = PtuLookupSubcommand.Ability;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -48,7 +40,7 @@ export class LookupAbilityStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupAbilityDataParameters = {})
+    public static async getLookupData(input: GetLookupAbilityDataParameters = {}): Promise<PtuAbility[]>
     {
         try
         {
@@ -78,14 +70,7 @@ export class LookupAbilityStrategy
                 return results;
             }
 
-            abilities.sort((a, b) =>
-            {
-                /*
-                * Sort by:
-                * 1) Name
-                */
-                return a.name.localeCompare(b.name);
-            });
+            abilities.sort((a, b) => a.name.localeCompare(b.name));
             return abilities;
         }
 

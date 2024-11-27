@@ -1,11 +1,12 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import * as options from './options/index.js';
-import * as rollOptions from './Nwod/options/roll.js';
-import { ChatInputCommandInteraction } from 'discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
-import { DiscordInteractionCallbackType } from '../types/discord.js';
 import { Text } from '@beanc16/discordjs-helpers';
+import { ChatInputCommandInteraction } from 'discord.js';
+
 import { DiceService } from '../services/DiceService.js';
+import { DiscordInteractionCallbackType } from '../types/discord.js';
+import * as rollOptions from './Nwod/options/roll.js';
+import * as options from './options/index.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 
 enum CoinFlipResult
 {
@@ -17,13 +18,14 @@ class CoinFlip extends BaseSlashCommand
 {
     private diceService: DiceService;
 
-    public constructor()
+    constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addStringOption(options.coinFlip.headsOrTails)
             .addStringOption(rollOptions.name)
-            .addBooleanOption((option) => rollOptions.secret(option, {
+            .addBooleanOption(option => rollOptions.secret(option, {
                 commandType: 'coin flip',
             }));
 
@@ -34,13 +36,10 @@ class CoinFlip extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        {
-            interactionCallbackType = DiscordInteractionCallbackType.EditReply,
-            newCallingUserId,
-        }: OnRerollCallbackOptions = {
+        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
-    )
+    ): Promise<void>
     {
         // Get initial parameter result
         const headsOrTails = interaction.options.getString('heads_or_tails', true);
@@ -62,38 +61,40 @@ class CoinFlip extends BaseSlashCommand
         // Response
         await RerollStrategy.run({
             interaction,
-            options: this.getResponse({
+            options: CoinFlip.getResponse({
                 authorId: newCallingUserId ?? interaction.user.id,
                 headsOrTails,
                 name,
                 result,
             }),
             interactionCallbackType,
-            onRerollCallback: (rerollCallbackOptions) => this.run(
-                interaction, 
-                rerollCallbackOptions
+            onRerollCallback: rerollCallbackOptions => this.run(
+                interaction,
+                rerollCallbackOptions,
             ),
             commandName: this.commandName,
         });
     }
 
-    public get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Flip a coin.`;
     }
 
-    private flipCoin()
+    private flipCoin(): CoinFlipResult
     {
         const result = this.diceService.roll();
 
-        if (result.get(0).rolls[0][0].number === 1) {
+        if (result.get(0).rolls[0][0].number === 1)
+        {
             return CoinFlipResult.Heads;
         }
 
         return CoinFlipResult.Tails;
     }
 
-    private getResponse({
+    private static getResponse({
         authorId,
         headsOrTails,
         name,
@@ -103,7 +104,7 @@ class CoinFlip extends BaseSlashCommand
         headsOrTails: string;
         name?: string | null;
         result: CoinFlipResult;
-    })
+    }): string
     {
         const rollName = (name) ? ` for ${name}` : '';
 
@@ -112,7 +113,5 @@ class CoinFlip extends BaseSlashCommand
             + ` and got ${Text.bold(result)}${rollName}.`;
     }
 }
-
-
 
 export default new CoinFlip();

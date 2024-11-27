@@ -47,6 +47,14 @@ export type ProcessedDicePoolArray = ((ParsedDie & {
     total: number;
 }) | MathOperator | ParsedModifier)[];
 
+interface RollParsedDicePoolResponse
+{
+    processedDicePool: ProcessedDicePoolArray;
+    unparsedMathString: string;
+    resultString: string;
+    hasRolledMaxOnFirstDicePool: boolean;
+}
+
 export class DiceStringParser
 {
     private static letterDRegex = /[d]/i;
@@ -75,16 +83,14 @@ export class DiceStringParser
                 type: DiceParserType.Die,
             };
         }
-        else
-        {
-            return {
-                modifier: parseInt(numberOfDice, 10),
-                type: DiceParserType.Modifier,
-            };
-        }
+
+        return {
+            modifier: parseInt(numberOfDice, 10),
+            type: DiceParserType.Modifier,
+        };
     }
 
-    private static parseMathOperators(allDiceString: string)
+    private static parseMathOperators(allDiceString: string): MathOperator[]
     {
         const unparsedResults = allDiceString.matchAll(this.supportedMathOperatorRegex);
         const parsedResults = [...unparsedResults];
@@ -96,7 +102,7 @@ export class DiceStringParser
                 operator,
                 name: Operator[operator],
                 type: DiceParserType.MathOperator,
-            }
+            };
         });
         return operators;
     }
@@ -112,7 +118,7 @@ export class DiceStringParser
         }
 
         const diceList = allDiceString.split(this.supportedMathOperatorRegex);
-        const diceInfo = diceList.map((curDieString) => this.parseDie(curDieString));
+        const diceInfo = diceList.map(curDieString => this.parseDie(curDieString));
 
         const mathOperators = this.parseMathOperators(allDiceString);
 
@@ -122,13 +128,17 @@ export class DiceStringParser
             hasDoubledFirstModifier: boolean;
         }>((acc, curDieInfo, index) =>
         {
+            const duplicateOfCurDiceInfo = {
+                ...curDieInfo,
+            };
+
             // Double the first die if settings permit
             if (
                 curDieInfo.type === DiceParserType.Die
                 && parseOptions.doubleFirstDie
                 && !acc.hasDoubledFirstDie)
             {
-                curDieInfo.numberOfDice *= 2;
+                (duplicateOfCurDiceInfo as ParsedDie).numberOfDice *= 2;
                 acc.hasDoubledFirstDie = true;
             }
 
@@ -138,7 +148,7 @@ export class DiceStringParser
                 && parseOptions.doubleFirstModifier
                 && !acc.hasDoubledFirstModifier)
             {
-                curDieInfo.modifier *= 2;
+                (duplicateOfCurDiceInfo as ParsedModifier).modifier *= 2;
                 acc.hasDoubledFirstModifier = true;
             }
 
@@ -159,7 +169,7 @@ export class DiceStringParser
         return output;
     }
 
-    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray, options?: RollOptions)
+    private static rollParsedPool(parsedDicePool: ParsedDicePoolArray, options?: RollOptions): RollParsedDicePoolResponse
     {
         // Roll each dice and parse results to string for math parser.
         const result = parsedDicePool.reduce<{
@@ -171,8 +181,7 @@ export class DiceStringParser
         {
             if (cur.type === DiceParserType.Die)
             {
-                const curParsedDie = cur as ParsedDie;
-                const { numberOfDice, sides } = curParsedDie;
+                const { numberOfDice, sides } = cur;
                 const dieString = `${numberOfDice}d${sides}`;
 
                 const rollOptions: RollOptions = {};
@@ -186,11 +195,11 @@ export class DiceStringParser
                     count: numberOfDice,
                     sides,
                 }).roll(rollOptions);
-                const rollTotal = rollResult.reduce((acc, cur) => (acc + cur), 0);
+                const rollTotal = rollResult.reduce((acc2, cur2) => (acc2 + cur2), 0);
                 const rollResultsAsString = rollResult.join(', ');
 
                 acc.processedDicePool.push({
-                    ...curParsedDie,
+                    ...cur,
                     die: dieString,
                     result: rollResult,
                     total: rollTotal,
@@ -201,18 +210,16 @@ export class DiceStringParser
 
             else if (cur.type === DiceParserType.MathOperator)
             {
-                const curMathOperator = cur as MathOperator;
-                acc.processedDicePool.push(curMathOperator);
-                acc.unparsedMathString += curMathOperator.operator;
-                acc.resultString += ` ${curMathOperator.operator}`;
+                acc.processedDicePool.push(cur);
+                acc.unparsedMathString += cur.operator;
+                acc.resultString += ` ${cur.operator}`;
             }
 
             else if (cur.type === DiceParserType.Modifier)
             {
-                const curParsedModifier = cur as ParsedModifier;
-                acc.processedDicePool.push(curParsedModifier);
-                acc.unparsedMathString += curParsedModifier.modifier;
-                acc.resultString += ` ${curParsedModifier.modifier}`;
+                acc.processedDicePool.push(cur);
+                acc.unparsedMathString += cur.modifier;
+                acc.resultString += ` ${cur.modifier}`;
             }
 
             return acc;
@@ -226,7 +233,7 @@ export class DiceStringParser
         return result;
     }
 
-    public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions)
+    public static parseAndRoll(initialAllDiceString: string, options?: ParseOptions): RollParsedDicePoolResponse | undefined
     {
         const parsedDicePool = this.parse(initialAllDiceString, options);
 

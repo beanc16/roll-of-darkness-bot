@@ -1,5 +1,7 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore -- This package doesn't have any types.
 import instagramGetUrlUntyped from 'instagram-url-direct';
+
 import { staticImplements } from '../../../decorators/staticImplements.js';
 
 type InstagramGetUrl = (url: string) => Promise<{
@@ -7,6 +9,7 @@ type InstagramGetUrl = (url: string) => Promise<{
     url_list: string[];
 }>;
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- The package doesn't have any types, so it thinks this is any
 const instagramGetUrl: InstagramGetUrl = instagramGetUrlUntyped;
 
 export interface MediaDownloader
@@ -20,9 +23,9 @@ export class InstagramMediaDownloader
     /**
      * Get a list of download urls. Each nested array maps to a given url.
      */
-    static async getPagedDownloadUrls(urls: string[]): Promise<Buffer[][]>
+    public static async getPagedDownloadUrls(urls: string[]): Promise<Buffer[][]>
     {
-        const promises = urls.map((url) => instagramGetUrl(url));
+        const promises = urls.map(url => instagramGetUrl(url));
         const unparsedResults = await Promise.all(promises);
 
         const pagedDownloadUrls = unparsedResults.reduce<string[][]>((acc, { url_list }, index) =>
@@ -31,7 +34,7 @@ export class InstagramMediaDownloader
             return acc;
         }, []);
 
-        return this.convertUrlsToBuffers(pagedDownloadUrls);
+        return await this.convertUrlsToBuffers(pagedDownloadUrls);
     }
 
     /**
@@ -45,12 +48,15 @@ export class InstagramMediaDownloader
         {
             const imageBuffers: Buffer[] = [];
 
+            // eslint-disable-next-line no-restricted-syntax -- Allow this for sequential followup messages
             for (const url of pages)
             {
                 // Get image
+                // eslint-disable-next-line no-await-in-loop -- Send sequential await messages
                 const response = await fetch(url);
 
                 // Convert to Buffer
+                // eslint-disable-next-line no-await-in-loop -- Send sequential await messages
                 const arrayBuffer = await response.arrayBuffer();
                 const buffer = this.toBuffer(arrayBuffer);
 
@@ -68,6 +74,7 @@ export class InstagramMediaDownloader
         const buffer = Buffer.alloc(arrayBuffer.byteLength);
         const view = new Uint8Array(arrayBuffer);
 
+        // eslint-disable-next-line no-plusplus
         for (let i = 0; i < buffer.length; ++i)
         {
             buffer[i] = view[i];

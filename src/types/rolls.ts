@@ -1,4 +1,5 @@
-export interface Roll {
+export interface Roll
+{
     number: number;
     isRote: boolean;
 }

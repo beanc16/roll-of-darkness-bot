@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuEdge } from '../../types/PtuEdge.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuEdge } from '../../types/PtuEdge.js';
 
 export interface GetLookupEdgeDataParameters
 {
@@ -19,9 +18,9 @@ export interface GetLookupEdgeDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupEdgeStrategy
 {
-    public static key = PtuLookupSubcommand.Edge;
+    public static key: PtuLookupSubcommand.Edge = PtuLookupSubcommand.Edge;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('edge_name', true);
@@ -41,7 +40,7 @@ export class LookupEdgeStrategy
 
     private static async getLookupData(input: GetLookupEdgeDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuEdge[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -68,10 +67,7 @@ export class LookupEdgeStrategy
         }, []);
 
         // Sort by name
-        edges.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        edges.sort((a, b) => a.name.localeCompare(b.name));
 
         return edges;
     }

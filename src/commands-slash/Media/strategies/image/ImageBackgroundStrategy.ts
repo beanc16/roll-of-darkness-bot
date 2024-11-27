@@ -1,17 +1,17 @@
 import { FileStorageMicroserviceImageBackground } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { MediaImageSubcommand } from '../../subcommand-groups/image.js';
 import { BaseImageStrategy } from './BaseImageStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class ImageBackgroundStrategy
 {
-    public static key = MediaImageSubcommand.Background;
+    public static key: MediaImageSubcommand.Background = MediaImageSubcommand.Background;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         const backgroundColor = interaction.options.getString('color') as FileStorageMicroserviceImageBackground | null;
         const rgbHexCode = interaction.options.getString('hex_code');

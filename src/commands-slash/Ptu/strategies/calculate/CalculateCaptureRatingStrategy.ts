@@ -1,15 +1,19 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuCalculateSubcommand, PtuPokemonEvolutionaryStage, PtuPokemonHpPercentage } from '../../subcommand-groups/calculate.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import {
+    PtuCalculateSubcommand,
+    PtuPokemonEvolutionaryStage,
+    PtuPokemonHpPercentage,
+} from '../../subcommand-groups/calculate.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateCaptureRatingStrategy
 {
-    public static key = PtuCalculateSubcommand.CaptureRating;
+    public static key: PtuCalculateSubcommand.CaptureRating = PtuCalculateSubcommand.CaptureRating;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const pokemonLevel = interaction.options.getInteger('pokemon_level', true);
@@ -39,7 +43,7 @@ export class CalculateCaptureRatingStrategy
             numOfVolatileAfflictions,
             isStuck,
             isSlowed,
-        })
+        });
 
         // Calculate capture rating
         const captureRating = this.calculateCaptureRating({
@@ -53,7 +57,7 @@ export class CalculateCaptureRatingStrategy
 
         // Send message
         await interaction.editReply(
-            `The Pokémon has a capture rating of ${captureRating}.`
+            `The Pokémon has a capture rating of ${captureRating}.`,
         );
 
         return true;
@@ -76,13 +80,13 @@ export class CalculateCaptureRatingStrategy
     }): number
     {
         return Math.floor(
-            100                             // Base
-            - (pokemonLevel * 2)            // Level
-            + hpPercentageModifier          // HP Percentage
-            + remainingEvolutionsModifier   // Remaining Evolutions
-            + rarityModifier                // Rarity
-            + getAfflictionsModifier        // Afflictions
-            + additionalModifier            // Additional
+            100 // Base
+            - (pokemonLevel * 2) // Level
+            + hpPercentageModifier // HP Percentage
+            + remainingEvolutionsModifier // Remaining Evolutions
+            + rarityModifier // Rarity
+            + getAfflictionsModifier // Afflictions
+            + additionalModifier, // Additional
         );
     }
 
@@ -118,7 +122,7 @@ export class CalculateCaptureRatingStrategy
         isShiny: boolean;
         isParadox: boolean;
         isLegendary: boolean;
-    })
+    }): number
     {
         let modifier = 0;
 

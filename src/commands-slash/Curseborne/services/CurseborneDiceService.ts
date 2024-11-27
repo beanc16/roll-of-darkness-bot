@@ -1,5 +1,5 @@
-import { DiceService } from '../../../services/DiceService.js';
 import rollConstants from '../../../constants/roll.js';
+import { DiceService } from '../../../services/DiceService.js';
 import { CurseborneDicePool } from './CurseborneDicePool.js';
 
 export class CurseborneDiceService
@@ -44,7 +44,8 @@ export class CurseborneDiceService
         const result = dicePoolGroup.reduce<{
             numOfSuccesses: number;
             rollResults: number[];
-        }>((acc, cur) => {
+        }>((acc, cur) =>
+        {
             const dicePool = new CurseborneDicePool({
                 dicePool: cur,
                 twoSuccessesOn: this.twoSuccessesOn,

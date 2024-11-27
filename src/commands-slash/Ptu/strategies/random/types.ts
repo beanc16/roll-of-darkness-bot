@@ -13,4 +13,4 @@ export interface PtuRandomPickupSubcommandResponse
 export type PtuRandomPickupSubcommandStrategy = BaseStrategy<
     ChatInputCommandInteraction,
     Promise<boolean | PtuRandomPickupSubcommandResponse>
->;;
+>;

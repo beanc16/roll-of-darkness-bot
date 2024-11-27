@@ -1,6 +1,7 @@
 import type { GoogleSheetsGetPageTitleSpreadsheet, GoogleSheetsGetRangesResponseV1 } from '@beanc16/microservices-abstraction';
 
-export enum GoogleSheetsApiErrorType {
+export enum GoogleSheetsApiErrorType
+{
     UserNotAddedToSheet = 'AUTOMATED_USER_NOT_ADDED_TO_SHEET',
     UnableToParseRange = 'UNABLE_TO_PARSE_RANGE',
     UnknownError = 'UNKNOWN_ERROR',

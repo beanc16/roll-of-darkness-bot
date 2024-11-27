@@ -1,16 +1,18 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import {
     Message,
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
+
 import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
 
 export enum RemoveCharacterCustomIds
 {
@@ -19,22 +21,19 @@ export enum RemoveCharacterCustomIds
 
 export class RemoveCharacterModal extends BaseCustomModal
 {
-    static {
-        this._id = 'remove-character-modal';
-        this._title = 'Remove Character';
-        this._inputValuesMap = {
-        };
-        this._styleMap = {
-            [RemoveCharacterCustomIds.Name]: TextInputStyle.Short,
-        };
-    }
+    public static id = 'remove-character-modal';
+    public static title = 'Remove Character';
+    protected static inputValuesMap = {};
+    protected static styleMap = {
+        [RemoveCharacterCustomIds.Name]: TextInputStyle.Short,
+    };
 
-    static getTextInputs(): TextInputBuilder[]
+    public static getTextInputs(): TextInputBuilder[]
     {
         const nameInput = new TextInputBuilder()
-			.setCustomId(RemoveCharacterCustomIds.Name)
-			.setLabel(`What's the character's name?`)
-			.setStyle(this._styleMap[RemoveCharacterCustomIds.Name])
+            .setCustomId(RemoveCharacterCustomIds.Name)
+            .setLabel(`What's the character's name?`)
+            .setStyle(this.styleMap[RemoveCharacterCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -44,17 +43,17 @@ export class RemoveCharacterModal extends BaseCustomModal
         ];
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,
         });
 
-        const tracker = this._inputData as Tracker;
+        const tracker = this.inputData as Tracker;
 
         const data = this.parseInput<RemoveCharacterCustomIds>(interaction);
 

@@ -1,7 +1,20 @@
 import { characterNameToSpreadsheetInfo } from '../constants.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
+import { PtuSubcommandGroup } from './index.js';
 
-export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName) =>
+export enum PtuTrainSubcommand
 {
-    return characterNameToSpreadsheetInfo[characterSheetName];
+    Train = PtuSubcommandGroup.Train,
+}
+
+interface GetSpreadsheetIdFromCharacterSheetNameResponse
+{
+    spreadsheetId: string;
+    discordUserIdsOfSpreadsheetEditors: string[];
+}
+
+export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName): GetSpreadsheetIdFromCharacterSheetNameResponse =>
+{
+    const spreadsheetInfo = characterNameToSpreadsheetInfo[characterSheetName];
+    return spreadsheetInfo;
 };

@@ -1,4 +1,4 @@
-import { GetLookupAbilityDataParameters } from '../strategies/lookup/LookupAbilityStrategy.js';
+import { GetLookupAbilityDataParameters } from '../types/modelParameters.js';
 
 export class PtuAbility
 {
@@ -10,7 +10,7 @@ export class PtuAbility
     public keywords?: string;
     public effect2?: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             untrimmedName,

@@ -1,19 +1,31 @@
-import { CommandInteraction, Message, ModalSubmitInteraction } from 'discord.js';
 import {
-    AggregatedTrackerWithCharactersController,
-    Character,
+    CommandInteraction,
+    Message,
+    ModalSubmitInteraction,
+} from 'discord.js';
+
+import charactersSingleton from '../../../models/charactersSingleton.js';
+import combatTrackersSingleton from '../../../models/combatTrackersSingleton.js';
+import { WorldOfDarknessHpService } from '../services/WorldOfDarknessHpService.js';
+import {
+    CombatTrackerStatus,
+    CombatTrackerType,
+    DamageType,
+    HpType,
+} from '../types.js';
+import { AggregatedTrackerWithCharactersController } from './AggregatedTrackerWithCharactersController.js';
+import {
     CharacterController,
     CharacterResponse,
     CharacterUpdateResponse,
-    Tracker,
-    TrackerController, 
+} from './CharacterController.js';
+import {
+    TrackerController,
     TrackerResponse,
     TrackerUpdateResponse,
-} from './RollOfDarknessMongoControllers.js';
-import { CombatTrackerStatus, CombatTrackerType, DamageType, HpType } from '../constants.js';
-import combatTrackersSingleton from '../../../models/combatTrackersSingleton.js';
-import charactersSingleton from '../../../models/charactersSingleton.js';
-import { WorldOfDarknessHpService } from '../../../services/WorldOfDarknessHpService.js';
+} from './TrackerController.js';
+import { Character } from './types/Character.js';
+import { Tracker } from './types/Tracker.js';
 
 interface CreateTrackerParameters
 {
@@ -47,6 +59,12 @@ interface GetCharactersParameters
     tracker: Tracker;
 }
 
+interface GetCharactersAndCurrentTurnResponse
+{
+    characters: Character[];
+    currentTurn: number;
+}
+
 interface CreateCharacterParameters
 {
     characterName: string;
@@ -63,6 +81,12 @@ interface CreateCharacterParameters
     tracker: Tracker;
 }
 
+interface CreateCharacterResponse
+{
+    character: CharacterResponse['results']['model'];
+    tracker: TrackerResponse['results']['model'];
+}
+
 interface EditCharacterHpParameters
 {
     tracker: Tracker;
@@ -72,6 +96,12 @@ interface EditCharacterHpParameters
     damageType: DamageType;
     damageToDo: number;
     onCharacterNotFound?: (interaction: ModalSubmitInteraction) => Promise<void>;
+}
+
+interface EditCharacterHpResponse
+{
+    character?: CharacterResponse['results']['model'];
+    tracker?: TrackerResponse['results']['model'];
 }
 
 interface DeleteCharacterParameters
@@ -91,15 +121,15 @@ interface UpdateTurnParameters
 
 export class RollOfDarknessPseudoCache
 {
-    static async createTracker({
+    public static async createTracker({
         trackerName,
         trackerType,
         interaction,
         message,
-        onTrackerAlreadyExists = async (interaction) =>
+        onTrackerAlreadyExists = async (trackerAlreadyExistsInteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await trackerAlreadyExistsInteraction.followUp({
                 ephemeral: true,
                 content: `Failed to create tracker because a tracker named ${trackerName} already exists`,
             });
@@ -129,8 +159,10 @@ export class RollOfDarknessPseudoCache
             combatTrackersSingleton.upsert(tracker);
             return tracker;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Fix this later if necessary
         catch ({ error }: any)
         {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Fix this later if necessary
             if (onTrackerAlreadyExists && error.name === 'DocumentAlreadyExistsError')
             {
                 await onTrackerAlreadyExists(interaction);
@@ -140,10 +172,7 @@ export class RollOfDarknessPseudoCache
         }
     }
 
-    static async updateTrackerStatus({
-        status,
-        tracker: oldTracker,
-    } : UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
+    public static async updateTrackerStatus({ status, tracker: oldTracker }: UpdateTrackerStatusParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
         // TODO: Handle tracker does not exists.
         const {
@@ -166,14 +195,11 @@ export class RollOfDarknessPseudoCache
         return tracker;
     }
 
-    static async nextTurn({
+    public static async nextTurn({
         tracker: oldTracker,
-    } : NextTurnParameters): Promise<TrackerUpdateResponse['results']['new']>
+    }: NextTurnParameters): Promise<TrackerUpdateResponse['results']['new']>
     {
-        const {
-            characters,
-            currentTurn,
-        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+        const { characters, currentTurn } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
 
         const updatedTurn = (currentTurn + 1 < characters.length)
             ? currentTurn + 1
@@ -190,14 +216,11 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async previousTurn({
+    public static async previousTurn({
         tracker: oldTracker,
-    } : PreviousTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    }: PreviousTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
-        const {
-            characters,
-            currentTurn,
-        } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
+        const { characters, currentTurn } = await this.getCharactersAndCurrentTurn({ tracker: oldTracker });
 
         const updatedTurn = (currentTurn - 1 >= 0)
             ? currentTurn - 1
@@ -219,10 +242,7 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async moveTurn({
-        tracker: oldTracker,
-        turn,
-    } : MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
+    public static async moveTurn({ tracker: oldTracker, turn }: MoveTurnParameters): Promise<TrackerUpdateResponse['results']['new'] | false>
     {
         const characters = await this.getCharacters({ tracker: oldTracker });
 
@@ -242,11 +262,11 @@ export class RollOfDarknessPseudoCache
         });
     }
 
-    static async getCharacters({
-        tracker
+    public static async getCharacters({
+        tracker,
     }: GetCharactersParameters): Promise<Character[]>
     {
-        const trackerId = tracker._id?.toString() as string;
+        const trackerId = tracker.id.toString();
         const characters = charactersSingleton.get(trackerId);
 
         if (characters)
@@ -265,19 +285,16 @@ export class RollOfDarknessPseudoCache
         return charactersFromDb;
     }
 
-    static async getCharacterByName({
-        tracker,
-        characterName,
-    }: {
+    private static async getCharacterByName({ tracker, characterName }: {
         tracker: Tracker;
         characterName: string;
     }): Promise<Character | undefined>
     {
         const characters = await this.getCharacters({ tracker });
-        return characters.find((character) => character.name === characterName);
+        return characters.find(character => character.name === characterName);
     }
 
-    static async createCharacter({
+    public static async createCharacter({
         characterName,
         initiative,
         maxHp,
@@ -290,10 +307,7 @@ export class RollOfDarknessPseudoCache
         interaction,
         message,
         tracker: oldTracker,
-    }: CreateCharacterParameters): Promise<{
-        character: CharacterResponse['results']['model'],
-        tracker: TrackerResponse['results']['model'],
-    }>
+    }: CreateCharacterParameters): Promise<CreateCharacterResponse>
     {
         const character = await CharacterController.insertOne({
             name: characterName,
@@ -339,7 +353,7 @@ export class RollOfDarknessPseudoCache
             // If one is found, push into the characterIds array.
             characterIds: [
                 ...oldTracker.characterIds,
-                character._id,
+                character.id,
             ],
 
             // If the current turn should be updated, add 1
@@ -350,7 +364,7 @@ export class RollOfDarknessPseudoCache
         }) as TrackerUpdateResponse;
 
         combatTrackersSingleton.upsert(tracker);
-        charactersSingleton.upsert(tracker._id?.toString() as string, character);
+        charactersSingleton.upsert(tracker.id.toString(), character);
 
         return {
             character,
@@ -358,25 +372,22 @@ export class RollOfDarknessPseudoCache
         };
     }
 
-    static async editCharacterHp({
+    public static async editCharacterHp({
         tracker,
         interaction,
         characterName,
         hpType,
         damageType,
         damageToDo,
-        onCharacterNotFound = async (interaction) =>
+        onCharacterNotFound = async (characterNotFoundInteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await characterNotFoundInteraction.followUp({
                 ephemeral: true,
                 content: `Failed to edit character hp because a character named ${characterName} was not found`,
             });
         },
-    }: EditCharacterHpParameters): Promise<{
-        character?: CharacterResponse['results']['model'],
-        tracker?: TrackerResponse['results']['model'],
-    }>
+    }: EditCharacterHpParameters): Promise<EditCharacterHpResponse>
     {
         const character = await this.getCharacterByName({
             tracker,
@@ -385,77 +396,76 @@ export class RollOfDarknessPseudoCache
 
         if (!character)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Respond back to the base command quicker
             onCharacterNotFound(interaction);
             return {};
         }
-        else
-        {
-            const editHpBy = {
-                [HpType.Damage]: () => WorldOfDarknessHpService.damage({
-                    maxHp: character.maxHp,
-                    bashingDamage: character.currentDamage.bashing,
-                    lethalDamage: character.currentDamage.lethal,
-                    aggravatedDamage: character.currentDamage.aggravated,
-                    amount: damageToDo,
-                    damageType,
-                }),
-                [HpType.Heal]: () => WorldOfDarknessHpService.heal({
-                    maxHp: character.maxHp,
-                    bashingDamage: character.currentDamage.bashing,
-                    lethalDamage: character.currentDamage.lethal,
-                    aggravatedDamage: character.currentDamage.aggravated,
-                    amount: damageToDo,
-                    damageType,
-                }),
-                [HpType.Downgrade]: () => WorldOfDarknessHpService.downgrade({
-                    maxHp: character.maxHp,
-                    bashingDamage: character.currentDamage.bashing,
-                    lethalDamage: character.currentDamage.lethal,
-                    aggravatedDamage: character.currentDamage.aggravated,
-                    amount: damageToDo,
-                    damageType,
-                }),
-            };
 
-            const {
-                newBashingDamage,
-                newLethalDamage,
-                newAggravatedDamage,
-            } = editHpBy[hpType]();
+        const editHpBy = {
+            [HpType.Damage]: () => WorldOfDarknessHpService.damage({
+                maxHp: character.maxHp,
+                bashingDamage: character.currentDamage.bashing,
+                lethalDamage: character.currentDamage.lethal,
+                aggravatedDamage: character.currentDamage.aggravated,
+                amount: damageToDo,
+                damageType,
+            }),
+            [HpType.Heal]: () => WorldOfDarknessHpService.heal({
+                maxHp: character.maxHp,
+                bashingDamage: character.currentDamage.bashing,
+                lethalDamage: character.currentDamage.lethal,
+                aggravatedDamage: character.currentDamage.aggravated,
+                amount: damageToDo,
+                damageType,
+            }),
+            [HpType.Downgrade]: () => WorldOfDarknessHpService.downgrade({
+                maxHp: character.maxHp,
+                bashingDamage: character.currentDamage.bashing,
+                lethalDamage: character.currentDamage.lethal,
+                aggravatedDamage: character.currentDamage.aggravated,
+                amount: damageToDo,
+                damageType,
+            }),
+        };
 
-            // TODO: Handle character does not exists.
-            const {
-                results: {
-                    new: editedCharacter,
-                },
-                        } = await CharacterController.findOneAndUpdate({
-                _id: character._id,
-            }, {
-                // If one is found, update the current damage
-                currentDamage: {
-                    bashing: newBashingDamage,
-                    lethal: newLethalDamage,
-                    aggravated: newAggravatedDamage,
-                },
-            }) as CharacterUpdateResponse;
+        const {
+            newBashingDamage,
+            newLethalDamage,
+            newAggravatedDamage,
+        } = editHpBy[hpType]();
 
-            charactersSingleton.upsert(tracker._id?.toString() as string, editedCharacter);
+        // TODO: Handle character does not exists.
+        const {
+            results: {
+                new: editedCharacter,
+            },
+        } = await CharacterController.findOneAndUpdate({
+            _id: character.id,
+        }, {
+            // If one is found, update the current damage
+            currentDamage: {
+                bashing: newBashingDamage,
+                lethal: newLethalDamage,
+                aggravated: newAggravatedDamage,
+            },
+        }) as CharacterUpdateResponse;
 
-            return {
-                character: editedCharacter,
-                tracker,
-            };
-        }
+        charactersSingleton.upsert(tracker.id.toString(), editedCharacter);
+
+        return {
+            character: editedCharacter,
+            tracker,
+        };
     };
 
-    static async deleteCharacter({
+    public static async deleteCharacter({
         tracker,
         interaction,
         characterName,
-        onCharacterNotFound = async (interaction) =>
+        onCharacterNotFound = async (characterNotFoundnteraction) =>
         {
             // Send response
-            await interaction.followUp({
+            await characterNotFoundnteraction.followUp({
                 ephemeral: true,
                 content: `Failed to remove character because a character named ${characterName} was not found`,
             });
@@ -469,26 +479,27 @@ export class RollOfDarknessPseudoCache
 
         if (!character)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Respond back to the base command quicker
             onCharacterNotFound(interaction);
         }
         else
         {
             // TODO: Handle character does not exist.
-                        await CharacterController.findOneAndDelete({
-                _id: character._id,
+            await CharacterController.findOneAndDelete({
+                _id: character.id,
             });
 
             // Remove the deleted character from the list of character IDs
-            const newCharacterIds = tracker.characterIds.filter(element => {
-                return element.toString() === character._id?.toString();
-            });
+            const newCharacterIds = tracker.characterIds.filter(element =>
+                element.toString() === character.id.toString(),
+            );
 
             // TODO: Handle tracker does not exists.
             const {
                 results: {
                     new: editedTracker,
                 },
-                        } = await TrackerController.findOneAndUpdate({
+            } = await TrackerController.findOneAndUpdate({
                 // Find objects with the same name
                 name: tracker.name,
             }, {
@@ -497,35 +508,29 @@ export class RollOfDarknessPseudoCache
             }) as TrackerUpdateResponse;
 
             combatTrackersSingleton.upsert(editedTracker);
-            charactersSingleton.delete(editedTracker._id?.toString() as string, character);
+            charactersSingleton.delete(editedTracker.id.toString(), character);
         }
     }
 
     private static async getCharactersAndCurrentTurn({
-        tracker
-    }: GetCharactersParameters): Promise<{
-        characters: Character[];
-        currentTurn: number;
-    }>
+        tracker,
+    }: GetCharactersParameters): Promise<GetCharactersAndCurrentTurnResponse>
     {
-        const trackerId = tracker._id?.toString() as string;
+        const trackerId = tracker.id.toString();
         const cachedTracker = combatTrackersSingleton.get(trackerId);
         const characters = charactersSingleton.get(trackerId);
 
         if (cachedTracker && characters)
         {
             return {
-                characters: characters,
+                characters,
                 currentTurn: cachedTracker.currentTurn,
             };
         }
 
         const {
             results: [
-                {
-                    characters: charactersFromDb = [],
-                    currentTurn = 0,
-                } = {},
+                { characters: charactersFromDb = [], currentTurn = 0 } = {},
             ] = [{}],
         } = await AggregatedTrackerWithCharactersController.getByTrackerName(tracker.name);
 
@@ -539,7 +544,7 @@ export class RollOfDarknessPseudoCache
         oldTracker,
         updatedTurn,
         updatedRound,
-    } : UpdateTurnParameters)
+    }: UpdateTurnParameters): Promise<Tracker>
     {
         // TODO: Handle tracker does not exists.
         const {

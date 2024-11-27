@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupKeywordsEmbedMessages } from '../../embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuKeyword } from '../../types/PtuKeyword.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupKeywordsEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuKeyword } from '../../types/PtuKeyword.js';
 
 export interface GetLookupKeywordDataParameters
 {
@@ -52,7 +51,6 @@ export class LookupKeywordStrategy
         {
             const keyword = new PtuKeyword(cur);
 
-            // TODO: Remove this once all keywords are defined
             if (keyword.name === undefined || keyword.name.trim() === '')
             {
                 return acc;
@@ -70,9 +68,8 @@ export class LookupKeywordStrategy
 
         // Sort by name
         keywords.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+            a.name.localeCompare(b.name),
+        );
 
         return keywords;
     }

@@ -5,7 +5,7 @@ export class PtuStatus
     public isHomebrew: boolean;
     public description: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,
@@ -15,9 +15,7 @@ export class PtuStatus
         ] = input;
 
         // Parse numbers
-        const isHomebrew = (isHomebrewUnparsed.toLowerCase() === 'true')
-            ? true
-            : false;
+        const isHomebrew = (isHomebrewUnparsed.toLowerCase() === 'true');
 
         // Base values
         this.name = name;

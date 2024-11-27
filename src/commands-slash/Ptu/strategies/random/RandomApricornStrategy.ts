@@ -1,20 +1,20 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
-import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { RandomResult } from '../../../Ptu.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { RandomResult } from '../../types/PtuRandom.js';
+import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomApricornStrategy
 {
-    public static key = PtuRandomSubcommand.Apricorn;
+    public static key: PtuRandomSubcommand.Apricorn = PtuRandomSubcommand.Apricorn;
 
     public static async run(
-        interaction: ChatInputCommandInteraction
+        interaction: ChatInputCommandInteraction,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
@@ -27,7 +27,8 @@ export class RandomApricornStrategy
         });
 
         // Parse the data
-        const parsedData = data.reduce<RandomResult[]>((acc, [name, pokeball]) => {
+        const parsedData = data.reduce<RandomResult[]>((acc, [name, pokeball]) =>
+        {
             acc.push({
                 name,
                 description: pokeball,

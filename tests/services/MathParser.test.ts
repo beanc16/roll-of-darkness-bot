@@ -1,17 +1,13 @@
-import { AddMathParser } from '../../src/services/MathParser/AddMathParser.js';
+import { describe } from '@jest/globals';
+
 import { AddAndSubtractMathParser } from '../../src/services/MathParser/AddAndSubtractMathParser.js';
+import { AddMathParser } from '../../src/services/MathParser/AddMathParser.js';
 import { MathParser } from '../../src/services/MathParser/MathParser.js';
 
 describe.each([
-    [AddMathParser.name, {
-        Class: AddMathParser,
-        includeSubtraction: false,
-    }],
-    [AddAndSubtractMathParser.name, {
-        Class: AddAndSubtractMathParser,
-        includeSubtraction: true,
-    }],
-])('class: %s', (_, { Class, includeSubtraction }) =>
+    [AddMathParser.name, AddMathParser],
+    [AddAndSubtractMathParser.name, AddAndSubtractMathParser],
+])('class: %s', (_, Class) =>
 {
     let parser: MathParser;
 
@@ -28,26 +24,11 @@ describe.each([
             expect(parser.evaluate('10+20')).toEqual(30);
         });
 
-        if (includeSubtraction)
-        {
-            it('returns correct result for valid subtraction expression', () =>
-            {
-                expect(parser.evaluate('10 - 4')).toEqual(6);
-                expect(parser.evaluate('30-10')).toEqual(20);
-            });
-        }
-
-        test('returns correct result for expressions with variables', () =>
+        test('returns correct result for valid addition expressions with variables', () =>
         {
             expect(
-                parser.evaluate('x + 5', { x: 2 })
+                parser.evaluate('x + 5', { x: 2 }),
             ).toEqual(7);
-
-            if (includeSubtraction) {
-                expect(
-                    parser.evaluate('y - 2', { y: 10 })
-                ).toEqual(8);
-            }
         });
 
         it('returns undefined for invalid expressions', () =>
@@ -67,6 +48,37 @@ describe.each([
         test('returns undefined for expression with missing variables', () =>
         {
             expect(parser.evaluate('x + 5')).toBeUndefined();
+        });
+    });
+});
+
+describe(`class: ${AddAndSubtractMathParser.name}`, () =>
+{
+    let parser: AddAndSubtractMathParser;
+
+    beforeEach(() =>
+    {
+        parser = new AddAndSubtractMathParser();
+    });
+
+    describe('method: evaluate', () =>
+    {
+        it('returns correct result for valid subtraction expression', () =>
+        {
+            expect(
+                parser.evaluate('10 - 4'),
+            ).toEqual(6);
+
+            expect(
+                parser.evaluate('30-10'),
+            ).toEqual(20);
+        });
+
+        test('returns correct result for valid subtraction expressions with variables', () =>
+        {
+            expect(
+                parser.evaluate('y - 2', { y: 10 }),
+            ).toEqual(8);
         });
     });
 });

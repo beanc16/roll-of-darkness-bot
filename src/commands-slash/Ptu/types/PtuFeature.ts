@@ -6,7 +6,7 @@ export class PtuFeature
     public frequencyAndAction: string;
     public effect: string;
 
-    constructor (input: string[])
+    constructor(input: string[])
     {
         const [
             name,

@@ -14,7 +14,7 @@ export class PtuAbilitiesSearchService
     private static searchService?: SearchService<PtuAbility>;
     private static index?: FuseIndex<PtuAbility>; // Speeds up instantiation once created once
 
-    public static search(array: PtuAbility[], options: PtuAbilitiesSearchOptions)
+    public static search(array: PtuAbility[], options: PtuAbilitiesSearchOptions): PtuAbility[]
     {
         // Initialize search service parameters
         const searchableKeys = [
@@ -32,7 +32,7 @@ export class PtuAbilitiesSearchService
             array,
             searchableKeys,
             maxAllowedScore,
-            this.index
+            this.index,
         );
 
         // Search
@@ -44,7 +44,7 @@ export class PtuAbilitiesSearchService
         return this.searchService.searchBulk(keysToSearch);
     }
 
-    private static getMaxAllowedScore(options: PtuAbilitiesSearchOptions)
+    private static getMaxAllowedScore(options: PtuAbilitiesSearchOptions): number
     {
         // Name & Effect
         if (options.nameSearch && options.effectSearch)
@@ -53,7 +53,7 @@ export class PtuAbilitiesSearchService
         }
 
         // Name
-        else if (options.nameSearch && !options.effectSearch)
+        if (options.nameSearch && !options.effectSearch)
         {
             return 0.3;
         }

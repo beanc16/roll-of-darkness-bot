@@ -1,21 +1,28 @@
-import { ChatInputCommandInteraction, User } from 'discord.js';
-
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
-import { ComplimentType, friend, reason, type } from './options/compliment.js';
+import { ChatInputCommandInteraction, User } from 'discord.js';
+
+import {
+    ComplimentType,
+    friend as friendOption,
+    reason as reasonOption,
+    type as typeOption,
+} from './options/compliment.js';
 
 class Compliment extends BaseSlashCommand
 {
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addUserOption(friend)
-            .addStringOption(reason)
-            .addStringOption(type);
+            .addUserOption(friendOption)
+            .addStringOption(reasonOption)
+            .addStringOption(typeOption);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -27,7 +34,7 @@ class Compliment extends BaseSlashCommand
         const unparsedReason = interaction.options.getString('reason');
         const type = interaction.options.getString('type') as ComplimentType ?? ComplimentType.Beat;
 
-        const message = this.getMessage({
+        const message = Compliment.getMessage({
             interaction,
             friend,
             type,
@@ -37,7 +44,7 @@ class Compliment extends BaseSlashCommand
         await interaction.editReply(message);
     }
 
-    getMessage({
+    private static getMessage({
         interaction,
         friend,
         type,
@@ -47,7 +54,7 @@ class Compliment extends BaseSlashCommand
         friend: User;
         unparsedReason: string | null;
         type: ComplimentType;
-    })
+    }): string
     {
         const reason = (unparsedReason)
             ? `\n> ${unparsedReason}`
@@ -58,10 +65,10 @@ class Compliment extends BaseSlashCommand
             : 'complimented';
 
         return `${Text.Ping.user(interaction.user.id)} ${complimentText} `
-            + `${Text.Ping.user(friend.id)} ${this.getEmoji(type)}${reason}`;
+            + `${Text.Ping.user(friend.id)} ${Compliment.getEmoji(type)}${reason}`;
     }
 
-    getEmoji(type: ComplimentType)
+    private static getEmoji(type: ComplimentType): string
     {
         if (type === ComplimentType.Beat)
         {
@@ -71,12 +78,11 @@ class Compliment extends BaseSlashCommand
         return '❤️'; // Red heart
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Compliment your friend.`;
     }
 }
-
-
 
 export default new Compliment();

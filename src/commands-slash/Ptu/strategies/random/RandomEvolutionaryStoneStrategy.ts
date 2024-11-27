@@ -8,11 +8,11 @@ import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } 
 @staticImplements<PtuRandomPickupSubcommandStrategy>()
 export class RandomEvolutionaryStoneStrategy
 {
-    public static key = PtuRandomSubcommand.EvolutionaryStone;
+    public static key: PtuRandomSubcommand.EvolutionaryStone = PtuRandomSubcommand.EvolutionaryStone;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        shouldReturnMessageOptions = false
+        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         return await BaseRandomStrategy.run(interaction, this.key, {

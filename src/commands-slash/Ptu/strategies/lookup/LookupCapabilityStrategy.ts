@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupCapabilitiesEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuCapability } from '../../types/PtuCapability.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupCapabilitiesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuCapability } from '../../types/PtuCapability.js';
 
 export interface GetLookupCapabilityDataParameters
 {
@@ -19,9 +18,9 @@ export interface GetLookupCapabilityDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupCapabilityStrategy
 {
-    public static key = PtuLookupSubcommand.Capability;
+    public static key: PtuLookupSubcommand.Capability = PtuLookupSubcommand.Capability;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('capability_name');
@@ -41,7 +40,7 @@ export class LookupCapabilityStrategy
 
     private static async getLookupData(input: GetLookupCapabilityDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuCapability[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -63,10 +62,7 @@ export class LookupCapabilityStrategy
         }, []);
 
         // Sort by name
-        capabilities.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        capabilities.sort((a, b) => a.name.localeCompare(b.name));
 
         return capabilities;
     }

@@ -33,7 +33,7 @@ export enum PtuRandomSubcommand
     XItem = 'x-item',
 };
 
-const numberOfDice = (option: SlashCommandIntegerOption) =>
+const numberOfDice = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
 {
     option.setName('number_of_dice');
     option.setDescription('The number of dice to roll');
@@ -41,7 +41,7 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
     option.setMaxValue(25);
     option.setRequired(true);
     return option;
-}
+};
 
 // const numberOfIterations = (option: SlashCommandIntegerOption) =>
 // {
@@ -52,13 +52,14 @@ const numberOfDice = (option: SlashCommandIntegerOption) =>
 //     return option;
 // };
 
-export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
+export const apricorn = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Apricorn);
     subcommand.setDescription('Get a random Apricorn.');
     // TODO: Add number of iterations
     // subcommand.addIntegerOption(numberOfIterations);
-    subcommand.addIntegerOption((option) => {
+    subcommand.addIntegerOption((option) =>
+    {
         option.setName('survival_rank');
         option.setDescription('Your Survival rank.');
         option.setMinValue(1);
@@ -69,12 +70,13 @@ export const apricorn = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
+export const berry = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Berry);
     subcommand.setDescription('Get one or more random berries.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('berry_tier');
         option.setDescription('The tier of berries to roll for (default: 1+)');
         return option.setChoices(
@@ -103,13 +105,14 @@ export const berry = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
+export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.DowsingRod);
     subcommand.setDescription('Get a random item using a Dowsing Rod.');
     // TODO: Add number of iterations
     // subcommand.addIntegerOption(numberOfIterations);
-    subcommand.addIntegerOption((option) => {
+    subcommand.addIntegerOption((option) =>
+    {
         option.setName('occult_education_rank');
         option.setDescription('Your Occult Education rank.');
         option.setMinValue(1);
@@ -117,22 +120,25 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder) =>
         option.setRequired(true);
         return option;
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('has_crystal_resonance');
         return option.setDescription('You have the Crystal Resonance Feature (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('has_skill_stunt_dowsing');
         return option.setDescription('You have the Skill Stunt (Dowsing) Edge (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('is_sandy_or_rocky');
         return option.setDescription(`You're searching in a sandy or rocky area (default: false)`);
     });
     return subcommand;
 };
 
-export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
+export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
@@ -140,12 +146,13 @@ export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const healingItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.HealingItem);
     subcommand.setDescription('Get one or more random healing/status items.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addStringOption((option) => {
+    subcommand.addStringOption((option) =>
+    {
         option.setName('type');
         option.setDescription('The type of healing/status item to roll for (default: Healing & Status)');
         return option.setChoices(
@@ -166,42 +173,45 @@ export const healingItem = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const heldItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.HeldItem);
     subcommand.setDescription('Get one or more random held items.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_mega');
         return option.setDescription('Include mega stone in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_badges');
         return option.setDescription('Include badges in potential results (default: false)');
     });
     return subcommand;
 };
 
-export const metronome = (subcommand: SlashCommandSubcommandBuilder) =>
+export const metronome = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Metronome);
     subcommand.setDescription('Get a random move using the Metronome move.');
     return subcommand;
 };
 
-export const nature = (subcommand: SlashCommandSubcommandBuilder) =>
+export const nature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Nature);
     subcommand.setDescription('Get a random nature.');
-    subcommand.addIntegerOption((option) => {
-        option = numberOfDice(option);
-        option.setDescription('The number of dice to roll (default: 1)');
-        return option.setRequired(false);
+    subcommand.addIntegerOption((option) =>
+    {
+        const diceOption = numberOfDice(option);
+        diceOption.setDescription('The number of dice to roll (default: 1)');
+        return diceOption.setRequired(false);
     });
     return subcommand;
 };
 
-export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
+export const pickup = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Pickup);
     subcommand.setDescription('Get a random item using the Pickup ability.');
@@ -209,39 +219,45 @@ export const pickup = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const pokeball = (subcommand: SlashCommandSubcommandBuilder) =>
+export const pokeball = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Pokeball);
     subcommand.setDescription('Get one or more random pokeballs.');
     subcommand.addIntegerOption(numberOfDice);
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_special');
         return option.setDescription('Include premier and cherish balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_safari');
         return option.setDescription('Include sport and park balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_jailbreaker');
         return option.setDescription('Include jailbroken balls in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_cases');
         return option.setDescription('Include pokeballs in cases in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_attachments');
         return option.setDescription('Include pokeballs in attachments in potential results (default: false)');
     });
-    subcommand.addBooleanOption((option) => {
+    subcommand.addBooleanOption((option) =>
+    {
         option.setName('include_master');
         return option.setDescription('Include master balls in potential results (default: false)');
     });
     return subcommand;
 };
 
-export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
+export const xItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.XItem);
     subcommand.setDescription('Get one or more random x-items.');
@@ -249,7 +265,7 @@ export const xItem = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
+export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.TM);
     subcommand.setDescription('Get one or more random TMs/HMs.');
@@ -257,7 +273,7 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder) =>
     return subcommand;
 };
 
-export const vitamin = (subcommand: SlashCommandSubcommandBuilder) =>
+export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRandomSubcommand.Vitamin);
     subcommand.setDescription('Get one or more random vitamins.');

@@ -22,7 +22,7 @@ export interface BaseGetLookupDataParams
 
 export interface BaseLookupStrategy<Params extends BaseGetLookupDataParams, ClassInstance> extends ChatIteractionStrategy
 {
-    getLookupData(input: Params): Promise<ClassInstance[]>
+    getLookupData(input: Params): Promise<ClassInstance[]>;
 }
 
 export class LookupStrategy
@@ -43,6 +43,7 @@ export class LookupStrategy
         }
 
         // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: interaction,
             embeds,
@@ -55,19 +56,23 @@ export class LookupStrategy
         Class,
         range,
         spreadsheetId,
-        reduceCallback = (acc, cur) => {
+        reduceCallback = (acc, cur) =>
+        {
             acc.push(new Class(cur));
             return acc;
         },
-        sortCallback = (a, b)=>
-        {
-            return a.name.localeCompare(b.name);
-        },
+        sortCallback = (a, b) => a.name.localeCompare(b.name),
     }: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow in this case so it's a generic class
         Class: new (...args: any[]) => ClassInstance; // Constructor type for any class
         range: string;
         spreadsheetId: string;
-        reduceCallback?: (acc: ClassInstance[], cur: string[], index: number, array: string[][]) => ClassInstance[]
+        reduceCallback?: (
+            acc: ClassInstance[],
+            cur: string[],
+            index: number,
+            array: string[][]
+        ) => ClassInstance[];
         sortCallback?: (a: ClassInstance, b: ClassInstance) => number;
     }): Promise<ClassInstance[]>
     {

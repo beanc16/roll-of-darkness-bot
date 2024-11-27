@@ -12,16 +12,23 @@ import {
 } from 'discord.js';
 
 import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
-import { getLookupPokemonByAbilityEmbedMessages, getLookupPokemonByMoveEmbedMessages, getLookupPokemonEmbedMessages } from '../../../Ptu/embed-messages/lookup.js';
-import { PokemonController } from '../../dal/PtuController.js';
-import { PokeApi } from '../../services/PokeApi.js';
-import { PtuAbilityListType, PtuMoveListType, PtuPokemon } from '../../types/pokemon.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PokemonController } from '../../dal/PtuController.js';
+import {
+    getLookupPokemonByAbilityEmbedMessages,
+    getLookupPokemonByMoveEmbedMessages,
+    getLookupPokemonEmbedMessages,
+} from '../../embed-messages/lookup.js';
+import { PokeApi } from '../../services/PokeApi.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import {
+    PtuAbilityListType,
+    PtuMoveListType,
+    PtuPokemon,
+} from '../../types/pokemon.js';
 
 export interface GetLookupPokemonDataParameters
 {
@@ -50,7 +57,7 @@ interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataPara
 @staticImplements<ChatIteractionStrategy>()
 export class LookupPokemonStrategy
 {
-    public static key = PtuLookupSubcommand.Pokemon;
+    public static key: PtuLookupSubcommand.Pokemon = PtuLookupSubcommand.Pokemon;
     private static selectMenuCustomIds = {
         MoveViewSelect: 'move_view_select',
     };
@@ -70,7 +77,8 @@ export class LookupPokemonStrategy
             await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
             return true;
         }
-        else if (numOfTruthyValues > 1)
+
+        if (numOfTruthyValues > 1)
         {
             await interaction.editReply('Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.');
             return true;
@@ -121,7 +129,7 @@ export class LookupPokemonStrategy
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
-    }: GetLookupPokemonDataParameters = {})
+    }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemon[]>
     {
         if (!(name || moveName || abilityName))
         {
@@ -137,9 +145,11 @@ export class LookupPokemonStrategy
             abilityListType,
         });
 
-        const { results = [] } = await PokemonController.getAll(searchParams);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
+        const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
+        const results = untypedResults as PtuPokemon[];
 
-        const names = results.map(({ name }: PtuPokemon) => name);
+        const names = results.map(({ name: pokemonName }) => pokemonName);
 
         // Don't include images for substring searches
         const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
@@ -147,11 +157,10 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const pokemon = results.map((result: PtuPokemon) => {
-            const { name } = result;
-
-            const { imageUrl } = imageUrlResults?.find((result) =>
-                result.name === PokeApi.parseName(name)
+        const pokemon = results.map((result) =>
+        {
+            const { imageUrl } = imageUrlResults?.find(curImageResult =>
+                curImageResult.name === PokeApi.parseName(result.name),
             ) ?? {};
 
             if (!imageUrl)
@@ -165,14 +174,11 @@ export class LookupPokemonStrategy
                     ...result.metadata,
                     imageUrl,
                 },
-            } as PtuPokemon;
-        }) as PtuPokemon[];
+            };
+        });
 
         // Sort by name
-        pokemon.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        pokemon.sort((a, b) => a.name.localeCompare(b.name));
 
         return pokemon;
     }
@@ -192,6 +198,7 @@ export class LookupPokemonStrategy
                 PtuMoveListType.ZygardeCubeMoves,
             ];
 
+            // eslint-disable-next-line no-restricted-syntax -- Allow this for early returning
             for (const moveListType of moveListTypes)
             {
                 const embeds = this.getLookupPokemonEmbeds({
@@ -227,10 +234,10 @@ export class LookupPokemonStrategy
         interactionType?: PaginationInteractionType;
         defaultMoveListType: PtuMoveListType;
         isDisabled?: boolean;
-    })
+    }): Promise<void>
     {
         // Only get the select menu for looking up by move name
-        const selectMenu = !!moveName
+        const selectMenu = moveName
             ? this.getLookupPokemonByMoveSelectMenu({
                 defaultMoveListType,
                 moveName,
@@ -240,8 +247,8 @@ export class LookupPokemonStrategy
             : undefined;
 
         const rowsAbovePagination: [
-            ActionRowBuilder<StringSelectMenuBuilder>?
-        ] = !!selectMenu
+            ActionRowBuilder<StringSelectMenuBuilder>?,
+        ] = selectMenu
             ? [selectMenu]
             : [];
 
@@ -253,9 +260,10 @@ export class LookupPokemonStrategy
             rowsAbovePagination,
         });
 
-        if (!!moveName)
+        if (moveName)
         {
             // Handle select menu options (fire and forget)
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleSelectMenuOptions({
                 originalInteraction,
                 interactionResponse: response,
@@ -273,7 +281,7 @@ export class LookupPokemonStrategy
         lookupType = RegexLookupType.SubstringCaseInsensitive,
         abilityName,
         abilityListType = PtuAbilityListType.All,
-    }: GetLookupPokemonDataParameters = {})
+    }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
         if (name)
         {
@@ -285,100 +293,104 @@ export class LookupPokemonStrategy
         if (moveName)
         {
             let key: string;
+            // eslint-disable-next-line default-case
             switch (moveListType)
             {
-                case PtuMoveListType.EggMoves:
-                case PtuMoveListType.TutorMoves:
-                case PtuMoveListType.ZygardeCubeMoves:
-                    key = `moveList.${moveListType}`;
+            case PtuMoveListType.EggMoves:
+            case PtuMoveListType.TutorMoves:
+            case PtuMoveListType.ZygardeCubeMoves:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: moveName,
+                };
+                break;
+            case PtuMoveListType.TmHm:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: parseRegexByType(
+                        moveName,
+                        RegexLookupType.SubstringCaseInsensitive,
+                    ),
+                };
+                break;
+            case PtuMoveListType.LevelUp:
+                key = `moveList.${moveListType}`;
+                return {
+                    [key]: {
+                        $elemMatch: {
+                            move: moveName,
+                        },
+                    },
+                };
+            case PtuMoveListType.All:
+                // eslint-disable-next-line no-case-declarations
+                const searchParams: object[] = [
+                    PtuMoveListType.EggMoves,
+                    PtuMoveListType.TutorMoves,
+                    PtuMoveListType.ZygardeCubeMoves,
+                ].map((listType) =>
+                {
+                    key = `moveList.${listType}`;
                     return {
                         [key]: moveName,
                     };
-                    break;
-                case PtuMoveListType.TmHm:
-                    key = `moveList.${moveListType}`;
-                    return {
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive
-                        ),
-                    };
-                    break;
-                case PtuMoveListType.LevelUp:
-                    key = `moveList.${moveListType}`;
-                    return {
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
+                });
+
+                key = `moveList.${PtuMoveListType.TmHm}`;
+                searchParams.push({
+                    [key]: parseRegexByType(
+                        moveName,
+                        RegexLookupType.SubstringCaseInsensitive,
+                    ),
+                });
+
+                key = `moveList.${PtuMoveListType.LevelUp}`;
+                searchParams.push({
+                    [key]: {
+                        $elemMatch: {
+                            move: moveName,
                         },
-                    };
-                    break;
-                case PtuMoveListType.All:
-                    const searchParams: object[] = [
-                        PtuMoveListType.EggMoves,
-                        PtuMoveListType.TutorMoves,
-                        PtuMoveListType.ZygardeCubeMoves,
-                    ].map((listType) => {
-                        key = `moveList.${listType}`;
-                        return {
-                            [key]: moveName,
-                        };
-                    });
+                    },
+                });
 
-                    key = `moveList.${PtuMoveListType.TmHm}`;
-                    searchParams.push({
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive
-                        ),
-                    });
-
-                    key = `moveList.${PtuMoveListType.LevelUp}`;
-                    searchParams.push({
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    });
-
-                    return {
-                        $or: searchParams,
-                    };
-                    break;
+                return {
+                    $or: searchParams,
+                };
+                break;
             }
         }
 
         if (abilityName)
         {
             let key: string;
+            // eslint-disable-next-line default-case
             switch (abilityListType)
             {
-                case PtuAbilityListType.Basic:
-                case PtuAbilityListType.Advanced:
-                case PtuAbilityListType.High:
-                    key = `abilities.${abilityListType}`;
+            case PtuAbilityListType.Basic:
+            case PtuAbilityListType.Advanced:
+            case PtuAbilityListType.High:
+                key = `abilities.${abilityListType}`;
+                return {
+                    [key]: abilityName,
+                };
+                break;
+            case PtuAbilityListType.All:
+                // eslint-disable-next-line no-case-declarations
+                const searchParams: object[] = [
+                    PtuAbilityListType.Basic,
+                    PtuAbilityListType.Advanced,
+                    PtuAbilityListType.High,
+                ].map((listType) =>
+                {
+                    key = `abilities.${listType}`;
                     return {
                         [key]: abilityName,
                     };
-                    break;
-                case PtuAbilityListType.All:
-                    const searchParams: object[] = [
-                        PtuAbilityListType.Basic,
-                        PtuAbilityListType.Advanced,
-                        PtuAbilityListType.High,
-                    ].map((listType) => {
-                        key = `abilities.${listType}`;
-                        return {
-                            [key]: abilityName,
-                        };
-                    });
+                });
 
-                    return {
-                        $or: searchParams,
-                    };
-                    break;
+                return {
+                    $or: searchParams,
+                };
             }
         }
 
@@ -402,7 +414,7 @@ export class LookupPokemonStrategy
         if (moveName)
         {
             return getLookupPokemonByMoveEmbedMessages(pokemon, {
-                moveName: moveName as string,
+                moveName,
                 moveListType,
             });
         }
@@ -410,7 +422,7 @@ export class LookupPokemonStrategy
         if (abilityName)
         {
             return getLookupPokemonByAbilityEmbedMessages(pokemon, {
-                abilityName: abilityName as string,
+                abilityName,
                 abilityListType,
             });
         }
@@ -453,10 +465,10 @@ export class LookupPokemonStrategy
         }) =>
         {
             const hasAsLevelUpMove = !!levelUp.find(({ move }) => move === moveName);
-            const hasAsTmHmMove = !!tmHm.find((move) => move.toLowerCase().includes(moveName.toLowerCase()));
-            const hasAsEggMove = !!eggMoves.find((move) => move === moveName);
-            const hasAsTutorMove = !!tutorMoves.find((move) => move === moveName);
-            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find((move) => move === moveName);
+            const hasAsTmHmMove = !!tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
+            const hasAsEggMove = !!eggMoves.find(move => move === moveName);
+            const hasAsTutorMove = !!tutorMoves.find(move => move === moveName);
+            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find(move => move === moveName);
 
             return {
                 [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove,
@@ -508,7 +520,7 @@ export class LookupPokemonStrategy
             .setDisabled(isDisabled);
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-			.addComponents(selectMenu);
+            .addComponents(selectMenu);
 
         return row;
     }
@@ -519,7 +531,7 @@ export class LookupPokemonStrategy
         moveName,
         pokemon,
         currentMoveListType,
-    }: HandleSelectMenuOptionsParameters)
+    }: HandleSelectMenuOptionsParameters): Promise<void>
     {
         let hasUpdated = false;
 

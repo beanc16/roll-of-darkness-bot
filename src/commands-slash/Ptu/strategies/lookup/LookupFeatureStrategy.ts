@@ -1,14 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getLookupFeaturesEmbedMessages } from '../../embed-messages/lookup.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { PtuFeature } from '../../types/PtuFeature.js';
+import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { getLookupFeaturesEmbedMessages } from '../../embed-messages/lookup.js';
+import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuFeature } from '../../types/PtuFeature.js';
 
 export interface GetLookupFeatureDataParameters
 {
@@ -19,9 +18,9 @@ export interface GetLookupFeatureDataParameters
 @staticImplements<ChatIteractionStrategy>()
 export class LookupFeatureStrategy
 {
-    public static key = PtuLookupSubcommand.Feature;
+    public static key: PtuLookupSubcommand.Feature = PtuLookupSubcommand.Feature;
 
-    static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('feature_name', true);
@@ -41,7 +40,7 @@ export class LookupFeatureStrategy
 
     private static async getLookupData(input: GetLookupFeatureDataParameters = {
         includeAllIfNoName: true,
-    })
+    }): Promise<PtuFeature[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -68,10 +67,7 @@ export class LookupFeatureStrategy
         }, []);
 
         // Sort by name
-        features.sort((a, b) =>
-        {
-            return a.name.localeCompare(b.name);
-        });
+        features.sort((a, b) => a.name.localeCompare(b.name));
 
         return features;
     }

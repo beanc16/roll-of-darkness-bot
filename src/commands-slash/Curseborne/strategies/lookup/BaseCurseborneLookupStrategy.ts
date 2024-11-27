@@ -1,4 +1,5 @@
 import { ChatInputCommandInteraction } from 'discord.js';
+
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { getLookupCurseborneEmbedMessages } from '../../embed-messages/lookup.js';
 

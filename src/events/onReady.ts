@@ -1,15 +1,15 @@
 import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
-import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
-import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
+import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
+import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 
-async function handler(bot: Client)
+async function handler(bot: Client): Promise<void>
 {
-    const devStr = (process.env.STAGE && process.env.STAGE === "dev")
-        ? "-dev"
-        : "";
+    const devStr = (process.env.STAGE && process.env.STAGE === 'dev')
+        ? '-dev'
+        : '';
 
     logger.info(`${process.env.APPLICATION_NAME}${devStr} has connected.`);
 
@@ -23,8 +23,8 @@ async function handler(bot: Client)
 
         // Run startup functions
         const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
-        const startupPromisesToRun = startupCommands.map((command) =>
-            command.runOnStartup(bot)
+        const startupPromisesToRun = startupCommands.map(command =>
+            command.runOnStartup(bot),
         );
         await Promise.all(startupPromisesToRun);
 
@@ -33,11 +33,10 @@ async function handler(bot: Client)
     }
     catch (error)
     {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
         logger.error(`Failed to initialize ${process.env.APPLICATION_NAME}.`, (error as any)?.response?.data || error);
     }
 }
-
-
 
 export default {
     name: Events.ClientReady,

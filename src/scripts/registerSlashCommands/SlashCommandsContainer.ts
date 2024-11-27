@@ -1,8 +1,14 @@
+import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
+import { logger } from '@beanc16/logger';
+import {
+    Client,
+    ContextMenuCommandBuilder,
+    REST,
+    Routes,
+    SlashCommandBuilder,
+} from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import { Client, REST, Routes } from 'discord.js';
-import { logger } from '@beanc16/logger';
-import { slashCommands as commonSlashCommands } from '@beanc16/discordjs-common-commands';
 
 import { BaseContextMenuCommand } from '../../context-menus/base-commands/BaseContextMenuCommand.js';
 import { Timer } from '../../services/Timer.js';
@@ -13,40 +19,50 @@ type Command = typeof commonSlashCommands['Ping'];
 const baseContextMenuCommand = new BaseContextMenuCommand();
 type ContextMenuCommand = typeof baseContextMenuCommand;
 
-interface AddCommandParameters {
+interface AddCommandParameters
+{
     commandName: string;
     command: Command;
 }
-interface AddContextMenuCommandParameters {
+interface AddContextMenuCommandParameters
+{
     commandName: string;
     command: ContextMenuCommand;
 }
 
-interface RegisterCommandParameters {
+interface RegisterCommandParameters
+{
     guildId: string;
 }
 const defaultRegisterCommandParameters = {
     guildId: '',
 };
 
+interface RegisterAllCommandsResponse
+{
+    registeredGlobalSlashCommandData: unknown[] | undefined;
+    registeredGuildSlashCommandData: unknown[] | undefined;
+}
+
 export class SlashCommandsContainer
 {
     static #slashCommands: Record<string, Command> = {};
     static #guildCommands: Record<string, Command> = {};
     static #contextMenuCommands: Record<string, ContextMenuCommand> = {};
-    private static isInitialized: boolean;
+    private static isInitialized = false;
 
+    // eslint-disable-next-line @stylistic/brace-style -- We need a static constructor to be formatted this way to initialize
     static {
-        this.isInitialized = false;
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- This is necessary for initiailization and we can't await in a constructor
         this.initialize();
     }
 
-    static async initialize()
+    public static async initialize(): Promise<void>
     {
         this.#slashCommands = {};
         this.#guildCommands = {};
         this.#contextMenuCommands = {};
-        
+
         // Initialize common commands
         Object.values(commonSlashCommands).forEach((command: Command) =>
         {
@@ -77,13 +93,14 @@ export class SlashCommandsContainer
         const commandPromises = files.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(commandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addCommand({
@@ -97,13 +114,14 @@ export class SlashCommandsContainer
         const guildCommandPromises = guildCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(guildCommandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as Command;
 
                 SlashCommandsContainer.addGuildCommand({
@@ -117,13 +135,14 @@ export class SlashCommandsContainer
         const contextMenuCommandPromises = contextMenuCommandFiles.map(async (fileName: string) =>
         {
             // Is a command file
-            if (path.extname(fileName).toLowerCase() === ".js" || path.extname(fileName).toLowerCase() === ".ts")
+            if (path.extname(fileName).toLowerCase() === '.js' || path.extname(fileName).toLowerCase() === '.ts')
             {
-                const extensionIndex = (fileName.indexOf(".js") !== -1)
-                    ? fileName.indexOf(".js")
-                    : fileName.indexOf(".ts");
+                const extensionIndex = (fileName.indexOf('.js') !== -1)
+                    ? fileName.indexOf('.js')
+                    : fileName.indexOf('.ts');
                 const commandNameFromFileName = fileName.substring(0, extensionIndex) + '.js';
                 const commandPath = path.join(contextMenuCommandsDirPath, commandNameFromFileName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- This is necessary for dynamic imports
                 const command = (await import(commandPath)).default as ContextMenuCommand;
 
                 SlashCommandsContainer.addContextMenuCommand({
@@ -142,54 +161,55 @@ export class SlashCommandsContainer
         this.isInitialized = true;
     }
 
-
-
-    static getCommand(commandName: string)
+    public static getCommand(commandName: string): Command
     {
         return SlashCommandsContainer.#slashCommands[commandName];
     }
 
-    static getGuildCommand(commandName: string)
+    public static getGuildCommand(commandName: string): Command
     {
         return SlashCommandsContainer.#guildCommands[commandName];
     }
 
-    static getContextMenuCommand(commandName: string)
+    public static getContextMenuCommand(commandName: string): BaseContextMenuCommand
     {
         return SlashCommandsContainer.#contextMenuCommands[commandName];
     }
 
-    static async getAllCommandsData()
+    public static async getAllCommandsData(): Promise<SlashCommandBuilder[]>
     {
         const slashCommands = Object.values(SlashCommandsContainer.#slashCommands);
-        const promises = slashCommands.map(async (slashCommand) => {
+        const promises = slashCommands.map(async (slashCommand) =>
+        {
             await slashCommand.init();
             return slashCommand.slashCommandData;
         });
         return await Promise.all(promises);
     }
 
-    static async getAllGuildCommandsData()
+    public static async getAllGuildCommandsData(): Promise<SlashCommandBuilder[]>
     {
         const guildCommands = Object.values(SlashCommandsContainer.#guildCommands);
-        const promises = guildCommands.map(async (guildCommand) => {
+        const promises = guildCommands.map(async (guildCommand) =>
+        {
             await guildCommand.init();
             return guildCommand.slashCommandData;
         });
         return await Promise.all(promises);
     }
 
-    static async getAllContextMenuCommandsData()
+    public static async getAllContextMenuCommandsData(): Promise<ContextMenuCommandBuilder[]>
     {
         const slashCommands = Object.values(SlashCommandsContainer.#contextMenuCommands);
-        const promises = slashCommands.map(async (slashCommand) => {
+        const promises = slashCommands.map(async (slashCommand) =>
+        {
             await slashCommand.init();
-            return slashCommand.commandData;
+            return slashCommand.contextMenuCommandData;
         });
         return await Promise.all(promises);
     }
 
-    static async getAllStartupCommandsData(): Promise<(Command & {
+    public static async getAllStartupCommandsData(): Promise<(Command & {
         runOnStartup: (bot: Client) => Promise<void>;
     })[]>
     {
@@ -198,16 +218,14 @@ export class SlashCommandsContainer
             callback: () => this.isInitialized,
         });
 
+        // eslint-disable-next-line -- @typescript-eslint/ban-ts-comment -- Fix this later
         // @ts-ignore -- TODO: Fix this later
-        return Object.values(SlashCommandsContainer.#slashCommands).filter((command) =>
-            ('runOnStartup' in command && typeof command.runOnStartup === 'function')
+        return Object.values(SlashCommandsContainer.#slashCommands).filter(command =>
+            ('runOnStartup' in command && typeof command.runOnStartup === 'function'),
         );
     }
 
-    static addCommand({
-        commandName,
-        command,
-    } : AddCommandParameters)
+    public static addCommand({ commandName, command }: AddCommandParameters): void
     {
         if (!commandName)
         {
@@ -217,10 +235,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#slashCommands[commandName] = command;
     }
 
-    static addGuildCommand({
-        commandName,
-        command,
-    } : AddCommandParameters)
+    public static addGuildCommand({ commandName, command }: AddCommandParameters): void
     {
         if (!commandName)
         {
@@ -230,10 +245,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#guildCommands[commandName] = command;
     }
 
-    static addContextMenuCommand({
-        commandName,
-        command,
-    } : AddContextMenuCommandParameters)
+    public static addContextMenuCommand({ commandName, command }: AddContextMenuCommandParameters): void
     {
         if (!commandName)
         {
@@ -243,7 +255,7 @@ export class SlashCommandsContainer
         SlashCommandsContainer.#contextMenuCommands[commandName] = command;
     }
 
-    static async registerAllCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters)
+    public static async registerAllCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<RegisterAllCommandsResponse>
     {
         await this.initialize();
 
@@ -261,7 +273,7 @@ export class SlashCommandsContainer
         };
     }
 
-    static async registerGlobalAndContextMenuCommands(): Promise<unknown[] | undefined>
+    public static async registerGlobalAndContextMenuCommands(): Promise<unknown[] | undefined>
     {
         const [
             allCommandsData,
@@ -289,7 +301,7 @@ export class SlashCommandsContainer
         return undefined;
     }
 
-    static async registerGuildCommands({ guildId } : RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
+    public static async registerGuildCommands({ guildId }: RegisterCommandParameters = defaultRegisterCommandParameters): Promise<unknown[] | undefined>
     {
         const guildCommandsData = await SlashCommandsContainer.getAllGuildCommandsData();
         if (Object.keys(guildCommandsData).length > 0)

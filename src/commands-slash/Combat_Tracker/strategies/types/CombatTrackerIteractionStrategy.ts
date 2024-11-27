@@ -1,4 +1,8 @@
-import { BaseStrategy, BaseStrategyRecord, NestedBaseStrategyRecord } from '../../../strategies/types/BaseStrategy.js';
+import {
+    BaseStrategy,
+    BaseStrategyRecord,
+    NestedBaseStrategyRecord,
+} from '../../../strategies/types/BaseStrategy.js';
 import { CombatTrackerMessageComponentHandlerParameters } from './CombatTrackerMessageComponentHandlerParameters.js';
 
 export type CombatTrackerIteractionStrategy = BaseStrategy<
@@ -13,5 +17,5 @@ export type CombatTrackerIteractionStrategyRecord<Key extends string> = BaseStra
 
 export type NestedCombatTrackerIteractionStrategyRecord<
     Key1 extends string,
-    Key2 extends string
+    Key2 extends string,
 > = NestedBaseStrategyRecord<Key1, CombatTrackerIteractionStrategyRecord<Key2>>;

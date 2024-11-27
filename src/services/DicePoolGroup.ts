@@ -2,11 +2,11 @@ import { DicePool } from './DicePool.js';
 
 export class DicePoolGroup
 {
-    private _dicepools: DicePool[];
+    private dicepoolList: DicePool[];
 
-    constructor({ dicepool }: { dicepool?: DicePool; } = {})
+    constructor({ dicepool }: { dicepool?: DicePool } = {})
     {
-        this._dicepools = [];
+        this.dicepoolList = [];
 
         if (dicepool)
         {
@@ -14,53 +14,59 @@ export class DicePoolGroup
         }
     }
 
-    get dicepools()
+    get dicepools(): DicePool[]
     {
-        return this._dicepools;
+        return this.dicepoolList;
     }
 
-    get dicepoolResults()
+    get dicepoolResults(): number[][]
     {
-        return this._dicepools.map((dicepool) => dicepool.rollResults);
+        return this.dicepoolList.map(dicepool => dicepool.rollResults);
     }
 
-    get(dicepoolIndex: number)
+    public get(dicepoolIndex: number): DicePool
     {
         return this.dicepools[dicepoolIndex];
     }
 
-    getNumOfSuccessesOfDicepoolAt(dicepoolIndex: number)
+    public getNumOfSuccessesOfDicepoolAt(dicepoolIndex: number): number
+
     {
         return this.get(dicepoolIndex)?.numOfSuccesses;
     }
 
-    push(value = new DicePool())
+    public push(value = new DicePool()): void
     {
-        this._dicepools.push(value);
+        this.dicepoolList.push(value);
     }
 
-    forEach(callbackfn: (value: DicePool, index: number, array: DicePool[]) => void)
+    public forEach(callbackfn: (value: DicePool, index: number, array: DicePool[]) => void): void
     {
-        return this.dicepools.forEach(callbackfn);
+        this.dicepools.forEach(callbackfn);
     }
 
-    map<Response>(callbackfn: (value: DicePool, index: number, array: DicePool[]) => Response)
+    public map<Response>(callbackfn: (value: DicePool, index: number, array: DicePool[]) => Response): Response[]
     {
         return this.dicepools.map(callbackfn);
     }
 
-    reduce<Response>(callbackfn: (acc: Response, currentValue: DicePool, index: number, array: DicePool[]) => Response, initialValue: any)
+    public reduce<Response>(callbackfn: (
+        acc: Response,
+        currentValue: DicePool,
+        index: number,
+        array: DicePool[],
+    ) => Response, initialValue: Response): Response
     {
         return this.dicepools.reduce(callbackfn, initialValue);
     }
 
-    getBiggestResult()
+    public getBiggestResult(): DicePool
     {
-        const biggestResult = this.reduce<DicePool>(function (acc, cur)
+        const biggestResult = this.reduce<DicePool>((acc, cur) =>
         {
             if (cur.numOfSuccesses > acc.numOfSuccesses)
             {
-                acc = cur;
+                return cur;
             }
 
             return acc;

@@ -1,65 +1,72 @@
+/* eslint-disable import/no-cycle */ // TODO: Fix this later.
 import {
     Message,
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
-import { BaseCustomModal } from '../../../modals/BaseCustomModal.js';
+
+import { BaseCustomModal, InputValuesMap } from '../../../modals/BaseCustomModal.js';
+import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
 import { RollOfDarknessPseudoCache } from '../dal/RollOfDarknessPseudoCache.js';
-import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import { Tracker } from '../dal/types/Tracker.js';
 import { updateCombatTrackerEmbedMessage } from '../embed-messages/combat_tracker.js';
 import { awaitCombatTrackerMessageComponents } from '../message-component-handlers/combat_tracker.js';
-import { CombatTrackerType, DamageType, HpType } from '../constants.js';
-import { Tracker } from '../dal/RollOfDarknessMongoControllers.js';
-import stillWaitingForModalSingleton from '../../../models/stillWaitingForModalSingleton.js';
+import { getCombatTrackerActionRows } from '../select-menus/combat_tracker.js';
+import {
+    CombatTrackerType,
+    DamageType,
+    HpType,
+} from '../types.js';
 
 export enum EditCharacterHpCustomIds
 {
     Name = 'name-text-input',
+    // eslint-disable-next-line @typescript-eslint/no-shadow -- This is an enum property and not an import, so allow the similar name.
     HpType = 'hp-type-text-input',
     Hp = 'hp-text-input',
+    // eslint-disable-next-line @typescript-eslint/no-shadow -- This is an enum property and not an import, so allow the similar name.
     DamageType = 'damage-type-text-input',
 }
 
 export class EditCharacterHpModal extends BaseCustomModal
 {
-    static {
-        this._id = 'edit-character-modal';
-        this._title = 'Edit Character';
-        this._inputValuesMap = {
-            [EditCharacterHpCustomIds.HpType]: [
-                {
-                    key: 'hpType',
-                    label: '',
-                    value: HpType.Damage,
-                    typeOfValue: 'string',
-                },
-            ],
-            [EditCharacterHpCustomIds.DamageType]: [
-                {
-                    key: 'damageType',
-                    label: '',
-                    value: DamageType.Lethal,
-                    typeOfValue: 'string',
-                },
-            ],
-        };
-        this._styleMap = {
-            [EditCharacterHpCustomIds.Name]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.HpType]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.Hp]: TextInputStyle.Short,
-            [EditCharacterHpCustomIds.DamageType]: TextInputStyle.Short,
-        };
-    }
+    public static id = 'edit-character-modal';
+    public static title = 'Edit Character';
+    protected static inputValuesMap: InputValuesMap = {
+        [EditCharacterHpCustomIds.HpType]: [
+            {
+                key: 'hpType',
+                label: '',
+                value: HpType.Damage,
+                typeOfValue: 'string',
+            },
+        ],
+        [EditCharacterHpCustomIds.DamageType]: [
+            {
+                key: 'damageType',
+                label: '',
+                value: DamageType.Lethal,
+                typeOfValue: 'string',
+            },
+        ],
+    };
 
-    static getTextInputs<TextInputParamaters = Tracker>(mistypedTracker: TextInputParamaters): TextInputBuilder[]
+    protected static styleMap = {
+        [EditCharacterHpCustomIds.Name]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.HpType]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.Hp]: TextInputStyle.Short,
+        [EditCharacterHpCustomIds.DamageType]: TextInputStyle.Short,
+    };
+
+    public static getTextInputs<TextInputParamaters = Tracker>(mistypedTracker: TextInputParamaters): TextInputBuilder[]
     {
-        const type = (mistypedTracker as Tracker).type;
+        const { type } = mistypedTracker as Tracker;
 
         const nameInput = new TextInputBuilder()
-			.setCustomId(EditCharacterHpCustomIds.Name)
-			.setLabel(`What character's HP should be updated?`)
-			.setStyle(this._styleMap[EditCharacterHpCustomIds.Name])
+            .setCustomId(EditCharacterHpCustomIds.Name)
+            .setLabel(`What character's HP should be updated?`)
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.Name])
             .setMinLength(1)
             .setMaxLength(255)
             .setRequired(true);
@@ -67,18 +74,18 @@ export class EditCharacterHpModal extends BaseCustomModal
         const hpTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.HpType)
             .setLabel(`Change HP? (damage / heal / downgrade)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.HpType])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.HpType])
             .setMinLength(1)
             .setMaxLength(9)
             .setRequired(true)
             .setValue(
-                this.getInputValues(EditCharacterHpCustomIds.HpType)
+                this.getInputValues(EditCharacterHpCustomIds.HpType),
             );
 
         const hpInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.Hp)
             .setLabel(`How much HP? (number)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.Hp])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.Hp])
             .setMinLength(1)
             .setMaxLength(3)
             .setRequired(true);
@@ -86,12 +93,12 @@ export class EditCharacterHpModal extends BaseCustomModal
         const damageTypeInput = new TextInputBuilder()
             .setCustomId(EditCharacterHpCustomIds.DamageType)
             .setLabel(`Type of damage? (bashing / lethal / agg)`)
-            .setStyle(this._styleMap[EditCharacterHpCustomIds.DamageType])
+            .setStyle(this.styleMap[EditCharacterHpCustomIds.DamageType])
             .setMinLength(1)
             .setMaxLength(7)
             .setRequired(true)
             .setValue(
-                this.getInputValues(EditCharacterHpCustomIds.DamageType)
+                this.getInputValues(EditCharacterHpCustomIds.DamageType),
             );
 
         return [
@@ -107,17 +114,17 @@ export class EditCharacterHpModal extends BaseCustomModal
         ];
     }
 
-    static async run(interaction: ModalSubmitInteraction)
+    public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
         stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
-        
+
         // Send message to show the command was received
         await interaction.deferUpdate({
             fetchReply: true,
         });
 
-        const tracker = this._inputData as Tracker;
+        const tracker = this.inputData as Tracker;
 
         const {
             [EditCharacterHpCustomIds.Name]: characterName,

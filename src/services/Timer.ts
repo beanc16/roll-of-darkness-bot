@@ -12,7 +12,7 @@ export class Timer
     {
         return new Promise<void>((resolve) =>
         {
-            setTimeout(async () =>
+            setTimeout(() =>
             {
                 if (callback)
                 {
@@ -24,28 +24,19 @@ export class Timer
         });
     }
 
-    public static waitUntilTrue({
-        seconds,
-        callback,
-    }: {
+    public static waitUntilTrue({ seconds, callback }: {
         seconds: number;
         callback: () => boolean;
     }): Promise<void>
     {
         return new Promise<void>((resolve) =>
         {
-            setTimeout(async () =>
+            const refreshIntervalId = setInterval(() =>
             {
                 if (callback())
                 {
-                    resolve();
-                }
-
-                else
-                {
-                    resolve(
-                        await this.waitUntilTrue({ seconds, callback })
-                    );
+                    clearInterval(refreshIntervalId);
+                    resolve(undefined);
                 }
             }, seconds * 1000);
         });

@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     AttachmentPayload,
@@ -14,10 +15,11 @@ import {
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
 } from 'discord.js';
-import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
-import { logger } from '@beanc16/logger';
 
-enum ButtonName {
+import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
+
+enum ButtonName
+{
     Next = 'next_page',
     Previous = 'previous_page',
     First = 'first_page',
@@ -63,7 +65,7 @@ export class PaginationStrategy
         files,
         interactionType = 'editReply',
         rowsAbovePagination = [],
-    }: PaginationStrategyRunParameters)
+    }: PaginationStrategyRunParameters): Promise<Message<boolean>>
     {
         const shouldPaginate = (
             (embeds && embeds.length > 1)
@@ -97,11 +99,12 @@ export class PaginationStrategy
         // Only listen for pagination buttons if there's more than one embed message
         if (shouldPaginate)
         {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.sendPagedMessages({
                 originalInteraction,
                 embeds,
                 files,
-                interactionResponse: response as Message,
+                interactionResponse: response,
                 pageIndex: 0,
             });
         }
@@ -115,7 +118,7 @@ export class PaginationStrategy
         files,
         interactionResponse,
         pageIndex,
-    }: PaginationStrategySendPagedMessagesParameters)
+    }: PaginationStrategySendPagedMessagesParameters): Promise<void>
     {
         let hasUpdated = false;
 
@@ -148,6 +151,7 @@ export class PaginationStrategy
 
             hasUpdated = true;
 
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.sendPagedMessages({
                 originalInteraction,
                 interactionType: 'editReply',
@@ -172,6 +176,7 @@ export class PaginationStrategy
             if (!hasUpdated && !messageWasDeleted)
             {
                 const paginationRow = this.getPaginationRowComponent(true);
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
                 this.replyToOriginalInteraction({
                     originalInteraction,
                     interactionType: 'editReply',
@@ -195,7 +200,7 @@ export class PaginationStrategy
         buttonInteraction,
         embeds,
         files,
-        pageIndex,
+        pageIndex: startingPageIndex,
     }: {
         buttonInteraction: ButtonInteraction;
         embeds?: EmbedBuilder[];
@@ -203,9 +208,12 @@ export class PaginationStrategy
         pageIndex: number;
     }): number
     {
+        let pageIndex = startingPageIndex;
         const array = (embeds ?? files) as unknown[];
 
-        if (buttonInteraction.customId === ButtonName.Next)
+        const customId = buttonInteraction.customId as ButtonName;
+
+        if (customId === ButtonName.Next)
         {
             pageIndex += 1;
 
@@ -216,7 +224,7 @@ export class PaginationStrategy
             }
         }
 
-        else if (buttonInteraction.customId === ButtonName.Previous)
+        else if (customId === ButtonName.Previous)
         {
             pageIndex -= 1;
 
@@ -227,12 +235,12 @@ export class PaginationStrategy
             }
         }
 
-        else if (buttonInteraction.customId === ButtonName.First)
+        else if (customId === ButtonName.First)
         {
             pageIndex = 0;
         }
 
-        else if (buttonInteraction.customId === ButtonName.Last)
+        else if (customId === ButtonName.Last)
         {
             pageIndex = array.length - 1;
         }
@@ -289,20 +297,14 @@ export class PaginationStrategy
         originalInteraction: PaginationStrategyRunParameters['originalInteraction'];
         interactionType: NonNullable<PaginationStrategyRunParameters['interactionType']>;
         parameters: InteractionEditReplyOptions | InteractionUpdateOptions | MessageCreateOptions;
-    })
+    }): Promise<Message>
     {
         const handlerMap: Record<
             NonNullable<PaginationStrategyRunParameters['interactionType']>,
             () => Promise<Message>
         > = {
-            editReply: async () =>
-            {
-                return await originalInteraction.editReply(parameters);
-            },
-            dm: async () =>
-            {
-                return await originalInteraction.user.send(parameters as MessageCreateOptions);
-            },
+            editReply: async () => await originalInteraction.editReply(parameters),
+            dm: async () => await originalInteraction.user.send(parameters as MessageCreateOptions),
             update: async () =>
             {
                 await (originalInteraction as StringSelectMenuInteraction).update(parameters as InteractionUpdateOptions);

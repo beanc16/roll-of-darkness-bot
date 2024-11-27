@@ -9,66 +9,71 @@ export interface DicePoolOptions
 
 export class DicePool
 {
-    private _rolls: Roll[][];
+    private rollsList: Roll[][];
     private successOnGreaterThanOrEqualTo: number;
     private extraSuccesses: number;
-    private _numOfSuccesses?: number;
+    private successCount?: number;
 
+    // eslint-disable-next-line newline-destructuring/newline -- Allow two properties to go on separate lines for long defaulting
     constructor({
         successOnGreaterThanOrEqualTo = rollConstants.defaultParams.successOnGreaterThanOrEqualTo,
         extraSuccesses = rollConstants.defaultParams.extraSuccesses,
     }: DicePoolOptions = {})
     {
-        this._rolls = [];
+        this.rollsList = [];
         this.successOnGreaterThanOrEqualTo = successOnGreaterThanOrEqualTo;
         this.extraSuccesses = extraSuccesses;
     }
 
     get rolls(): Roll[][]
     {
-        return this._rolls;
+        return this.rollsList;
     }
 
     get rollResults(): number[]
     {
-        return this._rolls.flatMap((array) => array.map(({ number }) => number));
+        return this.rolls.flatMap(array => array.map(({ number }) => number));
     }
 
     get numOfSuccesses(): number
     {
-        if (this._numOfSuccesses === undefined)
+        if (this.successCount === undefined)
         {
-            const successfulDiceRolled = this.rolls.flat().filter((result) =>
-            {
-                return (result.number >= this.successOnGreaterThanOrEqualTo);
-            });
+            const successfulDiceRolled = this.rolls.flat().filter(result =>
+                (result.number >= this.successOnGreaterThanOrEqualTo),
+            );
 
             const extraSuccesses = (successfulDiceRolled.length > 0)
                 ? this.extraSuccesses
                 : 0;
 
-            this._numOfSuccesses = successfulDiceRolled.length + extraSuccesses;
+            this.successCount = successfulDiceRolled.length + extraSuccesses;
         }
 
-        return this._numOfSuccesses;
+        return this.successCount;
     }
 
-    push(value: Roll[])
+    public push(value: Roll[]): void
     {
-        this._rolls.push(value);
+        this.rollsList.push(value);
     }
 
-    forEach(callbackfn: (value: Roll[], index: number, array: Roll[][]) => void)
+    public forEach(callbackfn: (value: Roll[], index: number, array: Roll[][]) => void): void
     {
-        return this.rolls.forEach(callbackfn);
+        this.rolls.forEach(callbackfn);
     }
 
-    map<Response>(callbackfn: (value: Roll[], index: number, array: Roll[][]) => Response)
+    public map<Response>(callbackfn: (value: Roll[], index: number, array: Roll[][]) => Response): Response[]
     {
         return this.rolls.map(callbackfn);
     }
 
-    reduce<Response>(callbackfn: (acc: Response, currentValue: Roll[], index: number, array: Roll[][]) => Response, initialValue: any)
+    public reduce<Response>(callbackfn: (
+        acc: Response,
+        currentValue: Roll[],
+        index: number,
+        array: Roll[][],
+    ) => Response, initialValue: Response): Response
     {
         return this.rolls.reduce(callbackfn, initialValue);
     }

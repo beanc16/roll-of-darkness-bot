@@ -2,26 +2,28 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import {
-    MediaSubcommandGroup,
-    image,
-    instagram,
-} from './Media/subcommand-groups/index.js';
-import { MediaInstagramSubcommand } from './Media/subcommand-groups/instagram.js';
 import { MediaStrategyExecutor } from './Media/strategies/index.js';
 import { MediaImageSubcommand } from './Media/subcommand-groups/image.js';
+import {
+    image,
+    instagram,
+    MediaSubcommandGroup,
+} from './Media/subcommand-groups/index.js';
+import { MediaInstagramSubcommand } from './Media/subcommand-groups/instagram.js';
 
 class Media extends BaseSlashCommand
 {
     constructor()
     {
         super();
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
             .addSubcommandGroup(image)
             .addSubcommandGroup(instagram);
     }
 
-    async run(interaction: ChatInputCommandInteraction)
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
         await interaction.deferReply({
@@ -32,9 +34,10 @@ class Media extends BaseSlashCommand
         const subcommandGroup = interaction.options.getSubcommandGroup(true) as MediaSubcommandGroup;
         const subcommand = interaction.options.getSubcommand(true) as MediaImageSubcommand | MediaInstagramSubcommand;
 
-        try {
+        try
+        {
             // Run subcommand
-            const response = MediaStrategyExecutor.run({
+            const response = await MediaStrategyExecutor.run({
                 subcommandGroup,
                 subcommand,
                 interaction,
@@ -45,7 +48,9 @@ class Media extends BaseSlashCommand
             {
                 await interaction.editReply('Subcommand Group or subcommand not yet implemented');
             }
-        } catch (err) {
+        }
+        catch (err)
+        {
             logger.error('An error occurred while processing media', err, {
                 subcommandGroup,
                 subcommand,
@@ -54,7 +59,8 @@ class Media extends BaseSlashCommand
         }
     }
 
-    get description()
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    get description(): string
     {
         return `Run media commands.`;
     }
