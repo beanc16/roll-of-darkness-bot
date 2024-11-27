@@ -697,6 +697,12 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
             if (!Number.isNaN(level))
             {
                 acc.totalLevelUpMoveLearnedValue += level;
+                acc[PtuMoveListType.LevelUp].push({
+                    pokemon: curPokemon,
+                    level: (!Number.isNaN(level))
+                        ? levelUpMove.level
+                        : level,
+                });
             }
             else
             {
@@ -705,11 +711,6 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
                     level: levelUpMove.level,
                 });
             }
-
-            acc[PtuMoveListType.LevelUp].push({
-                pokemon: curPokemon,
-                level,
-            });
         }
 
         return acc;
@@ -730,13 +731,13 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
     levelUp.sort((a, b) =>
     {
         const aLevel = parseInt(a.level as string, 10);
-        if (!Number.isNaN(aLevel))
+        if (Number.isNaN(aLevel))
         {
             return 1;
         }
 
         const bLevel = parseInt(b.level as string, 10);
-        if (!Number.isNaN(bLevel))
+        if (Number.isNaN(bLevel))
         {
             return -1;
         }
@@ -755,12 +756,12 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemon[], { mov
     let description = `${Text.bold(`Pokemon that can learn ${moveName}${moveListTypeToEndOfTitle[moveListType]}`)}\n`;
 
     // Level Up
-    if (levelUp.length > 0)
+    if (levelUp.length > 0 || outliersInLevelUpData.length > 0)
     {
         if (description.length > 0) description += '\n';
         description += Text.bold('Learn as Level-Up Move:') + '\n';
         description += `${
-            (totalLevelUpMoveLearnedValue / levelUp.length).toFixed(1)
+            ((totalLevelUpMoveLearnedValue / levelUp.length) || 0).toFixed(1)
         } Average Level\n`;
 
         description = outliersInLevelUpData.reduce(
