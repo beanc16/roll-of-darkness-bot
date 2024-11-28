@@ -4,8 +4,26 @@ import { MeritType } from '../types/types.js';
 
 export enum NwodLookupSubcommand
 {
+    Condition = 'condition',
     Merit = 'merit',
 }
+
+export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Condition);
+    subcommand.setDescription('Get a list of conditions based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('condition_name');
+        option.setDescription(`The condition's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
 
 export const merit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {

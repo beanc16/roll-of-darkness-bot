@@ -10,6 +10,7 @@ import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/Chat
 import { BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
+import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
@@ -73,24 +74,37 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
     // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
     public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
+        let data: { name: string }[] = [];
         let choices: ApplicationCommandOptionChoiceData<string>[] = [];
 
-        // Move Name
+        // Merit Name
         if (focusedValue.name === 'merit_name')
         {
-            const data = await NwodStrategyExecutor.getLookupData<NwodMerit>({
+            data = await NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Merit,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             });
-            choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
+        }
+
+        // Condition Name
+        if (focusedValue.name === 'condition_name')
+        {
+            data = await NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Condition,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
             });
         }
+
+        // Parse data to discord's format
+        choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+        {
+            return {
+                name,
+                value: name,
+            };
+        });
 
         // Get the choices matching the search
         const filteredChoices = choices.filter(choice =>
