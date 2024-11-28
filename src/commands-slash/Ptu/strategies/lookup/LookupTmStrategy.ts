@@ -4,15 +4,15 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupTmsEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuTm } from '../../types/PtuTm.js';
 
-export interface GetLookupTmDataParameters
+export interface GetLookupTmDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
-    includeAllIfNoName?: boolean;
 }
 
 @staticImplements<ChatIteractionStrategy>()

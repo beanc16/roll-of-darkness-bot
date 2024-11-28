@@ -4,17 +4,17 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupPokeballsEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PokeballType } from '../../types/pokeballType.js';
 import { PtuPokeball } from '../../types/PtuPokeball.js';
 
-export interface GetLookupPokeballDataParameters
+export interface GetLookupPokeballDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
     type?: PokeballType | null;
-    includeAllIfNoName?: boolean;
 }
 
 @staticImplements<ChatIteractionStrategy>()
