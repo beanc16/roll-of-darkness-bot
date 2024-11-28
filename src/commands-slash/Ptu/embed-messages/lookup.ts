@@ -15,6 +15,7 @@ import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
+import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
 
@@ -402,6 +403,68 @@ export const getLookupMovesEmbedMessages = (moves: PtuMove[]): EmbedBuilder[] =>
 
     return getPagedEmbedBuilders({
         title: 'Moves',
+        pages,
+    });
+};
+
+export const getLookupPokeballsEmbedMessages = (pokeballs: PtuPokeball[]): EmbedBuilder[] =>
+{
+    if (pokeballs.length === 0) return [];
+
+    const { pages } = pokeballs.reduce((acc, {
+        name,
+        cost,
+        modifier,
+        type,
+        description,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(cost !== undefined ? [`Cost: ${cost}`] : []),
+            ...(modifier !== undefined ? [`Modifier: ${modifier}`] : []),
+            ...(type !== undefined ? [`Type: ${type}`] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []),
+        ];
+
+        // Create the description
+        let curDescription = lines.join('\n');
+
+        // Don't let descriptions exceed the max limit
+        if (acc.pages[acc.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPage += 1;
+            acc.pages[acc.curPage] = '';
+        }
+
+        // Separate moves with a blank line
+        if (index !== 0 && acc.pages[acc.curPage] !== '')
+        {
+            curDescription = '\n' + curDescription;
+        }
+
+        // Add the move to the current page's description
+        acc.pages[acc.curPage] += curDescription;
+
+        // Close the code block on the last tm
+        if (index === pokeballs.length - 1)
+        {
+            acc.pages[acc.curPage] += '';
+        }
+
+        return acc;
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Pokeballs',
         pages,
     });
 };

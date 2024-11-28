@@ -5,6 +5,7 @@ import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 import { LookupKeywordStrategy } from './LookupKeywordStrategy.js';
 import { LookupMoveStrategy } from './LookupMoveStrategy.js';
 import { LookupNatureStrategy } from './LookupNatureStrategy.js';
+import { LookupPokeballStrategy } from './LookupPokeballStrategy.js';
 import { LookupPokemonStrategy } from './LookupPokemonStrategy.js';
 import { LookupStatusStrategy } from './LookupStatusStrategy.js';
 import { LookupTmStrategy } from './LookupTmStrategy.js';
@@ -17,6 +18,7 @@ export default {
     [LookupKeywordStrategy.key]: LookupKeywordStrategy,
     [LookupMoveStrategy.key]: LookupMoveStrategy,
     [LookupNatureStrategy.key]: LookupNatureStrategy,
+    [LookupPokeballStrategy.key]: LookupPokeballStrategy,
     [LookupPokemonStrategy.key]: LookupPokemonStrategy,
     [LookupStatusStrategy.key]: LookupStatusStrategy,
     [LookupTmStrategy.key]: LookupTmStrategy,

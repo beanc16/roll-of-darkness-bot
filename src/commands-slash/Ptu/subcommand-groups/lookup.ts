@@ -1,6 +1,7 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { equalityOption } from '../../options/shared.js';
+import { PokeballType } from '../types/pokeballType.js';
 import {
     PokemonMoveCategory,
     PokemonStat,
@@ -20,6 +21,7 @@ export enum PtuLookupSubcommand
     Keyword = 'keyword',
     Move = 'move',
     Nature = 'nature',
+    Pokeball = 'pokeball',
     Pokemon = 'pokemon',
     Status = 'status',
     Tm = 'tm',
@@ -289,6 +291,39 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         return option.setChoices(
             ...statChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const pokeball = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Pokeball);
+    subcommand.setDescription('Get a pokeball based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('pokeball_name');
+        option.setDescription(`The pokeball's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription(`The type of pokeballs.`);
+        const choices = Object.values(PokeballType).map<APIApplicationCommandOptionChoice<string>>(
+            (name) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            },
+        );
+        return option.addChoices(...choices);
     });
 
     return subcommand;

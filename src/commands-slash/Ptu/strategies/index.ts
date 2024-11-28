@@ -23,6 +23,7 @@ import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
+import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
 import calculateStrategies from './calculate/index.js';
@@ -32,6 +33,7 @@ import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupFeatureDataParameters } from './lookup/LookupFeatureStrategy.js';
 import { GetLookupKeywordDataParameters } from './lookup/LookupKeywordStrategy.js';
 import { GetLookupNatureDataParameters } from './lookup/LookupNatureStrategy.js';
+import { GetLookupPokeballDataParameters } from './lookup/LookupPokeballStrategy.js';
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
@@ -47,6 +49,7 @@ type AllPtuLookupModels = PtuAbility
     | PtuKeyword
     | PtuMove
     | PtuNature
+    | PtuPokeball
     | PtuPokemon
     | PtuStatus
     | PtuTm;
@@ -65,13 +68,15 @@ type LookupParamsFromLookupModel<PtuLookupModel extends AllPtuLookupModels> = Pt
                         ? GetLookupKeywordDataParameters
                         : PtuLookupModel extends PtuNature // Nature
                             ? GetLookupNatureDataParameters
-                            : PtuLookupModel extends PtuPokemon // Pokemon
-                                ? GetLookupPokemonDataParameters
-                                : PtuLookupModel extends PtuStatus // Status
-                                    ? GetLookupStatusDataParameters
-                                    : PtuLookupModel extends PtuTm // TM
-                                        ? GetLookupTmDataParameters
-                                        : never;
+                            : PtuLookupModel extends PtuPokeball // Pokeball
+                                ? GetLookupPokeballDataParameters
+                                : PtuLookupModel extends PtuPokemon // Pokemon
+                                    ? GetLookupPokemonDataParameters
+                                    : PtuLookupModel extends PtuStatus // Status
+                                        ? GetLookupStatusDataParameters
+                                        : PtuLookupModel extends PtuTm // TM
+                                            ? GetLookupTmDataParameters
+                                            : never;
 
 type AllLookupParams = GetLookupMoveDataParameters
     | GetLookupAbilityDataParameters
@@ -79,6 +84,7 @@ type AllLookupParams = GetLookupMoveDataParameters
     | GetLookupEdgeDataParameters
     | GetLookupFeatureDataParameters
     | GetLookupNatureDataParameters
+    | GetLookupPokeballDataParameters
     | GetLookupPokemonDataParameters
     | GetLookupStatusDataParameters
     | GetLookupTmDataParameters;
@@ -305,6 +311,22 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: PtuLookupSubcommand.Keyword,
             });
             choices = keywords.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            });
+        }
+
+        // Pokeball Name
+        if (focusedValue.name === 'pokeball_name')
+        {
+            const pokeballs = await PtuStrategyExecutor.getLookupData<PtuPokeball>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Pokeball,
+            });
+            choices = pokeballs.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
             {
                 return {
                     name,

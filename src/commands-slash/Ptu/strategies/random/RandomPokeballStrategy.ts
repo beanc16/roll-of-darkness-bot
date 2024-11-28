@@ -8,20 +8,10 @@ import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/Rer
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomPokeballEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PokeballType } from '../../types/pokeballType.js';
 import { RandomPokeball } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
-
-enum PokeballType
-{
-    Normal = 'Normal',
-    Special = 'Special',
-    Safari = 'Safari',
-    Jailbreaker = 'Jailbreaker Ball',
-    Case = 'Jailbreaker Case',
-    Attachment = 'Jailbreaker Attachment',
-    Master = 'Master',
-}
 
 interface ShouldIncludeParameters
 {
