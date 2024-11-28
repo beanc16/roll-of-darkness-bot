@@ -44,19 +44,19 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     subcommand.addStringOption((option) =>
     {
         option.setName('name_search');
-        return option.setDescription(`A search on the move's name.`);
+        return option.setDescription(`A search on the ability's name.`);
     });
 
     subcommand.addStringOption((option) =>
     {
         option.setName('frequency_search');
-        return option.setDescription(`A search on the move's frequency.`);
+        return option.setDescription(`A search on the ability's frequency.`);
     });
 
     subcommand.addStringOption((option) =>
     {
         option.setName('effect_search');
-        return option.setDescription(`A search on the move's effect.`);
+        return option.setDescription(`A search on the ability's effect.`);
     });
 
     return subcommand;
