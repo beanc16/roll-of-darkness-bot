@@ -1,5 +1,6 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
+import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../constants/discord.js';
 import { chunkArray } from '../../services/chunkArray.js';
 
 export interface TableColumn
@@ -12,6 +13,21 @@ export enum TableParsingStyle
 {
     Fields = 'Fields',
     Description = 'Description',
+}
+
+export interface PageData
+{
+    pages: string[];
+    tableColumns?: TableColumn[];
+    curPage: number;
+}
+
+export interface CreateEmbedMessageDescriptionAndPageOptions
+{
+    lines: string[];
+    pageData: PageData;
+    tableData?: string;
+    index: number;
 }
 
 const color = 0xCDCDCD;
@@ -194,4 +210,51 @@ export const getPagedEmbedBuilders = ({
     });
 
     return embeds;
+};
+
+export const createEmbedMessageDescriptionAndPage = ({
+    lines,
+    pageData,
+    tableData,
+    index,
+}: CreateEmbedMessageDescriptionAndPageOptions): PageData =>
+{
+    // Create a clone of the page data so the original parameter's data isn't mutated
+    const pageDataOutput = { ...pageData };
+
+    // Create the description
+    let curDescription = lines.join('\n');
+
+    // Don't let descriptions exceed the max limit
+    if (pageDataOutput.pages[pageDataOutput.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)
+    {
+        pageDataOutput.curPage += 1;
+        pageDataOutput.pages[pageDataOutput.curPage] = '';
+    }
+
+    // Separate entries with a blank line
+    if (index !== 0 && pageDataOutput.pages[pageDataOutput.curPage] !== '')
+    {
+        curDescription = '\n' + curDescription;
+    }
+
+    // Add the entry to the current page's description
+    pageDataOutput.pages[pageDataOutput.curPage] += curDescription;
+
+    if (tableData !== undefined && tableData !== '--' && tableData.length > 0)
+    {
+        const columns = tableData.split('\n');
+
+        columns.forEach((column) =>
+        {
+            const [header, ...rows] = column.split('|');
+
+            pageDataOutput.tableColumns?.push({
+                header,
+                rows,
+            });
+        });
+    }
+
+    return pageDataOutput;
 };
