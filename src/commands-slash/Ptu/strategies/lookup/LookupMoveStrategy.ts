@@ -11,7 +11,7 @@ import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
 import {
     PokemonMoveCategory,
@@ -27,7 +27,7 @@ export class LookupMoveStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.MoveName);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
         const type = interaction.options.getString('type') as PokemonType | null;
         const category = interaction.options.getString('category') as PokemonMoveCategory | null;
         const db = interaction.options.getInteger('damage_base');

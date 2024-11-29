@@ -1,4 +1,4 @@
-export enum NwodCompleteParameterName
+export enum NwodAutocompleteParameterName
 {
     ConditionName = 'condition_name',
     ContractName = 'contract_name',

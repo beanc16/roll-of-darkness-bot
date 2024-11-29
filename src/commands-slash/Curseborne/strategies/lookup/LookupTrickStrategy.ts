@@ -10,7 +10,7 @@ import {
 import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
 import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { CurseborneTrick } from '../../types/CurseborneTrick.js';
-import { CurseborneCompleteParameterName } from '../../types/types.js';
+import { CurseborneAutocompleteParameterName } from '../../types/types.js';
 import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
@@ -28,7 +28,7 @@ export class LookupTrickStrategy
     ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(CurseborneCompleteParameterName.TrickName, true);
+        const name = interaction.options.getString(CurseborneAutocompleteParameterName.TrickName, true);
 
         // Get data
         const data = await this.getLookupData({

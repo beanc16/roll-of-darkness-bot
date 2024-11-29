@@ -24,7 +24,7 @@ import {
 } from '../../embed-messages/lookup.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,
@@ -66,10 +66,10 @@ export class LookupPokemonStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.PokemonName);
-        const moveName = interaction.options.getString(PtuCompleteParameterName.MoveName);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.PokemonName);
+        const moveName = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
         const moveListType = (interaction.options.getString('move_list_type') ?? PtuMoveListType.All) as PtuMoveListType;
-        const abilityName = interaction.options.getString(PtuCompleteParameterName.AbilityName);
+        const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
 
         const numOfTruthyValues = [name, moveName, abilityName].filter(Boolean).length;

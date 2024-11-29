@@ -1,4 +1,4 @@
-export enum CurseborneCompleteParameterName
+export enum CurseborneAutocompleteParameterName
 {
     TrickName = 'trick_name',
 }

@@ -7,7 +7,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupNatureEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import { PtuNature } from '../../types/PtuNature.js';
 
 export interface GetLookupNatureDataParameters
@@ -25,7 +25,7 @@ export class LookupNatureStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.NatureName);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.NatureName);
         const raisedStat = interaction.options.getString('raised_stat');
         const loweredStat = interaction.options.getString('lowered_stat');
 

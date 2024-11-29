@@ -15,8 +15,9 @@ import {
     roll,
 } from './Curseborne/subcommand-groups/index.js';
 import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
-import { CurseborneCompleteParameterName } from './Curseborne/types/types.js';
+import { CurseborneAutocompleteParameterName } from './Curseborne/types/types.js';
 import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
+import { AutcompleteHandlerMap } from './strategies/types/types.js';
 
 class Curseborne extends BaseSlashCommand
 {
@@ -61,14 +62,11 @@ class Curseborne extends BaseSlashCommand
     public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const focusedValue = interaction.options.getFocused(true);
-        const autocompleteName = focusedValue.name as CurseborneCompleteParameterName;
+        const autocompleteName = focusedValue.name as CurseborneAutocompleteParameterName;
 
-        let data: { name: string }[] = [];
-
-        // Move Name
-        if (autocompleteName === CurseborneCompleteParameterName.TrickName)
-        {
-            data = await CurseborneStrategyExecutor.getLookupData({
+        // Get data based on the autocompleteName
+        const handlerMap: AutcompleteHandlerMap<CurseborneAutocompleteParameterName> = {
+            [CurseborneAutocompleteParameterName.TrickName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
                 lookupParams: {
@@ -77,7 +75,17 @@ class Curseborne extends BaseSlashCommand
                         matchType: BaseGetLookupSearchMatchType.SubstringMatch,
                     },
                 },
-            });
+            }),
+        };
+
+        const data = await handlerMap[autocompleteName]();
+
+        // Handle enums not being set properly
+        if (!data)
+        {
+            // TODO: Add name to error message later
+            // logger.error(`Failed to get autocomplete data. Ensure that all enums and handlers are set up as intended in ${this.name}`, { autocompleteName });
+            return await interaction.respond([]);
         }
 
         // Parse data to discord's format
@@ -97,7 +105,7 @@ class Curseborne extends BaseSlashCommand
         // Discord limits a maximum of 25 choices to display
         const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
 
-        await interaction.respond(limitedChoices);
+        return await interaction.respond(limitedChoices);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

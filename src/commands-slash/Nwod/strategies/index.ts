@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     ApplicationCommandOptionChoiceData,
     AutocompleteFocusedOption,
@@ -7,13 +8,13 @@ import {
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
-import { BaseLookupDataOptions } from '../../strategies/types/types.js';
+import { AutcompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
-import { NwodCompleteParameterName } from '../types/types.js';
+import { NwodAutocompleteParameterName } from '../types/types.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
 import lookupStrategies from './lookup/index.js';
@@ -73,40 +74,36 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         return false;
     }
 
-    // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
     public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
-        const autocompleteName = focusedValue.name as NwodCompleteParameterName;
-        let data: { name: string }[] = [];
+        const autocompleteName = focusedValue.name as NwodAutocompleteParameterName;
 
-        // Merit Name
-        if (autocompleteName === NwodCompleteParameterName.MeritName)
-        {
-            data = await NwodStrategyExecutor.getLookupData<NwodMerit>({
+        // Get data based on the autocompleteName
+        const handlerMap: AutcompleteHandlerMap<NwodAutocompleteParameterName> = {
+            [NwodAutocompleteParameterName.MeritName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Merit,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
-            });
-        }
-
-        // Contract Name
-        if (autocompleteName === NwodCompleteParameterName.ContractName)
-        {
-            data = await NwodStrategyExecutor.getLookupData<ChangelingContract>({
+            }),
+            [NwodAutocompleteParameterName.ContractName]: () => NwodStrategyExecutor.getLookupData<ChangelingContract>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
-            });
-        }
-
-        // Condition Name
-        if (autocompleteName === NwodCompleteParameterName.ConditionName)
-        {
-            data = await NwodStrategyExecutor.getLookupData<NwodCondition>({
+            }),
+            [NwodAutocompleteParameterName.ConditionName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Condition,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
-            });
+            }),
+        };
+
+        const data = await handlerMap[autocompleteName]();
+
+        // Handle enums not being set properly
+        if (!data)
+        {
+            logger.error(`Failed to get autocomplete data. Ensure that all enums and handlers are set up as intended in ${this.name}`, { autocompleteName });
+            return [];
         }
 
         // Parse data to discord's format

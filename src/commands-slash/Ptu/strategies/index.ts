@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import {
     ApplicationCommandOptionChoiceData,
     AutocompleteFocusedOption,
@@ -8,6 +9,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { Timer } from '../../../services/Timer.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
+import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuCalculateSubcommand } from '../subcommand-groups/calculate.js';
@@ -16,7 +18,7 @@ import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
 import { PtuTrainSubcommand } from '../subcommand-groups/train.js';
-import { PtuCompleteParameterName } from '../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../types/autcomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
 import { PtuCapability } from '../types/PtuCapability.js';
@@ -141,123 +143,84 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return false;
     }
 
-    // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
     public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
-        const autocompleteName = focusedValue.name as PtuCompleteParameterName;
-        let data: { name: string }[] = [];
+        const autocompleteName = focusedValue.name as PtuAutocompleteParameterName;
 
-        // Move Name
-        if (autocompleteName === PtuCompleteParameterName.MoveName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuMove>({
+        // Get data based on the autocompleteName
+        const handlerMap: AutcompleteHandlerMap<PtuAutocompleteParameterName> = {
+            [PtuAutocompleteParameterName.AbilityName]: () => PtuStrategyExecutor.getLookupData<PtuAbility>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Ability,
+            }),
+            [PtuAutocompleteParameterName.CapabilityName]: () => PtuStrategyExecutor.getLookupData<PtuCapability>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Capability,
+            }),
+            [PtuAutocompleteParameterName.EdgeName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Edge,
+            }),
+            [PtuAutocompleteParameterName.FeatureName]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Feature,
+            }),
+            [PtuAutocompleteParameterName.KeywordName]: () => PtuStrategyExecutor.getLookupData<PtuKeyword>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Keyword,
+            }),
+            [PtuAutocompleteParameterName.MoveName]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Move,
                 options: { sortBy: 'name' },
-            });
-        }
-
-        // Ability Name
-        if (autocompleteName === PtuCompleteParameterName.AbilityName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuAbility>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Ability,
-            });
-        }
-
-        // Natures
-        if (autocompleteName === PtuCompleteParameterName.NatureName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuNature>({
+            }),
+            [PtuAutocompleteParameterName.NatureName]: () => PtuStrategyExecutor.getLookupData<PtuNature>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
-            });
-        }
-
-        // Pokemon
-        if (autocompleteName === PtuCompleteParameterName.PokemonName)
-        {
-            if (this.isQueryingPokemonAutocomplete)
-            {
-                await Timer.waitUntilTrue({
-                    seconds: 0.2,
-                    callback: () => !this.isQueryingPokemonAutocomplete,
-                });
-            }
-
-            this.isQueryingPokemonAutocomplete = true;
-            data = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Pokemon,
-                options: {
-                    name: focusedValue.value,
-                },
-            });
-            this.isQueryingPokemonAutocomplete = false;
-        }
-
-        // Status Name
-        if (autocompleteName === PtuCompleteParameterName.StatusName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuStatus>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Status,
-            });
-        }
-
-        // TM Name
-        if (autocompleteName === PtuCompleteParameterName.TmName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuTm>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Tm,
-            });
-        }
-
-        // Capability Name
-        if (autocompleteName === PtuCompleteParameterName.CapabilityName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuCapability>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Capability,
-            });
-        }
-
-        // Feature Name
-        if (autocompleteName === PtuCompleteParameterName.FeatureName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuFeature>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Feature,
-            });
-        }
-
-        // Edge Name
-        if (autocompleteName === PtuCompleteParameterName.EdgeName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuEdge>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Edge,
-            });
-        }
-
-        // Keyword Name
-        if (autocompleteName === PtuCompleteParameterName.KeywordName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuKeyword>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Keyword,
-            });
-        }
-
-        // Pokeball Name
-        if (autocompleteName === PtuCompleteParameterName.PokeballName)
-        {
-            data = await PtuStrategyExecutor.getLookupData<PtuPokeball>({
+            }),
+            [PtuAutocompleteParameterName.PokeballName]: () => PtuStrategyExecutor.getLookupData<PtuPokeball>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokeball,
-            });
+            }),
+            [PtuAutocompleteParameterName.StatusName]: () => PtuStrategyExecutor.getLookupData<PtuStatus>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Status,
+            }),
+            [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Tm,
+            }),
+            [PtuAutocompleteParameterName.PokemonName]: async () =>
+            {
+                if (this.isQueryingPokemonAutocomplete)
+                {
+                    await Timer.waitUntilTrue({
+                        seconds: 0.2,
+                        callback: () => !this.isQueryingPokemonAutocomplete,
+                    });
+                }
+
+                this.isQueryingPokemonAutocomplete = true;
+                const output = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Pokemon,
+                    options: {
+                        name: focusedValue.value,
+                    },
+                });
+                this.isQueryingPokemonAutocomplete = false;
+
+                return output;
+            },
+        };
+
+        const data = await handlerMap[autocompleteName]();
+
+        // Handle enums not being set properly
+        if (!data)
+        {
+            logger.error(`Failed to get autocomplete data. Ensure that all enums and handlers are set up as intended in ${this.name}`, { autocompleteName });
+            return [];
         }
 
         // Parse data to discord's format

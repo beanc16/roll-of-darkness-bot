@@ -9,7 +9,7 @@ import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupConditionsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { NwodCondition } from '../../types/NwodCondition.js';
-import { NwodCompleteParameterName } from '../../types/types.js';
+import { NwodAutocompleteParameterName } from '../../types/types.js';
 
 export interface GetLookupMeritDataOptions extends BaseLookupDataOptions
 {
@@ -24,7 +24,7 @@ export class LookupConditionStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(NwodCompleteParameterName.ConditionName);
+        const name = interaction.options.getString(NwodAutocompleteParameterName.ConditionName);
 
         const conditions = await this.getLookupData({
             name,

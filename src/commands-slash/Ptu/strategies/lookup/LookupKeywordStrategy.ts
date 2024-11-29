@@ -8,7 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupKeywordsEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import { PtuKeyword } from '../../types/PtuKeyword.js';
 
 export interface GetLookupKeywordDataParameters extends BaseLookupDataOptions
@@ -24,7 +24,7 @@ export class LookupKeywordStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.KeywordName);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.KeywordName);
 
         const keywords = await this.getLookupData({
             name,

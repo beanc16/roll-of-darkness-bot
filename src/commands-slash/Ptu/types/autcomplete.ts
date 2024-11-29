@@ -1,4 +1,4 @@
-export enum PtuCompleteParameterName
+export enum PtuAutocompleteParameterName
 {
     AbilityName = 'ability_name',
     CapabilityName = 'capability_name',

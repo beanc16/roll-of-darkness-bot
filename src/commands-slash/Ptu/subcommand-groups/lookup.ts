@@ -1,7 +1,7 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { equalityOption } from '../../options/shared.js';
-import { PtuCompleteParameterName } from '../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../types/autcomplete.js';
 import { PokeballType } from '../types/pokeballType.js';
 import {
     PokemonMoveCategory,
@@ -36,7 +36,7 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.AbilityName);
+        option.setName(PtuAutocompleteParameterName.AbilityName);
         option.setDescription(`The ability's name.`);
         return option.setAutocomplete(true);
     });
@@ -71,7 +71,7 @@ export const capability = (subcommand: SlashCommandSubcommandBuilder): SlashComm
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.CapabilityName);
+        option.setName(PtuAutocompleteParameterName.CapabilityName);
         option.setDescription(`The capability's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
@@ -88,7 +88,7 @@ export const edge = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.EdgeName);
+        option.setName(PtuAutocompleteParameterName.EdgeName);
         option.setDescription(`The edge's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
@@ -105,7 +105,7 @@ export const feature = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.FeatureName);
+        option.setName(PtuAutocompleteParameterName.FeatureName);
         option.setDescription(`The feature's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
@@ -122,7 +122,7 @@ export const keyword = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.KeywordName);
+        option.setName(PtuAutocompleteParameterName.KeywordName);
         option.setDescription(`The keyword's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
@@ -139,7 +139,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.MoveName);
+        option.setName(PtuAutocompleteParameterName.MoveName);
         option.setDescription(`The move's name.`);
         return option.setAutocomplete(true);
     });
@@ -259,7 +259,7 @@ export const nature = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.NatureName);
+        option.setName(PtuAutocompleteParameterName.NatureName);
         option.setDescription(`The nature's name.`);
         return option.setAutocomplete(true);
     });
@@ -305,7 +305,7 @@ export const pokeball = (subcommand: SlashCommandSubcommandBuilder): SlashComman
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.PokeballName);
+        option.setName(PtuAutocompleteParameterName.PokeballName);
         option.setDescription(`The pokeball's name.`);
         return option.setAutocomplete(true);
     });
@@ -338,7 +338,7 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.PokemonName);
+        option.setName(PtuAutocompleteParameterName.PokemonName);
         option.setDescription(`The Pokémon's name.`);
         return option.setAutocomplete(true);
     });
@@ -346,7 +346,7 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Move name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.MoveName);
+        option.setName(PtuAutocompleteParameterName.MoveName);
         option.setDescription(`The move's name to search.`);
         return option.setAutocomplete(true);
     });
@@ -374,7 +374,7 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     // Ability name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.AbilityName);
+        option.setName(PtuAutocompleteParameterName.AbilityName);
         option.setDescription(`The ability's name to search.`);
         return option.setAutocomplete(true);
     });
@@ -410,7 +410,7 @@ export const status = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.StatusName);
+        option.setName(PtuAutocompleteParameterName.StatusName);
         option.setDescription(`The status' name.`);
         return option.setAutocomplete(true);
     });
@@ -445,7 +445,7 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuCompleteParameterName.TmName);
+        option.setName(PtuAutocompleteParameterName.TmName);
         option.setDescription(`The tm's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);

@@ -8,7 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import { PtuEdge } from '../../types/PtuEdge.js';
 
 export interface GetLookupEdgeDataParameters extends BaseLookupDataOptions
@@ -24,7 +24,7 @@ export class LookupEdgeStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.EdgeName, true);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.EdgeName, true);
 
         const edges = await this.getLookupData({
             name,

@@ -10,7 +10,7 @@ import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js'
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuCompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
 import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -21,7 +21,7 @@ export class LookupAbilityStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuCompleteParameterName.AbilityName);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const nameSearch = interaction.options.getString('name_search');
         const frequencySearch = interaction.options.getString('frequency_search');
         const effectSearch = interaction.options.getString('effect_search');
