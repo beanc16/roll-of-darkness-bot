@@ -16,9 +16,16 @@ import { PtuAutocompleteParameterName, PtuLookupRange } from '../../Ptu/types/au
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import {
     AdminSubcommand,
+    type CommandForRefreshCache,
     RefreshCacheCommand,
-    SubcommandForRefreshCache,
+    type SplitCommandForRefreshCache,
 } from '../options/index.js';
+
+interface GetHandlerResultResponse
+{
+    handlerResult: RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterName] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterName] | undefined;
+    refreshCacheCommand: RefreshCacheCommand;
+}
 
 interface RefreshCacheResponse
 {
@@ -122,28 +129,28 @@ export class RefreshCacheStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const command = interaction.options.getString('command', true) as RefreshCacheCommand;
-        const subcommand = interaction.options.getString('subcommand', true) as SubcommandForRefreshCache;
+        const command = interaction.options.getString('command', true) as CommandForRefreshCache;
 
         // Get data for refresh
-        const handlerResult = this.getHandlerResult(command, subcommand);
-        if (!handlerResult)
+        const handlerResult = this.getHandlerResult(command);
+
+        if (!handlerResult.handlerResult)
         {
             logger.warn('Retrieved undefined handlerResult with the following data', {
                 command,
-                subcommand,
             });
             await interaction.editReply(
-                `Failed to refresh cache for \`/${command} lookup ${subcommand.replace('_name', '')}\`. `
+                `Failed to refresh cache for \`${command}\`. `
                 + `If you believe that this is an error, please contact this bot's owner for help fixing the issue.`,
             );
             return true;
         }
 
         // Refresh the cache
-        const { keys, lookupSubcommand } = handlerResult;
+        const { refreshCacheCommand, handlerResult: { keys, lookupSubcommand } } = handlerResult;
+
         const response = await this.refreshCache({
-            command,
+            refreshCacheCommand,
             keys,
             lookupSubcommand,
         });
@@ -163,29 +170,35 @@ export class RefreshCacheStrategy
     }
 
     private static getHandlerResult(
-        command: RefreshCacheCommand,
-        subcommand: SubcommandForRefreshCache,
-    ): RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterName] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterName] | undefined
+        command: CommandForRefreshCache,
+    ): GetHandlerResultResponse
     {
-        if (command === RefreshCacheCommand.Nwod)
+        const [refreshCacheCommand, _second, autocompleteParameterName] = command.replace('/', '').split(' ') as SplitCommandForRefreshCache;
+
+        const response: GetHandlerResultResponse = {
+            refreshCacheCommand,
+            handlerResult: undefined,
+        };
+
+        if (refreshCacheCommand === RefreshCacheCommand.Nwod)
         {
-            return this.handlerMap[command][subcommand as NwodAutocompleteParameterName];
+            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as NwodAutocompleteParameterName];
         }
 
-        if (command === RefreshCacheCommand.Ptu)
+        else if (refreshCacheCommand === RefreshCacheCommand.Ptu)
         {
-            return this.handlerMap[command][subcommand as PtuAutocompleteParameterName];
+            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as PtuAutocompleteParameterName];
         }
 
-        return undefined;
+        return response;
     }
 
     private static async refreshCache({
-        command,
+        refreshCacheCommand,
         lookupSubcommand,
         keys,
     }: {
-        command: RefreshCacheCommand;
+        refreshCacheCommand: RefreshCacheCommand;
         lookupSubcommand: NwodLookupSubcommand | PtuLookupSubcommand;
         keys: [string, string];
     }): Promise<RefreshCacheResponse>
@@ -195,7 +208,7 @@ export class RefreshCacheStrategy
             [RefreshCacheCommand.Nwod]: { includeAllIfNoName: true, sortBy: 'name' },
             [RefreshCacheCommand.Ptu]: undefined,
         };
-        const options = optionsMap[command];
+        const options = optionsMap[refreshCacheCommand];
 
         // Set up handler for fetching data
         const handlerMap: Record<RefreshCacheCommand, () => Promise<{ name: string }[]>> = {
@@ -212,13 +225,13 @@ export class RefreshCacheStrategy
         };
 
         // Get the data before the refresh
-        const dataBeforeRefresh = await handlerMap[command]();
+        const dataBeforeRefresh = await handlerMap[refreshCacheCommand]();
 
         // Clear the cache
         CachedGoogleSheetsApiService.clearCache(keys);
 
         // Re-Fetch the data
-        const dataAfterRefresh = await handlerMap[command]();
+        const dataAfterRefresh = await handlerMap[refreshCacheCommand]();
 
         return { dataBeforeRefresh, dataAfterRefresh };
     }
@@ -264,13 +277,13 @@ export class RefreshCacheStrategy
         lookupSubcommand,
         dataDiffResponse,
     }: {
-        command: RefreshCacheCommand;
+        command: CommandForRefreshCache;
         lookupSubcommand: NwodLookupSubcommand | PtuLookupSubcommand;
         dataDiffResponse: GetDataDiffResponse ;
     }): string
     {
         const lines = [
-            `The data for \`/${command} lookup ${lookupSubcommand}\` has been refreshed!`,
+            `The data for \`${command}\` has been refreshed!`,
         ];
 
         const { addedNames, removedNames } = dataDiffResponse;

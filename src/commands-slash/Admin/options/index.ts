@@ -21,19 +21,34 @@ const ptuSubcommandsForRefreshCache = Object.values(PtuAutocompleteParameterName
     .map(value => value)
     .filter(value => value !== PtuAutocompleteParameterName.PokemonName);
 
-export const subcommandsForRefreshCache = [
-    ...nwodSubcommandsForRefreshCache,
-    ...ptuSubcommandsForRefreshCache,
+export const commandsForRefresh = [
+    ...nwodSubcommandsForRefreshCache.map<CommandForRefreshCache>(value =>
+        `/${RefreshCacheCommand.Nwod} lookup ${
+            value.replace('_name', '') as RemoveNameSuffix<NwodAutocompleteParameterName>
+        }`,
+    ),
+    ...ptuSubcommandsForRefreshCache.map<CommandForRefreshCache>(value =>
+        `/${RefreshCacheCommand.Ptu} lookup ${
+            value.replace('_name', '') as RemoveNameSuffix<Exclude<PtuAutocompleteParameterName, PtuAutocompleteParameterName.PokemonName>>
+        }`,
+    ),
 ];
 
-export type SubcommandForRefreshCache = typeof subcommandsForRefreshCache[0];
+type UnparsedSubcommandForRefreshCache = `/${RefreshCacheCommand} lookup ${NwodAutocompleteParameterName | Exclude<PtuAutocompleteParameterName, PtuAutocompleteParameterName.PokemonName>}`;
+type RemoveNameSuffix<T> = T extends `${infer Prefix}_name` ? Prefix : T;
+export type CommandForRefreshCache = RemoveNameSuffix<UnparsedSubcommandForRefreshCache>;
+export type SplitCommandForRefreshCache = [
+    RefreshCacheCommand,
+    'lookup',
+    RemoveNameSuffix<NwodAutocompleteParameterName | Exclude<PtuAutocompleteParameterName, PtuAutocompleteParameterName.PokemonName>>,
+];
 
 export const refreshCache = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(AdminSubcommand.RefreshCache);
     subcommand.setDescription('Pull fresh data for the given command rather than using what was pulled on startup.');
 
-    const commandChoices = Object.values(RefreshCacheCommand).map<APIApplicationCommandOptionChoice<string>>(
+    const commandChoices = commandsForRefresh.map<APIApplicationCommandOptionChoice<string>>(
         (name) =>
         {
             return {
@@ -47,23 +62,6 @@ export const refreshCache = (subcommand: SlashCommandSubcommandBuilder): SlashCo
         option.setName('command');
         option.setDescription('The command to refresh the cache for.');
         option.addChoices(...commandChoices);
-        return option.setRequired(true);
-    });
-
-    const subcommandChoices = subcommandsForRefreshCache.map<APIApplicationCommandOptionChoice<string>>(
-        (name) =>
-        {
-            return {
-                name: name.replace('_name', ''),
-                value: name,
-            };
-        },
-    );
-    subcommand.addStringOption((option) =>
-    {
-        option.setName('subcommand');
-        option.setDescription('The subcommand to refresh the cache for.');
-        option.addChoices(...subcommandChoices);
         return option.setRequired(true);
     });
 
