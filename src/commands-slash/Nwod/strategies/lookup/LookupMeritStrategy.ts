@@ -9,7 +9,7 @@ import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupMeritsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { NwodMerit } from '../../types/NwodMerit.js';
-import { MeritType } from '../../types/types.js';
+import { MeritType, NwodCompleteParameterName } from '../../types/types.js';
 
 export interface GetLookupMeritDataOptions extends BaseLookupDataOptions
 {
@@ -29,7 +29,7 @@ export class LookupMeritStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString('merit_name');
+        const name = interaction.options.getString(NwodCompleteParameterName.MeritName);
         const type1 = interaction.options.getString('type_1') as MeritType | null;
         const type2 = interaction.options.getString('type_2') as MeritType | null;
         const type3 = interaction.options.getString('type_3') as MeritType | null;

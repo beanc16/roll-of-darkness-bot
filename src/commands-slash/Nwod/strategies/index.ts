@@ -13,6 +13,7 @@ import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
+import { NwodCompleteParameterName } from '../types/types.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
 import lookupStrategies from './lookup/index.js';
@@ -75,11 +76,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
     // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
     public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
+        const autocompleteName = focusedValue.name as NwodCompleteParameterName;
         let data: { name: string }[] = [];
-        let choices: ApplicationCommandOptionChoiceData<string>[] = [];
 
         // Merit Name
-        if (focusedValue.name === 'merit_name')
+        if (autocompleteName === NwodCompleteParameterName.MeritName)
         {
             data = await NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
@@ -89,7 +90,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         }
 
         // Contract Name
-        if (focusedValue.name === 'contract_name')
+        if (autocompleteName === NwodCompleteParameterName.ContractName)
         {
             data = await NwodStrategyExecutor.getLookupData<ChangelingContract>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
@@ -99,7 +100,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         }
 
         // Condition Name
-        if (focusedValue.name === 'condition_name')
+        if (autocompleteName === NwodCompleteParameterName.ConditionName)
         {
             data = await NwodStrategyExecutor.getLookupData<NwodCondition>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
@@ -109,7 +110,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         }
 
         // Parse data to discord's format
-        choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+        const choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
         {
             return {
                 name,

@@ -1,6 +1,10 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { ChangelingContractType, MeritType } from '../types/types.js';
+import {
+    ChangelingContractType,
+    MeritType,
+    NwodCompleteParameterName,
+} from '../types/types.js';
 
 export enum NwodLookupSubcommand
 {
@@ -17,7 +21,7 @@ export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashComma
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName('condition_name');
+        option.setName(NwodCompleteParameterName.ConditionName);
         option.setDescription(`The condition's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
@@ -34,7 +38,7 @@ export const contract = (subcommand: SlashCommandSubcommandBuilder): SlashComman
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName('contract_name');
+        option.setName(NwodCompleteParameterName.ContractName);
         option.setDescription(`The contract's name.`);
         return option.setAutocomplete(true);
     });
@@ -73,7 +77,7 @@ export const merit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName('merit_name');
+        option.setName(NwodCompleteParameterName.MeritName);
         option.setDescription(`The merit's name.`);
         return option.setAutocomplete(true);
     });

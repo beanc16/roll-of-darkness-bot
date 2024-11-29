@@ -9,7 +9,7 @@ import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupContractsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingContract } from '../../types/ChangelingContract.js';
-import { ChangelingContractType } from '../../types/types.js';
+import { ChangelingContractType, NwodCompleteParameterName } from '../../types/types.js';
 
 export interface GetLookupContractDataOptions extends BaseLookupDataOptions
 {
@@ -28,7 +28,7 @@ export class LookupContractStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString('contract_name');
+        const name = interaction.options.getString(NwodCompleteParameterName.ContractName);
         const type1 = interaction.options.getString('type_1') as ChangelingContractType | null;
         const type2 = interaction.options.getString('type_2') as ChangelingContractType | null;
 

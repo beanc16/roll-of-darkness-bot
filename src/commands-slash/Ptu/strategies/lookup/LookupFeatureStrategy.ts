@@ -8,6 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupFeaturesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuCompleteParameterName } from '../../types/autcomplete.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 
 export interface GetLookupFeatureDataParameters extends BaseLookupDataOptions
@@ -23,7 +24,7 @@ export class LookupFeatureStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString('feature_name', true);
+        const name = interaction.options.getString(PtuCompleteParameterName.FeatureName, true);
 
         const features = await this.getLookupData({
             name,

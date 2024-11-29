@@ -15,9 +15,10 @@ import {
     roll,
 } from './Curseborne/subcommand-groups/index.js';
 import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
+import { CurseborneCompleteParameterName } from './Curseborne/types/types.js';
 import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
 
-class Cursebourne extends BaseSlashCommand
+class Curseborne extends BaseSlashCommand
 {
     constructor()
     {
@@ -60,13 +61,14 @@ class Cursebourne extends BaseSlashCommand
     public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
         const focusedValue = interaction.options.getFocused(true);
+        const autocompleteName = focusedValue.name as CurseborneCompleteParameterName;
 
-        let choices: ApplicationCommandOptionChoiceData<string>[] = [];
+        let data: { name: string }[] = [];
 
         // Move Name
-        if (focusedValue.name === 'trick_name')
+        if (autocompleteName === CurseborneCompleteParameterName.TrickName)
         {
-            const results = await CurseborneStrategyExecutor.getLookupData({
+            data = await CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
                 lookupParams: {
@@ -76,14 +78,16 @@ class Cursebourne extends BaseSlashCommand
                     },
                 },
             });
-            choices = results.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
-            });
         }
+
+        // Parse data to discord's format
+        const choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+        {
+            return {
+                name,
+                value: name,
+            };
+        });
 
         // Get the choices matching the search
         const filteredChoices = choices.filter(choice =>
@@ -109,4 +113,4 @@ class Cursebourne extends BaseSlashCommand
     }
 }
 
-export default new Cursebourne();
+export default new Curseborne();

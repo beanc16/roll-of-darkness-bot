@@ -16,6 +16,7 @@ import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
 import { PtuTrainSubcommand } from '../subcommand-groups/train.js';
+import { PtuCompleteParameterName } from '../types/autcomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
 import { PtuCapability } from '../types/PtuCapability.js';
@@ -143,59 +144,39 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     // TODO: Dry this out with strategy pattern later. Make it part of PtuStrategyExecutor.
     public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
-        let choices: ApplicationCommandOptionChoiceData<string>[] = [];
+        const autocompleteName = focusedValue.name as PtuCompleteParameterName;
+        let data: { name: string }[] = [];
 
         // Move Name
-        if (focusedValue.name === 'move_name')
+        if (autocompleteName === PtuCompleteParameterName.MoveName)
         {
-            const moves = await PtuStrategyExecutor.getLookupData<PtuMove>({
+            data = await PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Move,
                 options: { sortBy: 'name' },
             });
-            choices = moves.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
-            });
         }
 
         // Ability Name
-        if (focusedValue.name === 'ability_name')
+        if (autocompleteName === PtuCompleteParameterName.AbilityName)
         {
-            const abilities = await PtuStrategyExecutor.getLookupData<PtuAbility>({
+            data = await PtuStrategyExecutor.getLookupData<PtuAbility>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
-            });
-            choices = abilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Natures
-        if (focusedValue.name === 'nature_name')
+        if (autocompleteName === PtuCompleteParameterName.NatureName)
         {
-            const natures = await PtuStrategyExecutor.getLookupData<PtuNature>({
+            data = await PtuStrategyExecutor.getLookupData<PtuNature>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
-            });
-            choices = natures.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Pokemon
-        if (focusedValue.name === 'pokemon_name')
+        if (autocompleteName === PtuCompleteParameterName.PokemonName)
         {
             if (this.isQueryingPokemonAutocomplete)
             {
@@ -206,134 +187,87 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             }
 
             this.isQueryingPokemonAutocomplete = true;
-            const pokemon = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+            data = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokemon,
                 options: {
                     name: focusedValue.value,
                 },
             });
-            choices = pokemon.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
-            });
             this.isQueryingPokemonAutocomplete = false;
         }
 
         // Status Name
-        if (focusedValue.name === 'status_name')
+        if (autocompleteName === PtuCompleteParameterName.StatusName)
         {
-            const statuses = await PtuStrategyExecutor.getLookupData<PtuStatus>({
+            data = await PtuStrategyExecutor.getLookupData<PtuStatus>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
-            });
-            choices = statuses.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // TM Name
-        if (focusedValue.name === 'tm_name')
+        if (autocompleteName === PtuCompleteParameterName.TmName)
         {
-            const tms = await PtuStrategyExecutor.getLookupData<PtuTm>({
+            data = await PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,
-            });
-            choices = tms.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Capability Name
-        if (focusedValue.name === 'capability_name')
+        if (autocompleteName === PtuCompleteParameterName.CapabilityName)
         {
-            const capabilities = await PtuStrategyExecutor.getLookupData<PtuCapability>({
+            data = await PtuStrategyExecutor.getLookupData<PtuCapability>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
-            });
-            choices = capabilities.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Feature Name
-        if (focusedValue.name === 'feature_name')
+        if (autocompleteName === PtuCompleteParameterName.FeatureName)
         {
-            const features = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+            data = await PtuStrategyExecutor.getLookupData<PtuFeature>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
-            });
-            choices = features.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Edge Name
-        if (focusedValue.name === 'edge_name')
+        if (autocompleteName === PtuCompleteParameterName.EdgeName)
         {
-            const edges = await PtuStrategyExecutor.getLookupData<PtuEdge>({
+            data = await PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
-            });
-            choices = edges.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Keyword Name
-        if (focusedValue.name === 'keyword_name')
+        if (autocompleteName === PtuCompleteParameterName.KeywordName)
         {
-            const keywords = await PtuStrategyExecutor.getLookupData<PtuKeyword>({
+            data = await PtuStrategyExecutor.getLookupData<PtuKeyword>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Keyword,
-            });
-            choices = keywords.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
             });
         }
 
         // Pokeball Name
-        if (focusedValue.name === 'pokeball_name')
+        if (autocompleteName === PtuCompleteParameterName.PokeballName)
         {
-            const pokeballs = await PtuStrategyExecutor.getLookupData<PtuPokeball>({
+            data = await PtuStrategyExecutor.getLookupData<PtuPokeball>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokeball,
             });
-            choices = pokeballs.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-            {
-                return {
-                    name,
-                    value: name,
-                };
-            });
         }
+
+        // Parse data to discord's format
+        const choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+        {
+            return {
+                name,
+                value: name,
+            };
+        });
 
         // Get the choices matching the search
         const filteredChoices = choices.filter(choice =>
