@@ -10,3 +10,20 @@ export enum MeritType
     Motley = 'Motley',
     Variable = 'Variable',
 }
+
+export enum ChangelingContractType
+{
+    Crown = 'Crown',
+    Jewel = 'Jewel',
+    Mirror = 'Mirror',
+    Shield = 'Shield',
+    Steed = 'Steed',
+    Sword = 'Sword',
+    Spring = 'Spring',
+    Summer = 'Summer',
+    Autumn = 'Autumn',
+    Winter = 'Winter',
+    Common = 'Common',
+    Royal = 'Royal',
+    Goblin = 'Goblin',
+}

@@ -2,6 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
+import { ChangelingContract } from '../types/ChangelingContract.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 
@@ -62,6 +63,68 @@ export const getLookupConditionsEmbedMessages = (input: NwodCondition[]): EmbedB
     });
 };
 
+export const getLookupContractsEmbedMessages = (input: ChangelingContract[]): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, {
+        name,
+        types,
+        cost,
+        loophole,
+        activationRoll,
+        action,
+        duration,
+        pageNumber,
+        description,
+        seemingBenefits,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            `${Text.bold(name)}`,
+            ...(types !== undefined ? [`${types.length > 1 ? 'Types' : 'Type'}: ${types.join(', ')}`] : []),
+            ...(cost !== undefined ? [`Cost: ${cost}`] : []),
+            ...(activationRoll !== undefined ? [`Activation Roll: ${activationRoll}`] : []),
+            ...(action !== undefined ? [`Action: ${action}`] : []),
+            ...(duration !== undefined ? [`Duration: ${duration}`] : []),
+            ...(pageNumber !== undefined ? [`Page Number: ${pageNumber}`] : []),
+            ...(loophole !== undefined && loophole !== '--'
+                ? [
+                    `Loophole:\n\`\`\`\n${loophole}\`\`\``,
+                ]
+                : []
+            ),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []
+            ),
+            ...(seemingBenefits !== undefined && seemingBenefits !== '--'
+                ? [
+                    `Seeming Benefits:\n\`\`\`\n${seemingBenefits}\`\`\``,
+                ]
+                : []
+            ),
+        ];
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Contracts',
+        pages,
+    });
+};
+
 export const getLookupMeritsEmbedMessages = (input: NwodMerit[]): EmbedBuilder[] =>
 {
     if (input.length === 0) return [];
@@ -80,7 +143,7 @@ export const getLookupMeritsEmbedMessages = (input: NwodMerit[]): EmbedBuilder[]
         // Stage the individual lines of the description
         const lines = [
             `${Text.bold(name)} (${dots})`,
-            ...(types !== undefined ? [`${types.length > 0 ? 'Types' : 'Type'}: ${types.join(', ')}`] : []),
+            ...(types !== undefined ? [`${types.length > 1 ? 'Types' : 'Type'}: ${types.join(', ')}`] : []),
             ...(prerequisites !== undefined ? [`Prerequisites: ${prerequisites}`] : []),
             ...(activationRoll !== undefined ? [`Activation Roll: ${activationRoll}`] : []),
             ...(action !== undefined ? [`Action: ${action}`] : []),

@@ -10,6 +10,7 @@ import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/Chat
 import { BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
+import { ChangelingContract } from '../types/ChangelingContract.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
@@ -83,6 +84,16 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
             data = await NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Merit,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            });
+        }
+
+        // Contract Name
+        if (focusedValue.name === 'contract_name')
+        {
+            data = await NwodStrategyExecutor.getLookupData<ChangelingContract>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             });
         }

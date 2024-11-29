@@ -1,10 +1,11 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { MeritType } from '../types/types.js';
+import { ChangelingContractType, MeritType } from '../types/types.js';
 
 export enum NwodLookupSubcommand
 {
     Condition = 'condition',
+    Contract = 'contract',
     Merit = 'merit',
 }
 
@@ -21,6 +22,45 @@ export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashComma
         option.setRequired(true);
         return option.setAutocomplete(true);
     });
+
+    return subcommand;
+};
+
+export const contract = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Contract);
+    subcommand.setDescription('Get a list of contracts based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('contract_name');
+        option.setDescription(`The contract's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    const typeChoices = Object.entries(ChangelingContractType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+
+    for (let index = 1; index <= 2; index += 1)
+    {
+        subcommand.addStringOption((option) =>
+        {
+            option.setName(`type_${index}`);
+            option.setDescription('The type of contracts to look up.');
+            return option.setChoices(
+                ...typeChoices,
+            );
+        });
+    }
 
     return subcommand;
 };
