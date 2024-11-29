@@ -1,11 +1,7 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import {
-    ApplicationCommandOptionChoiceData,
-    AutocompleteInteraction,
-    ChatInputCommandInteraction,
-} from 'discord.js';
+import { logger } from '@beanc16/logger';
+import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
-import { MAX_AUTOCOMPLETE_CHOICES } from '../constants/discord.js';
 import { CurseborneStrategyExecutor } from './Curseborne/strategies/index.js';
 import {
     CurseborneAllNestedSubcommands,
@@ -14,10 +10,6 @@ import {
     lookup,
     roll,
 } from './Curseborne/subcommand-groups/index.js';
-import { CurseborneLookupSubcommand } from './Curseborne/subcommand-groups/lookup.js';
-import { CurseborneAutocompleteParameterName } from './Curseborne/types/types.js';
-import { BaseGetLookupSearchMatchType } from './strategies/BaseLookupStrategy.js';
-import { AutcompleteHandlerMap } from './strategies/types/types.js';
 
 class Curseborne extends BaseSlashCommand
 {
@@ -61,51 +53,23 @@ class Curseborne extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
     {
+        const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
-        const autocompleteName = focusedValue.name as CurseborneAutocompleteParameterName;
 
-        // Get data based on the autocompleteName
-        const handlerMap: AutcompleteHandlerMap<CurseborneAutocompleteParameterName> = {
-            [CurseborneAutocompleteParameterName.TrickName]: () => CurseborneStrategyExecutor.getLookupData({
-                subcommandGroup: CurseborneSubcommandGroup.Lookup,
-                subcommand: CurseborneLookupSubcommand.Trick,
-                lookupParams: {
-                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
-                    options: {
-                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
-                    },
-                },
-            }),
-        };
+        const choices = await CurseborneStrategyExecutor.getAutocompleteChoices(focusedValue);
 
-        const data = await handlerMap[autocompleteName]();
-
-        // Handle enums not being set properly
-        if (!data)
+        // More than 3 seconds has passed, so we can't respond to the interaction
+        if (Date.now() - startTime >= 3000)
         {
-            // TODO: Add name to error message later
-            // logger.error(`Failed to get autocomplete data. Ensure that all enums and handlers are set up as intended in ${this.name}`, { autocompleteName });
-            return await interaction.respond([]);
+            logger.warn('More than 3 seconds has passed to autocomplete in /cb with the following data:', {
+                lookupOn: focusedValue.name,
+                searchValue: focusedValue.value,
+                results: choices,
+            });
+            return;
         }
 
-        // Parse data to discord's format
-        const choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
-        {
-            return {
-                name,
-                value: name,
-            };
-        });
-
-        // Get the choices matching the search
-        const filteredChoices = choices.filter(choice =>
-            choice.name.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
-        );
-
-        // Discord limits a maximum of 25 choices to display
-        const limitedChoices = filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
-
-        return await interaction.respond(limitedChoices);
+        await interaction.respond(choices);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
