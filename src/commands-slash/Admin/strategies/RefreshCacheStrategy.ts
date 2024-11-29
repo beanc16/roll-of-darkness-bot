@@ -3,6 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { DiscordUserId } from '../../../types/discord.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../Nwod/constants.js';
 import { NwodSubcommandGroup } from '../../Nwod/options/index.js';
 import { NwodLookupSubcommand } from '../../Nwod/options/lookup.js';
@@ -63,6 +64,7 @@ type RefreshCacheOptionsMap = {
 export class RefreshCacheStrategy
 {
     public static key: AdminSubcommand.RefreshCache = AdminSubcommand.RefreshCache;
+
     private static handlerMap: RefreshCacheHandlerMap = {
         [RefreshCacheCommand.Nwod]: {
             [NwodAutocompleteParameterName.ConditionName]: {
@@ -149,6 +151,16 @@ export class RefreshCacheStrategy
         // Refresh the cache
         const { refreshCacheCommand, handlerResult: { keys, lookupSubcommand } } = handlerResult;
 
+        // Tell user they don't have permission to refresh the cache
+        if (!this.canRefreshCache(refreshCacheCommand, interaction.user.id))
+        {
+            await interaction.editReply(
+                `The owner of this bot has not given you permission to refresh the cache for ${refreshCacheCommand} commands. `
+                + `If you feel that you should have this permission, please contact this bot's owner.`,
+            );
+            return true;
+        }
+
         const response = await this.refreshCache({
             refreshCacheCommand,
             keys,
@@ -191,6 +203,22 @@ export class RefreshCacheStrategy
         }
 
         return response;
+    }
+
+    private static canRefreshCache(refreshCacheCommand: RefreshCacheCommand, userId: string): boolean
+    {
+        const discordUserIdsWithPermissionsToRefresh: Record<RefreshCacheCommand, string[]> = {
+            [RefreshCacheCommand.Nwod]: [
+                DiscordUserId.Bean,
+                DiscordUserId.Avery,
+            ],
+            [RefreshCacheCommand.Ptu]: [
+                DiscordUserId.Bean,
+                DiscordUserId.Josh,
+            ],
+        };
+
+        return discordUserIdsWithPermissionsToRefresh[refreshCacheCommand].includes(userId);
     }
 
     private static async refreshCache({

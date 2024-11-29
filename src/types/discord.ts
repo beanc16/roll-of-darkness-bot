@@ -5,3 +5,13 @@ export enum DiscordInteractionCallbackType
     Followup = 'followUp',
     Update = 'update',
 }
+
+export enum DiscordUserId
+{
+    Bean = '173083328302284800',
+    Avery = '389188261731368962',
+    Josh = '125738013841031170',
+    Cody = '483775349197373460',
+    Ash = '392769259756847116',
+    Joel = '191607823292039169',
+}
