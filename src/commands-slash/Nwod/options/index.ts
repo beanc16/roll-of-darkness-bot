@@ -11,10 +11,10 @@ export enum NwodSubcommandGroup
 
 export enum NwodSubcommand
 {
-    Roll = 'roll',
-    Initiative = 'initiative',
     Chance = 'chance',
+    Initiative = 'initiative',
     Luck = 'luck',
+    Roll = 'roll',
 }
 
 export const chance = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
