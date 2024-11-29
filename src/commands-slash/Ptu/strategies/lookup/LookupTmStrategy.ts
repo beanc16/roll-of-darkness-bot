@@ -8,7 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupTmsEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuTm } from '../../types/PtuTm.js';
 
 export interface GetLookupTmDataParameters extends BaseLookupDataOptions
@@ -45,7 +45,7 @@ export class LookupTmStrategy
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-            range: `'Tm Data'!A2:Z`,
+            range: PtuLookupRange.Tm,
         });
 
         const tms = data.reduce<PtuTm[]>((acc, cur) =>

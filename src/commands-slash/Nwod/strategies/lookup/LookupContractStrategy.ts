@@ -9,8 +9,8 @@ import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupContractsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingContract } from '../../types/ChangelingContract.js';
-import { NwodLookupRange } from '../../types/lookup.js';
-import { ChangelingContractType, NwodAutocompleteParameterName } from '../../types/types.js';
+import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
+import { ChangelingContractType } from '../../types/types.js';
 
 export interface GetLookupContractDataOptions extends BaseLookupDataOptions
 {

@@ -12,9 +12,9 @@ import { AutcompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/t
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
+import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
-import { NwodAutocompleteParameterName } from '../types/types.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
 import lookupStrategies from './lookup/index.js';

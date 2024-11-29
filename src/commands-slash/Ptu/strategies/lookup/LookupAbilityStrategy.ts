@@ -10,7 +10,7 @@ import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js'
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -47,7 +47,7 @@ export class LookupAbilityStrategy
         {
             const { data = [] } = await CachedGoogleSheetsApiService.getRange({
                 spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-                range: `'Abilities Data'!A3:Z`,
+                range: PtuLookupRange.Ability,
             });
 
             const abilities = data.reduce<PtuAbility[]>((acc, cur) =>

@@ -1,4 +1,5 @@
 import { EqualityOption } from '../../options/shared.js';
+import { BaseLookupDataOptions } from '../../strategies/types/types.js';
 import {
     PokemonMoveCategory,
     PokemonType,
@@ -20,7 +21,7 @@ export interface PtuMoveExclude
     weaponMovesAndManuevers?: boolean;
 }
 
-export interface GetLookupMoveDataParameters
+export interface GetLookupMoveDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
     type?: PokemonType | null;

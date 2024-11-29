@@ -24,7 +24,7 @@ import {
 } from '../../embed-messages/lookup.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,

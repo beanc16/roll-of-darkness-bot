@@ -1,10 +1,3 @@
-export enum NwodAutocompleteParameterName
-{
-    ConditionName = 'condition_name',
-    ContractName = 'contract_name',
-    MeritName = 'merit_name',
-}
-
 export enum MeritType
 {
     Mental = 'Mental',

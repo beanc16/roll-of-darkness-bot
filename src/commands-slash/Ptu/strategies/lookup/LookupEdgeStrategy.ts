@@ -8,7 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuEdge } from '../../types/PtuEdge.js';
 
 export interface GetLookupEdgeDataParameters extends BaseLookupDataOptions
@@ -45,7 +45,7 @@ export class LookupEdgeStrategy
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-            range: `'Edges Data'!A2:Z`,
+            range: PtuLookupRange.Edge,
         });
 
         const edges = data.reduce<PtuEdge[]>((acc, cur) =>

@@ -18,7 +18,7 @@ import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
 import { PtuTrainSubcommand } from '../subcommand-groups/train.js';
-import { PtuAutocompleteParameterName } from '../types/autcomplete.js';
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
 import { PtuCapability } from '../types/PtuCapability.js';

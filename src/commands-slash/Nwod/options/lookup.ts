@@ -1,10 +1,7 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import {
-    ChangelingContractType,
-    MeritType,
-    NwodAutocompleteParameterName,
-} from '../types/types.js';
+import { NwodAutocompleteParameterName } from '../types/lookup.js';
+import { ChangelingContractType, MeritType } from '../types/types.js';
 
 export enum NwodLookupSubcommand
 {

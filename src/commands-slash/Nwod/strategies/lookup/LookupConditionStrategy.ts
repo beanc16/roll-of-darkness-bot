@@ -8,9 +8,8 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupConditionsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
-import { NwodLookupRange } from '../../types/lookup.js';
+import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
 import { NwodCondition } from '../../types/NwodCondition.js';
-import { NwodAutocompleteParameterName } from '../../types/types.js';
 
 export interface GetLookupMeritDataOptions extends BaseLookupDataOptions
 {

@@ -11,7 +11,7 @@ import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
-import { PtuAutocompleteParameterName } from '../../types/autcomplete.js';
+import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
 import {
     PokemonMoveCategory,
@@ -61,13 +61,13 @@ export class LookupMoveStrategy
         });
     }
 
-    public static async getLookupData(input: GetLookupMoveDataParameters = {}): Promise<PtuMove[]>
+    public static async getLookupData(input: GetLookupMoveDataParameters = { includeAllIfNoName: true }): Promise<PtuMove[]>
     {
         try
         {
             const { data = [] } = await CachedGoogleSheetsApiService.getRange({
                 spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-                range: `'Moves Data'!A3:Z`,
+                range: PtuLookupRange.Move,
             });
 
             let beyondWeaponMovesAndManuevers = false;
