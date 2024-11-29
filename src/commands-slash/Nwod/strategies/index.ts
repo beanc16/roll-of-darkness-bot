@@ -126,7 +126,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         return filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
     }
 
-    private static async getLookupData<NwodLookupModel>({
+    public static async getLookupData<NwodLookupModel>({
         subcommandGroup,
         subcommand,
         options,

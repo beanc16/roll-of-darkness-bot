@@ -1,6 +1,7 @@
 import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
+import { NwodCacheInitializer } from '../commands-slash/Nwod/services/NwodCacheInitializer.js';
 import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
@@ -18,8 +19,11 @@ async function handler(bot: Client): Promise<void>
         // Initialize auth token
         await CachedAuthTokenService.resetAuthToken();
 
-        // Initialize ptu cache
-        await PtuCacheInitializer.initialize();
+        // Initialize nWOD and PTU caches
+        await Promise.all([
+            NwodCacheInitializer.initialize(),
+            PtuCacheInitializer.initialize(),
+        ]);
 
         // Run startup functions
         const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
