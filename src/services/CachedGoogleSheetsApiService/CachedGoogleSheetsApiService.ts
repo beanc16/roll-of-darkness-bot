@@ -515,7 +515,6 @@ export class CachedGoogleSheetsApiService
         };
     }
 
-    // TODO: Make ptu or ptu_admin command that calls this
     public static clearCache(keys?: [string, string]): void
     {
         this.cache.Clear(keys);

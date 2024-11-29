@@ -8,6 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupConditionsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
+import { NwodLookupRange } from '../../types/lookup.js';
 import { NwodCondition } from '../../types/NwodCondition.js';
 import { NwodAutocompleteParameterName } from '../../types/types.js';
 
@@ -45,7 +46,7 @@ export class LookupConditionStrategy
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessNwodSpreadsheetId,
-            range: `'Conditions Index'!A2:Z`,
+            range: NwodLookupRange.Condition,
         });
 
         const conditions = data.reduce<NwodCondition[]>((acc, cur) =>

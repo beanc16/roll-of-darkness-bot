@@ -8,6 +8,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
 import { getLookupMeritsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
+import { NwodLookupRange } from '../../types/lookup.js';
 import { NwodMerit } from '../../types/NwodMerit.js';
 import { MeritType, NwodAutocompleteParameterName } from '../../types/types.js';
 
@@ -54,7 +55,7 @@ export class LookupMeritStrategy
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessNwodSpreadsheetId,
-            range: `'Merits'!A2:Z`,
+            range: NwodLookupRange.Merit,
         });
 
         const types = input.types?.reduce<MeritType[]>((acc, type) =>
