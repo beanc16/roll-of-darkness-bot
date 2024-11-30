@@ -4,6 +4,8 @@ import {
     SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
+import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
+import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
 import * as lookupSubcommands from './lookup.js';
@@ -18,6 +20,7 @@ export enum PtuSubcommandGroup
     Random = 'random',
     Roll = 'roll',
     Train = 'train',
+    TypeEffectiveness = 'type_effectiveness',
 }
 
 export enum PtuQuickReferenceInfo
@@ -167,6 +170,61 @@ export const train = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
         option.setName('should_use_baby_food');
         return option.setDescription(`Should increase the exp gain of the pokemon at level 15 or lower by 20% (default: false).`);
     });
+
+    return subcommand;
+};
+
+export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuSubcommandGroup.TypeEffectiveness);
+    subcommand.setDescription('Get the type effectiveness of Pokemon types based on the given parameters.');
+
+    // Role
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('role');
+        option.setDescription(`Whether to get offensive or defensive type effectiveness.`);
+
+        const choices = Object.entries(TypeEffectivenessRole).map<APIApplicationCommandOptionChoice<string>>(
+            ([key, value]) =>
+            {
+                return {
+                    name: key,
+                    value,
+                };
+            },
+        );
+
+        option.addChoices(...choices);
+        return option.setRequired(true);
+    });
+
+    // Types
+    const typeChoices = Object.entries(PokemonTypeAndNone).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    for (let index = 1; index <= 3; index += 1)
+    {
+        subcommand.addStringOption((option) =>
+        {
+            option.setName(`type_${index}`);
+            option.setDescription('The Pokemon type.');
+            option.addChoices(...typeChoices);
+
+            if (index === 1)
+            {
+                option.setRequired(true);
+            }
+
+            return option;
+        });
+    }
 
     return subcommand;
 };
