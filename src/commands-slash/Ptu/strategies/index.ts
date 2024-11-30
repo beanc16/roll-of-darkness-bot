@@ -18,6 +18,7 @@ import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from '../subcommand-groups/random.js';
 import { PtuRollSubcommand } from '../subcommand-groups/roll.js';
 import { PtuTrainSubcommand } from '../subcommand-groups/train.js';
+import { PtuTypeEffectivenessSubcommand } from '../subcommand-groups/typeEffectiveness.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
@@ -44,6 +45,7 @@ import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
+import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
 
 type AllPtuLookupModels = PtuAbility
     | PtuCapability
@@ -105,6 +107,7 @@ type PtuStrategyMap = StrategyMap<
     | PtuCalculateSubcommand
     | PtuRollSubcommand
     | PtuTrainSubcommand
+    | PtuTypeEffectivenessSubcommand
 >;
 
 export class PtuStrategyExecutor extends BaseStrategyExecutor
@@ -117,6 +120,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         [PtuSubcommandGroup.Random]: randomStrategies,
         [PtuSubcommandGroup.Roll]: rollStrategies,
         [PtuSubcommandGroup.Train]: TrainPokemonStrategy,
+        [PtuSubcommandGroup.TypeEffectiveness]: TypeEffectivenessStrategy,
     };
 
     public static async run({

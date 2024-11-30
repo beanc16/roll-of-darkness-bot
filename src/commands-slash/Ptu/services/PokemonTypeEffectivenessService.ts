@@ -10,6 +10,10 @@ export type PokemonTypeToTypeEffectiveness = Record<PokemonTypeAndNone, number>;
 
 export type TypeEffectivenessMap = Record<PokemonTypeAndNone, PokemonTypeToTypeEffectiveness>;
 
+export type PokemonTypePossibility = PokemonTypeAndNone | Exclude<PokemonTypeAndNone, PokemonTypeAndNone.None>;
+
+export type GetTypeEffectivenessForTypesResponse = Record<PokemonTypePossibility, number>;
+
 export class PokemonTypeEffectivenessService
 {
     private static offensiveToDefensiveTypeEffectivenessMap: TypeEffectivenessMap = {
@@ -457,7 +461,7 @@ export class PokemonTypeEffectivenessService
     public static getTypeEffectivenessForTypes(
         role: TypeEffectivenessRole,
         types: PokemonTypeAndNone[],
-    ): PokemonTypeToTypeEffectiveness | Record<Exclude<PokemonTypeAndNone, PokemonTypeAndNone.None>, number>
+    ): GetTypeEffectivenessForTypesResponse
     {
         // Set up boolean. We only include None in the output if it's included in the input.
         const hasNoneInInput = new Set(types).has(PokemonTypeAndNone.None);

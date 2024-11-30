@@ -9,6 +9,7 @@ import {
     random,
     roll,
     train,
+    typeEffectiveness,
 } from './Ptu/subcommand-groups/index.js';
 import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
@@ -23,7 +24,8 @@ class Ptu extends BaseSlashCommand
             .addSubcommandGroup(calculate)
             .addSubcommandGroup(random)
             .addSubcommandGroup(roll)
-            .addSubcommand(train);
+            .addSubcommand(train)
+            .addSubcommand(typeEffectiveness);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
