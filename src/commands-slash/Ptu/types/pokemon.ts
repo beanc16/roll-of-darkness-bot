@@ -20,6 +20,29 @@ export enum PokemonType
     Water = 'Water',
 }
 
+export enum PokemonTypeAndNone
+{
+    Bug = 'Bug',
+    Dark = 'Dark',
+    Dragon = 'Dragon',
+    Electric = 'Electric',
+    Fairy = 'Fairy',
+    Fighting = 'Fighting',
+    Fire = 'Fire',
+    Flying = 'Flying',
+    Ghost = 'Ghost',
+    Grass = 'Grass',
+    Ground = 'Ground',
+    Ice = 'Ice',
+    Normal = 'Normal',
+    Poison = 'Poison',
+    Psychic = 'Psychic',
+    Rock = 'Rock',
+    Steel = 'Steel',
+    Water = 'Water',
+    None = 'None',
+}
+
 export enum PokemonStat
 {
     Hp = 'HP',
