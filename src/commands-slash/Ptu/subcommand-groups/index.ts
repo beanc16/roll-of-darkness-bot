@@ -26,7 +26,6 @@ export enum PtuSubcommandGroup
 export enum PtuQuickReferenceInfo
 {
     DamageCharts = 'damage_charts',
-    NatureChart = 'nature_chart',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
     SwitchingPokemon = 'switching_pokemon',
