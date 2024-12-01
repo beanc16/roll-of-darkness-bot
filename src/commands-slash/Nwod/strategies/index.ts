@@ -80,9 +80,9 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
 
         // Get data based on the autocompleteName
         const handlerMap: AutcompleteHandlerMap<NwodAutocompleteParameterName> = {
-            [NwodAutocompleteParameterName.MeritName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
+            [NwodAutocompleteParameterName.ConditionName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
-                subcommand: NwodLookupSubcommand.Merit,
+                subcommand: NwodLookupSubcommand.Condition,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
             [NwodAutocompleteParameterName.ContractName]: () => NwodStrategyExecutor.getLookupData<ChangelingContract>({
@@ -90,9 +90,14 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.ConditionName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+            [NwodAutocompleteParameterName.MeritName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
-                subcommand: NwodLookupSubcommand.Condition,
+                subcommand: NwodLookupSubcommand.Merit,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.NeedleName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Needle,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
         };

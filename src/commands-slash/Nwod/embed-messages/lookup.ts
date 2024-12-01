@@ -3,6 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
+import { ChangelingNeedle } from '../types/ChangelingNeedle.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 
@@ -168,6 +169,44 @@ export const getLookupMeritsEmbedMessages = (input: NwodMerit[]): EmbedBuilder[]
 
     return getPagedEmbedBuilders({
         title: 'Merits',
+        pages,
+    });
+};
+
+export const getLookupNeedlesEmbedMessages = (input: ChangelingNeedle[]): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, {
+        name,
+        pageNumber,
+        effect,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            `${Text.bold(name)}`,
+            ...(pageNumber !== undefined ? [`Page Number: ${pageNumber}`] : []),
+            ...(effect !== undefined
+                ? [
+                    `Effect:\n\`\`\`\n${effect}\`\`\``,
+                ]
+                : []
+            ),
+        ];
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Needles',
         pages,
     });
 };

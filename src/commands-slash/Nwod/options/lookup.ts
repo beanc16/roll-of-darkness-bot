@@ -8,6 +8,7 @@ export enum NwodLookupSubcommand
     Condition = 'condition',
     Contract = 'contract',
     Merit = 'merit',
+    Needle = 'needle',
 }
 
 export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -101,6 +102,23 @@ export const merit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
             );
         });
     }
+
+    return subcommand;
+};
+
+export const needle = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Needle);
+    subcommand.setDescription('Get a list of needles based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.NeedleName);
+        option.setDescription(`The needle's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
 
     return subcommand;
 };
