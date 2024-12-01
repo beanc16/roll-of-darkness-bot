@@ -9,6 +9,7 @@ export enum NwodLookupSubcommand
     Contract = 'contract',
     Merit = 'merit',
     Needle = 'needle',
+    Thread = 'thread',
 }
 
 export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -116,6 +117,23 @@ export const needle = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     {
         option.setName(NwodAutocompleteParameterName.NeedleName);
         option.setDescription(`The needle's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const thread = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Thread);
+    subcommand.setDescription('Get a list of threads based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.ThreadName);
+        option.setDescription(`The thread's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
     });

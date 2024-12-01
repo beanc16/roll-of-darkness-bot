@@ -100,6 +100,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Needle,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.ThreadName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Thread,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
         };
 
         const data = await handlerMap[autocompleteName]();

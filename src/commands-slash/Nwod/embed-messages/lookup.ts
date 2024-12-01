@@ -4,6 +4,7 @@ import { EmbedBuilder } from 'discord.js';
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
 import { ChangelingNeedle } from '../types/ChangelingNeedle.js';
+import { ChangelingThread } from '../types/ChangelingThread.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 
@@ -207,6 +208,44 @@ export const getLookupNeedlesEmbedMessages = (input: ChangelingNeedle[]): EmbedB
 
     return getPagedEmbedBuilders({
         title: 'Needles',
+        pages,
+    });
+};
+
+export const getLookupThreadsEmbedMessages = (input: ChangelingThread[]): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, {
+        name,
+        pageNumber,
+        effect,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            `${Text.bold(name)}`,
+            ...(pageNumber !== undefined ? [`Page Number: ${pageNumber}`] : []),
+            ...(effect !== undefined
+                ? [
+                    `Effect:\n\`\`\`\n${effect}\`\`\``,
+                ]
+                : []
+            ),
+        ];
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Threads',
         pages,
     });
 };

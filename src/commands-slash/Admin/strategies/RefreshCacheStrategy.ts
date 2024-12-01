@@ -83,6 +83,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Needle],
                 lookupSubcommand: NwodLookupSubcommand.Needle,
             },
+            [NwodAutocompleteParameterName.ThreadName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Thread],
+                lookupSubcommand: NwodLookupSubcommand.Thread,
+            },
         },
         [RefreshCacheCommand.Ptu]: {
             [PtuAutocompleteParameterName.AbilityName]: {

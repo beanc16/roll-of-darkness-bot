@@ -4,6 +4,7 @@ export enum NwodAutocompleteParameterName
     ContractName = 'contract_name',
     MeritName = 'merit_name',
     NeedleName = 'needle_name',
+    ThreadName = 'thread_name',
 }
 
 export enum NwodLookupRange
@@ -12,4 +13,5 @@ export enum NwodLookupRange
     Contract = `'Changeling Contracts'!A2:Z`,
     Merit = `'Merits'!A2:Z`,
     Needle = `'Needle Archetype Reference'!A3:Z`,
+    Thread = `'Thread Archetype Reference'!A3:Z`,
 }
