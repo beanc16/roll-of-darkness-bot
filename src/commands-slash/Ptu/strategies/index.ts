@@ -6,7 +6,6 @@ import {
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
-import { Timer } from '../../../services/Timer.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
@@ -112,7 +111,6 @@ type PtuStrategyMap = StrategyMap<
 
 export class PtuStrategyExecutor extends BaseStrategyExecutor
 {
-    private static isQueryingPokemonAutocomplete = false;
     private static strategies: PtuStrategyMap = {
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
@@ -196,15 +194,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             }),
             [PtuAutocompleteParameterName.PokemonName]: async () =>
             {
-                if (this.isQueryingPokemonAutocomplete)
-                {
-                    await Timer.waitUntilTrue({
-                        seconds: 0.2,
-                        callback: () => !this.isQueryingPokemonAutocomplete,
-                    });
-                }
-
-                this.isQueryingPokemonAutocomplete = true;
                 const output = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand: PtuLookupSubcommand.Pokemon,
@@ -212,7 +201,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                         name: focusedValue.value,
                     },
                 });
-                this.isQueryingPokemonAutocomplete = false;
 
                 return output;
             },
