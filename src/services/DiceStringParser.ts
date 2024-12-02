@@ -152,7 +152,7 @@ export class DiceStringParser
                 acc.hasDoubledFirstModifier = true;
             }
 
-            acc.output.push(curDieInfo);
+            acc.output.push(duplicateOfCurDiceInfo);
 
             if (mathOperators[index])
             {
