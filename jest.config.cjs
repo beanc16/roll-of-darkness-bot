@@ -42,6 +42,9 @@ module.exports = {
         '/.*/StringSingleton.ts',
         '/.*/Singleton.ts',
 
+        // General Strategies
+        '/.*/BaseLookupStrategy.ts',
+
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
         '/.*/rollOfDarknessApiHasErrorSingleton.ts',
