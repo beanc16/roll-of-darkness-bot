@@ -33,6 +33,9 @@ module.exports = {
         // Dals
         '/.*/dal',
 
+        // Events
+        '/.*/events/onReady.ts',
+
         // General Classes
         '/.*/CachedAuthTokenService.ts',
         '/.*/SearchService.ts',
