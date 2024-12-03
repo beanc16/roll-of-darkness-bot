@@ -38,12 +38,16 @@ module.exports = {
 
         // General Classes
         '/.*/CachedAuthTokenService.ts',
-        '/.*/SearchService.ts',
         '/.*/StringSingleton.ts',
         '/.*/Singleton.ts',
 
         // General Strategies
         '/.*/BaseLookupStrategy.ts',
+
+        // Search Services
+        '/.*/SearchService.ts',
+        '/.*/PtuAbilitiesSearchService.ts',
+        '/.*/PtuMovesSearchService.ts',
 
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
