@@ -36,6 +36,7 @@ module.exports = {
         // General Classes
         '/.*/CachedAuthTokenService.ts',
         '/.*/SearchService.ts',
+        '/.*/StringSingleton.ts',
         '/.*/Singleton.ts',
 
         // Roll of Darkness API
