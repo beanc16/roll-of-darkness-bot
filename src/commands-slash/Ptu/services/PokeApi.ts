@@ -1,8 +1,6 @@
 import { logger } from '@beanc16/logger';
 import Pokedex from 'pokedex-promise-v2';
 
-type PokeApiId = string | number;
-
 interface GetImageUrlResponse
 {
     id: number;
@@ -13,22 +11,6 @@ interface GetImageUrlResponse
 export class PokeApi
 {
     private static api = new Pokedex();
-
-    public static parseId(id?: PokeApiId): number | undefined
-    {
-        if (!id)
-        {
-            return undefined;
-        }
-
-        if (typeof id === 'number')
-        {
-            return id;
-        }
-
-        const parsedStringId = id.replace('#', '').trim();
-        return parseInt(parsedStringId, 10);
-    }
 
     public static parseName(name?: string): string | undefined
     {
@@ -118,30 +100,6 @@ export class PokeApi
         return (parsedNames) || [];
     }
 
-    private static async getByName(name?: string): Promise<Pokedex.Pokemon | undefined>
-    {
-        const parsedName = this.parseName(name);
-
-        if (!parsedName)
-        {
-            return undefined;
-        }
-
-        // Get pokemon from PokeApi
-        try
-        {
-            return await this.api.getPokemonByName(parsedName);
-        }
-        catch (err)
-        {
-            logger.error('Failed to get Pokémon by name from PokeApi', {
-                name,
-                parsedName,
-            }, err);
-            return undefined;
-        }
-    }
-
     private static async getByNames(names?: string[]): Promise<Pokedex.Pokemon[] | undefined>
     {
         const parsedNames = this.parseNames(names);
@@ -159,33 +117,6 @@ export class PokeApi
             }, err);
             return undefined;
         }
-    }
-
-    public static async getImageUrl(name?: string): Promise<string | undefined>
-    {
-        const result = await this.getByName(name);
-
-        if (!result)
-        {
-            return undefined;
-        }
-
-        const {
-            sprites: {
-                other: {
-                    'official-artwork': {
-                        front_default: imageUrl = null,
-                    } = {},
-                } = {},
-            },
-        } = result;
-
-        if (!imageUrl)
-        {
-            return undefined;
-        }
-
-        return imageUrl;
     }
 
     public static async getImageUrls(names?: string[]): Promise<GetImageUrlResponse[] | undefined>
