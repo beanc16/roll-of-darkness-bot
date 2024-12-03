@@ -3,6 +3,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { DicePoolGroup } from './DicePoolGroup.js';
 import { ResponseFormatterService } from './ResponseFormatterService.js';
 
+// TODO: This logic can be move to InitiativeStrategy
 export class InitiativeResponseFormatterService extends ResponseFormatterService
 {
     private rollResult: number;
