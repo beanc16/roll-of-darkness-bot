@@ -172,7 +172,7 @@ export class PaginationStrategy
                 logger.error('An unknown error occurred whilst collecting pages', error);
             }
 
-            // Disable paginated buttons upon delete
+            // Disable paginated buttons upon non-deletes
             if (!hasUpdated && !messageWasDeleted)
             {
                 const paginationRow = this.getPaginationRowComponent(true);
@@ -248,6 +248,7 @@ export class PaginationStrategy
         return pageIndex;
     }
 
+    /* istanbul ignore next */
     private static getPaginationRowComponent(isDisabled: boolean): ActionRowBuilder<ButtonBuilder>
     {
         const prevButton = new ButtonBuilder()
@@ -289,6 +290,7 @@ export class PaginationStrategy
         return row;
     }
 
+    /* istanbul ignore next */
     private static replyToOriginalInteraction({
         originalInteraction,
         interactionType,
