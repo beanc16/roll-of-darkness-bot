@@ -5,13 +5,16 @@ import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 import { PokemonTypePossibility, TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
+import { PtuAbilityForTypeEffectiveness } from '../types/PtuAbilityForTypeEffectiveness.js';
 
 export const getTypeEffectivenessEmbedMessages = ({
     typeEffectivenessToTypes,
     role,
     inputTypes,
+    inputAbilities,
 }: {
     typeEffectivenessToTypes: Record<string, PokemonTypePossibility[]>;
+    inputAbilities: PtuAbilityForTypeEffectiveness[];
     role: TypeEffectivenessRole;
     inputTypes: PokemonTypeAndNone[];
 }): EmbedBuilder[] =>
@@ -36,7 +39,8 @@ export const getTypeEffectivenessEmbedMessages = ({
     const { prefix, suffix } = roleToHeaderPrefix[role];
 
     // Set initial value
-    const initialString = Text.bold(`For: ${inputTypes.join(', ')}`) + '\n\n';
+    const initialString = `${Text.bold(`For: ${inputTypes.join(', ')}`)}\n`
+        + `With: ${inputAbilities.join(', ')}\n\n`;
 
     // Get pages
     const { pages } = keys.reduce((pageData, typeEffectiveness, index) =>

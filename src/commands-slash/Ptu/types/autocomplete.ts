@@ -15,6 +15,10 @@ export enum PtuLookupRange
 export enum PtuAutocompleteParameterName
 {
     AbilityName = 'ability_name',
+    Ability1 = 'ability_1',
+    Ability2 = 'ability_2',
+    Ability3 = 'ability_3',
+    Ability4 = 'ability_4',
     CapabilityName = 'capability_name',
     EdgeName = 'edge_name',
     FeatureName = 'feature_name',

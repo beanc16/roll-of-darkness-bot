@@ -9,6 +9,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
+import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuCalculateSubcommand } from '../subcommand-groups/calculate.js';
@@ -149,12 +150,28 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     {
         const autocompleteName = focusedValue.name as PtuAutocompleteParameterName;
 
+        const abilityForTypeEffectivenessHandler: () => Promise<PtuAbility[]> = async () =>
+        {
+            const abilities = await PtuStrategyExecutor.getLookupData<PtuAbility>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Ability,
+            });
+
+            return abilities.filter(ability =>
+                abilitiesForTypeEffectivenessSet.has(ability.name),
+            );
+        };
+
         // Get data based on the autocompleteName
         const handlerMap: AutcompleteHandlerMap<PtuAutocompleteParameterName> = {
             [PtuAutocompleteParameterName.AbilityName]: () => PtuStrategyExecutor.getLookupData<PtuAbility>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
             }),
+            [PtuAutocompleteParameterName.Ability1]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.Ability4]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.CapabilityName]: () => PtuStrategyExecutor.getLookupData<PtuCapability>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,

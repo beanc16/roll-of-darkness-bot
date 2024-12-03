@@ -93,6 +93,22 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
                 lookupSubcommand: PtuLookupSubcommand.Ability,
             },
+            [PtuAutocompleteParameterName.Ability1]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
+                lookupSubcommand: PtuLookupSubcommand.Ability,
+            },
+            [PtuAutocompleteParameterName.Ability2]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
+                lookupSubcommand: PtuLookupSubcommand.Ability,
+            },
+            [PtuAutocompleteParameterName.Ability3]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
+                lookupSubcommand: PtuLookupSubcommand.Ability,
+            },
+            [PtuAutocompleteParameterName.Ability4]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
+                lookupSubcommand: PtuLookupSubcommand.Ability,
+            },
             [PtuAutocompleteParameterName.CapabilityName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Capability],
                 lookupSubcommand: PtuLookupSubcommand.Capability,

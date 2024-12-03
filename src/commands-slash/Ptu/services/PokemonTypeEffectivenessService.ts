@@ -1,4 +1,9 @@
 import { PokemonTypeAndNone } from '../types/pokemon.js';
+import {
+    PtuAbilityForDefensiveTypeEffectiveness,
+    PtuAbilityForOffensiveTypeEffectiveness,
+    PtuAbilityForTypeEffectiveness,
+} from '../types/PtuAbilityForTypeEffectiveness.js';
 
 export enum TypeEffectivenessRole
 {
@@ -461,6 +466,7 @@ export class PokemonTypeEffectivenessService
     public static getTypeEffectivenessForTypes(
         role: TypeEffectivenessRole,
         types: PokemonTypeAndNone[],
+        abilities: PtuAbilityForTypeEffectiveness[],
     ): GetTypeEffectivenessForTypesResponse
     {
         // Set up boolean. We only include None in the output if it's included in the input.
@@ -472,11 +478,25 @@ export class PokemonTypeEffectivenessService
         ) => PokemonTypeToTypeEffectiveness> = {
             [TypeEffectivenessRole.Offensive]: (type: PokemonTypeAndNone) =>
             {
-                return { ...this.offensiveToDefensiveTypeEffectivenessMap[type] };
+                const result = this.modifyTypeEffectivenessWithAbilities({
+                    map: this.offensiveToDefensiveTypeEffectivenessMap[type],
+                    type,
+                    role,
+                    abilities,
+                });
+
+                return result;
             },
             [TypeEffectivenessRole.Defensive]: (type: PokemonTypeAndNone) =>
             {
-                return { ...this.defensiveToOffensiveTypeEffectivenessMap[type] };
+                const result = this.modifyTypeEffectivenessWithAbilities({
+                    map: this.defensiveToOffensiveTypeEffectivenessMap[type],
+                    type,
+                    role,
+                    abilities,
+                });
+
+                return result;
             },
         };
 
@@ -526,5 +546,278 @@ export class PokemonTypeEffectivenessService
 
             return acc;
         }, typeEffectivenessRoleToStartingAcc[role]);
+    }
+
+    private static tryIncreaseOneStep(value: number): number
+    {
+        if (value > 0.5)
+        {
+            return value;
+        }
+
+        return value * 2;
+    }
+
+    private static resistOneStep(value: number): number
+    {
+        if (value === 2)
+        {
+            return value - 0.5;
+        }
+
+        if (value > 2)
+        {
+            return value - 1;
+        }
+
+        return value / 2;
+    }
+
+    private static tryResistHalfStep(value: number): number
+    {
+        if (value === 1.5)
+        {
+            return 1.25;
+        }
+
+        if (value === 2)
+        {
+            return 1.5;
+        }
+
+        if (value > 2)
+        {
+            return value - 1;
+        }
+
+        return value;
+    }
+
+    private static modifyTypeEffectivenessWithAbilities({
+        map,
+        type,
+        role,
+        abilities,
+    }: {
+        map: PokemonTypeToTypeEffectiveness;
+        type: PokemonTypeAndNone;
+        role: TypeEffectivenessRole;
+        abilities: PtuAbilityForTypeEffectiveness[];
+    }): PokemonTypeToTypeEffectiveness
+    {
+        const offensiveHandlerMap: Record<
+            PtuAbilityForOffensiveTypeEffectiveness,
+            (acc: PokemonTypeToTypeEffectiveness) => PokemonTypeToTypeEffectiveness
+        > = {
+            [PtuAbilityForOffensiveTypeEffectiveness.Scrappy]: (acc) =>
+            {
+                if (type === PokemonTypeAndNone.Normal || type === PokemonTypeAndNone.Fighting)
+                {
+                    acc.Ghost = 1;
+                }
+
+                return acc;
+            },
+            [PtuAbilityForOffensiveTypeEffectiveness.TintedLens]: (acc) =>
+            {
+                const result = Object.entries(acc).reduce<PokemonTypeToTypeEffectiveness>((acc2, cur) =>
+                {
+                    const [key, value] = cur as [PokemonTypeAndNone, number];
+                    acc2[key] = this.tryIncreaseOneStep(value);
+                    return acc2;
+                }, {} as PokemonTypeToTypeEffectiveness);
+
+                return result;
+            },
+        };
+
+        const defensiveHandlerMap: Record<
+            PtuAbilityForDefensiveTypeEffectiveness,
+            (acc: PokemonTypeToTypeEffectiveness) => PokemonTypeToTypeEffectiveness
+        > = {
+            [PtuAbilityForDefensiveTypeEffectiveness.CaveCrasher]: (acc) =>
+            {
+                acc.Ground = this.resistOneStep(acc.Ground);
+                acc.Rock = this.resistOneStep(acc.Ground);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.MudDweller]: (acc) =>
+            {
+                acc.Ground = this.resistOneStep(acc.Ground);
+                acc.Water = this.resistOneStep(acc.Water);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.DrySkin]: (acc) =>
+            {
+                acc.Water = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.WaterAbsorb]: (acc) =>
+            {
+                acc.Water = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.StormDrain]: (acc) =>
+            {
+                acc.Water = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.StormDrainErrata]: (acc) =>
+            {
+                acc.Water = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.SapSipper]: (acc) =>
+            {
+                acc.Grass = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.SapSipperErrata]: (acc) =>
+            {
+                acc.Grass = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.FlashFire]: (acc) =>
+            {
+                acc.Fire = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.FlashFireErrata]: (acc) =>
+            {
+                acc.Fire = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.SunBlanket]: (acc) =>
+            {
+                acc.Fire = this.resistOneStep(acc.Fire);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.FlyingFlyTrap]: (acc) =>
+            {
+                acc.Bug = 0;
+                acc.Ground = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.ThickFat]: (acc) =>
+            {
+                acc.Fire = this.resistOneStep(acc.Fire);
+                acc.Ice = this.resistOneStep(acc.Ice);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Filter]: (acc) =>
+            {
+                // Resist everything that's 1.5 or higher by a half step.
+                const result = Object.entries(acc).reduce<PokemonTypeToTypeEffectiveness>((acc2, cur) =>
+                {
+                    const [key, value] = cur as [PokemonTypeAndNone, number];
+                    acc2[key] = this.tryResistHalfStep(value);
+                    return acc2;
+                }, {} as PokemonTypeToTypeEffectiveness);
+
+                return result;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.SolidRock]: (acc) =>
+            {
+                // Resist everything that's 1.5 or higher by a half step.
+                const result = Object.entries(acc).reduce<PokemonTypeToTypeEffectiveness>((acc2, cur) =>
+                {
+                    const [key, value] = cur as [PokemonTypeAndNone, number];
+                    acc2[key] = this.tryResistHalfStep(value);
+                    return acc2;
+                }, {} as PokemonTypeToTypeEffectiveness);
+
+                return result;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Tolerance]: (acc) =>
+            {
+                // Resist everything that's already resisted by another step.
+                const result = Object.entries(acc).reduce<PokemonTypeToTypeEffectiveness>((acc2, cur) =>
+                {
+                    const [key, value] = cur as [PokemonTypeAndNone, number];
+
+                    if (value < 1)
+                    {
+                        acc2[key] = this.resistOneStep(value);
+                    }
+
+                    return acc2;
+                }, {} as PokemonTypeToTypeEffectiveness);
+
+                return result;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Heatproof]: (acc) =>
+            {
+                acc.Fire = this.resistOneStep(acc.Fire);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.HeatproofErrata]: (acc) =>
+            {
+                acc.Fire = this.resistOneStep(acc.Fire);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Levitate]: (acc) =>
+            {
+                acc.Ground = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.MotorDrive]: (acc) =>
+            {
+                acc.Electric = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.VoltAbsorb]: (acc) =>
+            {
+                acc.Electric = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.LightningRod]: (acc) =>
+            {
+                acc.Electric = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.LightningRodErrata]: (acc) =>
+            {
+                acc.Electric = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Tochukaso]: (acc) =>
+            {
+                acc.Bug = this.resistOneStep(acc.Bug);
+                acc.Poison = this.resistOneStep(acc.Poison);
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.Windveiled]: (acc) =>
+            {
+                acc.Flying = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.WindveiledErrata]: (acc) =>
+            {
+                acc.Flying = 0;
+                return acc;
+            },
+            [PtuAbilityForDefensiveTypeEffectiveness.WintersKiss]: (acc) =>
+            {
+                acc.Ice = 0;
+                return acc;
+            },
+        };
+
+        return abilities.reduce<PokemonTypeToTypeEffectiveness>((acc, ability) =>
+        {
+            if (role === TypeEffectivenessRole.Offensive)
+            {
+                const typedAbility = ability as PtuAbilityForOffensiveTypeEffectiveness;
+                return offensiveHandlerMap[typedAbility]?.(acc) || acc;
+            }
+
+            if (role === TypeEffectivenessRole.Defensive)
+            {
+                const typedAbility = ability as PtuAbilityForDefensiveTypeEffectiveness;
+                return defensiveHandlerMap[typedAbility]?.(acc) || acc;
+            }
+
+            return acc;
+        }, { ...map });
     }
 }

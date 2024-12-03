@@ -5,6 +5,7 @@ import {
 } from 'discord.js';
 
 import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
@@ -224,6 +225,22 @@ export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): Sl
             return option;
         });
     }
+
+    // Ability names
+    [
+        PtuAutocompleteParameterName.Ability1,
+        PtuAutocompleteParameterName.Ability2,
+        PtuAutocompleteParameterName.Ability3,
+        PtuAutocompleteParameterName.Ability4,
+    ].forEach((name) =>
+    {
+        subcommand.addStringOption((option) =>
+        {
+            option.setName(name);
+            option.setDescription(`The ability's name.`);
+            return option.setAutocomplete(true);
+        });
+    });
 
     return subcommand;
 };

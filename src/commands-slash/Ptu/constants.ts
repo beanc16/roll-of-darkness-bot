@@ -1,4 +1,5 @@
 import { DiscordUserId } from '../../types/discord.js';
+import { PtuAbilityForDefensiveTypeEffectiveness, PtuAbilityForOffensiveTypeEffectiveness } from './types/PtuAbilityForTypeEffectiveness.js';
 import { PtuCharacterSheetName } from './types/sheets.js';
 
 export const rollOfDarknessPtuSpreadsheetId = '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI';
@@ -121,3 +122,8 @@ export const spreadsheetIdToCharacterSheetInfo = Object.entries(characterNameToS
 }, {});
 
 export const characterSheetSpreadsheetIds = Object.keys(spreadsheetIdToCharacterSheetInfo);
+
+export const abilitiesForTypeEffectivenessSet = new Set<string>([
+    ...Object.values(PtuAbilityForOffensiveTypeEffectiveness),
+    ...Object.values(PtuAbilityForDefensiveTypeEffectiveness),
+]);
