@@ -245,6 +245,11 @@ export const createEmbedMessageDescriptionAndPage = ({
     {
         const columns = tableData.split('\n');
 
+        if (!pageDataOutput.tableColumns)
+        {
+            pageDataOutput.tableColumns = [];
+        }
+
         columns.forEach((column) =>
         {
             const [header, ...rows] = column.split('|');
