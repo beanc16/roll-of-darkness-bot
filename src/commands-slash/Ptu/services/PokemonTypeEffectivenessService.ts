@@ -638,7 +638,7 @@ export class PokemonTypeEffectivenessService
             [PtuAbilityForDefensiveTypeEffectiveness.CaveCrasher]: (acc) =>
             {
                 acc.Ground = this.resistOneStep(acc.Ground);
-                acc.Rock = this.resistOneStep(acc.Ground);
+                acc.Rock = this.resistOneStep(acc.Rock);
                 return acc;
             },
             [PtuAbilityForDefensiveTypeEffectiveness.MudDweller]: (acc) =>
@@ -738,6 +738,10 @@ export class PokemonTypeEffectivenessService
                     if (value < 1)
                     {
                         acc2[key] = this.resistOneStep(value);
+                    }
+                    else
+                    {
+                        acc2[key] = value;
                     }
 
                     return acc2;
