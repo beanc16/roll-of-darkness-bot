@@ -72,7 +72,11 @@ class Compliment extends BaseSlashCommand
     {
         if (type === ComplimentType.Beat)
         {
-            return '<:beet:1170454391451553872>';
+            return Text.emoji({
+                emojiId: '1170454391451553872',
+                emojiName: 'beet',
+                isAnimated: false,
+            });
         }
 
         return '❤️'; // Red heart
