@@ -15,10 +15,15 @@ module.exports = {
         '/.*/constants',
         '/.*/constants.ts',
         '/.*/decorators',
+        '/.*/decorators.ts',
         '/.*/types',
         '/.*/types.ts',
 
+        // Root setup & orchestrator
         'src/bot.ts',
+
+        // Scripts
+        '/.*/registerSlashCommands.ts', // This is tested with other files
 
         // Command parameter options
         '/.*/options',
@@ -27,6 +32,15 @@ module.exports = {
 
         // Dals
         '/.*/dal',
+
+        // General Classes
+        '/.*/CachedAuthTokenService.ts',
+        '/.*/SearchService.ts',
+        '/.*/Singleton.ts',
+
+        // Roll of Darkness API
+        '/.*/CachedRollOfDarknessApi.ts',
+        '/.*/rollOfDarknessApiHasErrorSingleton.ts',
     ],
     moduleFileExtensions: ['js', 'ts'],
     extensionsToTreatAsEsm: ['.ts'],
