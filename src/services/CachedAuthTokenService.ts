@@ -1,7 +1,7 @@
 import { logger } from '@beanc16/logger';
 import { UserGetServiceToServiceAuthTokenParametersV1, UserMicroservice } from '@beanc16/microservices-abstraction';
 
-import authTokenSingleton from '../models/authTokenSingleton.js';
+import { StringSingleton } from './Singleton/StringSingleton.js';
 
 /* eslint-disable no-await-in-loop */ // We want to do asynchronous retries, so allow awaits in loops
 export class CachedAuthTokenService
@@ -12,11 +12,13 @@ export class CachedAuthTokenService
         expiresInSeconds: 86400, // 86400 seconds = 24 hours
     };
 
+    private static authTokenSingleton = new StringSingleton('');
+
     public static async getAuthToken(): Promise<string>
     {
-        if (!authTokenSingleton.isEmpty())
+        if (!this.authTokenSingleton.isEmpty())
         {
-            return authTokenSingleton.get();
+            return this.authTokenSingleton.get();
         }
 
         const {
@@ -25,8 +27,8 @@ export class CachedAuthTokenService
             } = {},
         } = await UserMicroservice.v1.getServiceToServiceAuthToken(this.#parameters);
 
-        authTokenSingleton.set(token);
-        return authTokenSingleton.get();
+        this.authTokenSingleton.set(token);
+        return this.authTokenSingleton.get();
     }
 
     public static async resetAuthToken(): Promise<string>
@@ -41,8 +43,8 @@ export class CachedAuthTokenService
                     } = {},
                 } = await UserMicroservice.v1.getServiceToServiceAuthToken(this.#parameters);
 
-                authTokenSingleton.set(token);
-                return authTokenSingleton.get();
+                this.authTokenSingleton.set(token);
+                return this.authTokenSingleton.get();
             }
 
             catch (error)
