@@ -13,6 +13,7 @@ export class CalculateCaptureRatingStrategy
 {
     public static key: PtuCalculateSubcommand.CaptureRating = PtuCalculateSubcommand.CaptureRating;
 
+    /* istanbul ignore next */
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
@@ -80,13 +81,13 @@ export class CalculateCaptureRatingStrategy
     }): number
     {
         return Math.floor(
-            100 // Base
-            - (pokemonLevel * 2) // Level
-            + hpPercentageModifier // HP Percentage
-            + remainingEvolutionsModifier // Remaining Evolutions
-            + rarityModifier // Rarity
-            + getAfflictionsModifier // Afflictions
-            + additionalModifier, // Additional
+            100                             // Base
+            - (pokemonLevel * 2)            // Level
+            + hpPercentageModifier          // HP Percentage
+            + remainingEvolutionsModifier   // Remaining Evolutions
+            + rarityModifier                // Rarity
+            + getAfflictionsModifier        // Afflictions
+            + additionalModifier,           // Additional
         );
     }
 
