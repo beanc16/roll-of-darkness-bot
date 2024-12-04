@@ -13,7 +13,7 @@ import {
 
 import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { parseRegexByType, RegexLookupType } from '../../../../services/regexHelpers.js';
+import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PokemonController } from '../../dal/PtuController.js';
