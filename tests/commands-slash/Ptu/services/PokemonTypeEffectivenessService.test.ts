@@ -6,9 +6,9 @@ import {
 import { PokemonTypeAndNone } from '../../../../src/commands-slash/Ptu/types/pokemon.js';
 import { PtuAbilityForDefensiveTypeEffectiveness, PtuAbilityForOffensiveTypeEffectiveness } from '../../../../src/commands-slash/Ptu/types/PtuAbilityForTypeEffectiveness.js';
 
-describe('PokemonTypeEffectivenessService', () =>
+describe('class: PokemonTypeEffectivenessService', () =>
 {
-    describe('getTypeEffectivenessByRole', () =>
+    describe('method: getTypeEffectivenessByRole', () =>
     {
         it('should return the correct offensive effectiveness between two types', () =>
         {
@@ -33,7 +33,7 @@ describe('PokemonTypeEffectivenessService', () =>
         });
     });
 
-    describe('getTypeEffectivenessForTypes', () =>
+    describe('method: getTypeEffectivenessForTypes', () =>
     {
         describe.each(
             Object.values(TypeEffectivenessRole),
@@ -168,7 +168,7 @@ describe('PokemonTypeEffectivenessService', () =>
         });
     });
 
-    describe('modifyTypeEffectivenessWithAbilities', () =>
+    describe('method: modifyTypeEffectivenessWithAbilities', () =>
     {
         let validMap: PokemonTypeToTypeEffectiveness;
 

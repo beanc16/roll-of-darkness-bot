@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from '../../../src/services/stringHelpers.js';
 
-describe('capitalizeFirstLetter', () =>
+describe('function: capitalizeFirstLetter', () =>
 {
     it('should capitalize the first letter of a string and leave the rest unchanged', () =>
     {
