@@ -14,7 +14,7 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
         return this.record;
     }
 
-    public Get(key: Key): Value
+    public Get(key: Key): Value | undefined
     {
         const parsedKey = CompositeKeyRecord.ParseKey(key);
         return this.record[parsedKey];
@@ -51,7 +51,17 @@ export class CompositeKeyRecord<Key extends CompositeKey, Value>
 
     private static ParseKey<Key extends CompositeKey>(key: Key): string
     {
-        const parsedKey = key.join(',');
+        // The same as key.join(','). This is necessary because you can't .join on the Symbol type.
+        const parsedKey = key.reduce<string>((acc, str, index) =>
+        {
+            if (index === 0)
+            {
+                return str.toString();
+            }
+
+            return `${acc},${str.toString()}`;
+        }, '');
+
         return parsedKey;
     }
 }
