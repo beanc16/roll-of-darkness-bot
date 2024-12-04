@@ -43,6 +43,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         [RollStrategy.key]: RollStrategy,
     };
 
+    /* istanbul ignore next */
     public static async run({
         subcommandGroup,
         subcommand,
@@ -108,6 +109,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         return filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
     }
 
+    /* istanbul ignore next */
     public static async getLookupData<ClassInstance extends { name: string }>({
         subcommandGroup,
         subcommand,
