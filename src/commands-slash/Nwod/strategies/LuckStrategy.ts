@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
+import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { DiceService } from '../../../services/DiceService.js';
 import RollResponseFormatterService from '../../../services/RollResponseFormatterService.js';
@@ -29,6 +30,8 @@ export class LuckStrategy
         // Roll the dice
         const diceService = new DiceService({
             count: numberOfDice,
+            // Don't reroll
+            rerollOnGreaterThanOrEqualTo: rollConstants.rerollsEnum.no_again.number,
         });
         const dicePoolGroup = diceService.roll();
 
