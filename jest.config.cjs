@@ -49,6 +49,9 @@ module.exports = {
         '/.*/PtuAbilitiesSearchService.ts',
         '/.*/PtuMovesSearchService.ts',
 
+        // Ptu
+        '/.*/PtuDamageChartService.ts',
+
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
         '/.*/rollOfDarknessApiHasErrorSingleton.ts',
