@@ -224,10 +224,13 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setMaxValue(10);
         return option;
     });
-    subcommand.addStringOption(option =>
-        equalityOption(option)
-            .setName('ac_equality')
-            .setDescription('The provided AC should be ??? to the moves AC (default: Equals)'));
+    subcommand.addStringOption((option) =>
+    {
+        const newOption = equalityOption(option);
+        newOption.setName('ac_equality');
+        newOption.setDescription('The provided AC should be ??? to the moves AC (default: Equals)');
+        return newOption;
+    });
 
     // Searches
     subcommand.addStringOption((option) =>
