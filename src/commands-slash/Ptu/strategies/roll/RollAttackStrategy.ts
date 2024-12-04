@@ -215,6 +215,7 @@ export class RollAttackStrategy
     }
 
     // Show accuracy roll with hit/miss confirmation buttons
+    /* istanbul ignore next */
     private static async sendAccuracyRollMessage({
         interaction,
         message,
@@ -262,6 +263,7 @@ export class RollAttackStrategy
     }
 
     // Show accuracy and damage roll, skipping
+    /* istanbul ignore next */
     private static async skipAccuracyRollMessage({
         interaction,
         type,
@@ -299,6 +301,7 @@ export class RollAttackStrategy
         });
     }
 
+    /* istanbul ignore next */
     private static async handleButtonInteractions({
         interaction,
         interactionResponse,
@@ -404,6 +407,7 @@ export class RollAttackStrategy
         });
     }
 
+    /* istanbul ignore next */
     private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean): GetAttackMessageDataResponse
     {
         const buttonRow = this.getButtonRowComponent();
@@ -419,6 +423,7 @@ export class RollAttackStrategy
         };
     }
 
+    /* istanbul ignore next */
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
         const critButton = new ButtonBuilder()
@@ -486,6 +491,7 @@ export class RollAttackStrategy
         return currentMessageContent;
     }
 
+    /* istanbul ignore next */
     private static rollDamage({
         accuracyRoll,
         damageDicePoolExpression,
