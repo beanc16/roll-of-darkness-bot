@@ -1,6 +1,7 @@
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
+import { capitalizeFirstLetter } from '../../../../services/stringHelpers.js';
 import { PtuQuickReferenceInfo } from '../../subcommand-groups/index.js';
 
 export class BaseQuickReferenceStrategy
@@ -13,7 +14,7 @@ export class BaseQuickReferenceStrategy
         // Convert the subcommand into a file name. IE: "damage_charts" becomes "Damage Charts".
         const fileName = subcommand
             .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map(word => capitalizeFirstLetter(word))
             .join(' ');
 
         try
