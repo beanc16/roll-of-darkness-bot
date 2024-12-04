@@ -4,6 +4,7 @@ import {
     SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
+import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
 import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
@@ -78,7 +79,7 @@ export const quickReference = (subcommand: SlashCommandSubcommandBuilder): Slash
             {
                 const key = value
                     .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .map(word => capitalizeFirstLetter(word))
                     .join(' ');
 
                 return {
