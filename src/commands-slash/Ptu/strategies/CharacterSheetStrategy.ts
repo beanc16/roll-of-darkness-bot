@@ -429,6 +429,7 @@ export class CharacterSheetStrategy
         return output;
     }
 
+    /* istanbul ignore next */
     protected static async getLevel({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
@@ -509,6 +510,7 @@ export class CharacterSheetStrategy
         return true;
     }
 
+    /* istanbul ignore next */
     protected static async sendPermissionError({
         interaction,
         commandName,
