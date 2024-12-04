@@ -38,6 +38,7 @@ module.exports = {
 
         // General Classes
         '/.*/CachedAuthTokenService.ts',
+        '/.*/RecordSingleton.ts',
         '/.*/StringSingleton.ts',
         '/.*/Singleton.ts',
 
