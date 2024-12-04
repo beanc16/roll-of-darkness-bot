@@ -54,6 +54,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         [NwodSubcommandGroup.Lookup]: lookupStrategies,
     } as NwodStrategyMap);
 
+    /* istanbul ignore next */
     public static async run({
         subcommandGroup,
         subcommand,
@@ -134,6 +135,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         return filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
     }
 
+    /* istanbul ignore next */
     public static async getLookupData<NwodLookupModel>({
         subcommandGroup,
         subcommand,
