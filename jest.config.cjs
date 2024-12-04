@@ -52,6 +52,23 @@ module.exports = {
         // Ptu
         '/.*/PtuDamageChartService.ts',
 
+        // NWOD
+        '/.*/NwodCacheInitializer.ts',
+
+        // Curseborne
+        '/.*/CurseborneDiceService.ts',
+        '/.*/BaseCurseborneLookupStrategy.ts',
+
+        // Counter
+        '/.*/dal/models/Counter.ts',
+        '/.*/dal/models/CounterContainer.ts',
+        '/.*/Counter/services/CounterEventHandler.ts',
+        '/.*/Counter/services/upsertCounterCountainerWithDbUpdate.ts',
+
+        // Media
+        '/.*/ImageUpscaleStrategy.ts',
+        '/.*/MediaStrategyExecutor.ts',
+
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
         '/.*/rollOfDarknessApiHasErrorSingleton.ts',
