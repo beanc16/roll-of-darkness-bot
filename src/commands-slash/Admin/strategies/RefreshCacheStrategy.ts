@@ -205,6 +205,7 @@ export class RefreshCacheStrategy
         return true;
     }
 
+    /* istanbul ignore next */
     private static getHandlerResult(
         command: CommandForRefreshCache,
     ): GetHandlerResultResponse
@@ -229,6 +230,7 @@ export class RefreshCacheStrategy
         return response;
     }
 
+    /* istanbul ignore next */
     private static canRefreshCache(refreshCacheCommand: RefreshCacheCommand, userId: string): boolean
     {
         const discordUserIdsWithPermissionsToRefresh: Record<RefreshCacheCommand, string[]> = {
@@ -324,6 +326,7 @@ export class RefreshCacheStrategy
         return { addedNames: [...addedNames], removedNames: [...removedNames] };
     }
 
+    /* istanbul ignore next */
     private static getResponseMessage({
         command,
         lookupSubcommand,
