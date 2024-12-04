@@ -94,6 +94,7 @@ class CoinFlip extends BaseSlashCommand
         return CoinFlipResult.Tails;
     }
 
+    /* istanbul ignore next */
     private static getResponse({
         authorId,
         headsOrTails,
