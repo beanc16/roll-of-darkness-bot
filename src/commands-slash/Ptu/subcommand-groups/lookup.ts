@@ -12,6 +12,7 @@ import {
     PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
+import { HeldItemType } from '../types/PtuHeldItem.js';
 
 export enum PtuLookupSubcommand
 {
@@ -19,6 +20,7 @@ export enum PtuLookupSubcommand
     Capability = 'capability',
     Edge = 'edge',
     Feature = 'feature',
+    HeldItem = 'held_item',
     Keyword = 'keyword',
     Move = 'move',
     Nature = 'nature',
@@ -109,6 +111,51 @@ export const feature = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setDescription(`The feature's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.HeldItem);
+    subcommand.setDescription('Get a held item based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.HeldItem);
+        option.setDescription(`The held item's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    // TODO: Re-Add support for badges later, this is temporary
+    // const typeChoices = Object.entries(HeldItemType).map<APIApplicationCommandOptionChoice<string>>(
+    // ([key, value]) =>
+    //     {
+    //         return {
+    //             name: key,
+    //             value,
+    //         };
+    //     },
+    // );
+    const typeChoices = [HeldItemType.Normal, HeldItemType.Mega].map<APIApplicationCommandOptionChoice<string>>(
+        (type) =>
+        {
+            return {
+                name: type,
+                value: type,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of held items to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
     });
 
     return subcommand;

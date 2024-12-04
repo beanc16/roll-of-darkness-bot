@@ -17,6 +17,7 @@ import {
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuFeature } from '../types/PtuFeature.js';
+import { PtuHeldItem } from '../types/PtuHeldItem.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokeball } from '../types/PtuPokeball.js';
@@ -180,6 +181,45 @@ export const getLookupFeaturesEmbedMessages = (input: PtuFeature[]): EmbedBuilde
 
     return getPagedEmbedBuilders({
         title: 'Features',
+        pages,
+    });
+};
+
+export const getLookupHeldItemsEmbedMessages = (input: PtuHeldItem[]): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, {
+        name,
+        cost,
+        type,
+        description,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(cost !== undefined ? [`Cost: ${cost}`] : []),
+            ...(type !== undefined ? [`Type: ${type}`] : []),
+            ...(description !== undefined && description !== '--'
+                ? [
+                    `Description:\n\`\`\`\n${description}\`\`\``,
+                ]
+                : []),
+        ];
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Held Items',
         pages,
     });
 };

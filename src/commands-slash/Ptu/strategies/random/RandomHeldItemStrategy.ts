@@ -4,16 +4,10 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { HeldItemType } from '../../types/PtuHeldItem.js';
 import { RandomResult } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
-
-enum HeldItemTypes
-{
-    Normal = 'Normal',
-    Mega = 'Mega',
-    Badge = 'Badge',
-}
 
 interface ShouldIncludeParameters
 {
@@ -74,9 +68,9 @@ export class RandomHeldItemStrategy
     {
         /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */ // This comes as a string from a spreadsheet - just compare the string values.
         return (
-            type === HeldItemTypes.Normal
-            || (type === HeldItemTypes.Mega && includeMega)
-            || (type === HeldItemTypes.Badge && includeBadges)
+            type === HeldItemType.Normal
+            || (type === HeldItemType.Mega && includeMega)
+            || (type === HeldItemType.Badge && includeBadges)
         );
         /* eslint-enable @typescript-eslint/no-unsafe-enum-comparison */
     };
