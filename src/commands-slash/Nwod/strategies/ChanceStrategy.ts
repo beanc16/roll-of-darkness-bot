@@ -26,15 +26,12 @@ export class ChanceStrategy
 
         // Get parameter results
         const numberOfDice = 1;
-        const rerollsKey = rollConstants.rerollsEnum.no_again.key as keyof typeof rollConstants.rerollsEnum;
-
-        // Convert parameters to necessary inputs for service calls
-        const rerollOnGreaterThanOrEqualTo = rollConstants.rerollsEnum[rerollsKey]?.number;
 
         // Roll the dice
         const diceService = new DiceService({
             count: numberOfDice,
-            rerollOnGreaterThanOrEqualTo,
+            // Don't reroll
+            rerollOnGreaterThanOrEqualTo: rollConstants.rerollsEnum.no_again.number,
             successOnGreaterThanOrEqualTo: 10,
         });
         const dicePoolGroup = diceService.roll();
