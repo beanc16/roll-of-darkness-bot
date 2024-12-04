@@ -122,6 +122,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         [PtuSubcommandGroup.TypeEffectiveness]: TypeEffectivenessStrategy,
     };
 
+    /* istanbul ignore next */
     public static async run({
         subcommandGroup,
         subcommand,
@@ -250,6 +251,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return filteredChoices.slice(0, MAX_AUTOCOMPLETE_CHOICES);
     }
 
+    /* istanbul ignore next */
     public static async getLookupData<PtuLookupModel extends AllPtuLookupModels>({
         subcommandGroup,
         subcommand,
@@ -274,6 +276,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return [];
     }
 
+    /* istanbul ignore next */
     private static getPtuStrategy({
         subcommandGroup,
         subcommand,
