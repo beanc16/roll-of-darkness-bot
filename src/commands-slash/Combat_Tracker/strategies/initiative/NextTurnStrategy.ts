@@ -21,7 +21,7 @@ export class NextTurnStrategy
     public static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
-        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        stillWaitingForModalSingleton.upsert(interaction.member?.user.id, false);
 
         if (tracker.status !== CombatTrackerStatus.InProgress)
         {

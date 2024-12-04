@@ -14,7 +14,7 @@ export class EditCharacterStrategy
     public static async run({ interaction, tracker }: CombatTrackerMessageComponentHandlerParameters): Promise<void>
     {
         // Set command as having started
-        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        stillWaitingForModalSingleton.upsert(interaction.member?.user.id, false);
 
         await interaction.reply({
             content: 'The ability to edit a character has not yet been implemented',

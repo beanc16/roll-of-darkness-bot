@@ -1,36 +1,34 @@
-import Singleton from '../services/Singleton/Singleton.js';
+import { RecordSingleton } from '../services/Singleton/RecordSingleton.js';
 
 type StillWaitingForModalSingletonMap = Record<string, boolean>;
 
 class StillWaitingForModalSingleton
 {
-    private singleton: Singleton<StillWaitingForModalSingletonMap>;
+    private singleton: RecordSingleton<string, boolean>;
 
     constructor(input: StillWaitingForModalSingletonMap = {})
     {
-        this.singleton = new Singleton(input);
+        this.singleton = new RecordSingleton(input);
     }
 
     public getAll(): StillWaitingForModalSingletonMap
     {
-        return this.singleton.get() || {};
+        return this.singleton.getAll();
     }
 
     public get(key: string): boolean
     {
-        return this.getAll()[key];
+        return this.singleton.get(key);
     }
 
-    public set(key?: string, value: boolean = true): void
+    public upsert(key?: string, value: boolean = true): void
     {
         if (!key)
         {
             return;
         }
 
-        const map = this.getAll();
-        map[key] = value;
-        this.singleton.set(map);
+        this.singleton.upsert(key, value);
     }
 }
 

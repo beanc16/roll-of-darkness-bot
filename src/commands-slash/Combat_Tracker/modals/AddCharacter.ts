@@ -177,7 +177,7 @@ export class AddCharacterModal extends BaseCustomModal
     public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Set command as having started
-        stillWaitingForModalSingleton.set(interaction.member?.user.id, false);
+        stillWaitingForModalSingleton.upsert(interaction.member?.user.id, false);
 
         // Send message to show the command was received
         await interaction.deferUpdate({

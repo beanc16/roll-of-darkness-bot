@@ -1,33 +1,31 @@
 import { Tracker } from '../commands-slash/Combat_Tracker/dal/types/Tracker.js';
-import Singleton from '../services/Singleton/Singleton.js';
+import { RecordSingleton } from '../services/Singleton/RecordSingleton.js';
 
 type CombatTrackerSingletonMap = Record<string, Tracker>;
 
 class CombatTrackersSingleton
 {
-    private singleton: Singleton<CombatTrackerSingletonMap>;
+    private singleton: RecordSingleton<string, Tracker>;
 
     constructor(input: CombatTrackerSingletonMap = {})
     {
-        this.singleton = new Singleton(input);
+        this.singleton = new RecordSingleton(input);
     }
 
     public getAll(): CombatTrackerSingletonMap
     {
-        return this.singleton.get() || {};
+        return this.singleton.getAll();
     }
 
     public get(key: string): Tracker
     {
-        return this.getAll()[key];
+        return this.singleton.get(key);
     }
 
     public upsert(tracker: Tracker): void
     {
         const trackerId = tracker.id.toString();
-        const map = this.getAll();
-        map[trackerId] = tracker;
-        this.set(map);
+        return this.singleton.upsert(trackerId, tracker);
     }
 
     public set(map: CombatTrackerSingletonMap = {}): void

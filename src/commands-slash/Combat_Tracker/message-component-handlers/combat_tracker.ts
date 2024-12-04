@@ -71,7 +71,7 @@ export function awaitCombatTrackerMessageComponents({
 }): void
 {
     // Set the user's current action as having not finished yet (this enables listening even after canceling)
-    stillWaitingForModalSingleton.set(user?.id, true);
+    stillWaitingForModalSingleton.upsert(user?.id, true);
 
     // Handle the components of the embed message
     message.awaitMessageComponent({

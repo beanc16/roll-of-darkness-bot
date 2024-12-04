@@ -1,6 +1,6 @@
 import { UUID } from 'node:crypto';
 
-import Singleton from '../../../services/Singleton/Singleton.js';
+import { RecordSingleton } from '../../../services/Singleton/RecordSingleton.js';
 import { CounterContainer } from '../dal/models/CounterContainer.js';
 import { CounterOperation } from '../dal/types.js';
 
@@ -12,21 +12,21 @@ interface UpdateCountParameters
 
 class CounterSingleton
 {
-    private singleton: Singleton<Record<UUID, CounterContainer>>;
+    private singleton: RecordSingleton<UUID, CounterContainer>;
 
     constructor(params?: Record<UUID, CounterContainer>)
     {
-        this.singleton = new Singleton(params ?? {});
+        this.singleton = new RecordSingleton(params);
     }
 
     public getAll(): Record<UUID, CounterContainer>
     {
-        return this.singleton.get() ?? {};
+        return this.singleton.getAll();
     }
 
     public get(key: UUID): CounterContainer
     {
-        return this.getAll()[key];
+        return this.singleton.get(key);
     }
 
     public set(value: Record<UUID, CounterContainer>): void
@@ -36,12 +36,7 @@ class CounterSingleton
 
     public upsert(value: CounterContainer): void
     {
-        const all = this.getAll();
-
-        this.set({
-            ...all,
-            [value.guid]: value,
-        });
+        this.singleton.upsert(value.guid, value);
     }
 
     public incrementCount({ guid, userId }: UpdateCountParameters): void
