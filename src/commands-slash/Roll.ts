@@ -9,7 +9,7 @@ import * as rollOptions from './Nwod/options/roll.js';
 import { rollLite } from './options/index.js';
 import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
 
-class Roll_Lite extends BaseSlashCommand
+class Roll extends BaseSlashCommand
 {
     private mathParser: AddAndSubtractMathParser;
 
@@ -92,4 +92,4 @@ class Roll_Lite extends BaseSlashCommand
     }
 }
 
-export default new Roll_Lite();
+export default new Roll();
