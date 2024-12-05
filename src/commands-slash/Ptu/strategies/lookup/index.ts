@@ -1,6 +1,7 @@
 import { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
+import { LookupEvolutionaryStoneStrategy } from './LookupEvolutionaryStoneStrategy.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 import { LookupHeldItemStrategy } from './LookupHeldItemStrategy.js';
 import { LookupKeywordStrategy } from './LookupKeywordStrategy.js';
@@ -15,6 +16,7 @@ export default {
     [LookupAbilityStrategy.key]: LookupAbilityStrategy,
     [LookupCapabilityStrategy.key]: LookupCapabilityStrategy,
     [LookupEdgeStrategy.key]: LookupEdgeStrategy,
+    [LookupEvolutionaryStoneStrategy.key]: LookupEvolutionaryStoneStrategy,
     [LookupFeatureStrategy.key]: LookupFeatureStrategy,
     [LookupHeldItemStrategy.key]: LookupHeldItemStrategy,
     [LookupKeywordStrategy.key]: LookupKeywordStrategy,

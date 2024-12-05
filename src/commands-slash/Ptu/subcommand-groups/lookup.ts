@@ -19,6 +19,7 @@ export enum PtuLookupSubcommand
     Ability = 'ability',
     Capability = 'capability',
     Edge = 'edge',
+    EvolutionaryStone = 'evolutionary_stone',
     Feature = 'feature',
     HeldItem = 'held_item',
     Keyword = 'keyword',
@@ -93,6 +94,30 @@ export const edge = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setName(PtuAutocompleteParameterName.EdgeName);
         option.setDescription(`The edge's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.EvolutionaryStone);
+    subcommand.setDescription('Get an evolutionary stone based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EvolutionaryStone);
+        option.setDescription(`The evolutionary stone's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Pokemon To Evolve
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonToEvolve);
+        option.setDescription(`The name of the Pokemon to evolve.`);
         return option.setAutocomplete(true);
     });
 

@@ -16,6 +16,7 @@ import {
 } from '../types/pokemon.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
+import { PtuEvolutionaryStone } from '../types/PtuEvolutionaryStone.js';
 import { PtuFeature } from '../types/PtuFeature.js';
 import { PtuHeldItem } from '../types/PtuHeldItem.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
@@ -128,6 +129,44 @@ export const getLookupEdgesEmbedMessages = (input: PtuEdge[]): EmbedBuilder[] =>
 
     return getPagedEmbedBuilders({
         title: 'Edges',
+        pages,
+    });
+};
+
+export const getLookupEvolutionaryStonesEmbedMessages = (input: PtuEvolutionaryStone[]): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, {
+        name,
+        cost,
+        pokemonToEvolve,
+    }, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = [
+            Text.bold(name),
+            ...(cost !== undefined ? [`Cost: ${cost}`] : []),
+            ...(pokemonToEvolve !== undefined && pokemonToEvolve.length > 0
+                ? [
+                    `Evolves:\n\`\`\`\n${pokemonToEvolve.join('\n')}\`\`\``,
+                ]
+                : []
+            ),
+        ];
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Evolutionary Stones',
         pages,
     });
 };

@@ -117,6 +117,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Edge],
                 lookupSubcommand: PtuLookupSubcommand.Edge,
             },
+            [PtuAutocompleteParameterName.EvolutionaryStone]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.EvolutionaryStone],
+                lookupSubcommand: PtuLookupSubcommand.EvolutionaryStone,
+            },
             [PtuAutocompleteParameterName.FeatureName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Feature,
@@ -140,6 +144,10 @@ export class RefreshCacheStrategy
             [PtuAutocompleteParameterName.PokeballName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokeball],
                 lookupSubcommand: PtuLookupSubcommand.Pokeball,
+            },
+            [PtuAutocompleteParameterName.PokemonToEvolve]: { // This is the same as evolutionary stone, this is just a placeholder to make the types easier to manage
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.EvolutionaryStone],
+                lookupSubcommand: PtuLookupSubcommand.EvolutionaryStone,
             },
             [PtuAutocompleteParameterName.PokemonName]: { // This doesn't get cached, this is just a placeholder to make the types easier to manage
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokeball],
