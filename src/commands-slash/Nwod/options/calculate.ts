@@ -21,7 +21,7 @@ export enum OpponentSpeed
 
 export enum InitiativeModifier
 {
-    HigherThanOpponents = `Is Higher Than Your Opponent's"`,
+    HigherThanOpponents = `Is Higher Than Your Opponent's`,
     TwiceOpponents = `Is Twice Your Opponent's`,
     ThreeTimesOpponents = `Is Three Times Your Opponent's`,
     NoneOfTheAbove = 'None Of The Above',
