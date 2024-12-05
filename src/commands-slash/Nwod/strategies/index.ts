@@ -15,6 +15,7 @@ import { ChangelingContract } from '../types/ChangelingContract.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
+import calculateStrategies from './calculate/index.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
 import lookupStrategies from './lookup/index.js';
@@ -51,6 +52,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         acc[cur.key] = cur;
         return acc;
     }, {
+        [NwodSubcommandGroup.Calculate]: calculateStrategies,
         [NwodSubcommandGroup.Lookup]: lookupStrategies,
     } as NwodStrategyMap);
 

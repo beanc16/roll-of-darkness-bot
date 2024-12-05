@@ -3,6 +3,7 @@ import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import {
+    calculate,
     chance,
     initiative,
     lookup,
@@ -20,6 +21,7 @@ class Nwod extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
+            .addSubcommandGroup(calculate)
             .addSubcommandGroup(lookup)
             .addSubcommand(roll)
             .addSubcommand(initiative)

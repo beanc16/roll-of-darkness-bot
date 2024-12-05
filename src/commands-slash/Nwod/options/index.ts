@@ -1,11 +1,13 @@
 import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
 
+import * as calculateSubcommands from './calculate.js';
 import * as initiativeOptions from './initiative.js';
 import * as lookupSubcommands from './lookup.js';
 import * as rollOptions from './roll.js';
 
 export enum NwodSubcommandGroup
 {
+    Calculate = 'calculate',
     Lookup = 'lookup',
 }
 
@@ -16,6 +18,20 @@ export enum NwodSubcommand
     Luck = 'luck',
     Roll = 'roll',
 }
+
+export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(NwodSubcommandGroup.Calculate);
+    subcommandGroup.setDescription('Run nWOD calculate commands.');
+    Object.values(calculateSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
 
 export const chance = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
