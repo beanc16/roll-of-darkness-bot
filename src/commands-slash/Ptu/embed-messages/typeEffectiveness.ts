@@ -38,9 +38,12 @@ export const getTypeEffectivenessEmbedMessages = ({
     };
     const { prefix, suffix } = roleToHeaderPrefix[role];
 
+    const abilitiesString = (inputAbilities.length > 0)
+        ? `\nWith: ${inputAbilities.join(', ')}`
+        : '';
+
     // Set initial value
-    const initialString = `${Text.bold(`For: ${inputTypes.join(', ')}`)}\n`
-        + `With: ${inputAbilities.join(', ')}\n\n`;
+    const initialString = `${Text.bold(`For: ${inputTypes.join(', ')}`)}${abilitiesString}\n\n`;
 
     // Get pages
     const { pages } = keys.reduce((pageData, typeEffectiveness, index) =>
