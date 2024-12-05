@@ -1,12 +1,13 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { name } from '../../Nwod/options/roll.js';
+import { name, numberOfDice } from '../../Nwod/options/roll.js';
 import { dicePool } from '../../options/roll_lite.js';
 
 export enum PtuRollSubcommand
 {
     Attack = 'attack',
     Capture = 'capture',
+    Skill = 'skill',
 }
 
 export const attack = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -59,6 +60,24 @@ export const capture = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     {
         option.setName('accuracy_modifier');
         return option.setDescription('A math formula of extra accuracy modifiers (only addition and subtraction are supported; IE: 5 - 10)');
+    });
+
+    return subcommand;
+};
+
+export const skills = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRollSubcommand.Skill);
+    subcommand.setDescription('Roll a dice pool of d6s with math (only addition and subtraction are supported; IE: 5 - 10).');
+
+    subcommand.addStringOption(numberOfDice);
+
+    subcommand.addStringOption(name);
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('modifier');
+        return option.setDescription('A mathematical formula of extra modifiers (only addition and subtraction are supported; IE: 5 - 10).');
     });
 
     return subcommand;
