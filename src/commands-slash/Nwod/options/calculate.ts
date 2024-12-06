@@ -9,6 +9,7 @@ import {
 export enum NwodCalculateSubcommand
 {
     ChaseSuccesses = 'chase_successes',
+    HedgeNavigation = 'hedge_navigation',
 }
 
 export enum OpponentSpeed
@@ -32,6 +33,22 @@ export enum Territory
     DoesntKnow = `Your Character Doesn't Know`,
     Knows = 'Your Character Knows',
     KnowsIntimately = 'Your Character Knows Intimately',
+}
+
+export enum CurrentClarity
+{
+    FourOrHigher = 'Four Or Higher',
+    Three = 'Three',
+    Two = 'Two',
+    One = 'One',
+}
+
+export enum TimeLimit
+{
+    NotUrgent = 'Not Urgent',
+    SomewhatUrgent = 'Somewhat Urgent',
+    MoreUrgent = 'More Urgent',
+    MostUrgent = 'Most Urgent',
 }
 
 const opponentsSpeed = (option: SlashCommandStringOption): SlashCommandStringOption =>
@@ -140,7 +157,7 @@ const chaseOptions = {
 export const chaseSuccesses = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(NwodCalculateSubcommand.ChaseSuccesses);
-    subcommand.setDescription('Get a list of conditions based on the given parameters.');
+    subcommand.setDescription('Get the number of successes to win a chase based on the given parameters.');
 
     subcommand.addStringOption(chaseOptions.opponentsSpeed);
     subcommand.addStringOption(chaseOptions.initiativeModifier);
@@ -149,6 +166,94 @@ export const chaseSuccesses = (subcommand: SlashCommandSubcommandBuilder): Slash
     subcommand.addBooleanOption(chaseOptions.sizeIsLowerThanOpponents);
     subcommand.addBooleanOption(chaseOptions.opponentCannotBeTired);
     subcommand.addNumberOption(chaseOptions.environmentDangerModifier);
+
+    return subcommand;
+};
+
+export const hedgeNavigation = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodCalculateSubcommand.HedgeNavigation);
+    subcommand.setDescription('Get the number of successes to navigate the hedge based on the given parameters.');
+
+    // Required
+    subcommand.addStringOption(chaseOptions.opponentsSpeed);
+    subcommand.addStringOption(chaseOptions.initiativeModifier);
+    subcommand.addStringOption(chaseOptions.territory);
+    subcommand.addNumberOption((option) =>
+    {
+        option.setName('wyrd_rating');
+        option.setDescription('Your wyrd rating.');
+        option.setMinValue(1);
+        option.setMaxValue(10);
+        option.setRequired(true);
+        return option;
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('current_clarity');
+        option.setDescription('Your current clarity rating.');
+
+        const choices = Object.values(CurrentClarity).map<APIApplicationCommandOptionChoice<string>>(
+            (name) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            },
+        );
+        option.addChoices(...choices);
+        option.setRequired(true);
+        return option;
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('time_limit');
+        option.setDescription('The time limit that your character is under.');
+
+        const choices = Object.values(TimeLimit).map<APIApplicationCommandOptionChoice<string>>(
+            (name) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            },
+        );
+        option.addChoices(...choices);
+        option.setRequired(true);
+        return option;
+    });
+
+    // Optional
+    subcommand.addNumberOption(chaseOptions.opponentsTurnLead);
+    subcommand.addBooleanOption(chaseOptions.sizeIsLowerThanOpponents);
+    subcommand.addBooleanOption(chaseOptions.opponentCannotBeTired);
+    subcommand.addNumberOption(chaseOptions.environmentDangerModifier);
+    subcommand.addNumberOption((option) =>
+    {
+        option.setName('goblin_debt_accepted');
+        option.setDescription('The amount of goblin debt your character accepts for hobgoblin aid.');
+        option.setMinValue(0);
+        option.setMaxValue(3);
+        return option;
+    });
+    subcommand.addNumberOption((option) =>
+    {
+        option.setName('huntsman_modifer');
+        option.setDescription('Modifier if your character is a huntsman.');
+        option.setMinValue(-2);
+        option.setMaxValue(0);
+        return option;
+    });
+    subcommand.addNumberOption((option) =>
+    {
+        option.setName('trod_modifer');
+        option.setDescription('Modifier per trod milestone desired.');
+        option.setMinValue(0);
+        option.setMaxValue(5);
+        return option;
+    });
 
     return subcommand;
 };

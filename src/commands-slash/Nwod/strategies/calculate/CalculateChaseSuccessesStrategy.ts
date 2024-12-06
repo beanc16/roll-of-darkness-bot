@@ -9,7 +9,7 @@ import {
     Territory,
 } from '../../options/calculate.js';
 
-export interface CalculateSuccessesOptions
+export interface ChaseSuccessesGetParameterResultsResponse
 {
     opponentsSpeed: OpponentSpeed;
     initiativeModifier: InitiativeModifier;
@@ -28,21 +28,24 @@ export class CalculateChaseSuccessesStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const opponentsSpeed = interaction.options.getString('opponents_speed', true) as OpponentSpeed;
-        const initiativeModifier = interaction.options.getString('initiative_modifier', true) as InitiativeModifier;
-        const territory = interaction.options.getString('territory', true) as Territory;
-        const opponentsTurnLead = interaction.options.getNumber('opponents_turn_lead') ?? 0;
-        const sizeIsLowerThanOpponents = interaction.options.getBoolean('size_is_lower_than_opponents') ?? false;
-        const opponentCannotBeTired = interaction.options.getBoolean('opponent_cannot_be_tired') ?? false;
-        const environmentDangerModifier = interaction.options.getNumber('environment_danger_modifier') ?? 0;
+        const {
+            opponentsSpeed,
+            initiativeModifier,
+            territory,
+            opponentsTurnLead,
+            sizeIsLowerThanOpponents,
+            opponentCannotBeTired,
+            environmentDangerModifier,
+        } = this.getParameterResults(interaction);
 
-        if (!(Number.isInteger(opponentsTurnLead) && Number.isInteger(environmentDangerModifier)))
+        // Handle errors
+        const errorMessages = this.getErrorMessages(
+            opponentsTurnLead,
+            environmentDangerModifier,
+        );
+
+        if (errorMessages.length > 0)
         {
-            const errorMessages = [
-                ...(Number.isInteger(opponentsTurnLead) ? [] : ['opponents_turn_lead']),
-                ...(Number.isInteger(environmentDangerModifier) ? [] : ['environment_danger_modifier']),
-            ];
-
             await interaction.editReply({
                 content: `${errorMessages.join(' and ')} must be an integer.`,
             });
@@ -68,7 +71,48 @@ export class CalculateChaseSuccessesStrategy
         return true;
     }
 
-    private static calculateSuccesses({
+    /* istanbul ignore next */
+    public static getParameterResults(interaction: ChatInputCommandInteraction): ChaseSuccessesGetParameterResultsResponse
+    {
+        // Get parameter results
+        const opponentsSpeed = interaction.options.getString('opponents_speed', true) as OpponentSpeed;
+        const initiativeModifier = interaction.options.getString('initiative_modifier', true) as InitiativeModifier;
+        const territory = interaction.options.getString('territory', true) as Territory;
+        const opponentsTurnLead = interaction.options.getNumber('opponents_turn_lead') ?? 0;
+        const sizeIsLowerThanOpponents = interaction.options.getBoolean('size_is_lower_than_opponents') ?? false;
+        const opponentCannotBeTired = interaction.options.getBoolean('opponent_cannot_be_tired') ?? false;
+        const environmentDangerModifier = interaction.options.getNumber('environment_danger_modifier') ?? 0;
+
+        return {
+            opponentsSpeed,
+            initiativeModifier,
+            territory,
+            opponentsTurnLead,
+            sizeIsLowerThanOpponents,
+            opponentCannotBeTired,
+            environmentDangerModifier,
+        };
+    }
+
+    /* istanbul ignore next */
+    public static getErrorMessages(opponentsTurnLead: number, environmentDangerModifier: number): string[]
+    {
+        const errorMessages: string[] = [];
+
+        if (!Number.isInteger(opponentsTurnLead))
+        {
+            errorMessages.push('opponents_turn_lead');
+        }
+
+        if (!Number.isInteger(environmentDangerModifier))
+        {
+            errorMessages.push('environment_danger_modifier');
+        }
+
+        return errorMessages;
+    }
+
+    public static calculateSuccesses({
         opponentsSpeed,
         initiativeModifier,
         territory,
@@ -76,7 +120,7 @@ export class CalculateChaseSuccessesStrategy
         sizeIsLowerThanOpponents,
         opponentCannotBeTired,
         environmentDangerModifier,
-    }: CalculateSuccessesOptions): number
+    }: ChaseSuccessesGetParameterResultsResponse): number
     {
         // Always start at a base of 5 successes
         const successes = 5;

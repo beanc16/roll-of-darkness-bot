@@ -1,16 +1,31 @@
 import {
+    CurrentClarity,
     InitiativeModifier,
     OpponentSpeed,
     Territory,
+    TimeLimit,
 } from '../../../../../src/commands-slash/Nwod/options/calculate.js';
-import { CalculateChaseSuccessesStrategy, type CalculateSuccessesOptions } from '../../../../../src/commands-slash/Nwod/strategies/calculate/CalculateChaseSuccessesStrategy.js';
+import { CalculateChaseSuccessesStrategy } from '../../../../../src/commands-slash/Nwod/strategies/calculate/CalculateChaseSuccessesStrategy.js';
+import { CalculateHedgeNavigationStrategy, type GetParameterResultsResponse } from '../../../../../src/commands-slash/Nwod/strategies/calculate/CalculateHedgeNavigationStrategy.js';
 
-describe('class: CalculateChaseSuccessesStrategy', () =>
+describe.each([
+    [CalculateChaseSuccessesStrategy.name, CalculateChaseSuccessesStrategy, {
+    }],
+    [CalculateHedgeNavigationStrategy.name, CalculateHedgeNavigationStrategy, {
+        // Additional parameters to add to default
+        wyrdRating: 0,
+        currentClarity: CurrentClarity.FourOrHigher,
+        timeLimit: TimeLimit.NotUrgent,
+        goblinDebtAccepted: 0,
+        huntsmanModifer: 0,
+        trodModifer: 0,
+    } as GetParameterResultsResponse],
+])('class: %s', (_, Class, extraParameters) =>
 {
     describe('methods: calculateSuccesses', () =>
     {
         let defaultSuccesses: number;
-        let defaultOptions: CalculateSuccessesOptions;
+        let defaultOptions: GetParameterResultsResponse;
 
         beforeEach(() =>
         {
@@ -23,12 +38,13 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 sizeIsLowerThanOpponents: false,
                 opponentCannotBeTired: false,
                 environmentDangerModifier: 0,
-            };
+                ...extraParameters,
+            } as GetParameterResultsResponse;
         });
 
         it('should calculate the correct number of successes with default values', () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
                 ...defaultOptions,
             });
 
@@ -37,7 +53,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
 
         it(`should calculate the correct number of successes when your size is lower than your opponent's`, () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
                 ...defaultOptions,
                 sizeIsLowerThanOpponents: true,
             });
@@ -47,7 +63,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
 
         it('should calculate the correct number of successes when your opponent cannot be tired', () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
                 ...defaultOptions,
                 opponentCannotBeTired: true,
             });
@@ -57,7 +73,8 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
 
         it('should calculate the correct number of successes with all positive modifiers', () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
+                ...defaultOptions,
                 opponentsSpeed: OpponentSpeed.TenTimesYours,
                 initiativeModifier: InitiativeModifier.NoneOfTheAbove,
                 territory: Territory.DoesntKnow,
@@ -72,7 +89,8 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
 
         it('should calculate 0 successes if modifiers would make the number of successes negative', () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
+                ...defaultOptions,
                 opponentsSpeed: OpponentSpeed.NoneOfTheAbove,
                 initiativeModifier: InitiativeModifier.ThreeTimesOpponents, // Negative
                 territory: Territory.KnowsIntimately,                       // Negative
@@ -87,7 +105,8 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
 
         it('should calculate the correct number of successes with a mix of positive and negative modifiers', () =>
         {
-            const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+            const result = Class['calculateSuccesses']({
+                ...defaultOptions,
                 opponentsSpeed: OpponentSpeed.HigherThanYours,              // Positive
                 initiativeModifier: InitiativeModifier.HigherThanOpponents, // Negative
                 territory: Territory.Knows,                                 // Negative
@@ -108,7 +127,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 [OpponentSpeed.TenTimesYours, 5],
             ])(`should calculate the correct number of successes with an opponent's speed that "%s"`, (opponentsSpeed, modifier) =>
             {
-                const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+                const result = Class['calculateSuccesses']({
                     ...defaultOptions,
                     opponentsSpeed,
                 });
@@ -125,7 +144,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 [InitiativeModifier.ThreeTimesOpponents, -3],
             ])(`should calculate the correct number of successes with an initiative modifier that "%s"`, (initiativeModifier, modifier) =>
             {
-                const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+                const result = Class['calculateSuccesses']({
                     ...defaultOptions,
                     initiativeModifier,
                 });
@@ -141,7 +160,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 [Territory.KnowsIntimately, -3],
             ])(`should calculate the correct number of successes with a territory knowledge of "%s"`, (territory, modifier) =>
             {
-                const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+                const result = Class['calculateSuccesses']({
                     ...defaultOptions,
                     territory,
                 });
@@ -157,7 +176,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 2,
             ])(`should calculate the correct number of successes when the opponent has a turn lead of "%s"`, (opponentsTurnLead) =>
             {
-                const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+                const result = Class['calculateSuccesses']({
                     ...defaultOptions,
                     opponentsTurnLead,
                 });
@@ -174,7 +193,7 @@ describe('class: CalculateChaseSuccessesStrategy', () =>
                 3,
             ])(`should calculate the correct number of successes when the environment has a danger modifier of "%s"`, (environmentDangerModifier) =>
             {
-                const result = CalculateChaseSuccessesStrategy['calculateSuccesses']({
+                const result = Class['calculateSuccesses']({
                     ...defaultOptions,
                     environmentDangerModifier,
                 });
