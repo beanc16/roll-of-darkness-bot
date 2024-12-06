@@ -195,12 +195,12 @@ export class CalculateHedgeNavigationStrategy
         const currentClarityModifier = currentClarityToModifier[currentClarity];
         const timeLimitModifier = timeLimitToModifier[timeLimit];
 
-        return successes
+        return Math.max(0, successes
             - wyrdRating
             + currentClarityModifier
             + timeLimitModifier
             - goblinDebtAccepted
             + huntsmanModifer
-            + trodModifer;
+            + trodModifer);
     }
 }

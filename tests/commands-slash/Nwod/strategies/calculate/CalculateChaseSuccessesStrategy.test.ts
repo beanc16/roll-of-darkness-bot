@@ -22,7 +22,7 @@ describe.each([
     } as GetParameterResultsResponse],
 ])('class: %s', (_, Class, extraParameters) =>
 {
-    describe('methods: calculateSuccesses', () =>
+    describe('method: calculateSuccesses', () =>
     {
         let defaultSuccesses: number;
         let defaultOptions: GetParameterResultsResponse;
