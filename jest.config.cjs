@@ -85,4 +85,7 @@ module.exports = {
     transformIgnorePatterns: [
         `<rootDir>/node_modules/(?!${esmModules})`,
     ],
+    setupFiles: [
+        '<rootDir>/tests/jest.setup.js',
+    ],
 };

@@ -3,6 +3,7 @@
     "include": [
         "**/**/fakes/**/*.ts",
         "**/*.test.ts",
+        "**/jest.setup.ts",
     ],
     "compilerOptions": {
         "noEmit": true,
