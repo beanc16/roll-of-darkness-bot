@@ -1,5 +1,3 @@
-import { it, jest } from '@jest/globals';
-
 import { characterSheetSpreadsheetIds } from '../../../../../src/commands-slash/Ptu/constants.js';
 import {
     CharacterSheetStrategy,
