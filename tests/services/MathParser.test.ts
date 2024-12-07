@@ -1,5 +1,3 @@
-import { describe } from '@jest/globals';
-
 import { AddAndSubtractMathParser } from '../../src/services/MathParser/AddAndSubtractMathParser.js';
 import { AddMathParser } from '../../src/services/MathParser/AddMathParser.js';
 import { MathParser } from '../../src/services/MathParser/MathParser.js';

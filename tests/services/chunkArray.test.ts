@@ -1,5 +1,3 @@
-import { jest } from '@jest/globals';
-
 import { chunkArray } from '../../src/services/chunkArray.js';
 
 describe('function: chunkArray', () =>
