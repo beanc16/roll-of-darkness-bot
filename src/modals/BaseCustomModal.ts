@@ -42,8 +42,31 @@ export abstract class BaseCustomModal
                 ? '\n'
                 : '';
 
-            return acc + `${cur.label || ''}${cur.value}${endingLineBreak}`;
+            return acc + `${cur.label || ''} ${cur.value}${endingLineBreak}`;
         }, '');
+    }
+
+    protected static parseInputValue(defaultInputValue: InputValue, value: string): number | boolean | string
+    {
+        if (defaultInputValue.typeOfValue === 'integer')
+        {
+            return parseInt(value, 10);
+        }
+
+        if (defaultInputValue.typeOfValue === 'boolean')
+        {
+            const booleanMap = {
+                yes: true,
+                no: false,
+            };
+
+            return booleanMap[
+                value.toLowerCase().trim() as 'yes' | 'no'
+            ];
+        }
+
+        // string
+        return value;
     }
 
     public static parseInputValues<KeyType extends string = string>(key: string, input: string): Record<KeyType, unknown>
@@ -57,24 +80,10 @@ export abstract class BaseCustomModal
             // Remove the label so all that remains is the value
             const value = cur.trim().replace(defaultInputValue.label || '', '');
 
-            if (defaultInputValue.typeOfValue === 'integer')
-            {
-                acc[defaultInputValue.key as KeyType] = parseInt(value, 10);
-            }
-            else if (defaultInputValue.typeOfValue === 'boolean')
-            {
-                const booleanMap = {
-                    yes: true,
-                    no: false,
-                };
-                acc[defaultInputValue.key as KeyType] = booleanMap[
-                    value.toLowerCase().trim() as 'yes' | 'no'
-                ];
-            }
-            else if (defaultInputValue.typeOfValue === 'string')
-            {
-                acc[defaultInputValue.key as KeyType] = value;
-            }
+            acc[defaultInputValue.key as KeyType] = this.parseInputValue(
+                defaultInputValue,
+                value,
+            );
 
             return acc;
         }, {} as Record<KeyType, unknown>);
@@ -125,8 +134,11 @@ export abstract class BaseCustomModal
                 return acc;
             }
 
-            // Just return the original value for short input fields
-            acc[customId as KeyType] = value;
+            // Parse short input fields
+            acc[customId as KeyType] = this.parseInputValue(
+                this.inputValuesMap[customId][0],
+                value,
+            );
 
             return acc;
         }, {} as Record<KeyType, Record<string, unknown> | string | number | boolean | undefined>);

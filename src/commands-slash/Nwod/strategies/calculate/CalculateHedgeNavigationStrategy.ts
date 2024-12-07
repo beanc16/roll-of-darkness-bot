@@ -1,8 +1,20 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    ComponentType,
+    InteractionEditReplyOptions,
+    Message,
+} from 'discord.js';
 
+import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { joinWithOxfordComma } from '../../../../services/stringHelpers.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { CalculateHedgeDicepoolModal } from '../../modals/CalculateHedgeDicepoolModal.js';
 import {
     CurrentClarity,
     InitiativeModifier,
@@ -21,6 +33,11 @@ export interface GetParameterResultsResponse extends ChaseSuccessesGetParameterR
     goblinDebtAccepted: number;
     huntsmanModifer: number;
     trodModifer: number;
+}
+
+enum CalculateHedgeNavigationButtonName
+{
+    CalculateHedgeDicepool = 'calculate_hedge_dicepool',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -64,8 +81,15 @@ export class CalculateHedgeNavigationStrategy
         const successes = this.calculateSuccesses(parameterResults);
 
         // Send message
-        await interaction.editReply({
-            content: `You need a total of ${successes} successes to navigate the hedge.`,
+        const replyOptions = this.getMessageData(`You need a total of ${successes} successes to navigate the hedge.`);
+        const response = await interaction.editReply(replyOptions);
+
+        // Handle any interactions on the buttons
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+        this.handleButtonInteractions({
+            originalInteraction: interaction,
+            interactionResponse: response,
+            successes,
         });
 
         return true;
@@ -202,5 +226,88 @@ export class CalculateHedgeNavigationStrategy
             - goblinDebtAccepted
             + huntsmanModifer
             + trodModifer);
+    }
+
+    /* istanbul ignore next */
+    private static getMessageData(content: string): InteractionEditReplyOptions
+    {
+        const buttonRow = this.getButtonRowComponent();
+
+        return {
+            content,
+            components: [buttonRow],
+        };
+    }
+
+    /* istanbul ignore next */
+    private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
+    {
+        const hedgeDicepoolButton = new ButtonBuilder()
+            .setCustomId(CalculateHedgeNavigationButtonName.CalculateHedgeDicepool)
+            .setLabel('Calculate Hedge Dicepool')
+            .setEmoji('🧚')
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(hedgeDicepoolButton);
+
+        return row;
+    }
+
+    private static async handleButtonInteractions({
+        originalInteraction,
+        interactionResponse,
+        successes,
+    }: {
+        originalInteraction: ChatInputCommandInteraction;
+        interactionResponse: Message<boolean>;
+        successes: number;
+    }): Promise<void>
+    {
+        let buttonInteraction: ButtonInteraction | undefined;
+
+        try
+        {
+            // Wait for button interactions
+            buttonInteraction = await interactionResponse.awaitMessageComponent({
+                componentType: ComponentType.Button,
+                time: timeToWaitForCommandInteractions,
+            });
+
+            // Display modal to handle calculating the hedge's dicepool
+            await CalculateHedgeDicepoolModal.showModal(buttonInteraction, {
+                successes,
+            });
+
+            // Restart listener in case the modal isn't finished
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+            this.handleButtonInteractions({
+                originalInteraction,
+                interactionResponse,
+                successes,
+            });
+        }
+        catch (error)
+        {
+            const errorPrefix = 'Collector received no interactions before ending with reason:';
+            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
+
+            // Ignore timeouts
+            if (!messageTimedOut && !messageWasDeleted)
+            {
+                logger.error(`An unknown error occurred whilst handling reroll button interactions for /nwod calculate hedge_navigation`, error);
+            }
+
+            // Disable paginated buttons upon non-deletes
+            if (!messageWasDeleted)
+            {
+                const messageData = this.getMessageData(
+                    interactionResponse.content, // Use the message's original content
+                );
+
+                await originalInteraction.editReply(messageData);
+            }
+        }
     }
 }
