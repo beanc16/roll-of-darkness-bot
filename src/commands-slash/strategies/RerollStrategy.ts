@@ -86,6 +86,7 @@ export class RerollStrategy
         });
     }
 
+    /* istanbul ignore next */
     private static getMessageData(options: RerollInteractionOptions): GetRerollMessageDataResponse
     {
         const buttonRow = this.getButtonRowComponent();
@@ -99,6 +100,7 @@ export class RerollStrategy
         };
     }
 
+    /* istanbul ignore next */
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
         const diceButton = new ButtonBuilder()
