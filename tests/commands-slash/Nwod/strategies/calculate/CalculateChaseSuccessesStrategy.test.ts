@@ -84,7 +84,7 @@ describe.each([
                 environmentDangerModifier: 3,
             });
 
-            expect(result).toBe(5 + 5 + 2 + 2 + 3); // Base + Speed + Turn Lead + Cannot Be Tired + Environment Modifier
+            expect(result).toEqual(defaultSuccesses + 5 + 2 + 2 + 3); // Base + Speed + Turn Lead + Cannot Be Tired + Environment Modifier
         });
 
         it('should calculate 0 successes if modifiers would make the number of successes negative', () =>
