@@ -4,7 +4,7 @@ import {
     TextInputStyle,
 } from 'discord.js';
 
-import { BaseCustomModal, InputValuesMap } from '../../../modals/BaseCustomModal.js';
+import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 
 export enum CalculateHedgeDicepoolCustomIds
 {

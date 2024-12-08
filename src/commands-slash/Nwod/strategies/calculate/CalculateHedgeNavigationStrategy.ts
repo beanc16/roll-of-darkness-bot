@@ -14,7 +14,7 @@ import { timeToWaitForCommandInteractions } from '../../../../constants/discord.
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { joinWithOxfordComma } from '../../../../services/stringHelpers.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { CalculateHedgeDicepoolModal } from '../../modals/CalculateHedgeDicepoolModal.js';
+import { CalculateHedgeDicepoolModal } from '../../modals/calculate/CalculateHedgeDicepoolModal.js';
 import {
     CurrentClarity,
     InitiativeModifier,
