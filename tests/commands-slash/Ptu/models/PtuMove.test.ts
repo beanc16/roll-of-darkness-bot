@@ -15,6 +15,7 @@ jest.mock('@beanc16/logger');
 describe('class: PtuMove', () =>
 {
     let defaultMove: PtuMove;
+    let invalidMove: PtuMove;
     const defaultConstructorInput: string[] = [
         'Tackle',                       // name
         '',                             // _typeIcon
@@ -38,10 +39,34 @@ describe('class: PtuMove', () =>
         'o',                            // strongJaw
         'o',                            // recklessErrata
     ];
+    const invalidConstructorInput: string[] = [
+        '',                         // name
+        '',                         // _typeIcon
+        '',                         // _categoryIcon
+        '--',                       // untrimmedDamageBase
+        'InvalidFrequency',         // untrimmedFrequency
+        '--',                       // untrimmedAc
+        '--',                       // range
+        '',                         // effects
+        '',                         // contestStats
+        'InvalidCategory',          // untrimmedCategory
+        'InvalidType',              // untrimmedType
+        '',                         // sheerForce
+        '',                         // toughClaws
+        '',                         // technician
+        '',                         // reckless
+        '',                         // ironFist
+        '',                         // megaLauncher
+        '',                         // megaLauncherErrata
+        '',                         // punkRock
+        '',                         // strongJaw
+        '',                         // recklessErrata
+    ];
 
     beforeEach(() =>
     {
         defaultMove = new PtuMove(defaultConstructorInput);
+        invalidMove = new PtuMove(invalidConstructorInput);
     });
 
     describe('constructor', () =>
@@ -59,7 +84,8 @@ describe('class: PtuMove', () =>
             expect(defaultMove.ac).toEqual(2);
             expect(defaultMove.range).toEqual('Melee');
             expect(defaultMove.effects).toEqual('No additional effects.');
-            expect(defaultMove.contestStats).toEqual('Tough - Steady Performance');
+            expect(defaultMove.contestStatType).toEqual('Tough');
+            expect(defaultMove.contestStatEffect).toEqual('Steady Performance');
             expect(defaultMove.uses.sheerForce).toEqual(true);
             expect(defaultMove.uses.toughClaws).toEqual(true);
             expect(defaultMove.uses.technician).toEqual(true);
@@ -74,38 +100,14 @@ describe('class: PtuMove', () =>
 
         it('should set invalid inputs to undefined', () =>
         {
-            const input = [
-                '',                         // name
-                '',                         // _typeIcon
-                '',                         // _categoryIcon
-                '--',                       // untrimmedDamageBase
-                'InvalidFrequency',         // untrimmedFrequency
-                '--',                       // untrimmedAc
-                '--',                       // range
-                '',                         // effects
-                '',                         // contestStats
-                'InvalidCategory',          // untrimmedCategory
-                'InvalidType',              // untrimmedType
-                '',                         // sheerForce
-                '',                         // toughClaws
-                '',                         // technician
-                '',                         // reckless
-                '',                         // ironFist
-                '',                         // megaLauncher
-                '',                         // megaLauncherErrata
-                '',                         // punkRock
-                '',                         // strongJaw
-                '',                         // recklessErrata
-            ];
-
-            const move = new PtuMove(input);
-
-            expect(move.damageBase).toBeUndefined();
-            expect(move.frequency).toBeUndefined();
-            expect(move.ac).toBeUndefined();
-            expect(move.range).toBeUndefined();
-            expect(move.category).toBeUndefined();
-            expect(move.type).toBeUndefined();
+            expect(invalidMove.damageBase).toBeUndefined();
+            expect(invalidMove.frequency).toBeUndefined();
+            expect(invalidMove.ac).toBeUndefined();
+            expect(invalidMove.range).toBeUndefined();
+            expect(invalidMove.category).toBeUndefined();
+            expect(invalidMove.type).toBeUndefined();
+            expect(invalidMove.contestStatType).toBeUndefined();
+            expect(invalidMove.contestStatEffect).toBeUndefined();
         });
     });
 
@@ -160,6 +162,48 @@ describe('class: PtuMove', () =>
             const result = defaultMove.IsValidBasedOnInput({
                 ...defaultInput,
                 [key]: invalidValue,
+            });
+
+            expect(result).toEqual(false);
+        });
+
+        it.each([
+            ['type', 10],
+            ['category', 9],
+            ['frequency', 4],
+            ['damageBase', 3],
+            ['ac', 5],
+            ['range', 6],
+            ['contestStatType', 8],
+            ['contestStatEffect', 8],
+        ])('should return false if %s is undefined', (key, index) =>
+        {
+            const move = new PtuMove([
+                ...defaultConstructorInput.slice(0, index - 1),
+                '',
+                ...defaultConstructorInput.slice(index + 1),
+            ]);
+            const result = move.IsValidBasedOnInput({
+                ...defaultInput,
+                [key]: undefined,
+            });
+
+            expect(result).toEqual(false);
+        });
+
+        it.each([
+            ['contestStatType', 8, PtuContestStatType.Smart],
+            ['contestStatEffect', 8, PtuContestStatEffect.GoodShow],
+        ])('should return false if %s is undefined but a valid value is being searched for', (key, index, value) =>
+        {
+            const move = new PtuMove([
+                ...defaultConstructorInput.slice(0, index - 1),
+                '',
+                ...defaultConstructorInput.slice(index + 1),
+            ]);
+            const result = move.IsValidBasedOnInput({
+                ...defaultInput,
+                [key]: value,
             });
 
             expect(result).toEqual(false);

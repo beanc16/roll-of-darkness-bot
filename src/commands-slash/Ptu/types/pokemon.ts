@@ -131,8 +131,6 @@ export enum PtuContestStatEffect
     Unsettling = 'Unsettling',
 }
 
-export type PtuContestStat = `${PtuContestStatType} - ${PtuContestStatEffect}`;
-
 export enum PokemonStatusType
 {
     Persistent = 'Persistent',

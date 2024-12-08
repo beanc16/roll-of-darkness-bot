@@ -6,7 +6,8 @@ import { GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {
     PokemonMoveCategory,
     PokemonType,
-    PtuContestStat,
+    PtuContestStatEffect,
+    PtuContestStatType,
     PtuMoveFrequency,
 } from '../types/pokemon.js';
 
@@ -20,7 +21,8 @@ export class PtuMove
     public ac?: number;
     public range?: string;
     public effects: string;
-    public contestStats: PtuContestStat | `` | `--`;
+    public contestStatEffect?: PtuContestStatEffect;
+    public contestStatType?: PtuContestStatType;
     public uses: {
         sheerForce: boolean;
         toughClaws: boolean;
@@ -72,10 +74,18 @@ export class PtuMove
         const damageBase = parseInt(unparsedDamageBase, 10);
         const ac = parseInt(unparsedAc, 10);
 
+        // Parse contest stats
+        const [contestStatType, contestStatEffect] = contestStats.trim().split('-').map(value => value.trim());
+
         // Base values
         this.name = name.trim();
         this.effects = effects.trim();
-        this.contestStats = contestStats.trim() as PtuContestStat;
+        this.contestStatType = (contestStatType !== '--' && contestStatType !== '')
+            ? contestStatType as PtuContestStatType
+            : undefined;
+        this.contestStatEffect = (contestStatEffect !== '--' && contestStatEffect !== '')
+            ? contestStatEffect as PtuContestStatEffect
+            : undefined;
         this.uses = {
             sheerForce: sheerForce === 'o',
             toughClaws: toughClaws === 'o',
@@ -253,12 +263,18 @@ export class PtuMove
             }
         }
 
-        // Contest stats
-        if (this.contestStats
-            && (
-                (input.contestStatType && !this.contestStats.includes(input.contestStatType))
-                || (input.contestStatEffect && !this.contestStats.includes(input.contestStatEffect))
-            )
+        // Contest Stats
+        if (
+            (input.contestStatType && this.contestStatType && input.contestStatType !== this.contestStatType.toString())
+            || (input.contestStatType && !this.contestStatType)
+        )
+        {
+            return false;
+        }
+
+        if (
+            (input.contestStatEffect && this.contestStatEffect && input.contestStatEffect !== this.contestStatEffect.toString())
+            || (input.contestStatEffect && !this.contestStatEffect)
         )
         {
             return false;
