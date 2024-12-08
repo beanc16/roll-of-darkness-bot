@@ -1,4 +1,4 @@
-import { CalculateHedgeDicepoolModal, ParseInputResponse } from '../../../../src/commands-slash/Nwod/modals/CalculateHedgeDicepoolModal.js';
+import { CalculateHedgeDicepoolModal, ParseInputResponse } from '../../../../src/commands-slash/Nwod/modals/calculate/CalculateHedgeDicepoolModal.js';
 
 describe('class: CalculateHedgeDicepoolModal', () =>
 {
