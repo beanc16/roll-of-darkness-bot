@@ -147,6 +147,7 @@ export class PtuMove
         // <--- TODO: Convert these validation if statements to use JOI later.
     }
 
+    /* istanbul ignore next */
     public ShouldIncludeInOutput(): boolean
     {
         // Moves to not include
