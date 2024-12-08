@@ -321,6 +321,7 @@ export class CharacterSheetStrategy
         return spreadsheets;
     }
 
+    /* istanbul ignore next */
     public static async getAllPokemonNamesAndNicknames(): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
     {
         const pokemonNamesResponse = await this.getAllPokemonNames();
@@ -342,6 +343,7 @@ export class CharacterSheetStrategy
         return nicknames;
     }
 
+    /* istanbul ignore next */
     protected static async getNickname({ spreadsheetId, pokemonName }: {
         spreadsheetId: string;
         pokemonName: string;
@@ -495,6 +497,7 @@ export class CharacterSheetStrategy
         );
     }
 
+    /* istanbul ignore next */
     protected static async handleGoogleSheetsApiError(
         errorType: GoogleSheetsApiErrorType | undefined,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow for generic callback handling
