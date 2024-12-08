@@ -19,6 +19,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { PokemonController } from '../../dal/PtuController.js';
 import {
     getLookupPokemonByAbilityEmbedMessages,
+    getLookupPokemonByCapabilityEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
 } from '../../embed-messages/lookup.js';
@@ -39,6 +40,7 @@ export interface GetLookupPokemonDataParameters
     moveListType?: PtuMoveListType;
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
+    capabilityName?: string | null;
 }
 
 export interface HandleSelectMenuOptionsParameters
@@ -71,8 +73,9 @@ export class LookupPokemonStrategy
         const moveListType = (interaction.options.getString('move_list_type') ?? PtuMoveListType.All) as PtuMoveListType;
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
+        const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
 
-        const numOfTruthyValues = [name, moveName, abilityName].filter(Boolean).length;
+        const numOfTruthyValues = [name, moveName, abilityName, capabilityName].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
@@ -92,6 +95,7 @@ export class LookupPokemonStrategy
             moveListType,
             abilityName,
             abilityListType,
+            capabilityName,
         });
 
         // Get message
@@ -101,6 +105,7 @@ export class LookupPokemonStrategy
             moveListType,
             abilityName,
             abilityListType,
+            capabilityName,
             pokemon: data,
         });
 
@@ -130,9 +135,10 @@ export class LookupPokemonStrategy
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
+        capabilityName,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemon[]>
     {
-        if (!(name || moveName || abilityName))
+        if (!(name || moveName || abilityName || capabilityName))
         {
             return [];
         }
@@ -144,6 +150,7 @@ export class LookupPokemonStrategy
             lookupType,
             abilityName,
             abilityListType,
+            capabilityName,
         });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
@@ -282,12 +289,24 @@ export class LookupPokemonStrategy
         lookupType = RegexLookupType.SubstringCaseInsensitive,
         abilityName,
         abilityListType = PtuAbilityListType.All,
+        capabilityName,
     }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
         if (name)
         {
             return {
                 name: parseRegexByType(name, lookupType),
+            };
+        }
+
+        if (capabilityName)
+        {
+            return {
+                'capabilities.other': {
+                    $in: [
+                        parseRegexByType(capabilityName, lookupType),
+                    ],
+                },
             };
         }
 
@@ -404,6 +423,7 @@ export class LookupPokemonStrategy
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
+        capabilityName,
         pokemon,
     }: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
     {
@@ -425,6 +445,13 @@ export class LookupPokemonStrategy
             return getLookupPokemonByAbilityEmbedMessages(pokemon, {
                 abilityName,
                 abilityListType,
+            });
+        }
+
+        if (capabilityName)
+        {
+            return getLookupPokemonByCapabilityEmbedMessages(pokemon, {
+                capabilityName,
             });
         }
 

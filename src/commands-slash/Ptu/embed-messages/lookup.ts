@@ -568,3 +568,31 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemon[], { 
         pages,
     });
 };
+
+export const getLookupPokemonByCapabilityEmbedMessages = (pokemon: PtuPokemon[], { capabilityName }: {
+    capabilityName: string;
+}): EmbedBuilder[] =>
+{
+    const lines = pokemon.map(({ name }) => name);
+    const { pages } = lines.reduce((acc, line) =>
+    {
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPageIndex += 1;
+        }
+
+        acc.pages[acc.curPageIndex] += `${line}\n`;
+
+        return acc;
+    }, {
+        pages: [
+            `${Text.bold(`Pokemon that have the ${capabilityName} Capability`)}\n\n`,
+        ],
+        curPageIndex: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Pokemon',
+        pages,
+    });
+};

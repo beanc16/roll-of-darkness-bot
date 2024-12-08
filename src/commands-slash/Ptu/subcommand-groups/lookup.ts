@@ -474,6 +474,14 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option;
     });
 
+    // Capability name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.CapabilityName);
+        option.setDescription(`The capability's name.`);
+        return option.setAutocomplete(true);
+    });
+
     return subcommand;
 };
 
