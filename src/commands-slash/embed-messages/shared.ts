@@ -263,3 +263,36 @@ export const createEmbedMessageDescriptionAndPage = ({
 
     return pageDataOutput;
 };
+
+export const getPagedEmbedMessages = <Element>({
+    input,
+    title,
+    parseElementToLines,
+}: {
+    input: Element[];
+    title: string;
+    parseElementToLines: (element: Element) => string[];
+}): EmbedBuilder[] =>
+{
+    if (input.length === 0) return [];
+
+    const { pages } = input.reduce((pageData, element, index) =>
+    {
+        // Stage the individual lines of the description
+        const lines = parseElementToLines(element);
+
+        return createEmbedMessageDescriptionAndPage({
+            lines,
+            pageData,
+            index,
+        });
+    }, {
+        pages: [''],
+        curPage: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title,
+        pages,
+    });
+};
