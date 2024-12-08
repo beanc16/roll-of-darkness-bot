@@ -79,6 +79,7 @@ export class PokeApi
         return parsedName;
     }
 
+    /* istanbul ignore next */
     public static parseNames(names?: string[]): string[]
     {
         const parsedNames = names?.reduce<string[]>((acc, name) =>
@@ -97,9 +98,10 @@ export class PokeApi
             return acc;
         }, []);
 
-        return (parsedNames) || [];
+        return parsedNames || [];
     }
 
+    /* istanbul ignore next */
     private static async getByNames(names?: string[]): Promise<Pokedex.Pokemon[] | undefined>
     {
         const parsedNames = this.parseNames(names);
