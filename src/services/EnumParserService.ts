@@ -18,7 +18,7 @@ export class EnumParserService
     public static getEnumKeyByEnumValue<
         EnumKey extends string,
         EnumVal,
-    >(enumToSearch: SomeEnum<EnumKey, EnumVal>, value: EnumVal): string
+    >(enumToSearch: SomeEnum<EnumKey, EnumVal>, value: EnumVal): EnumKey | undefined
     {
         const keys = Object.keys(enumToSearch) as EnumKey[];
 
@@ -26,7 +26,7 @@ export class EnumParserService
 
         const [key] = filteredKeys;
 
-        return key || '';
+        return key;
     }
 
     public static isInEnum<
