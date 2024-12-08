@@ -29,7 +29,7 @@ export class LookupEvolutionaryStoneStrategy
         const name = interaction.options.getString(PtuAutocompleteParameterName.EvolutionaryStone);
         const pokemonToEvolve = interaction.options.getString(PtuAutocompleteParameterName.PokemonToEvolve);
 
-        const evolutionaryStones = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             pokemonToEvolve,
             includeAllIfNoName: false,
@@ -37,7 +37,7 @@ export class LookupEvolutionaryStoneStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: evolutionaryStones,
+            input: data,
             title: 'Evolutionary Stones',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -68,36 +68,36 @@ export class LookupEvolutionaryStoneStrategy
             range: PtuLookupRange.EvolutionaryStone,
         });
 
-        const evolutionaryStones = data.reduce<PtuEvolutionaryStone[]>((acc, cur) =>
+        const output = data.reduce<PtuEvolutionaryStone[]>((acc, cur) =>
         {
-            const evolutionaryStone = new PtuEvolutionaryStone(cur);
+            const element = new PtuEvolutionaryStone(cur);
 
-            if (evolutionaryStone.name === undefined || evolutionaryStone.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== evolutionaryStone.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Pokemon TO Evolve
-            if (input.pokemonToEvolve && !evolutionaryStone.pokemonToEvolve.includes(input.pokemonToEvolve))
+            if (input.pokemonToEvolve && !element.pokemonToEvolve.includes(input.pokemonToEvolve))
             {
                 return acc;
             }
 
-            acc.push(evolutionaryStone);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        evolutionaryStones.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return evolutionaryStones;
+        return output;
     }
 }

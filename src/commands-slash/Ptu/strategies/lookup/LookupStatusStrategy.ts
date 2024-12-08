@@ -29,7 +29,7 @@ export class LookupStatusStrategy
         const name = interaction.options.getString(PtuAutocompleteParameterName.StatusName);
         const type = interaction.options.getString('status_type');
 
-        const statuses = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             type,
             includeAllIfNoName: false,
@@ -37,7 +37,7 @@ export class LookupStatusStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: statuses,
+            input: data,
             title: 'Statuses',
             parseElementToLines: element => [
                 `${Text.bold(element.name)}${element.isHomebrew ? ' [Homebrew]' : ''}`,
@@ -65,29 +65,29 @@ export class LookupStatusStrategy
             range: PtuLookupRange.Status,
         });
 
-        const statuses = data.reduce<PtuStatus[]>((acc, cur) =>
+        const output = data.reduce<PtuStatus[]>((acc, cur) =>
         {
-            const status = new PtuStatus(cur);
+            const element = new PtuStatus(cur);
 
             // Name
-            if (input.name && input.name.toLowerCase() !== status.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Type
-            if (input.type && input.type !== status.type)
+            if (input.type && input.type !== element.type)
             {
                 return acc;
             }
 
-            acc.push(status);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        statuses.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return statuses;
+        return output;
     }
 }

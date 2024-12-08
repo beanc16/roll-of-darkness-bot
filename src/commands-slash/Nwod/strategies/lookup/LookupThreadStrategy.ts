@@ -27,14 +27,14 @@ export class LookupThreadStrategy
         // Get parameter results
         const name = interaction.options.getString(NwodAutocompleteParameterName.ThreadName);
 
-        const threads = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: threads,
+            input: data,
             title: 'Threads',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -65,7 +65,7 @@ export class LookupThreadStrategy
             range: NwodLookupRange.Thread,
         });
 
-        const threads = data.reduce<ChangelingThread[]>((acc, cur) =>
+        const output = data.reduce<ChangelingThread[]>((acc, cur) =>
         {
             // Ignore empty rows
             if (cur[0] === undefined || cur[0].trim() === '')
@@ -73,28 +73,28 @@ export class LookupThreadStrategy
                 return acc;
             }
 
-            const thread = new ChangelingThread(cur);
+            const element = new ChangelingThread(cur);
 
-            if (thread.name === undefined || thread.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== thread.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(thread);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        threads.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return threads;
+        return output;
     }
 }

@@ -27,14 +27,14 @@ export class LookupKeywordStrategy
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.KeywordName);
 
-        const keywords = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: keywords,
+            input: data,
             title: 'Keywords',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -61,30 +61,30 @@ export class LookupKeywordStrategy
             range: PtuLookupRange.Keyword,
         });
 
-        const keywords = data.reduce<PtuKeyword[]>((acc, cur) =>
+        const output = data.reduce<PtuKeyword[]>((acc, cur) =>
         {
-            const keyword = new PtuKeyword(cur);
+            const element = new PtuKeyword(cur);
 
-            if (keyword.name === undefined || keyword.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === keyword.name.toLowerCase()) && !input.includeAllIfNoName)
+            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(keyword);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        keywords.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return keywords;
+        return output;
     }
 }

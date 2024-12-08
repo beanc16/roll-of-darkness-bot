@@ -30,7 +30,7 @@ export class LookupPokeballStrategy
         const name = interaction.options.getString(PtuAutocompleteParameterName.PokeballName);
         const type = interaction.options.getString('type') as PokeballType | null;
 
-        const pokeballs = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             type,
             includeAllIfNoName: false,
@@ -38,7 +38,7 @@ export class LookupPokeballStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: pokeballs,
+            input: data,
             title: 'Pokeballs',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -68,36 +68,36 @@ export class LookupPokeballStrategy
             range: PtuLookupRange.Pokeball,
         });
 
-        const pokeballs = data.reduce<PtuPokeball[]>((acc, cur) =>
+        const output = data.reduce<PtuPokeball[]>((acc, cur) =>
         {
-            const pokeball = new PtuPokeball(cur);
+            const element = new PtuPokeball(cur);
 
-            if (pokeball.name === undefined || pokeball.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== pokeball.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Type
-            if (input.type && input.type !== pokeball.type)
+            if (input.type && input.type !== element.type)
             {
                 return acc;
             }
 
-            acc.push(pokeball);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        pokeballs.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return pokeballs;
+        return output;
     }
 }

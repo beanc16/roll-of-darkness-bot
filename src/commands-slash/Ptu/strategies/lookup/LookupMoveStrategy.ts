@@ -39,7 +39,7 @@ export class LookupMoveStrategy
         const rangeSearch = interaction.options.getString('range_search');
         const effectSearch = interaction.options.getString('effect_search');
 
-        const moves = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             type,
             category,
@@ -54,7 +54,7 @@ export class LookupMoveStrategy
         });
 
         // Get message
-        const embeds = getLookupMovesEmbedMessages(moves);
+        const embeds = getLookupMovesEmbedMessages(data);
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No moves were found.',
@@ -71,22 +71,22 @@ export class LookupMoveStrategy
             });
 
             let beyondWeaponMovesAndManuevers = false;
-            const moves = data.reduce((acc, cur) =>
+            const output = data.reduce((acc, cur) =>
             {
-                const move = new PtuMove(cur);
+                const element = new PtuMove(cur);
 
-                if (!move.ShouldIncludeInOutput())
+                if (!element.ShouldIncludeInOutput())
                 {
                     return acc;
                 }
 
-                if (!move.IsValidBasedOnInput(input))
+                if (!element.IsValidBasedOnInput(input))
                 {
                     return acc;
                 }
 
                 // Assume Arcane Fury marks the start of weapon moves, which are above maneuvers
-                if (move.name.toLowerCase() === 'Arcane Fury'.toLowerCase())
+                if (element.name.toLowerCase() === 'Arcane Fury'.toLowerCase())
                 {
                     beyondWeaponMovesAndManuevers = true;
                 }
@@ -96,7 +96,7 @@ export class LookupMoveStrategy
                     return acc;
                 }
 
-                acc.push(move);
+                acc.push(element);
 
                 return acc;
             }, [] as PtuMove[]);
@@ -104,11 +104,11 @@ export class LookupMoveStrategy
             // Sort manually if there's no searches
             if (input.nameSearch || input.effectSearch)
             {
-                const results = PtuMovesSearchService.search(moves, input);
+                const results = PtuMovesSearchService.search(output, input);
                 return results;
             }
 
-            moves.sort((a, b) =>
+            output.sort((a, b) =>
             {
                 if (input.sortBy === 'name')
                 {
@@ -133,7 +133,7 @@ export class LookupMoveStrategy
                 return a.type?.localeCompare(b.type ?? '')
                     || a.name.localeCompare(b.name);
             });
-            return moves;
+            return output;
         }
 
         catch (error)

@@ -36,7 +36,7 @@ export class LookupMeritStrategy
         const type2 = interaction.options.getString('type_2') as MeritType | null;
         const type3 = interaction.options.getString('type_3') as MeritType | null;
 
-        const merits = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             types: [type1, type2, type3],
             includeAllIfNoName: false,
@@ -44,7 +44,7 @@ export class LookupMeritStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: merits,
+            input: data,
             title: 'Merits',
             parseElementToLines: element => [
                 `${Text.bold(element.name)} (${element.dots})`,
@@ -104,7 +104,7 @@ export class LookupMeritStrategy
             return acc;
         }, []) ?? [] as MeritType[];
 
-        const merits = data.reduce<NwodMerit[]>((acc, cur) =>
+        const output = data.reduce<NwodMerit[]>((acc, cur) =>
         {
             // Ignore empty rows
             if (cur[0] === undefined || cur[0].trim() === '')
@@ -112,34 +112,34 @@ export class LookupMeritStrategy
                 return acc;
             }
 
-            const merit = new NwodMerit(cur);
+            const element = new NwodMerit(cur);
 
-            if (merit.name === undefined || merit.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== merit.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Type
-            if (types.length > 0 && !types.every(type => type && merit.types.includes(type)))
+            if (types.length > 0 && !types.every(type => type && element.types.includes(type)))
             {
                 return acc;
             }
 
-            acc.push(merit);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        merits.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return merits;
+        return output;
     }
 }

@@ -34,7 +34,7 @@ export class LookupContractStrategy
         const type1 = interaction.options.getString('type_1') as ChangelingContractType | null;
         const type2 = interaction.options.getString('type_2') as ChangelingContractType | null;
 
-        const contracts = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             types: [type1, type2],
             includeAllIfNoName: false,
@@ -42,7 +42,7 @@ export class LookupContractStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: contracts,
+            input: data,
             title: 'Contracts',
             parseElementToLines: element => [
                 `${Text.bold(element.name)}`,
@@ -118,7 +118,7 @@ export class LookupContractStrategy
             return acc;
         }, []) ?? [] as ChangelingContractType[];
 
-        const contracts = data.reduce<ChangelingContract[]>((acc, cur) =>
+        const output = data.reduce<ChangelingContract[]>((acc, cur) =>
         {
             // Ignore empty rows
             if (cur[0] === undefined || cur[0].trim() === '')
@@ -126,34 +126,34 @@ export class LookupContractStrategy
                 return acc;
             }
 
-            const contract = new ChangelingContract(cur);
+            const element = new ChangelingContract(cur);
 
-            if (contract.name === undefined || contract.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== contract.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Type
-            if (types.length > 0 && !types.every(type => type && contract.types.includes(type)))
+            if (types.length > 0 && !types.every(type => type && element.types.includes(type)))
             {
                 return acc;
             }
 
-            acc.push(contract);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        contracts.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return contracts;
+        return output;
     }
 }

@@ -27,7 +27,7 @@ export class LookupAbilityStrategy
         const frequencySearch = interaction.options.getString('frequency_search');
         const effectSearch = interaction.options.getString('effect_search');
 
-        const abilities = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             nameSearch,
             frequencySearch,
@@ -36,7 +36,7 @@ export class LookupAbilityStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: abilities,
+            input: data,
             title: 'Abilities',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -65,16 +65,16 @@ export class LookupAbilityStrategy
                 range: PtuLookupRange.Ability,
             });
 
-            const abilities = data.reduce<PtuAbility[]>((acc, cur) =>
+            const output = data.reduce<PtuAbility[]>((acc, cur) =>
             {
-                const ability = new PtuAbility(cur);
+                const element = new PtuAbility(cur);
 
-                if (!ability.IsValidBasedOnInput(input))
+                if (!element.IsValidBasedOnInput(input))
                 {
                     return acc;
                 }
 
-                acc.push(ability);
+                acc.push(element);
 
                 return acc;
             }, []);
@@ -82,12 +82,12 @@ export class LookupAbilityStrategy
             // Sort manually if there's no searches
             if (input.nameSearch || input.effectSearch)
             {
-                const results = PtuAbilitiesSearchService.search(abilities, input);
+                const results = PtuAbilitiesSearchService.search(output, input);
                 return results;
             }
 
-            abilities.sort((a, b) => a.name.localeCompare(b.name));
-            return abilities;
+            output.sort((a, b) => a.name.localeCompare(b.name));
+            return output;
         }
 
         catch (error)

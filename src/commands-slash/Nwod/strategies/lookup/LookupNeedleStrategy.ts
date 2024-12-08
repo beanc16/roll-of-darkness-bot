@@ -27,14 +27,14 @@ export class LookupNeedleStrategy
         // Get parameter results
         const name = interaction.options.getString(NwodAutocompleteParameterName.NeedleName);
 
-        const needles = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: needles,
+            input: data,
             title: 'Needles',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -65,7 +65,7 @@ export class LookupNeedleStrategy
             range: NwodLookupRange.Needle,
         });
 
-        const needles = data.reduce<ChangelingNeedle[]>((acc, cur) =>
+        const output = data.reduce<ChangelingNeedle[]>((acc, cur) =>
         {
             // Ignore empty rows
             if (cur[0] === undefined || cur[0].trim() === '')
@@ -73,28 +73,28 @@ export class LookupNeedleStrategy
                 return acc;
             }
 
-            const needle = new ChangelingNeedle(cur);
+            const element = new ChangelingNeedle(cur);
 
-            if (needle.name === undefined || needle.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== needle.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(needle);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        needles.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return needles;
+        return output;
     }
 }

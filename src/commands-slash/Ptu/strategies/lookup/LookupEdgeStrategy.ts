@@ -27,14 +27,14 @@ export class LookupEdgeStrategy
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.EdgeName, true);
 
-        const edges = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: edges,
+            input: data,
             title: 'Edges',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -67,28 +67,28 @@ export class LookupEdgeStrategy
             range: PtuLookupRange.Edge,
         });
 
-        const edges = data.reduce<PtuEdge[]>((acc, cur) =>
+        const output = data.reduce<PtuEdge[]>((acc, cur) =>
         {
-            const edge = new PtuEdge(cur);
+            const element = new PtuEdge(cur);
 
-            if (edge.name.length === 0)
+            if (element.name.length === 0)
             {
                 return acc;
             }
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === edge.name.toLowerCase()) && !input.includeAllIfNoName)
+            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(edge);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        edges.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return edges;
+        return output;
     }
 }

@@ -27,14 +27,14 @@ export class LookupFeatureStrategy
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.FeatureName, true);
 
-        const features = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: features,
+            input: data,
             title: 'Features',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -79,28 +79,28 @@ export class LookupFeatureStrategy
             range: PtuLookupRange.Feature,
         });
 
-        const features = data.reduce<PtuFeature[]>((acc, cur) =>
+        const output = data.reduce<PtuFeature[]>((acc, cur) =>
         {
-            const feature = new PtuFeature(cur);
+            const element = new PtuFeature(cur);
 
-            if (feature.name.length === 0)
+            if (element.name.length === 0)
             {
                 return acc;
             }
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === feature.name.toLowerCase()) && !input.includeAllIfNoName)
+            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(feature);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        features.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return features;
+        return output;
     }
 }

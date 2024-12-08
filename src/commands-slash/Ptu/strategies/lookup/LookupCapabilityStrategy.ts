@@ -27,14 +27,14 @@ export class LookupCapabilityStrategy
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
 
-        const capabilities = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: capabilities,
+            input: data,
             title: 'Capabilities',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -61,23 +61,23 @@ export class LookupCapabilityStrategy
             range: PtuLookupRange.Capability,
         });
 
-        const capabilities = data.reduce<PtuCapability[]>((acc, cur) =>
+        const output = data.reduce<PtuCapability[]>((acc, cur) =>
         {
-            const capability = new PtuCapability(cur);
+            const element = new PtuCapability(cur);
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === capability.name.toLowerCase()) && !input.includeAllIfNoName)
+            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(capability);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        capabilities.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return capabilities;
+        return output;
     }
 }

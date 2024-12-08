@@ -40,7 +40,7 @@ export class LookupNatureStrategy
             return true;
         }
 
-        const natures = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             raisedStat,
             loweredStat,
@@ -48,7 +48,7 @@ export class LookupNatureStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: natures,
+            input: data,
             title: 'Natures',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -71,29 +71,29 @@ export class LookupNatureStrategy
             range: PtuLookupRange.Nature,
         });
 
-        const natures = data.reduce<PtuNature[]>((acc, cur) =>
+        const output = data.reduce<PtuNature[]>((acc, cur) =>
         {
-            const nature = new PtuNature(cur);
+            const element = new PtuNature(cur);
 
-            if (input.name && input.name.toLowerCase() !== nature.name.toLowerCase())
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase())
             {
                 return acc;
             }
 
-            if (input.raisedStat && input.raisedStat !== nature.raisedStat)
+            if (input.raisedStat && input.raisedStat !== element.raisedStat)
             {
                 return acc;
             }
 
-            if (input.loweredStat && input.loweredStat !== nature.loweredStat)
+            if (input.loweredStat && input.loweredStat !== element.loweredStat)
             {
                 return acc;
             }
 
-            acc.push(nature);
+            acc.push(element);
             return acc;
         }, []);
 
-        return natures;
+        return output;
     }
 }

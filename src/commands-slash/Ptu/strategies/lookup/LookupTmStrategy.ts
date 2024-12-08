@@ -27,14 +27,14 @@ export class LookupTmStrategy
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.TmName, true);
 
-        const tms = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: tms,
+            input: data,
             title: 'TMs',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -62,23 +62,23 @@ export class LookupTmStrategy
             range: PtuLookupRange.Tm,
         });
 
-        const tms = data.reduce<PtuTm[]>((acc, cur) =>
+        const output = data.reduce<PtuTm[]>((acc, cur) =>
         {
-            const tm = new PtuTm(cur);
+            const element = new PtuTm(cur);
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name === tm.name) && !input.includeAllIfNoName)
+            if (!(input.name && input.name === element.name) && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(tm);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        tms.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return tms;
+        return output;
     }
 }

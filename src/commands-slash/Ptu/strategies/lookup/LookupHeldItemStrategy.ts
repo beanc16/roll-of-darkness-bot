@@ -29,7 +29,7 @@ export class LookupHeldItemStrategy
         const name = interaction.options.getString(PtuAutocompleteParameterName.HeldItem);
         const type = interaction.options.getString('type') as HeldItemType | null;
 
-        const heldItems = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             type,
             includeAllIfNoName: false,
@@ -37,7 +37,7 @@ export class LookupHeldItemStrategy
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: heldItems,
+            input: data,
             title: 'Held Items',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -66,34 +66,34 @@ export class LookupHeldItemStrategy
             range: PtuLookupRange.HeldItem,
         });
 
-        const heldItems = data.reduce<PtuHeldItem[]>((acc, cur) =>
+        const output = data.reduce<PtuHeldItem[]>((acc, cur) =>
         {
-            const heldItem = new PtuHeldItem(cur);
+            const element = new PtuHeldItem(cur);
 
             // cur[0] === name in spreadsheet
-            if (input.name && input.name.toLowerCase() !== heldItem.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
             // Type
             // TODO: Allow badges later, this is temporary
-            if (input.type && input.type !== heldItem.type && heldItem.type !== HeldItemType.Badge)
+            if (input.type && input.type !== element.type && element.type !== HeldItemType.Badge)
             {
                 return acc;
             }
 
             // TODO: Allow badges later, this is temporary
-            if (!heldItem.name.includes('Badge'))
+            if (!element.name.includes('Badge'))
             {
-                acc.push(heldItem);
+                acc.push(element);
             }
             return acc;
         }, []);
 
         // Sort by name
-        heldItems.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return heldItems;
+        return output;
     }
 }

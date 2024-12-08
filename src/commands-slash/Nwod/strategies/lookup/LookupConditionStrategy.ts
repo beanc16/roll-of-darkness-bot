@@ -27,14 +27,14 @@ export class LookupConditionStrategy
         // Get parameter results
         const name = interaction.options.getString(NwodAutocompleteParameterName.ConditionName);
 
-        const conditions = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             includeAllIfNoName: false,
         });
 
         // Get message
         const embeds = getPagedEmbedMessages({
-            input: conditions,
+            input: data,
             title: 'Conditions',
             parseElementToLines: element => [
                 Text.bold(element.name),
@@ -79,7 +79,7 @@ export class LookupConditionStrategy
             range: NwodLookupRange.Condition,
         });
 
-        const conditions = data.reduce<NwodCondition[]>((acc, cur) =>
+        const output = data.reduce<NwodCondition[]>((acc, cur) =>
         {
             // Ignore empty rows
             if (cur[0] === undefined || cur[0].trim() === '')
@@ -87,28 +87,28 @@ export class LookupConditionStrategy
                 return acc;
             }
 
-            const condition = new NwodCondition(cur);
+            const element = new NwodCondition(cur);
 
-            if (condition.name === undefined || condition.name.trim() === '')
+            if (element.name === undefined || element.name.trim() === '')
             {
                 return acc;
             }
 
             // Name
-            if (input.name && input.name.toLowerCase() !== condition.name.toLowerCase() && !input.includeAllIfNoName)
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }
 
-            acc.push(condition);
+            acc.push(element);
             return acc;
         }, []);
 
         // Sort by name
-        conditions.sort((a, b) =>
+        output.sort((a, b) =>
             a.name.localeCompare(b.name),
         );
 
-        return conditions;
+        return output;
     }
 }

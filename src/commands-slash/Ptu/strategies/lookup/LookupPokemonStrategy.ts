@@ -85,7 +85,7 @@ export class LookupPokemonStrategy
             return true;
         }
 
-        const pokemon = await this.getLookupData({
+        const data = await this.getLookupData({
             name,
             lookupType: RegexLookupType.ExactMatchCaseInsensitive,
             moveName,
@@ -101,7 +101,7 @@ export class LookupPokemonStrategy
             moveListType,
             abilityName,
             abilityListType,
-            pokemon,
+            pokemon: data,
         });
 
         // Send no results found
@@ -116,7 +116,7 @@ export class LookupPokemonStrategy
             interaction,
             embeds,
             moveName,
-            pokemon,
+            pokemon: data,
             defaultMoveListType: PtuMoveListType.LevelUp,
         });
 
@@ -158,7 +158,7 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const pokemon = results.map((result) =>
+        const output = results.map((result) =>
         {
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
@@ -179,9 +179,9 @@ export class LookupPokemonStrategy
         });
 
         // Sort by name
-        pokemon.sort((a, b) => a.name.localeCompare(b.name));
+        output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return pokemon;
+        return output;
     }
 
     // Get embeds for the very first message
