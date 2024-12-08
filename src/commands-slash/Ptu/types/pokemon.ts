@@ -96,6 +96,43 @@ export enum PtuMoveListType
     ZygardeCubeMoves = 'zygardeCubeMoves',
 }
 
+export enum PtuContestStatType
+{
+    Beauty = 'Beauty',
+    Cool = 'Cool',
+    Cute = 'Cute',
+    Smart = 'Smart',
+    Tough = 'Tough',
+}
+
+export enum PtuContestStatEffect
+{
+    AttentionGrabber = 'Attention Grabber',
+    BigShow = 'Big Show',
+    CatchingUp = 'Catching Up',
+    Desperation = 'Desperation',
+    DoubleTime = 'Double Time',
+    Excitement = 'Excitement',
+    ExhaustingAct = 'Exhausting Act',
+    Gamble = 'Gamble',
+    GetReady = 'Get Ready!',
+    GoodShow = 'Good Show!',
+    Incentives = 'Incentives',
+    InversedAppeal = 'Inversed Appeal',
+    ReflectiveAppeal = 'Reflective Appeal',
+    Reliable = 'Reliable',
+    Sabotage = 'Sabotage',
+    SafeOption = 'Safe Option',
+    SavingGrace = 'Saving Grace',
+    SeenNothingYet = 'Seen Nothing Yet',
+    SpecialAttention = 'Special Attention',
+    SteadyPerformance = 'Steady Performance',
+    Tease = 'Tease',
+    Unsettling = 'Unsettling',
+}
+
+export type PtuContestStat = `${PtuContestStatType} - ${PtuContestStatEffect}`;
+
 export enum PokemonStatusType
 {
     Persistent = 'Persistent',

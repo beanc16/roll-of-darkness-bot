@@ -6,6 +6,7 @@ import { GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {
     PokemonMoveCategory,
     PokemonType,
+    PtuContestStat,
     PtuMoveFrequency,
 } from '../types/pokemon.js';
 
@@ -19,7 +20,7 @@ export class PtuMove
     public ac?: number;
     public range?: string;
     public effects: string;
-    public contestStats: string;
+    public contestStats: PtuContestStat | `` | `--`;
     public uses: {
         sheerForce: boolean;
         toughClaws: boolean;
@@ -74,7 +75,7 @@ export class PtuMove
         // Base values
         this.name = name.trim();
         this.effects = effects.trim();
-        this.contestStats = contestStats.trim();
+        this.contestStats = contestStats.trim() as PtuContestStat;
         this.uses = {
             sheerForce: sheerForce === 'o',
             toughClaws: toughClaws === 'o',
@@ -250,6 +251,17 @@ export class PtuMove
             default:
                 if (!(this.ac === input.ac)) return false;
             }
+        }
+
+        // Contest stats
+        if (this.contestStats
+            && (
+                (input.contestStatType && !this.contestStats.includes(input.contestStatType))
+                || (input.contestStatEffect && !this.contestStats.includes(input.contestStatEffect))
+            )
+        )
+        {
+            return false;
         }
 
         // Range

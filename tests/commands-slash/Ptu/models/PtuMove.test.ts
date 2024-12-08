@@ -4,6 +4,8 @@ import { GetLookupMoveDataParameters } from '../../../../src/commands-slash/Ptu/
 import {
     PokemonMoveCategory,
     PokemonType,
+    PtuContestStatEffect,
+    PtuContestStatType,
     PtuMoveFrequency,
 } from '../../../../src/commands-slash/Ptu/types/pokemon.js';
 
@@ -14,27 +16,27 @@ describe('class: PtuMove', () =>
 {
     let defaultMove: PtuMove;
     const defaultConstructorInput: string[] = [
-        'Tackle',                   // name
-        '',                         // _typeIcon
-        '',                         // _categoryIcon
-        '2',                        // untrimmedDamageBase
-        'At-Will',                  // untrimmedFrequency
-        '2',                        // untrimmedAc
-        'Melee',                    // range
-        'No additional effects.',   // effects
-        'contest',                  // contestStats
-        'Physical',                 // untrimmedCategory
-        'Normal',                   // untrimmedType
-        'o',                        // sheerForce
-        'o',                        // toughClaws
-        'o',                        // technician
-        'o',                        // reckless
-        'o',                        // ironFist
-        'o',                        // megaLauncher
-        'o',                        // megaLauncherErrata
-        'o',                        // punkRock
-        'o',                        // strongJaw
-        'o',                        // recklessErrata
+        'Tackle',                       // name
+        '',                             // _typeIcon
+        '',                             // _categoryIcon
+        '2',                            // untrimmedDamageBase
+        'At-Will',                      // untrimmedFrequency
+        '2',                            // untrimmedAc
+        'Melee',                        // range
+        'No additional effects.',       // effects
+        'Tough - Steady Performance',   // contestStats
+        'Physical',                     // untrimmedCategory
+        'Normal',                       // untrimmedType
+        'o',                            // sheerForce
+        'o',                            // toughClaws
+        'o',                            // technician
+        'o',                            // reckless
+        'o',                            // ironFist
+        'o',                            // megaLauncher
+        'o',                            // megaLauncherErrata
+        'o',                            // punkRock
+        'o',                            // strongJaw
+        'o',                            // recklessErrata
     ];
 
     beforeEach(() =>
@@ -57,7 +59,7 @@ describe('class: PtuMove', () =>
             expect(defaultMove.ac).toEqual(2);
             expect(defaultMove.range).toEqual('Melee');
             expect(defaultMove.effects).toEqual('No additional effects.');
-            expect(defaultMove.contestStats).toEqual('contest');
+            expect(defaultMove.contestStats).toEqual('Tough - Steady Performance');
             expect(defaultMove.uses.sheerForce).toEqual(true);
             expect(defaultMove.uses.toughClaws).toEqual(true);
             expect(defaultMove.uses.technician).toEqual(true);
@@ -122,6 +124,8 @@ describe('class: PtuMove', () =>
                 frequency: PtuMoveFrequency.AtWill,
                 ac: 2,
                 acEquality: EqualityOption.GreaterThanOrEqualTo,
+                contestStatType: PtuContestStatType.Tough,
+                contestStatEffect: PtuContestStatEffect.SteadyPerformance,
                 nameSearch: '',
                 rangeSearch: '',
                 effectSearch: '',
@@ -144,10 +148,12 @@ describe('class: PtuMove', () =>
         });
 
         it.each([
-            ['name', 'Ember'],
-            ['type', PokemonType.Fire],
+            ['name', 'Absorb'],
+            ['type', PokemonType.Grass],
             ['category', PokemonMoveCategory.Special],
             ['frequency', PtuMoveFrequency.EoT],
+            ['contestStatType', PtuContestStatType.Smart],
+            ['contestStatEffect', PtuContestStatEffect.GoodShow],
             ['rangeSearch', 'invalid range'],
         ])('should return false if %s is invalid', (key, invalidValue) =>
         {
