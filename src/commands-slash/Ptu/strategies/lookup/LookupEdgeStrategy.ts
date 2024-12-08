@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupEdgesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuEdge } from '../../types/PtuEdge.js';
@@ -32,7 +33,25 @@ export class LookupEdgeStrategy
         });
 
         // Get message
-        const embeds = getLookupEdgesEmbedMessages(edges);
+        const embeds = getPagedEmbedMessages({
+            input: edges,
+            title: 'Edges',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.prerequisites !== undefined && element.prerequisites !== '-'
+                    ? [
+                        `Prerequisites: ${element.prerequisites}`,
+                    ]
+                    : []
+                ),
+                ...(element.effect !== undefined && element.effect !== '--'
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No edges were found.',

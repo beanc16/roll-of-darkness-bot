@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupCapabilitiesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuCapability } from '../../types/PtuCapability.js';
@@ -32,7 +33,19 @@ export class LookupCapabilityStrategy
         });
 
         // Get message
-        const embeds = getLookupCapabilitiesEmbedMessages(capabilities);
+        const embeds = getPagedEmbedMessages({
+            input: capabilities,
+            title: 'Capabilities',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.description !== undefined && element.description !== '--'
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No capabilities were found.',

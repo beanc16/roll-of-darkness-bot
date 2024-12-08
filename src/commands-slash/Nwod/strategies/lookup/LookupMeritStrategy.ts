@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
-import { getLookupMeritsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
 import { NwodMerit } from '../../types/NwodMerit.js';
@@ -35,14 +36,49 @@ export class LookupMeritStrategy
         const type2 = interaction.options.getString('type_2') as MeritType | null;
         const type3 = interaction.options.getString('type_3') as MeritType | null;
 
-        const keywords = await this.getLookupData({
+        const merits = await this.getLookupData({
             name,
             types: [type1, type2, type3],
             includeAllIfNoName: false,
         });
 
         // Get message
-        const embeds = getLookupMeritsEmbedMessages(keywords);
+        const embeds = getPagedEmbedMessages({
+            input: merits,
+            title: 'Merits',
+            parseElementToLines: element => [
+                `${Text.bold(element.name)} (${element.dots})`,
+                ...(element.types !== undefined
+                    ? [[
+                        element.types.length > 1 ? 'Types' : 'Type',
+                        element.types.join(', '),
+                    ].join(': ')]
+                    : []
+                ),
+                ...(element.prerequisites !== undefined
+                    ? [`Prerequisites: ${element.prerequisites}`]
+                    : []
+                ),
+                ...(element.activationRoll !== undefined
+                    ? [`Activation Roll: ${element.activationRoll}`]
+                    : []
+                ),
+                ...(element.action !== undefined
+                    ? [`Action: ${element.action}`]
+                    : []
+                ),
+                ...(element.pageNumber !== undefined
+                    ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.effect !== undefined && element.effect !== '--'
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No merits were found.',

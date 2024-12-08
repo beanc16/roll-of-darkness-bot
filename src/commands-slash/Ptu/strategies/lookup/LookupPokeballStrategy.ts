@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupPokeballsEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PokeballType } from '../../types/pokeballType.js';
@@ -36,7 +37,22 @@ export class LookupPokeballStrategy
         });
 
         // Get message
-        const embeds = getLookupPokeballsEmbedMessages(pokeballs);
+        const embeds = getPagedEmbedMessages({
+            input: pokeballs,
+            title: 'Pokeballs',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.cost !== undefined ? [`Cost: ${element.cost}`] : []),
+                ...(element.modifier !== undefined ? [`Modifier: ${element.modifier}`] : []),
+                ...(element.type !== undefined ? [`Type: ${element.type}`] : []),
+                ...(element.description !== undefined && element.description !== '--'
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No pokeballs were found.',

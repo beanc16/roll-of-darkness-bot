@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
-import { getLookupContractsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingContract } from '../../types/ChangelingContract.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
@@ -33,14 +34,65 @@ export class LookupContractStrategy
         const type1 = interaction.options.getString('type_1') as ChangelingContractType | null;
         const type2 = interaction.options.getString('type_2') as ChangelingContractType | null;
 
-        const keywords = await this.getLookupData({
+        const contracts = await this.getLookupData({
             name,
             types: [type1, type2],
             includeAllIfNoName: false,
         });
 
         // Get message
-        const embeds = getLookupContractsEmbedMessages(keywords);
+        const embeds = getPagedEmbedMessages({
+            input: contracts,
+            title: 'Contracts',
+            parseElementToLines: element => [
+                `${Text.bold(element.name)}`,
+                ...(element.types !== undefined
+                    ? [[
+                        element.types.length > 1 ? 'Types' : 'Type',
+                        element.types.join(', '),
+                    ].join(': ')]
+                    : []
+                ),
+                ...(element.cost !== undefined
+                    ? [`Cost: ${element.cost}`]
+                    : []
+                ),
+                ...(element.activationRoll !== undefined
+                    ? [`Activation Roll: ${element.activationRoll}`]
+                    : []
+                ),
+                ...(element.action !== undefined
+                    ? [`Action: ${element.action}`]
+                    : []
+                ),
+                ...(element.duration !== undefined
+                    ? [`Duration: ${element.duration}`]
+                    : []
+                ),
+                ...(element.pageNumber !== undefined
+                    ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.loophole !== undefined && element.loophole !== '--'
+                    ? [
+                        `Loophole:\n\`\`\`\n${element.loophole}\`\`\``,
+                    ]
+                    : []
+                ),
+                ...(element.description !== undefined && element.description !== '--'
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+                ...(element.seemingBenefits !== undefined && element.seemingBenefits !== '--'
+                    ? [
+                        `Seeming Benefits:\n\`\`\`\n${element.seemingBenefits}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No contracts were found.',

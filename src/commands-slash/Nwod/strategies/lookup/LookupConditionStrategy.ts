@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
-import { getLookupConditionsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
 import { NwodCondition } from '../../types/NwodCondition.js';
@@ -32,7 +33,37 @@ export class LookupConditionStrategy
         });
 
         // Get message
-        const embeds = getLookupConditionsEmbedMessages(conditions);
+        const embeds = getPagedEmbedMessages({
+            input: conditions,
+            title: 'Conditions',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.description !== undefined
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+                ...(element.resolution !== undefined
+                    ? [
+                        `Resolution:\n\`\`\`\n${element.resolution}\`\`\``,
+                    ]
+                    : []
+                ),
+                ...(element.beat !== undefined
+                    ? [
+                        `Beat:\n\`\`\`\n${element.beat}\`\`\``,
+                    ]
+                    : []
+                ),
+                ...(element.possibleSources !== undefined
+                    ? [
+                        `Possible Sources:\n\`\`\`\n${element.possibleSources}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No conditions were found.',

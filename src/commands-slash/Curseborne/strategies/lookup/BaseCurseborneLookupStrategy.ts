@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { getLookupCurseborneEmbedMessages } from '../../embed-messages/lookup.js';
 
 export class BaseCurseborneLookupStrategy
 {
@@ -15,9 +15,10 @@ export class BaseCurseborneLookupStrategy
         embedTitle: string;
     }): Promise<boolean>
     {
-        const embeds = getLookupCurseborneEmbedMessages({
-            data,
+        const embeds = getPagedEmbedMessages({
+            input: data,
             title: embedTitle,
+            parseElementToLines: ({ formattedDescription }) => [formattedDescription],
         });
 
         return await LookupStrategy.run(interaction, embeds, {

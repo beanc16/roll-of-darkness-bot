@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupStatusesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuStatus } from '../../types/PtuStatus.js';
@@ -35,7 +36,20 @@ export class LookupStatusStrategy
         });
 
         // Get message
-        const embeds = getLookupStatusesEmbedMessages(statuses);
+        const embeds = getPagedEmbedMessages({
+            input: statuses,
+            title: 'Statuses',
+            parseElementToLines: element => [
+                `${Text.bold(element.name)}${element.isHomebrew ? ' [Homebrew]' : ''}`,
+                ...(element.type !== undefined ? [`Type: ${element.type}`] : []),
+                ...(element.description !== undefined && element.description !== '--'
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No statuses were found.',

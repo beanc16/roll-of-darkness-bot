@@ -1,11 +1,12 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupNatureEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuNature } from '../../types/PtuNature.js';
@@ -46,7 +47,17 @@ export class LookupNatureStrategy
         });
 
         // Get message
-        const embeds = getLookupNatureEmbedMessages(natures);
+        const embeds = getPagedEmbedMessages({
+            input: natures,
+            title: 'Natures',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                `Raised: ${element.raisedStat}`,
+                `Lowered: ${element.loweredStat}`,
+                `Likes: ${element.likedFlavor}`,
+                `Dislikes: ${element.dislikedFlavor}`,
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No natures were found.',

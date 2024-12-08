@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
-import { getLookupThreadsEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingThread } from '../../types/ChangelingThread.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
@@ -32,7 +33,23 @@ export class LookupThreadStrategy
         });
 
         // Get message
-        const embeds = getLookupThreadsEmbedMessages(threads);
+        const embeds = getPagedEmbedMessages({
+            input: threads,
+            title: 'Threads',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.pageNumber !== undefined
+                    ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.effect !== undefined
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No threads were found.',

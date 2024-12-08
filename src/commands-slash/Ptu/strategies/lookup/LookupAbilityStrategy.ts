@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { getLookupAbilitiesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
@@ -34,7 +35,21 @@ export class LookupAbilityStrategy
         });
 
         // Get message
-        const embeds = getLookupAbilitiesEmbedMessages(abilities);
+        const embeds = getPagedEmbedMessages({
+            input: abilities,
+            title: 'Abilities',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.frequency !== undefined
+                    ? [`Frequency: ${element.frequency}`]
+                    : []
+                ),
+                ...(element.effect2 && element.effect2 !== '--'
+                    ? [`Effect:\n\`\`\`\n${element.effect2}\`\`\``]
+                    : ['']
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No abilities were found.',
