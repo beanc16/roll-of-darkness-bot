@@ -126,6 +126,7 @@ export class PtuMove
         }
         else if (unparsedDamageBase !== '--' && unparsedDamageBase !== '-' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
         {
+            /* istanbul ignore next */
             logger.warn('Received a move with a damage base that is not a number', { unparsedDamageBase, damageBase });
         }
 
@@ -136,6 +137,7 @@ export class PtuMove
         }
         else if (unparsedAc !== '--' && unparsedAc !== 'AC' && unparsedAc !== 'See Effect' && unparsedAc !== '')
         {
+            /* istanbul ignore next */
             logger.warn('Received a move with an AC that is not a number', { unparsedAc, ac });
         }
 
