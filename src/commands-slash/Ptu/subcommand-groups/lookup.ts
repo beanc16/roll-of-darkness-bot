@@ -9,6 +9,8 @@ import {
     PokemonStatusType,
     PokemonType,
     PtuAbilityListType,
+    PtuContestStatEffect,
+    PtuContestStatType,
     PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
@@ -302,6 +304,42 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         newOption.setName('ac_equality');
         newOption.setDescription('The provided AC should be ??? to the moves AC (default: Equals)');
         return newOption;
+    });
+
+    // Contest Stats
+    const contestStatTypeChoices = Object.values(PtuContestStatType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    const contestStatEffectChoices = Object.values(PtuContestStatEffect).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('contest_stat_type');
+        option.setDescription('The contest stat type of moves to look up.');
+        return option.setChoices(
+            ...contestStatTypeChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('contest_stat_effect');
+        option.setDescription('The contest stat effect of moves to look up.');
+        return option.setChoices(
+            ...contestStatEffectChoices,
+        );
     });
 
     // Searches

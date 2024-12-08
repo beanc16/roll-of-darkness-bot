@@ -12,7 +12,9 @@ import {
 
 const color = 0xCDCDCD;
 
-export const getLookupMovesEmbedMessages = (input: PtuMove[]): EmbedBuilder[] =>
+export const getLookupMovesEmbedMessages = (input: PtuMove[], options: {
+    includeContestStats?: boolean;
+} = {}): EmbedBuilder[] =>
 {
     const output = getPagedEmbedMessages({
         input,
@@ -25,6 +27,14 @@ export const getLookupMovesEmbedMessages = (input: PtuMove[]): EmbedBuilder[] =>
             ...(element.damageBase !== undefined ? [`DB: ${element.damageBase}`] : []),
             ...(element.category !== undefined ? [`Class: ${element.category}`] : []),
             ...(element.range && element.range !== '--' ? [`Range: ${element.range}`] : []),
+            ...(options.includeContestStats && element.contestStatType
+                ? [`Contest Type: ${element.contestStatType}`]
+                : []
+            ),
+            ...(options.includeContestStats && element.contestStatEffect
+                ? [`Contest Effect: ${element.contestStatEffect}`]
+                : []
+            ),
             ...(element.effects && element.effects !== '--'
                 ? [`Effect:\n\`\`\`\n${element.effects}\`\`\``]
                 : ['']

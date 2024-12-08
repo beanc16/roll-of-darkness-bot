@@ -16,6 +16,8 @@ import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
 import {
     PokemonMoveCategory,
     PokemonType,
+    PtuContestStatEffect,
+    PtuContestStatType,
     PtuMoveFrequency,
 } from '../../types/pokemon.js';
 
@@ -35,6 +37,8 @@ export class LookupMoveStrategy
         const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
         const ac = interaction.options.getInteger('ac');
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+        const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
+        const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
         const nameSearch = interaction.options.getString('name_search');
         const rangeSearch = interaction.options.getString('range_search');
         const effectSearch = interaction.options.getString('effect_search');
@@ -48,13 +52,17 @@ export class LookupMoveStrategy
             frequency,
             ac,
             acEquality,
+            contestStatType,
+            contestStatEffect,
             nameSearch,
             rangeSearch,
             effectSearch,
         });
 
         // Get message
-        const embeds = getLookupMovesEmbedMessages(data);
+        const embeds = getLookupMovesEmbedMessages(data, {
+            includeContestStats: (contestStatType !== null || contestStatEffect !== null),
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             noEmbedsErrorMessage: 'No moves were found.',
