@@ -38,7 +38,7 @@ export class RandomFortuneStrategy
 
         // Get embed message
         const description = [
-            `${Text.bold('Roll')}: 1d10 (${roll})`,
+            `Result: (${roll})`,
             `${Text.bold('Money')}: $${money}`,
         ].join('\n');
         const embed = new EmbedBuilder()
