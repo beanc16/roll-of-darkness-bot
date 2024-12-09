@@ -8,7 +8,7 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 

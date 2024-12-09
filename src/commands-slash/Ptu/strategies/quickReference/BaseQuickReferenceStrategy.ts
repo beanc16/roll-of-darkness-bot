@@ -2,7 +2,7 @@ import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { capitalizeFirstLetter } from '../../../../services/stringHelpers.js';
-import { PtuQuickReferenceInfo } from '../../subcommand-groups/index.js';
+import { PtuQuickReferenceInfo } from '../../options/index.js';
 
 export class BaseQuickReferenceStrategy
 {

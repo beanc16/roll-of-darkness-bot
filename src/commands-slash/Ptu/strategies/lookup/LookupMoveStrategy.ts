@@ -9,8 +9,8 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
-import { PtuLookupSubcommand } from '../../subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
 import {

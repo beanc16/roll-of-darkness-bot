@@ -10,9 +10,9 @@ import { NwodLookupSubcommand } from '../../Nwod/options/lookup.js';
 import { NwodStrategyExecutor } from '../../Nwod/strategies/index.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../Nwod/types/lookup.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../Ptu/constants.js';
+import { PtuSubcommandGroup } from '../../Ptu/options/index.js';
+import { PtuLookupSubcommand } from '../../Ptu/options/lookup.js';
 import { PtuStrategyExecutor } from '../../Ptu/strategies/index.js';
-import { PtuSubcommandGroup } from '../../Ptu/subcommand-groups/index.js';
-import { PtuLookupSubcommand } from '../../Ptu/subcommand-groups/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../Ptu/types/autocomplete.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import {

@@ -25,7 +25,7 @@ import {
     RerollStrategy,
 } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
+import { PtuRollSubcommand } from '../../options/roll.js';
 
 enum AttackButtonName
 {

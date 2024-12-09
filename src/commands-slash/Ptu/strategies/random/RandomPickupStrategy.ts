@@ -6,7 +6,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuRandomSubcommand } from '../../options/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
 import { RandomEvolutionaryStoneStrategy } from './RandomEvolutionaryStoneStrategy.js';

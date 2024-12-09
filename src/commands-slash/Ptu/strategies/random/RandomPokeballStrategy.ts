@@ -7,7 +7,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomPokeballEmbedMessage } from '../../embed-messages/random.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuRandomSubcommand } from '../../options/random.js';
 import { PokeballType } from '../../types/pokeballType.js';
 import { RandomPokeball } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';

@@ -3,12 +3,12 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getTypeEffectivenessEmbedMessages } from '../../embed-messages/typeEffectiveness.js';
+import { PtuTypeEffectivenessSubcommand } from '../../options/typeEffectiveness.js';
 import {
     PokemonTypeEffectivenessService,
     PokemonTypePossibility,
     TypeEffectivenessRole,
 } from '../../services/PokemonTypeEffectivenessService.js';
-import { PtuTypeEffectivenessSubcommand } from '../../subcommand-groups/typeEffectiveness.js';
 import { PokemonTypeAndNone } from '../../types/pokemon.js';
 import { PtuAbilityForTypeEffectiveness } from '../../types/PtuAbilityForTypeEffectiveness.js';
 import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';

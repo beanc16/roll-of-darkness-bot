@@ -6,7 +6,7 @@ import {
     PtuCalculateSubcommand,
     PtuPokemonEvolutionaryStage,
     PtuPokemonHpPercentage,
-} from '../../subcommand-groups/calculate.js';
+} from '../../options/calculate.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class CalculateCaptureRatingStrategy

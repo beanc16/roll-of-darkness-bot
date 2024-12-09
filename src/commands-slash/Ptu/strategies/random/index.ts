@@ -1,5 +1,5 @@
 import { ChatIteractionStrategyRecord } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomApricornStrategy } from './RandomApricornStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
 import { RandomDowsingRodStrategy } from './RandomDowsingRodStrategy.js';

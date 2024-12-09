@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuRandomSubcommand } from '../../options/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 

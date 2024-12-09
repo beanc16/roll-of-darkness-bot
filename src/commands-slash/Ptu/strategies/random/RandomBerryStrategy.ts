@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
-import { BerryTier, PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { BerryTier, PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';

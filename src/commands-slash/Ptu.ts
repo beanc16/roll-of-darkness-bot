@@ -2,7 +2,6 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
-import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 import {
     calculate,
     PtuSubcommandGroup,
@@ -10,9 +9,10 @@ import {
     roll,
     train,
     typeEffectiveness,
-} from './Ptu/subcommand-groups/index.js';
-import { PtuLookupSubcommand } from './Ptu/subcommand-groups/lookup.js';
-import { PtuRandomSubcommand } from './Ptu/subcommand-groups/random.js';
+} from './Ptu/options/index.js';
+import { PtuLookupSubcommand } from './Ptu/options/lookup.js';
+import { PtuRandomSubcommand } from './Ptu/options/random.js';
+import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 
 class Ptu extends BaseSlashCommand
 {

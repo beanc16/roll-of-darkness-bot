@@ -3,8 +3,8 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getQrDamageChartsEmbedMessages } from '../../embed-messages/quickReference.js';
+import { PtuQuickReferenceInfo } from '../../options/index.js';
 import { PtuDamageChartService } from '../../services/PtuDamageChartService.js';
-import { PtuQuickReferenceInfo } from '../../subcommand-groups/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class QrDamageChartsStrategy

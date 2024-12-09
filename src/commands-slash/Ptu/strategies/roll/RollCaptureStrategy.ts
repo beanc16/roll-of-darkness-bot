@@ -7,7 +7,7 @@ import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAnd
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuRollSubcommand } from '../../subcommand-groups/roll.js';
+import { PtuRollSubcommand } from '../../options/roll.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class RollCaptureStrategy

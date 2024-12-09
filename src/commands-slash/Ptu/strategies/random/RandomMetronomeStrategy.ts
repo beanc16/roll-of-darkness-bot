@@ -6,7 +6,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
-import { PtuRandomSubcommand } from '../../subcommand-groups/random.js';
+import { PtuRandomSubcommand } from '../../options/random.js';
 import { LookupMoveStrategy } from '../lookup/LookupMoveStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()

@@ -1,8 +1,8 @@
 import { logger } from '@beanc16/logger';
 
+import { PtuSubcommandGroup } from '../options/index.js';
+import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuStrategyExecutor } from '../strategies/index.js';
-import { PtuSubcommandGroup } from '../subcommand-groups/index.js';
-import { PtuLookupSubcommand } from '../subcommand-groups/lookup.js';
 // import { CharacterSheetStrategy } from '../strategies/CharacterSheetStrategy.js';
 
 export class PtuCacheInitializer
