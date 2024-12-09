@@ -38,20 +38,6 @@ export class CalculateChaseSuccessesStrategy
             environmentDangerModifier,
         } = this.getParameterResults(interaction);
 
-        // Handle errors
-        const errorMessages = this.getErrorMessages(
-            opponentsTurnLead,
-            environmentDangerModifier,
-        );
-
-        if (errorMessages.length > 0)
-        {
-            await interaction.editReply({
-                content: `${errorMessages.join(' and ')} must be an integer.`,
-            });
-            return true;
-        }
-
         // Calculate successes
         const successes = this.calculateSuccesses({
             opponentsSpeed,
@@ -78,10 +64,10 @@ export class CalculateChaseSuccessesStrategy
         const opponentsSpeed = interaction.options.getString('opponents_speed', true) as OpponentSpeed;
         const initiativeModifier = interaction.options.getString('initiative_modifier', true) as InitiativeModifier;
         const territory = interaction.options.getString('territory', true) as Territory;
-        const opponentsTurnLead = interaction.options.getNumber('opponents_turn_lead') ?? 0;
+        const opponentsTurnLead = interaction.options.getInteger('opponents_turn_lead') ?? 0;
         const sizeIsLowerThanOpponents = interaction.options.getBoolean('size_is_lower_than_opponents') ?? false;
         const opponentCannotBeTired = interaction.options.getBoolean('opponent_cannot_be_tired') ?? false;
-        const environmentDangerModifier = interaction.options.getNumber('environment_danger_modifier') ?? 0;
+        const environmentDangerModifier = interaction.options.getInteger('environment_danger_modifier') ?? 0;
 
         return {
             opponentsSpeed,
@@ -92,24 +78,6 @@ export class CalculateChaseSuccessesStrategy
             opponentCannotBeTired,
             environmentDangerModifier,
         };
-    }
-
-    /* istanbul ignore next */
-    public static getErrorMessages(opponentsTurnLead: number, environmentDangerModifier: number): string[]
-    {
-        const errorMessages: string[] = [];
-
-        if (!Number.isInteger(opponentsTurnLead))
-        {
-            errorMessages.push('opponents_turn_lead');
-        }
-
-        if (!Number.isInteger(environmentDangerModifier))
-        {
-            errorMessages.push('environment_danger_modifier');
-        }
-
-        return errorMessages;
     }
 
     public static calculateSuccesses({

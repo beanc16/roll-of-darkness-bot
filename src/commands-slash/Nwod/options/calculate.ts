@@ -1,7 +1,7 @@
 import {
     APIApplicationCommandOptionChoice,
     SlashCommandBooleanOption,
-    SlashCommandNumberOption,
+    SlashCommandIntegerOption,
     SlashCommandStringOption,
     SlashCommandSubcommandBuilder,
 } from 'discord.js';
@@ -111,7 +111,7 @@ const territory = (option: SlashCommandStringOption): SlashCommandStringOption =
     return option;
 };
 
-const opponentsTurnLead = (option: SlashCommandNumberOption): SlashCommandNumberOption =>
+const opponentsTurnLead = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
 {
     option.setName('opponents_turn_lead');
     option.setDescription('How many turns the opponent leads (default: 0).');
@@ -134,7 +134,7 @@ const opponentCannotBeTired = (option: SlashCommandBooleanOption): SlashCommandB
     return option;
 };
 
-const environmentDangerModifier = (option: SlashCommandNumberOption): SlashCommandNumberOption =>
+const environmentDangerModifier = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
 {
     option.setName('environment_danger_modifier');
     option.setDescription('Environmental danger level (default: 0).');
@@ -162,10 +162,10 @@ export const chaseSuccesses = (subcommand: SlashCommandSubcommandBuilder): Slash
     subcommand.addStringOption(chaseOptions.opponentsSpeed);
     subcommand.addStringOption(chaseOptions.initiativeModifier);
     subcommand.addStringOption(chaseOptions.territory);
-    subcommand.addNumberOption(chaseOptions.opponentsTurnLead);
+    subcommand.addIntegerOption(chaseOptions.opponentsTurnLead);
     subcommand.addBooleanOption(chaseOptions.sizeIsLowerThanOpponents);
     subcommand.addBooleanOption(chaseOptions.opponentCannotBeTired);
-    subcommand.addNumberOption(chaseOptions.environmentDangerModifier);
+    subcommand.addIntegerOption(chaseOptions.environmentDangerModifier);
 
     return subcommand;
 };
@@ -179,7 +179,7 @@ export const hedgeNavigation = (subcommand: SlashCommandSubcommandBuilder): Slas
     subcommand.addStringOption(chaseOptions.opponentsSpeed);
     subcommand.addStringOption(chaseOptions.initiativeModifier);
     subcommand.addStringOption(chaseOptions.territory);
-    subcommand.addNumberOption((option) =>
+    subcommand.addIntegerOption((option) =>
     {
         option.setName('wyrd_rating');
         option.setDescription('Your wyrd rating.');
@@ -226,11 +226,11 @@ export const hedgeNavigation = (subcommand: SlashCommandSubcommandBuilder): Slas
     });
 
     // Optional
-    subcommand.addNumberOption(chaseOptions.opponentsTurnLead);
+    subcommand.addIntegerOption(chaseOptions.opponentsTurnLead);
     subcommand.addBooleanOption(chaseOptions.sizeIsLowerThanOpponents);
     subcommand.addBooleanOption(chaseOptions.opponentCannotBeTired);
-    subcommand.addNumberOption(chaseOptions.environmentDangerModifier);
-    subcommand.addNumberOption((option) =>
+    subcommand.addIntegerOption(chaseOptions.environmentDangerModifier);
+    subcommand.addIntegerOption((option) =>
     {
         option.setName('goblin_debt_accepted');
         option.setDescription('The amount of goblin debt your character accepts for hobgoblin aid.');
@@ -238,7 +238,7 @@ export const hedgeNavigation = (subcommand: SlashCommandSubcommandBuilder): Slas
         option.setMaxValue(3);
         return option;
     });
-    subcommand.addNumberOption((option) =>
+    subcommand.addIntegerOption((option) =>
     {
         option.setName('huntsman_modifer');
         option.setDescription('Modifier if your character is a huntsman.');
@@ -246,7 +246,7 @@ export const hedgeNavigation = (subcommand: SlashCommandSubcommandBuilder): Slas
         option.setMaxValue(0);
         return option;
     });
-    subcommand.addNumberOption((option) =>
+    subcommand.addIntegerOption((option) =>
     {
         option.setName('trod_modifer');
         option.setDescription('Modifier per trod milestone desired.');
