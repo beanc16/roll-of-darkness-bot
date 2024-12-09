@@ -26,6 +26,7 @@ export enum PtuRandomSubcommand
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     Metronome = 'metronome',
+    Mushroom = 'mushroom',
     Nature = 'nature',
     Pickup = 'pickup',
     Pokeball = 'pokeball',
@@ -213,6 +214,23 @@ export const metronome = (subcommand: SlashCommandSubcommandBuilder): SlashComma
 {
     subcommand.setName(PtuRandomSubcommand.Metronome);
     subcommand.setDescription('Get a random move using the Metronome move.');
+    return subcommand;
+};
+
+export const mushroom = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRandomSubcommand.Mushroom);
+    subcommand.setDescription('Get a random mushroom item using the Mushroom Gathering capability.');
+
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('level');
+        option.setDescription('The level of your Pokemon with the Mushroom Gathering capability.');
+        option.setMinValue(1);
+        option.setMaxValue(100);
+        option.setRequired(true);
+        return option;
+    });
     return subcommand;
 };
 

@@ -7,15 +7,8 @@ import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/Rer
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomResultEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
+import { RandomResult } from '../../types/PtuRandom.js';
 import { PtuRandomPickupSubcommandResponse } from './types.js';
-
-interface RandomResult
-{
-    name: string;
-    cost?: string;
-    description: string;
-    numOfTimesRolled?: number;
-}
 
 interface BaseRandomStrategyOptions
 {
@@ -61,6 +54,10 @@ export class BaseRandomStrategy
             [PtuRandomSubcommand.Metronome]: {
                 data: 'Moves',
                 plural: 'Metronomes',
+            },
+            [PtuRandomSubcommand.Mushroom]: {
+                data: 'Herb',
+                plural: 'Mushrooms',
             },
             [PtuRandomSubcommand.Nature]: {
                 data: 'Nature',

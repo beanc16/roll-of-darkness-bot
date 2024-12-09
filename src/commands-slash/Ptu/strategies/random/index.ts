@@ -8,6 +8,7 @@ import { RandomFortuneStrategy } from './RandomFortuneStrategy.js';
 import { RandomHealingItemStrategy } from './RandomHealingItemStrategy.js';
 import { RandomHeldItemStrategy } from './RandomHeldItemStrategy.js';
 import { RandomMetronomeStrategy } from './RandomMetronomeStrategy.js';
+import { RandomMushroomStrategy } from './RandomMushroomStrategy.js';
 import { RandomNatureStrategy } from './RandomNatureStrategy.js';
 import { RandomPickupStrategy } from './RandomPickupStrategy.js';
 import { RandomPokeballStrategy } from './RandomPokeballStrategy.js';
@@ -24,6 +25,7 @@ export default {
     [RandomHealingItemStrategy.key]: RandomHealingItemStrategy,
     [RandomHeldItemStrategy.key]: RandomHeldItemStrategy,
     [RandomMetronomeStrategy.key]: RandomMetronomeStrategy,
+    [RandomMushroomStrategy.key]: RandomMushroomStrategy,
     [RandomNatureStrategy.key]: RandomNatureStrategy,
     [RandomPickupStrategy.key]: RandomPickupStrategy,
     [RandomPokeballStrategy.key]: RandomPokeballStrategy,
