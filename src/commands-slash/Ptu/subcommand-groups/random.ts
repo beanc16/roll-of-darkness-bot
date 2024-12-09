@@ -22,6 +22,7 @@ export enum PtuRandomSubcommand
     Berry = 'berry',
     DowsingRod = 'dowsing_rod',
     EvolutionaryStone = 'evolutionary_stone',
+    Fortune = 'fortune',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     Metronome = 'metronome',
@@ -143,6 +144,23 @@ export const evolutionaryStone = (subcommand: SlashCommandSubcommandBuilder): Sl
     subcommand.setName(PtuRandomSubcommand.EvolutionaryStone);
     subcommand.setDescription('Get one or more random evolutionary stones.');
     subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const fortune = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRandomSubcommand.Fortune);
+    subcommand.setDescription('Get a random amount of money using the Fortune capability.');
+
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('level');
+        option.setDescription('The level of your Pokemon with the Fortune capability.');
+        option.setMinValue(1);
+        option.setMaxValue(100);
+        option.setRequired(true);
+        return option;
+    });
     return subcommand;
 };
 

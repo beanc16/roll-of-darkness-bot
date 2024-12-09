@@ -46,6 +46,10 @@ export class BaseRandomStrategy
                 data: 'Evolutionary Stone',
                 plural: 'Evolutionary Stones',
             },
+            [PtuRandomSubcommand.Fortune]: {
+                data: 'Fortune',
+                plural: 'Fortunes',
+            },
             [PtuRandomSubcommand.HealingItem]: {
                 data: 'Healing Item',
                 plural: 'Healing Items',
