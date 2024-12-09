@@ -2,14 +2,14 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
-import { CurseborneStrategyExecutor } from './Curseborne/strategies/index.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
     CurseborneSubcommandGroup,
     lookup,
     roll,
-} from './Curseborne/subcommand-groups/index.js';
+} from './Curseborne/options/index.js';
+import { CurseborneStrategyExecutor } from './Curseborne/strategies/index.js';
 
 class Curseborne extends BaseSlashCommand
 {

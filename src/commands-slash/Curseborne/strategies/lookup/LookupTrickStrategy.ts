@@ -8,7 +8,7 @@ import {
     LookupStrategy,
 } from '../../../strategies/BaseLookupStrategy.js';
 import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
-import { CurseborneLookupSubcommand } from '../../subcommand-groups/lookup.js';
+import { CurseborneLookupSubcommand } from '../../options/lookup.js';
 import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../../types/types.js';
 import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';

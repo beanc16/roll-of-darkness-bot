@@ -14,8 +14,8 @@ import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
     CurseborneSubcommandGroup,
-} from '../subcommand-groups/index.js';
-import { CurseborneLookupSubcommand } from '../subcommand-groups/lookup.js';
+} from '../options/index.js';
+import { CurseborneLookupSubcommand } from '../options/lookup.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
 import { GetLookupTrickDataParameters, LookupTrickStrategy } from './lookup/LookupTrickStrategy.js';
 import { RollStrategy } from './RollStrategy.js';
