@@ -341,8 +341,11 @@ export class RollAttackStrategy
         }
         catch (error)
         {
+            const errorPrefix = 'Collector received no interactions before ending with reason:';
+            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
             // Ignore timeouts
-            if ((error as Error).message !== 'Collector received no interactions before ending with reason: time')
+            if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error(`An unknown error occurred whilst handling hit/miss button interactions for /ptu roll attack`, error);
             }

@@ -91,10 +91,13 @@ export function awaitCombatTrackerMessageComponents({
         })
         .catch((error: Error) =>
         {
+            const errorPrefix = 'Collector received no interactions before ending with reason:';
+            const messageTimedOut = error.message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = error.message.includes(`${errorPrefix} messageDelete`);
             // Ignore timeouts
-            if (error.message !== 'Collector received no interactions before ending with reason: time')
+            if (!messageTimedOut && !messageWasDeleted)
             {
-                logger.error(error);
+                logger.error(`An unknown error occurred whilst handling /combat_tracker interactions`, error);
             }
         });
 }
