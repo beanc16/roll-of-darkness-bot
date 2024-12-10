@@ -25,6 +25,7 @@ export class CalculateChaseSuccessesStrategy
 {
     public static key = NwodCalculateSubcommand.ChaseSuccesses;
 
+    /* istanbul ignore next */
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
