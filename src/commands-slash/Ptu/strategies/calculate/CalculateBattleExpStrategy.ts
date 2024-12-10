@@ -33,9 +33,9 @@ export class CalculateBattleExpStrategy
         const totalExperience = Math.round(totalLevelOfEnemies * significanceMultiplier / numOfPlayers);
 
         // Send message
-        await interaction.editReply({
-            content: `Each player gets ${totalExperience} exp to split between the Pokémon that they used.`,
-        });
+        await interaction.editReply(
+            `Each player gets ${totalExperience} exp to split between the Pokémon that they used.`,
+        );
 
         return true;
     }
