@@ -85,4 +85,7 @@ module.exports = {
     transformIgnorePatterns: [
         `<rootDir>/node_modules/(?!${esmModules})`,
     ],
+    moduleNameMapper: {
+        '^discord\\.js$': '<rootDir>/__mocks__/discord.js.ts',
+    },
 };
