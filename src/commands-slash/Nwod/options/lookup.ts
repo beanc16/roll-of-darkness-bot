@@ -1,7 +1,11 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
-import { ChangelingContractType, MeritType } from '../types/types.js';
+import {
+    ChangelingContractType,
+    ChangelingTokenType,
+    MeritType,
+} from '../types/types.js';
 
 export enum NwodLookupSubcommand
 {
@@ -10,6 +14,7 @@ export enum NwodLookupSubcommand
     Merit = 'merit',
     Needle = 'needle',
     Thread = 'thread',
+    Token = 'token',
 }
 
 export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -136,6 +141,41 @@ export const thread = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         option.setDescription(`The thread's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const token = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Token);
+    subcommand.setDescription('Get a list of tokens based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.TokenName);
+        option.setDescription(`The token's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    const typeChoices = Object.entries(ChangelingTokenType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(`type`);
+        option.setDescription('The type of tokens to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
     });
 
     return subcommand;

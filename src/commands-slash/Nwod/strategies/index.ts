@@ -12,6 +12,9 @@ import { AutcompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/t
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
+import { ChangelingNeedle } from '../types/ChangelingNeedle.js';
+import { ChangelingThread } from '../types/ChangelingThread.js';
+import { ChangelingToken } from '../types/ChangelingToken.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
@@ -98,14 +101,19 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Merit,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.NeedleName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+            [NwodAutocompleteParameterName.NeedleName]: () => NwodStrategyExecutor.getLookupData<ChangelingNeedle>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Needle,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.ThreadName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+            [NwodAutocompleteParameterName.ThreadName]: () => NwodStrategyExecutor.getLookupData<ChangelingThread>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Thread,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.TokenName]: () => NwodStrategyExecutor.getLookupData<ChangelingToken>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Token,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
         };

@@ -27,3 +27,11 @@ export enum ChangelingContractType
     Royal = 'Royal',
     Goblin = 'Goblin',
 }
+
+export enum ChangelingTokenType
+{
+    Any = 'Any',
+    HedgeForged = 'Hedge-Forged',
+    OathForged = 'Oath-Forged',
+    Stolen = 'Stolen',
+}

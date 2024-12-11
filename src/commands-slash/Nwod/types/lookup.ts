@@ -5,6 +5,7 @@ export enum NwodAutocompleteParameterName
     MeritName = 'merit_name',
     NeedleName = 'needle_name',
     ThreadName = 'thread_name',
+    TokenName = 'token_name',
 }
 
 export enum NwodLookupRange
@@ -14,4 +15,5 @@ export enum NwodLookupRange
     Merit = `'Merits'!A2:Z`,
     Needle = `'Needle Archetype Reference'!A3:Z`,
     Thread = `'Thread Archetype Reference'!A3:Z`,
+    Token = `'Tokens Index'!A3:Z`,
 }
