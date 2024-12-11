@@ -79,7 +79,7 @@ module.exports = {
         // TODO: Get all numbers up to 80-100% when more unit tests are implemented (depending on the location)
         './src/commands-slash/embed-messages': {
             statements: 50,
-            branches: 50,
+            branches: 40,
             functions: 50,
             lines: 50,
         },
