@@ -1,6 +1,6 @@
 import { ChatIteractionStrategy } from '../../src/commands-slash/strategies/types/ChatIteractionStrategy.js';
 import { staticImplements } from '../../src/decorators/staticImplements.js';
-import { FakeChatInputCommandInteraction } from './discord.js';
+import { FakeChatInputCommandInteraction } from './discord/interactions.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class FakeChatInteractionStrategy
