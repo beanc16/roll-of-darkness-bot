@@ -55,6 +55,7 @@ module.exports = {
 
         // NWOD
         '/.*/NwodCacheInitializer.ts',
+        '/.*/commands-slash/Nwod/strategies/BaseRollStrategy.ts',
 
         // Curseborne
         '/.*/CurseborneDiceService.ts',
