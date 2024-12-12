@@ -139,7 +139,7 @@ export class PokeApi
                         front_default: imageUrl = null,
                     } = {},
                 } = {},
-            },
+            } = {},
         }) =>
         {
             if (imageUrl)
