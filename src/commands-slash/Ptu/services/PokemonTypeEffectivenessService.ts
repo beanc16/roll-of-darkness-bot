@@ -807,21 +807,25 @@ export class PokemonTypeEffectivenessService
             },
         };
 
-        return abilities.reduce<PokemonTypeToTypeEffectiveness>((acc, ability) =>
-        {
-            if (role === TypeEffectivenessRole.Offensive)
+        const roleHandlerMap: Record<TypeEffectivenessRole, (
+            acc: PokemonTypeToTypeEffectiveness,
+            ability: PtuAbilityForTypeEffectiveness) => PokemonTypeToTypeEffectiveness
+        > = {
+            [TypeEffectivenessRole.Offensive]: (acc, ability) =>
             {
                 const typedAbility = ability as PtuAbilityForOffensiveTypeEffectiveness;
                 return offensiveHandlerMap[typedAbility]?.(acc) || acc;
-            }
-
-            if (role === TypeEffectivenessRole.Defensive)
+            },
+            [TypeEffectivenessRole.Defensive]: (acc, ability) =>
             {
                 const typedAbility = ability as PtuAbilityForDefensiveTypeEffectiveness;
                 return defensiveHandlerMap[typedAbility]?.(acc) || acc;
-            }
+            },
+        };
 
-            return acc;
-        }, { ...map });
+        return abilities.reduce<PokemonTypeToTypeEffectiveness>(
+            (acc, ability) => roleHandlerMap[role](acc, ability),
+            { ...map },
+        );
     }
 }
