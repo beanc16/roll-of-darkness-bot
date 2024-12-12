@@ -18,7 +18,7 @@ import {
 
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 
-enum ButtonName
+export enum PaginationButtonName
 {
     Next = 'next_page',
     Previous = 'previous_page',
@@ -112,6 +112,7 @@ export class PaginationStrategy
         return response;
     }
 
+    // TODO: Abstract this style of function away behind some sort of helper class or method
     private static async sendPagedMessages({
         originalInteraction,
         embeds,
@@ -209,11 +210,11 @@ export class PaginationStrategy
     }): number
     {
         let pageIndex = startingPageIndex;
-        const array = (embeds ?? files) as unknown[];
+        const array = (embeds ?? files ?? []) as unknown[];
 
-        const customId = buttonInteraction.customId as ButtonName;
+        const customId = buttonInteraction.customId as PaginationButtonName;
 
-        if (customId === ButtonName.Next)
+        if (customId === PaginationButtonName.Next)
         {
             pageIndex += 1;
 
@@ -224,25 +225,25 @@ export class PaginationStrategy
             }
         }
 
-        else if (customId === ButtonName.Previous)
+        else if (customId === PaginationButtonName.Previous)
         {
             pageIndex -= 1;
 
             // Circle back around to the last page if before the first page
             if (pageIndex < 0)
             {
-                pageIndex = array.length - 1;
+                pageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
             }
         }
 
-        else if (customId === ButtonName.First)
+        else if (customId === PaginationButtonName.First)
         {
             pageIndex = 0;
         }
 
-        else if (customId === ButtonName.Last)
+        else if (customId === PaginationButtonName.Last)
         {
-            pageIndex = array.length - 1;
+            pageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
         }
 
         return pageIndex;
@@ -252,28 +253,28 @@ export class PaginationStrategy
     private static getPaginationRowComponent(isDisabled: boolean): ActionRowBuilder<ButtonBuilder>
     {
         const prevButton = new ButtonBuilder()
-            .setCustomId(ButtonName.Previous)
+            .setCustomId(PaginationButtonName.Previous)
             .setLabel('Previous')
             .setEmoji('⬅️')
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(isDisabled);
 
         const nextButton = new ButtonBuilder()
-            .setCustomId(ButtonName.Next)
+            .setCustomId(PaginationButtonName.Next)
             .setLabel('Next')
             .setEmoji('➡️')
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(isDisabled);
 
         const firstButton = new ButtonBuilder()
-            .setCustomId(ButtonName.First)
+            .setCustomId(PaginationButtonName.First)
             .setLabel('First')
             .setEmoji('⏪')
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(isDisabled);
 
         const lastButton = new ButtonBuilder()
-            .setCustomId(ButtonName.Last)
+            .setCustomId(PaginationButtonName.Last)
             .setLabel('Last')
             .setEmoji('⏩')
             .setStyle(ButtonStyle.Secondary)
