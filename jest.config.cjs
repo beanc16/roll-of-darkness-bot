@@ -51,11 +51,12 @@ module.exports = {
         '/.*/PtuMovesSearchService.ts',
 
         // Ptu
+        '/.*/PtuCacheInitializer.ts',
         '/.*/PtuDamageChartService.ts',
 
         // NWOD
+        '/.*/BaseRollStrategy.ts',
         '/.*/NwodCacheInitializer.ts',
-        '/.*/commands-slash/Nwod/strategies/BaseRollStrategy.ts',
 
         // Curseborne
         '/.*/CurseborneDiceService.ts',
@@ -95,6 +96,12 @@ module.exports = {
             branches: 90,
             functions: 100,
             lines: 90,
+        },
+        './src/commands-slash/Ptu/services': {
+            statements: 100,
+            branches: 90,
+            functions: 100,
+            lines: 100,
         },
         './src/services/MathParser': {
             statements: 100,
