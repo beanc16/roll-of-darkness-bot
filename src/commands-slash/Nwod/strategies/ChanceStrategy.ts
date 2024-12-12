@@ -3,11 +3,11 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { DiceService } from '../../../services/DiceService.js';
-import RollResponseFormatterService from '../../../services/RollResponseFormatterService.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { NwodSubcommand } from '../options/index.js';
+import RollResponseFormatterService from '../services/RollResponseFormatterService.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class ChanceStrategy
