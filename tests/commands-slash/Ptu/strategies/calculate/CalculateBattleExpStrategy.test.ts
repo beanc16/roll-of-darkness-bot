@@ -1,6 +1,6 @@
 import { CalculateBattleExpStrategy } from '../../../../../src/commands-slash/Ptu/strategies/calculate/CalculateBattleExpStrategy.js';
 import { AddMathParser } from '../../../../../src/services/MathParser/AddMathParser.js';
-import { FakeChatInputCommandInteraction } from '../../../../fakes/discord.js';
+import { FakeChatInputCommandInteraction } from '../../../../fakes/discord/interactions.js';
 
 const mockedJestAddMathParser = jest.mock('../../../../../src/services/MathParser/AddMathParser.js');
 

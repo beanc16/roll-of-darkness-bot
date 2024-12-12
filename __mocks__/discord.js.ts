@@ -1,4 +1,93 @@
-import type Discord from 'discord.js';
+import Discord from 'discord.js';
+
+/*
+ * Builders
+ */
+
+export const ActionRowBuilder = jest.fn<Discord.ActionRowBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.ActionRowBuilder = {
+        components: [],
+        data: {},
+        addComponents: jest.fn().mockImplementation(() => result),
+        setComponents: jest.fn().mockImplementation(() => result),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const ButtonBuilder = jest.fn<Discord.ButtonBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.ButtonBuilder = {
+        data: {},
+        setCustomId: jest.fn().mockImplementation(() => result),
+        setDisabled: jest.fn().mockImplementation(() => result),
+        setEmoji: jest.fn().mockImplementation(() => result),
+        setLabel: jest.fn().mockImplementation(() => result),
+        setStyle: jest.fn().mockImplementation(() => result),
+        setURL: jest.fn().mockImplementation(() => result),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const EmbedBuilder = jest.fn<Discord.EmbedBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.EmbedBuilder = {
+        data: {},
+        addFields: jest.fn().mockImplementation(() => result),
+        setAuthor: jest.fn().mockImplementation(() => result),
+        setColor: jest.fn().mockImplementation(() => result),
+        setDescription: jest.fn().mockImplementation(() => result),
+        setFields: jest.fn().mockImplementation(() => result),
+        setFooter: jest.fn().mockImplementation(() => result),
+        setImage: jest.fn().mockImplementation(() => result),
+        setThumbnail: jest.fn().mockImplementation(() => result),
+        setTimestamp: jest.fn().mockImplementation(() => result),
+        setTitle: jest.fn().mockImplementation(() => result),
+        setURL: jest.fn().mockImplementation(() => result),
+        spliceFields: jest.fn(),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const StringSelectMenuBuilder = jest.fn<Discord.StringSelectMenuBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuBuilder = {
+        data: {},
+        options: [],
+        addOptions: jest.fn().mockImplementation(() => result),
+        setCustomId: jest.fn().mockImplementation(() => result),
+        setDisabled: jest.fn().mockImplementation(() => result),
+        setPlaceholder: jest.fn().mockImplementation(() => result),
+        setMinValues: jest.fn().mockImplementation(() => result),
+        setMaxValues: jest.fn().mockImplementation(() => result),
+        setOptions: jest.fn().mockImplementation(() => result),
+        spliceOptions: jest.fn(),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const StringSelectMenuOptionBuilder = jest.fn<Discord.StringSelectMenuOptionBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuOptionBuilder = {
+        data: {},
+        setDefault: jest.fn().mockImplementation(() => result),
+        setDescription: jest.fn().mockImplementation(() => result),
+        setEmoji: jest.fn().mockImplementation(() => result),
+        setLabel: jest.fn().mockImplementation(() => result),
+        setValue: jest.fn().mockImplementation(() => result),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
 
 /*
  * Clients
@@ -26,6 +115,15 @@ export const WebhookClient = jest.fn().mockImplementation(() =>
  * Components
  */
 
+export const AttachmentPayload = jest.fn().mockImplementation(() =>
+{
+    return {
+        attachment: 'fake-attachment',
+        name: 'fake-name',
+        description: 'fake-description',
+    };
+});
+
 export const Message = jest.fn().mockImplementation(() =>
 {
     return {
@@ -38,6 +136,23 @@ export const Message = jest.fn().mockImplementation(() =>
 /*
  * Interactions
  */
+
+export const ButtonInteraction = jest.fn<Discord.ButtonInteraction, []>().mockImplementation(() =>
+{
+    const result: Discord.ButtonInteraction = {
+        deferReply: jest.fn(),
+        deferUpdate: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+        update: jest.fn(),
+        showModal: jest.fn(),
+    } as unknown as Discord.ButtonInteraction; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
 
 export const ChatInputCommandInteraction = jest.fn<Discord.ChatInputCommandInteraction, []>().mockImplementation(() =>
 {
@@ -73,9 +188,35 @@ export const Interaction = jest.fn().mockImplementation(() =>
     };
 });
 
+export const StringSelectMenuInteraction = jest.fn<Discord.StringSelectMenuInteraction, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuInteraction = {
+        deferReply: jest.fn(),
+        deferUpdate: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+        update: jest.fn(),
+        showModal: jest.fn(),
+    } as unknown as Discord.StringSelectMenuInteraction; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
+
 /*
  * Types
  */
+
+export enum ButtonStyle
+{
+    Primary = 1,
+    Secondary = 2,
+    Success = 3,
+    Danger = 4,
+    Link = 5,
+}
 
 export enum TextInputStyle
 {
