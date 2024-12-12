@@ -2,6 +2,7 @@ import rollConstants from '../constants/roll.js';
 import { Roll } from '../types/rolls.js';
 import { DicePool } from './DicePool.js';
 import { DicePoolGroup } from './DicePoolGroup.js';
+import { RandomService } from './RandomService.js';
 
 export interface RollOptions
 {
@@ -92,10 +93,9 @@ export class DiceService
         const rolls = [];
 
         // Get a random integer between 1 and sides (inclusive)
-        const randomDecimal = (!shouldRollMax)
-            ? Math.random() * this.sides
-            : this.sides - 1;
-        const randomInteger = Math.floor(randomDecimal) + 1;
+        const randomInteger = (!shouldRollMax)
+            ? RandomService.getRandomInteger(this.sides)
+            : this.sides;
 
         rolls.push({
             number: randomInteger,
