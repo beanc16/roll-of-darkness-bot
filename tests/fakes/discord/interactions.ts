@@ -6,10 +6,14 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
+import { FakeUser, getFakeMessage } from './components.js';
+
 export const getFakeButtonInteraction = (customId: string = 'fake-id'): ButtonInteraction =>
 {
     const output: ButtonInteraction = {
         customId,
+        message: getFakeMessage(),
+        user: new FakeUser(),
         deferReply: jest.fn(),
         deferUpdate: jest.fn(),
         deleteReply: jest.fn(),
