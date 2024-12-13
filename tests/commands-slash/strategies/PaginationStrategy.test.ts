@@ -106,8 +106,7 @@ describe('class: PaginationStrategy', () =>
                     const handleButtonInteractionsCall: HandleButtonInteractionsOptions = (ButtonStrategy['handleButtonInteractions'] as any).mock.calls[0][0];
 
                     // Similar to expect(ButtonStrategy['handleButtonInteractions']).toHaveBeenCalledWith
-                    // except without onButtonPress, which Jest doesn't evaluate correctly,
-                    // since it's an anonymous function.
+                    // except without nonymous functions, which Jest doesn't evaluate correctly.
                     expect(handleButtonInteractionsCall.interactionResponse).toEqual(
                         response,
                     );
