@@ -1,4 +1,8 @@
+import { randomUUID } from 'node:crypto';
+
 import Discord from 'discord.js';
+
+const generateFakeId = (): string => randomUUID();
 
 /*
  * Builders
@@ -149,6 +153,19 @@ export const Message = jest.fn<Discord.Message, []>().mockImplementation(() =>
         edit: jest.fn(),
         reply: jest.fn(),
     } as unknown as Discord.Message; // TODO: Remove this typecast once all required properties are added
+
+    return output;
+});
+
+export const User = jest.fn<Discord.User, []>().mockImplementation(() =>
+{
+    const output: Discord.User = {
+        id: generateFakeId(),
+        bot: false,
+        system: false,
+        username: 'fake-username',
+        discriminator: '0000',
+    } as unknown as Discord.User;
 
     return output;
 });
