@@ -37,9 +37,10 @@ export interface OnRerollCallbackOptions
 
 type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
 
-export interface GetRerollMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
+interface OnRerollButtonPressOptions
 {
-    components: ActionRowBuilder<ButtonBuilder>[];
+    buttonInteraction: ButtonInteraction;
+    onRerollCallback: OnRerollCallback;
 }
 
 export class RerollStrategy
@@ -84,27 +85,32 @@ export class RerollStrategy
                 : response as Message<boolean>,
             commandName,
             restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async (buttonInteraction) =>
-            {
-                await Promise.all([
-                    // Run callback
-                    await onRerollCallback({
-                        interactionCallbackType: DiscordInteractionCallbackType.Followup,
-                        newCallingUserId: buttonInteraction.user.id,
-                    }),
-
-                    // Update original message with the same content so
-                    // the buttons know that the interaction was successful
-                    await buttonInteraction.update(
-                        ButtonStrategy.getMessageData(
-                            buttonInteraction.message.content,
-                            () => this.getButtonRowComponent(),
-                        ),
-                    ),
-                ]);
-            },
+            onButtonPress: async buttonInteraction => await this.onRerollButtonPress({
+                buttonInteraction,
+                onRerollCallback,
+            }),
             getButtonRowComponent: () => this.getButtonRowComponent(),
         });
+    }
+
+    private static async onRerollButtonPress({ buttonInteraction, onRerollCallback }: OnRerollButtonPressOptions): Promise<void>
+    {
+        await Promise.all([
+            // Run callback
+            await onRerollCallback({
+                interactionCallbackType: DiscordInteractionCallbackType.Followup,
+                newCallingUserId: buttonInteraction.user.id,
+            }),
+
+            // Update original message with the same content so
+            // the buttons know that the interaction was successful
+            await buttonInteraction.update(
+                ButtonStrategy.getMessageData(
+                    buttonInteraction.message.content,
+                    () => this.getButtonRowComponent(),
+                ),
+            ),
+        ]);
     }
 
     /* istanbul ignore next */
