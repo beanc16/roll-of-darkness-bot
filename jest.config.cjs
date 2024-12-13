@@ -103,6 +103,12 @@ module.exports = {
             functions: 100,
             lines: 100,
         },
+        './src/commands-slash/strategies': {
+            statements: 95,
+            branches: 95,
+            functions: 90,
+            lines: 100,
+        },
         './src/services/MathParser': {
             statements: 100,
             branches: 100,
