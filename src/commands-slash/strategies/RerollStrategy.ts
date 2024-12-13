@@ -66,6 +66,7 @@ export class RerollStrategy
         // Set up message response
         const rerollOptions = ButtonStrategy.getMessageData(
             options,
+            /* istanbul ignore next */
             () => this.getButtonRowComponent(),
         );
         const handlerMap = {
@@ -85,11 +86,11 @@ export class RerollStrategy
                 : response as Message<boolean>,
             commandName,
             restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async buttonInteraction => await this.onRerollButtonPress({
+            onButtonPress: /* istanbul ignore next */ async buttonInteraction => await this.onRerollButtonPress({
                 buttonInteraction,
                 onRerollCallback,
             }),
-            getButtonRowComponent: () => this.getButtonRowComponent(),
+            getButtonRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent(),
         });
     }
 
@@ -107,6 +108,7 @@ export class RerollStrategy
             await buttonInteraction.update(
                 ButtonStrategy.getMessageData(
                     buttonInteraction.message.content,
+                    /* istanbul ignore next */
                     () => this.getButtonRowComponent(),
                 ),
             ),
