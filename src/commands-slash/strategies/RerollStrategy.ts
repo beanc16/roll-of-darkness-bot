@@ -1,20 +1,18 @@
-import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ComponentType,
     InteractionEditReplyOptions,
     InteractionReplyOptions,
     InteractionUpdateOptions,
     Message,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
-import { DiscordInteractionCallbackType } from '../../types/discord.js';
+import { type CommandName, DiscordInteractionCallbackType } from '../../types/discord.js';
 import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from './ButtonStrategy.js';
 
 enum RerollButtonName
 {
@@ -61,11 +59,14 @@ export class RerollStrategy
         options: RerollInteractionOptions;
         interactionCallbackType: RerollInteractionCallbackType;
         onRerollCallback: OnRerollCallback;
-        commandName: string;
+        commandName: CommandName;
     }): Promise<void>
     {
         // Set up message response
-        const rerollOptions = this.getMessageData(options);
+        const rerollOptions = ButtonStrategy.getMessageData(
+            options,
+            () => this.getButtonRowComponent(),
+        );
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(rerollOptions as InteractionEditReplyOptions),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(rerollOptions as InteractionReplyOptions),
@@ -77,27 +78,33 @@ export class RerollStrategy
 
         // Handle any interactions on the buttons
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        this.handleButtonInteractions({
+        ButtonStrategy.handleButtonInteractions({
             interactionResponse: (interactionCallbackType === DiscordInteractionCallbackType.Update)
                 ? (interaction as ButtonInteraction).message
                 : response as Message<boolean>,
-            onRerollCallback,
             commandName,
+            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                await Promise.all([
+                    // Run callback
+                    await onRerollCallback({
+                        interactionCallbackType: DiscordInteractionCallbackType.Followup,
+                        newCallingUserId: buttonInteraction.user.id,
+                    }),
+
+                    // Update original message with the same content so
+                    // the buttons know that the interaction was successful
+                    await buttonInteraction.update(
+                        ButtonStrategy.getMessageData(
+                            buttonInteraction.message.content,
+                            () => this.getButtonRowComponent(),
+                        ),
+                    ),
+                ]);
+            },
+            getButtonRowComponent: () => this.getButtonRowComponent(),
         });
-    }
-
-    /* istanbul ignore next */
-    private static getMessageData(options: RerollInteractionOptions): GetRerollMessageDataResponse
-    {
-        const buttonRow = this.getButtonRowComponent();
-        const typedOptions = (typeof options === 'string')
-            ? { content: options }
-            : options;
-
-        return {
-            ...typedOptions,
-            components: [buttonRow],
-        };
     }
 
     /* istanbul ignore next */
@@ -113,62 +120,5 @@ export class RerollStrategy
             .addComponents(diceButton);
 
         return row;
-    }
-
-    private static async handleButtonInteractions({
-        interactionResponse,
-        onRerollCallback,
-        commandName,
-    }: {
-        interactionResponse: Message<boolean>;
-        onRerollCallback: OnRerollCallback;
-        commandName: string;
-    }): Promise<void>
-    {
-        let buttonInteraction: ButtonInteraction | undefined;
-
-        try
-        {
-            // Wait for button interactions
-            buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            await Promise.all([
-                // Run callback
-                await onRerollCallback({
-                    interactionCallbackType: DiscordInteractionCallbackType.Followup,
-                    newCallingUserId: buttonInteraction.user.id,
-                }),
-
-                // Update original message with the same content so
-                // the buttons know that the interaction was successful
-                await buttonInteraction.update(
-                    this.getMessageData(buttonInteraction.message.content),
-                ),
-            ]);
-        }
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error(`An unknown error occurred whilst handling reroll button interactions for /${commandName}`, error);
-            }
-        }
-        finally
-        {
-            // Restart listener upon timeout
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.handleButtonInteractions({
-                interactionResponse: buttonInteraction?.message ?? interactionResponse,
-                onRerollCallback,
-                commandName,
-            });
-        }
     }
 }

@@ -7,6 +7,7 @@ import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAnd
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -135,7 +136,7 @@ export class RollCaptureStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'ptu roll capture',
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
     }
 

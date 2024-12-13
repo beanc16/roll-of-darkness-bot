@@ -23,6 +23,7 @@ import {
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
 } from '../../embed-messages/lookup.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
@@ -263,6 +264,7 @@ export class LookupPokemonStrategy
         // Send messages with pagination (fire and forget)
         const response = await PaginationStrategy.run({
             originalInteraction: interaction,
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
             embeds,
             interactionType,
             rowsAbovePagination,

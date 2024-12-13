@@ -3,6 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
@@ -37,7 +38,7 @@ export class RandomApricornStrategy
         }, []);
 
         return await BaseRandomStrategy.run(interaction, this.key, {
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
             numberOfDice: survivalRank,
             parsedData,
         });

@@ -8,6 +8,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { CachedGoogleSheetsApiService, RetryOptions } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
 import { chunkArray } from '../../../services/chunkArray.js';
+import { CommandName } from '../../../types/discord.js';
 import { characterSheetSpreadsheetIds } from '../constants.js';
 
 export interface GetSpreadsheetValuesOptions
@@ -521,7 +522,7 @@ export class CharacterSheetStrategy
         maxActionPermission = 'edit',
     }: {
         interaction: ChatInputCommandInteraction;
-        commandName: `/${string}`;
+        commandName: CommandName;
         action: 'view' | 'edit';
         maxActionPermission?: 'view' | 'edit';
     }): Promise<void>

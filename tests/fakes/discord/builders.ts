@@ -3,7 +3,6 @@ import {
     ButtonBuilder,
     ButtonStyle,
     StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 export const getFakeButtonActionRowBuilder = ({
@@ -20,15 +19,17 @@ export const getFakeButtonActionRowBuilder = ({
     isDisabled?: boolean;
 } = {}): ActionRowBuilder<ButtonBuilder> =>
 {
-    const button = new ButtonBuilder()
-        .setCustomId(customId)
-        .setLabel(label)
-        .setEmoji(emoji)
-        .setStyle(style)
-        .setDisabled(isDisabled);
+    const button = new ButtonBuilder({
+        customId,
+        disabled: isDisabled,
+        emoji,
+        label,
+    })
+        .setStyle(style);
 
-    const row = new ActionRowBuilder<ButtonBuilder>()
-        .addComponents(button);
+    const row = new ActionRowBuilder<ButtonBuilder>({
+        components: [button],
+    });
 
     return row;
 };
@@ -49,19 +50,22 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
     emoji?: string;
 } = {}): ActionRowBuilder<StringSelectMenuBuilder> =>
 {
-    const stringSelectMenu = new StringSelectMenuBuilder()
-        .setCustomId(customId)
-        .setDisabled(isDisabled)
-        .addOptions(
-            new StringSelectMenuOptionBuilder()
-                .setLabel(label)
-                .setDescription(description)
-                .setValue(value)
-                .setEmoji(emoji),
-        );
+    const stringSelectMenu = new StringSelectMenuBuilder({
+        customId,
+        disabled: isDisabled,
+        options: [
+            {
+                label,
+                description,
+                value,
+                emoji,
+            },
+        ],
+    });
 
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>()
-        .addComponents(stringSelectMenu);
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>({
+        components: [stringSelectMenu],
+    });
 
     return row;
 };

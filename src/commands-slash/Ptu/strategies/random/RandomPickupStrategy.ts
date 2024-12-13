@@ -6,6 +6,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
@@ -125,7 +126,7 @@ export class RandomPickupStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: `ptu random ${this.key}${subcommandStr}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}${subcommandStr}`,
         });
 
         return true;

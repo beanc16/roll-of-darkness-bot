@@ -10,13 +10,10 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     Client,
-    ComponentType,
     Message,
-    MessageInteraction,
     TextChannel,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../constants/discord.js';
 import { CounterController } from './Counter/dal/CounterMongoController.js';
 import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
@@ -24,6 +21,11 @@ import counterSingleton from './Counter/services/CounterSingleton.js';
 import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCounterCountainer.js';
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
+import {
+    ButtonListenerRestartStyle,
+    ButtonStrategy,
+    GetMessageDataResponse,
+} from './strategies/ButtonStrategy.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy.js';
 
 enum CounterButtonName
@@ -44,6 +46,7 @@ class Counter extends BaseSlashCommand
             .addStringOption(options.type);
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Send message to show the command was received
@@ -59,25 +62,32 @@ class Counter extends BaseSlashCommand
         const guid = randomUUID();
 
         // Send message
-        const response = await interaction.editReply(
+        const interactionResponse = await interaction.editReply(
             Counter.getMessageData(name, guid),
         );
         Counter.initializeCounter({
             guid,
             name,
             interaction,
-            response,
+            response: interactionResponse,
             type,
         });
 
         // Handle button interactions
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        this.handleButtonInteractions({
-            originalInteraction: interaction,
-            interactionResponse: response,
-            name,
-            guid,
-            type,
+        ButtonStrategy.handleButtonInteractions({
+            interactionResponse,
+            commandName: '/counter',
+            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                // Update count based on interaction
+                Counter.updateCount(buttonInteraction, guid);
+                await buttonInteraction.update(
+                    Counter.getMessageData(name, guid),
+                );
+            },
+            getButtonRowComponent: () => Counter.getButtonRowComponent(),
         });
     }
 
@@ -121,18 +131,14 @@ class Counter extends BaseSlashCommand
         ));
     }
 
-    private static getMessageData(name: string, guid: UUID): {
-        content: string;
-        components: ActionRowBuilder<ButtonBuilder>[];
-    }
+    private static getMessageData(name: string, guid: UUID): GetMessageDataResponse
     {
         const message = `${Text.bold(`${name}:`)} ${counterSingleton.get(guid)?.count ?? 0}`;
-        const buttonRow = Counter.getButtonRowComponent();
 
-        return {
-            content: message,
-            components: [buttonRow],
-        };
+        return ButtonStrategy.getMessageData(
+            message,
+            () => Counter.getButtonRowComponent(),
+        );
     }
 
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
@@ -160,61 +166,6 @@ class Counter extends BaseSlashCommand
             );
 
         return row;
-    }
-
-    private async handleButtonInteractions({
-        originalInteraction,
-        interactionResponse,
-        name,
-        guid,
-        type,
-    }: {
-        originalInteraction: ChatInputCommandInteraction | MessageInteraction;
-        interactionResponse: Message<boolean>;
-        name: string;
-        guid: UUID;
-        type: options.CounterType;
-    }): Promise<void>
-    {
-        let buttonInteraction: ButtonInteraction | undefined;
-
-        try
-        {
-            // Wait for button interactions
-            buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            // Update count based on interaction
-            Counter.updateCount(buttonInteraction, guid);
-            await buttonInteraction.update(
-                Counter.getMessageData(name, guid),
-            );
-        }
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error(`An unknown error occurred whilst handling Counter button interactions`, error);
-            }
-        }
-        finally
-        {
-            // Restart listener upon timeout
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.handleButtonInteractions({
-                name,
-                originalInteraction,
-                interactionResponse: buttonInteraction?.message ?? interactionResponse,
-                guid,
-                type,
-            });
-        }
     }
 
     private static updateCount(buttonInteraction: ButtonInteraction, guid: UUID): void
@@ -281,11 +232,13 @@ class Counter extends BaseSlashCommand
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: buttonInteraction,
+            commandName: `/counter`,
             interactionType: 'dm',
             embeds,
         });
     }
 
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async runOnStartup(bot: Client): Promise<void>
     {
         try
@@ -325,12 +278,20 @@ class Counter extends BaseSlashCommand
 
                     // Listen for button interactions
                     // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-                    this.handleButtonInteractions({
-                        originalInteraction: message.interaction as MessageInteraction,
+                    ButtonStrategy.handleButtonInteractions({
                         interactionResponse: message,
-                        name: newCounter.name,
-                        guid: newCounter.guid,
-                        type: options.CounterType.Permanent,
+                        commandName: `/${this.commandName}`,
+                        restartStyle: ButtonListenerRestartStyle.OnSuccess,
+                        timeToWaitForInteractions: 86_400_000, // 24 hours
+                        onButtonPress: async (buttonInteraction) =>
+                        {
+                            // Update count based on interaction
+                            Counter.updateCount(buttonInteraction, newCounter.guid);
+                            await buttonInteraction.update(
+                                Counter.getMessageData(newCounter.name, newCounter.guid),
+                            );
+                        },
+                        getButtonRowComponent: () => Counter.getButtonRowComponent(),
                     });
                 }
             });

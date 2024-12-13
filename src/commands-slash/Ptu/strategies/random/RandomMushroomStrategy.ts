@@ -8,6 +8,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
@@ -103,7 +104,7 @@ export class RandomMushroomStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
 
         return true;

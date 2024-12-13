@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
-import { DiscordInteractionCallbackType } from '../../../types/discord.js';
+import { CommandName, DiscordInteractionCallbackType } from '../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';
 
@@ -18,7 +18,7 @@ export class BaseRollStrategy
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number | null;
-        commandName: string;
+        commandName: CommandName;
         rerollCallbackOptions?: OnRerollCallbackOptions;
     }): Promise<boolean>
     {

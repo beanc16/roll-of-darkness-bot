@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
+import { CommandName, DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomResultEmbedMessage } from '../../embed-messages/random.js';
@@ -12,7 +12,7 @@ import { PtuRandomPickupSubcommandResponse } from './types.js';
 
 interface BaseRandomStrategyOptions
 {
-    commandName: string;
+    commandName: CommandName;
     numberOfDice?: number;
     parsedData?: RandomResult[];
 }

@@ -51,7 +51,7 @@ export class ChanceStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'nwod chance',
+            commandName: `/nwod ${NwodSubcommand.Chance}`,
         });
         return true;
     }

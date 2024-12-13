@@ -7,6 +7,7 @@ import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuNature } from '../../types/PtuNature.js';
@@ -60,6 +61,7 @@ export class LookupNatureStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Nature}`,
             noEmbedsErrorMessage: 'No natures were found.',
         });
     }

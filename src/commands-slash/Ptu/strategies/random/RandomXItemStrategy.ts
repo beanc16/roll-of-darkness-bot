@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
@@ -16,7 +17,7 @@ export class RandomXItemStrategy
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         return await BaseRandomStrategy.run(interaction, this.key, {
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         }, undefined, shouldReturnMessageOptions);
     }
 }

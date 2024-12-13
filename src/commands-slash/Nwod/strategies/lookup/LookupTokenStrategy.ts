@@ -8,6 +8,7 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
+import { NwodSubcommandGroup } from '../../options/index.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingToken } from '../../types/ChangelingToken.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
@@ -68,6 +69,7 @@ export class LookupTokenStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/nwod ${NwodSubcommandGroup.Lookup} ${NwodLookupSubcommand.Token}`,
             noEmbedsErrorMessage: 'No tokens were found.',
         });
     }

@@ -8,6 +8,7 @@ import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/Rer
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomDowsingRodEmbedMessage, getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
@@ -161,7 +162,7 @@ export class RandomDowsingRodStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
 
         return true;

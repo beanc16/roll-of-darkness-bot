@@ -8,6 +8,7 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
+import { NwodSubcommandGroup } from '../../options/index.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingThread } from '../../types/ChangelingThread.js';
 import { NwodAutocompleteParameterName, NwodLookupRange } from '../../types/lookup.js';
@@ -52,6 +53,7 @@ export class LookupThreadStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/nwod ${NwodSubcommandGroup.Lookup} ${NwodLookupSubcommand.Thread}`,
             noEmbedsErrorMessage: 'No threads were found.',
         });
     }

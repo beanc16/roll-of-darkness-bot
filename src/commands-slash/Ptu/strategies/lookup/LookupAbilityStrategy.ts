@@ -9,6 +9,7 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
@@ -52,6 +53,7 @@ export class LookupAbilityStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Ability}`,
             noEmbedsErrorMessage: 'No abilities were found.',
         });
     }

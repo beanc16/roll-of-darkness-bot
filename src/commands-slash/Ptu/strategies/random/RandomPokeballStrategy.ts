@@ -7,6 +7,7 @@ import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomPokeballEmbedMessage } from '../../embed-messages/random.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { PokeballType } from '../../types/pokeballType.js';
 import { RandomPokeball } from '../../types/PtuRandom.js';
@@ -191,7 +192,7 @@ export class RandomPokeballStrategy
                 options: {
                     embeds: [embed],
                 },
-                commandName: `ptu random ${this.key}`,
+                commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
             };
         }
 
@@ -206,7 +207,7 @@ export class RandomPokeballStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
 
         return true;

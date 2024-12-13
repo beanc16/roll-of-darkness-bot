@@ -72,7 +72,7 @@ class CoinFlip extends BaseSlashCommand
                 interaction,
                 rerollCallbackOptions,
             ),
-            commandName: this.commandName,
+            commandName: `/${this.commandName}`,
         });
     }
 

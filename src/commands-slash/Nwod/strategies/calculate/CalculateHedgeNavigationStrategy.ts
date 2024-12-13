@@ -1,17 +1,12 @@
-import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ComponentType,
-    InteractionEditReplyOptions,
-    Message,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { CalculateHedgeDicepoolModal } from '../../modals/calculate/CalculateHedgeDicepoolModal.js';
 import {
@@ -22,6 +17,7 @@ import {
     Territory,
     TimeLimit,
 } from '../../options/calculate.js';
+import { NwodSubcommandGroup } from '../../options/index.js';
 import { CalculateChaseSuccessesStrategy, type ChaseSuccessesGetParameterResultsResponse } from './CalculateChaseSuccessesStrategy.js';
 
 export interface GetParameterResultsResponse extends ChaseSuccessesGetParameterResultsResponse
@@ -54,15 +50,26 @@ export class CalculateHedgeNavigationStrategy
         const successes = this.calculateSuccesses(parameterResults);
 
         // Send message
-        const replyOptions = this.getMessageData(`You need a total of ${successes} successes to navigate the hedge.`);
-        const response = await interaction.editReply(replyOptions);
+        const replyOptions = ButtonStrategy.getMessageData(
+            `You need a total of ${successes} successes to navigate the hedge.`,
+            () => this.getButtonRowComponent(),
+        );
+        const interactionResponse = await interaction.editReply(replyOptions);
 
         // Handle any interactions on the buttons
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        this.handleButtonInteractions({
-            originalInteraction: interaction,
-            interactionResponse: response,
-            successes,
+        ButtonStrategy.handleButtonInteractions({
+            interactionResponse,
+            commandName: `/nwod ${NwodSubcommandGroup.Calculate} ${NwodCalculateSubcommand.HedgeNavigation}`,
+            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                // Display modal to handle calculating the hedge's dicepool
+                await CalculateHedgeDicepoolModal.showModal(buttonInteraction, {
+                    successes,
+                });
+            },
+            getButtonRowComponent: () => this.getButtonRowComponent(),
         });
 
         return true;
@@ -160,17 +167,6 @@ export class CalculateHedgeNavigationStrategy
     }
 
     /* istanbul ignore next */
-    private static getMessageData(content: string): InteractionEditReplyOptions
-    {
-        const buttonRow = this.getButtonRowComponent();
-
-        return {
-            content,
-            components: [buttonRow],
-        };
-    }
-
-    /* istanbul ignore next */
     private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
     {
         const hedgeDicepoolButton = new ButtonBuilder()
@@ -183,62 +179,5 @@ export class CalculateHedgeNavigationStrategy
             .addComponents(hedgeDicepoolButton);
 
         return row;
-    }
-
-    private static async handleButtonInteractions({
-        originalInteraction,
-        interactionResponse,
-        successes,
-    }: {
-        originalInteraction: ChatInputCommandInteraction;
-        interactionResponse: Message<boolean>;
-        successes: number;
-    }): Promise<void>
-    {
-        let buttonInteraction: ButtonInteraction | undefined;
-
-        try
-        {
-            // Wait for button interactions
-            buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            // Display modal to handle calculating the hedge's dicepool
-            await CalculateHedgeDicepoolModal.showModal(buttonInteraction, {
-                successes,
-            });
-
-            // Restart listener in case the modal isn't finished
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.handleButtonInteractions({
-                originalInteraction,
-                interactionResponse,
-                successes,
-            });
-        }
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error(`An unknown error occurred whilst handling reroll button interactions for /nwod calculate hedge_navigation`, error);
-            }
-
-            // Disable paginated buttons upon non-deletes
-            if (!messageWasDeleted)
-            {
-                const messageData = this.getMessageData(
-                    interactionResponse.content, // Use the message's original content
-                );
-
-                await originalInteraction.editReply(messageData);
-            }
-        }
     }
 }

@@ -6,6 +6,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -57,7 +58,7 @@ export class RandomFortuneStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: `ptu random ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
 
         return true;

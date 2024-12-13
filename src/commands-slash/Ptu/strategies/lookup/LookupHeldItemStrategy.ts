@@ -8,6 +8,7 @@ import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { HeldItemType, PtuHeldItem } from '../../types/PtuHeldItem.js';
@@ -53,6 +54,7 @@ export class LookupHeldItemStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.HeldItem}`,
             noEmbedsErrorMessage: 'No held items were found.',
         });
     }

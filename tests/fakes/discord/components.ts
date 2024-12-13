@@ -4,8 +4,11 @@ export const getFakeMessage = <T extends boolean = boolean>(content: string = 'f
 {
     const output: Message<T> = {
         content,
-        reply: jest.fn(),
         author: { bot: false },
+        awaitMessageComponent: jest.fn(),
+        delete: jest.fn(),
+        edit: jest.fn(),
+        reply: jest.fn(),
     } as unknown as Message<T>;
 
     return output;

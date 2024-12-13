@@ -9,6 +9,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuMovesSearchService } from '../../services/PtuMovesSearchService.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
@@ -65,6 +66,7 @@ export class LookupMoveStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Move}`,
             noEmbedsErrorMessage: 'No moves were found.',
         });
     }

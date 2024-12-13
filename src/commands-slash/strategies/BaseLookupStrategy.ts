@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { CommandName } from '../../types/discord.js';
 import { PaginationStrategy } from './PaginationStrategy.js';
 import { ChatIteractionStrategy } from './types/ChatIteractionStrategy.js';
 
@@ -31,6 +32,7 @@ export class LookupStrategy
         interaction: ChatInputCommandInteraction,
         embeds: EmbedBuilder[],
         options: {
+            commandName: CommandName;
             noEmbedsErrorMessage: string;
         },
     ): Promise<boolean>
@@ -46,6 +48,7 @@ export class LookupStrategy
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
         PaginationStrategy.run({
             originalInteraction: interaction,
+            commandName: options.commandName,
             embeds,
         });
 

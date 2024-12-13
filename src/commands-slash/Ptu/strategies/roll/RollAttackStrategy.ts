@@ -1,30 +1,22 @@
 import { Text } from '@beanc16/discordjs-helpers';
-import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ComponentType,
-    InteractionEditReplyOptions,
     InteractionReplyOptions,
-    InteractionUpdateOptions,
-    Message,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import {
-    OnRerollCallbackOptions,
-    RerollInteractionOptions,
-    RerollStrategy,
-} from '../../../strategies/RerollStrategy.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
 
 enum AttackButtonName
@@ -78,11 +70,6 @@ type GetMessageContentOptions = {
     damageResultString: string;
     finalRollResult: number;
 };
-
-interface GetAttackMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
-{
-    components: ActionRowBuilder<ButtonBuilder>[];
-}
 
 interface RollDamageOptions
 {
@@ -238,27 +225,47 @@ export class RollAttackStrategy
         // Send message
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(
-                this.getMessageData(message, true),
+                ButtonStrategy.getMessageData(
+                    message,
+                    () => this.getButtonRowComponent(),
+                ),
             ),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(
-                this.getMessageData(message, true) as InteractionReplyOptions,
+                ButtonStrategy.getMessageData(
+                    message,
+                    () => this.getButtonRowComponent(),
+                ) as InteractionReplyOptions,
             ),
             [DiscordInteractionCallbackType.Update]: () => interaction.editReply(
-                this.getMessageData(message, true),
+                ButtonStrategy.getMessageData(
+                    message,
+                    () => this.getButtonRowComponent(),
+                ),
             ),
         };
-        const response = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
+        const interactionResponse = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
 
         // Handle any interactions on the buttons
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        this.handleButtonInteractions({
-            interaction,
-            interactionResponse: response,
-            damageResultString,
-            finalRollResult,
-            accuracyRoll,
-            damageDicePoolExpression,
-            shouldUseMaxCritRoll,
+        ButtonStrategy.handleButtonInteractions({
+            interactionResponse,
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
+            restartStyle: ButtonListenerRestartStyle.Never,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                await this.runRerollStrategy({
+                    interaction,
+                    buttonInteraction,
+                    damageResultString,
+                    finalRollResult,
+                    type: buttonInteraction.customId as PtuAttackRollType,
+                    interactionCallbackType: DiscordInteractionCallbackType.Update,
+                    accuracyRoll,
+                    damageDicePoolExpression,
+                    shouldUseMaxCritRoll,
+                });
+            },
+            getButtonRowComponent: () => this.getButtonRowComponent(),
         });
     }
 
@@ -299,57 +306,6 @@ export class RollAttackStrategy
             type,
             interactionCallbackType: DiscordInteractionCallbackType.Followup,
         });
-    }
-
-    /* istanbul ignore next */
-    private static async handleButtonInteractions({
-        interaction,
-        interactionResponse,
-        damageResultString,
-        finalRollResult,
-        accuracyRoll,
-        damageDicePoolExpression,
-        shouldUseMaxCritRoll,
-    }: {
-        interaction: ChatInputCommandInteraction;
-        interactionResponse: Message<boolean>;
-        damageResultString: string;
-        finalRollResult: number;
-    } & RollDamageOptions): Promise<void>
-    {
-        let buttonInteraction: ButtonInteraction;
-
-        try
-        {
-            // Wait for button interactions
-            buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            await this.runRerollStrategy({
-                interaction,
-                buttonInteraction,
-                damageResultString,
-                finalRollResult,
-                type: buttonInteraction.customId as PtuAttackRollType,
-                interactionCallbackType: DiscordInteractionCallbackType.Update,
-                accuracyRoll,
-                damageDicePoolExpression,
-                shouldUseMaxCritRoll,
-            });
-        }
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error(`An unknown error occurred whilst handling hit/miss button interactions for /ptu roll attack`, error);
-            }
-        }
     }
 
     private static async runRerollStrategy({
@@ -406,24 +362,8 @@ export class RollAttackStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'ptu roll attack',
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
         });
-    }
-
-    /* istanbul ignore next */
-    private static getMessageData(options: RerollInteractionOptions, includeButtons: boolean): GetAttackMessageDataResponse
-    {
-        const buttonRow = this.getButtonRowComponent();
-        const typedOptions = (typeof options === 'string')
-            ? { content: options }
-            : options;
-
-        return {
-            ...typedOptions,
-            components: [
-                ...(includeButtons ? [buttonRow] : []),
-            ],
-        };
     }
 
     /* istanbul ignore next */

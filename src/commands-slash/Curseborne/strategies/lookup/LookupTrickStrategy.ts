@@ -8,6 +8,7 @@ import {
     LookupStrategy,
 } from '../../../strategies/BaseLookupStrategy.js';
 import { rollOfDarknessCurseborneSpreadsheetId } from '../../constants.js';
+import { CurseborneSubcommandGroup } from '../../options/index.js';
 import { CurseborneLookupSubcommand } from '../../options/lookup.js';
 import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../../types/types.js';
@@ -41,6 +42,7 @@ export class LookupTrickStrategy
         // Send message
         return await BaseCurseborneLookupStrategy.run({
             interaction,
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Trick}`,
             data,
             embedTitle: 'Tricks',
         });

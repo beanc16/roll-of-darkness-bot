@@ -90,7 +90,7 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
             await this.handleGoogleSheetsApiError(spreadsheetValuesResult, {
                 [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({
                     interaction,
-                    commandName: '/ptu train',
+                    commandName: `/ptu ${PtuTrainSubcommand.Train}`,
                     action: 'view',
                 }),
                 [GoogleSheetsApiErrorType.UnableToParseRange]: async () => await interaction.editReply(
@@ -167,7 +167,7 @@ export class TrainPokemonStrategy extends CharacterSheetStrategy
         const wasError = await this.handleGoogleSheetsApiError(errorType, {
             [GoogleSheetsApiErrorType.UserNotAddedToSheet]: async () => await this.sendPermissionError({
                 interaction,
-                commandName: '/ptu train',
+                commandName: `/ptu ${PtuTrainSubcommand.Train}`,
                 action: 'edit',
             }),
             [GoogleSheetsApiErrorType.UnknownError]: async () => await interaction.editReply(

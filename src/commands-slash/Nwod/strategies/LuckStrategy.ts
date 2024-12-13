@@ -50,7 +50,7 @@ export class LuckStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'nwod luck',
+            commandName: `/nwod ${NwodSubcommand.Luck}`,
         });
         return true;
     }

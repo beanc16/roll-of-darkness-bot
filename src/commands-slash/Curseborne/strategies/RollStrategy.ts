@@ -70,7 +70,7 @@ export class RollStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'cb roll',
+            commandName: `/cb ${CurseborneSubcommand.Roll}`,
         });
 
         return true;

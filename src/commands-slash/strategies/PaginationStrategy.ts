@@ -1,4 +1,3 @@
-import { logger } from '@beanc16/logger';
 import {
     ActionRowBuilder,
     AttachmentPayload,
@@ -6,7 +5,6 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ComponentType,
     EmbedBuilder,
     InteractionEditReplyOptions,
     InteractionUpdateOptions,
@@ -16,7 +14,8 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
+import { CommandName } from '../../types/discord.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from './ButtonStrategy.js';
 
 export enum PaginationButtonName
 {
@@ -31,6 +30,7 @@ export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
 interface PaginationStrategyRunParameters
 {
     originalInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+    commandName: CommandName;
     embeds?: EmbedBuilder[];
     files?: AttachmentPayload[];
     interactionType?: PaginationInteractionType;
@@ -40,12 +40,6 @@ interface PaginationStrategyRunParameters
         ActionRowBuilder<StringSelectMenuBuilder>?,
         ActionRowBuilder<StringSelectMenuBuilder>?,
     ];
-}
-
-interface PaginationStrategySendPagedMessagesParameters extends PaginationStrategyRunParameters
-{
-    interactionResponse: Message<boolean>;
-    pageIndex: number;
 }
 
 export class PaginationStrategy
@@ -61,6 +55,7 @@ export class PaginationStrategy
      */
     public static async run({
         originalInteraction,
+        commandName,
         embeds,
         files,
         interactionType = 'editReply',
@@ -99,89 +94,24 @@ export class PaginationStrategy
         // Only listen for pagination buttons if there's more than one embed message
         if (shouldPaginate)
         {
+            let pageIndex = 0;
+
             // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.sendPagedMessages({
-                originalInteraction,
-                embeds,
-                files,
+            ButtonStrategy.handleButtonInteractions({
                 interactionResponse: response,
-                pageIndex: 0,
-            });
-        }
+                commandName,
+                restartStyle: ButtonListenerRestartStyle.OnSuccess,
+                onButtonPress: /* istanbul ignore next */ async (buttonInteraction) =>
+                {
+                    pageIndex = this.updatePageIndex({
+                        buttonInteraction,
+                        embeds,
+                        files,
+                        pageIndex,
+                    });
 
-        return response;
-    }
-
-    // TODO: Abstract this style of function away behind some sort of helper class or method
-    private static async sendPagedMessages({
-        originalInteraction,
-        embeds,
-        files,
-        interactionResponse,
-        pageIndex,
-    }: PaginationStrategySendPagedMessagesParameters): Promise<void>
-    {
-        let hasUpdated = false;
-
-        try
-        {
-            const buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            const newPageIndex = this.updatePageIndex({
-                buttonInteraction,
-                embeds,
-                files,
-                pageIndex,
-            });
-
-            const paginationRow = PaginationStrategy.getPaginationRowComponent(false);
-            await buttonInteraction.update({
-                ...(embeds
-                    ? { embeds: [embeds[newPageIndex]] }
-                    : {}
-                ),
-                ...(files
-                    ? { files: [files[newPageIndex]] }
-                    : {}
-                ),
-                components: [paginationRow],
-            });
-
-            hasUpdated = true;
-
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.sendPagedMessages({
-                originalInteraction,
-                interactionType: 'editReply',
-                interactionResponse: buttonInteraction.message,
-                embeds,
-                files,
-                pageIndex: newPageIndex,
-            });
-        }
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error('An unknown error occurred whilst collecting pages', error);
-            }
-
-            // Disable paginated buttons upon non-deletes
-            if (!hasUpdated && !messageWasDeleted)
-            {
-                const paginationRow = this.getPaginationRowComponent(true);
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-                this.replyToOriginalInteraction({
-                    originalInteraction,
-                    interactionType: 'editReply',
-                    parameters: {
+                    const paginationRow = this.getPaginationRowComponent(false);
+                    await buttonInteraction.update({
                         ...(embeds
                             ? { embeds: [embeds[pageIndex]] }
                             : {}
@@ -191,10 +121,13 @@ export class PaginationStrategy
                             : {}
                         ),
                         components: [paginationRow],
-                    },
-                });
-            }
+                    });
+                },
+                getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent(false),
+            });
         }
+
+        return response;
     }
 
     private static updatePageIndex({

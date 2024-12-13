@@ -9,8 +9,17 @@ export const ActionRowBuilder = jest.fn<Discord.ActionRowBuilder, []>().mockImpl
     const result: Discord.ActionRowBuilder = {
         components: [],
         data: {},
-        addComponents: jest.fn().mockImplementation(() => result),
-        setComponents: jest.fn().mockImplementation(() => result),
+        addComponents: jest.fn().mockImplementation((...components: Discord.AnyComponentBuilder[]) =>
+        {
+            result.components.push(...components);
+            return result;
+        }),
+        setComponents: jest.fn().mockImplementation((...components: Discord.AnyComponentBuilder[]) =>
+        {
+            // Remove all elements, then add the new ones
+            result.components.splice(0).push(...components);
+            return result;
+        }),
         toJSON: jest.fn(),
     };
 
@@ -20,9 +29,15 @@ export const ActionRowBuilder = jest.fn<Discord.ActionRowBuilder, []>().mockImpl
 export const ButtonBuilder = jest.fn<Discord.ButtonBuilder, []>().mockImplementation(() =>
 {
     const result: Discord.ButtonBuilder = {
-        data: {},
+        data: {
+            disabled: false,
+        },
         setCustomId: jest.fn().mockImplementation(() => result),
-        setDisabled: jest.fn().mockImplementation(() => result),
+        setDisabled: jest.fn().mockImplementation((disabled: boolean) =>
+        {
+            result.data.disabled = disabled;
+            return result;
+        }),
         setEmoji: jest.fn().mockImplementation(() => result),
         setLabel: jest.fn().mockImplementation(() => result),
         setStyle: jest.fn().mockImplementation(() => result),
@@ -124,13 +139,18 @@ export const AttachmentPayload = jest.fn().mockImplementation(() =>
     };
 });
 
-export const Message = jest.fn().mockImplementation(() =>
+export const Message = jest.fn<Discord.Message, []>().mockImplementation(() =>
 {
-    return {
+    const output: Discord.Message = {
         content: 'fake-content',
-        reply: jest.fn(),
         author: { bot: false },
-    };
+        awaitMessageComponent: jest.fn(),
+        delete: jest.fn(),
+        edit: jest.fn(),
+        reply: jest.fn(),
+    } as unknown as Discord.Message; // TODO: Remove this typecast once all required properties are added
+
+    return output;
 });
 
 /*
@@ -216,6 +236,18 @@ export enum ButtonStyle
     Success = 3,
     Danger = 4,
     Link = 5,
+}
+
+export enum ComponentType
+{
+    ActionRow = 1,
+    Button = 2,
+    StringSelect = 3,
+    TextInput = 4,
+    UserSelect = 5,
+    RoleSelect = 6,
+    MentionableSelect = 7,
+    ChannelSelect = 8,
 }
 
 export enum TextInputStyle

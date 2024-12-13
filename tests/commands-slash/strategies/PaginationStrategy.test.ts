@@ -1,5 +1,10 @@
 import type { Message } from 'discord.js';
 
+import {
+    ButtonListenerRestartStyle,
+    ButtonStrategy,
+    HandleButtonInteractionsOptions,
+} from '../../../src/commands-slash/strategies/ButtonStrategy.js';
 import { PaginationButtonName, PaginationStrategy } from '../../../src/commands-slash/strategies/PaginationStrategy.js';
 import { getFakeStringSelectMenuActionRowBuilder } from '../../fakes/discord/builders.js';
 import { getFakeMessage } from '../../fakes/discord/components.js';
@@ -27,6 +32,7 @@ describe('class: PaginationStrategy', () =>
 
     describe('method: run', () =>
     {
+        const commandName = `/some_command`;
         const interactionType = 'editReply';
 
         describe.each([
@@ -51,6 +57,7 @@ describe('class: PaginationStrategy', () =>
             {
                 await PaginationStrategy['run']({
                     originalInteraction: interaction,
+                    commandName,
                     interactionType,
                 });
 
@@ -67,47 +74,55 @@ describe('class: PaginationStrategy', () =>
             it(`should not paginate if there's no embeds or files`, async () =>
             {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                jest.spyOn(PaginationStrategy as any, 'sendPagedMessages').mockImplementation(() => undefined);
+                jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
 
                 await PaginationStrategy['run']({
                     originalInteraction: interaction,
+                    commandName,
                     interactionType,
                 });
 
-                expect(PaginationStrategy['sendPagedMessages']).not.toHaveBeenCalled();
+                expect(ButtonStrategy['handleButtonInteractions']).not.toHaveBeenCalled();
             });
 
             describe.each([
-                ['embeds', 'files'],
-                ['files', 'embeds'],
-            ] as [('embeds' | 'files'), ('embeds' | 'files')][])('parameter: %s', (parameterName, otherParameterName) =>
+                'embeds',
+                'files',
+            ] as ('embeds' | 'files')[])('parameter: %s', (parameterName) =>
             {
                 it('should paginate if provided', async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                    jest.spyOn(PaginationStrategy as any, 'sendPagedMessages').mockImplementation(() => undefined);
+                    jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
 
                     await PaginationStrategy['run']({
                         originalInteraction: interaction,
+                        commandName,
                         interactionType,
                         [parameterName]: array,
                     });
 
-                    expect(PaginationStrategy['sendPagedMessages']).toHaveBeenCalledWith({
-                        originalInteraction: interaction,
-                        [parameterName]: array,
-                        [otherParameterName]: undefined,
-                        interactionResponse: response,
-                        pageIndex: 0,
-                    });
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- We want this to test only one parameter
+                    const handleButtonInteractionsCall: HandleButtonInteractionsOptions = (ButtonStrategy['handleButtonInteractions'] as any).mock.calls[0][0];
+
+                    // Similar to expect(ButtonStrategy['handleButtonInteractions']).toHaveBeenCalledWith
+                    // except without onButtonPress, which Jest doesn't evaluate correctly,
+                    // since it's an anonymous function.
+                    expect(handleButtonInteractionsCall.interactionResponse).toEqual(
+                        response,
+                    );
+                    expect(handleButtonInteractionsCall.commandName).toEqual(
+                        commandName,
+                    );
+                    expect(handleButtonInteractionsCall.restartStyle).toEqual(
+                        ButtonListenerRestartStyle.OnSuccess,
+                    );
                 });
 
                 it(`should include rowsAbovePagination and ${parameterName} if provided`, async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                    jest.spyOn(PaginationStrategy as any, 'sendPagedMessages').mockImplementation(() =>
-                        response,
-                    );
+                    jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
 
                     const components = [
                         getFakeStringSelectMenuActionRowBuilder({ customId: 'first' }),
@@ -115,6 +130,7 @@ describe('class: PaginationStrategy', () =>
 
                     await PaginationStrategy['run']({
                         originalInteraction: interaction,
+                        commandName,
                         interactionType,
                         [parameterName]: array,
                         rowsAbovePagination: [
@@ -152,6 +168,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['run']({
                     originalInteraction: interaction,
+                    commandName,
                     interactionType,
                     rowsAbovePagination: [
                         components[0],

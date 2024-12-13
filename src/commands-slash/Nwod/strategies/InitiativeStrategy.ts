@@ -54,7 +54,7 @@ export class InitiativeStrategy
                 interaction,
                 newRerollCallbackOptions,
             ),
-            commandName: 'nwod initiative',
+            commandName: `/nwod ${NwodSubcommand.Initiative}`,
         });
         return true;
     }

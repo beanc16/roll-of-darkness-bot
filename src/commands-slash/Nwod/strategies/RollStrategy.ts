@@ -39,7 +39,7 @@ export class RollStrategy
             return await BaseRollStrategy.run({
                 interaction,
                 numberOfDice,
-                commandName: 'nwod roll',
+                commandName: `/nwod ${NwodSubcommand.Roll}`,
             });
         }
 

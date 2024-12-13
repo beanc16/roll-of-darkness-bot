@@ -15,3 +15,5 @@ export enum DiscordUserId
     Ash = '392769259756847116',
     Joel = '191607823292039169',
 }
+
+export type CommandName = `/${string}`;
