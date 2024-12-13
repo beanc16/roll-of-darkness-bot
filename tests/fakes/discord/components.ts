@@ -1,4 +1,6 @@
-import { Message } from 'discord.js';
+/* eslint-disable max-classes-per-file */
+
+import { Message, User } from 'discord.js';
 
 export const getFakeMessage = <T extends boolean = boolean>(content: string = 'fake-content'): Message<T> =>
 {
@@ -13,3 +15,12 @@ export const getFakeMessage = <T extends boolean = boolean>(content: string = 'f
 
     return output;
 };
+
+export class FakeUser extends User
+{
+    constructor()
+    {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
+        super({} as any, {} as any);
+    }
+}
