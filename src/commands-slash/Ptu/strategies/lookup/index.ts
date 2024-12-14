@@ -1,4 +1,5 @@
 import { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
+import { LookupBerryStrategy } from './LookupBerryStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
 import { LookupEvolutionaryStoneStrategy } from './LookupEvolutionaryStoneStrategy.js';
@@ -14,6 +15,7 @@ import { LookupTmStrategy } from './LookupTmStrategy.js';
 
 export default {
     [LookupAbilityStrategy.key]: LookupAbilityStrategy,
+    [LookupBerryStrategy.key]: LookupBerryStrategy,
     [LookupCapabilityStrategy.key]: LookupCapabilityStrategy,
     [LookupEdgeStrategy.key]: LookupEdgeStrategy,
     [LookupEvolutionaryStoneStrategy.key]: LookupEvolutionaryStoneStrategy,

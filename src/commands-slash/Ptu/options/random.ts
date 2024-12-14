@@ -1,13 +1,6 @@
 import { SlashCommandIntegerOption, SlashCommandSubcommandBuilder } from 'discord.js';
 
-export enum BerryTier
-{
-    OnePlus = 'one_plus',
-    One = 'one',
-    TwoPlus = 'two_plus',
-    Two = 'two',
-    Three = 'three',
-}
+import { BerryTier } from '../types/PtuBerry.js';
 
 export enum HealingAndStatusOption
 {

@@ -14,11 +14,13 @@ import {
     PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
+import { BerryTier } from '../types/PtuBerry.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
 
 export enum PtuLookupSubcommand
 {
     Ability = 'ability',
+    Berry = 'berry',
     Capability = 'capability',
     Edge = 'edge',
     EvolutionaryStone = 'evolutionary_stone',
@@ -63,6 +65,39 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     {
         option.setName('effect_search');
         return option.setDescription(`A search on the ability's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const berry = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Berry);
+    subcommand.setDescription('Get a berry based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BerryName);
+        option.setDescription(`The berry's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Tier
+    const choices = Object.values(BerryTier).map<APIApplicationCommandOptionChoice<string>>(
+        (name) =>
+        {
+            return {
+                name,
+                value: name,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('tier');
+        option.setDescription(`The berry's tier.`);
+        return option.addChoices(...choices);
     });
 
     return subcommand;
