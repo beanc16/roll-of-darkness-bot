@@ -16,6 +16,7 @@ import * as rollSubcommands from './roll.js';
 
 export enum PtuSubcommandGroup
 {
+    Breed = 'breed',
     Calculate = 'calculate',
     Lookup = 'lookup',
     QuickReference = 'quick_reference',
@@ -35,6 +36,44 @@ export enum PtuQuickReferenceInfo
     WeightClassChart = 'weight_class_chart',
     TypeChart = 'type_chart',
 }
+
+export const breed = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuSubcommandGroup.Breed);
+    subcommand.setDescription('Breed two pokemon.');
+
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('pokemon_education_rank');
+        option.setDescription(`The rank for your character's pokemon education.`);
+        option.setMinValue(1);
+        option.setMaxValue(8);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('male_species');
+        option.setDescription('The species name of the male pokemon being bred.');
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('female_species');
+        option.setDescription('The species name of the female pokemon being bred.');
+        return option.setRequired(true);
+    });
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('gm');
+        option.setDescription('The user that runs your campaign.');
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};
 
 export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {

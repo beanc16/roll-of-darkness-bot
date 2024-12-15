@@ -12,6 +12,7 @@ import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
+import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
@@ -33,6 +34,7 @@ import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
+import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
@@ -116,8 +118,9 @@ type PtuStrategyMap = StrategyMap<
     PtuSubcommandGroup,
     PtuLookupSubcommand
     | PtuQuickReferenceInfo
-    | PtuRandomSubcommand
+    | PtuBreedSubcommand
     | PtuCalculateSubcommand
+    | PtuRandomSubcommand
     | PtuRollSubcommand
     | PtuTrainSubcommand
     | PtuTypeEffectivenessSubcommand
@@ -126,6 +129,7 @@ type PtuStrategyMap = StrategyMap<
 export class PtuStrategyExecutor extends BaseStrategyExecutor
 {
     private static strategies: PtuStrategyMap = {
+        [PtuSubcommandGroup.Breed]: BreedPokemonStrategy,
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
         [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
