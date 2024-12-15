@@ -25,7 +25,7 @@ export interface HandleButtonInteractionsOptions
     commandName: CommandName;
     restartStyle: ButtonListenerRestartStyle;
     timeToWaitForInteractions?: number;
-    onButtonPress: (buttonInteraction: ButtonInteraction) => Promise<void>;
+    onButtonPress: (buttonInteraction: ButtonInteraction) => Promise<void> | void;
     getButtonRowComponent: () => ActionRowBuilder<ButtonBuilder>;
     curRecursionDepth?: number;
     maxRecursionDepth?: number; // This is to prevent infinite recursion and should only be used by unit tests
