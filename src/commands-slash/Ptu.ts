@@ -3,7 +3,6 @@ import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import {
-    breed,
     calculate,
     PtuSubcommandGroup,
     random,
@@ -22,7 +21,7 @@ class Ptu extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommand(breed)
+            // .addSubcommand(breed) // TODO: Uncomment this once fully implemented
             .addSubcommandGroup(calculate)
             .addSubcommandGroup(random)
             .addSubcommandGroup(roll)
