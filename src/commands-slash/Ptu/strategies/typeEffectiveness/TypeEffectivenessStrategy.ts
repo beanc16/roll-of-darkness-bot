@@ -11,10 +11,9 @@ import {
 } from '../../services/PokemonTypeEffectivenessService.js';
 import { PokemonTypeAndNone } from '../../types/pokemon.js';
 import { PtuAbilityForTypeEffectiveness } from '../../types/PtuAbilityForTypeEffectiveness.js';
-import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
-export class TypeEffectivenessStrategy extends CharacterSheetStrategy
+export class TypeEffectivenessStrategy
 {
     public static key = PtuTypeEffectivenessSubcommand.TypeEffectiveness;
 
