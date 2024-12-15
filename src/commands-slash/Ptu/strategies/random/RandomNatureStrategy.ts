@@ -13,6 +13,12 @@ import { PtuRandomSubcommand } from '../../options/random.js';
 import { PtuNature } from '../../types/PtuNature.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 
+interface GetRandomNaturesResult
+{
+    natures: PtuNature[];
+    rollResults: string;
+}
+
 @staticImplements<ChatIteractionStrategy>()
 export class RandomNatureStrategy
 {
@@ -28,39 +34,15 @@ export class RandomNatureStrategy
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('number_of_dice') ?? 1;
 
-        // Pull data from spreadsheet
-        const { data = [] } = await CachedGoogleSheetsApiService.getRange({
-            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
-            range: `'${BaseRandomStrategy.subcommandToStrings[
-                PtuRandomSubcommand.Nature
-            ].data} Data'!A2:E`,
-        });
-
-        // Parse data
-        const parsedData = data.reduce<PtuNature[]>((acc, cur) =>
-        {
-            acc.push(
-                new PtuNature(cur),
-            );
-            return acc;
-        }, []);
-
-        // Get random numbers
-        const rollResult = new DiceLiteService({
-            count: numberOfDice,
-            sides: parsedData.length,
-        }).roll();
-        const rollResults = rollResult.join(', ');
-
-        // Get random items
-        const results = rollResult.map(roll => parsedData[roll - 1]);
+        // Get all natures
+        const { natures, rollResults } = await this.getRandomNatures(numberOfDice);
 
         // Get embed message
         const embed = getRandomNatureEmbedMessage({
             itemNamePluralized: BaseRandomStrategy.subcommandToStrings[
                 PtuRandomSubcommand.Nature
             ].plural,
-            results,
+            results: natures,
             rollResults,
         });
 
@@ -79,5 +61,49 @@ export class RandomNatureStrategy
         });
 
         return true;
+    }
+
+    /* istanbul ignore next */
+    private static async getNatures(): Promise<PtuNature[]>
+    {
+        // Pull data from spreadsheet
+        const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
+            range: `'${BaseRandomStrategy.subcommandToStrings[
+                PtuRandomSubcommand.Nature
+            ].data} Data'!A2:E`,
+        });
+
+        // Parse data
+        const parsedData = data.reduce<PtuNature[]>((acc, cur) =>
+        {
+            acc.push(
+                new PtuNature(cur),
+            );
+            return acc;
+        }, []);
+
+        return parsedData;
+    }
+
+    public static async getRandomNatures(numOfNatures: number): Promise<GetRandomNaturesResult>
+    {
+        // Get all natures
+        const allNatures = await this.getNatures();
+
+        // Get random numbers
+        const rollResult = new DiceLiteService({
+            count: numOfNatures,
+            sides: allNatures.length,
+        }).roll();
+        const rollResults = rollResult.join(', ');
+
+        // Get random natures
+        const natures = rollResult.map(roll => allNatures[roll - 1]);
+
+        return {
+            natures,
+            rollResults,
+        };
     }
 }
