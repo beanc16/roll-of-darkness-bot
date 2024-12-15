@@ -28,7 +28,7 @@ export class LookupBerryStrategy
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.BerryName);
-        const tier = interaction.options.getString('type') as BerryTier | null;
+        const tier = interaction.options.getString('tier') as BerryTier | null;
 
         const data = await this.getLookupData({
             name,
@@ -79,7 +79,17 @@ export class LookupBerryStrategy
             }
 
             // Tier
-            if (input.tier && input.tier !== element.tier)
+            if (
+                input.tier
+                && (
+                    input.tier !== element.tier
+                    && (
+                        (input.tier === BerryTier.OnePlus && parseInt(element.tier, 10) < 1)
+                        || (input.tier === BerryTier.TwoPlus && parseInt(element.tier, 10) < 2)
+                        || (input.tier !== BerryTier.OnePlus && input.tier !== BerryTier.TwoPlus)
+                    )
+                )
+            )
             {
                 return acc;
             }
