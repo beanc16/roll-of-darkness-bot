@@ -66,7 +66,7 @@ export class LookupNatureStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupNatureDataParameters = {}): Promise<PtuNature[]>
+    public static async getLookupData(input: GetLookupNatureDataParameters = {}): Promise<PtuNature[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,

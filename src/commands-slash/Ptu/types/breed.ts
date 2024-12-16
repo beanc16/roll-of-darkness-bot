@@ -1,3 +1,5 @@
+import { ButtonInteraction } from 'discord.js';
+
 export enum PokemonGender
 {
     Male = 'Male',
@@ -12,8 +14,10 @@ export interface RollSpeciesResult
 
 export type GetGenderResult = {
     gender: PokemonGender;
+    buttonInteraction?: ButtonInteraction;
 } | {
     roll: number;
+    buttonInteraction?: ButtonInteraction;
 };
 
 export interface RollShinyResult

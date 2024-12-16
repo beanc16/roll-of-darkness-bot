@@ -4,6 +4,7 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
+    EmbedBuilder,
     Message,
 } from 'discord.js';
 
@@ -14,6 +15,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import { BreedPokemonUpdateAbilityModal } from '../../modals/breed/BreedPokemonUpdateAbilityModal.js';
 import { BreedPokemonUpdateGenderModal } from '../../modals/breed/BreedPokemonUpdateGenderModal.js';
+import { BreedPokemonUpdateNatureModal } from '../../modals/breed/BreedPokemonUpdateNatureModal.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { PtuBreedSubcommand } from '../../options/breed.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
@@ -110,19 +112,20 @@ export class BreedPokemonStrategy
             gmShouldPick,
         });
 
-        const finalMessage = await interaction.editReply({
-            embeds: [embed],
+        const finalMessage = await this.updateMessage({
+            interaction,
+            buttonInteraction: genderResult.buttonInteraction,
             content: '',
-            components: [
-                getBreedPokemonUpdatablesButtonRowComponent({
-                    userShouldPick,
-                    gmShouldPick,
-                }),
-            ],
+            component: getBreedPokemonUpdatablesButtonRowComponent({
+                userShouldPick,
+                gmShouldPick,
+            }),
+            embed,
         });
 
         // Save state
-        breedPokemonStateSingleton.upsert(finalMessage.id, {
+        const typedMessage = (message ?? finalMessage) as Message;
+        breedPokemonStateSingleton.upsert(typedMessage.id, {
             speciesResult,
             nature,
             shouldPickAbilityManually,
@@ -135,7 +138,7 @@ export class BreedPokemonStrategy
         });
 
         // Handle updatable buttons
-        await this.handleUpdatableButtonInteractions(finalMessage);
+        await this.handleUpdatableButtonInteractions(typedMessage);
 
         return true;
     }
@@ -207,7 +210,13 @@ export class BreedPokemonStrategy
 
         if (pokemonEducationRank < 5)
         {
-            return { shouldPickAbilityManually };
+            return {
+                shouldPickAbilityManually,
+                ...(inputButtonInteraction !== undefined
+                    ? { buttonInteraction: inputButtonInteraction }
+                    : {}
+                ),
+            };
         }
 
         // Ask if the user wants to manually pick
@@ -259,7 +268,13 @@ export class BreedPokemonStrategy
 
         if (pokemonEducationRank < 6)
         {
-            return { roll };
+            return {
+                roll,
+                ...(inputButtonInteraction !== undefined
+                    ? { buttonInteraction: inputButtonInteraction }
+                    : {}
+                ),
+            };
         }
 
         // Ask if the user wants to manually pick
@@ -303,10 +318,10 @@ export class BreedPokemonStrategy
 
         if (gender === undefined)
         {
-            return { roll };
+            return { roll, buttonInteraction };
         }
 
-        return { gender };
+        return { gender, buttonInteraction };
     }
 
     private static async updateMessage({
@@ -314,25 +329,30 @@ export class BreedPokemonStrategy
         buttonInteraction,
         content,
         component,
+        embed,
     }: {
         interaction: ChatInputCommandInteraction;
         buttonInteraction?: ButtonInteraction;
         content: string;
         component: ActionRowBuilder<ButtonBuilder>;
+        embed?: EmbedBuilder;
     }): Promise<Message | undefined>
     {
-        if (buttonInteraction === undefined)
-        {
-            return await interaction.editReply({
-                content,
-                components: [component],
-            });
-        }
-
-        await buttonInteraction.update({
+        const input = {
             content,
             components: [component],
-        });
+            ...(embed !== undefined
+                ? { embeds: [embed] }
+                : {}
+            ),
+        };
+
+        if (buttonInteraction === undefined)
+        {
+            return await interaction.editReply(input);
+        }
+
+        await buttonInteraction.update(input);
         return undefined;
     }
 
@@ -463,10 +483,9 @@ export class BreedPokemonStrategy
                     },
                     [BreedPokemonShouldPickKey.Nature]: async () =>
                     {
-                        // TODO: Show modal for updating nature
-                        // await BreedPokemonUpdateNatureModal.showModal(buttonInteraction, {
-                        //     handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
-                        // });
+                        await BreedPokemonUpdateNatureModal.showModal(buttonInteraction, {
+                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
+                        });
                     },
                     [BreedPokemonShouldPickKey.InheritanceMoves]: async () =>
                     {
