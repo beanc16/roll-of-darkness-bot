@@ -1,12 +1,7 @@
 import { Text } from '@beanc16/discordjs-helpers';
-import { EmbedBuilder, type User } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
-import {
-    GetGenderResult,
-    RollShinyResult,
-    RollSpeciesResult,
-} from '../types/breed.js';
-import { PtuNature } from '../types/PtuNature.js';
+import { BreedPokemonState } from '../models/breedPokemonStateSingleton.js';
 
 const color = 0xCDCDCD;
 
@@ -14,32 +9,19 @@ export const getPokemonBreedingEmbedMessage = ({
     speciesResult,
     nature,
     ability,
-    shouldPickAbilityManually,
     genderResult,
     shinyResult,
     inheritanceMoves,
     user,
     gm,
-}: {
-    speciesResult: RollSpeciesResult;
-    nature: PtuNature | undefined;
-    ability?: string;
-    shouldPickAbilityManually: boolean;
-    genderResult: GetGenderResult;
-    shinyResult: RollShinyResult;
-    inheritanceMoves?: string;
-    user: User;
-    gm: User;
-}): EmbedBuilder =>
+    userShouldPick,
+    gmShouldPick,
+}: BreedPokemonState): EmbedBuilder =>
 {
     const genderText = ('gender' in genderResult)
         ? genderResult.gender
         : `${genderResult.roll} (if this number is lower than or matches the percentage of female pokemon of the species, it is female. Otherwise, it is male.)`;
 
-    const userShouldPick = {
-        Nature: nature === undefined,
-        Ability: shouldPickAbilityManually && ability === undefined,
-    };
     const propertiesUserShouldPick = Object.entries(userShouldPick).reduce<string[]>((acc, [key, val]) =>
     {
         if (val)
@@ -49,10 +31,6 @@ export const getPokemonBreedingEmbedMessage = ({
         return acc;
     }, []);
 
-    const gmShouldPick = {
-        Ability: !shouldPickAbilityManually && ability === undefined,
-        Shiny: shinyResult.isShiny,
-    };
     const propertiesGmShouldPick = Object.entries(gmShouldPick).reduce<string[]>((acc, [key, val]) =>
     {
         if (val)
@@ -76,7 +54,7 @@ export const getPokemonBreedingEmbedMessage = ({
         `${Text.bold('Gender')}: ${genderText}`,
 
         // Ability
-        ...(userShouldPick.Ability && ability !== undefined
+        ...(!userShouldPick.Ability && !gmShouldPick.Ability && ability !== undefined
             ? [`${Text.bold('Ability')}: ${ability}`]
             : []
         ),
