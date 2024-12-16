@@ -53,6 +53,16 @@ export enum PokemonStat
     Speed = 'SPD',
 }
 
+export enum FullPokemonStat
+{
+    Hp = 'Health',
+    Attack = 'Attack',
+    Defense = 'Defense',
+    SpecialAttack = 'Special Attack',
+    SpecialDefense = 'Special Defense',
+    Speed = 'Speed',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',

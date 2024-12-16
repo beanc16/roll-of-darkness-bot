@@ -10,7 +10,7 @@ import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
 import { LookupNatureStrategy } from '../../strategies/lookup/LookupNatureStrategy.js';
-import { PokemonStat } from '../../types/pokemon.js';
+import { FullPokemonStat, PokemonStat } from '../../types/pokemon.js';
 import { PtuNature } from '../../types/PtuNature.js';
 
 enum BreedPokemonNatureCustomIds
@@ -69,6 +69,11 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
         [BreedPokemonNatureCustomIds.RaisedStat]: TextInputStyle.Short,
         [BreedPokemonNatureCustomIds.LoweredStat]: TextInputStyle.Short,
     };
+
+    private static allValidStats: (PokemonStat | FullPokemonStat)[] = [
+        ...Object.values(PokemonStat),
+        ...Object.values(FullPokemonStat),
+    ];
 
     public static getTextInputs(): TextInputBuilder[]
     {
@@ -131,7 +136,7 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
         if (natures.length === 0)
         {
             const possibleNatures = `\`\`\`\n- ${natureNames.join('\n- ')}\n\`\`\``;
-            const possibleStats = `\`\`\`\n- ${Object.values(PokemonStat).join('\n- ')}\n\`\`\``;
+            const possibleStats = `\`\`\`\n- ${this.allValidStats.join('\n- ')}\n\`\`\``;
             await interaction.reply({
                 content: `Input is invalid. Nature must be one of the following:\n${possibleNatures}Or stats must be one of the following:\n${possibleStats}`,
                 ephemeral: true,
@@ -194,10 +199,10 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
 
         const input = {
             name: capitalizeFirstLetter(natureName.toLowerCase()),
-            raisedStat: Object.values(PokemonStat).find(stat =>
+            raisedStat: this.allValidStats.find(stat =>
                 stat.toLowerCase() === raisedStat.toLowerCase(),
             ),
-            loweredStat: Object.values(PokemonStat).find(stat =>
+            loweredStat: this.allValidStats.find(stat =>
                 stat.toLowerCase() === loweredStat.toLowerCase(),
             ),
         };
