@@ -12,7 +12,10 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
+import { BreedPokemonUpdateAbilityModal } from '../../modals/breed/BreedPokemonUpdateAbilityModal.js';
+import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { PtuBreedSubcommand } from '../../options/breed.js';
+import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
 import {
     type GetGenderResult,
     PokemonGender,
@@ -79,6 +82,20 @@ export class BreedPokemonStrategy
 
         const shinyResult = this.rollShiny();
 
+        // Create state for determining components
+        const userShouldPick = {
+            [BreedPokemonShouldPickKey.Gender]: !('gender' in genderResult),
+            [BreedPokemonShouldPickKey.Nature]: nature === undefined,
+            [BreedPokemonShouldPickKey.Ability]: shouldPickAbilityManually,
+            [BreedPokemonShouldPickKey.InheritanceMoves]: true,
+        };
+        const gmShouldPick = {
+            [BreedPokemonShouldPickKey.Gender]: !('gender' in genderResult),
+            [BreedPokemonShouldPickKey.Ability]: !shouldPickAbilityManually,
+            [BreedPokemonShouldPickKey.Shiny]: shinyResult.isShiny,
+            [BreedPokemonShouldPickKey.InheritanceMoves]: true,
+        };
+
         // Send response
         const embed = getPokemonBreedingEmbedMessage({
             speciesResult,
@@ -88,15 +105,36 @@ export class BreedPokemonStrategy
             shinyResult,
             user: interaction.user,
             gm,
+            userShouldPick,
+            gmShouldPick,
         });
 
-        await interaction.editReply({
+        const finalMessage = await interaction.editReply({
             embeds: [embed],
             content: '',
-            components: [],
+            components: [
+                getBreedPokemonUpdatablesButtonRowComponent({
+                    userShouldPick,
+                    gmShouldPick,
+                }),
+            ],
         });
 
-        // TODO: Add followup for picking things, adding inheritance moves, etc.
+        // Save state
+        breedPokemonStateSingleton.upsert(finalMessage.id, {
+            speciesResult,
+            nature,
+            shouldPickAbilityManually,
+            genderResult,
+            shinyResult,
+            user: interaction.user,
+            gm,
+            userShouldPick,
+            gmShouldPick,
+        });
+
+        // Handle updatable buttons
+        await this.handleUpdatableButtonInteractions(finalMessage);
 
         return true;
     }
@@ -398,5 +436,48 @@ export class BreedPokemonStrategy
             );
 
         return row;
+    }
+
+    private static async handleUpdatableButtonInteractions(message: Message): Promise<void>
+    {
+        await ButtonStrategy.handleButtonInteractions({
+            interactionResponse: message,
+            commandName: `/ptu ${PtuBreedSubcommand.Breed}`,
+            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                const key = buttonInteraction.customId as Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>;
+                const handlerMap: Record<Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>, () => Promise<void> | void> = {
+                    [BreedPokemonShouldPickKey.Ability]: async () =>
+                    {
+                        await BreedPokemonUpdateAbilityModal.showModal(buttonInteraction, {
+                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
+                        });
+                    },
+                    [BreedPokemonShouldPickKey.Gender]: async () =>
+                    {
+                        // TODO: Show modal for updating gender
+                    },
+                    [BreedPokemonShouldPickKey.Nature]: async () =>
+                    {
+                        // TODO: Show modal for updating nature
+                    },
+                    [BreedPokemonShouldPickKey.InheritanceMoves]: async () =>
+                    {
+                        // TODO: Show modal for updating inheritance moves
+                    },
+                };
+
+                await handlerMap[key]();
+            },
+            getButtonRowComponent: () =>
+            {
+                const state = breedPokemonStateSingleton.get(message.id);
+                return getBreedPokemonUpdatablesButtonRowComponent({
+                    userShouldPick: state.userShouldPick,
+                    gmShouldPick: state.gmShouldPick,
+                });
+            },
+        });
     }
 }
