@@ -8,6 +8,7 @@ import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomMo
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
+import { LookupAbilityStrategy } from '../../strategies/lookup/LookupAbilityStrategy.js';
 import { BreedPokemonCustomIds, BreedPokemonModalLabel } from './types.js';
 
 export class BreedPokemonUpdateAbilityModal extends BaseCustomModal
@@ -49,12 +50,25 @@ export class BreedPokemonUpdateAbilityModal extends BaseCustomModal
             input: string;
         };
 
+        // Exit early if input is invalid
+        const abilities = await LookupAbilityStrategy.getLookupData();
+        const ability = abilities.find(({ name }) => name.toLowerCase() === input.toLowerCase());
+
+        if (ability === undefined)
+        {
+            await interaction.reply({
+                content: 'Input is invalid. Ability not found. Please try again.',
+                ephemeral: true,
+            });
+            return;
+        }
+
         // Update state
         const stateKey = interaction.message?.id as string;
         const previousState = breedPokemonStateSingleton.get(stateKey);
         const newState = breedPokemonStateSingleton.upsert(stateKey, {
             ...previousState,
-            ability: input,
+            ability: ability.name,
             userShouldPick: {
                 ...previousState.userShouldPick,
                 [BreedPokemonShouldPickKey.Ability]: false,
