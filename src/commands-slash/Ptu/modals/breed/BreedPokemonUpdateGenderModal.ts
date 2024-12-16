@@ -8,17 +8,18 @@ import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomMo
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
+import { PokemonGender } from '../../types/breed.js';
 import { BreedPokemonCustomIds, BreedPokemonModalLabel } from './types.js';
 
-export class BreedPokemonUpdateAbilityModal extends BaseCustomModal
+export class BreedPokemonUpdateGenderModal extends BaseCustomModal
 {
-    public static id = 'breed-pokemon-update-ability-modal';
-    public static title = 'Breeding Pokemon Update Ability';
+    public static id = 'breed-pokemon-update-gender-modal';
+    public static title = 'Breeding Pokemon Update Gender';
     protected static inputValuesMap: InputValuesMap = {
         [BreedPokemonCustomIds.Input]: [
             {
                 key: BreedPokemonCustomIds.Input,
-                label: BreedPokemonModalLabel.Ability,
+                label: BreedPokemonModalLabel.Gender,
                 value: '',
                 typeOfValue: 'string',
             },
@@ -33,7 +34,7 @@ export class BreedPokemonUpdateAbilityModal extends BaseCustomModal
     {
         const input = new TextInputBuilder()
             .setCustomId(BreedPokemonCustomIds.Input)
-            .setLabel(BreedPokemonModalLabel.Ability)
+            .setLabel(BreedPokemonModalLabel.Gender)
             .setStyle(this.styleMap[BreedPokemonCustomIds.Input])
             .setRequired(true);
 
@@ -49,19 +50,35 @@ export class BreedPokemonUpdateAbilityModal extends BaseCustomModal
             input: string;
         };
 
+        // Parse input to enum
+        const gender = Object.values(PokemonGender).find(element =>
+            element.toString().toLowerCase() === input.toLowerCase(),
+        );
+
+        // Exit early if input is invalid
+        if (gender === undefined)
+        {
+            const possibleGenders = `\`\`\`\n- ${Object.values(PokemonGender).join('\n- ')}\n\`\`\``;
+            await interaction.reply({
+                content: `Input is invalid. Gender must be one of the following:\n${possibleGenders}`,
+                ephemeral: true,
+            });
+            return;
+        }
+
         // Update state
         const stateKey = interaction.message?.id as string;
         const previousState = breedPokemonStateSingleton.get(stateKey);
         const newState = breedPokemonStateSingleton.upsert(stateKey, {
             ...previousState,
-            ability: input,
+            genderResult: { gender },
             userShouldPick: {
                 ...previousState.userShouldPick,
-                [BreedPokemonShouldPickKey.Ability]: false,
+                [BreedPokemonShouldPickKey.Gender]: false,
             },
             gmShouldPick: {
                 ...previousState.gmShouldPick,
-                [BreedPokemonShouldPickKey.Ability]: false,
+                [BreedPokemonShouldPickKey.Gender]: false,
             },
         });
 

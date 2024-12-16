@@ -13,6 +13,7 @@ import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import { BreedPokemonUpdateAbilityModal } from '../../modals/breed/BreedPokemonUpdateAbilityModal.js';
+import { BreedPokemonUpdateGenderModal } from '../../modals/breed/BreedPokemonUpdateGenderModal.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { PtuBreedSubcommand } from '../../options/breed.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
@@ -456,15 +457,23 @@ export class BreedPokemonStrategy
                     },
                     [BreedPokemonShouldPickKey.Gender]: async () =>
                     {
-                        // TODO: Show modal for updating gender
+                        await BreedPokemonUpdateGenderModal.showModal(buttonInteraction, {
+                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
+                        });
                     },
                     [BreedPokemonShouldPickKey.Nature]: async () =>
                     {
                         // TODO: Show modal for updating nature
+                        // await BreedPokemonUpdateNatureModal.showModal(buttonInteraction, {
+                        //     handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
+                        // });
                     },
                     [BreedPokemonShouldPickKey.InheritanceMoves]: async () =>
                     {
                         // TODO: Show modal for updating inheritance moves
+                        // await BreedPokemonUpdateInheritanceMovesModal.showModal(buttonInteraction, {
+                        //     handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
+                        // });
                     },
                 };
 
