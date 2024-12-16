@@ -15,6 +15,7 @@ import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteraction
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import { BreedPokemonUpdateAbilityModal } from '../../modals/breed/BreedPokemonUpdateAbilityModal.js';
 import { BreedPokemonUpdateGenderModal } from '../../modals/breed/BreedPokemonUpdateGenderModal.js';
+import { BreedPokemonUpdateInheritanceMovesModal } from '../../modals/breed/BreedPokemonUpdateInheritanceMovesModal.js';
 import { BreedPokemonUpdateNatureModal } from '../../modals/breed/BreedPokemonUpdateNatureModal.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { PtuBreedSubcommand } from '../../options/breed.js';
@@ -471,31 +472,27 @@ export class BreedPokemonStrategy
                 const handlerMap: Record<Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>, () => Promise<void> | void> = {
                     [BreedPokemonShouldPickKey.Ability]: async () =>
                     {
-                        await BreedPokemonUpdateAbilityModal.showModal(buttonInteraction, {
-                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
-                        });
+                        await BreedPokemonUpdateAbilityModal.showModal(buttonInteraction);
                     },
                     [BreedPokemonShouldPickKey.Gender]: async () =>
                     {
-                        await BreedPokemonUpdateGenderModal.showModal(buttonInteraction, {
-                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
-                        });
+                        await BreedPokemonUpdateGenderModal.showModal(buttonInteraction);
                     },
                     [BreedPokemonShouldPickKey.Nature]: async () =>
                     {
-                        await BreedPokemonUpdateNatureModal.showModal(buttonInteraction, {
-                            handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
-                        });
+                        await BreedPokemonUpdateNatureModal.showModal(buttonInteraction);
                     },
                     [BreedPokemonShouldPickKey.InheritanceMoves]: async () =>
                     {
-                        // TODO: Show modal for updating inheritance moves
-                        // await BreedPokemonUpdateInheritanceMovesModal.showModal(buttonInteraction, {
-                        //     handleUpdatableButtonInteractions: () => this.handleUpdatableButtonInteractions(message),
-                        // });
+                        const { inheritanceMoves } = breedPokemonStateSingleton.get(message.id);
+
+                        await BreedPokemonUpdateInheritanceMovesModal.showModal(buttonInteraction, {
+                            inheritanceMoves,
+                        });
                     },
                 };
 
+                // TODO: Make it so only the user(s) that are allowed to pick these things can do so.
                 await handlerMap[key]();
             },
             getButtonRowComponent: () =>

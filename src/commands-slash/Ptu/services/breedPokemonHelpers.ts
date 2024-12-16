@@ -31,6 +31,18 @@ export const getBreedPokemonUpdatablesButtonRowComponent = ({ userShouldPick, gm
 
             row.addComponents(button);
         }
+
+        // Should not pick new inheritance moves. Should instead edit existing.
+        else if (key === BreedPokemonShouldPickKey.InheritanceMoves)
+        {
+            const button = new ButtonBuilder({
+                customId: key,
+                label: `Edit ${key}`,
+                style: ButtonStyle.Secondary,
+            });
+
+            row.addComponents(button);
+        }
     });
 
     return row;

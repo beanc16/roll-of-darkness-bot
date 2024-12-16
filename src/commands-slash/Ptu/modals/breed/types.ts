@@ -12,4 +12,5 @@ export enum BreedPokemonModalLabel
 {
     Ability = `Ability`,
     Gender = `Gender`,
+    InheritanceMoves = `Inheritance Moves`,
 }
