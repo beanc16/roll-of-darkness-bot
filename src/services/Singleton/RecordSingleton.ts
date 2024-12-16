@@ -27,11 +27,12 @@ export class RecordSingleton<
         this.singleton.set(value);
     }
 
-    public upsert(key: Key, value: Value): void
+    public upsert(key: Key, value: Value): Value
     {
         const map = this.getAll();
         map[key] = value;
         this.set(map);
+        return this.get(key);
     }
 
     public remove(key: Key): void

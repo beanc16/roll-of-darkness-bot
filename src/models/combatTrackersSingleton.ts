@@ -22,7 +22,7 @@ class CombatTrackersSingleton
         return this.singleton.get(key);
     }
 
-    public upsert(tracker: Tracker): void
+    public upsert(tracker: Tracker): Tracker
     {
         const trackerId = tracker.id.toString();
         return this.singleton.upsert(trackerId, tracker);
