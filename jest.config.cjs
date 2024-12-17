@@ -51,6 +51,7 @@ module.exports = {
         '/.*/PtuMovesSearchService.ts',
 
         // Ptu
+        '/.*/breedPokemonStateSingleton.ts',
         '/.*/PtuCacheInitializer.ts',
         '/.*/PtuDamageChartService.ts',
 
