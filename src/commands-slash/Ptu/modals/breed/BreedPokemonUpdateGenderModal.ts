@@ -51,9 +51,19 @@ export class BreedPokemonUpdateGenderModal extends BaseCustomModal
         };
 
         // Parse input to enum
-        const gender = Object.values(PokemonGender).find(element =>
-            element.toString().toLowerCase() === input.toLowerCase(),
-        );
+        const genderMap: Record<string, PokemonGender> = {
+            [PokemonGender.Male]: PokemonGender.Male,
+            [PokemonGender.Female]: PokemonGender.Female,
+            Boy: PokemonGender.Male,
+            Girl: PokemonGender.Female,
+            M: PokemonGender.Male,
+            F: PokemonGender.Female,
+            B: PokemonGender.Male,
+            G: PokemonGender.Female,
+        };
+        const gender = Object.entries(genderMap).find(([key, _value]) =>
+            key.toString().toLowerCase() === input.toLowerCase(),
+        )?.[1];
 
         // Exit early if input is invalid
         if (gender === undefined)
