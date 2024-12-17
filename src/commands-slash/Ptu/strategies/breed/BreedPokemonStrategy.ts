@@ -468,7 +468,31 @@ export class BreedPokemonStrategy
             restartStyle: ButtonListenerRestartStyle.OnSuccess,
             onButtonPress: async (buttonInteraction) =>
             {
+                const {
+                    user,
+                    gm,
+                    userShouldPick,
+                    gmShouldPick,
+                } = breedPokemonStateSingleton.get(message.id);
+
                 const key = buttonInteraction.customId as Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>;
+
+                const { user: buttonInteractionUser } = buttonInteraction;
+                const userHasPermissionToPick = (
+                    key === BreedPokemonShouldPickKey.InheritanceMoves
+                    || (buttonInteractionUser.id === user.id && userShouldPick[key])
+                    || (buttonInteractionUser.id === gm.id && gmShouldPick[key as keyof typeof gmShouldPick])
+                );
+
+                if (!userHasPermissionToPick)
+                {
+                    await buttonInteraction.reply({
+                        content: 'You do not have permission to do this.',
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
                 const handlerMap: Record<Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>, () => Promise<void> | void> = {
                     [BreedPokemonShouldPickKey.Ability]: async () =>
                     {
@@ -492,7 +516,6 @@ export class BreedPokemonStrategy
                     },
                 };
 
-                // TODO: Make it so only the user(s) that are allowed to pick these things can do so.
                 await handlerMap[key]();
             },
             getButtonRowComponent: () =>
