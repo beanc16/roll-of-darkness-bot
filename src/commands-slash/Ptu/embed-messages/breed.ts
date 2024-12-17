@@ -62,7 +62,10 @@ export const getPokemonBreedingEmbedMessage = ({
         // Nature
         ...(userShouldPick.Nature
             ? []
-            : [`${Text.bold('Nature')}: ${nature?.name ?? 'Pick Manually'}`]
+            : [`${Text.bold('Nature')}: ${nature
+                ? `${nature.name} (+${nature.raisedStat}, -${nature.loweredStat})`
+                : 'Pick Manually'
+            }`]
         ),
 
         // Gender
