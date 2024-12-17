@@ -63,7 +63,7 @@ export const getPokemonBreedingEmbedMessage = ({
         `${Text.bold('Shiny')}: ${shinyResult.isShiny ? 'Yes' : 'No'} (${shinyResult.roll})`,
 
         // Inheritance Moves
-        ...(inheritanceMoves !== undefined
+        ...(inheritanceMoves
             ? [`${Text.bold('Inheritance Moves')}:\n\`\`\`\n${inheritanceMoves}\n\`\`\``]
             : []
         ),

@@ -53,7 +53,7 @@ export class BreedPokemonUpdateInheritanceMovesModal extends BaseCustomModal
             .setValue(
                 (this.inputData as Record<'inheritanceMoves', string>).inheritanceMoves ?? this.getInputValues(BreedPokemonCustomIds.Input),
             )
-            .setRequired(true);
+            .setRequired(false);
 
         return [
             input,
@@ -71,9 +71,14 @@ export class BreedPokemonUpdateInheritanceMovesModal extends BaseCustomModal
 
         const parsedInheritanceMoves = Object.entries(input).reduce<string>((acc, [key, value]) =>
         {
+            if (value.trim().length === 0)
+            {
+                return acc;
+            }
+
             const curLine = `${key}${value}\n`;
             return acc + curLine;
-        }, '');
+        }, '') || undefined; // Set to undefined for better default value setting if this data is edited later
 
         // Update state
         const stateKey = interaction.message?.id as string;
