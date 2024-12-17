@@ -23,8 +23,8 @@ enum BreedPokemonNatureCustomIds
 enum BreedPokemonNatureLabelName
 {
     NatureName = 'Nature Name',
-    RaisedStat = 'raised-stat-input',
-    LoweredStat = 'lowered-stat-input',
+    RaisedStat = 'Raised Stat',
+    LoweredStat = 'Lowered Stat',
 }
 
 interface GetNatureDataResult
