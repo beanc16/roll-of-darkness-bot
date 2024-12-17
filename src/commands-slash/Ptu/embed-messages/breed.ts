@@ -64,12 +64,18 @@ export const getPokemonBreedingEmbedMessage = ({
 
         // Inheritance Moves
         ...(inheritanceMoves
-            ? [`${Text.bold('Inheritance Moves')}:\n\`\`\`\n${inheritanceMoves}\n\`\`\``]
-            : []
+            ? [
+                `${Text.bold('Inheritance Moves')}:`,
+                `\`\`\``,
+                inheritanceMoves,
+                `\`\`\``,
+            ]
+            : [
+                `${Text.bold('Inheritance Moves')}:`,
+                `(any moves on the child species' egg or tm move lists that either parent knows)`,
+                '',
+            ]
         ),
-
-        // Line break
-        '',
 
         // Things the user should pick
         ...(propertiesUserShouldPick.length > 0
