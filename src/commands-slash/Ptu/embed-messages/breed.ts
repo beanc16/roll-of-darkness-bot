@@ -1,7 +1,7 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
-import { BreedPokemonState } from '../models/breedPokemonStateSingleton.js';
+import { BreedPokemonShouldPickKey, BreedPokemonState } from '../models/breedPokemonStateSingleton.js';
 
 const color = 0xCDCDCD;
 
@@ -26,8 +26,16 @@ export const getPokemonBreedingEmbedMessage = ({
     {
         if (val)
         {
-            acc.push(key);
+            if (key === BreedPokemonShouldPickKey.Ability.toString())
+            {
+                acc.push(`${key} (pick between the species' Basic Abilities)`);
+            }
+            else
+            {
+                acc.push(key);
+            }
         }
+
         return acc;
     }, []);
 
@@ -35,7 +43,14 @@ export const getPokemonBreedingEmbedMessage = ({
     {
         if (val)
         {
-            acc.push(key);
+            if (key === BreedPokemonShouldPickKey.Ability.toString())
+            {
+                acc.push(`${key} (pick between the species' Basic Abilities)`);
+            }
+            else
+            {
+                acc.push(key);
+            }
         }
         return acc;
     }, []);
