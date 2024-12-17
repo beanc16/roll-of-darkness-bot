@@ -41,8 +41,4 @@ export interface BreedPokemonState
     };
 }
 
-class BreedPokemonStateSingleton extends RecordSingleton<string, BreedPokemonState>
-{
-}
-
-export default new BreedPokemonStateSingleton();
+export default new RecordSingleton<string, BreedPokemonState>();
