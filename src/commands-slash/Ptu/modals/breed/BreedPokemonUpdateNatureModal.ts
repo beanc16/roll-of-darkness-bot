@@ -70,9 +70,9 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
         [BreedPokemonNatureCustomIds.LoweredStat]: TextInputStyle.Short,
     };
 
-    private static allValidStats: (PokemonStat | FullPokemonStat)[] = [
-        ...Object.values(PokemonStat),
-        ...Object.values(FullPokemonStat),
+    private static allValidStats: string[] = [
+        ...Object.values(PokemonStat).map(stat => stat.toLowerCase().trim()),
+        ...Object.values(FullPokemonStat).map(stat => stat.toLowerCase().trim()),
     ];
 
     public static getTextInputs(): TextInputBuilder[]
@@ -200,11 +200,25 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
         const input = {
             name: capitalizeFirstLetter(natureName.toLowerCase()),
             raisedStat: this.allValidStats.find(stat =>
-                stat.toLowerCase() === raisedStat.toLowerCase(),
+                stat === raisedStat.toLowerCase(),
             ),
             loweredStat: this.allValidStats.find(stat =>
-                stat.toLowerCase() === loweredStat.toLowerCase(),
+                stat === loweredStat.toLowerCase(),
             ),
+        };
+        const inputStatToPokemonStat: Record<string, string> = {
+            [PokemonStat.Hp.toLowerCase().trim()]: PokemonStat.Hp,
+            [PokemonStat.Attack.toLowerCase().trim()]: PokemonStat.Attack,
+            [PokemonStat.Defense.toLowerCase().trim()]: PokemonStat.Defense,
+            [PokemonStat.SpecialAttack.toLowerCase().trim()]: PokemonStat.SpecialAttack,
+            [PokemonStat.SpecialDefense.toLowerCase().trim()]: PokemonStat.SpecialDefense,
+            [PokemonStat.Speed.toLowerCase().trim()]: PokemonStat.Speed,
+            [FullPokemonStat.Hp.toLowerCase().trim()]: PokemonStat.Hp,
+            [FullPokemonStat.Attack.toLowerCase().trim()]: PokemonStat.Attack,
+            [FullPokemonStat.Defense.toLowerCase().trim()]: PokemonStat.Defense,
+            [FullPokemonStat.SpecialAttack.toLowerCase().trim()]: PokemonStat.SpecialAttack,
+            [FullPokemonStat.SpecialDefense.toLowerCase().trim()]: PokemonStat.SpecialDefense,
+            [FullPokemonStat.Speed.toLowerCase().trim()]: PokemonStat.Speed,
         };
 
         if (
@@ -220,8 +234,8 @@ export class BreedPokemonUpdateNatureModal extends BaseCustomModal
 
         const natures = await LookupNatureStrategy.getLookupData({
             ...(natureName && { name: input.name }),
-            ...(raisedStat && { raisedStat: input.raisedStat }),
-            ...(loweredStat && { loweredStat: input.loweredStat }),
+            ...(raisedStat && { raisedStat: inputStatToPokemonStat[input.raisedStat as string] }),
+            ...(loweredStat && { loweredStat: inputStatToPokemonStat[input.loweredStat as string] }),
         });
 
         return {
