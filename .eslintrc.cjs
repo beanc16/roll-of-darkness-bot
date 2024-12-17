@@ -161,6 +161,7 @@ module.exports = {
                 '@stylistic/indent-binary-ops': ['error', 4],               // Do 4-space indentation (not tabs) for binary operations
 
                 // Miscellaneous
+                '@stylistic/arrow-parens': 'off',                           // Do not require parentheses around arrow function arguments
                 '@stylistic/brace-style': ['error', 'allman'],              // Make curly braces exist on the next line
                 '@stylistic/comma-dangle': ['error', 'always-multiline'],   // Require trailing commas
                 '@stylistic/member-delimiter-style': ['error', {            // Style of delimiter between members
