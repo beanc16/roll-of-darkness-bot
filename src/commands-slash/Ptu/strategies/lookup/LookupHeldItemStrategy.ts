@@ -79,17 +79,12 @@ export class LookupHeldItemStrategy
             }
 
             // Type
-            // TODO: Allow badges later, this is temporary
-            if (input.type && input.type !== element.type && element.type !== HeldItemType.Badge)
+            if (input.type && input.type !== element.type)
             {
                 return acc;
             }
 
-            // TODO: Allow badges later, this is temporary
-            if (!element.name.includes('Badge'))
-            {
-                acc.push(element);
-            }
+            acc.push(element);
             return acc;
         }, []);
 

@@ -192,22 +192,12 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashComman
     });
 
     // Type
-    // TODO: Re-Add support for badges later, this is temporary
-    // const typeChoices = Object.entries(HeldItemType).map<APIApplicationCommandOptionChoice<string>>(
-    // ([key, value]) =>
-    //     {
-    //         return {
-    //             name: key,
-    //             value,
-    //         };
-    //     },
-    // );
-    const typeChoices = [HeldItemType.Normal, HeldItemType.Mega].map<APIApplicationCommandOptionChoice<string>>(
-        (type) =>
+    const typeChoices = Object.entries(HeldItemType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
         {
             return {
-                name: type,
-                value: type,
+                name: key,
+                value,
             };
         },
     );
