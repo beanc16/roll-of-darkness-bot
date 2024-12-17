@@ -11,6 +11,18 @@ import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/bree
 import { PokemonGender } from '../../types/breed.js';
 import { BreedPokemonCustomIds, BreedPokemonModalLabel } from './types.js';
 
+enum GenderInput
+{
+    Male = PokemonGender.Male,
+    Female = PokemonGender.Female,
+    Boy = PokemonGender.Male,
+    Girl = PokemonGender.Female,
+    M = PokemonGender.Male,
+    F = PokemonGender.Female,
+    B = PokemonGender.Male,
+    G = PokemonGender.Female,
+}
+
 export class BreedPokemonUpdateGenderModal extends BaseCustomModal
 {
     public static id = 'breed-pokemon-update-gender-modal';
@@ -51,24 +63,14 @@ export class BreedPokemonUpdateGenderModal extends BaseCustomModal
         };
 
         // Parse input to enum
-        const genderMap: Record<string, PokemonGender> = {
-            [PokemonGender.Male]: PokemonGender.Male,
-            [PokemonGender.Female]: PokemonGender.Female,
-            Boy: PokemonGender.Male,
-            Girl: PokemonGender.Female,
-            M: PokemonGender.Male,
-            F: PokemonGender.Female,
-            B: PokemonGender.Male,
-            G: PokemonGender.Female,
-        };
-        const gender = Object.entries(genderMap).find(([key, _value]) =>
+        const gender = Object.entries(GenderInput).find(([key, _value]) =>
             key.toString().toLowerCase() === input.toLowerCase(),
         )?.[1];
 
         // Exit early if input is invalid
         if (gender === undefined)
         {
-            const possibleGenders = `\`\`\`\n- ${Object.values(PokemonGender).join('\n- ')}\n\`\`\``;
+            const possibleGenders = `\`\`\`\n- ${Object.values(GenderInput).join('\n- ')}\n\`\`\``;
             await interaction.reply({
                 content: `Input is invalid. Gender must be one of the following:\n${possibleGenders}`,
                 ephemeral: true,
@@ -81,7 +83,7 @@ export class BreedPokemonUpdateGenderModal extends BaseCustomModal
         const previousState = breedPokemonStateSingleton.get(stateKey);
         const newState = breedPokemonStateSingleton.upsert(stateKey, {
             ...previousState,
-            genderResult: { gender },
+            genderResult: { gender: gender.toString() as PokemonGender },
             userShouldPick: {
                 ...previousState.userShouldPick,
                 [BreedPokemonShouldPickKey.Gender]: false,
