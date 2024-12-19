@@ -6,6 +6,7 @@ export enum NwodAutocompleteParameterName
     NeedleName = 'needle_name',
     ThreadName = 'thread_name',
     TokenName = 'token_name',
+    WeaponName = 'weapon_name',
 }
 
 export enum NwodLookupRange
@@ -16,4 +17,5 @@ export enum NwodLookupRange
     Needle = `'Needle Archetype Reference'!A3:Z`,
     Thread = `'Thread Archetype Reference'!A3:Z`,
     Token = `'Tokens Index'!A3:Z`,
+    Weapon = `'Weapons Index'!A3:Z`,
 }

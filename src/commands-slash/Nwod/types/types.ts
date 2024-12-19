@@ -35,3 +35,9 @@ export enum ChangelingTokenType
     OathForged = 'Oath-Forged',
     Stolen = 'Stolen',
 }
+
+export enum NwodWeaponType
+{
+    Melee = 'Melee',
+    Ranged = 'Ranged',
+}

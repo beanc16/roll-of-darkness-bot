@@ -5,6 +5,7 @@ import {
     ChangelingContractType,
     ChangelingTokenType,
     MeritType,
+    NwodWeaponType,
 } from '../types/types.js';
 
 export enum NwodLookupSubcommand
@@ -15,6 +16,7 @@ export enum NwodLookupSubcommand
     Needle = 'needle',
     Thread = 'thread',
     Token = 'token',
+    Weapon = 'weapon',
 }
 
 export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -173,6 +175,42 @@ export const token = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
     {
         option.setName(`type`);
         option.setDescription('The type of tokens to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const weapon = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Weapon);
+    subcommand.setDescription('Get a list of weapons based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.WeaponName);
+        option.setDescription(`The weapon's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    const typeChoices = Object.entries(NwodWeaponType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of weapons to look up.');
         return option.setChoices(
             ...typeChoices,
         );

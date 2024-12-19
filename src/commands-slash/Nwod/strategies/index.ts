@@ -116,6 +116,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Token,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.WeaponName]: () => NwodStrategyExecutor.getLookupData<ChangelingToken>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Weapon,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
         };
 
         const data = await handlerMap[autocompleteName]();
