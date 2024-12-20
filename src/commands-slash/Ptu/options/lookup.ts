@@ -15,6 +15,7 @@ import {
     PtuMoveListType,
 } from '../types/pokemon.js';
 import { BerryTier } from '../types/PtuBerry.js';
+import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
 
 export enum PtuLookupSubcommand
@@ -25,6 +26,7 @@ export enum PtuLookupSubcommand
     Edge = 'edge',
     EvolutionaryStone = 'evolutionary_stone',
     Feature = 'feature',
+    HealingItem = 'healing_item',
     HeldItem = 'held_item',
     Keyword = 'keyword',
     Move = 'move',
@@ -173,6 +175,41 @@ export const feature = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setDescription(`The feature's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const healingItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.HealingItem);
+    subcommand.setDescription('Get a healing item based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.HealingItem);
+        option.setDescription(`The healing item's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(HealingItemType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of healing items to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
     });
 
     return subcommand;

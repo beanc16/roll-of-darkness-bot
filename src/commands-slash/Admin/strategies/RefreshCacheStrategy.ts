@@ -137,6 +137,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Feature,
             },
+            [PtuAutocompleteParameterName.HealingItem]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.HealingItem],
+                lookupSubcommand: PtuLookupSubcommand.HealingItem,
+            },
             [PtuAutocompleteParameterName.HeldItem]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.HeldItem],
                 lookupSubcommand: PtuLookupSubcommand.HeldItem,
