@@ -39,7 +39,7 @@ export class LookupHealingItemStrategy
         // Get message
         const embeds = getPagedEmbedMessages({
             input: data,
-            title: 'Held Items',
+            title: 'Healing Items',
             parseElementToLines: element => [
                 Text.bold(element.name),
                 ...(element.cost !== undefined ? [`Cost: ${element.cost}`] : []),
