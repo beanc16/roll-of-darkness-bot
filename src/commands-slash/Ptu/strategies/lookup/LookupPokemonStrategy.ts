@@ -23,15 +23,18 @@ import {
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
 } from '../../embed-messages/lookup.js';
+import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PokeApi } from '../../services/PokeApi.js';
+import { removeExtraCharactersFromMoveName } from '../../services/pokemonMoveHelpers.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,
     PtuPokemon,
 } from '../../types/pokemon.js';
+import { LookupMoveStrategy } from './LookupMoveStrategy.js';
 
 export interface GetLookupPokemonDataParameters
 {
@@ -56,6 +59,7 @@ export interface HandleSelectMenuOptionsParameters
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
 {
     pokemon: PtuPokemon[];
+    moveNameToMovesRecord?: Record<string, PtuMove>;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -75,6 +79,7 @@ export class LookupPokemonStrategy
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
         const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const includeContestInfo = interaction.options.getBoolean('include_contest_info');
 
         const numOfTruthyValues = [name, moveName, abilityName, capabilityName].filter(Boolean).length;
         if (numOfTruthyValues === 0)
@@ -99,8 +104,7 @@ export class LookupPokemonStrategy
             capabilityName,
         });
 
-        // Get message
-        const embeds = this.getFirstEmbeds({
+        const embedsInput = await this.getFirstEmbedsInput({
             name,
             moveName,
             moveListType,
@@ -108,7 +112,11 @@ export class LookupPokemonStrategy
             abilityListType,
             capabilityName,
             pokemon: data,
-        });
+            moveNameToMovesRecord: {},
+        }, includeContestInfo);
+
+        // Get message
+        const embeds = this.getFirstEmbeds(embedsInput);
 
         // Send no results found
         if (embeds.length === 0)
@@ -188,6 +196,51 @@ export class LookupPokemonStrategy
 
         // Sort by name
         output.sort((a, b) => a.name.localeCompare(b.name));
+
+        return output;
+    }
+
+    // Get input for getFirstEmbeds
+    private static async getFirstEmbedsInput(
+        options: GetLookupPokemonEmbedsParameters,
+        includeContestInfo: boolean | null,
+    ): Promise<GetLookupPokemonEmbedsParameters>
+    {
+        const output: GetLookupPokemonEmbedsParameters = {
+            ...options,
+            moveNameToMovesRecord: {},
+        };
+
+        if (includeContestInfo)
+        {
+            const allMoveNames = output.pokemon.reduce((acc, { moveList }) =>
+            {
+                const {
+                    eggMoves = [],
+                    levelUp = [],
+                    tmHm = [],
+                    tutorMoves = [],
+                    zygardeCubeMoves = [],
+                } = moveList;
+
+                eggMoves.forEach(eggMove => acc.add(removeExtraCharactersFromMoveName(eggMove)));
+                levelUp.forEach(levelUpMove => acc.add(removeExtraCharactersFromMoveName(levelUpMove.move)));
+                tmHm.forEach(tmHmMove => acc.add(removeExtraCharactersFromMoveName(tmHmMove)));
+                tutorMoves.forEach(tutorMove => acc.add(removeExtraCharactersFromMoveName(tutorMove)));
+                zygardeCubeMoves.forEach(zygardeCubeMove => acc.add(removeExtraCharactersFromMoveName(zygardeCubeMove)));
+
+                return acc;
+            }, new Set<string>([]));
+
+            const moves = await LookupMoveStrategy.getLookupData({
+                names: Array.from(allMoveNames),
+            });
+            output.moveNameToMovesRecord = moves.reduce<Record<string, PtuMove>>((acc, move) =>
+            {
+                acc[move.name] = move;
+                return acc;
+            }, {});
+        }
 
         return output;
     }
@@ -427,11 +480,12 @@ export class LookupPokemonStrategy
         abilityListType = PtuAbilityListType.All,
         capabilityName,
         pokemon,
+        moveNameToMovesRecord,
     }: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
     {
         if (name)
         {
-            return getLookupPokemonEmbedMessages(pokemon);
+            return getLookupPokemonEmbedMessages(pokemon, moveNameToMovesRecord ?? {});
         }
 
         if (moveName)

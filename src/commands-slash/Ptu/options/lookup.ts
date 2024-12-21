@@ -582,6 +582,13 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setAutocomplete(true);
     });
 
+    // Move contest stats
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('include_contest_info');
+        return option.setDescription('Include move contest stats (default: False)');
+    });
+
     return subcommand;
 };
 

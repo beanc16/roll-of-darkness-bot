@@ -4,6 +4,7 @@ import { EmbedBuilder } from 'discord.js';
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { getPagedEmbedBuilders, getPagedEmbedMessages } from '../../embed-messages/shared.js';
 import { PtuMove } from '../models/PtuMove.js';
+import { removeExtraCharactersFromMoveName } from '../services/pokemonMoveHelpers.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,
@@ -45,9 +46,53 @@ export const getLookupMovesEmbedMessages = (input: PtuMove[], options: {
     return output;
 };
 
-export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuilder[] =>
+export const getLookupPokemonEmbedMessages = (
+    pokemon: PtuPokemon[],
+    moveNameToMovesRecord: Record<string, PtuMove>,
+): EmbedBuilder[] =>
 {
     if (pokemon.length === 0) return [];
+
+    const hasMoveNameToMovesRecord = Object.keys(moveNameToMovesRecord).length > 0
+        ? 'true'
+        : 'false';
+
+    const getContestStatInfoByMoveName = (moveName: string): string =>
+    {
+        const parsedMoveName = removeExtraCharactersFromMoveName(moveName);
+
+        if (!moveNameToMovesRecord[parsedMoveName])
+        {
+            return '';
+        }
+
+        const { contestStatType, contestStatEffect } = moveNameToMovesRecord[parsedMoveName];
+
+        if (!(contestStatType || contestStatEffect))
+        {
+            return '';
+        }
+
+        return `(${[contestStatType, contestStatEffect].join(' - ')})`;
+    };
+
+    const joinWithContestInfo = (moveNames: string[]): string =>
+    {
+        const output = moveNames.reduce<string>((acc, cur, index) =>
+        {
+            const contestInfo = getContestStatInfoByMoveName(cur);
+            const booleanToSeparator: Record<'true' | 'false', string> = {
+                true: '\n',
+                false: ', ',
+            };
+
+            const separator = (index > 0) ? booleanToSeparator[hasMoveNameToMovesRecord] : '';
+
+            return `${acc}${separator}${cur}${contestInfo ? ` ${contestInfo}` : ''}`;
+        }, '');
+
+        return output;
+    };
 
     const pages = pokemon.reduce<{
         description: string;
@@ -159,12 +204,12 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
                 level,
                 move,
                 type,
-            }) => `${level} ${move} - ${type}`),
+            }) => `${level} ${move} - ${type}${getContestStatInfoByMoveName(move) ? ` ${getContestStatInfoByMoveName(move)}` : ''}`),
             '',
             ...(eggMoves.length > 0
                 ? [
                     Text.bold('Egg Move List'),
-                    eggMoves.join(', '),
+                    joinWithContestInfo(eggMoves),
                     '',
                 ]
                 : []
@@ -172,7 +217,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             ...(tmHm.length > 0
                 ? [
                     Text.bold('TM/HM Move List'),
-                    tmHm.join(', '),
+                    joinWithContestInfo(tmHm),
                     '',
                 ]
                 : []
@@ -180,7 +225,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             ...(tutorMoves.length > 0
                 ? [
                     Text.bold('Tutor Move List'),
-                    tutorMoves.join(', '),
+                    joinWithContestInfo(tutorMoves),
                     '',
                 ]
                 : []
@@ -188,7 +233,7 @@ export const getLookupPokemonEmbedMessages = (pokemon: PtuPokemon[]): EmbedBuild
             ...(zygardeCubeMoves && zygardeCubeMoves.length > 0
                 ? [
                     Text.bold('Zygarde Cube Move List'),
-                    zygardeCubeMoves.join(', '),
+                    joinWithContestInfo(zygardeCubeMoves),
                     '',
                 ]
                 : []
