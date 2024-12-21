@@ -159,7 +159,7 @@ describe('class: PtuMove', () =>
         });
 
         it.each([
-            ['names', new Set(['absorb'])],
+            ['names', new Set(['Absorb'])],
             ['type', PokemonType.Grass],
             ['category', PokemonMoveCategory.Special],
             ['frequency', PtuMoveFrequency.EoT],
