@@ -11,6 +11,11 @@ import {
     PtuMoveFrequency,
 } from '../types/pokemon.js';
 
+export interface PtuMoveIsValidBasedOnInputParameters extends Omit<GetLookupMoveDataParameters, 'names'>
+{
+    names?: Set<string>;
+}
+
 export class PtuMove
 {
     public name: string;
@@ -183,10 +188,10 @@ export class PtuMove
         return true;
     }
 
-    public IsValidBasedOnInput(input: GetLookupMoveDataParameters): boolean
+    public IsValidBasedOnInput(input: PtuMoveIsValidBasedOnInputParameters): boolean
     {
         // Name
-        if (input.name && input.name.toLowerCase() !== this.name.toLowerCase() && !input.includeAllIfNoName)
+        if (input.names && input.names.size > 0 && !input.names.has(this.name.toLowerCase()) && !input.includeAllIfNoName)
         {
             return false;
         }

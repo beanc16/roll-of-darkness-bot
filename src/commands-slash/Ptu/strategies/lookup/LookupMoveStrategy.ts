@@ -45,7 +45,7 @@ export class LookupMoveStrategy
         const effectSearch = interaction.options.getString('effect_search');
 
         const data = await this.getLookupData({
-            name,
+            names: [name],
             type,
             category,
             db,
@@ -80,6 +80,20 @@ export class LookupMoveStrategy
                 range: PtuLookupRange.Move,
             });
 
+            const parsedInput = {
+                ...input,
+                names: input.names?.reduce<Set<string>>((acc, name) =>
+                {
+                    // Filter out nulls
+                    if (name)
+                    {
+                        acc.add(name.toLowerCase());
+                    }
+
+                    return acc;
+                }, new Set<string>()),
+            };
+
             let beyondWeaponMovesAndManuevers = false;
             const output = data.reduce((acc, cur) =>
             {
@@ -90,7 +104,7 @@ export class LookupMoveStrategy
                     return acc;
                 }
 
-                if (!element.IsValidBasedOnInput(input))
+                if (!element.IsValidBasedOnInput(parsedInput))
                 {
                     return acc;
                 }
@@ -101,7 +115,7 @@ export class LookupMoveStrategy
                     beyondWeaponMovesAndManuevers = true;
                 }
 
-                if (beyondWeaponMovesAndManuevers && input?.exclude?.weaponMovesAndManuevers)
+                if (beyondWeaponMovesAndManuevers && parsedInput?.exclude?.weaponMovesAndManuevers)
                 {
                     return acc;
                 }
@@ -112,20 +126,20 @@ export class LookupMoveStrategy
             }, [] as PtuMove[]);
 
             // Sort manually if there's no searches
-            if (input.nameSearch || input.effectSearch)
+            if (parsedInput.nameSearch || parsedInput.effectSearch)
             {
-                const results = PtuMovesSearchService.search(output, input);
+                const results = PtuMovesSearchService.search(output, parsedInput);
                 return results;
             }
 
             output.sort((a, b) =>
             {
-                if (input.sortBy === 'name')
+                if (parsedInput.sortBy === 'name')
                 {
                     return a.name.localeCompare(b.name);
                 }
 
-                if (input.sortBy === 'type')
+                if (parsedInput.sortBy === 'type')
                 {
                     const result = a.type?.localeCompare(b.type ?? '');
 

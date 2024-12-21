@@ -23,7 +23,7 @@ export interface PtuMoveExclude
 
 export interface GetLookupMoveDataParameters extends BaseLookupDataOptions
 {
-    name?: string | null;
+    names?: (string | null)[];
     type?: PokemonType | null;
     category?: PokemonMoveCategory | null;
     db?: number | null;

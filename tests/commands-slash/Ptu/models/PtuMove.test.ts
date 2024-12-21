@@ -1,6 +1,5 @@
 import { EqualityOption } from '../../../../src/commands-slash/options/shared.js';
-import { PtuMove } from '../../../../src/commands-slash/Ptu/models/PtuMove.js';
-import { GetLookupMoveDataParameters } from '../../../../src/commands-slash/Ptu/types/modelParameters.js';
+import { PtuMove, type PtuMoveIsValidBasedOnInputParameters } from '../../../../src/commands-slash/Ptu/models/PtuMove.js';
 import {
     PokemonMoveCategory,
     PokemonType,
@@ -113,12 +112,12 @@ describe('class: PtuMove', () =>
 
     describe('method: IsValidBasedOnInput', () =>
     {
-        let defaultInput: GetLookupMoveDataParameters;
+        let defaultInput: PtuMoveIsValidBasedOnInputParameters;
 
         beforeEach(() =>
         {
             defaultInput = {
-                name: 'Tackle',
+                names: new Set(['tackle']),
                 type: PokemonType.Normal,
                 category: PokemonMoveCategory.Physical,
                 db: 2,
@@ -149,8 +148,18 @@ describe('class: PtuMove', () =>
             expect(result).toEqual(true);
         });
 
+        it('should return true when all parameters match, but names is empty', () =>
+        {
+            const result = defaultMove.IsValidBasedOnInput({
+                ...defaultInput,
+                names: new Set(),
+            });
+
+            expect(result).toEqual(true);
+        });
+
         it.each([
-            ['name', 'Absorb'],
+            ['names', new Set(['absorb'])],
             ['type', PokemonType.Grass],
             ['category', PokemonMoveCategory.Special],
             ['frequency', PtuMoveFrequency.EoT],
