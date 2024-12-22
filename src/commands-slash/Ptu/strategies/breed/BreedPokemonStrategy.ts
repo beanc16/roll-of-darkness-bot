@@ -65,6 +65,20 @@ export class BreedPokemonStrategy
         const femaleSpecies = interaction.options.getString('female_species', true);
         const gm = interaction.options.getUser('gm', true);
 
+        // Validate that the two species can be bred
+        const species = await this.getLookupData({
+            names: new Set([maleSpecies, femaleSpecies]),
+        });
+
+        if (!this.speciesHaveAtLeastOneOverlappingEggGroup(species))
+        {
+            await this.updateMessage({
+                interaction,
+                content: 'The two species must have at least one overlapping egg group.',
+            });
+            return true;
+        }
+
         // Get properties of the new pokemon
         const speciesResult = this.rollSpecies(
             maleSpecies,
