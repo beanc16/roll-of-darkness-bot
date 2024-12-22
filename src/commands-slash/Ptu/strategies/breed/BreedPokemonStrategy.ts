@@ -9,9 +9,12 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import { BreedPokemonUpdateAbilityModal } from '../../modals/breed/BreedPokemonUpdateAbilityModal.js';
 import { BreedPokemonUpdateGenderModal } from '../../modals/breed/BreedPokemonUpdateGenderModal.js';
@@ -20,6 +23,7 @@ import { BreedPokemonUpdateNatureModal } from '../../modals/breed/BreedPokemonUp
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { PtuBreedSubcommand } from '../../options/breed.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
+import { PtuLookupRange } from '../../types/autocomplete.js';
 import {
     type GetGenderResult,
     PokemonGender,
@@ -27,7 +31,13 @@ import {
     type RollSpeciesResult,
 } from '../../types/breed.js';
 import { PtuNature } from '../../types/PtuNature.js';
+import { PtuPokemonMinimal } from '../../types/PtuPokemonMinimal.js';
 import { RandomNatureStrategy } from '../random/RandomNatureStrategy.js';
+
+export interface GetLookupBreedPokemonDataParameters extends BaseLookupDataOptions
+{
+    names?: Set<string>;
+}
 
 enum BreedPokemonButtonName
 {
@@ -142,6 +152,56 @@ export class BreedPokemonStrategy
         await this.handleUpdatableButtonInteractions(typedMessage);
 
         return true;
+    }
+
+    public static async getLookupData(input: GetLookupBreedPokemonDataParameters = {
+        includeAllIfNoName: true,
+    }): Promise<PtuPokemonMinimal[]>
+    {
+        const { data = [] } = await CachedGoogleSheetsApiService.getRange({
+            spreadsheetId: rollOfDarknessPtuSpreadsheetId,
+            range: PtuLookupRange.Pokemon,
+        });
+
+        const output = data.reduce<PtuPokemonMinimal[]>((acc, cur) =>
+        {
+            if (cur.length <= 2)
+            {
+                return acc;
+            }
+
+            const element = new PtuPokemonMinimal(cur);
+
+            // Name
+            if (input.names && input.names.size > 0 && !input.names.has(element.name) && !input.includeAllIfNoName)
+            {
+                return acc;
+            }
+
+            acc.push(element);
+
+            return acc;
+        }, []);
+
+        output.sort((a, b) => a.name.localeCompare(b.name));
+        return output;
+    }
+
+    private static speciesHaveAtLeastOneOverlappingEggGroup(species: PtuPokemonMinimal[]): boolean
+    {
+        if (species.length !== 2)
+        {
+            return false;
+        }
+
+        const [species1, species2] = species;
+
+        // Has at least one match egg group
+        return (
+            species1.breedingInformation.eggGroups.some(
+                eggGroup => species2.breedingInformation.eggGroups.includes(eggGroup),
+            )
+        );
     }
 
     private static async getNature(
@@ -335,13 +395,16 @@ export class BreedPokemonStrategy
         interaction: ChatInputCommandInteraction;
         buttonInteraction?: ButtonInteraction;
         content: string;
-        component: ActionRowBuilder<ButtonBuilder>;
+        component?: ActionRowBuilder<ButtonBuilder>;
         embed?: EmbedBuilder;
     }): Promise<Message | undefined>
     {
         const input = {
             content,
-            components: [component],
+            ...(component !== undefined
+                ? { components: [component] }
+                : {}
+            ),
             ...(embed !== undefined
                 ? { embeds: [embed] }
                 : {}

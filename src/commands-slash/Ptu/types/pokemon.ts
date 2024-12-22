@@ -148,8 +148,8 @@ export enum PokemonStatusType
     Other = 'Other',
 }
 
-// TODO: Move this to a types package owned by an API that controls this data with PtuController later
-export interface PtuPokemon
+// For pokemon data from google sheets
+export interface PtuPokemonMinimalData
 {
     name: string;
     types: string[];
@@ -161,6 +161,33 @@ export interface PtuPokemon
         specialDefense: number;
         speed: number;
     };
+    capabilities: {
+        overland: number;
+        swim: number;
+        sky: number;
+        levitate: number;
+        burrow: number;
+        highJump: number;
+        lowJump: number;
+        power: number;
+        other: string[];
+    };
+    sizeInformation: {
+        height: {
+            ptu: string;
+        };
+        weight: {
+            ptu: number;
+        };
+    };
+    breedingInformation: {
+        eggGroups: string[];
+    };
+}
+
+// TODO: Move this to a types package owned by an API that controls this data with PtuController later
+export interface PtuPokemon extends PtuPokemonMinimalData
+{
     abilities: {
         basicAbilities: string[];
         advancedAbilities: string[];
@@ -171,38 +198,26 @@ export interface PtuPokemon
         level: number;
         stage: number;
     }[];
-    sizeInformation: {
-        height: {
+    sizeInformation: (PtuPokemonMinimalData['sizeInformation'] & {
+        height: (PtuPokemonMinimalData['sizeInformation']['height'] & {
             freedom: string;
             metric: string;
-            ptu: string;
-        };
-        weight: {
+        });
+        weight: (PtuPokemonMinimalData['sizeInformation']['weight'] & {
             freedom: string;
             metric: string;
-            ptu: number;
-        };
-    };
-    breedingInformation: {
+        });
+    });
+    breedingInformation: (PtuPokemonMinimalData['breedingInformation'] & {
         genderRatio: {
             male?: number;
             female?: number;
             none?: boolean;
         };
-        eggGroups: string[];
         averageHatchRate?: string;
-    };
+    });
     diets: string[];
     habitats: string[];
-    capabilities: {
-        overland: number;
-        swim: number;
-        sky: number;
-        highJump: number;
-        lowJump: number;
-        power: number;
-        other: string[];
-    };
     skills: {
         athletics: string;
         acrobatics: string;

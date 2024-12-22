@@ -137,6 +137,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Feature,
             },
+            [PtuAutocompleteParameterName.FemaleSpecies]: { // This is part of the breeding command, but uses Pokemon data from the PTU spreadsheet
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.PokemonSkills],
+                lookupSubcommand: PtuLookupSubcommand.Pokemon,
+            },
             [PtuAutocompleteParameterName.HealingItem]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.HealingItem],
                 lookupSubcommand: PtuLookupSubcommand.HealingItem,
@@ -148,6 +152,10 @@ export class RefreshCacheStrategy
             [PtuAutocompleteParameterName.KeywordName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Keyword],
                 lookupSubcommand: PtuLookupSubcommand.Keyword,
+            },
+            [PtuAutocompleteParameterName.MaleSpecies]: { // This is part of the breeding command, but uses Pokemon data from the PTU spreadsheet
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokemon],
+                lookupSubcommand: PtuLookupSubcommand.Pokemon,
             },
             [PtuAutocompleteParameterName.MoveName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Move],

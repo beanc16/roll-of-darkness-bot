@@ -53,16 +53,18 @@ export const breed = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
 
     subcommand.addStringOption((option) =>
     {
-        option.setName('male_species');
+        option.setName(PtuAutocompleteParameterName.MaleSpecies);
         option.setDescription('The species name of the male pokemon being bred.');
-        return option.setRequired(true);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     subcommand.addStringOption((option) =>
     {
-        option.setName('female_species');
+        option.setName(PtuAutocompleteParameterName.FemaleSpecies);
         option.setDescription('The species name of the female pokemon being bred.');
-        return option.setRequired(true);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     subcommand.addUserOption((option) =>

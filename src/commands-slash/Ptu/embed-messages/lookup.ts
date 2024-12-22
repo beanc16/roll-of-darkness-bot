@@ -184,6 +184,8 @@ export const getLookupPokemonEmbedMessages = (
                 `Overland: ${capabilities.overland}`,
                 ...(capabilities.swim !== undefined ? [`Swim: ${capabilities.swim}`] : []),
                 ...(capabilities.sky !== undefined ? [`Sky: ${capabilities.sky}`] : []),
+                ...(capabilities.levitate !== undefined ? [`Levitate: ${capabilities.levitate}`] : []),
+                ...(capabilities.burrow !== undefined ? [`Burrow: ${capabilities.burrow}`] : []),
                 `Jump: ${capabilities.highJump}/${capabilities.lowJump}`,
                 `Power: ${capabilities.power}`,
                 ...(capabilities.other ?? []),

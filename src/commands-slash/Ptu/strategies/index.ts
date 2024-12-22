@@ -211,6 +211,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             }),
+            [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
+                subcommandGroup: PtuSubcommandGroup.Breed,
+                subcommand: PtuBreedSubcommand.Breed,
+            }),
             [PtuAutocompleteParameterName.HealingItem]: () => PtuStrategyExecutor.getLookupData<PtuHealingItem>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.HealingItem,
@@ -222,6 +226,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.KeywordName]: () => PtuStrategyExecutor.getLookupData<PtuKeyword>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Keyword,
+            }),
+            [PtuAutocompleteParameterName.MaleSpecies]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
+                subcommandGroup: PtuSubcommandGroup.Breed,
+                subcommand: PtuBreedSubcommand.Breed,
             }),
             [PtuAutocompleteParameterName.MoveName]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
@@ -317,7 +325,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         options,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuBreedSubcommand;
         options?: LookupParamsFromLookupModel<PtuLookupModel>;
     }): Promise<PtuLookupModel[]>
     {
