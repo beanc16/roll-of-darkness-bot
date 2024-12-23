@@ -3,6 +3,7 @@ import { LookupContractStrategy } from './LookupContractStrategy.js';
 import { LookupMeritStrategy } from './LookupMeritStrategy.js';
 import { LookupNeedleStrategy } from './LookupNeedleStrategy.js';
 import { LookupThreadStrategy } from './LookupThreadStrategy.js';
+import { LookupTiltStrategy } from './LookupTiltStrategy.js';
 import { LookupTokenStrategy } from './LookupTokenStrategy.js';
 import { LookupWeaponStrategy } from './LookupWeaponStrategy.js';
 
@@ -12,6 +13,7 @@ export default {
     [LookupMeritStrategy.key]: LookupMeritStrategy,
     [LookupNeedleStrategy.key]: LookupNeedleStrategy,
     [LookupThreadStrategy.key]: LookupThreadStrategy,
+    [LookupTiltStrategy.key]: LookupTiltStrategy,
     [LookupTokenStrategy.key]: LookupTokenStrategy,
     [LookupWeaponStrategy.key]: LookupWeaponStrategy,
 };

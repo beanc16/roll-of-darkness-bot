@@ -5,6 +5,7 @@ import {
     ChangelingContractType,
     ChangelingTokenType,
     MeritType,
+    NwodTiltType,
     NwodWeaponType,
 } from '../types/types.js';
 
@@ -15,6 +16,7 @@ export enum NwodLookupSubcommand
     Merit = 'merit',
     Needle = 'needle',
     Thread = 'thread',
+    Tilt = 'tilt',
     Token = 'token',
     Weapon = 'weapon',
 }
@@ -143,6 +145,42 @@ export const thread = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         option.setDescription(`The thread's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const tilt = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Tilt);
+    subcommand.setDescription('Get a list of tilts based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.TiltName);
+        option.setDescription(`The tilt's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    const typeChoices = Object.entries(NwodTiltType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of tilts to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
     });
 
     return subcommand;

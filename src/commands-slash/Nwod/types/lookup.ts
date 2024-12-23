@@ -2,6 +2,7 @@ export enum NwodAutocompleteParameterName
 {
     ConditionName = 'condition_name',
     ContractName = 'contract_name',
+    TiltName = 'tilt_name',
     MeritName = 'merit_name',
     NeedleName = 'needle_name',
     ThreadName = 'thread_name',
@@ -16,6 +17,7 @@ export enum NwodLookupRange
     Merit = `'Merits'!A2:Z`,
     Needle = `'Needle Archetype Reference'!A3:Z`,
     Thread = `'Thread Archetype Reference'!A3:Z`,
+    Tilt = `'Tilts Index'!A3:Z`,
     Token = `'Tokens Index'!A3:Z`,
     Weapon = `'Weapons Index'!A3:Z`,
 }

@@ -111,6 +111,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Thread,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.TiltName]: () => NwodStrategyExecutor.getLookupData<ChangelingThread>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Tilt,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
             [NwodAutocompleteParameterName.TokenName]: () => NwodStrategyExecutor.getLookupData<ChangelingToken>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Token,

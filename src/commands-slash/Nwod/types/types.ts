@@ -36,6 +36,12 @@ export enum ChangelingTokenType
     Stolen = 'Stolen',
 }
 
+export enum NwodTiltType
+{
+    Personal = 'Personal',
+    Environmental = 'Environmental',
+}
+
 export enum NwodWeaponType
 {
     Melee = 'Melee',
