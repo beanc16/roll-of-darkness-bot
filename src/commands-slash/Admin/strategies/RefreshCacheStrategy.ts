@@ -75,6 +75,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Contract],
                 lookupSubcommand: NwodLookupSubcommand.Contract,
             },
+            [NwodAutocompleteParameterName.GoblinFruitName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.GoblinFruit],
+                lookupSubcommand: NwodLookupSubcommand.GoblinFruit,
+            },
             [NwodAutocompleteParameterName.MeritName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Merit],
                 lookupSubcommand: NwodLookupSubcommand.Merit,

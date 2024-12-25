@@ -3,6 +3,7 @@ import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import {
     ChangelingContractType,
+    ChangelingGoblinFruitRarity,
     ChangelingTokenType,
     MeritType,
     NwodTiltType,
@@ -13,6 +14,7 @@ export enum NwodLookupSubcommand
 {
     Condition = 'condition',
     Contract = 'contract',
+    GoblinFruit = 'goblin_fruit',
     Merit = 'merit',
     Needle = 'needle',
     Thread = 'thread',
@@ -73,6 +75,41 @@ export const contract = (subcommand: SlashCommandSubcommandBuilder): SlashComman
             );
         });
     }
+
+    return subcommand;
+};
+
+export const goblinFruit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.GoblinFruit);
+    subcommand.setDescription('Get a list of needles based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.GoblinFruitName);
+        option.setDescription(`The goblin fruit's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Rarity
+    const rarityChoices = Object.values(ChangelingGoblinFruitRarity).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(`rarity`);
+        option.setDescription('The rarity of goblin fruits to look up.');
+        return option.setChoices(
+            ...rarityChoices,
+        );
+    });
 
     return subcommand;
 };

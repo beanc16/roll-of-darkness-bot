@@ -96,6 +96,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.GoblinFruitName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.GoblinFruit,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
             [NwodAutocompleteParameterName.MeritName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Merit,

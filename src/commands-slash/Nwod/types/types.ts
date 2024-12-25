@@ -36,6 +36,15 @@ export enum ChangelingTokenType
     Stolen = 'Stolen',
 }
 
+export enum ChangelingGoblinFruitRarity
+{
+    VeryLow = 'Very Low',
+    Low = 'Low',
+    Medium = 'Medium',
+    High = 'High',
+    VeryHigh = 'Very High',
+}
+
 export enum NwodTiltType
 {
     Personal = 'Personal',
