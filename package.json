@@ -29,7 +29,7 @@
         "app-root-path": "^3.0.0",
         "dayjs": "^1.11.13",
         "discord.js": "^14.7.1",
-        "dotenv": "^16.0.1",
+        "dotenv": "^16.4.7",
         "expr-eval": "^2.0.2",
         "fuse.js": "^7.0.0",
         "instagram-url-direct": "^1.1.1",
