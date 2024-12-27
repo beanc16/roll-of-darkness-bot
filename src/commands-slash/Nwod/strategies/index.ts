@@ -12,12 +12,16 @@ import { AutcompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/t
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
+import { ChangelingGoblinFruit } from '../types/ChangelingGoblinFruit.js';
 import { ChangelingNeedle } from '../types/ChangelingNeedle.js';
 import { ChangelingThread } from '../types/ChangelingThread.js';
 import { ChangelingToken } from '../types/ChangelingToken.js';
+import { GeistHaunt } from '../types/GeistHaunt.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
 import { NwodMerit } from '../types/NwodMerit.js';
+import { NwodTilt } from '../types/NwodTilt.js';
+import { NwodWeapon } from '../types/NwodWeapon.js';
 import calculateStrategies from './calculate/index.js';
 import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
@@ -96,9 +100,14 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.GoblinFruitName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
+            [NwodAutocompleteParameterName.GoblinFruitName]: () => NwodStrategyExecutor.getLookupData<ChangelingGoblinFruit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.GoblinFruit,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.HauntName]: () => NwodStrategyExecutor.getLookupData<GeistHaunt>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Haunt,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
             [NwodAutocompleteParameterName.MeritName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
@@ -116,7 +125,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Thread,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.TiltName]: () => NwodStrategyExecutor.getLookupData<ChangelingThread>({
+            [NwodAutocompleteParameterName.TiltName]: () => NwodStrategyExecutor.getLookupData<NwodTilt>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Tilt,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
@@ -126,7 +135,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Token,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
-            [NwodAutocompleteParameterName.WeaponName]: () => NwodStrategyExecutor.getLookupData<ChangelingToken>({
+            [NwodAutocompleteParameterName.WeaponName]: () => NwodStrategyExecutor.getLookupData<NwodWeapon>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Weapon,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
