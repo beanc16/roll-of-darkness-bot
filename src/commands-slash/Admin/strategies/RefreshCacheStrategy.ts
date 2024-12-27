@@ -1,6 +1,11 @@
 import { logger } from '@beanc16/logger';
-import { ChatInputCommandInteraction } from 'discord.js';
+import {
+    ApplicationCommandOptionChoiceData,
+    AutocompleteFocusedOption,
+    ChatInputCommandInteraction,
+} from 'discord.js';
 
+import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiscordUserId } from '../../../types/discord.js';
@@ -15,12 +20,13 @@ import { PtuLookupSubcommand } from '../../Ptu/options/lookup.js';
 import { PtuStrategyExecutor } from '../../Ptu/strategies/index.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../Ptu/types/autocomplete.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { commandsForRefresh } from '../constants.js';
+import { AdminSubcommand } from '../options/index.js';
 import {
-    AdminSubcommand,
-    type CommandForRefreshCache,
+    CommandForRefreshCache,
     RefreshCacheCommand,
-    type SplitCommandForRefreshCache,
-} from '../options/index.js';
+    SplitCommandForRefreshCache,
+} from '../types.js';
 
 interface GetHandlerResultResponse
 {
@@ -251,6 +257,27 @@ export class RefreshCacheStrategy
         await interaction.editReply(message);
 
         return true;
+    }
+
+    public static getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): ApplicationCommandOptionChoiceData<string>[]
+    {
+        // Get the choices matching the search
+        const data = commandsForRefresh.filter(choice =>
+            choice.toLowerCase().startsWith(focusedValue.value.toLowerCase(), 0),
+        )
+            // Discord limits a maximum of 25 choices to display
+            .slice(0, MAX_AUTOCOMPLETE_CHOICES);
+
+        // Parse data to discord's format
+        const choices = data.map<ApplicationCommandOptionChoiceData<string>>((choice) =>
+        {
+            return {
+                name: choice,
+                value: choice,
+            };
+        });
+
+        return choices;
     }
 
     /* istanbul ignore next */
