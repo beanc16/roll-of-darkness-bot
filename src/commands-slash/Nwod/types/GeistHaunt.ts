@@ -10,6 +10,7 @@ export class GeistHaunt
     public pageNumber: string;
     public effect: string;
     public enhancements?: string;
+    public associatedConditions?: string;
 
     constructor(input: string[])
     {
@@ -24,6 +25,7 @@ export class GeistHaunt
             pageNumber,
             effect,
             enhancements,
+            associatedConditions,
         ] = input;
 
         // Base values
@@ -39,5 +41,6 @@ export class GeistHaunt
         this.pageNumber = pageNumber.trim();
         this.effect = effect.trim();
         this.enhancements = (enhancements) ? enhancements.trim() : undefined;
+        this.associatedConditions = (associatedConditions) ? associatedConditions.trim() : undefined;
     }
 }

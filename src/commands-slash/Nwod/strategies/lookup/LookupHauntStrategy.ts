@@ -75,6 +75,12 @@ export class LookupHauntStrategy
                     ]
                     : []
                 ),
+                ...(element.associatedConditions !== undefined
+                    ? [
+                        `Associated Conditions:\n\`\`\`\n${element.associatedConditions}\`\`\``,
+                    ]
+                    : []
+                ),
             ],
         });
 
