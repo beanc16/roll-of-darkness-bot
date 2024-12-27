@@ -44,6 +44,34 @@ const emptyColumn: APIEmbedField = {
     inline: true,
 };
 
+// NOTE: This is only covered by unit tests for other functions, this function has no unit tests of its own yet.
+const splitOnLastCodeBlock = (input: string): string[] =>
+{
+    // Match all blocks with a title and code block
+    const regex = /([^\n]+):\n```[\s\S]*?```/g;
+    let lastMatchIndex = -1;
+    let match = regex.exec(input);
+
+    // Iterate through all matches to find the last one
+    while (match !== null)
+    {
+        lastMatchIndex = match.index;
+        match = regex.exec(input);
+    }
+
+    // If no matches are found, return the whole input as one page
+    if (lastMatchIndex === -1)
+    {
+        return [input];
+    }
+
+    // Split the input into two parts: everything before and after the last match
+    const firstPart = input.slice(0, lastMatchIndex).trim();
+    const secondPart = input.slice(lastMatchIndex).trim();
+
+    return [firstPart, secondPart];
+};
+
 export const parseTableColumnsToFields = (tableColumns: TableColumn[] = []): APIEmbedField[] =>
 {
     const columnsChunkedIntoThrees = chunkArray({
@@ -224,6 +252,18 @@ export const createEmbedMessageDescriptionAndPage = ({
 
     // Create the description
     let curDescription = lines.join('\n');
+
+    // Don't allow a description to exceed the max limit
+    if (curDescription.length > MAX_EMBED_DESCRIPTION_LENGTH)
+    {
+        // This is a naive split that splits on the last code block.
+        // This won't cover all cases, but covers the current necessary cases.
+        const [firstPart, secondPart] = splitOnLastCodeBlock(curDescription);
+        pageDataOutput.pages[pageDataOutput.curPage] = firstPart;
+        pageDataOutput.curPage += 1;
+        pageDataOutput.pages[pageDataOutput.curPage] = '';
+        curDescription = secondPart;
+    }
 
     // Don't let descriptions exceed the max limit
     if (pageDataOutput.pages[pageDataOutput.curPage].length + curDescription.length + '\n\n'.length > MAX_EMBED_DESCRIPTION_LENGTH)

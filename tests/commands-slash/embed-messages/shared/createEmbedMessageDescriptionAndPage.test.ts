@@ -52,7 +52,7 @@ describe('function: createEmbedMessageDescriptionAndPage', () =>
         expect(result).toEqual(expectedResult);
     });
 
-    it('should create a new page when description exceeds the max limit', () =>
+    it('should create a new page when pageData exceeds the max limit', () =>
     {
         const options: CreateEmbedMessageDescriptionAndPageOptions = {
             lines: ['A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH)],
@@ -69,6 +69,36 @@ describe('function: createEmbedMessageDescriptionAndPage', () =>
             pages: [
                 'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH - 1),
                 'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH),
+            ],
+            curPage: 1,
+            tableColumns: [],
+        };
+        expect(result).toEqual(expectedResult);
+    });
+
+    it('should create a new page when lines exceed the max limit', () =>
+    {
+        const options: CreateEmbedMessageDescriptionAndPageOptions = {
+            lines: [
+                'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH),
+                `Description:\n\`\`\`\nSome Description\`\`\``,
+                'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH - 40),
+            ],
+            pageData: {
+                ...pageData,
+            },
+            index: 1,
+        };
+
+        const result = createEmbedMessageDescriptionAndPage(options);
+
+        const expectedResult: PageData = {
+            pages: [
+                'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH),
+                [
+                    `Description:\n\`\`\`\nSome Description\`\`\``,
+                    'A'.repeat(MAX_EMBED_DESCRIPTION_LENGTH - 40),
+                ].join('\n'),
             ],
             curPage: 1,
             tableColumns: [],
