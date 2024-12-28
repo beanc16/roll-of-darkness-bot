@@ -120,6 +120,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Needle,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.RootAndBloomName]: () => NwodStrategyExecutor.getLookupData<ChangelingNeedle>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.RootAndBloom,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
             [NwodAutocompleteParameterName.ThreadName]: () => NwodStrategyExecutor.getLookupData<ChangelingThread>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Thread,

@@ -18,6 +18,7 @@ export enum NwodLookupSubcommand
     Haunt = 'haunt',
     Merit = 'merit',
     Needle = 'needle',
+    RootAndBloom = 'root_bloom',
     Thread = 'thread',
     Tilt = 'tilt',
     Token = 'token',
@@ -181,6 +182,23 @@ export const needle = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     {
         option.setName(NwodAutocompleteParameterName.NeedleName);
         option.setDescription(`The needle's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const rootAndBloom = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.RootAndBloom);
+    subcommand.setDescription('Get a list of root and blooms based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.RootAndBloomName);
+        option.setDescription(`The root or bloom's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
     });

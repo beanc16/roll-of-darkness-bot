@@ -97,6 +97,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Needle],
                 lookupSubcommand: NwodLookupSubcommand.Needle,
             },
+            [NwodAutocompleteParameterName.RootAndBloomName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.RootAndBloom],
+                lookupSubcommand: NwodLookupSubcommand.RootAndBloom,
+            },
             [NwodAutocompleteParameterName.ThreadName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Thread],
                 lookupSubcommand: NwodLookupSubcommand.Thread,
