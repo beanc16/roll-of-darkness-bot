@@ -13,6 +13,7 @@ import { LookupPokeballStrategy } from './LookupPokeballStrategy.js';
 import { LookupPokemonStrategy } from './LookupPokemonStrategy.js';
 import { LookupStatusStrategy } from './LookupStatusStrategy.js';
 import { LookupTmStrategy } from './LookupTmStrategy.js';
+import { LookupVitaminStrategy } from './LookupVitaminStrategy.js';
 
 export default {
     [LookupAbilityStrategy.key]: LookupAbilityStrategy,
@@ -30,4 +31,5 @@ export default {
     [LookupPokemonStrategy.key]: LookupPokemonStrategy,
     [LookupStatusStrategy.key]: LookupStatusStrategy,
     [LookupTmStrategy.key]: LookupTmStrategy,
+    [LookupVitaminStrategy.key]: LookupVitaminStrategy,
 };

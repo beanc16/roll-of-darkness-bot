@@ -17,6 +17,7 @@ import {
 import { BerryTier } from '../types/PtuBerry.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
+import { PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
 
 export enum PtuLookupSubcommand
 {
@@ -35,6 +36,7 @@ export enum PtuLookupSubcommand
     Pokemon = 'pokemon',
     Status = 'status',
     Tm = 'tm',
+    Vitamin = 'vitamin',
 }
 
 export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -639,6 +641,41 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
         option.setDescription(`The tm's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Vitamin);
+    subcommand.setDescription('Get a vitamin based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.VitaminName);
+        option.setDescription(`The vitamin's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Enhanced Stat
+    const enhancedStatChoices = Object.values(PtuVitaminEnhancedStat).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('enhanced_stat');
+        option.setDescription(`The stat the vitamin enhances.`);
+        return option.setChoices(
+            ...enhancedStatChoices,
+        );
     });
 
     return subcommand;

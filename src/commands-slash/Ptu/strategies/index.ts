@@ -35,6 +35,7 @@ import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
+import { PtuVitamin } from '../types/PtuVitamin.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
@@ -276,6 +277,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,
+            }),
+            [PtuAutocompleteParameterName.VitaminName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Vitamin,
             }),
             [PtuAutocompleteParameterName.PokemonName]: async () =>
             {

@@ -16,6 +16,7 @@ export enum PtuLookupRange
     PokemonSkills = `'Pokemon Skills'!A2:AZ`,
     Status = `'Status Data'!A2:Z`,
     Tm = `'Tm Data'!A2:Z`,
+    Vitamin = `'Vitamin Data'!A2:Z`,
 }
 
 export enum PtuAutocompleteParameterName
@@ -42,4 +43,5 @@ export enum PtuAutocompleteParameterName
     PokemonToEvolve = 'pokemon_to_evolve',
     StatusName = 'status_name',
     TmName = 'tm_name',
+    VitaminName = 'vitamin_name',
 }
