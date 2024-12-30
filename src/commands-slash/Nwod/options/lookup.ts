@@ -1,5 +1,6 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { GeistKey, GeistMementoType } from '../types/GeistMemento.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import {
     ChangelingContractType,
@@ -16,6 +17,7 @@ export enum NwodLookupSubcommand
     Contract = 'contract',
     GoblinFruit = 'goblin_fruit',
     Haunt = 'haunt',
+    Memento = 'memento',
     Merit = 'merit',
     Needle = 'needle',
     RootAndBloom = 'root_bloom',
@@ -168,6 +170,62 @@ export const merit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
             );
         });
     }
+
+    return subcommand;
+};
+
+export const memento = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Memento);
+    subcommand.setDescription('Get a list of mementos based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.MementoName);
+        option.setDescription(`The memento's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Keys
+    const keyChoices = Object.values(GeistKey).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('key');
+        option.setDescription('The key of mementos to look up.');
+        return option.setChoices(
+            ...keyChoices,
+        );
+    });
+
+    // Types
+    const typeChoices = Object.values(GeistMementoType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of mementos to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
+    });
 
     return subcommand;
 };
