@@ -215,6 +215,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Vitamin],
                 lookupSubcommand: PtuLookupSubcommand.Vitamin,
             },
+            [PtuAutocompleteParameterName.XItemName]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.XItem],
+                lookupSubcommand: PtuLookupSubcommand.XItem,
+            },
         },
     };
 

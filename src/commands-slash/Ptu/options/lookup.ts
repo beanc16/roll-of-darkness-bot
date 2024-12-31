@@ -37,6 +37,7 @@ export enum PtuLookupSubcommand
     Status = 'status',
     Tm = 'tm',
     Vitamin = 'vitamin',
+    XItem = 'x_item',
 }
 
 export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -676,6 +677,22 @@ export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setChoices(
             ...enhancedStatChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const xItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.XItem);
+    subcommand.setDescription('Get an x-item based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.XItemName);
+        option.setDescription(`The x-item's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;

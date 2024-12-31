@@ -282,6 +282,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Vitamin,
             }),
+            [PtuAutocompleteParameterName.XItemName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.XItem,
+            }),
             [PtuAutocompleteParameterName.PokemonName]: async () =>
             {
                 const output = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
