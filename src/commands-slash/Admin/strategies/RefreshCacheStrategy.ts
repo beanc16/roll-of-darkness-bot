@@ -167,6 +167,14 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.PokemonSkills],
                 lookupSubcommand: PtuLookupSubcommand.Pokemon,
             },
+            [PtuAutocompleteParameterName.GiftBlessingName]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.GiftBlessing],
+                lookupSubcommand: PtuLookupSubcommand.GiftBlessing,
+            },
+            [PtuAutocompleteParameterName.GiftBlessingPatron]: { // This is already covered by GiftBlessingName, just including for posterity
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.GiftBlessing],
+                lookupSubcommand: PtuLookupSubcommand.GiftBlessing,
+            },
             [PtuAutocompleteParameterName.HealingItem]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.HealingItem],
                 lookupSubcommand: PtuLookupSubcommand.HealingItem,

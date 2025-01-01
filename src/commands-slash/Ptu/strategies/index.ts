@@ -8,7 +8,7 @@ import {
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
-import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
+import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
@@ -182,8 +182,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             );
         };
 
+        let propertyToExtract: 'name' | 'patron' = 'name';
+
         // Get data based on the autocompleteName
-        const handlerMap: AutcompleteHandlerMap<PtuAutocompleteParameterName> = {
+        const handlerMap: AutocompleteHandlerMap<PtuAutocompleteParameterName> = {
             [PtuAutocompleteParameterName.AbilityName]: () => PtuStrategyExecutor.getLookupData<PtuAbility>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
@@ -216,6 +218,18 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Breed,
                 subcommand: PtuBreedSubcommand.Breed,
             }),
+            [PtuAutocompleteParameterName.GiftBlessingName]: () => PtuStrategyExecutor.getLookupData<PtuHealingItem>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.GiftBlessing,
+            }),
+            [PtuAutocompleteParameterName.GiftBlessingPatron]: () =>
+            {
+                propertyToExtract = 'patron';
+                return PtuStrategyExecutor.getLookupData<PtuHealingItem>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.GiftBlessing,
+                });
+            },
             [PtuAutocompleteParameterName.HealingItem]: () => PtuStrategyExecutor.getLookupData<PtuHealingItem>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.HealingItem,
@@ -309,12 +323,19 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             return [];
         }
 
+        // Get only unique values
+        const choiceValues = data.reduce<Set<string>>((acc, element) =>
+        {
+            acc.add(element[propertyToExtract] ?? element.name);
+            return acc;
+        }, new Set());
+
         // Parse data to discord's format
-        const choices = data.map<ApplicationCommandOptionChoiceData<string>>(({ name }) =>
+        const choices = [...choiceValues].sort().map<ApplicationCommandOptionChoiceData<string>>((value) =>
         {
             return {
-                name,
-                value: name,
+                name: value,
+                value,
             };
         });
 

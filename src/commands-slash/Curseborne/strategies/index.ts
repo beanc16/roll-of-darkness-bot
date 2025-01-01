@@ -9,7 +9,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseGetLookupSearchMatchType, BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
-import { AutcompleteHandlerMap } from '../../strategies/types/types.js';
+import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import {
     CurseborneAllNestedSubcommands,
     CurseborneSubcommand,
@@ -69,7 +69,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         const autocompleteName = focusedValue.name as CurseborneAutocompleteParameterName;
 
         // Get data based on the autocompleteName
-        const handlerMap: AutcompleteHandlerMap<CurseborneAutocompleteParameterName> = {
+        const handlerMap: AutocompleteHandlerMap<CurseborneAutocompleteParameterName> = {
             [CurseborneAutocompleteParameterName.TrickName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,

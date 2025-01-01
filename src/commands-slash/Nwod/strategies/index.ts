@@ -8,7 +8,7 @@ import {
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
-import { AutcompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/types/types.js';
+import { AutocompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
 import { NwodLookupSubcommand } from '../options/lookup.js';
 import { ChangelingContract } from '../types/ChangelingContract.js';
@@ -89,7 +89,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
         const autocompleteName = focusedValue.name as NwodAutocompleteParameterName;
 
         // Get data based on the autocompleteName
-        const handlerMap: AutcompleteHandlerMap<NwodAutocompleteParameterName> = {
+        const handlerMap: AutocompleteHandlerMap<NwodAutocompleteParameterName> = {
             [NwodAutocompleteParameterName.ConditionName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Condition,

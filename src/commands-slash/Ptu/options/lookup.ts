@@ -27,6 +27,7 @@ export enum PtuLookupSubcommand
     Edge = 'edge',
     EvolutionaryStone = 'evolutionary_stone',
     Feature = 'feature',
+    GiftBlessing = 'gift_blessing',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     Keyword = 'keyword',
@@ -177,6 +178,30 @@ export const feature = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setName(PtuAutocompleteParameterName.FeatureName);
         option.setDescription(`The feature's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const giftBlessing = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.GiftBlessing);
+    subcommand.setDescription('Get a legendary gift / blessing based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.GiftBlessingName);
+        option.setDescription(`The legendary gift's / blessing's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Patron
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.GiftBlessingPatron);
+        option.setDescription(`The legendary gift's / blessing's patron.`);
         return option.setAutocomplete(true);
     });
 
