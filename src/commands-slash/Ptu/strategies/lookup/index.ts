@@ -1,4 +1,5 @@
 import { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
+import { LookupAuraStrategy } from './LookupAuraStrategy.js';
 import { LookupBerryStrategy } from './LookupBerryStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
@@ -19,6 +20,7 @@ import { LookupXItemStrategy } from './LookupXItemStrategy.js';
 
 export default {
     [LookupAbilityStrategy.key]: LookupAbilityStrategy,
+    [LookupAuraStrategy.key]: LookupAuraStrategy,
     [LookupBerryStrategy.key]: LookupBerryStrategy,
     [LookupCapabilityStrategy.key]: LookupCapabilityStrategy,
     [LookupEdgeStrategy.key]: LookupEdgeStrategy,

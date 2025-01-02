@@ -194,6 +194,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability4]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.AuraName]: () => PtuStrategyExecutor.getLookupData<PtuBerry>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Aura,
+            }),
             [PtuAutocompleteParameterName.BerryName]: () => PtuStrategyExecutor.getLookupData<PtuBerry>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Berry,

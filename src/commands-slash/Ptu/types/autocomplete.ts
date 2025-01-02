@@ -1,6 +1,7 @@
 export enum PtuLookupRange
 {
     Ability = `'Abilities Data'!A3:Z`,
+    Aura = `'Aura Data'!A3:Z`,
     Berry = `'Berry Data'!A2:Z`,
     Capability = `'Capability Data'!A2:Z`,
     Edge = `'Edges Data'!A2:Z`,
@@ -28,6 +29,7 @@ export enum PtuAutocompleteParameterName
     Ability2 = 'ability_2',
     Ability3 = 'ability_3',
     Ability4 = 'ability_4',
+    AuraName = 'aura_name',
     BerryName = 'berry_name',
     CapabilityName = 'capability_name',
     EdgeName = 'edge_name',

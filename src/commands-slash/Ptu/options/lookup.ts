@@ -22,6 +22,7 @@ import { PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
 export enum PtuLookupSubcommand
 {
     Ability = 'ability',
+    Aura = 'aura',
     Berry = 'berry',
     Capability = 'capability',
     Edge = 'edge',
@@ -71,6 +72,22 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     {
         option.setName('effect_search');
         return option.setDescription(`A search on the ability's effect.`);
+    });
+
+    return subcommand;
+};
+
+export const aura = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Aura);
+    subcommand.setDescription('Get an aura based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.AuraName);
+        option.setDescription(`The aura's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
