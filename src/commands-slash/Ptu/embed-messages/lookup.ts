@@ -273,10 +273,46 @@ export const getLookupPokemonEmbedMessages = (
             `${source}: ${page}`,
         ];
 
+        // Add the pokemon's line-by-line description as pages w/ the imageUrl
+        const { descriptions } = lines.reduce<{
+            descriptions: string[];
+            currentPageIndex: number;
+        }>((acc2, line) =>
+        {
+            if (typeof line !== 'string')
+            {
+                return acc2;
+            }
+
+            let currentPage = acc2.descriptions[acc2.currentPageIndex];
+
+            // If no current page or adding the line exceeds the limit, create a new page
+            if (
+                !currentPage
+                || currentPage.length + line.length + 1 > MAX_EMBED_DESCRIPTION_LENGTH
+            )
+            {
+                acc2.currentPageIndex += 1;
+                currentPage = '';
+            }
+
+            // Add the line to the current page description
+            const previousDescription = acc2.descriptions[acc2.currentPageIndex] ?? '';
+            acc2.descriptions[acc2.currentPageIndex] = previousDescription + (currentPage ? '\n' : '') + line;
+
+            return acc2;
+        }, {
+            descriptions: [],
+            currentPageIndex: 0,
+        });
+
         // Add the pokemon's line-by-line description as a page w/ the imageUrl
-        acc.push({
-            description: lines.join('\n'),
-            imageUrl,
+        descriptions.forEach((description) =>
+        {
+            acc.push({
+                description,
+                imageUrl,
+            });
         });
 
         return acc;
