@@ -40,6 +40,7 @@ export class LookupMoveStrategy
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
         const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
         const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
+        const includeContestStats = interaction.options.getBoolean('include_contest_stats');
         const nameSearch = interaction.options.getString('name_search');
         const rangeSearch = interaction.options.getString('range_search');
         const effectSearch = interaction.options.getString('effect_search');
@@ -62,7 +63,7 @@ export class LookupMoveStrategy
 
         // Get message
         const embeds = getLookupMovesEmbedMessages(data, {
-            includeContestStats: (contestStatType !== null || contestStatEffect !== null),
+            includeContestStats: (includeContestStats || contestStatType !== null || contestStatEffect !== null),
         });
 
         return await LookupStrategy.run(interaction, embeds, {

@@ -431,6 +431,12 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
             ...contestStatEffectChoices,
         );
     });
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('include_contest_stats');
+        option.setDescription('Whether contest stats should be included in the output (default: False).');
+        return option;
+    });
 
     // Searches
     subcommand.addStringOption((option) =>
