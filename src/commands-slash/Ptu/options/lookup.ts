@@ -31,6 +31,7 @@ export enum PtuLookupSubcommand
     GiftBlessing = 'gift_blessing',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
+    KeyItem = 'key_item',
     Keyword = 'keyword',
     Move = 'move',
     Nature = 'nature',
@@ -290,6 +291,22 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         return option.setChoices(
             ...typeChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const keyItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.KeyItem);
+    subcommand.setDescription('Get a key item based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.KeyItemName);
+        option.setDescription(`The key item's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
