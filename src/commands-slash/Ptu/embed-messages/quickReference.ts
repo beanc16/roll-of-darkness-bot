@@ -2,6 +2,18 @@ import { EmbedBuilder } from 'discord.js';
 
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
 
+export const getQrBookMechanicsEmbedMessages = (lines: string[]): EmbedBuilder[] =>
+{
+    if (lines.length === 0) return [];
+
+    return getPagedEmbedBuilders({
+        title: 'Book Mechanics',
+        pages: [
+            lines.join('\n'),
+        ],
+    });
+};
+
 export const getQrDamageChartsEmbedMessages = (input: string[][]): EmbedBuilder[] =>
 {
     if (

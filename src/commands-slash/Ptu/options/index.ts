@@ -28,6 +28,7 @@ export enum PtuSubcommandGroup
 
 export enum PtuQuickReferenceInfo
 {
+    BookMechanics = 'book_mechanics',
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
     PokemonExperienceChart = 'pokemon_experience_chart',
