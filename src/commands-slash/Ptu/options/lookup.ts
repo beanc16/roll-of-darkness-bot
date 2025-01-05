@@ -17,6 +17,7 @@ import {
 import { BerryTier } from '../types/PtuBerry.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
+import { PtuKeyItemType } from '../types/PtuKeyItem.js';
 import { PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
 
 export enum PtuLookupSubcommand
@@ -307,6 +308,25 @@ export const keyItem = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setName(PtuAutocompleteParameterName.KeyItemName);
         option.setDescription(`The key item's name.`);
         return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.values(PtuKeyItemType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription('The type of moves to look up.');
+        return option.setChoices(
+            ...typeChoices,
+        );
     });
 
     return subcommand;

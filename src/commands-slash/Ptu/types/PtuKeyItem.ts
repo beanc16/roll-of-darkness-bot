@@ -1,7 +1,20 @@
+export enum PtuKeyItemType
+{
+    Bait = 'Bait',
+    Book = 'Book',
+    CraftingKitAndRecreation = 'Crafting Kit & Recreation',
+    Poffin = 'Poffin',
+    PokemonCaretaking = 'Pokemon Caretaking',
+    Repel = 'Repel',
+    Shard = 'Shard',
+    SurvivalGear = 'Survival Gear',
+}
+
 export class PtuKeyItem
 {
     public name: string;
     public cost?: number | string;
+    public type: PtuKeyItemType;
     public description: string;
 
     constructor(input: string[])
@@ -9,6 +22,7 @@ export class PtuKeyItem
         const [
             name,
             unparsedCost,
+            type,
             description,
         ] = input;
 
@@ -18,6 +32,7 @@ export class PtuKeyItem
         // Base values
         this.name = name;
         this.cost = cost;
+        this.type = type as PtuKeyItemType;
         this.description = description;
     }
 

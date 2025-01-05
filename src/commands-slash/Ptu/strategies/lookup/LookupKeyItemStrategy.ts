@@ -11,11 +11,12 @@ import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
-import { PtuKeyItem } from '../../types/PtuKeyItem.js';
+import { PtuKeyItem, PtuKeyItemType } from '../../types/PtuKeyItem.js';
 
 export interface GetLookupKeyItemDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
+    type?: PtuKeyItemType | null;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -27,9 +28,11 @@ export class LookupKeyItemStrategy
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.KeyItemName);
+        const type = interaction.options.getString('type') as PtuKeyItemType | null;
 
         const data = await this.getLookupData({
             name,
+            type,
             includeAllIfNoName: false,
         });
 
@@ -40,6 +43,7 @@ export class LookupKeyItemStrategy
             parseElementToLines: element => [
                 Text.bold(element.name),
                 ...(element.cost !== undefined ? [`Cost: ${element.cost}`] : []),
+                ...(element.type !== undefined ? [`Type: ${element.type}`] : []),
                 ...(element.description !== undefined && element.description !== '--'
                     ? [
                         `Description:\n\`\`\`\n${element.description}\`\`\``,
@@ -70,6 +74,12 @@ export class LookupKeyItemStrategy
 
             // cur[0] === name in spreadsheet
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
+            {
+                return acc;
+            }
+
+            // Type
+            if (input.type && input.type !== element.type)
             {
                 return acc;
             }
