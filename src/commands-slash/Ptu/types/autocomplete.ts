@@ -20,6 +20,7 @@ export enum PtuLookupRange
     Status = `'Status Data'!A2:Z`,
     Tm = `'Tm Data'!A2:Z`,
     Vitamin = `'Vitamin Data'!A2:Z`,
+    Weather = `'Weather Data'!A2:Z`,
     XItem = `'X-Item Data'!A2:Z`,
 }
 
@@ -52,5 +53,6 @@ export enum PtuAutocompleteParameterName
     StatusName = 'status_name',
     TmName = 'tm_name',
     VitaminName = 'vitamin_name',
+    WeatherName = 'weather_name',
     XItemName = 'x_item_name',
 }

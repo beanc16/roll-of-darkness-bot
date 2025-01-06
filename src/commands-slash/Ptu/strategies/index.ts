@@ -304,6 +304,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Vitamin,
             }),
+            [PtuAutocompleteParameterName.WeatherName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Weather,
+            }),
             [PtuAutocompleteParameterName.XItemName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.XItem,

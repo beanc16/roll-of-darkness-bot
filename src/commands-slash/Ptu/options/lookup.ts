@@ -41,6 +41,7 @@ export enum PtuLookupSubcommand
     Status = 'status',
     Tm = 'tm',
     Vitamin = 'vitamin',
+    Weather = 'weather',
     XItem = 'x_item',
 }
 
@@ -762,6 +763,22 @@ export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setChoices(
             ...enhancedStatChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const weather = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Weather);
+    subcommand.setDescription('Get weather based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.WeatherName);
+        option.setDescription(`The weather's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
