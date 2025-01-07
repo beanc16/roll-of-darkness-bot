@@ -210,6 +210,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
             }),
+            [PtuAutocompleteParameterName.EquipmentName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Equipment,
+            }),
             [PtuAutocompleteParameterName.EvolutionaryStone]: () => PtuStrategyExecutor.getLookupData<PtuEvolutionaryStone>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.EvolutionaryStone,

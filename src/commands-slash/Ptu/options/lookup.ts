@@ -15,6 +15,7 @@ import {
     PtuMoveListType,
 } from '../types/pokemon.js';
 import { BerryTier } from '../types/PtuBerry.js';
+import { PtuEquipmentSlot } from '../types/PtuEquipment.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
 import { PtuKeyItemType } from '../types/PtuKeyItem.js';
@@ -27,6 +28,7 @@ export enum PtuLookupSubcommand
     Berry = 'berry',
     Capability = 'capability',
     Edge = 'edge',
+    Equipment = 'equipment',
     EvolutionaryStone = 'evolutionary_stone',
     Feature = 'feature',
     GiftBlessing = 'gift_blessing',
@@ -158,6 +160,39 @@ export const edge = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setDescription(`The edge's name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const equipment = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Equipment);
+    subcommand.setDescription('Get equipment based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EquipmentName);
+        option.setDescription(`The equipment's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Slot
+    const slotChoices = Object.values(PtuEquipmentSlot).map<APIApplicationCommandOptionChoice<string>>(
+        (name) =>
+        {
+            return {
+                name,
+                value: name,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('slot');
+        option.setDescription(`The equipment's slot.`);
+        return option.addChoices(...slotChoices);
     });
 
     return subcommand;

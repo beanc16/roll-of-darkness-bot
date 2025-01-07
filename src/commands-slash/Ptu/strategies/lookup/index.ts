@@ -3,6 +3,7 @@ import { LookupAuraStrategy } from './LookupAuraStrategy.js';
 import { LookupBerryStrategy } from './LookupBerryStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
+import { LookupEquipmentStrategy } from './LookupEquipmentStrategy.js';
 import { LookupEvolutionaryStoneStrategy } from './LookupEvolutionaryStoneStrategy.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 import { LookupGiftBlessingStrategy } from './LookupGiftBlessingStrategy.js';
@@ -26,6 +27,7 @@ export default {
     [LookupBerryStrategy.key]: LookupBerryStrategy,
     [LookupCapabilityStrategy.key]: LookupCapabilityStrategy,
     [LookupEdgeStrategy.key]: LookupEdgeStrategy,
+    [LookupEquipmentStrategy.key]: LookupEquipmentStrategy,
     [LookupEvolutionaryStoneStrategy.key]: LookupEvolutionaryStoneStrategy,
     [LookupFeatureStrategy.key]: LookupFeatureStrategy,
     [LookupGiftBlessingStrategy.key]: LookupGiftBlessingStrategy,
