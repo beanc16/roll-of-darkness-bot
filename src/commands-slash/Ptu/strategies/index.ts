@@ -300,6 +300,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
             }),
+            [PtuAutocompleteParameterName.TagName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Tag,
+            }),
             [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,

@@ -41,6 +41,7 @@ export enum PtuLookupSubcommand
     Pokeball = 'pokeball',
     Pokemon = 'pokemon',
     Status = 'status',
+    Tag = 'tag',
     Tm = 'tm',
     Vitamin = 'vitamin',
     Weather = 'weather',
@@ -746,6 +747,23 @@ export const status = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         return option.setChoices(
             ...typeChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const tag = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Tag);
+    subcommand.setDescription('Get a tag based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.TagName);
+        option.setDescription(`The tag's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
