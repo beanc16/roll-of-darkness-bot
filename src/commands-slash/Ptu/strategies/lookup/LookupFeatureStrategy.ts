@@ -1,5 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
@@ -34,37 +34,7 @@ export class LookupFeatureStrategy
         });
 
         // Get message
-        const embeds = getPagedEmbedMessages({
-            input: data,
-            title: 'Features',
-            parseElementToLines: element => [
-                Text.bold(element.name),
-                ...(element.tags !== undefined && element.tags !== '-'
-                    ? [
-                        `Tags: ${element.tags}`,
-                    ]
-                    : []
-                ),
-                ...(element.prerequisites !== undefined && element.prerequisites !== '-'
-                    ? [
-                        `Prerequisites: ${element.prerequisites}`,
-                    ]
-                    : []
-                ),
-                ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
-                    ? [
-                        `Frequency / Action: ${element.frequencyAndAction}`,
-                    ]
-                    : []
-                ),
-                ...(element.effect !== undefined && element.effect !== '--'
-                    ? [
-                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
-                    ]
-                    : []
-                ),
-            ],
-        });
+        const embeds = this.getEmbedMessages(data);
 
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Feature}`,
@@ -72,7 +42,7 @@ export class LookupFeatureStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupFeatureDataParameters = {
+    public static async getLookupData(input: GetLookupFeatureDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuFeature[]>
     {
@@ -104,5 +74,42 @@ export class LookupFeatureStrategy
         output.sort((a, b) => a.name.localeCompare(b.name));
 
         return output;
+    }
+
+    public static getEmbedMessages(data: PtuFeature[], title = 'Features'): EmbedBuilder[]
+    {
+        const embeds = getPagedEmbedMessages({
+            input: data,
+            title,
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.tags !== undefined && element.tags !== '-'
+                    ? [
+                        `Tags: ${element.tags}`,
+                    ]
+                    : []
+                ),
+                ...(element.prerequisites !== undefined && element.prerequisites !== '-'
+                    ? [
+                        `Prerequisites: ${element.prerequisites}`,
+                    ]
+                    : []
+                ),
+                ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
+                    ? [
+                        `Frequency / Action: ${element.frequencyAndAction}`,
+                    ]
+                    : []
+                ),
+                ...(element.effect !== undefined && element.effect !== '--'
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
+
+        return embeds;
     }
 }
