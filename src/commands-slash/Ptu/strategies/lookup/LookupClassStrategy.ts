@@ -7,6 +7,7 @@ import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
+import { PokemonType } from '../../types/pokemon.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 
@@ -33,6 +34,29 @@ enum PtuClassName
     Rider = 'Rider',
     Taskmaster = 'Taskmaster',
     Trickster = 'Trickster',
+
+    // Specialist Team Classes
+    StatAce = 'Stat Ace',
+    StyleExpert = 'Style Expert',
+    TypeAce = 'Type Ace',
+    BugAce = 'Bug Ace',
+    DarkAce = 'Dark Ace',
+    DragonAce = 'Dragon Ace',
+    ElectricAce = 'Electric Ace',
+    FairyAce = 'Fairy Ace',
+    FightingAce = 'Fighting Ace',
+    FireAce = 'Fire Ace',
+    FlyingAce = 'Flying Ace',
+    GhostAce = 'Ghost Ace',
+    GrassAce = 'Grass Ace',
+    GroundAce = 'Ground Ace',
+    IceAce = 'Ice Ace',
+    NormalAce = 'Normal Ace',
+    PoisonAce = 'Poison Ace',
+    PsychicAce = 'Psychic Ace',
+    RockAce = 'Rock Ace',
+    SteelAce = 'Steel Ace',
+    WaterAce = 'Water Ace',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -63,6 +87,128 @@ export class LookupClassStrategy
 
     private static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
     {
+        // Create base lists for type ace and elementalist
+        const typeToFeatures: Record<PokemonType, string[]> = {
+            [PokemonType.Bug]: [
+                'Insectoid Utility',
+                'Interactive Evolution',
+                'Chitin Shield',
+                'Disruption Order',
+            ],
+            [PokemonType.Dark]: [
+                'Clever Ruse',
+                'Sneak Attack',
+                'Devious',
+                'Black-Out Strike',
+            ],
+            [PokemonType.Dragon]: [
+                `Tyrant's Roar`,
+                'Highlander',
+                'Unconquerable',
+                'This Will Not Stand',
+            ],
+            [PokemonType.Electric]: [
+                'Lockdown',
+                'Overload',
+                'Shocking Speed',
+                'Chain Lightning',
+            ],
+            [PokemonType.Fairy]: [
+                'Fairy Lights',
+                'Arcane Favor',
+                'Fey Trance',
+                'Fairy Rite',
+            ],
+            [PokemonType.Fighting]: [
+                'Close Quarters Master',
+                'Brawler',
+                'Face Me Whelp',
+                'Smashing Punishment',
+            ],
+            [PokemonType.Fire]: [
+                'Brightest Flame',
+                'Trail Blazer',
+                'Incandescence',
+                'Fan the Flames',
+            ],
+            [PokemonType.Flying]: [
+                'Celerity',
+                'Gale Strike',
+                'Zephyr Shield',
+                'Tornado Charge',
+            ],
+            [PokemonType.Ghost]: [
+                'Ghost Step',
+                'Haunting Curse',
+                'Vampirism',
+                'Boo!',
+            ],
+            [PokemonType.Grass]: [
+                'Foiling Foliage',
+                'Sunlight Within',
+                'Enduring Bloom',
+                'Cross-Pollinate',
+            ],
+            [PokemonType.Ground]: [
+                'Mold the Earth',
+                'Desert Heart',
+                'Earthroil',
+                'Upheaval',
+            ],
+            [PokemonType.Ice]: [
+                'Glacial Ice',
+                'Polar Vortex',
+                'Arctic Zeal',
+                'Deep Cold',
+            ],
+            [PokemonType.Normal]: [
+                'Extra Ordinary',
+                'Plainly Perfect',
+                'New Normal',
+                'Simple Improvements',
+            ],
+            [PokemonType.Poison]: [
+                'Potent Venom',
+                'Debilitate',
+                'Miasma',
+                'Corrosive Blight',
+            ],
+            [PokemonType.Psychic]: [
+                'Psionic Sponge',
+                'Mindbreak',
+                'Psychic Resonance',
+                'Force of Will',
+            ],
+            [PokemonType.Rock]: [
+                'Gravel Before Me',
+                'Bigger and Boulder',
+                'Tough as Schist',
+                'Gneiss Aim',
+            ],
+            [PokemonType.Steel]: [
+                'Polished Shine',
+                'Iron Grit',
+                'Assault Armor',
+                'True Steel',
+            ],
+            [PokemonType.Water]: [
+                'Flood!',
+                'Fishbowl Technique',
+                'Fountain of Life',
+                'Aqua Vortex',
+            ],
+        };
+
+        const baseTypeAceFeatures = [
+            PtuClassName.TypeAce,
+            'Type Refresh',
+            'Move Sync',
+        ];
+
+        const typeAceFeaturesForTypes = Object.values(typeToFeatures).reduce<string[]>(
+            (acc, cur) => acc.concat(cur), [],
+        );
+
         const classToFeaturesMap: Record<PtuClassName, string[]> = {
             // Introductory Classes
             [PtuClassName.AceTrainer]: [
@@ -178,7 +324,59 @@ export class LookupClassStrategy
                 'Encore Performance',
                 'Sleight',
             ],
+
+            // Specialist Team Classes
+            [PtuClassName.StatAce]: [
+                PtuClassName.StatAce,
+                'Stat Link',
+                'Stat Training',
+                'Stat Maneuver',
+                'Stat Mastery',
+                'Stat Embodiment',
+                'Stat Strategem',
+            ],
+            [PtuClassName.StyleExpert]: [
+                PtuClassName.StyleExpert,
+                'Style Flourish',
+                'Style Entrainment',
+                'Beautiful Ballet',
+                'Fabulous Max',
+                'Enticing Beauty',
+                'Cool Conduct',
+                'Rule of Cool',
+                'Action Hero Stunt',
+                'Cute Cuddle',
+                'Gleeful Steps',
+                `Let's Be Friends!`,
+                'Smart Scheme',
+                'Calculated Assault',
+                'Learn From Your Mistakes',
+                'Tough Tumble',
+                'Macho Charge',
+                'Endurance',
+            ],
+            [PtuClassName.TypeAce]: [...baseTypeAceFeatures, ...typeAceFeaturesForTypes],
+            [PtuClassName.BugAce]: [...baseTypeAceFeatures, ...typeToFeatures.Bug],
+            [PtuClassName.DarkAce]: [...baseTypeAceFeatures, ...typeToFeatures.Dark],
+            [PtuClassName.DragonAce]: [...baseTypeAceFeatures, ...typeToFeatures.Dragon],
+            [PtuClassName.ElectricAce]: [...baseTypeAceFeatures, ...typeToFeatures.Electric],
+            [PtuClassName.FairyAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fairy],
+            [PtuClassName.FightingAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fighting],
+            [PtuClassName.FireAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fire],
+            [PtuClassName.FlyingAce]: [...baseTypeAceFeatures, ...typeToFeatures.Flying],
+            [PtuClassName.GhostAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ghost],
+            [PtuClassName.GrassAce]: [...baseTypeAceFeatures, ...typeToFeatures.Grass],
+            [PtuClassName.GroundAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ground],
+            [PtuClassName.IceAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ice],
+            [PtuClassName.NormalAce]: [...baseTypeAceFeatures, ...typeToFeatures.Normal],
+            [PtuClassName.PoisonAce]: [...baseTypeAceFeatures, ...typeToFeatures.Poison],
+            [PtuClassName.PsychicAce]: [...baseTypeAceFeatures, ...typeToFeatures.Psychic],
+            [PtuClassName.RockAce]: [...baseTypeAceFeatures, ...typeToFeatures.Rock],
+            [PtuClassName.SteelAce]: [...baseTypeAceFeatures, ...typeToFeatures.Steel],
+            [PtuClassName.WaterAce]: [...baseTypeAceFeatures, ...typeToFeatures.Water],
         };
+
+        // TODO: Use features to say which features to get from LookupFeatureStrategy.getLookupData
         const features = classToFeaturesMap[input.name];
 
         // TODO: Make LookupFeatureStrategy.getLookupData work with multiple feature names later.
