@@ -17,7 +17,22 @@ export interface GetLookupClassDataParameters extends BaseLookupDataOptions
 
 enum PtuClassName
 {
+    // Introductory Classes
+    AceTrainer = 'Ace Trainer',
+    CaptureSpecialist = 'Capture Specialist',
     Commander = 'Commander',
+    Coordinator = 'Coordinator',
+    Hobbyist = 'Hobbyist',
+    Mentor = 'Mentor',
+
+    // Battling Style Classes
+    Cheerleader = 'Cheerleader',
+    Duelist = 'Duelist',
+    EnduringSoul = 'Enduring Soul',
+    Juggler = 'Juggler',
+    Rider = 'Rider',
+    Taskmaster = 'Taskmaster',
+    Trickster = 'Trickster',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -49,6 +64,22 @@ export class LookupClassStrategy
     private static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
     {
         const classToFeaturesMap: Record<PtuClassName, string[]> = {
+            // Introductory Classes
+            [PtuClassName.AceTrainer]: [
+                PtuClassName.AceTrainer,
+                'Perseverance',
+                'Elite Trainer',
+                'Critical Moment',
+                'Top Percentage',
+                'Signature Technique',
+                'Champ in the Making',
+            ],
+            [PtuClassName.CaptureSpecialist]: [
+                PtuClassName.CaptureSpecialist,
+                'Advanced Capture Techniques',
+                'Captured Momentum',
+                `Gotta Catch 'Em All`,
+            ],
             [PtuClassName.Commander]: [
                 PtuClassName.Commander,
                 'Mobilize',
@@ -57,6 +88,95 @@ export class LookupClassStrategy
                 'Complex Orders',
                 'Tip the Scales',
                 'Scheme Twist',
+            ],
+            [PtuClassName.Coordinator]: [
+                PtuClassName.Coordinator,
+                'Decisive Director',
+                'Adaptable Performance',
+                'Flexible Preparations',
+                'Innovation',
+                'Nuanced Performance',
+                'Reliance Performance',
+            ],
+            [PtuClassName.Hobbyist]: [
+                PtuClassName.Hobbyist,
+                'Dilettante',
+                'Dabbler',
+                'Look and Learn',
+            ],
+            [PtuClassName.Mentor]: [
+                PtuClassName.Mentor,
+                'Lessons',
+                'Expand Horizons',
+                'Guidance',
+                'Move Tutor',
+                'Egg Tutor',
+                'Lifelong Learning',
+            ],
+
+            // Battling Style Classes
+            [PtuClassName.Cheerleader]: [
+                PtuClassName.Cheerleader,
+                'Cheer Brigade',
+                'Gleeful Interference',
+                'Inspirational Support',
+                'Moment of Action',
+                'Go, Fight, Win!',
+                'Keep Fighting!',
+            ],
+            [PtuClassName.Duelist]: [
+                PtuClassName.Duelist,
+                'Expend Momentum',
+                'Effective Methods',
+                'Directed Focus',
+                'Type Methodology',
+                `Duelist's Methods`,
+                'Seize the Moment',
+            ],
+            [PtuClassName.EnduringSoul]: [
+                PtuClassName.EnduringSoul,
+                'Staying Power',
+                'Shrug Off',
+                'Awareness',
+                'Resilience',
+                'Not Yet!',
+                'Vim and Vigor',
+            ],
+            [PtuClassName.Juggler]: [
+                PtuClassName.Juggler,
+                'Bounce Shot',
+                'Juggling Show',
+                'Round Trip',
+                'Tag In',
+                'Emergency Release',
+                'First Blood',
+            ],
+            [PtuClassName.Rider]: [
+                PtuClassName.Rider,
+                'Ramming Speed',
+                `Conqueror's March`,
+                'Ride as One',
+                'Lean In',
+                `Cavalier's Reprisal`,
+                'Overrun',
+            ],
+            [PtuClassName.Taskmaster]: [
+                PtuClassName.Taskmaster,
+                'Quick Healing',
+                'Savage Strike',
+                'Strike of the Whip',
+                'Pain Resistance',
+                'Press On!',
+                'Desperate Strike',
+                'Deadly Gambit',
+            ],
+            [PtuClassName.Trickster]: [
+                PtuClassName.Trickster,
+                'Bag of Tricks',
+                'Stacked Deck',
+                'Flourish',
+                'Encore Performance',
+                'Sleight',
             ],
         };
         const features = classToFeaturesMap[input.name];
