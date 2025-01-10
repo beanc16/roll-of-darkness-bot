@@ -57,6 +57,23 @@ enum PtuClassName
     RockAce = 'Rock Ace',
     SteelAce = 'Steel Ace',
     WaterAce = 'Water Ace',
+
+    // Professional Classes
+    Chef = 'Chef',
+    Chronicler = 'Chronicler',
+    Fashionista = 'Fashionista',
+    Researcher = 'Researcher',
+    GeneralResearcher = 'General Researcher',
+    GeneralResearcherPlaytest = 'General Researcher [Playtest]',
+    ApothecaryResearcher = 'Apothecary Researcher',
+    ArtificerResearcher = 'Artificer Researcher',
+    BotanyResearcher = 'Botany Researcher',
+    ChemistryResearcher = 'Chemistry Researcher',
+    ClimatologyResearcher = 'Climatology Researcher',
+    OccultismResearcher = 'Occultism Researcher',
+    PaleontologyResearcher = 'Paleontology Researcher',
+    PokemonCaretakingResearcher = 'Pokemon Caretaking Researcher',
+    Survivalist = 'Survivalist',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -206,6 +223,73 @@ export class LookupClassStrategy
         ];
 
         const typeAceFeaturesForTypes = Object.values(typeToFeatures).reduce<string[]>(
+            (acc, cur) => acc.concat(cur), [],
+        );
+
+        // Create base costs for researcher branches
+        const researcherBranchToFeatures: Record<string, string[]> = {
+            [PtuClassName.GeneralResearcher]: [
+                'Breadth of Knowledge',
+                'Live and Learn',
+                'Instant Analysis',
+                'Echoes of the Future',
+            ],
+            [PtuClassName.GeneralResearcherPlaytest]: [
+                'Breadth of Knowledge [Playtest]',
+                'Bookworm [Playtest]',
+                'Well Read [Playtest]',
+                'Echoes of the Future [Playtest]',
+            ],
+            [PtuClassName.ApothecaryResearcher]: [
+                'Apothecary',
+                'Patch Cure',
+                'Medical Techniques',
+                'Medicinal Blend',
+            ],
+            [PtuClassName.ArtificerResearcher]: [
+                'Crystal Artificer',
+                'Crystal Resonance',
+                'Rainbow Light',
+                'Fistful of Force',
+            ],
+            [PtuClassName.BotanyResearcher]: [
+                'Seed Bag',
+                'Top Tier Berries',
+                'Herb Lore',
+            ],
+            [PtuClassName.ChemistryResearcher]: [
+                'Chemist',
+                'Chemical Warfare',
+                'Caustic Chemistry',
+                'Playing God',
+            ],
+            [PtuClassName.ClimatologyResearcher]: [
+                'Climatology',
+                'Climate Control',
+                'Weather Systems',
+                'Extreme Weather',
+            ],
+            [PtuClassName.OccultismResearcher]: [
+                'Witch Hunter',
+                'Psionic Analysis',
+                'Mental Resistance',
+                'Immutable Mind',
+            ],
+            [PtuClassName.PaleontologyResearcher]: [
+                'Fossil Restoration',
+                'Ancient Heritage',
+                'Genetic Memory',
+                'Prehistoric Bond',
+            ],
+            [PtuClassName.PokemonCaretakingResearcher]: [
+                'Pusher',
+                `This One's Special, I Know It`,
+                'Skill Trainer',
+                'Re-Balancing',
+            ],
+        };
+
+        const allResearcherBranchFeatures = Object.values(researcherBranchToFeatures).reduce<string[]>(
             (acc, cur) => acc.concat(cur), [],
         );
 
@@ -374,6 +458,86 @@ export class LookupClassStrategy
             [PtuClassName.RockAce]: [...baseTypeAceFeatures, ...typeToFeatures.Rock],
             [PtuClassName.SteelAce]: [...baseTypeAceFeatures, ...typeToFeatures.Steel],
             [PtuClassName.WaterAce]: [...baseTypeAceFeatures, ...typeToFeatures.Water],
+
+            // Professional Classes
+            [PtuClassName.Chef]: [
+                PtuClassName.Chef,
+                'Hits the Spot',
+                'Culinary Appreciation',
+                'Accentuated Taste',
+                'Complex Aftertaste',
+                'Dietician',
+                'Dumplings',
+            ],
+            [PtuClassName.Chronicler]: [
+                PtuClassName.Chronicler,
+                'Archival Training',
+                'Archive Tutor',
+                'Targeted Profiling',
+                'Obswervation Party',
+                'Cinematic Analysis',
+            ],
+            [PtuClassName.Fashionista]: [
+                PtuClassName.Fashionista,
+                'Dashing Makeover',
+                'Style is Eternal',
+                'Accessorize',
+                'Parfumier',
+                'Versatile Wardrobe',
+                'Dress to Impress',
+            ],
+            [PtuClassName.Researcher]: [
+                PtuClassName.Researcher,
+                ...allResearcherBranchFeatures,
+            ],
+            [PtuClassName.GeneralResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.GeneralResearcher],
+            ],
+            [PtuClassName.GeneralResearcherPlaytest]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.GeneralResearcherPlaytest],
+            ],
+            [PtuClassName.ApothecaryResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.ApothecaryResearcher],
+            ],
+            [PtuClassName.ArtificerResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.ArtificerResearcher],
+            ],
+            [PtuClassName.BotanyResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.BotanyResearcher],
+            ],
+            [PtuClassName.ChemistryResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.ChemistryResearcher],
+            ],
+            [PtuClassName.ClimatologyResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.ClimatologyResearcher],
+            ],
+            [PtuClassName.OccultismResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.OccultismResearcher],
+            ],
+            [PtuClassName.PaleontologyResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.PaleontologyResearcher],
+            ],
+            [PtuClassName.PokemonCaretakingResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.PokemonCaretakingResearcher],
+            ],
+            [PtuClassName.Survivalist]: [
+                PtuClassName.Survivalist,
+                'Natural Fighter',
+                'Trapper',
+                'Wilderness Guide',
+                'Terrain Talent',
+                'Adaptive Geography',
+            ],
         };
 
         // TODO: Use features to say which features to get from LookupFeatureStrategy.getLookupData
