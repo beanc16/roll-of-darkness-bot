@@ -39,6 +39,10 @@ export class LookupConditionStrategy
             title: 'Conditions',
             parseElementToLines: element => [
                 Text.bold(element.name),
+                ...(element.pageNumber !== undefined
+                    ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
                 ...(element.description !== undefined
                     ? [
                         `Description:\n\`\`\`\n${element.description}\`\`\``,
