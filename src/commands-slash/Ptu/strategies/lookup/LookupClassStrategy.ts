@@ -74,6 +74,19 @@ enum PtuClassName
     PaleontologyResearcher = 'Paleontology Researcher',
     PokemonCaretakingResearcher = 'Pokemon Caretaking Researcher',
     Survivalist = 'Survivalist',
+
+    // Fighter Classes
+    Athlete = 'Athlete',
+    Dancer = 'Dancer',
+    Hunter = 'Hunter',
+    MartialArtist = 'Martial Artist',
+    Musician = 'Musician',
+    Provocateur = 'Provocateur',
+    Rogue = 'Rogue',
+    Roughneck = 'Roughneck',
+    Tumbler = 'Tumbler',
+
+    // Supernatural Classes
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -537,6 +550,85 @@ export class LookupClassStrategy
                 'Wilderness Guide',
                 'Terrain Talent',
                 'Adaptive Geography',
+            ],
+
+            // Fighter Classes
+            [PtuClassName.Athlete]: [
+                PtuClassName.Athlete,
+                'Training Regime',
+                'Coaching',
+                'Adrenaline Rush',
+                'Athletic Moves',
+            ],
+            [PtuClassName.Dancer]: [
+                PtuClassName.Dancer,
+                'Dance Form',
+                'Beguiling Dance',
+                'Dance Practice',
+                'Choreographer',
+                'Power Pirouette',
+                'Passing Waltz',
+            ],
+            [PtuClassName.Hunter]: [
+                PtuClassName.Hunter,
+                'Pack Tactics',
+                'Surprise!',
+                `Hunter's Reflexes`,
+                'Finisher',
+                `Don't Look Away`,
+                'Pack Master',
+            ],
+            [PtuClassName.MartialArtist]: [
+                PtuClassName.MartialArtist,
+                'Martial Training',
+                'My Kung-Fu is Stronger',
+                'Martial Achievement',
+                'Second Strike',
+            ],
+            [PtuClassName.Musician]: [
+                PtuClassName.Musician,
+                'Musical Ability',
+                'Mt. Moon Blues',
+                'Cacophony',
+                'Noise Complaint',
+                'Voice Lessons',
+                'Power Chord',
+            ],
+            [PtuClassName.Provocateur]: [
+                PtuClassName.Provocateur,
+                'Push Buttons',
+                'Quick Wit',
+                'Mixed Messages',
+                'Powerful Motivator',
+                'Play Them Like a Fiddle',
+                'Enchanting Gaze',
+            ],
+            [PtuClassName.Rogue]: [
+                PtuClassName.Rogue,
+                'Cutthroat',
+                'Dirty Fighting',
+                'Unexpected Attacks',
+                'Underhanded Tactics',
+                'Street Fighter',
+                `Scoundrel's Strike`,
+            ],
+            [PtuClassName.Roughneck]: [
+                PtuClassName.Roughneck,
+                'Menace',
+                'Mettle',
+                'Malice',
+                'Fearsome Display',
+                'Cruel Gaze',
+                'Tough as Nails',
+            ],
+            [PtuClassName.Tumbler]: [
+                PtuClassName.Tumbler,
+                'Aerialist',
+                'Quick Gymnastics',
+                'Flip Out',
+                'Death From Above',
+                'Quick Reflexes',
+                'Burst of Speed',
             ],
         };
 
