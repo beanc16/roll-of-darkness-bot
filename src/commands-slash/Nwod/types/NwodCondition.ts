@@ -5,6 +5,7 @@ export class NwodCondition
     public resolution: string;
     public beat: string | undefined;
     public possibleSources: string | undefined;
+    public pageNumber: string;
 
     constructor(input: string[])
     {
@@ -14,6 +15,7 @@ export class NwodCondition
             resolution,
             beat,
             possibleSources,
+            pageNumber,
         ] = input;
 
         // Base values
@@ -24,5 +26,6 @@ export class NwodCondition
         this.possibleSources = (possibleSources && possibleSources.trim() !== '--')
             ? possibleSources.trim()
             : undefined;
+        this.pageNumber = pageNumber.trim();
     }
 }
