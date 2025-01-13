@@ -737,10 +737,16 @@ export class LookupClassStrategy
             // May 2015 Playtest Classes
         };
 
-        // TODO: Use features to say which features to get from LookupFeatureStrategy.getLookupData
         const features = classToFeaturesMap[input.name];
 
-        // TODO: Make LookupFeatureStrategy.getLookupData work with multiple feature names later.
-        return await LookupFeatureStrategy.getLookupData(input);
+        const {
+            name: _,
+            ...parsedInput
+        } = input;
+
+        return await LookupFeatureStrategy.getLookupData({
+            ...parsedInput,
+            names: features,
+        });
     }
 }

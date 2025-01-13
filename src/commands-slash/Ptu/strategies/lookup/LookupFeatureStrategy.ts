@@ -15,7 +15,7 @@ import { PtuFeature } from '../../types/PtuFeature.js';
 
 export interface GetLookupFeatureDataParameters extends BaseLookupDataOptions
 {
-    name?: string | null;
+    names?: (string | null)[];
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -29,7 +29,7 @@ export class LookupFeatureStrategy
         const name = interaction.options.getString(PtuAutocompleteParameterName.FeatureName, true);
 
         const data = await this.getLookupData({
-            name,
+            names: [name],
             includeAllIfNoName: false,
         });
 
@@ -51,6 +51,20 @@ export class LookupFeatureStrategy
             range: PtuLookupRange.Feature,
         });
 
+        const parsedInput = {
+            ...input,
+            names: input.names?.reduce<Set<string>>((acc, name) =>
+            {
+                // Filter out nulls
+                if (name)
+                {
+                    acc.add(name.toLowerCase());
+                }
+
+                return acc;
+            }, new Set<string>()),
+        };
+
         const output = data.reduce<PtuFeature[]>((acc, cur) =>
         {
             const element = new PtuFeature(cur);
@@ -61,7 +75,7 @@ export class LookupFeatureStrategy
             }
 
             // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
+            if (parsedInput.names && parsedInput.names.size > 0 && !parsedInput.names.has(element.name.toLowerCase()) && !parsedInput.includeAllIfNoName)
             {
                 return acc;
             }
