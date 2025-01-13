@@ -87,6 +87,15 @@ enum PtuClassName
     Tumbler = 'Tumbler',
 
     // Supernatural Classes
+    AuraGuardian = 'Aura Guardian',
+    Channeler = 'Channeler',
+    HexManiac = 'Hex Maniac',
+    Ninja = 'Ninja',
+    Oracle = 'Oracle',
+    Sage = 'Sage',
+    Telekinetic = 'Telekinetic',
+    Telepath = 'Telepath',
+    Warper = 'Warper',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -629,6 +638,86 @@ export class LookupClassStrategy
                 'Death From Above',
                 'Quick Reflexes',
                 'Burst of Speed',
+            ],
+
+            // Supernatural Classes
+            [PtuClassName.AuraGuardian]: [
+                PtuClassName.AuraGuardian,
+                'Aura Reader',
+                'The Power of Aura',
+                'Sword of Body and Soul',
+                'Ambient Aura',
+                'Aura Master',
+            ],
+            [PtuClassName.Channeler]: [
+                PtuClassName.Channeler,
+                'Shared Senses',
+                'Battle Synchronization',
+                'Spirit Boost',
+                'Power Conduit',
+                'Pain Dampening',
+                'Soothing Connection',
+            ],
+            [PtuClassName.HexManiac]: [
+                PtuClassName.HexManiac,
+                'Hex Maniac Studies',
+                'Diffuse Pain',
+                'Malediction',
+                'Grand Hex',
+            ],
+            [PtuClassName.Ninja]: [
+                PtuClassName.Ninja,
+                `Ninja's Arsenal`,
+                'Poison Weapons',
+                'Genjutsu',
+                'Utility Drop',
+                'Weightless Step',
+                'Kinjutsu',
+            ],
+            [PtuClassName.Oracle]: [
+                PtuClassName.Oracle,
+                'Divination',
+                'Unveiled Sight',
+                'Small Prophecies',
+                'Mark of Vision',
+                'Two-Second Preview',
+                'Prescience',
+            ],
+            [PtuClassName.Sage]: [
+                PtuClassName.Sage,
+                'Sacred Shield',
+                'Mystic Defense',
+                `Sage's Benediction`,
+                'Lay on Hands',
+                'Highly Responsive to Prayers',
+                'Divine Wind',
+            ],
+            [PtuClassName.Telekinetic]: [
+                PtuClassName.Telekinetic,
+                'PK Alpha',
+                'PK Omega',
+                'Power of the Mind',
+                'PK Combat',
+                'Telekinetic Burst',
+                'Psionic Overload',
+            ],
+            [PtuClassName.Telepath]: [
+                PtuClassName.Telepath,
+                'Honed Mind',
+                'Telepathic Awareness',
+                'Thought Detection',
+                'Telepathic Warning',
+                'Mental Assault',
+                'Suggestion',
+            ],
+            [PtuClassName.Warper]: [
+                PtuClassName.Warper,
+                'Space Distortion',
+                'Warping Ground',
+                'Strange Energy',
+                'Farcast',
+                'Warped Transmission',
+                'Reality Bender',
             ],
         };
 
