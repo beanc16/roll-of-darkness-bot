@@ -96,6 +96,14 @@ enum PtuClassName
     Telekinetic = 'Telekinetic',
     Telepath = 'Telepath',
     Warper = 'Warper',
+
+    // Game of Throhs Classes
+
+    // Do Porygon Dream of Mareep Classes
+
+    // September 2015 Playtest Classes
+
+    // May 2015 Playtest Classes
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -719,6 +727,14 @@ export class LookupClassStrategy
                 'Warped Transmission',
                 'Reality Bender',
             ],
+
+            // Game of Throhs Classes
+
+            // Do Porygon Dream of Mareep Classes
+
+            // September 2015 Playtest Classes
+
+            // May 2015 Playtest Classes
         };
 
         // TODO: Use features to say which features to get from LookupFeatureStrategy.getLookupData
