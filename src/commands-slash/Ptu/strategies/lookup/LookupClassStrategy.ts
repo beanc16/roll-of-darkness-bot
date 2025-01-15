@@ -104,24 +104,28 @@ enum PtuClassName
     Fortress = 'Fortress',
     Marksman = 'Marksman',
     Skirmisher = 'Skirmisher',
-    BugElementalist = 'Swarmlord',
-    DarkElementalist = 'Shade Caller',
-    DragonElementalist = 'Herald of Pride',
-    ElectricElementalist = 'Spark Master',
-    FairyElementalist = 'Glamour Weaver',
-    FireElementalist = 'Fire Bringer',
-    FlyingElementalist = 'Wind Runner',
-    GhostElementalist = 'Apparition',
-    GrassElementalist = 'Druid',
-    GroundElementalist = 'Earth Shaker',
-    IceElementalist = 'Frost Touched',
-    NormalElementalist = 'Prism',
-    PoisonElementalist = 'Miasmic',
-    RockElementalist = 'Stone Warrior',
-    SteelElementalist = 'Steelheart',
-    WaterElementalist = 'Maelstrom',
+    BugElementalist = 'Bug Elementalist: Swarmlord',
+    DarkElementalist = 'Dark Elementalist: Shade Caller',
+    DragonElementalist = 'Dragon Elementalist: Herald of Pride',
+    ElectricElementalist = 'Electric Elementalist: Spark Master',
+    FairyElementalist = 'Fairy Elementalist: Glamour Weaver',
+    FireElementalist = 'Fire Elementalist: Fire Bringer',
+    FlyingElementalist = 'Flying Elementalist: Wind Runner',
+    GhostElementalist = 'Ghost Elementalist: Apparition',
+    GrassElementalist = 'Grass Elementalist: Druid',
+    GroundElementalist = 'Ground Elementalist: Earth Shaker',
+    IceElementalist = 'Ice Elementalist: Frost Touched',
+    NormalElementalist = 'Normal Elementalist: Prism',
+    PoisonElementalist = 'Poison Elementalist: Miasmic',
+    RockElementalist = 'Rock Elementalist: Stone Warrior',
+    SteelElementalist = 'Steel Elementalist: Steelheart',
+    WaterElementalist = 'Water Elementalist: Maelstrom',
 
     // Do Porygon Dream of Mareep Classes
+    EngineerResearcher = 'Engineer Researcher',
+    JailbreakerResearcher = 'Jailbreaker Researcher',
+    UpgraderResearcher = 'Upgrader Researcher',
+    Glitchbender = 'Glitch Bender',
 
     // September 2015 Playtest Classes
 
@@ -338,6 +342,24 @@ export class LookupClassStrategy
                 `This One's Special, I Know It`,
                 'Skill Trainer',
                 'Re-Balancing',
+            ],
+            [PtuClassName.EngineerResearcher]: [
+                'Engineer',
+                'Robofighter',
+                'Overclock',
+                'Experimental AI',
+            ],
+            [PtuClassName.JailbreakerResearcher]: [
+                'Jailbreaker',
+                'Poke Ball Mods',
+                'Fusion Cases',
+                'Case Specialist',
+            ],
+            [PtuClassName.UpgraderResearcher]: [
+                'Upgrader',
+                'Emergency Reactivation',
+                'Efficient Installation',
+                'Experimental Designs',
             ],
         };
 
@@ -806,14 +828,14 @@ export class LookupClassStrategy
                 'Swift Strikes',
             ],
             [PtuClassName.BugElementalist]: [
-                PtuClassName.BugElementalist,
+                PtuClassName.BugElementalist.split(': ')[1],
                 'How To Shoot Web',
                 'Broodlord',
                 'Pheromone Markers',
                 'Enhanced Embrace',
             ],
             [PtuClassName.DarkElementalist]: [
-                PtuClassName.DarkElementalist,
+                PtuClassName.DarkElementalist.split(': ')[1],
                 'Twisted Soul',
                 'Living Shadow',
                 'Sharpen Shadows',
@@ -822,7 +844,7 @@ export class LookupClassStrategy
                 'Dark Soul',
             ],
             [PtuClassName.DragonElementalist]: [
-                PtuClassName.DragonElementalist,
+                PtuClassName.DragonElementalist.split(': ')[1],
                 'Noblesse Oblige',
                 `Channel the Dragon's Spirit`,
                 `Bare the Dragon's Claws`,
@@ -831,14 +853,14 @@ export class LookupClassStrategy
                 'Sovereignty',
             ],
             [PtuClassName.ElectricElementalist]: [
-                PtuClassName.ElectricElementalist,
+                PtuClassName.ElectricElementalist.split(': ')[1],
                 'Magnetize',
                 'Body of Lightning',
                 'Bottled Lightning',
                 'Storm Wizard',
             ],
             [PtuClassName.FairyElementalist]: [
-                PtuClassName.FairyElementalist,
+                PtuClassName.FairyElementalist.split(': ')[1],
                 'Fey Law',
                 'Passionato Harmony',
                 'Lucky Clover Grand Finale',
@@ -847,7 +869,7 @@ export class LookupClassStrategy
                 'Magical Burst',
             ],
             [PtuClassName.FireElementalist]: [
-                PtuClassName.FireElementalist,
+                PtuClassName.FireElementalist.split(': ')[1],
                 'Fiery Soul',
                 'Firebrand',
                 'Burning Passion',
@@ -855,14 +877,14 @@ export class LookupClassStrategy
                 'Fire Breather',
             ],
             [PtuClassName.FlyingElementalist]: [
-                PtuClassName.FlyingElementalist,
+                PtuClassName.FlyingElementalist.split(': ')[1],
                 'One With the Winds',
                 'Flight',
                 'Gale Speed',
                 'Raging Winds',
             ],
             [PtuClassName.GhostElementalist]: [
-                PtuClassName.GhostElementalist,
+                PtuClassName.GhostElementalist.split(': ')[1],
                 'Shadow Arms',
                 'Too Spooky',
                 'Silent Assassin',
@@ -871,14 +893,14 @@ export class LookupClassStrategy
                 'Haunted Wounds',
             ],
             [PtuClassName.GrassElementalist]: [
-                PtuClassName.GrassElementalist,
+                PtuClassName.GrassElementalist.split(': ')[1],
                 'Green Path',
                 'Overgrowth',
                 `Druid's Call`,
                 `Nature's Embrace`,
             ],
             [PtuClassName.GroundElementalist]: [
-                PtuClassName.GroundElementalist,
+                PtuClassName.GroundElementalist.split(': ')[1],
                 'Earthen Bond',
                 `Earth Mother's Blessing`,
                 'Earthshifter',
@@ -886,7 +908,7 @@ export class LookupClassStrategy
                 'Tectonic Shift',
             ],
             [PtuClassName.IceElementalist]: [
-                PtuClassName.IceElementalist,
+                PtuClassName.IceElementalist.split(': ')[1],
                 'The Cold Never Bothered Me Anyway',
                 'Glacial Defense',
                 'Frozen Domain',
@@ -894,7 +916,7 @@ export class LookupClassStrategy
                 `Winter's Herald`,
             ],
             [PtuClassName.NormalElementalist]: [
-                PtuClassName.NormalElementalist,
+                PtuClassName.NormalElementalist.split(': ')[1],
                 'Blinding Brightness',
                 'Sparkle',
                 'Rainbow Surge',
@@ -903,7 +925,7 @@ export class LookupClassStrategy
                 'Prismatic Alignment',
             ],
             [PtuClassName.PoisonElementalist]: [
-                PtuClassName.PoisonElementalist,
+                PtuClassName.PoisonElementalist.split(': ')[1],
                 'Corrupt Blood',
                 'Flexible Form',
                 'Vile Body',
@@ -912,7 +934,7 @@ export class LookupClassStrategy
                 'Miasmic Spray',
             ],
             [PtuClassName.RockElementalist]: [
-                PtuClassName.RockElementalist,
+                PtuClassName.RockElementalist.split(': ')[1],
                 'Stone Stance',
                 'Rock Power',
                 'Shards of Stone',
@@ -920,7 +942,7 @@ export class LookupClassStrategy
                 'Stone Stance Mastery',
             ],
             [PtuClassName.SteelElementalist]: [
-                PtuClassName.SteelElementalist,
+                PtuClassName.SteelElementalist.split(': ')[1],
                 'Champion of Steel',
                 'Steel Wind',
                 'Reactive Armour',
@@ -929,7 +951,7 @@ export class LookupClassStrategy
                 'Man of Steel',
             ],
             [PtuClassName.WaterElementalist]: [
-                PtuClassName.WaterElementalist,
+                PtuClassName.WaterElementalist.split(': ')[1],
                 `Water's Shroud`,
                 'Hydro Jet',
                 'Oceanic Feeling',
@@ -937,6 +959,27 @@ export class LookupClassStrategy
             ],
 
             // Do Porygon Dream of Mareep Classes
+            [PtuClassName.EngineerResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.EngineerResearcher],
+            ],
+            [PtuClassName.JailbreakerResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.JailbreakerResearcher],
+            ],
+            [PtuClassName.UpgraderResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.UpgraderResearcher],
+            ],
+            [PtuClassName.Glitchbender]: [
+                PtuClassName.Glitchbender,
+                'I Am Error',
+                'Null Error',
+                'Corrupt Reality',
+                'Code Injection',
+                'Glitch Shuffle',
+                'Glitch Burst',
+            ],
 
             // September 2015 Playtest Classes
 
