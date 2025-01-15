@@ -128,6 +128,8 @@ enum PtuClassName
     Glitchbender = 'Glitch Bender',
 
     // September 2015 Playtest Classes
+    CheerleaderPlaytest = 'Cheerleader [Playtest]',
+    Medic = 'Medic',
 
     // May 2015 Playtest Classes
 }
@@ -982,6 +984,24 @@ export class LookupClassStrategy
             ],
 
             // September 2015 Playtest Classes
+            [PtuClassName.CheerleaderPlaytest]: [
+                PtuClassName.CheerleaderPlaytest,
+                'Moment of Action [Playtest]',
+                'Cheers [Playtest]',
+                'Inspiration Support [Playtest]',
+                'Bring It On! [Playtest]',
+                'Go, Fight, Win! [Playtest]',
+                'Keep Fighting! [Playtest]',
+            ],
+            [PtuClassName.Medic]: [
+                PtuClassName.Medic,
+                'Front Line Healer',
+                'Medical Techniques',
+                `I'm a Docter Rank 1`,
+                `I'm a Docter Rank 2`,
+                'Proper Care',
+                'Stay With Us!',
+            ],
 
             // May 2015 Playtest Classes
         };
