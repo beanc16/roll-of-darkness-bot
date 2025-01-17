@@ -2,6 +2,7 @@ import { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
 import { LookupAuraStrategy } from './LookupAuraStrategy.js';
 import { LookupBerryStrategy } from './LookupBerryStrategy.js';
 import { LookupCapabilityStrategy } from './LookupCapabilityStrategy.js';
+import { LookupClassStrategy } from './LookupClassStrategy.js';
 import { LookupEdgeStrategy } from './LookupEdgeStrategy.js';
 import { LookupEquipmentStrategy } from './LookupEquipmentStrategy.js';
 import { LookupEvolutionaryStoneStrategy } from './LookupEvolutionaryStoneStrategy.js';
@@ -27,6 +28,7 @@ export default {
     [LookupAuraStrategy.key]: LookupAuraStrategy,
     [LookupBerryStrategy.key]: LookupBerryStrategy,
     [LookupCapabilityStrategy.key]: LookupCapabilityStrategy,
+    [LookupClassStrategy.key]: LookupClassStrategy,
     [LookupEdgeStrategy.key]: LookupEdgeStrategy,
     [LookupEquipmentStrategy.key]: LookupEquipmentStrategy,
     [LookupEvolutionaryStoneStrategy.key]: LookupEvolutionaryStoneStrategy,

@@ -21,7 +21,10 @@ export class PtuCacheInitializer
 
             // Pokemon lookup data is not cached, so don't initialize it
             const subcommandsToInitialize = Object.values(PtuLookupSubcommand)
-                .filter(subcommand => subcommand !== PtuLookupSubcommand.Pokemon);
+                .filter(subcommand =>
+                    subcommand !== PtuLookupSubcommand.Class
+                    && subcommand !== PtuLookupSubcommand.Pokemon,
+                );
 
             // Initialize cachable lookup subcommands
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow so that multi-response type callbacks are easily supported

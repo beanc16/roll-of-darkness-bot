@@ -27,6 +27,7 @@ export enum PtuLookupSubcommand
     Aura = 'aura',
     Berry = 'berry',
     Capability = 'capability',
+    Class = 'class',
     Edge = 'edge',
     Equipment = 'equipment',
     EvolutionaryStone = 'evolutionary_stone',
@@ -93,6 +94,7 @@ export const aura = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     {
         option.setName(PtuAutocompleteParameterName.AuraName);
         option.setDescription(`The aura's name.`);
+        option.setRequired(true);
         return option.setAutocomplete(true);
     });
 
@@ -142,6 +144,24 @@ export const capability = (subcommand: SlashCommandSubcommandBuilder): SlashComm
     {
         option.setName(PtuAutocompleteParameterName.CapabilityName);
         option.setDescription(`The capability's name.`);
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+// Can't call this "class" since that's a reserved word
+export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Class);
+    subcommand.setDescription('Get the features of a class based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.ClassName);
+        option.setDescription(`The class' name.`);
         option.setRequired(true);
         return option.setAutocomplete(true);
     });

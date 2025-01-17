@@ -16,6 +16,7 @@ import { PtuFeature } from '../../types/PtuFeature.js';
 export interface GetLookupFeatureDataParameters extends BaseLookupDataOptions
 {
     names?: (string | null)[];
+    sortByName: boolean;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -31,6 +32,7 @@ export class LookupFeatureStrategy
         const data = await this.getLookupData({
             names: [name],
             includeAllIfNoName: false,
+            sortByName: true,
         });
 
         // Get message
@@ -44,6 +46,7 @@ export class LookupFeatureStrategy
 
     public static async getLookupData(input: GetLookupFeatureDataParameters = {
         includeAllIfNoName: true,
+        sortByName: true,
     }): Promise<PtuFeature[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
@@ -85,7 +88,10 @@ export class LookupFeatureStrategy
         }, []);
 
         // Sort by name
-        output.sort((a, b) => a.name.localeCompare(b.name));
+        if (input.sortByName)
+        {
+            output.sort((a, b) => a.name.localeCompare(b.name));
+        }
 
         return output;
     }
