@@ -64,7 +64,6 @@ enum PtuClassName
     Fashionista = 'Fashionista',
     Researcher = 'Researcher',
     GeneralResearcher = 'General Researcher',
-    GeneralResearcherPlaytest = 'General Researcher [Playtest]',
     ApothecaryResearcher = 'Apothecary Researcher',
     ArtificerResearcher = 'Artificer Researcher',
     BotanyResearcher = 'Botany Researcher',
@@ -132,6 +131,9 @@ enum PtuClassName
     Medic = 'Medic',
 
     // May 2015 Playtest Classes
+    Backpacker = 'Backpacker',
+    GadgeteerResearcher = 'Gadgeteer Researcher',
+    GeneralResearcherPlaytest = 'General Researcher [Playtest]',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -292,12 +294,6 @@ export class LookupClassStrategy
                 'Instant Analysis',
                 'Echoes of the Future',
             ],
-            [PtuClassName.GeneralResearcherPlaytest]: [
-                'Breadth of Knowledge [Playtest]',
-                'Bookworm [Playtest]',
-                'Well Read [Playtest]',
-                'Echoes of the Future [Playtest]',
-            ],
             [PtuClassName.ApothecaryResearcher]: [
                 'Apothecary',
                 'Patch Cure',
@@ -362,6 +358,18 @@ export class LookupClassStrategy
                 'Emergency Reactivation',
                 'Efficient Installation',
                 'Experimental Designs',
+            ],
+            [PtuClassName.GadgeteerResearcher]: [
+                'Improvised Gadgets',
+                'I Meant to Do That',
+                'Capsule Science',
+                'Enhanced Capsules',
+            ],
+            [PtuClassName.GeneralResearcherPlaytest]: [
+                'Breadth of Knowledge [Playtest]',
+                'Bookworm [Playtest]',
+                'Well Read [Playtest]',
+                'Echoes of the Future [Playtest]',
             ],
         };
 
@@ -569,10 +577,6 @@ export class LookupClassStrategy
             [PtuClassName.GeneralResearcher]: [
                 PtuClassName.Researcher,
                 ...researcherBranchToFeatures[PtuClassName.GeneralResearcher],
-            ],
-            [PtuClassName.GeneralResearcherPlaytest]: [
-                PtuClassName.Researcher,
-                ...researcherBranchToFeatures[PtuClassName.GeneralResearcherPlaytest],
             ],
             [PtuClassName.ApothecaryResearcher]: [
                 PtuClassName.Researcher,
@@ -1004,6 +1008,20 @@ export class LookupClassStrategy
             ],
 
             // May 2015 Playtest Classes
+            [PtuClassName.Backpacker]: [
+                PtuClassName.Backpacker,
+                'Item Mastery',
+                'Equipment Savant',
+                `Hero's Journey`,
+            ],
+            [PtuClassName.GadgeteerResearcher]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.GadgeteerResearcher],
+            ],
+            [PtuClassName.GeneralResearcherPlaytest]: [
+                PtuClassName.Researcher,
+                ...researcherBranchToFeatures[PtuClassName.GeneralResearcherPlaytest],
+            ],
         };
 
         const features = classToFeaturesMap[input.name];
