@@ -37,7 +37,17 @@ enum PtuClassName
 
     // Specialist Team Classes
     StatAce = 'Stat Ace',
+    AttackAce = 'Attack Ace',
+    DefenseAce = 'Defense Ace',
+    SpecialAttackAce = 'Special Attack Ace',
+    SpecialDefenseAce = 'Special Defense Ace',
+    SpeedAce = 'Speed Ace',
     StyleExpert = 'Style Expert',
+    BeautyExpert = 'Beauty Expert',
+    CoolExpert = 'Cool Expert',
+    CuteExpert = 'Cute Expert',
+    SmartExpert = 'Smart Expert',
+    ToughExpert = 'Tough Expert',
     TypeAce = 'Type Ace',
     BugAce = 'Bug Ace',
     DarkAce = 'Dark Ace',
@@ -139,13 +149,12 @@ enum PtuClassName
 @staticImplements<ChatIteractionStrategy>()
 export class LookupClassStrategy
 {
-    // TODO: Change this key to Class later
-    public static key: PtuLookupSubcommand.Feature = PtuLookupSubcommand.Feature;
+    public static key: PtuLookupSubcommand.Class = PtuLookupSubcommand.Class;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.FeatureName, true) as PtuClassName;
+        const name = interaction.options.getString(PtuAutocompleteParameterName.ClassName, true) as PtuClassName;
 
         const data = await this.getLookupData({
             name,
@@ -156,19 +165,47 @@ export class LookupClassStrategy
         const embeds = LookupFeatureStrategy.getEmbedMessages(data, 'Class');
 
         return await LookupStrategy.run(interaction, embeds, {
-            // TODO: Change PtuLookupSubcommand.Feature to PtuLookupSubcommand.Class later
-            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Feature}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
             noEmbedsErrorMessage: 'No classes were found.',
         });
     }
 
     private static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
     {
+        // For autocomplete
+        if (input?.name === undefined)
+        {
+            const classNames = Object.values(PtuClassName);
+
+            const classFeatures = await LookupFeatureStrategy.getLookupData({
+                names: classNames,
+                sortByName: true,
+            });
+
+            return [
+                ...classFeatures,
+                ...classNames.reduce<PtuFeature[]>((acc, cur) =>
+                {
+                    if (
+                        // All researcher classes don't have their own feature, but we want them to show up in autocomplete
+                        (cur.includes('Researcher') && cur !== PtuClassName.Researcher)
+                        // All elementalist classes don't say "<Type> Elementalist", but we want to include that
+                        || cur.includes('Elementalist')
+                    )
+                    {
+                        acc.push(new PtuFeature([cur]));
+                    }
+
+                    return acc;
+                }, []),
+            ];
+        }
+
         // Create base lists for type ace and elementalist
         const typeToFeatures: Record<PokemonType, string[]> = {
             [PokemonType.Bug]: [
                 'Insectoid Utility',
-                'Interactive Evolution',
+                'Iterative Evolution',
                 'Chitin Shield',
                 'Disruption Order',
             ],
@@ -197,7 +234,7 @@ export class LookupClassStrategy
                 'Fairy Rite',
             ],
             [PokemonType.Fighting]: [
-                'Close Quarters Master',
+                'Close Quarters Mastery',
                 'Brawler',
                 'Face Me Whelp',
                 'Smashing Punishment',
@@ -206,7 +243,7 @@ export class LookupClassStrategy
                 'Brightest Flame',
                 'Trail Blazer',
                 'Incandescence',
-                'Fan the Flames',
+                'Fan The Flames',
             ],
             [PokemonType.Flying]: [
                 'Celerity',
@@ -276,17 +313,11 @@ export class LookupClassStrategy
             ],
         };
 
-        const baseTypeAceFeatures = [
-            PtuClassName.TypeAce,
-            'Type Refresh',
-            'Move Sync',
-        ];
-
         const typeAceFeaturesForTypes = Object.values(typeToFeatures).reduce<string[]>(
             (acc, cur) => acc.concat(cur), [],
         );
 
-        // Create base costs for researcher branches
+        // Create base lists for researcher branches
         const researcherBranchToFeatures: Record<string, string[]> = {
             [PtuClassName.GeneralResearcher]: [
                 'Breadth of Knowledge',
@@ -307,7 +338,8 @@ export class LookupClassStrategy
                 'Fistful of Force',
             ],
             [PtuClassName.BotanyResearcher]: [
-                'Seed Bag',
+                'Seed Bag Rank 1',
+                'Seed Bag Rank 2',
                 'Top Tier Berries',
                 'Herb Lore',
             ],
@@ -377,6 +409,40 @@ export class LookupClassStrategy
             (acc, cur) => acc.concat(cur), [],
         );
 
+        // Create base lists for style expert branches
+        const styleExpertBranchToFeatures: Record<string, string[]> = {
+            [PtuClassName.BeautyExpert]: [
+                'Beautiful Ballet Rank 1',
+                'Beautiful Ballet Rank 2',
+                'Fabulous Max',
+                'Enticing Beauty',
+            ],
+            [PtuClassName.CoolExpert]: [
+                'Cool Conduct Rank 1',
+                'Cool Conduct Rank 2',
+                'Rule of Cool',
+                'Action Hero Stunt',
+            ],
+            [PtuClassName.CuteExpert]: [
+                'Cute Cuddle Rank 1',
+                'Cute Cuddle Rank 2',
+                'Gleeful Steps',
+                `Let's Be Friends!`,
+            ],
+            [PtuClassName.SmartExpert]: [
+                'Smart Scheme Rank 1',
+                'Smart Scheme Rank 2',
+                'Calculated Assault',
+                'Learn From Your Mistakes',
+            ],
+            [PtuClassName.ToughExpert]: [
+                'Tough Tumble Rank 1',
+                'Tough Tumble Rank 2',
+                'Macho Charge',
+                'Endurance',
+            ],
+        };
+
         const classToFeaturesMap: Record<PtuClassName, string[]> = {
             // Introductory Classes
             [PtuClassName.AceTrainer]: [
@@ -390,7 +456,10 @@ export class LookupClassStrategy
             ],
             [PtuClassName.CaptureSpecialist]: [
                 PtuClassName.CaptureSpecialist,
-                'Advanced Capture Techniques',
+                'Advanced Capture Techniques Rank 1',
+                'Advanced Capture Techniques Rank 2',
+                'Advanced Capture Techniques Rank 3',
+                'Advanced Capture Techniques Rank 4',
                 'Captured Momentum',
                 `Gotta Catch 'Em All`,
             ],
@@ -410,11 +479,14 @@ export class LookupClassStrategy
                 'Flexible Preparations',
                 'Innovation',
                 'Nuanced Performance',
-                'Reliance Performance',
+                'Reliable Performance',
             ],
             [PtuClassName.Hobbyist]: [
                 PtuClassName.Hobbyist,
-                'Dilettante',
+                'Dilettante Rank 1',
+                'Dilettante Rank 2',
+                'Dilettante Rank 3',
+                'Dilettante Rank 4',
                 'Dabbler',
                 'Look and Learn',
             ],
@@ -444,8 +516,8 @@ export class LookupClassStrategy
                 'Effective Methods',
                 'Directed Focus',
                 'Type Methodology',
-                `Duelist's Methods`,
-                'Seize the Moment',
+                `Duelist's Manual`,
+                'Seize The Moment',
             ],
             [PtuClassName.EnduringSoul]: [
                 PtuClassName.EnduringSoul,
@@ -486,7 +558,8 @@ export class LookupClassStrategy
             ],
             [PtuClassName.Trickster]: [
                 PtuClassName.Trickster,
-                'Bag of Tricks',
+                'Bag of Tricks Rank 1',
+                'Bag of Tricks Rank 2',
                 'Stacked Deck',
                 'Flourish',
                 'Encore Performance',
@@ -501,47 +574,207 @@ export class LookupClassStrategy
                 'Stat Maneuver',
                 'Stat Mastery',
                 'Stat Embodiment',
-                'Stat Strategem',
+                'Stat Stratagem',
+            ],
+            [PtuClassName.AttackAce]: [
+                PtuClassName.AttackAce,
+                'Attack Link',
+                'Attack Training',
+                'Attack Maneuver',
+                'Attack Mastery',
+                'Attack Embodiment',
+                'Attack Stratagem',
+            ],
+            [PtuClassName.DefenseAce]: [
+                PtuClassName.DefenseAce,
+                'Defense Link',
+                'Defense Training',
+                'Defense Maneuver',
+                'Defense Mastery',
+                'Defense Embodiment',
+                'Defense Stratagem',
+            ],
+            [PtuClassName.SpecialAttackAce]: [
+                PtuClassName.SpecialAttackAce,
+                'Special Attack Link',
+                'Special Attack Training',
+                'Special Attack Maneuver',
+                'Special Attack Mastery',
+                'Special Attack Embodiment',
+                'Special Attack Stratagem',
+            ],
+            [PtuClassName.SpecialDefenseAce]: [
+                PtuClassName.SpecialDefenseAce,
+                'Special Defense Link',
+                'Special Defense Training',
+                'Special Defense Maneuver',
+                'Special Defense Mastery',
+                'Special Defense Embodiment',
+                'Special Defense Stratagem',
+            ],
+            [PtuClassName.SpeedAce]: [
+                PtuClassName.SpeedAce,
+                'Speed Link',
+                'Speed Training',
+                'Speed Maneuver',
+                'Speed Mastery',
+                'Speed Embodiment',
+                'Speed Stratagem',
             ],
             [PtuClassName.StyleExpert]: [
                 PtuClassName.StyleExpert,
                 'Style Flourish',
                 'Style Entrainment',
-                'Beautiful Ballet',
-                'Fabulous Max',
-                'Enticing Beauty',
-                'Cool Conduct',
-                'Rule of Cool',
-                'Action Hero Stunt',
-                'Cute Cuddle',
-                'Gleeful Steps',
-                `Let's Be Friends!`,
-                'Smart Scheme',
-                'Calculated Assault',
-                'Learn From Your Mistakes',
-                'Tough Tumble',
-                'Macho Charge',
-                'Endurance',
+                ...styleExpertBranchToFeatures[PtuClassName.BeautyExpert],
+                ...styleExpertBranchToFeatures[PtuClassName.CoolExpert],
+                ...styleExpertBranchToFeatures[PtuClassName.CuteExpert],
+                ...styleExpertBranchToFeatures[PtuClassName.SmartExpert],
+                ...styleExpertBranchToFeatures[PtuClassName.ToughExpert],
             ],
-            [PtuClassName.TypeAce]: [...baseTypeAceFeatures, ...typeAceFeaturesForTypes],
-            [PtuClassName.BugAce]: [...baseTypeAceFeatures, ...typeToFeatures.Bug],
-            [PtuClassName.DarkAce]: [...baseTypeAceFeatures, ...typeToFeatures.Dark],
-            [PtuClassName.DragonAce]: [...baseTypeAceFeatures, ...typeToFeatures.Dragon],
-            [PtuClassName.ElectricAce]: [...baseTypeAceFeatures, ...typeToFeatures.Electric],
-            [PtuClassName.FairyAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fairy],
-            [PtuClassName.FightingAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fighting],
-            [PtuClassName.FireAce]: [...baseTypeAceFeatures, ...typeToFeatures.Fire],
-            [PtuClassName.FlyingAce]: [...baseTypeAceFeatures, ...typeToFeatures.Flying],
-            [PtuClassName.GhostAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ghost],
-            [PtuClassName.GrassAce]: [...baseTypeAceFeatures, ...typeToFeatures.Grass],
-            [PtuClassName.GroundAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ground],
-            [PtuClassName.IceAce]: [...baseTypeAceFeatures, ...typeToFeatures.Ice],
-            [PtuClassName.NormalAce]: [...baseTypeAceFeatures, ...typeToFeatures.Normal],
-            [PtuClassName.PoisonAce]: [...baseTypeAceFeatures, ...typeToFeatures.Poison],
-            [PtuClassName.PsychicAce]: [...baseTypeAceFeatures, ...typeToFeatures.Psychic],
-            [PtuClassName.RockAce]: [...baseTypeAceFeatures, ...typeToFeatures.Rock],
-            [PtuClassName.SteelAce]: [...baseTypeAceFeatures, ...typeToFeatures.Steel],
-            [PtuClassName.WaterAce]: [...baseTypeAceFeatures, ...typeToFeatures.Water],
+            [PtuClassName.BeautyExpert]: [
+                PtuClassName.BeautyExpert,
+                'Beauty Flourish',
+                'Beauty Entrainment',
+                ...styleExpertBranchToFeatures[PtuClassName.BeautyExpert],
+            ],
+            [PtuClassName.CoolExpert]: [
+                PtuClassName.CoolExpert,
+                'Cool Flourish',
+                'Cool Entrainment',
+                ...styleExpertBranchToFeatures[PtuClassName.CoolExpert],
+            ],
+            [PtuClassName.CuteExpert]: [
+                PtuClassName.CuteExpert,
+                'Cute Flourish',
+                'Cute Entrainment',
+                ...styleExpertBranchToFeatures[PtuClassName.CuteExpert],
+            ],
+            [PtuClassName.SmartExpert]: [
+                PtuClassName.SmartExpert,
+                'Smart Flourish',
+                'Smart Entrainment',
+                ...styleExpertBranchToFeatures[PtuClassName.SmartExpert],
+            ],
+            [PtuClassName.ToughExpert]: [
+                PtuClassName.ToughExpert,
+                'Tough Flourish',
+                'Tough Entrainment',
+                ...styleExpertBranchToFeatures[PtuClassName.ToughExpert],
+            ],
+            [PtuClassName.TypeAce]: [
+                PtuClassName.TypeAce,
+                'Type Refresh',
+                'Move Sync',
+                ...typeAceFeaturesForTypes,
+            ],
+            [PtuClassName.BugAce]: [
+                PtuClassName.BugAce,
+                'Bug Refresh',
+                'Move Sync',
+                ...typeToFeatures.Bug,
+            ],
+            [PtuClassName.DarkAce]: [
+                PtuClassName.DarkAce,
+                'Dark Refresh',
+                'Move Sync',
+                ...typeToFeatures.Dark,
+            ],
+            [PtuClassName.DragonAce]: [
+                PtuClassName.DragonAce,
+                'Dragon Refresh',
+                'Move Sync',
+                ...typeToFeatures.Dragon,
+            ],
+            [PtuClassName.ElectricAce]: [
+                PtuClassName.ElectricAce,
+                'Electric Refresh',
+                'Move Sync',
+                ...typeToFeatures.Electric,
+            ],
+            [PtuClassName.FairyAce]: [
+                PtuClassName.FairyAce,
+                'Fairy Refresh',
+                'Move Sync',
+                ...typeToFeatures.Fairy,
+            ],
+            [PtuClassName.FightingAce]: [
+                PtuClassName.FightingAce,
+                'Fighting Refresh',
+                'Move Sync',
+                ...typeToFeatures.Fighting,
+            ],
+            [PtuClassName.FireAce]: [
+                PtuClassName.FireAce,
+                'Fire Refresh',
+                'Move Sync',
+                ...typeToFeatures.Fire,
+            ],
+            [PtuClassName.FlyingAce]: [
+                PtuClassName.FlyingAce,
+                'Flying Refresh',
+                'Move Sync',
+                ...typeToFeatures.Flying,
+            ],
+            [PtuClassName.GhostAce]: [
+                PtuClassName.GhostAce,
+                'Ghost Refresh',
+                'Move Sync',
+                ...typeToFeatures.Ghost,
+            ],
+            [PtuClassName.GrassAce]: [
+                PtuClassName.GrassAce,
+                'Grass Refresh',
+                'Move Sync',
+                ...typeToFeatures.Grass,
+            ],
+            [PtuClassName.GroundAce]: [
+                PtuClassName.GroundAce,
+                'Ground Refresh',
+                'Move Sync',
+                ...typeToFeatures.Ground,
+            ],
+            [PtuClassName.IceAce]: [
+                PtuClassName.IceAce,
+                'Ice Refresh',
+                'Move Sync',
+                ...typeToFeatures.Ice,
+            ],
+            [PtuClassName.NormalAce]: [
+                PtuClassName.NormalAce,
+                'Normal Refresh',
+                'Move Sync',
+                ...typeToFeatures.Normal,
+            ],
+            [PtuClassName.PoisonAce]: [
+                PtuClassName.PoisonAce,
+                'Poison Refresh',
+                'Move Sync',
+                ...typeToFeatures.Poison,
+            ],
+            [PtuClassName.PsychicAce]: [
+                PtuClassName.PsychicAce,
+                'Psychic Refresh',
+                'Move Sync',
+                ...typeToFeatures.Psychic,
+            ],
+            [PtuClassName.RockAce]: [
+                PtuClassName.RockAce,
+                'Rock Refresh',
+                'Move Sync',
+                ...typeToFeatures.Rock,
+            ],
+            [PtuClassName.SteelAce]: [
+                PtuClassName.SteelAce,
+                'Steel Refresh',
+                'Move Sync',
+                ...typeToFeatures.Steel,
+            ],
+            [PtuClassName.WaterAce]: [
+                PtuClassName.WaterAce,
+                'Water Refresh',
+                'Move Sync',
+                ...typeToFeatures.Water,
+            ],
 
             // Professional Classes
             [PtuClassName.Chef]: [
@@ -555,10 +788,11 @@ export class LookupClassStrategy
             ],
             [PtuClassName.Chronicler]: [
                 PtuClassName.Chronicler,
-                'Archival Training',
+                'Archival Training Rank 1',
+                'Archival Training Rank 2',
                 'Archive Tutor',
                 'Targeted Profiling',
-                'Obswervation Party',
+                'Observation Party',
                 'Cinematic Analysis',
             ],
             [PtuClassName.Fashionista]: [
@@ -615,7 +849,8 @@ export class LookupClassStrategy
                 'Natural Fighter',
                 'Trapper',
                 'Wilderness Guide',
-                'Terrain Talent',
+                'Terrain Talent Rank 1',
+                'Terrain Talent Rank 2',
                 'Adaptive Geography',
             ],
 
@@ -625,7 +860,9 @@ export class LookupClassStrategy
                 'Training Regime',
                 'Coaching',
                 'Adrenaline Rush',
-                'Athletic Moves',
+                'Athletic Moves Rank 1',
+                'Athletic Moves Rank 2',
+                'Athletic Moves Rank 3',
             ],
             [PtuClassName.Dancer]: [
                 PtuClassName.Dancer,
@@ -647,7 +884,9 @@ export class LookupClassStrategy
             ],
             [PtuClassName.MartialArtist]: [
                 PtuClassName.MartialArtist,
-                'Martial Training',
+                'Martial Training Rank 1',
+                'Martial Training Rank 2',
+                'Martial Training Rank 3',
                 'My Kung-Fu is Stronger',
                 'Martial Achievement',
                 'Second Strike',
@@ -702,10 +941,11 @@ export class LookupClassStrategy
             [PtuClassName.AuraGuardian]: [
                 PtuClassName.AuraGuardian,
                 'Aura Reader',
-                'The Power of Aura',
+                'The Power of Aura Rank 1',
+                'The Power of Aura Rank 2',
                 'Sword of Body and Soul',
                 'Ambient Aura',
-                'Aura Master',
+                'Aura Mastery',
             ],
             [PtuClassName.Channeler]: [
                 PtuClassName.Channeler,
@@ -718,7 +958,9 @@ export class LookupClassStrategy
             ],
             [PtuClassName.HexManiac]: [
                 PtuClassName.HexManiac,
-                'Hex Maniac Studies',
+                'Hex Maniac Studies Rank 1',
+                'Hex Maniac Studies Rank 2',
+                'Hex Maniac Studies Rank 3',
                 'Diffuse Pain',
                 'Malediction',
                 'Grand Hex',
@@ -782,7 +1024,7 @@ export class LookupClassStrategy
             [PtuClassName.Berserker]: [
                 PtuClassName.Berserker,
                 'Power of Rage',
-                'Lessins In Rage & Pain',
+                'Lessons In Rage & Pain',
                 'Frenzy',
                 'Fight On and On',
                 'Crash and Smash',
@@ -802,14 +1044,15 @@ export class LookupClassStrategy
                 PtuClassName.Arcanist,
                 'Metamagic',
                 'Authentic Thaumaturgy',
-                'Signature Manipulations',
+                'Signature Manipulations Rank 1',
+                'Signature Manipulations Rank 2',
                 'Recoup Energy',
                 'Soul Investment',
             ],
             [PtuClassName.Fortress]: [
                 PtuClassName.Fortress,
                 'Slow or Steady',
-                'Stalward Bastion',
+                'Stalwart Bastion',
                 'Shield Bearer',
                 'Wall of Iron',
                 `Guardian's Punishment`,
@@ -834,14 +1077,16 @@ export class LookupClassStrategy
                 'Swift Strikes',
             ],
             [PtuClassName.BugElementalist]: [
-                PtuClassName.BugElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.BugElementalist]),
                 'How To Shoot Web',
                 'Broodlord',
                 'Pheromone Markers',
-                'Enhanced Embrace',
+                'Enhanced Embrace Rank 1',
+                'Enhanced Embrace Rank 2',
+                'Enhanced Embrace Rank 3',
             ],
             [PtuClassName.DarkElementalist]: [
-                PtuClassName.DarkElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.DarkElementalist]),
                 'Twisted Soul',
                 'Living Shadow',
                 'Sharpen Shadows',
@@ -850,7 +1095,7 @@ export class LookupClassStrategy
                 'Dark Soul',
             ],
             [PtuClassName.DragonElementalist]: [
-                PtuClassName.DragonElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.DragonElementalist]),
                 'Noblesse Oblige',
                 `Channel the Dragon's Spirit`,
                 `Bare the Dragon's Claws`,
@@ -859,14 +1104,16 @@ export class LookupClassStrategy
                 'Sovereignty',
             ],
             [PtuClassName.ElectricElementalist]: [
-                PtuClassName.ElectricElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.ElectricElementalist]),
                 'Magnetize',
                 'Body of Lightning',
                 'Bottled Lightning',
-                'Storm Wizard',
+                'Storm Wizard Rank 1',
+                'Storm Wizard Rank 2',
+                'Storm Wizard Rank 3',
             ],
             [PtuClassName.FairyElementalist]: [
-                PtuClassName.FairyElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.FairyElementalist]),
                 'Fey Law',
                 'Passionato Harmony',
                 'Lucky Clover Grand Finale',
@@ -875,22 +1122,25 @@ export class LookupClassStrategy
                 'Magical Burst',
             ],
             [PtuClassName.FireElementalist]: [
-                PtuClassName.FireElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.FireElementalist]),
                 'Fiery Soul',
                 'Firebrand',
                 'Burning Passion',
                 'Blazing Inferno',
-                'Fire Breather',
+                'Fire Breather Rank 1',
+                'Fire Breather Rank 2',
             ],
             [PtuClassName.FlyingElementalist]: [
-                PtuClassName.FlyingElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.FlyingElementalist]),
                 'One With the Winds',
                 'Flight',
                 'Gale Speed',
-                'Raging Winds',
+                'Raging Winds Rank 1',
+                'Raging Winds Rank 2',
+                'Raging Winds Rank 3',
             ],
             [PtuClassName.GhostElementalist]: [
-                PtuClassName.GhostElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.GhostElementalist]),
                 'Shadow Arms',
                 'Too Spooky',
                 'Silent Assassin',
@@ -899,30 +1149,34 @@ export class LookupClassStrategy
                 'Haunted Wounds',
             ],
             [PtuClassName.GrassElementalist]: [
-                PtuClassName.GrassElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.GrassElementalist]),
                 'Green Path',
                 'Overgrowth',
                 `Druid's Call`,
-                `Nature's Embrace`,
+                `Nature's Embrace Rank 1`,
+                `Nature's Embrace Rank 2`,
+                `Nature's Embrace Rank 3`,
             ],
             [PtuClassName.GroundElementalist]: [
-                PtuClassName.GroundElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.GroundElementalist]),
                 'Earthen Bond',
-                `Earth Mother's Blessing`,
+                `Earth Mother's Blessing Rank 1`,
+                `Earth Mother's Blessing Rank 2`,
                 'Earthshifter',
                 'Ground Out',
                 'Tectonic Shift',
             ],
             [PtuClassName.IceElementalist]: [
-                PtuClassName.IceElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.IceElementalist]),
                 'The Cold Never Bothered Me Anyway',
                 'Glacial Defense',
                 'Frozen Domain',
                 'Winter is Coming',
-                `Winter's Herald`,
+                `Winter's Herald Rank 1`,
+                `Winter's Herald Rank 2`,
             ],
             [PtuClassName.NormalElementalist]: [
-                PtuClassName.NormalElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.NormalElementalist]),
                 'Blinding Brightness',
                 'Sparkle',
                 'Rainbow Surge',
@@ -931,7 +1185,7 @@ export class LookupClassStrategy
                 'Prismatic Alignment',
             ],
             [PtuClassName.PoisonElementalist]: [
-                PtuClassName.PoisonElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.PoisonElementalist]),
                 'Corrupt Blood',
                 'Flexible Form',
                 'Vile Body',
@@ -940,15 +1194,16 @@ export class LookupClassStrategy
                 'Miasmic Spray',
             ],
             [PtuClassName.RockElementalist]: [
-                PtuClassName.RockElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.RockElementalist]),
                 'Stone Stance',
-                'Rock Power',
+                'Rock Power Rank 1',
+                'Rock Power Rank 2',
                 'Shards of Stone',
                 'Stone Cold Finish',
                 'Stone Stance Mastery',
             ],
             [PtuClassName.SteelElementalist]: [
-                PtuClassName.SteelElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.SteelElementalist]),
                 'Champion of Steel',
                 'Steel Wind',
                 'Reactive Armour',
@@ -957,11 +1212,13 @@ export class LookupClassStrategy
                 'Man of Steel',
             ],
             [PtuClassName.WaterElementalist]: [
-                PtuClassName.WaterElementalist.split(': ')[1],
+                ...this.convertFeatureNames([PtuClassName.WaterElementalist]),
                 `Water's Shroud`,
                 'Hydro Jet',
                 'Oceanic Feeling',
-                'Call The Current',
+                'Call the Current Rank 1',
+                'Call the Current Rank 2',
+                'Call the Current Rank 3',
             ],
 
             // Do Porygon Dream of Mareep Classes
@@ -992,7 +1249,7 @@ export class LookupClassStrategy
                 PtuClassName.CheerleaderPlaytest,
                 'Moment of Action [Playtest]',
                 'Cheers [Playtest]',
-                'Inspiration Support [Playtest]',
+                'Inspirational Support [Playtest]',
                 'Bring It On! [Playtest]',
                 'Go, Fight, Win! [Playtest]',
                 'Keep Fighting! [Playtest]',
@@ -1001,8 +1258,8 @@ export class LookupClassStrategy
                 PtuClassName.Medic,
                 'Front Line Healer',
                 'Medical Techniques',
-                `I'm a Docter Rank 1`,
-                `I'm a Docter Rank 2`,
+                `I'm A Doctor Rank 1`,
+                `I'm A Doctor Rank 2`,
                 'Proper Care',
                 'Stay With Us!',
             ],
@@ -1012,7 +1269,10 @@ export class LookupClassStrategy
                 PtuClassName.Backpacker,
                 'Item Mastery',
                 'Equipment Savant',
-                `Hero's Journey`,
+                `Hero's Journey Rank 1`,
+                `Hero's Journey Rank 2`,
+                `Hero's Journey Rank 3`,
+                `Hero's Journey Rank 4`,
             ],
             [PtuClassName.GadgeteerResearcher]: [
                 PtuClassName.Researcher,
@@ -1024,16 +1284,49 @@ export class LookupClassStrategy
             ],
         };
 
-        const features = classToFeaturesMap[input.name];
+        const featureNames = this.convertFeatureNames(classToFeaturesMap[input.name]);
 
         const {
             name: _,
             ...parsedInput
         } = input;
 
-        return await LookupFeatureStrategy.getLookupData({
+        const features = await LookupFeatureStrategy.getLookupData({
             ...parsedInput,
-            names: features,
+            names: featureNames,
+            sortByName: false,
+        });
+
+        // Sort the returned features into the input order
+        const featureNameToFeature = features.reduce<Record<string, PtuFeature>>((acc, feature) =>
+        {
+            acc[feature.name] = feature;
+            return acc;
+        }, {});
+
+        return featureNames.reduce<PtuFeature[]>((acc, featureName) =>
+        {
+            const feature = featureNameToFeature[featureName];
+
+            if (feature)
+            {
+                acc.push(feature);
+            }
+
+            return acc;
+        }, []);
+    }
+
+    private static convertFeatureNames(names: string[]): string[]
+    {
+        return names.map(name =>
+        {
+            if (name.includes('Elementalist'))
+            {
+                return name.split(': ')[1];
+            }
+
+            return name;
         });
     }
 }
