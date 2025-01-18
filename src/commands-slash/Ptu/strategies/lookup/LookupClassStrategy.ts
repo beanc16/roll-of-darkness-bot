@@ -144,6 +144,17 @@ enum PtuClassName
     Backpacker = 'Backpacker',
     GadgeteerResearcher = 'Gadgeteer Researcher',
     GeneralResearcherPlaytest = 'General Researcher [Playtest]',
+
+    // Homebrew Book of Divines & Divine Homebrew
+    Signer = 'Signer',
+    Messiah = 'Messiah',
+    Branded = 'Branded',
+    Usurper = 'Usurper',
+    Inquisitor = 'Inquisitor',
+    Scion = 'Scion',
+    Cultist = 'Cultist',
+    Scorned = 'Scorned',
+    Disciple = 'Disciple',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -162,7 +173,21 @@ export class LookupClassStrategy
         });
 
         // Get message
-        const embeds = LookupFeatureStrategy.getEmbedMessages(data, 'Class');
+        const messageTitle = (!(
+            PtuClassName.Signer === name
+            || PtuClassName.Messiah === name
+            || PtuClassName.Branded === name
+            || PtuClassName.Usurper === name
+            || PtuClassName.Inquisitor === name
+            || PtuClassName.Scion === name
+            || PtuClassName.Cultist === name
+            || PtuClassName.Scorned === name
+            || PtuClassName.Disciple === name
+        ))
+            ? 'Class'
+            : 'Class-Adjacent';
+
+        const embeds = LookupFeatureStrategy.getEmbedMessages(data, messageTitle);
 
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
@@ -1281,6 +1306,58 @@ export class LookupClassStrategy
             [PtuClassName.GeneralResearcherPlaytest]: [
                 PtuClassName.Researcher,
                 ...researcherBranchToFeatures[PtuClassName.GeneralResearcherPlaytest],
+            ],
+
+            // Homebrew Book of Divines & Divine Homebrew
+            [PtuClassName.Signer]: [
+                PtuClassName.Signer,
+                'Sign Mastery Rank 1',
+                'Sign Mastery Rank 2',
+                'Sign Mastery Rank 3',
+                'Sign Mastery Rank 4',
+            ],
+            [PtuClassName.Messiah]: [
+                PtuClassName.Messiah,
+                'In My Name Rank 1',
+                'In My Name Rank 2',
+                'In My Name Rank 3',
+                'In My Name Rank 4',
+            ],
+            [PtuClassName.Branded]: [
+                PtuClassName.Branded,
+            ],
+            [PtuClassName.Usurper]: [
+                PtuClassName.Usurper,
+                'Shared Strengths Rank 1',
+                'Shared Strengths Rank 2',
+                'Shared Strengths Rank 3',
+                'True Power',
+                'Gift of Power',
+            ],
+            [PtuClassName.Inquisitor]: [
+                PtuClassName.Inquisitor,
+                'Punish the Heretics',
+                'Disallow Divinity',
+                'Deicide',
+            ],
+            [PtuClassName.Scion]: [
+                PtuClassName.Scion,
+                'Heavenly Resiliency',
+                'Voice of Elements',
+            ],
+            [PtuClassName.Cultist]: [
+                PtuClassName.Cultist,
+                `Red Iron's Tithe Rank 1`,
+                `Red Iron's Tithe Rank 2`,
+                `Red Iron's Tithe Rank 3`,
+                'Visceral Aspect',
+                'Essence of Divinity',
+            ],
+            [PtuClassName.Scorned]: [
+                PtuClassName.Scorned,
+            ],
+            [PtuClassName.Disciple]: [
+                PtuClassName.Disciple,
             ],
         };
 
