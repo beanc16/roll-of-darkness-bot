@@ -9,7 +9,7 @@ import { CachedGoogleSheetsApiService, RetryOptions } from '../../../services/Ca
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
 import { chunkArray } from '../../../services/chunkArray.js';
 import { CommandName } from '../../../types/discord.js';
-import { characterSheetSpreadsheetIds } from '../constants.js';
+import { characterSheetSpreadsheetIds, getSpreadsheetNameFromSpreadsheetIds } from '../constants.js';
 
 export interface GetSpreadsheetValuesOptions
 {
@@ -540,6 +540,85 @@ export class CharacterSheetStrategy
 
         await interaction.user.send(
             `If you want to use \`${commandName}\`, then I need ${maxActionPermission} access on your character sheet. `
+            + `If you aren't sure how to give me ${maxActionPermission} permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n`
+            + `You can either make your sheet editable by anyone with the URL or add this email as an ${maxActionPermissionToRoleName[maxActionPermission]} (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``,
+        );
+    }
+
+    /* istanbul ignore next */
+    protected static async sendPermissionErrors({
+        interaction,
+        commandName,
+        errorData = [],
+        maxActionPermission = 'edit',
+    }: {
+        interaction: ChatInputCommandInteraction;
+        commandName: CommandName;
+        errorData: {
+            action: 'view' | 'edit';
+            spreadsheetId: string;
+        }[];
+        maxActionPermission?: 'view' | 'edit';
+    }): Promise<void>
+    {
+        const howToShareSpreadsheetsHelpArticle = 'https://support.google.com/docs/answer/9331169?hl=en#6.1';
+
+        const { sheetNamesWithNoViewPerms, sheetNamesWithNoEditPerms } = errorData.reduce<{
+            sheetNamesWithNoViewPerms: string[];
+            sheetNamesWithNoEditPerms: string[];
+        }>((acc, { action, spreadsheetId }) =>
+        {
+            const spreadsheetName = getSpreadsheetNameFromSpreadsheetIds([spreadsheetId]);
+
+            if (spreadsheetName === undefined)
+            {
+                return acc;
+            }
+
+            if (action === 'view')
+            {
+                acc.sheetNamesWithNoViewPerms.push(spreadsheetName);
+            }
+
+            else if (action === 'edit')
+            {
+                acc.sheetNamesWithNoEditPerms.push(spreadsheetName);
+            }
+
+            return acc;
+        }, {
+            sheetNamesWithNoViewPerms: [],
+            sheetNamesWithNoEditPerms: [],
+        });
+
+        const viewText = (sheetNamesWithNoViewPerms.length > 0)
+            ? `I don't have permission to view:\n\`\`\`\n ${sheetNamesWithNoViewPerms.join('\n')}\n\`\`\`\n\n`
+            : '';
+
+        const editText = (sheetNamesWithNoEditPerms.length > 0)
+            ? `I don't have permission to edit:\n\`\`\`\n ${sheetNamesWithNoEditPerms.join('\n')}\n\`\`\`\n\n`
+            : '';
+
+        await interaction.followUp(
+            viewText + editText
+            + `You will be DM'd instructions for how to give me ${maxActionPermission} permissions here shortly.`,
+        );
+
+        const maxActionPermissionToRoleName: Record<'view' | 'edit', string> = {
+            view: 'viewer',
+            edit: 'editor',
+        };
+
+        const allSheetNamesWithNoPerms = '```\n' + [
+            ...sheetNamesWithNoViewPerms,
+            ...sheetNamesWithNoEditPerms,
+        ].join('\n') + '\n```';
+
+        const sheetsText = (allSheetNamesWithNoPerms.length > 1)
+            ? 'those sheets'
+            : 'this sheet';
+        await interaction.user.send(
+            `If you want to use \`${commandName}\` on ${allSheetNamesWithNoPerms}\nThen I need ${maxActionPermission} access on ${sheetsText}. `
             + `If you aren't sure how to give me ${maxActionPermission} permissions, please follow this guide:\n${howToShareSpreadsheetsHelpArticle}.\n\n`
             + `You can either make your sheet editable by anyone with the URL or add this email as an ${maxActionPermissionToRoleName[maxActionPermission]} (whichever you prefer):\n\`${process.env.GOOGLE_SHEETS_MICROSERVICE_EMAIL_ADDRESS}\``,
         );

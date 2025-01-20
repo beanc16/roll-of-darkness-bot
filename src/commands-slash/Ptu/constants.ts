@@ -1,3 +1,5 @@
+import type { Entries } from '@beanc16/utility-types';
+
 import { DiscordUserId } from '../../types/discord.js';
 import { PtuAbilityForDefensiveTypeEffectiveness, PtuAbilityForOffensiveTypeEffectiveness } from './types/PtuAbilityForTypeEffectiveness.js';
 import { PtuCharacterSheetName, PtuSheetName } from './types/sheets.js';
@@ -285,6 +287,28 @@ export const spreadsheetIdToCharacterSheetInfo = Object.entries(characterNameToS
 }, {});
 
 export const characterSheetSpreadsheetIds = Object.keys(spreadsheetIdToCharacterSheetInfo);
+
+export const getSpreadsheetNameFromSpreadsheetIds = (spreadsheetIds: string[]): PtuCharacterSheetName | PtuSheetName | undefined =>
+{
+    if (spreadsheetIds.length <= 1)
+    {
+        const spreadsheetInfo = spreadsheetIdToCharacterSheetInfo[spreadsheetIds[0]];
+
+        if (spreadsheetInfo?.characterSheetName)
+        {
+            return spreadsheetInfo.characterSheetName;
+        }
+    }
+
+    const [sheetName] = (
+        Object.entries(sheetNameToSpreadsheetInfo) as Entries<typeof sheetNameToSpreadsheetInfo>
+    ).find(([_sheetName, { spreadsheetIds: curSpreadsheetIds }]) => (
+        curSpreadsheetIds.length === spreadsheetIds.length
+        && curSpreadsheetIds.every((spreadsheetId) => spreadsheetIds.includes(spreadsheetId))
+    )) ?? [undefined];
+
+    return sheetName;
+};
 
 export const abilitiesForTypeEffectivenessSet = new Set<string>([
     ...Object.values(PtuAbilityForOffensiveTypeEffectiveness),
