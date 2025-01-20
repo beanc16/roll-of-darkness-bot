@@ -28,9 +28,16 @@ import {
     SplitCommandForRefreshCache,
 } from '../types.js';
 
+type PtuAutocompleteParameterNameToCache = Exclude<
+    PtuAutocompleteParameterName,
+    PtuAutocompleteParameterName.PokemonName
+    | PtuAutocompleteParameterName.PokemonToEvolve
+    | PtuAutocompleteParameterName.SheetName
+>;
+
 interface GetHandlerResultResponse
 {
-    handlerResult: RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterName] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterName] | undefined;
+    handlerResult: RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterName] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterNameToCache] | undefined;
     refreshCacheCommand: RefreshCacheCommand;
 }
 
@@ -54,7 +61,7 @@ type RefreshCacheHandlerMap = {
         };
     };
     [RefreshCacheCommand.Ptu]: {
-        [key in PtuAutocompleteParameterName]: {
+        [key in PtuAutocompleteParameterNameToCache]: {
             lookupSubcommand: PtuLookupSubcommand;
             keys: [string, PtuLookupRange];
         };
@@ -219,14 +226,6 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokeball],
                 lookupSubcommand: PtuLookupSubcommand.Pokeball,
             },
-            [PtuAutocompleteParameterName.PokemonToEvolve]: { // This is the same as evolutionary stone, this is just a placeholder to make the types easier to manage
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.EvolutionaryStone],
-                lookupSubcommand: PtuLookupSubcommand.EvolutionaryStone,
-            },
-            [PtuAutocompleteParameterName.PokemonName]: { // This doesn't get cached, this is just a placeholder to make the types easier to manage
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokeball],
-                lookupSubcommand: PtuLookupSubcommand.Pokemon,
-            },
             [PtuAutocompleteParameterName.StatusName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Status],
                 lookupSubcommand: PtuLookupSubcommand.Status,
@@ -347,7 +346,7 @@ export class RefreshCacheStrategy
 
         else if (refreshCacheCommand === RefreshCacheCommand.Ptu)
         {
-            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as PtuAutocompleteParameterName];
+            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as PtuAutocompleteParameterNameToCache];
         }
 
         return response;
