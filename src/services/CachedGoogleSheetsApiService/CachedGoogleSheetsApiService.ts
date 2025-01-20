@@ -1,5 +1,6 @@
 import { logger } from '@beanc16/logger';
 import type {
+    GoogleSheetsAppendParametersV1,
     GoogleSheetsGetPageTitlesBatchParametersV1,
     GoogleSheetsGetRangeParametersV1,
     GoogleSheetsGetRangesParametersV1,
@@ -38,6 +39,11 @@ interface GetRangeResponse
 export type GetRangesOptions = GoogleSheetsGetRangesParametersV1 & WithCacheOptions & RetryOptions;
 
 interface UpdateResponse
+{
+    errorType?: GoogleSheetsApiErrorType;
+}
+
+interface AppendResponse
 {
     errorType?: GoogleSheetsApiErrorType;
 }
@@ -507,6 +513,79 @@ export class CachedGoogleSheetsApiService
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                 logger.error('An error occurred on GoogleSheetsMicroservice.v1.update', (error as any)?.response?.data || error);
+            }
+        }
+
+        return {
+            errorType: GoogleSheetsApiErrorType.UnknownError,
+        };
+    }
+
+    public static async append(initialParameters: GoogleSheetsAppendParametersV1 & WithCacheOptions): Promise<AppendResponse>
+    {
+        const {
+            shouldNotCache = false,
+            ...parameters
+        } = initialParameters;
+
+        const cacheSpreadsheetKey = parameters?.spreadsheetId as string;
+        const cacheRangeKey = parameters?.range as string;
+
+        for (let i = 0; i <= this.retries; i += 1)
+        {
+            const authToken = await CachedAuthTokenService.getAuthToken();
+
+            try
+            {
+                const {
+                    statusCode = 200,
+                    data = [],
+                    error,
+                } = await GoogleSheetsMicroservice.v1.append(authToken, parameters);
+
+                if (statusCode === 200)
+                {
+                    // Save to cache by spreadsheet / spreadsheetId
+                    if (!shouldNotCache)
+                    {
+                        this.cache.Upsert([cacheSpreadsheetKey, cacheRangeKey], parameters?.values as string[][]);
+                    }
+
+                    return {};
+                }
+
+                if (statusCode === 401)
+                {
+                    logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.append. Retrieving new auth token.');
+                    await CachedAuthTokenService.resetAuthToken();
+                }
+
+                else
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
+                    logger.error('An unknown error occurred on GoogleSheetsMicroservice.v1.append', { statusCode }, data, (error as any)?.response);
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
+                    throw error;
+                }
+            }
+            catch (error)
+            {
+                // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
+                if ((error as any)?.response?.data?.statusCode === 403)
+                {
+                    logger.warn('The automated user is not added to the queried sheet. Please add them.', {
+                        ...(parameters?.spreadsheetId && {
+                            spreadsheetId: parameters?.spreadsheetId,
+                        }),
+                    });
+                    return {
+                        errorType: GoogleSheetsApiErrorType.UserNotAddedToSheet,
+                    };
+                }
+
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
+                logger.error('An error occurred on GoogleSheetsMicroservice.v1.append', (error as any)?.response?.data || error);
             }
         }
 
