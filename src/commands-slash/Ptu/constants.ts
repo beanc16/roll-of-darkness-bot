@@ -1,13 +1,22 @@
 import { DiscordUserId } from '../../types/discord.js';
 import { PtuAbilityForDefensiveTypeEffectiveness, PtuAbilityForOffensiveTypeEffectiveness } from './types/PtuAbilityForTypeEffectiveness.js';
-import { PtuCharacterSheetName } from './types/sheets.js';
+import { PtuCharacterSheetName, PtuSheetName } from './types/sheets.js';
+
+export interface SpreadsheetInfo
+{
+    spreadsheetId: string;
+    discordUserIdsOfSpreadsheetEditors: string[];
+}
+
+export interface BulkSpreadsheetInfo
+{
+    spreadsheetIds: string[];
+    discordUserIdsOfSpreadsheetEditors: string[];
+}
 
 export const rollOfDarknessPtuSpreadsheetId = '12_3yiG7PWWnm0UZm8enUcjLd0f4i3XoZQBpkGCHfKJI';
 
-export const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, {
-    spreadsheetId: string;
-    discordUserIdsOfSpreadsheetEditors: string[];
-}> = {
+export const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, SpreadsheetInfo> = {
     // Magalam Present Campaign
     [PtuCharacterSheetName.Yuki]: {
         spreadsheetId: '1sOwz9lMG1gF1HzDz0xUAHGQ8fD0tvembRLF1FGEMF1A',
@@ -38,6 +47,15 @@ export const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, {
     },
     [PtuCharacterSheetName.Morgan]: {
         spreadsheetId: '159jFuwyxZfnCmSwU7UR4xjHytJCU562yxA_dedbn8Bc',
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Joel,
+            DiscordUserId.Avery,
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+    [PtuCharacterSheetName.Harvey]: {
+        spreadsheetId: '10HJCVVxD9o3Ebfx21n3CMLu3aR1U-X9s13nn7Etw7RY',
         discordUserIdsOfSpreadsheetEditors: [
             DiscordUserId.Joel,
             DiscordUserId.Avery,
@@ -104,6 +122,151 @@ export const characterNameToSpreadsheetInfo: Record<PtuCharacterSheetName, {
             DiscordUserId.Bean,
         ],
     },
+};
+
+export const sheetNameToSpreadsheetInfo: Record<PtuSheetName, BulkSpreadsheetInfo> = {
+    [PtuSheetName.AllEdenAdminAndBot]: {
+        spreadsheetIds: [
+            '1RdJg_zxDvRNuDU5jaldjvHizXahzIvLLD212NFrDqMk',
+            '1DhezMK2pyDaIX_I59PL4roFod5RsrtyB4LDk_yNwBYg',
+            '195kWqxSK2x3PWip0NBHFr2GvEbNGZsaVEns_dUAZ3sI',
+            '1hD-_NMKd8vACsdVwAD8-GIDYIsCe74bxPW96NVxFcbY',
+            rollOfDarknessPtuSpreadsheetId,
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.AllEdenAdmin]: {
+        spreadsheetIds: [
+            '1RdJg_zxDvRNuDU5jaldjvHizXahzIvLLD212NFrDqMk',
+            '1DhezMK2pyDaIX_I59PL4roFod5RsrtyB4LDk_yNwBYg',
+            '195kWqxSK2x3PWip0NBHFr2GvEbNGZsaVEns_dUAZ3sI',
+            '1hD-_NMKd8vACsdVwAD8-GIDYIsCe74bxPW96NVxFcbY',
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.AllEdenCharacters]: {
+        spreadsheetIds: [
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Vesper].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Fanqia].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Verona].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Emery].spreadsheetId,
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.EdenNpcOnePagers]: {
+        spreadsheetIds: ['1RdJg_zxDvRNuDU5jaldjvHizXahzIvLLD212NFrDqMk'],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.EdenWildPokemon]: {
+        spreadsheetIds: ['1DhezMK2pyDaIX_I59PL4roFod5RsrtyB4LDk_yNwBYg'],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.EdenLegendaryPokemon]: {
+        spreadsheetIds: ['195kWqxSK2x3PWip0NBHFr2GvEbNGZsaVEns_dUAZ3sI'],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.EdenPokedex]: {
+        spreadsheetIds: ['1hD-_NMKd8vACsdVwAD8-GIDYIsCe74bxPW96NVxFcbY'],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+        ],
+    },
+    [PtuSheetName.BotData]: {
+        spreadsheetIds: [rollOfDarknessPtuSpreadsheetId],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+    [PtuSheetName.OriginSheet]: {
+        spreadsheetIds: ['1xLVv3UyvwGDKLL5-Wto7PY2airkgFmX7DKHExtw2xZc'],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+    [PtuSheetName.AllMagalamCharacters]: {
+        spreadsheetIds: [
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Yuki].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Marina].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.RetPresent].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Mary].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Morgan].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Harvey].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Hina].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Lucy].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.RetPast].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Yami].spreadsheetId,
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+    [PtuSheetName.AllMagalamPresentCharacters]: {
+        spreadsheetIds: [
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Yuki].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Marina].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.RetPresent].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Mary].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Morgan].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Harvey].spreadsheetId,
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+    [PtuSheetName.AllMagalamPastCharacters]: {
+        spreadsheetIds: [
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Hina].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Lucy].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.RetPast].spreadsheetId,
+            characterNameToSpreadsheetInfo[PtuCharacterSheetName.Yami].spreadsheetId,
+        ],
+        discordUserIdsOfSpreadsheetEditors: [
+            DiscordUserId.Bean,
+            DiscordUserId.Josh,
+        ],
+    },
+};
+
+export const getSpreadsheetIdFromCharacterSheetName = (characterSheetName: PtuCharacterSheetName): SpreadsheetInfo =>
+{
+    const spreadsheetInfo = characterNameToSpreadsheetInfo[characterSheetName];
+    return spreadsheetInfo;
+};
+
+export const getSpreadsheetIdFromSheetName = (sheetName: PtuCharacterSheetName | PtuSheetName): BulkSpreadsheetInfo =>
+{
+    const characterSheetNames = new Set(
+        Object.keys(characterNameToSpreadsheetInfo) as PtuCharacterSheetName[],
+    );
+
+    if (characterSheetNames.has(sheetName as PtuCharacterSheetName))
+    {
+        const { spreadsheetId, discordUserIdsOfSpreadsheetEditors } = getSpreadsheetIdFromCharacterSheetName(sheetName as PtuCharacterSheetName);
+
+        return {
+            spreadsheetIds: [spreadsheetId],
+            discordUserIdsOfSpreadsheetEditors,
+        };
+    }
+
+    const spreadsheetInfo = sheetNameToSpreadsheetInfo[sheetName as PtuSheetName];
+    return spreadsheetInfo;
 };
 
 export const spreadsheetIdToCharacterSheetInfo = Object.entries(characterNameToSpreadsheetInfo).reduce<Record<string, {

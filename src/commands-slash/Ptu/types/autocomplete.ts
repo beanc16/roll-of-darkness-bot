@@ -54,6 +54,7 @@ export enum PtuAutocompleteParameterName
     PokeballName = 'pokeball_name',
     PokemonName = 'pokemon_name',
     PokemonToEvolve = 'pokemon_to_evolve',
+    SheetName = 'sheet_name',
     StatusName = 'status_name',
     TagName = 'tag_name',
     TmName = 'tm_name',

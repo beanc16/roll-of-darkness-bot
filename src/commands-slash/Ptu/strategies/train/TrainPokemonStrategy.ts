@@ -6,7 +6,8 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService/types.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { getSpreadsheetIdFromCharacterSheetName, PtuTrainSubcommand } from '../../options/train.js';
+import { getSpreadsheetIdFromCharacterSheetName } from '../../constants.js';
+import { PtuTrainSubcommand } from '../../options/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
 import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
 
