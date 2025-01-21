@@ -1,3 +1,4 @@
+import { QrActionTypesStrategy } from './QrActionTypesStrategy.js';
 import { QrBookMechanicsStrategy } from './QrBookMechanicsStrategy.js';
 import { QrDamageChartsStrategy } from './QrDamageChartsStrategy.js';
 import { QrDamageFormulaStrategy } from './QrDamageFormulaStrategy.js';
@@ -9,6 +10,7 @@ import { QrTypeChartStrategy } from './QrTypeChartStrategy.js';
 import { QrWeightClassChartStrategy } from './QrWeightClassChartStrategy.js';
 
 export default {
+    [QrActionTypesStrategy.key]: QrActionTypesStrategy,
     [QrBookMechanicsStrategy.key]: QrBookMechanicsStrategy,
     [QrDamageChartsStrategy.key]: QrDamageChartsStrategy,
     [QrDamageFormulaStrategy.key]: QrDamageFormulaStrategy,

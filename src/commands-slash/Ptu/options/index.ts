@@ -30,6 +30,7 @@ export enum PtuSubcommandGroup
 
 export enum PtuQuickReferenceInfo
 {
+    ActionTypes = 'action_types',
     BookMechanics = 'book_mechanics',
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
