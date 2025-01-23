@@ -9,6 +9,7 @@ export enum NwodSubcommandGroup
 {
     Calculate = 'calculate',
     Lookup = 'lookup',
+    Random = 'random',
 }
 
 export enum NwodSubcommand

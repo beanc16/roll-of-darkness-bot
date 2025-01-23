@@ -27,6 +27,7 @@ import { ChanceStrategy } from './ChanceStrategy.js';
 import { InitiativeStrategy } from './InitiativeStrategy.js';
 import lookupStrategies from './lookup/index.js';
 import { LuckStrategy } from './LuckStrategy.js';
+import randomStrategies from './random/index.js';
 import { RollStrategy } from './RollStrategy.js';
 
 interface NwodStrategyExecutorRunParameters
@@ -61,6 +62,7 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
     }, {
         [NwodSubcommandGroup.Calculate]: calculateStrategies,
         [NwodSubcommandGroup.Lookup]: lookupStrategies,
+        [NwodSubcommandGroup.Random]: randomStrategies,
     } as NwodStrategyMap);
 
     /* istanbul ignore next */
