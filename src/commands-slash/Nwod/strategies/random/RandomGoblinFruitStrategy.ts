@@ -140,7 +140,9 @@ export class RandomGoblinFruitStrategy
             isRote,
             numberOfDice,
             rerollsDisplay,
-        }).getResponse();
+        }).getResponse()
+            .replace('successes', 'goblin fruits')
+            .replace('success', 'goblin fruit');
 
         return {
             numberOfGoblinFruit,
