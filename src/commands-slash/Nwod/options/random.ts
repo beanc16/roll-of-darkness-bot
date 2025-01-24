@@ -35,7 +35,8 @@ export const goblinFruit = (subcommand: SlashCommandSubcommandBuilder): SlashCom
     subcommand.addStringOption((option) =>
     {
         const newOption = rollOptions.numberOfDice(option);
-        return newOption.setName('additional_dice');
+        newOption.setName('additional_dice');
+        return newOption.setRequired(false);
     });
 
     subcommand.addStringOption(rollOptions.rerolls);

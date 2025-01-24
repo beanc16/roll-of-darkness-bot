@@ -3,6 +3,7 @@ import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } fro
 import * as calculateSubcommands from './calculate.js';
 import * as initiativeOptions from './initiative.js';
 import * as lookupSubcommands from './lookup.js';
+import * as randomSubcommands from './random.js';
 import * as rollOptions from './roll.js';
 
 export enum NwodSubcommandGroup
@@ -80,6 +81,20 @@ export const luck = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.addBooleanOption(rollOptions.secret);
 
     return subcommand;
+};
+
+export const random = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(NwodSubcommandGroup.Random);
+    subcommandGroup.setDescription('Run nWOD randomization commands.');
+    Object.values(randomSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
 };
 
 export const roll = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>

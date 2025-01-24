@@ -3,30 +3,20 @@ import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import {
-    calculate,
-    chance,
-    initiative,
-    luck,
+    lookup,
     NwodSubcommand,
     NwodSubcommandGroup,
-    random,
-    roll,
 } from './Nwod/options/index.js';
 import { NwodStrategyExecutor } from './Nwod/strategies/index.js';
 
-class Nwod extends BaseSlashCommand
+class Nwod_Ref extends BaseSlashCommand
 {
     constructor()
     {
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(random)
-            .addSubcommand(roll)
-            .addSubcommand(initiative)
-            .addSubcommand(chance)
-            .addSubcommand(luck);
+            .addSubcommandGroup(lookup);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
@@ -82,8 +72,8 @@ class Nwod extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     get description(): string
     {
-        return `Run nWOD commands.`;
+        return `Run commands to reference mechanics for nWOD.`;
     }
 }
 
-export default new Nwod();
+export default new Nwod_Ref();
