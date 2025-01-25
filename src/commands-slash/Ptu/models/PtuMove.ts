@@ -68,11 +68,11 @@ export class PtuMove
         ] = input;
 
         // Trim strings with necessary validation
-        const unparsedRange = range.trim();
-        const unparsedDamageBase = untrimmedDamageBase.trim();
-        const frequency = untrimmedFrequency.trim();
-        const unparsedAc = untrimmedAc.trim();
-        const category = untrimmedCategory.trim();
+        const unparsedRange = range?.trim();
+        const unparsedDamageBase = untrimmedDamageBase?.trim();
+        const frequency = untrimmedFrequency?.trim();
+        const unparsedAc = untrimmedAc?.trim();
+        const category = untrimmedCategory?.trim();
         const type = untrimmedType?.trim();
 
         // Parse numbers
@@ -80,11 +80,11 @@ export class PtuMove
         const ac = parseInt(unparsedAc, 10);
 
         // Parse contest stats
-        const [contestStatType, contestStatEffect] = contestStats.trim().split('-').map(value => value.trim());
+        const [contestStatType, contestStatEffect] = contestStats?.trim()?.split('-')?.map(value => value.trim()) ?? [];
 
         // Base values
-        this.name = name.trim();
-        this.effects = effects.trim();
+        this.name = name?.trim();
+        this.effects = effects?.trim();
         this.contestStatType = (contestStatType !== '--' && contestStatType !== '')
             ? contestStatType as PtuContestStatType
             : undefined;
@@ -110,7 +110,7 @@ export class PtuMove
         {
             this.category = category as PokemonMoveCategory;
         }
-        else if (category !== 'Category' && category !== '--' && category !== '')
+        else if (category && category !== 'Category' && category !== '--' && category !== '')
         {
             logger.warn('Received a move with an invalid category', { category, validCategories: Object.values(PokemonMoveCategory) });
         }
@@ -120,7 +120,7 @@ export class PtuMove
         {
             this.type = type as PokemonType;
         }
-        else if (type !== 'Type' && type !== 'See Effect' && type !== '--' && type !== '' && type !== undefined)
+        else if (type && type !== 'Type' && type !== 'See Effect' && type !== '--' && type !== '' && type !== undefined)
         {
             logger.warn('Received a move with an invalid type', { type, validTypes: Object.values(PokemonType) });
         }
@@ -130,7 +130,7 @@ export class PtuMove
         {
             this.frequency = frequency as PtuMoveFrequency;
         }
-        else if (frequency !== 'Frequency' && frequency !== '--' && frequency !== 'See Effect' && frequency !== 'Action' && frequency !== '')
+        else if (frequency && frequency !== 'Frequency' && frequency !== '--' && frequency !== 'See Effect' && frequency !== 'Action' && frequency !== '')
         {
             logger.warn('Received a move with an invalid frequency', { frequency, validInputs: Object.values(PtuMoveFrequency) });
         }
@@ -140,7 +140,7 @@ export class PtuMove
         {
             this.damageBase = damageBase;
         }
-        else if (unparsedDamageBase !== '--' && unparsedDamageBase !== '-' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
+        else if (unparsedDamageBase && unparsedDamageBase !== '--' && unparsedDamageBase !== '-' && unparsedDamageBase !== 'Damage base' && unparsedDamageBase !== 'See Effect' && unparsedDamageBase !== 'X, See Effect' && unparsedDamageBase !== '')
         {
             /* istanbul ignore next */
             logger.warn('Received a move with a damage base that is not a number', { unparsedDamageBase, damageBase });
@@ -151,7 +151,7 @@ export class PtuMove
         {
             this.ac = ac;
         }
-        else if (unparsedAc !== '--' && unparsedAc !== 'AC' && unparsedAc !== 'See Effect' && unparsedAc !== '')
+        else if (unparsedAc && unparsedAc !== '--' && unparsedAc !== 'AC' && unparsedAc !== 'See Effect' && unparsedAc !== '')
         {
             /* istanbul ignore next */
             logger.warn('Received a move with an AC that is not a number', { unparsedAc, ac });
@@ -191,6 +191,10 @@ export class PtuMove
     public IsValidBasedOnInput(input: PtuMoveIsValidBasedOnInputParameters): boolean
     {
         // Name
+        if (!this.name)
+        {
+            return false;
+        }
         if (input.names && input.names.size > 0 && !input.names.has(this.name.toLowerCase()) && !input.includeAllIfNoName)
         {
             return false;
