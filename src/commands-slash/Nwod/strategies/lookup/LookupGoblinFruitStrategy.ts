@@ -1,12 +1,13 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessNwodSpreadsheetId } from '../../constants.js';
-import { getLookupGoblinFruitEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodSubcommandGroup } from '../../options/index.js';
 import { NwodLookupSubcommand } from '../../options/lookup.js';
 import { ChangelingGoblinFruit } from '../../types/ChangelingGoblinFruit.js';
@@ -37,7 +38,27 @@ export class LookupGoblinFruitStrategy
         });
 
         // Get message
-        const embeds = getLookupGoblinFruitEmbedMessages(data);
+        const embeds = getPagedEmbedMessages({
+            input: data,
+            title: 'Goblin Fruits',
+            parseElementToLines: element => [
+                Text.bold(element.name),
+                ...(element.rarity !== undefined
+                    ? [`Rarity: ${element.rarity}`]
+                    : []
+                ),
+                ...(element.pageNumber !== undefined
+                    ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.effect !== undefined
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
 
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/nwod ${NwodSubcommandGroup.Lookup} ${NwodLookupSubcommand.GoblinFruit}`,

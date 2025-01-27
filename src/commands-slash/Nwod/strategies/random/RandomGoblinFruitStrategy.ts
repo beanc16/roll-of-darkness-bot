@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import {
+    APIEmbedField,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+} from 'discord.js';
 
 import rollConstants from '../../../../constants/roll.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
@@ -8,10 +12,8 @@ import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAnd
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { getLookupGoblinFruitEmbedMessages } from '../../embed-messages/lookup.js';
 import { NwodSubcommandGroup } from '../../options/index.js';
 import { NwodRandomSubcommand } from '../../options/random.js';
-import RollResponseFormatterService from '../../services/RollResponseFormatterService.js';
 import { ChangelingGoblinFruit } from '../../types/ChangelingGoblinFruit.js';
 import { ChangelingGoblinFruitRarity } from '../../types/types.js';
 import { LookupGoblinFruitStrategy } from '../lookup/LookupGoblinFruitStrategy.js';
@@ -19,13 +21,13 @@ import { LookupGoblinFruitStrategy } from '../lookup/LookupGoblinFruitStrategy.j
 interface RandomGoblinFruitParameters
 {
     numberOfGoblinFruit: number;
-    rollResponse: string;
+    rolls: number[];
 }
 
 interface GetRandomGoblinFruitsParameters
 {
     numberOfGoblinFruit: number;
-    groupedGoblinFruit: Record<ChangelingGoblinFruitRarity, ChangelingGoblinFruit[]>;
+    allGoblinFruitByRarity: Record<ChangelingGoblinFruitRarity, ChangelingGoblinFruit[]>;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -43,7 +45,7 @@ export class RandomGoblinFruitStrategy
     ): Promise<boolean>
     {
         // Get parameter results
-        const parameterResults = this.getNumOfGoblinFruit(interaction, rerollCallbackOptions);
+        const parameterResults = this.getNumOfGoblinFruit(interaction);
 
         // Handle errors
         if (parameterResults === undefined)
@@ -52,24 +54,25 @@ export class RandomGoblinFruitStrategy
             return true;
         }
 
-        const { numberOfGoblinFruit, rollResponse } = parameterResults;
+        const { numberOfGoblinFruit, rolls } = parameterResults;
 
         // Get random goblin fruits
         const allGoblinFruit = await LookupGoblinFruitStrategy.getLookupData();
-        const groupedGoblinFruit = this.groupGoblinFruitByRarity(allGoblinFruit);
+        const allGoblinFruitByRarity = this.groupGoblinFruitByRarity(allGoblinFruit);
         const randomGoblinFruits = this.getRandomGoblinFruits({
             numberOfGoblinFruit,
-            groupedGoblinFruit,
+            allGoblinFruitByRarity,
         });
+        const randomGoblinFruitsByName = this.groupGoblinFruitByName(randomGoblinFruits);
 
         // Send message
-        const embeds = getLookupGoblinFruitEmbedMessages(randomGoblinFruits);
+        const embed = this.getEmbedMessages(randomGoblinFruitsByName, rolls);
+
         // Send embed with reroll button
         await RerollStrategy.run({
             interaction,
             options: {
-                content: rollResponse,
-                embeds,
+                embeds: [embed],
             },
             interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
             onRerollCallback: newRerollCallbackOptions => this.run(
@@ -82,10 +85,7 @@ export class RandomGoblinFruitStrategy
         return true;
     }
 
-    public static getNumOfGoblinFruit(
-        interaction: ChatInputCommandInteraction,
-        rerollCallbackOptions: OnRerollCallbackOptions,
-    ): RandomGoblinFruitParameters | undefined
+    private static getNumOfGoblinFruit(interaction: ChatInputCommandInteraction): RandomGoblinFruitParameters | undefined
     {
         // Get parameters
         const dexOrWits = interaction.options.getInteger('dex_or_wits', true);
@@ -107,9 +107,6 @@ export class RandomGoblinFruitStrategy
         const numberOfDice = dexOrWits + survival + additionalDice;
         const rerollOnGreaterThanOrEqualTo = (rerollsKey)
             ? rollConstants.rerollsEnum[rerollsKey]?.number
-            : undefined;
-        const rerollsDisplay = (rerollsKey)
-            ? rollConstants.rerollsEnum[rerollsKey]?.display
             : undefined;
 
         // Roll dice
@@ -133,25 +130,14 @@ export class RandomGoblinFruitStrategy
             return acc;
         }, 0);
 
-        // Get roll response
-        const rollResponse = new RollResponseFormatterService({
-            authorId: rerollCallbackOptions?.newCallingUserId ?? interaction.user.id,
-            dicePoolGroup,
-            isRote,
-            numberOfDice,
-            rerollsDisplay,
-        }).getResponse()
-            .replace('successes', 'goblin fruits')
-            .replace('success', 'goblin fruit');
-
         return {
             numberOfGoblinFruit,
-            rollResponse,
+            rolls,
         };
     }
 
     /* istanbul ignore next */
-    public static groupGoblinFruitByRarity(allGoblinFruit: ChangelingGoblinFruit[]): Record<ChangelingGoblinFruitRarity, ChangelingGoblinFruit[]>
+    private static groupGoblinFruitByRarity(allGoblinFruit: ChangelingGoblinFruit[]): Record<ChangelingGoblinFruitRarity, ChangelingGoblinFruit[]>
     {
         return allGoblinFruit.reduce<Record<ChangelingGoblinFruitRarity, ChangelingGoblinFruit[]>>((acc, cur) =>
         {
@@ -168,7 +154,22 @@ export class RandomGoblinFruitStrategy
         });
     }
 
-    public static getRandomGoblinFruits({ numberOfGoblinFruit, groupedGoblinFruit }: GetRandomGoblinFruitsParameters): ChangelingGoblinFruit[]
+    /* istanbul ignore next */
+    private static groupGoblinFruitByName(goblinFruits: ChangelingGoblinFruit[]): Record<string, ChangelingGoblinFruit[]>
+    {
+        return goblinFruits.reduce<Record<string, ChangelingGoblinFruit[]>>((acc, cur) =>
+        {
+            if (!acc[cur.name])
+            {
+                acc[cur.name] = [];
+            }
+
+            acc[cur.name].push(cur);
+            return acc;
+        }, {});
+    }
+
+    private static getRandomGoblinFruits({ numberOfGoblinFruit, allGoblinFruitByRarity }: GetRandomGoblinFruitsParameters): ChangelingGoblinFruit[]
     {
         // Calculate the rarities of the goblin fruit to get
         const rarityRolls = new DiceLiteService({
@@ -180,7 +181,7 @@ export class RandomGoblinFruitStrategy
         // Get random goblin fruits
         return rarities.map((rarity) =>
         {
-            const goblinFruits = groupedGoblinFruit[rarity];
+            const goblinFruits = allGoblinFruitByRarity[rarity];
             const [goblinFruitRoll] = new DiceLiteService({
                 count: 1,
                 sides: goblinFruits.length,
@@ -190,7 +191,7 @@ export class RandomGoblinFruitStrategy
     }
 
     /* istanbul ignore next */
-    public static getGoblinFruitRarityTier(rolls: number[]): ChangelingGoblinFruitRarity[]
+    private static getGoblinFruitRarityTier(rolls: number[]): ChangelingGoblinFruitRarity[]
     {
         return rolls.map(roll =>
         {
@@ -217,5 +218,36 @@ export class RandomGoblinFruitStrategy
             // 1-35 (included last in case dice roller is buggy, it won't give very high always due to a bug)
             return ChangelingGoblinFruitRarity.VeryLow;
         });
+    }
+
+    /* istanbul ignore next */
+    private static getEmbedMessages(
+        input: Record<string, ChangelingGoblinFruit[]>,
+        rolls: number[],
+    ): EmbedBuilder
+    {
+        const goblinFruitsNotFound = Object.keys(input).length === 0;
+
+        const fields = Object.entries(input).map<APIEmbedField>(([name, fruits]) =>
+        {
+            return {
+                name,
+                value: `Number: ${fruits.length}`,
+            };
+        });
+
+        const embed = new EmbedBuilder()
+            .setTitle(`Random Goblin Fruits`)
+            .setDescription([
+                `Finding Goblin Fruit Result: (${rolls.join(', ')})`,
+                ...(goblinFruitsNotFound
+                    ? ['\nYou found nothing.']
+                    : []
+                ),
+            ].join('\n'))
+            .setColor(0xCDCDCD)
+            .setFields(...fields);
+
+        return embed;
     }
 }
