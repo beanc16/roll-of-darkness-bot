@@ -18,6 +18,7 @@ export enum PtuRandomSubcommand
     Fortune = 'fortune',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
+    HiddenPower = 'hidden_power',
     Metronome = 'metronome',
     Mushroom = 'mushroom',
     Nature = 'nature',
@@ -200,6 +201,13 @@ export const heldItem = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         option.setName('include_badges');
         return option.setDescription('Include badges in potential results (default: false)');
     });
+    return subcommand;
+};
+
+export const hiddenPower = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRandomSubcommand.HiddenPower);
+    subcommand.setDescription('Get a random type for the HIdden Power move.');
     return subcommand;
 };
 

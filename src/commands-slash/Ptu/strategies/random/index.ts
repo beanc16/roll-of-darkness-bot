@@ -7,6 +7,7 @@ import { RandomEvolutionaryStoneStrategy } from './RandomEvolutionaryStoneStrate
 import { RandomFortuneStrategy } from './RandomFortuneStrategy.js';
 import { RandomHealingItemStrategy } from './RandomHealingItemStrategy.js';
 import { RandomHeldItemStrategy } from './RandomHeldItemStrategy.js';
+import { RandomHiddenPowerStrategy } from './RandomHiddenPowerStrategy.js';
 import { RandomMetronomeStrategy } from './RandomMetronomeStrategy.js';
 import { RandomMushroomStrategy } from './RandomMushroomStrategy.js';
 import { RandomNatureStrategy } from './RandomNatureStrategy.js';
@@ -24,6 +25,7 @@ export default {
     [RandomFortuneStrategy.key]: RandomFortuneStrategy,
     [RandomHealingItemStrategy.key]: RandomHealingItemStrategy,
     [RandomHeldItemStrategy.key]: RandomHeldItemStrategy,
+    [RandomHiddenPowerStrategy.key]: RandomHiddenPowerStrategy,
     [RandomMetronomeStrategy.key]: RandomMetronomeStrategy,
     [RandomMushroomStrategy.key]: RandomMushroomStrategy,
     [RandomNatureStrategy.key]: RandomNatureStrategy,
