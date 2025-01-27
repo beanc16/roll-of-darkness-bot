@@ -232,7 +232,7 @@ export class RandomGoblinFruitStrategy
         {
             return {
                 name,
-                value: `Number: ${fruits.length}`,
+                value: `Amount: ${fruits.length}`,
             };
         });
 

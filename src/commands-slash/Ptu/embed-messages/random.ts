@@ -33,7 +33,7 @@ export const getRandomResultEmbedMessage = ({
 
         return {
             name,
-            value: `${descriptionString}Number: ${numOfTimesRolled}${costString}`,
+            value: `${descriptionString}Amount: ${numOfTimesRolled}${costString}`,
         } as APIEmbedField;
     });
 
@@ -88,7 +88,7 @@ export const getRandomDowsingRodEmbedMessage = ({
 
         return {
             name,
-            value: `${descriptionString}Number: ${numOfTimesRolled}${costString}`,
+            value: `${descriptionString}Amount: ${numOfTimesRolled}${costString}`,
         } as APIEmbedField;
     });
 
@@ -161,7 +161,7 @@ export const getRandomPokeballEmbedMessage = ({
     }) =>
     {
         const jailbreakerString = (jailBreakerInfo !== undefined)
-            ? `\n${tab}*${jailBreakerInfo.name}*\n${tab}${jailBreakerInfo.description}\n${tab}Number: ${numOfTimesRolled}\n${tab}Cost: ${cost}`
+            ? `\n${tab}*${jailBreakerInfo.name}*\n${tab}${jailBreakerInfo.description}\n${tab}Amount: ${numOfTimesRolled}\n${tab}Cost: ${cost}`
             : '';
 
         return {
