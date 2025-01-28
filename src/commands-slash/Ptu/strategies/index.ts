@@ -12,7 +12,6 @@ import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { PtuAdminAddSubcommand } from '../options/admin.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
@@ -37,7 +36,6 @@ import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
-import adminStrategies from './admin/index.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
@@ -133,7 +131,6 @@ type PtuStrategyMap = StrategyMap<
 export class PtuStrategyExecutor extends BaseStrategyExecutor
 {
     private static strategies: PtuStrategyMap = {
-        [PtuSubcommandGroup.Admin]: adminStrategies,
         [PtuSubcommandGroup.Breed]: BreedPokemonStrategy,
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
@@ -151,7 +148,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuAdminAddSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
@@ -303,10 +300,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 output.sort((a, b) => a.name.localeCompare(b.name));
                 return output;
             },
-            [PtuAutocompleteParameterName.SheetName]: () => PtuStrategyExecutor.getLookupData({
-                subcommandGroup: PtuSubcommandGroup.Admin,
-                subcommand: PtuAdminAddSubcommand.Ability,
-            }),
             [PtuAutocompleteParameterName.StatusName]: () => PtuStrategyExecutor.getLookupData<PtuStatus>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
@@ -386,7 +379,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         options,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuBreedSubcommand | PtuAdminAddSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuBreedSubcommand;
         options?: LookupParamsFromLookupModel<PtuLookupModel>;
     }): Promise<PtuLookupModel[]>
     {
@@ -411,7 +404,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuAdminAddSubcommand;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): ChatIteractionStrategy | undefined
     {

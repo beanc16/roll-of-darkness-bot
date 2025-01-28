@@ -32,7 +32,6 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
-    | PtuAutocompleteParameterName.SheetName
 >;
 
 interface GetHandlerResultResponse
