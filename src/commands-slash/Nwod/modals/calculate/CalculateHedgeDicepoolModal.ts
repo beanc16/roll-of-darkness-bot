@@ -1,10 +1,16 @@
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     ModalSubmitInteraction,
     TextInputBuilder,
     TextInputStyle,
 } from 'discord.js';
 
 import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomModal.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { NwodCalculateSubcommand } from '../../options/calculate.js';
+import { NwodSubcommandGroup } from '../../options/index.js';
 
 export enum CalculateHedgeDicepoolCustomIds
 {
@@ -30,6 +36,12 @@ enum BooleanQuestion
     ChangelingIncitedBedlam = `Bedlam incited this scene?`,
     ChangelingIncitedBedlamWithExceptionalSuccess = `Bedlam w/ excep success incited this scene?`,
     CharactersInThorns = `In the Thorns?`,
+}
+
+enum TurnUpdateButtonName
+{
+    NextTurn = 'next_turn',
+    PreviousTurn = 'previous_turn',
 }
 
 export interface ParseInputResponse
@@ -230,16 +242,48 @@ export class CalculateHedgeDicepoolModal extends BaseCustomModal
         const hedgesDicePool = this.calculateHedgesDicepool(input);
 
         // Update message
-        await interaction.message?.edit({
+        await interaction.deferUpdate();
+        const resultMessage = await interaction.followUp({
             content: [
                 `You need a total of ${successes} successes to navigate the hedge.`,
                 `The hedge's dicepool is ${hedgesDicePool}.`,
             ].join('\n'),
-            components: [],
+            components: [
+                this.getButtonRowComponent(),
+            ],
         });
-        await interaction.reply({
-            content: 'Done!',
-            ephemeral: true,
+
+        let numOfTurnsPassed = 0;
+        await ButtonStrategy.handleButtonInteractions({
+            interactionResponse: resultMessage,
+            commandName: `/nwod ${NwodSubcommandGroup.Calculate} ${NwodCalculateSubcommand.HedgeNavigation}`,
+            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+            onButtonPress: async (buttonInteraction) =>
+            {
+                const handlerMap: Record<TurnUpdateButtonName, () => void> = {
+                    [TurnUpdateButtonName.PreviousTurn]: () =>
+                    {
+                        numOfTurnsPassed -= 1;
+                    },
+                    [TurnUpdateButtonName.NextTurn]: () =>
+                    {
+                        numOfTurnsPassed += 1;
+                    },
+                };
+                handlerMap[buttonInteraction.customId as TurnUpdateButtonName]();
+
+                // Update message
+                await buttonInteraction.update({
+                    content: [
+                        `You need a total of ${successes} successes to navigate the hedge.`,
+                        `The hedge's dicepool is ${hedgesDicePool + numOfTurnsPassed}.`,
+                    ].join('\n'),
+                    components: [
+                        this.getButtonRowComponent(),
+                    ],
+                });
+            },
+            getButtonRowComponent: () => this.getButtonRowComponent(),
         });
     }
 
@@ -355,5 +399,28 @@ export class CalculateHedgeDicepoolModal extends BaseCustomModal
             + changelingIncitedBedlamModifier
             + changelingIncitedBedlamWithExceptionalSuccessModifier
             + charactersInThornsModifier);
+    }
+
+    private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
+    {
+        const plusButton = new ButtonBuilder()
+            .setCustomId(TurnUpdateButtonName.NextTurn)
+            .setLabel('Next Turn')
+            .setEmoji('➕')
+            .setStyle(ButtonStyle.Secondary);
+
+        const minusButton = new ButtonBuilder()
+            .setCustomId(TurnUpdateButtonName.PreviousTurn)
+            .setLabel('Previous Turn')
+            .setEmoji('➖')
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                plusButton,
+                minusButton,
+            );
+
+        return row;
     }
 }
