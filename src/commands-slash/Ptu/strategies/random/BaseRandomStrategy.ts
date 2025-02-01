@@ -17,9 +17,11 @@ interface BaseRandomStrategyOptions
     parsedData?: RandomResult[];
 }
 
+type BaseRandomSubcommands = Exclude<PtuRandomSubcommand, PtuRandomSubcommand.Gumdrop | PtuRandomSubcommand.HiddenPower>;
+
 export class BaseRandomStrategy
 {
-    public static subcommandToStrings: Record<Exclude<PtuRandomSubcommand, PtuRandomSubcommand.HiddenPower>, {
+    public static subcommandToStrings: Record<BaseRandomSubcommands, {
         data: string;
         plural: string;
     }> = {
@@ -87,7 +89,7 @@ export class BaseRandomStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        subcommand: Exclude<PtuRandomSubcommand, PtuRandomSubcommand.HiddenPower>,
+        subcommand: BaseRandomSubcommands,
         options: BaseRandomStrategyOptions,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
@@ -188,7 +190,7 @@ export class BaseRandomStrategy
         return interaction.options.getInteger('number_of_dice');
     }
 
-    private static async getParsedData(subcommand: Exclude<PtuRandomSubcommand, PtuRandomSubcommand.HiddenPower>, options: BaseRandomStrategyOptions): Promise<RandomResult[]>
+    private static async getParsedData(subcommand: BaseRandomSubcommands, options: BaseRandomStrategyOptions): Promise<RandomResult[]>
     {
         if (options.parsedData)
         {

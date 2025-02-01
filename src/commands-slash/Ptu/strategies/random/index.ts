@@ -5,6 +5,7 @@ import { RandomBerryStrategy } from './RandomBerryStrategy.js';
 import { RandomDowsingRodStrategy } from './RandomDowsingRodStrategy.js';
 import { RandomEvolutionaryStoneStrategy } from './RandomEvolutionaryStoneStrategy.js';
 import { RandomFortuneStrategy } from './RandomFortuneStrategy.js';
+import { RandomGumdropStrategy } from './RandomGumdropStrategy.js';
 import { RandomHealingItemStrategy } from './RandomHealingItemStrategy.js';
 import { RandomHeldItemStrategy } from './RandomHeldItemStrategy.js';
 import { RandomHiddenPowerStrategy } from './RandomHiddenPowerStrategy.js';
@@ -23,6 +24,7 @@ export default {
     [RandomDowsingRodStrategy.key]: RandomDowsingRodStrategy,
     [RandomEvolutionaryStoneStrategy.key]: RandomEvolutionaryStoneStrategy,
     [RandomFortuneStrategy.key]: RandomFortuneStrategy,
+    [RandomGumdropStrategy.key]: RandomGumdropStrategy,
     [RandomHealingItemStrategy.key]: RandomHealingItemStrategy,
     [RandomHeldItemStrategy.key]: RandomHeldItemStrategy,
     [RandomHiddenPowerStrategy.key]: RandomHiddenPowerStrategy,

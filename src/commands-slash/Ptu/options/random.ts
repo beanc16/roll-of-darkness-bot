@@ -16,6 +16,7 @@ export enum PtuRandomSubcommand
     DowsingRod = 'dowsing_rod',
     EvolutionaryStone = 'evolutionary_stone',
     Fortune = 'fortune',
+    Gumdrop = 'gumdrop',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     HiddenPower = 'hidden_power',
@@ -153,6 +154,23 @@ export const fortune = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setDescription('The level of your Pokemon with the Fortune capability.');
         option.setMinValue(1);
         option.setMaxValue(100);
+        option.setRequired(true);
+        return option;
+    });
+    return subcommand;
+};
+
+export const gumdrop = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRandomSubcommand.Gumdrop);
+    subcommand.setDescription('Get random gumdrops using the Gumdrop Bounty capability.');
+
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('trainer_level');
+        option.setDescription('The level of your Trainer.');
+        option.setMinValue(1);
+        option.setMaxValue(50);
         option.setRequired(true);
         return option;
     });
