@@ -225,7 +225,7 @@ export const mushroom = (subcommand: SlashCommandSubcommandBuilder): SlashComman
 
     subcommand.addIntegerOption((option) =>
     {
-        option.setName('level');
+        option.setName('pokemon_level');
         option.setDescription('The level of your Pokemon with the Mushroom Gathering capability.');
         option.setMinValue(1);
         option.setMaxValue(100);

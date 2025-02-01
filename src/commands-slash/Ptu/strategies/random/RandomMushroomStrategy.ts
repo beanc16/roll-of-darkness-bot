@@ -32,7 +32,7 @@ export class RandomMushroomStrategy
         },
     ): Promise<boolean>
     {
-        const level = interaction.options.getInteger('level', true);
+        const level = interaction.options.getInteger('pokemon_level', true);
 
         // Mushroom Gather can only be used at level 20 or higher
         if (level < 20)
