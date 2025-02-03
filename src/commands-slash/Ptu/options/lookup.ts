@@ -33,6 +33,7 @@ export enum PtuLookupSubcommand
     EvolutionaryStone = 'evolutionary_stone',
     Feature = 'feature',
     GiftBlessing = 'gift_blessing',
+    Hazard = 'hazard',
     HealingItem = 'healing_item',
     HeldItem = 'held_item',
     KeyItem = 'key_item',
@@ -278,6 +279,38 @@ export const giftBlessing = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     {
         option.setName(PtuAutocompleteParameterName.GiftBlessingPatron);
         option.setDescription(`The legendary gift's / blessing's patron.`);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const hazard = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Hazard);
+    subcommand.setDescription('Get hazards based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.HazardName);
+        option.setDescription(`The hazard's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Move name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.MoveName);
+        option.setDescription(`The hazard's associated move name to search.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Ability name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.AbilityName);
+        option.setDescription(`The hazard's associated ability name to search.`);
         return option.setAutocomplete(true);
     });
 

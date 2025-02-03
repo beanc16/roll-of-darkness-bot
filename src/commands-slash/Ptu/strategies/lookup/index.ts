@@ -8,6 +8,7 @@ import { LookupEquipmentStrategy } from './LookupEquipmentStrategy.js';
 import { LookupEvolutionaryStoneStrategy } from './LookupEvolutionaryStoneStrategy.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 import { LookupGiftBlessingStrategy } from './LookupGiftBlessingStrategy.js';
+import { LookupHazardStrategy } from './LookupHazardStrategy.js';
 import { LookupHealingItemStrategy } from './LookupHealingItemStrategy.js';
 import { LookupHeldItemStrategy } from './LookupHeldItemStrategy.js';
 import { LookupKeyItemStrategy } from './LookupKeyItemStrategy.js';
@@ -34,6 +35,7 @@ export default {
     [LookupEvolutionaryStoneStrategy.key]: LookupEvolutionaryStoneStrategy,
     [LookupFeatureStrategy.key]: LookupFeatureStrategy,
     [LookupGiftBlessingStrategy.key]: LookupGiftBlessingStrategy,
+    [LookupHazardStrategy.key]: LookupHazardStrategy,
     [LookupHealingItemStrategy.key]: LookupHealingItemStrategy,
     [LookupHeldItemStrategy.key]: LookupHeldItemStrategy,
     [LookupKeyItemStrategy.key]: LookupKeyItemStrategy,

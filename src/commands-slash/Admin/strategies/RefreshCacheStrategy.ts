@@ -193,6 +193,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.GiftBlessing],
                 lookupSubcommand: PtuLookupSubcommand.GiftBlessing,
             },
+            [PtuAutocompleteParameterName.HazardName]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Hazard],
+                lookupSubcommand: PtuLookupSubcommand.Hazard,
+            },
             [PtuAutocompleteParameterName.HealingItem]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.HealingItem],
                 lookupSubcommand: PtuLookupSubcommand.HealingItem,

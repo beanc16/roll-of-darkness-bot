@@ -28,6 +28,7 @@ import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
 import { PtuEvolutionaryStone } from '../types/PtuEvolutionaryStone.js';
 import { PtuFeature } from '../types/PtuFeature.js';
+import { PtuHazard } from '../types/PtuHazard.js';
 import { PtuHealingItem } from '../types/PtuHealingItem.js';
 import { PtuHeldItem } from '../types/PtuHeldItem.js';
 import { PtuKeyword } from '../types/PtuKeyword.js';
@@ -242,6 +243,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommand: PtuLookupSubcommand.GiftBlessing,
                 });
             },
+            [PtuAutocompleteParameterName.HazardName]: () => PtuStrategyExecutor.getLookupData<PtuHazard>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Hazard,
+            }),
             [PtuAutocompleteParameterName.HealingItem]: () => PtuStrategyExecutor.getLookupData<PtuHealingItem>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.HealingItem,
