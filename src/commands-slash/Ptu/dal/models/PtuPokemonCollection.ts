@@ -3,6 +3,11 @@ import { ObjectId } from 'mongodb';
 import { PtuPokemon } from '../../types/pokemon.js';
 
 // TODO: Move this to a dedicated API for roll of darkness to call later instead
+interface PtuPokemonEdit extends Partial<Omit<PtuPokemon, 'name' | 'olderVersions'>>
+{
+    editName: string;
+}
+
 export class PtuPokemonCollection
 {
     public _id: ObjectId;
@@ -21,6 +26,7 @@ export class PtuPokemonCollection
     public megaEvolutions: PtuPokemon['megaEvolutions'];
     public metadata: PtuPokemon['metadata'];
     public extras: PtuPokemon['extras'];
+    public edits?: PtuPokemonEdit[];
 
     constructor({
         _id,
@@ -39,7 +45,8 @@ export class PtuPokemonCollection
         megaEvolutions,
         metadata,
         extras,
-    }: PtuPokemon & { _id: ObjectId })
+        edits,
+    }: PtuPokemon & { _id: ObjectId; edits: PtuPokemonEdit[] })
     {
         if (_id)
         {
@@ -67,5 +74,116 @@ export class PtuPokemonCollection
         this.megaEvolutions = megaEvolutions;
         this.metadata = metadata;
         this.extras = extras;
+        this.edits = edits;
+    }
+
+    public toPtuPokemon(): PtuPokemon
+    {
+        // Data setup
+        const {
+            _id,
+            edits,
+            ...originalPokemonData
+        } = this;
+        const originalPokemon: PtuPokemon = { ...originalPokemonData };
+        const {
+            name: _name,
+            ...originalPokemonDataWithoutName
+        } = originalPokemonData;
+
+        // Get most recent & remaining edits
+        const editsReversed = edits?.toReversed() ?? [];
+        const [mostRecentEdit, ...remainingEdits] = editsReversed;
+
+        // Create output that has all possible edits
+        let output: PtuPokemon = {
+            ...originalPokemon,
+            ...PtuPokemonCollection.toPtuPokemonEdit(originalPokemon, mostRecentEdit),
+        };
+
+        // Update output with remaining edits so it has the most up-to-date data
+        remainingEdits?.forEach((edit) =>
+        {
+            output = {
+                name: output.name,
+                ...PtuPokemonCollection.toPtuPokemonEdit(output, edit),
+            };
+        });
+
+        // Get older versions
+        const olderVersions = remainingEdits?.toReversed().map((edit) =>
+            PtuPokemonCollection.toPtuPokemonEdit(output, edit),
+        ) ?? [];
+
+        // Add the original data as the "last" edit
+        if (edits && edits.length > 0)
+        {
+            olderVersions.push(
+                PtuPokemonCollection.toPtuPokemonEdit(originalPokemon, {
+                    editName: 'Original',
+                    ...originalPokemonDataWithoutName,
+                }),
+            );
+        }
+
+        if (olderVersions.length > 0)
+        {
+            output.olderVersions = olderVersions;
+        }
+
+        return output;
+    }
+
+    private static toPtuPokemonEdit(output: PtuPokemon, edit: PtuPokemonEdit): NonNullable<PtuPokemon['olderVersions']>[0]
+    {
+        const {
+            name: _,
+            sizeInformation,
+            breedingInformation,
+            skills,
+            moveList,
+            ...outputData
+        } = output;
+
+        const {
+            editName,
+            sizeInformation: editSizeInformation,
+            breedingInformation: editBreedingInformation,
+            skills: editSkills,
+            moveList: editMoveList,
+            ...editData
+        } = edit;
+
+        return {
+            versionName: editName,
+            ...outputData,
+            ...editData,
+            sizeInformation: {
+                height: {
+                    ...sizeInformation.height,
+                    ...(editSizeInformation?.height ?? {}),
+                },
+                weight: {
+                    ...sizeInformation.weight,
+                    ...(editSizeInformation?.weight ?? {}),
+                },
+            },
+            breedingInformation: {
+                ...breedingInformation,
+                ...(editBreedingInformation ?? {}),
+                genderRatio: {
+                    ...breedingInformation.genderRatio,
+                    ...(editBreedingInformation?.genderRatio ?? {}),
+                },
+            },
+            skills: {
+                ...skills,
+                ...(editSkills ?? {}),
+            },
+            moveList: {
+                ...moveList,
+                ...(editMoveList ?? {}),
+            },
+        };
     }
 }

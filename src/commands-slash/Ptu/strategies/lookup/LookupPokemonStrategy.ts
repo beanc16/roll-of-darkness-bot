@@ -16,6 +16,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
     getLookupPokemonByAbilityEmbedMessages,
@@ -164,7 +165,7 @@ export class LookupPokemonStrategy
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
         const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
-        const results = untypedResults as PtuPokemon[];
+        const results = untypedResults as PtuPokemonCollection[];
 
         const names = results.map(({ name: pokemonName }) => pokemonName);
 
@@ -174,8 +175,9 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const output = results.map((result) =>
+        const output = results.map<PtuPokemon>((collection) =>
         {
+            const result = collection.toPtuPokemon();
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
             ) ?? {};
