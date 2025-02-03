@@ -52,9 +52,10 @@ export interface HandleSelectMenuOptionsParameters
 {
     originalInteraction: ChatInputCommandInteraction;
     interactionResponse: Message<boolean>;
-    moveName: string;
+    name?: string | null;
+    moveName?: string | null;
     pokemon: PtuPokemon[];
-    currentMoveListType: PtuMoveListType;
+    selectedValue?: PtuMoveListType | string;
 }
 
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
@@ -68,6 +69,7 @@ export class LookupPokemonStrategy
 {
     public static key: PtuLookupSubcommand.Pokemon = PtuLookupSubcommand.Pokemon;
     private static selectMenuCustomIds = {
+        PokemonViewSelect: 'pokemon_view_select',
         MoveViewSelect: 'move_view_select',
     };
 
@@ -126,13 +128,26 @@ export class LookupPokemonStrategy
             return true;
         }
 
+        // Get selected value (in string select menu, if there is one)
+        let selectedValue: string | undefined;
+
+        if (moveName)
+        {
+            selectedValue = moveListType ?? PtuMoveListType.LevelUp;
+        }
+        else if (name)
+        {
+            selectedValue = data[0].versionName;
+        }
+
         await this.sendMessage({
             originalInteraction: interaction,
             interaction,
             embeds,
+            name,
             moveName,
             pokemon: data,
-            defaultMoveListType: PtuMoveListType.LevelUp,
+            selectedValue,
         });
 
         return true;
@@ -187,6 +202,21 @@ export class LookupPokemonStrategy
                 return result;
             }
 
+            // Add imageUrl to olderVersions
+            const { olderVersions } = result;
+            const olderVersionsWithImageUrl = olderVersions?.map((olderVersion) =>
+            {
+                return {
+                    ...olderVersion,
+                    metadata: {
+                        ...olderVersion.metadata,
+                        imageUrl,
+                    },
+                };
+            });
+            result.olderVersions = olderVersionsWithImageUrl;
+
+            // Add imageUrl to main version
             return {
                 ...result,
                 metadata: {
@@ -284,31 +314,44 @@ export class LookupPokemonStrategy
         originalInteraction,
         interaction,
         embeds,
+        name,
         moveName,
         pokemon,
         interactionType,
-        defaultMoveListType,
+        selectedValue,
         isDisabled = false,
     }: {
         originalInteraction: ChatInputCommandInteraction;
         interaction: ChatInputCommandInteraction | StringSelectMenuInteraction;
         embeds: EmbedBuilder[];
+        name?: string | null;
         moveName?: string | null;
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
-        defaultMoveListType: PtuMoveListType;
+        selectedValue?: PtuMoveListType | string;
         isDisabled?: boolean;
     }): Promise<void>
     {
-        // Only get the select menu for looking up by move name
-        const selectMenu = moveName
-            ? this.getLookupPokemonByMoveSelectMenu({
-                defaultMoveListType,
+        // Get the select menu based on how the lookup is happening
+        let selectMenu: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+
+        if (name)
+        {
+            selectMenu = this.getLookupPokemonSelectMenu({
+                pokemon,
+                isDisabled,
+                selectedValue,
+            });
+        }
+        else if (moveName)
+        {
+            selectMenu = this.getLookupPokemonByMoveSelectMenu({
+                defaultMoveListType: selectedValue as PtuMoveListType,
                 moveName,
                 pokemon,
                 isDisabled,
-            })
-            : undefined;
+            });
+        }
 
         const rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
@@ -325,16 +368,17 @@ export class LookupPokemonStrategy
             rowsAbovePagination,
         });
 
-        if (moveName)
+        if (name || moveName)
         {
             // Handle select menu options (fire and forget)
             // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
             this.handleSelectMenuOptions({
                 originalInteraction,
                 interactionResponse: response,
+                name,
                 moveName,
                 pokemon,
-                currentMoveListType: defaultMoveListType,
+                selectedValue,
             });
         }
     }
@@ -516,6 +560,83 @@ export class LookupPokemonStrategy
         return [];
     }
 
+    private static getLookupPokemonSelectMenu({
+        pokemon,
+        isDisabled,
+        selectedValue,
+    }: {
+        pokemon: PtuPokemon[];
+        isDisabled: boolean;
+        selectedValue?: string;
+    }): ActionRowBuilder<StringSelectMenuBuilder> | undefined
+    {
+        // Get select menu options
+        const options = pokemon.reduce<StringSelectMenuOptionBuilder[]>((acc, { versionName: newestVersionName, olderVersions = [] }) =>
+        {
+            if (olderVersions.length === 0)
+            {
+                return acc;
+            }
+
+            const newestOption = new StringSelectMenuOptionBuilder()
+                .setLabel(newestVersionName)
+                .setValue(newestVersionName)
+                .setDefault(selectedValue === newestVersionName || selectedValue === undefined);
+            acc.push(newestOption);
+
+            olderVersions.forEach(({ versionName }) =>
+            {
+                const option = new StringSelectMenuOptionBuilder()
+                    .setLabel(versionName)
+                    .setValue(versionName);
+
+                if (selectedValue === versionName)
+                {
+                    option.setDefault(true);
+                }
+
+                acc.push(option);
+            });
+
+            return acc;
+        }, []);
+
+        // Only show the select menu if there's 2 or more options to show
+        if (options.length <= 1)
+        {
+            return undefined;
+        }
+
+        // Create select menus
+        let optionsInCurSelectMenu = 0;
+        let curMenu = new StringSelectMenuBuilder()
+            .setCustomId(`${this.selectMenuCustomIds.PokemonViewSelect}_${optionsInCurSelectMenu}`)
+            .setDisabled(isDisabled);
+        const selectMenus = options.reduce<StringSelectMenuBuilder[]>((acc, option, index) =>
+        {
+            curMenu.addOptions(option);
+            optionsInCurSelectMenu += 1;
+
+            // Comply with Discord's 5 options per menu limit & add the menu after the last option
+            if (optionsInCurSelectMenu === 5 || index === options.length - 1)
+            {
+                acc.push(curMenu);
+                optionsInCurSelectMenu = 0;
+                curMenu = new StringSelectMenuBuilder()
+                    .setCustomId(`${this.selectMenuCustomIds.PokemonViewSelect}_${optionsInCurSelectMenu}`)
+                    .setDisabled(isDisabled);
+            }
+
+            return acc;
+        }, []);
+
+        // Add the select menus to the row
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(...selectMenus);
+
+        return row;
+    }
+
     private static getLookupPokemonByMoveSelectMenu({
         defaultMoveListType,
         moveName,
@@ -614,9 +735,10 @@ export class LookupPokemonStrategy
     private static async handleSelectMenuOptions({
         originalInteraction,
         interactionResponse,
+        name,
         moveName,
         pokemon,
-        currentMoveListType,
+        selectedValue,
     }: HandleSelectMenuOptionsParameters): Promise<void>
     {
         let hasUpdated = false;
@@ -629,10 +751,48 @@ export class LookupPokemonStrategy
             });
 
             const { customId, values = [] } = responseInteraction;
-            const [moveListType] = values as PtuMoveListType[];
+            const [value] = values;
 
-            if (customId === this.selectMenuCustomIds.MoveViewSelect)
+            if (customId.includes(this.selectMenuCustomIds.PokemonViewSelect))
             {
+                // Create a map of version name to pokemon
+                const [onlyPokemon] = pokemon;
+                const { olderVersions = [] } = onlyPokemon;
+                const versionNameToPokemon: Record<string, PtuPokemon> = {
+                    [onlyPokemon.versionName]: onlyPokemon,
+                };
+
+                olderVersions.forEach((curPokemon) =>
+                {
+                    const { versionName } = curPokemon;
+
+                    versionNameToPokemon[versionName] = {
+                        name: onlyPokemon.name,
+                        ...curPokemon,
+                    };
+                });
+
+                const embeds = this.getLookupPokemonEmbeds({
+                    name,
+                    pokemon: [versionNameToPokemon[value]],
+                });
+
+                hasUpdated = true;
+
+                await this.sendMessage({
+                    originalInteraction,
+                    interaction: responseInteraction,
+                    embeds,
+                    name,
+                    moveName,
+                    pokemon,
+                    interactionType: 'update',
+                    selectedValue: value,
+                });
+            }
+            else if (customId === this.selectMenuCustomIds.MoveViewSelect)
+            {
+                const moveListType = value as PtuMoveListType;
                 const embeds = this.getLookupPokemonEmbeds({
                     moveName,
                     moveListType,
@@ -645,10 +805,11 @@ export class LookupPokemonStrategy
                     originalInteraction,
                     interaction: responseInteraction,
                     embeds,
+                    name,
                     moveName,
                     pokemon,
                     interactionType: 'update',
-                    defaultMoveListType: moveListType,
+                    selectedValue: moveListType,
                 });
             }
         }
@@ -669,8 +830,11 @@ export class LookupPokemonStrategy
             if (!hasUpdated && !messageWasDeleted)
             {
                 const embeds = this.getLookupPokemonEmbeds({
+                    name,
                     moveName,
-                    moveListType: currentMoveListType,
+                    moveListType: (Object.values(PtuMoveListType) as string[]).includes(selectedValue ?? '')
+                        ? selectedValue as PtuMoveListType
+                        : undefined,
                     pokemon,
                 });
 
@@ -678,10 +842,11 @@ export class LookupPokemonStrategy
                     originalInteraction,
                     interaction: originalInteraction,
                     embeds,
+                    name,
                     moveName,
                     pokemon,
                     interactionType: 'editReply',
-                    defaultMoveListType: currentMoveListType,
+                    selectedValue,
                     isDisabled: true,
                 });
             }

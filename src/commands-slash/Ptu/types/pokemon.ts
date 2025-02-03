@@ -262,6 +262,7 @@ export interface PtuPokemon extends PtuPokemonMinimalData
         name: string;
         value: string;
     }[];
+    versionName: string;
     olderVersions?: (Omit<PtuPokemon, 'name' | 'olderVersions'> & {
         versionName: string;
     })[];
