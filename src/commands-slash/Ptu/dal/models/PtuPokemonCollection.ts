@@ -85,7 +85,7 @@ export class PtuPokemonCollection
             edits,
             ...originalPokemonData
         } = this;
-        const originalPokemon: PtuPokemon = { ...originalPokemonData };
+        const originalPokemon: PtuPokemon = { ...originalPokemonData, versionName: 'Original' };
         const {
             name: _name,
             ...originalPokemonDataWithoutName
@@ -98,7 +98,10 @@ export class PtuPokemonCollection
         // Create output that has all possible edits
         let output: PtuPokemon = {
             ...originalPokemon,
-            ...PtuPokemonCollection.toPtuPokemonEdit(originalPokemon, mostRecentEdit),
+            ...(mostRecentEdit
+                ? PtuPokemonCollection.toPtuPokemonEdit(originalPokemon, mostRecentEdit)
+                : {}
+            ),
         };
 
         // Update output with remaining edits so it has the most up-to-date data
@@ -155,9 +158,9 @@ export class PtuPokemonCollection
         } = edit;
 
         return {
-            versionName: editName,
             ...outputData,
             ...editData,
+            versionName: editName,
             sizeInformation: {
                 height: {
                     ...sizeInformation.height,
