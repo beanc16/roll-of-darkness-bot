@@ -44,7 +44,7 @@ export enum PtuLookupSubcommand
     Pokemon = 'pokemon',
     Status = 'status',
     Tag = 'tag',
-    Terrain = 'Terrain',
+    Terrain = 'terrain',
     Tm = 'tm',
     Vitamin = 'vitamin',
     Weather = 'weather',
