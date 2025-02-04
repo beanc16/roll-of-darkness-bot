@@ -35,6 +35,7 @@ import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
