@@ -35,6 +35,7 @@ import { PtuKeyword } from '../types/PtuKeyword.js';
 import { PtuNature } from '../types/PtuNature.js';
 import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
+import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
@@ -312,6 +313,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.TagName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tag,
+            }),
+            [PtuAutocompleteParameterName.TerrainName]: () => PtuStrategyExecutor.getLookupData<PtuTerrain>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Terrain,
             }),
             [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,

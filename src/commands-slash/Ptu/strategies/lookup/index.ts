@@ -19,6 +19,7 @@ import { LookupPokeballStrategy } from './LookupPokeballStrategy.js';
 import { LookupPokemonStrategy } from './LookupPokemonStrategy.js';
 import { LookupStatusStrategy } from './LookupStatusStrategy.js';
 import { LookupTagStrategy } from './LookupTagStrategy.js';
+import { LookupTerrainStrategy } from './LookupTerrainStrategy.js';
 import { LookupTmStrategy } from './LookupTmStrategy.js';
 import { LookupVitaminStrategy } from './LookupVitaminStrategy.js';
 import { LookupWeatherStrategy } from './LookupWeatherStrategy.js';
@@ -46,6 +47,7 @@ export default {
     [LookupPokemonStrategy.key]: LookupPokemonStrategy,
     [LookupStatusStrategy.key]: LookupStatusStrategy,
     [LookupTagStrategy.key]: LookupTagStrategy,
+    [LookupTerrainStrategy.key]: LookupTerrainStrategy,
     [LookupTmStrategy.key]: LookupTmStrategy,
     [LookupVitaminStrategy.key]: LookupVitaminStrategy,
     [LookupWeatherStrategy.key]: LookupWeatherStrategy,
