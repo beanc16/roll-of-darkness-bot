@@ -44,7 +44,7 @@ export enum PtuLookupSubcommand
     Pokemon = 'pokemon',
     Status = 'status',
     Tag = 'tag',
-    Terrain = 'terrain',
+    // Terrain = 'terrain',
     Tm = 'tm',
     Vitamin = 'vitamin',
     Weather = 'weather',
@@ -823,6 +823,7 @@ export const tag = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
     return subcommand;
 };
 
+/*
 export const terrain = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuLookupSubcommand.Terrain);
@@ -838,6 +839,7 @@ export const terrain = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
 
     return subcommand;
 };
+*/
 
 export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
