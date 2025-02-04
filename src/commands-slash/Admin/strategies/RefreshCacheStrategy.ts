@@ -237,6 +237,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Tag],
                 lookupSubcommand: PtuLookupSubcommand.Tag,
             },
+            [PtuAutocompleteParameterName.TerrainName]: {
+                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Terrain],
+                lookupSubcommand: PtuLookupSubcommand.Terrain,
+            },
             [PtuAutocompleteParameterName.TmName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Tm],
                 lookupSubcommand: PtuLookupSubcommand.Tm,

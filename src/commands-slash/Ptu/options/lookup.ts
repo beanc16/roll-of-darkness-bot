@@ -44,6 +44,7 @@ export enum PtuLookupSubcommand
     Pokemon = 'pokemon',
     Status = 'status',
     Tag = 'tag',
+    Terrain = 'Terrain',
     Tm = 'tm',
     Vitamin = 'vitamin',
     Weather = 'weather',
@@ -816,6 +817,22 @@ export const tag = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
         option.setName(PtuAutocompleteParameterName.TagName);
         option.setDescription(`The tag's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const terrain = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuLookupSubcommand.Terrain);
+    subcommand.setDescription('Get terrain based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.TerrainName);
+        option.setDescription(`The terrain's name.`);
         return option.setAutocomplete(true);
     });
 
