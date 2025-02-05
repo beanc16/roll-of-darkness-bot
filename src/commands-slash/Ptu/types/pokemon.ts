@@ -163,14 +163,14 @@ export interface PtuPokemonMinimalData
     };
     capabilities: {
         overland: number;
-        swim: number;
-        sky: number;
-        levitate: number;
-        burrow: number;
+        swim?: number;
+        sky?: number;
+        levitate?: number;
+        burrow?: number;
         highJump: number;
         lowJump: number;
         power: number;
-        other: string[];
+        other?: string[];
     };
     sizeInformation: {
         height: {
