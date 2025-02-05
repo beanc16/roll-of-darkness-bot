@@ -741,6 +741,7 @@ export class LookupPokemonStrategy
         selectedValue,
     }: HandleSelectMenuOptionsParameters): Promise<void>
     {
+        let embeds: EmbedBuilder[] = [];
         let hasUpdated = false;
 
         try
@@ -772,7 +773,7 @@ export class LookupPokemonStrategy
                     };
                 });
 
-                const embeds = this.getLookupPokemonEmbeds({
+                embeds = this.getLookupPokemonEmbeds({
                     name,
                     pokemon: [versionNameToPokemon[value]],
                 });
@@ -793,7 +794,7 @@ export class LookupPokemonStrategy
             else if (customId === this.selectMenuCustomIds.MoveViewSelect)
             {
                 const moveListType = value as PtuMoveListType;
-                const embeds = this.getLookupPokemonEmbeds({
+                embeds = this.getLookupPokemonEmbeds({
                     moveName,
                     moveListType,
                     pokemon,
@@ -829,15 +830,6 @@ export class LookupPokemonStrategy
             // Disable select menu upon timeout or delete
             if (!hasUpdated && !messageWasDeleted)
             {
-                const embeds = this.getLookupPokemonEmbeds({
-                    name,
-                    moveName,
-                    moveListType: (Object.values(PtuMoveListType) as string[]).includes(selectedValue ?? '')
-                        ? selectedValue as PtuMoveListType
-                        : undefined,
-                    pokemon,
-                });
-
                 await this.sendMessage({
                     originalInteraction,
                     interaction: originalInteraction,
