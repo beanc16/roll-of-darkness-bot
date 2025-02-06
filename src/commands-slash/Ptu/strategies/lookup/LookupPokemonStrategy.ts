@@ -23,6 +23,7 @@ import {
     getLookupPokemonByCapabilityEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
+    PtuPokemonForLookupPokemon,
 } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -48,6 +49,14 @@ export interface GetLookupPokemonDataParameters
     capabilityName?: string | null;
 }
 
+interface AddLookupMetadataToPtuPokemonParameters
+{
+    moveName: GetLookupPokemonDataParameters['moveName'];
+    abilityName: GetLookupPokemonDataParameters['abilityName'];
+    capabilityName: GetLookupPokemonDataParameters['capabilityName'];
+    curPokemon: PtuPokemonForLookupPokemon;
+}
+
 export interface HandleSelectMenuOptionsParameters
 {
     originalInteraction: ChatInputCommandInteraction;
@@ -63,6 +72,8 @@ interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataPara
     pokemon: PtuPokemon[];
     moveNameToMovesRecord?: Record<string, PtuMove>;
 }
+
+type ParseSearchParametersResponse = Record<string, string | RegExp | object | object[] | undefined>;
 
 @staticImplements<ChatIteractionStrategy>()
 export class LookupPokemonStrategy
@@ -161,7 +172,7 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
-    }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemon[]>
+    }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
         if (!(name || moveName || abilityName || capabilityName))
         {
@@ -190,44 +201,412 @@ export class LookupPokemonStrategy
             : undefined;
 
         // Try to add imageUrl to pokemon result
-        const output = results.map<PtuPokemon>((collection) =>
+        const output = results.map<PtuPokemonForLookupPokemon>((collection) =>
         {
             const result = collection.toPtuPokemon();
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
             ) ?? {};
 
-            if (!imageUrl)
+            // Add imageUrl to olderVersions
+            if (imageUrl)
             {
-                return result;
+                const { olderVersions } = result;
+                const olderVersionsWithImageUrl = olderVersions?.map((olderVersion) =>
+                {
+                    return {
+                        ...olderVersion,
+                        metadata: {
+                            ...olderVersion.metadata,
+                            imageUrl,
+                        },
+                    };
+                });
+                result.olderVersions = olderVersionsWithImageUrl;
             }
 
-            // Add imageUrl to olderVersions
-            const { olderVersions } = result;
-            const olderVersionsWithImageUrl = olderVersions?.map((olderVersion) =>
-            {
-                return {
-                    ...olderVersion,
-                    metadata: {
-                        ...olderVersion.metadata,
-                        imageUrl,
-                    },
-                };
+            // Add lookup metadata
+            const resultWithLookupMetadata = this.addLookupMetadataToPtuPokemon({
+                moveName,
+                abilityName,
+                capabilityName,
+                curPokemon: result,
             });
-            result.olderVersions = olderVersionsWithImageUrl;
 
             // Add imageUrl to main version
             return {
-                ...result,
+                ...resultWithLookupMetadata,
                 metadata: {
-                    ...result.metadata,
-                    imageUrl,
+                    ...resultWithLookupMetadata.metadata,
+                    ...(imageUrl ? { imageUrl } : {}),
                 },
             };
         });
 
         // Sort by name
         output.sort((a, b) => a.name.localeCompare(b.name));
+
+        return output;
+    }
+
+    private static addLookupMetadataToPtuPokemon({
+        moveName,
+        abilityName,
+        capabilityName,
+        curPokemon,
+    }: AddLookupMetadataToPtuPokemonParameters): PtuPokemonForLookupPokemon
+    {
+        // Data setup & deconstruction
+        const output = {
+            ...curPokemon,
+            groupedVersions: [
+                ...(curPokemon.groupedVersions ?? []),
+            ],
+        };
+        const { olderVersions } = curPokemon;
+
+        // Metadata only needs to happen if there's older versions
+        if (!olderVersions)
+        {
+            return output;
+        }
+
+        let allInclude = true;
+        let someInclude = false;
+
+        if (moveName)
+        {
+            const moveGroups: {
+                [PtuMoveListType.LevelUp]: Record<PtuPokemonForLookupPokemon['moveList']['levelUp'][0]['level'], NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0]>;
+                [PtuMoveListType.TmHm]: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0];
+                [PtuMoveListType.EggMoves]: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0];
+                [PtuMoveListType.TutorMoves]: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0];
+                [PtuMoveListType.ZygardeCubeMoves]: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0];
+            } = {
+                [PtuMoveListType.LevelUp]: {},
+                [PtuMoveListType.EggMoves]: {
+                    versionNames: [],
+                    pokemon: [],
+                    type: PtuMoveListType.EggMoves,
+                },
+                [PtuMoveListType.TmHm]: {
+                    versionNames: [],
+                    pokemon: [],
+                    type: PtuMoveListType.TmHm,
+                },
+                [PtuMoveListType.TutorMoves]: {
+                    versionNames: [],
+                    pokemon: [],
+                    type: PtuMoveListType.TutorMoves,
+                },
+                [PtuMoveListType.ZygardeCubeMoves]: {
+                    versionNames: [],
+                    pokemon: [],
+                    type: PtuMoveListType.ZygardeCubeMoves,
+                },
+            };
+
+            let levelUpMoveData = curPokemon.moveList.levelUp.find(({ move }) => move === moveName);
+            let hasAsEggMove = curPokemon.moveList.eggMoves.some((name) => name === moveName);
+            let hasAsTmHmMove = curPokemon.moveList.tmHm.some((name) => name === moveName);
+            let hasAsTutorMove = curPokemon.moveList.tutorMoves.some((name) => name === moveName);
+            let hasAsZygardeCubeMove = curPokemon.moveList.zygardeCubeMoves?.some((name) => name === moveName);
+
+            if (levelUpMoveData)
+            {
+                if (moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level] === undefined)
+                {
+                    moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level] = {
+                        versionNames: [],
+                        pokemon: [],
+                        type: PtuMoveListType.LevelUp,
+                    };
+                }
+
+                moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level].versionNames.push(curPokemon.versionName);
+                moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            if (hasAsEggMove)
+            {
+                moveGroups[PtuMoveListType.EggMoves].versionNames.push(curPokemon.versionName);
+                moveGroups[PtuMoveListType.EggMoves].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            if (hasAsTmHmMove)
+            {
+                moveGroups[PtuMoveListType.TmHm].versionNames.push(curPokemon.versionName);
+                moveGroups[PtuMoveListType.TmHm].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            if (hasAsTutorMove)
+            {
+                moveGroups[PtuMoveListType.TutorMoves].versionNames.push(curPokemon.versionName);
+                moveGroups[PtuMoveListType.TutorMoves].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            if (hasAsZygardeCubeMove)
+            {
+                moveGroups[PtuMoveListType.ZygardeCubeMoves].versionNames.push(curPokemon.versionName);
+                moveGroups[PtuMoveListType.ZygardeCubeMoves].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            if (!(levelUpMoveData && hasAsEggMove && hasAsTmHmMove && hasAsTutorMove && hasAsZygardeCubeMove))
+            {
+                allInclude = false;
+            }
+
+            olderVersions.forEach((olderVersion) =>
+            {
+                levelUpMoveData = olderVersion.moveList.levelUp.find(({ move }) => move === moveName);
+                hasAsEggMove = olderVersion.moveList.eggMoves.some((name) => name === moveName);
+                hasAsTmHmMove = olderVersion.moveList.tmHm.some((name) => name === moveName);
+                hasAsTutorMove = olderVersion.moveList.tutorMoves.some((name) => name === moveName);
+                hasAsZygardeCubeMove = olderVersion.moveList.zygardeCubeMoves?.some((name) => name === moveName);
+
+                if (levelUpMoveData)
+                {
+                    if (moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level] === undefined)
+                    {
+                        moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level] = {
+                            versionNames: [],
+                            pokemon: [],
+                            type: PtuMoveListType.LevelUp,
+                        };
+                    }
+
+                    moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level].versionNames.push(olderVersion.versionName);
+                    moveGroups[PtuMoveListType.LevelUp][levelUpMoveData.level].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                if (hasAsEggMove)
+                {
+                    moveGroups[PtuMoveListType.EggMoves].versionNames.push(olderVersion.versionName);
+                    moveGroups[PtuMoveListType.EggMoves].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                if (hasAsTmHmMove)
+                {
+                    moveGroups[PtuMoveListType.TmHm].versionNames.push(olderVersion.versionName);
+                    moveGroups[PtuMoveListType.TmHm].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                if (hasAsTutorMove)
+                {
+                    moveGroups[PtuMoveListType.TutorMoves].versionNames.push(olderVersion.versionName);
+                    moveGroups[PtuMoveListType.TutorMoves].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                if (hasAsZygardeCubeMove)
+                {
+                    moveGroups[PtuMoveListType.ZygardeCubeMoves].versionNames.push(olderVersion.versionName);
+                    moveGroups[PtuMoveListType.ZygardeCubeMoves].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                if (!(levelUpMoveData && hasAsEggMove && hasAsTmHmMove && hasAsTutorMove && hasAsZygardeCubeMove))
+                {
+                    allInclude = false;
+                }
+            });
+
+            const groupsWithMove = [
+                ...(Object.keys(moveGroups[PtuMoveListType.LevelUp]).length > 0 ? [moveGroups[PtuMoveListType.LevelUp]] : []),
+                ...(moveGroups[PtuMoveListType.EggMoves].versionNames.length > 0 ? [moveGroups[PtuMoveListType.EggMoves]] : []),
+                ...(moveGroups[PtuMoveListType.TmHm].versionNames.length > 0 ? [moveGroups[PtuMoveListType.TmHm]] : []),
+                ...(moveGroups[PtuMoveListType.TutorMoves].versionNames.length > 0 ? [moveGroups[PtuMoveListType.TutorMoves]] : []),
+                ...(moveGroups[PtuMoveListType.ZygardeCubeMoves].versionNames.length > 0 ? [moveGroups[PtuMoveListType.ZygardeCubeMoves]] : []),
+            ];
+
+            // Only group if there's some included and some not (no grouping is necessary if it's always or never included)
+            // or group if all are included in different groups
+            if (
+                (!allInclude && someInclude)
+                || (allInclude && groupsWithMove.length > 1)
+            )
+            {
+                groupsWithMove.forEach((group) =>
+                {
+                    if (group.versionNames && group.pokemon)
+                    {
+                        const {
+                            versionNames,
+                            pokemon,
+                            type,
+                        } = group as NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0];
+
+                        if (versionNames.length > 0 && pokemon.length > 0)
+                        {
+                            output.groupedVersions.push({
+                                versionNames,
+                                pokemon,
+                                type,
+                            });
+                        }
+                    }
+
+                    else
+                    {
+                        const levelUpGroup = group as typeof moveGroups[PtuMoveListType.LevelUp];
+
+                        Object.values(levelUpGroup).forEach(({
+                            versionNames,
+                            pokemon,
+                            type,
+                        }) =>
+                        {
+                            if (versionNames.length > 0 && pokemon.length > 0)
+                            {
+                                output.groupedVersions.push({
+                                    versionNames,
+                                    pokemon,
+                                    type,
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            return output;
+        }
+
+        if (abilityName)
+        {
+            const abilityGroups: Record<Exclude<PtuAbilityListType, PtuAbilityListType.All>, NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0]> = {
+                [PtuAbilityListType.Basic]: {
+                    versionNames: [],
+                    pokemon: [],
+                },
+                [PtuAbilityListType.Advanced]: {
+                    versionNames: [],
+                    pokemon: [],
+                },
+                [PtuAbilityListType.High]: {
+                    versionNames: [],
+                    pokemon: [],
+                },
+            };
+
+            if (curPokemon.abilities.basicAbilities.some(ability => ability === abilityName))
+            {
+                abilityGroups[PtuAbilityListType.Basic].versionNames.push(curPokemon.versionName);
+                abilityGroups[PtuAbilityListType.Basic].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            else if (curPokemon.abilities.advancedAbilities.some(ability => ability === abilityName))
+            {
+                abilityGroups[PtuAbilityListType.Advanced].versionNames.push(curPokemon.versionName);
+                abilityGroups[PtuAbilityListType.Advanced].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            else if (curPokemon.abilities.highAbility === abilityName)
+            {
+                abilityGroups[PtuAbilityListType.High].versionNames.push(curPokemon.versionName);
+                abilityGroups[PtuAbilityListType.High].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            else
+            {
+                allInclude = false;
+            }
+
+            olderVersions.forEach((olderVersion) =>
+            {
+                if (olderVersion.abilities.basicAbilities.some(ability => ability === abilityName))
+                {
+                    abilityGroups[PtuAbilityListType.Basic].versionNames.push(olderVersion.versionName);
+                    abilityGroups[PtuAbilityListType.Basic].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                else if (olderVersion.abilities.advancedAbilities.some(ability => ability === abilityName))
+                {
+                    abilityGroups[PtuAbilityListType.Advanced].versionNames.push(olderVersion.versionName);
+                    abilityGroups[PtuAbilityListType.Advanced].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                else if (olderVersion.abilities.highAbility === abilityName)
+                {
+                    abilityGroups[PtuAbilityListType.High].versionNames.push(olderVersion.versionName);
+                    abilityGroups[PtuAbilityListType.High].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
+                else
+                {
+                    allInclude = false;
+                }
+            });
+
+            const groupsWithAbility = [
+                ...(abilityGroups[PtuAbilityListType.Basic].pokemon.length > 0 ? [PtuAbilityListType.Basic] : []),
+                ...(abilityGroups[PtuAbilityListType.Advanced].pokemon.length > 0 ? [PtuAbilityListType.Advanced] : []),
+                ...(abilityGroups[PtuAbilityListType.High].pokemon.length > 0 ? [PtuAbilityListType.High] : []),
+            ] as Exclude<PtuAbilityListType, PtuAbilityListType.All>[];
+
+            // Only group if there's some included and some not (no grouping is necessary if it's always or never included)
+            // or group if all are included in different groups
+            if (
+                (!allInclude && someInclude)
+                || (allInclude && groupsWithAbility.length > 1)
+            )
+            {
+                groupsWithAbility.forEach((group) =>
+                {
+                    const { versionNames, pokemon } = abilityGroups[group];
+
+                    if (versionNames.length > 0 && pokemon.length > 0)
+                    {
+                        output.groupedVersions.push({
+                            versionNames,
+                            pokemon,
+                        });
+                    }
+                });
+            }
+
+            return output;
+        }
+
+        if (capabilityName)
+        {
+            const versionNamesThatInclude: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0]['versionNames'] = [];
+            const versionsThatInclude: NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0]['pokemon'] = [];
+
+            if (curPokemon.capabilities.other?.includes(capabilityName))
+            {
+                versionNamesThatInclude.push(curPokemon.versionName);
+                versionsThatInclude.push(curPokemon);
+                someInclude = true;
+            }
+            else
+            {
+                allInclude = false;
+            }
+
+            olderVersions.forEach((olderVersion) =>
+            {
+                if (olderVersion.capabilities.other?.includes(capabilityName))
+                {
+                    versionNamesThatInclude.push(olderVersion.versionName);
+                    versionsThatInclude.push(olderVersion);
+                    someInclude = true;
+                }
+                else
+                {
+                    allInclude = false;
+                }
+            });
+
+            // Only group if there's some included and some not (no grouping is necessary if it's always or never included)
+            if (!allInclude && someInclude)
+            {
+                output.groupedVersions.push({
+                    versionNames: versionNamesThatInclude,
+                    pokemon: versionsThatInclude,
+                });
+            }
+
+            return output;
+        }
 
         return output;
     }
@@ -393,16 +772,18 @@ export class LookupPokemonStrategy
         capabilityName,
     }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
+        let output: ParseSearchParametersResponse = {};
+
         if (name)
         {
-            return {
+            output = {
                 name: parseRegexByType(name, lookupType),
             };
         }
 
         if (capabilityName)
         {
-            return {
+            output = {
                 'capabilities.other': {
                     $in: [
                         parseRegexByType(capabilityName, lookupType),
@@ -421,13 +802,13 @@ export class LookupPokemonStrategy
             case PtuMoveListType.TutorMoves:
             case PtuMoveListType.ZygardeCubeMoves:
                 key = `moveList.${moveListType}`;
-                return {
+                output = {
                     [key]: moveName,
                 };
                 break;
             case PtuMoveListType.TmHm:
                 key = `moveList.${moveListType}`;
-                return {
+                output = {
                     [key]: parseRegexByType(
                         moveName,
                         RegexLookupType.SubstringCaseInsensitive,
@@ -436,13 +817,14 @@ export class LookupPokemonStrategy
                 break;
             case PtuMoveListType.LevelUp:
                 key = `moveList.${moveListType}`;
-                return {
+                output = {
                     [key]: {
                         $elemMatch: {
                             move: moveName,
                         },
                     },
                 };
+                break;
             case PtuMoveListType.All:
                 // eslint-disable-next-line no-case-declarations
                 const searchParams: object[] = [
@@ -474,7 +856,7 @@ export class LookupPokemonStrategy
                     },
                 });
 
-                return {
+                output = {
                     $or: searchParams,
                 };
                 break;
@@ -491,7 +873,7 @@ export class LookupPokemonStrategy
             case PtuAbilityListType.Advanced:
             case PtuAbilityListType.High:
                 key = `abilities.${abilityListType}`;
-                return {
+                output = {
                     [key]: abilityName,
                 };
                 break;
@@ -509,13 +891,27 @@ export class LookupPokemonStrategy
                     };
                 });
 
-                return {
+                output = {
                     $or: searchParams,
                 };
             }
         }
 
-        return {};
+        // Add the same searches for edits
+        output = {
+            $or: [
+                output,
+                {
+                    edits: {
+                        $elemMatch: {
+                            ...output,
+                        },
+                    },
+                },
+            ],
+        };
+
+        return output;
     }
 
     private static getLookupPokemonEmbeds({
@@ -669,6 +1065,7 @@ export class LookupPokemonStrategy
                 tutorMoves,
                 zygardeCubeMoves = [],
             },
+            olderVersions = [],
         }) =>
         {
             const hasAsLevelUpMove = !!levelUp.find(({ move }) => move === moveName);
@@ -678,11 +1075,11 @@ export class LookupPokemonStrategy
             const hasAsZygardeCubeMove = !!zygardeCubeMoves.find(move => move === moveName);
 
             return {
-                [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove,
-                [PtuMoveListType.TmHm]: acc[PtuMoveListType.TmHm] || hasAsTmHmMove,
-                [PtuMoveListType.EggMoves]: acc[PtuMoveListType.EggMoves] || hasAsEggMove,
-                [PtuMoveListType.TutorMoves]: acc[PtuMoveListType.TutorMoves] || hasAsTutorMove,
-                [PtuMoveListType.ZygardeCubeMoves]: acc[PtuMoveListType.ZygardeCubeMoves] || hasAsZygardeCubeMove,
+                [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove || olderVersions.some(({ moveList }) => !!moveList.levelUp.find(({ move }) => move === moveName)),
+                [PtuMoveListType.TmHm]: acc[PtuMoveListType.TmHm] || hasAsTmHmMove || olderVersions.some(({ moveList }) => !!moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()))),
+                [PtuMoveListType.EggMoves]: acc[PtuMoveListType.EggMoves] || hasAsEggMove || olderVersions.some(({ moveList }) => !!moveList.eggMoves.find(move => move === moveName)),
+                [PtuMoveListType.TutorMoves]: acc[PtuMoveListType.TutorMoves] || hasAsTutorMove || olderVersions.some(({ moveList }) => !!moveList.tutorMoves.find(move => move === moveName)),
+                [PtuMoveListType.ZygardeCubeMoves]: acc[PtuMoveListType.ZygardeCubeMoves] || hasAsZygardeCubeMove || olderVersions.some(({ moveList }) => !!(moveList.zygardeCubeMoves ?? []).find(move => move === moveName)),
             };
         }, {
             [PtuMoveListType.LevelUp]: false,
