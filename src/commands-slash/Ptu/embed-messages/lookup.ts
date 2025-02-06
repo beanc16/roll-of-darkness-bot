@@ -386,10 +386,10 @@ const parseLookupByPokemonMoveInput = ({
 }): ParseLookupByPokemonMoveInputResponse =>
 {
     if (
-        (moveListType === PtuMoveListType.LevelUp && !moveList.levelUp.find(({ move }) => move === moveName) && groupedVersionType !== PtuMoveListType.LevelUp)
-        || (moveListType === PtuMoveListType.TmHm && !moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase())) && groupedVersionType !== PtuMoveListType.TmHm)
-        || (moveListType === PtuMoveListType.EggMoves && !moveList.eggMoves.find(move => move === moveName) && groupedVersionType !== PtuMoveListType.EggMoves)
-        || (moveListType === PtuMoveListType.TutorMoves && !moveList.tutorMoves.find(move => move === moveName) && groupedVersionType !== PtuMoveListType.TutorMoves)
+        (moveListType === PtuMoveListType.LevelUp && !(moveList.levelUp ?? []).find(({ move }) => move === moveName) && groupedVersionType !== PtuMoveListType.LevelUp)
+        || (moveListType === PtuMoveListType.TmHm && !(moveList.tmHm ?? []).find(move => move.toLowerCase().includes(moveName.toLowerCase())) && groupedVersionType !== PtuMoveListType.TmHm)
+        || (moveListType === PtuMoveListType.EggMoves && !(moveList.eggMoves ?? []).find(move => move === moveName) && groupedVersionType !== PtuMoveListType.EggMoves)
+        || (moveListType === PtuMoveListType.TutorMoves && !(moveList.tutorMoves ?? []).find(move => move === moveName) && groupedVersionType !== PtuMoveListType.TutorMoves)
         || (((moveListType === PtuMoveListType.ZygardeCubeMoves && !moveList.zygardeCubeMoves) || (moveList.zygardeCubeMoves && !moveList.zygardeCubeMoves.find(move => move === moveName))) && groupedVersionType !== PtuMoveListType.ZygardeCubeMoves)
     )
     {
@@ -416,28 +416,28 @@ const parseLookupByPokemonMoveInput = ({
         return acc;
     }
 
-    const eggMove = moveList.eggMoves.find(move => move === moveName);
+    const eggMove = (moveList.eggMoves ?? []).find(move => move === moveName);
     if (eggMove && moveListType === PtuMoveListType.All && (!groupedVersionType || groupedVersionType === PtuMoveListType.EggMoves))
     {
         acc[PtuMoveListType.EggMoves].push(curPokemonName);
         return acc;
     }
 
-    const tutorMove = moveList.tutorMoves.find(move => move === moveName);
+    const tutorMove = (moveList.tutorMoves ?? []).find(move => move === moveName);
     if (tutorMove && moveListType === PtuMoveListType.All && (!groupedVersionType || groupedVersionType === PtuMoveListType.TutorMoves))
     {
         acc[PtuMoveListType.TutorMoves].push(curPokemonName);
         // Don't return acc
     }
 
-    const tmHmMove = moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
+    const tmHmMove = (moveList.tmHm ?? []).find(move => move.toLowerCase().includes(moveName.toLowerCase()));
     if (tmHmMove && moveListType === PtuMoveListType.All && (!groupedVersionType || groupedVersionType === PtuMoveListType.TmHm))
     {
         acc[PtuMoveListType.TmHm].push(curPokemonName);
         // Don't return acc
     }
 
-    const levelUpMove = moveList.levelUp.find(({ move }) => move === moveName);
+    const levelUpMove = (moveList.levelUp ?? []).find(({ move }) => move === moveName);
     if (
         (moveListType === PtuMoveListType.LevelUp || moveListType === PtuMoveListType.All)
         && levelUpMove
@@ -662,14 +662,14 @@ const parseLookupByPokemonAbilityInput = ({
         return acc;
     }
 
-    const basicAbility = abilities.basicAbilities.find(ability => ability === abilityName);
+    const basicAbility = (abilities.basicAbilities ?? []).find(ability => ability === abilityName);
     if (basicAbility && (!groupedVersionType || groupedVersionType === PtuAbilityListType.Basic))
     {
         acc[PtuAbilityListType.Basic].push(curPokemonName);
         return acc;
     }
 
-    const advancedAbility = abilities.advancedAbilities.find(ability => ability === abilityName);
+    const advancedAbility = (abilities.advancedAbilities ?? []).find(ability => ability === abilityName);
     if (advancedAbility && (!groupedVersionType || groupedVersionType === PtuAbilityListType.Advanced))
     {
         acc[PtuAbilityListType.Advanced].push(curPokemonName);

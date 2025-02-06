@@ -306,10 +306,10 @@ export class LookupPokemonStrategy
                 },
             };
 
-            let levelUpMoveData = curPokemon.moveList.levelUp.find(({ move }) => move === moveName);
-            let hasAsEggMove = curPokemon.moveList.eggMoves.some((name) => name === moveName);
-            let hasAsTmHmMove = curPokemon.moveList.tmHm.some((name) => name === moveName);
-            let hasAsTutorMove = curPokemon.moveList.tutorMoves.some((name) => name === moveName);
+            let levelUpMoveData = (curPokemon.moveList.levelUp ?? []).find(({ move }) => move === moveName);
+            let hasAsEggMove = curPokemon.moveList.eggMoves?.some((name) => name === moveName);
+            let hasAsTmHmMove = curPokemon.moveList.tmHm?.some((name) => name === moveName);
+            let hasAsTutorMove = curPokemon.moveList.tutorMoves?.some((name) => name === moveName);
             let hasAsZygardeCubeMove = curPokemon.moveList.zygardeCubeMoves?.some((name) => name === moveName);
 
             if (levelUpMoveData)
@@ -358,10 +358,10 @@ export class LookupPokemonStrategy
 
             olderVersions.forEach((olderVersion) =>
             {
-                levelUpMoveData = olderVersion.moveList.levelUp.find(({ move }) => move === moveName);
-                hasAsEggMove = olderVersion.moveList.eggMoves.some((name) => name === moveName);
-                hasAsTmHmMove = olderVersion.moveList.tmHm.some((name) => name === moveName);
-                hasAsTutorMove = olderVersion.moveList.tutorMoves.some((name) => name === moveName);
+                levelUpMoveData = (olderVersion.moveList.levelUp ?? []).find(({ move }) => move === moveName);
+                hasAsEggMove = olderVersion.moveList.eggMoves?.some((name) => name === moveName);
+                hasAsTmHmMove = olderVersion.moveList.tmHm?.some((name) => name === moveName);
+                hasAsTutorMove = olderVersion.moveList.tutorMoves?.some((name) => name === moveName);
                 hasAsZygardeCubeMove = olderVersion.moveList.zygardeCubeMoves?.some((name) => name === moveName);
 
                 if (levelUpMoveData)
@@ -476,24 +476,27 @@ export class LookupPokemonStrategy
                 [PtuAbilityListType.Basic]: {
                     versionNames: [],
                     pokemon: [],
+                    type: PtuAbilityListType.Basic,
                 },
                 [PtuAbilityListType.Advanced]: {
                     versionNames: [],
                     pokemon: [],
+                    type: PtuAbilityListType.Advanced,
                 },
                 [PtuAbilityListType.High]: {
                     versionNames: [],
                     pokemon: [],
+                    type: PtuAbilityListType.High,
                 },
             };
 
-            if (curPokemon.abilities.basicAbilities.some(ability => ability === abilityName))
+            if (curPokemon.abilities.basicAbilities?.some(ability => ability === abilityName))
             {
                 abilityGroups[PtuAbilityListType.Basic].versionNames.push(curPokemon.versionName);
                 abilityGroups[PtuAbilityListType.Basic].pokemon.push(curPokemon);
                 someInclude = true;
             }
-            else if (curPokemon.abilities.advancedAbilities.some(ability => ability === abilityName))
+            else if (curPokemon.abilities.advancedAbilities?.some(ability => ability === abilityName))
             {
                 abilityGroups[PtuAbilityListType.Advanced].versionNames.push(curPokemon.versionName);
                 abilityGroups[PtuAbilityListType.Advanced].pokemon.push(curPokemon);
@@ -512,13 +515,13 @@ export class LookupPokemonStrategy
 
             olderVersions.forEach((olderVersion) =>
             {
-                if (olderVersion.abilities.basicAbilities.some(ability => ability === abilityName))
+                if (olderVersion.abilities.basicAbilities?.some(ability => ability === abilityName))
                 {
                     abilityGroups[PtuAbilityListType.Basic].versionNames.push(olderVersion.versionName);
                     abilityGroups[PtuAbilityListType.Basic].pokemon.push(olderVersion);
                     someInclude = true;
                 }
-                else if (olderVersion.abilities.advancedAbilities.some(ability => ability === abilityName))
+                else if (olderVersion.abilities.advancedAbilities?.some(ability => ability === abilityName))
                 {
                     abilityGroups[PtuAbilityListType.Advanced].versionNames.push(olderVersion.versionName);
                     abilityGroups[PtuAbilityListType.Advanced].pokemon.push(olderVersion);
@@ -551,13 +554,18 @@ export class LookupPokemonStrategy
             {
                 groupsWithAbility.forEach((group) =>
                 {
-                    const { versionNames, pokemon } = abilityGroups[group];
+                    const {
+                        versionNames,
+                        pokemon,
+                        type,
+                    } = abilityGroups[group];
 
                     if (versionNames.length > 0 && pokemon.length > 0)
                     {
                         output.groupedVersions.push({
                             versionNames,
                             pokemon,
+                            type,
                         });
                     }
                 });
@@ -1068,17 +1076,17 @@ export class LookupPokemonStrategy
             olderVersions = [],
         }) =>
         {
-            const hasAsLevelUpMove = !!levelUp.find(({ move }) => move === moveName);
-            const hasAsTmHmMove = !!tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()));
-            const hasAsEggMove = !!eggMoves.find(move => move === moveName);
-            const hasAsTutorMove = !!tutorMoves.find(move => move === moveName);
-            const hasAsZygardeCubeMove = !!zygardeCubeMoves.find(move => move === moveName);
+            const hasAsLevelUpMove = !!(levelUp ?? []).find(({ move }) => move === moveName);
+            const hasAsTmHmMove = !!(tmHm ?? []).find(move => move.toLowerCase().includes(moveName.toLowerCase()));
+            const hasAsEggMove = !!(eggMoves ?? []).find(move => move === moveName);
+            const hasAsTutorMove = !!(tutorMoves ?? []).find(move => move === moveName);
+            const hasAsZygardeCubeMove = !!(zygardeCubeMoves ?? []).find(move => move === moveName);
 
             return {
-                [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove || olderVersions.some(({ moveList }) => !!moveList.levelUp.find(({ move }) => move === moveName)),
-                [PtuMoveListType.TmHm]: acc[PtuMoveListType.TmHm] || hasAsTmHmMove || olderVersions.some(({ moveList }) => !!moveList.tmHm.find(move => move.toLowerCase().includes(moveName.toLowerCase()))),
-                [PtuMoveListType.EggMoves]: acc[PtuMoveListType.EggMoves] || hasAsEggMove || olderVersions.some(({ moveList }) => !!moveList.eggMoves.find(move => move === moveName)),
-                [PtuMoveListType.TutorMoves]: acc[PtuMoveListType.TutorMoves] || hasAsTutorMove || olderVersions.some(({ moveList }) => !!moveList.tutorMoves.find(move => move === moveName)),
+                [PtuMoveListType.LevelUp]: acc[PtuMoveListType.LevelUp] || hasAsLevelUpMove || olderVersions.some(({ moveList }) => !!(moveList.levelUp ?? []).find(({ move }) => move === moveName)),
+                [PtuMoveListType.TmHm]: acc[PtuMoveListType.TmHm] || hasAsTmHmMove || olderVersions.some(({ moveList }) => !!(moveList.tmHm ?? []).find(move => move.toLowerCase().includes(moveName.toLowerCase()))),
+                [PtuMoveListType.EggMoves]: acc[PtuMoveListType.EggMoves] || hasAsEggMove || olderVersions.some(({ moveList }) => !!(moveList.eggMoves ?? []).find(move => move === moveName)),
+                [PtuMoveListType.TutorMoves]: acc[PtuMoveListType.TutorMoves] || hasAsTutorMove || olderVersions.some(({ moveList }) => !!(moveList.tutorMoves ?? []).find(move => move === moveName)),
                 [PtuMoveListType.ZygardeCubeMoves]: acc[PtuMoveListType.ZygardeCubeMoves] || hasAsZygardeCubeMove || olderVersions.some(({ moveList }) => !!(moveList.zygardeCubeMoves ?? []).find(move => move === moveName)),
             };
         }, {
