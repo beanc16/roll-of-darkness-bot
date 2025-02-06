@@ -144,7 +144,10 @@ export class PtuPokemonCollection
             sizeInformation,
             breedingInformation,
             skills,
+            abilities,
             moveList,
+            capabilities,
+            metadata,
             ...outputData
         } = output;
 
@@ -153,7 +156,10 @@ export class PtuPokemonCollection
             sizeInformation: editSizeInformation,
             breedingInformation: editBreedingInformation,
             skills: editSkills,
+            abilities: editAbilities,
             moveList: editMoveList,
+            capabilities: editCapabilities,
+            metadata: editMetadata,
             ...editData
         } = edit;
 
@@ -186,6 +192,18 @@ export class PtuPokemonCollection
             moveList: {
                 ...moveList,
                 ...(editMoveList ?? {}),
+            },
+            abilities: {
+                ...abilities,
+                ...(editAbilities ?? {}),
+            },
+            capabilities: {
+                ...capabilities,
+                ...(editCapabilities ?? {}),
+            },
+            metadata: {
+                ...metadata,
+                ...(editMetadata ?? {}),
             },
         };
     }
