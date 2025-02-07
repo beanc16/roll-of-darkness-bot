@@ -753,6 +753,7 @@ export class LookupPokemonStrategy
             embeds,
             interactionType,
             rowsAbovePagination,
+            includeDeleteButton: true,
         });
 
         if (name || moveName)

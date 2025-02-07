@@ -50,6 +50,7 @@ export class LookupStrategy
             originalInteraction: interaction,
             commandName: options.commandName,
             embeds,
+            includeDeleteButton: true,
         });
 
         return true;
