@@ -23,6 +23,7 @@ export enum PaginationButtonName
     Previous = 'previous_page',
     First = 'first_page',
     Last = 'last_page',
+    Delete = 'delete_message',
 }
 
 export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
@@ -40,6 +41,7 @@ interface PaginationStrategyRunParameters
         ActionRowBuilder<StringSelectMenuBuilder>?,
         ActionRowBuilder<StringSelectMenuBuilder>?,
     ];
+    includeDeleteButton?: boolean;
 }
 
 export class PaginationStrategy
@@ -60,19 +62,23 @@ export class PaginationStrategy
         files,
         interactionType = 'editReply',
         rowsAbovePagination = [],
+        includeDeleteButton = false,
     }: PaginationStrategyRunParameters): Promise<Message<boolean>>
     {
         const shouldPaginate = (
-            (embeds && embeds.length > 1)
-            || (files && files.length > 1)
+            (!!embeds && embeds.length > 1)
+            || (!!files && files.length > 1)
         );
 
         const validRowsAbovePagination = rowsAbovePagination.filter(row => !!row);
 
         // Only include pagination buttons if there's more than one embed message
-        const components = (shouldPaginate)
-            ? [...validRowsAbovePagination, this.getPaginationRowComponent(false)]
-            : validRowsAbovePagination;
+        let components = this.getComponents({
+            validRowsAbovePagination,
+            isDisabled: false,
+            includeDeleteButton,
+            includePaginationButtons: shouldPaginate,
+        });
 
         // Send first embed message
         const response = await this.replyToOriginalInteraction({
@@ -91,8 +97,8 @@ export class PaginationStrategy
             },
         });
 
-        // Only listen for pagination buttons if there's more than one embed message
-        if (shouldPaginate)
+        // Only listen for pagination buttons if there's more than one component
+        if (components && components.length > 0)
         {
             let pageIndex = 0;
 
@@ -103,14 +109,37 @@ export class PaginationStrategy
                 restartStyle: ButtonListenerRestartStyle.OnSuccess,
                 onButtonPress: /* istanbul ignore next */ async (buttonInteraction) =>
                 {
-                    pageIndex = this.updatePageIndex({
+                    const { newPageIndex, deleteMessage } = this.updatePageIndex({
                         buttonInteraction,
                         embeds,
                         files,
                         pageIndex,
                     });
 
-                    const paginationRow = this.getPaginationRowComponent(false);
+                    if (deleteMessage)
+                    {
+                        if (originalInteraction.user.id === buttonInteraction.user.id)
+                        {
+                            await originalInteraction.deleteReply();
+                        }
+                        else
+                        {
+                            await buttonInteraction.reply({
+                                content: 'Only the user that ran this command can delete the message.',
+                                ephemeral: true,
+                            });
+                        }
+
+                        return;
+                    }
+
+                    pageIndex = newPageIndex;
+                    components = this.getComponents({
+                        validRowsAbovePagination,
+                        isDisabled: false,
+                        includeDeleteButton,
+                        includePaginationButtons: shouldPaginate,
+                    });
                     await buttonInteraction.update({
                         ...(embeds
                             ? { embeds: [embeds[pageIndex]] }
@@ -120,10 +149,14 @@ export class PaginationStrategy
                             ? { files: [files[pageIndex]] }
                             : {}
                         ),
-                        components: [paginationRow],
+                        components,
                     });
                 },
-                getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent(false),
+                getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent({
+                    isDisabled: false,
+                    includeDeleteButton,
+                    includePaginationButtons: shouldPaginate,
+                }) ?? new ActionRowBuilder<ButtonBuilder>(),
             });
         }
 
@@ -140,50 +173,91 @@ export class PaginationStrategy
         embeds?: EmbedBuilder[];
         files?: AttachmentPayload[];
         pageIndex: number;
-    }): number
+    }): { newPageIndex: number; deleteMessage: boolean }
     {
-        let pageIndex = startingPageIndex;
+        let newPageIndex = startingPageIndex;
+        let deleteMessage = false;
         const array = (embeds ?? files ?? []) as unknown[];
 
         const customId = buttonInteraction.customId as PaginationButtonName;
 
         if (customId === PaginationButtonName.Next)
         {
-            pageIndex += 1;
+            newPageIndex += 1;
 
             // Circle back around to the first page if after the last page
-            if (pageIndex >= array.length)
+            if (newPageIndex >= array.length)
             {
-                pageIndex = 0;
+                newPageIndex = 0;
             }
         }
 
         else if (customId === PaginationButtonName.Previous)
         {
-            pageIndex -= 1;
+            newPageIndex -= 1;
 
             // Circle back around to the last page if before the first page
-            if (pageIndex < 0)
+            if (newPageIndex < 0)
             {
-                pageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
+                newPageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
             }
         }
 
         else if (customId === PaginationButtonName.First)
         {
-            pageIndex = 0;
+            newPageIndex = 0;
         }
 
         else if (customId === PaginationButtonName.Last)
         {
-            pageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
+            newPageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
         }
 
-        return pageIndex;
+        else if (customId === PaginationButtonName.Delete)
+        {
+            deleteMessage = true;
+        }
+
+        return { newPageIndex, deleteMessage };
     }
 
     /* istanbul ignore next */
-    private static getPaginationRowComponent(isDisabled: boolean): ActionRowBuilder<ButtonBuilder>
+    private static getComponents({
+        validRowsAbovePagination,
+        isDisabled,
+        includeDeleteButton,
+        includePaginationButtons,
+    }: {
+        validRowsAbovePagination: ActionRowBuilder<StringSelectMenuBuilder>[];
+        isDisabled: boolean;
+        includeDeleteButton: boolean;
+        includePaginationButtons: boolean;
+    }): (ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>)[] | undefined
+    {
+        const components = [...validRowsAbovePagination, this.getPaginationRowComponent({
+            isDisabled,
+            includeDeleteButton,
+            includePaginationButtons,
+        })].filter(row => !!row);
+
+        if (components.length === 0)
+        {
+            return undefined;
+        }
+
+        return components;
+    }
+
+    /* istanbul ignore next */
+    private static getPaginationRowComponent({
+        isDisabled,
+        includeDeleteButton,
+        includePaginationButtons,
+    }: {
+        isDisabled: boolean;
+        includeDeleteButton: boolean;
+        includePaginationButtons: boolean;
+    }): ActionRowBuilder<ButtonBuilder> | undefined
     {
         const prevButton = new ButtonBuilder()
             .setCustomId(PaginationButtonName.Previous)
@@ -213,13 +287,38 @@ export class PaginationStrategy
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(isDisabled);
 
+        const deleteButton = new ButtonBuilder()
+            .setCustomId(PaginationButtonName.Delete)
+            .setLabel('Delete')
+            .setEmoji('🗑️')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(isDisabled);
+
+        const components = [
+            ...(includePaginationButtons
+                ? [
+                    firstButton,
+                    prevButton,
+                ]
+                : []
+            ),
+            ...(includeDeleteButton ? [deleteButton] : []),
+            ...(includePaginationButtons
+                ? [
+                    nextButton,
+                    lastButton,
+                ]
+                : []
+            ),
+        ];
+
+        if (components.length === 0)
+        {
+            return undefined;
+        }
+
         const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
-                firstButton,
-                prevButton,
-                nextButton,
-                lastButton,
-            );
+            .addComponents(...components);
 
         return row;
     }
