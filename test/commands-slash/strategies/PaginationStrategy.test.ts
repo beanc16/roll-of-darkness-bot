@@ -66,7 +66,7 @@ describe('class: PaginationStrategy', () =>
                     interactionType,
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- We want this to test only one parameter
                     parameters: expect.objectContaining({
-                        components: [],
+                        components: undefined,
                     }),
                 });
             });
@@ -117,6 +117,10 @@ describe('class: PaginationStrategy', () =>
                         ButtonListenerRestartStyle.OnSuccess,
                     );
                 });
+
+                // TODO: This will involve architecting the onButtonPress handler with state management differently in PaginationStrategy
+                it.todo('should delete message if delete button is clicked by a user that did start the interaction');
+                it.todo('should not delete message if delete button is clicked by a user that did not start the interaction');
 
                 it(`should include rowsAbovePagination and ${parameterName} if provided`, async () =>
                 {
@@ -189,10 +193,26 @@ describe('class: PaginationStrategy', () =>
     describe('method: updatePageIndex', () =>
     {
         describe.each([
-            [PaginationButtonName.Previous, 1],
-            [PaginationButtonName.Next, 3],
-            [PaginationButtonName.First, 0],
-            [PaginationButtonName.Last, 4],
+            [PaginationButtonName.Previous, {
+                newPageIndex: 1,
+                deleteMessage: false,
+            }],
+            [PaginationButtonName.Next, {
+                newPageIndex: 3,
+                deleteMessage: false,
+            }],
+            [PaginationButtonName.First, {
+                newPageIndex: 0,
+                deleteMessage: false,
+            }],
+            [PaginationButtonName.Last, {
+                newPageIndex: 4,
+                deleteMessage: false,
+            }],
+            [PaginationButtonName.Delete, {
+                newPageIndex: 2,
+                deleteMessage: true,
+            }],
         ])('button: %s', (customId, validExpectedResult) =>
         {
             describe.each([
@@ -222,7 +242,10 @@ describe('class: PaginationStrategy', () =>
                         [parameterName]: inputArray,
                     });
 
-                    expect(result).toEqual(0);
+                    expect(result).toEqual({
+                        newPageIndex: 0,
+                        deleteMessage: validExpectedResult.deleteMessage,
+                    });
                 });
 
                 it('should always return an index of 0 if no array is provided', () =>
@@ -232,7 +255,10 @@ describe('class: PaginationStrategy', () =>
                         pageIndex: 0,
                     });
 
-                    expect(result).toEqual(0);
+                    expect(result).toEqual({
+                        newPageIndex: 0,
+                        deleteMessage: validExpectedResult.deleteMessage,
+                    });
                 });
             });
 
@@ -243,7 +269,10 @@ describe('class: PaginationStrategy', () =>
                     pageIndex: 0,
                 });
 
-                expect(result).toEqual(0);
+                expect(result).toEqual({
+                    newPageIndex: 0,
+                    deleteMessage: validExpectedResult.deleteMessage,
+                });
             });
         });
     });
