@@ -40,7 +40,14 @@ export class LookupStrategy
         // Send no results found
         if (embeds.length === 0)
         {
-            await interaction.editReply(options.noEmbedsErrorMessage);
+            // Send messages with pagination (fire and forget)
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: options.commandName,
+                content: options.noEmbedsErrorMessage,
+                includeDeleteButton: true,
+            });
             return true;
         }
 

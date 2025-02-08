@@ -5,6 +5,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -37,7 +38,12 @@ export class LookupNatureStrategy
             || (name && loweredStat)
         )
         {
-            await interaction.editReply('Cannot look up a nature by both name and stats at the same time.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${this.key}`,
+                content: 'Cannot look up a nature by both name and stats at the same time.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 

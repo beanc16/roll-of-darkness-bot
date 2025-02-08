@@ -84,13 +84,23 @@ export class LookupPokemonStrategy
         const numOfTruthyValues = [name, moveName, abilityName, capabilityName].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
-            await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'Cannot look up a Pokémon without a name, move, or ability.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
         if (numOfTruthyValues > 1)
         {
-            await interaction.editReply('Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
@@ -121,7 +131,12 @@ export class LookupPokemonStrategy
         // Send no results found
         if (embeds.length === 0)
         {
-            await interaction.editReply('No Pokémon were found.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'No Pokémon were found.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
@@ -314,7 +329,7 @@ export class LookupPokemonStrategy
             ? [selectMenu]
             : [];
 
-        // Send messages with pagination (fire and forget)
+        // Send messages with pagination
         const response = await PaginationStrategy.run({
             originalInteraction: interaction,
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,

@@ -32,6 +32,7 @@ interface PaginationStrategyRunParameters
 {
     originalInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
     commandName: CommandName;
+    content?: string;
     embeds?: EmbedBuilder[];
     files?: AttachmentPayload[];
     interactionType?: PaginationInteractionType;
@@ -58,6 +59,7 @@ export class PaginationStrategy
     public static async run({
         originalInteraction,
         commandName,
+        content,
         embeds,
         files,
         interactionType = 'editReply',
@@ -85,6 +87,7 @@ export class PaginationStrategy
             originalInteraction,
             interactionType,
             parameters: {
+                content,
                 ...(embeds
                     ? { embeds: [embeds[0]] }
                     : {}
@@ -141,6 +144,7 @@ export class PaginationStrategy
                         includePaginationButtons: shouldPaginate,
                     });
                     await buttonInteraction.update({
+                        content,
                         ...(embeds
                             ? { embeds: [embeds[pageIndex]] }
                             : {}
