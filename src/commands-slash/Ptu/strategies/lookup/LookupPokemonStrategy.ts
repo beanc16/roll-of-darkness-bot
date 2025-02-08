@@ -53,7 +53,6 @@ export interface HandleSelectMenuOptionsParameters
     interactionResponse: Message<boolean>;
     moveName: string;
     pokemon: PtuPokemon[];
-    currentMoveListType: PtuMoveListType;
 }
 
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
@@ -348,7 +347,6 @@ export class LookupPokemonStrategy
                 interactionResponse: response,
                 moveName,
                 pokemon,
-                currentMoveListType: defaultMoveListType,
             });
         }
     }
@@ -630,11 +628,8 @@ export class LookupPokemonStrategy
         interactionResponse,
         moveName,
         pokemon,
-        currentMoveListType,
     }: HandleSelectMenuOptionsParameters): Promise<void>
     {
-        let hasUpdated = false;
-
         try
         {
             const responseInteraction = await interactionResponse.awaitMessageComponent({
@@ -652,8 +647,6 @@ export class LookupPokemonStrategy
                     moveListType,
                     pokemon,
                 });
-
-                hasUpdated = true;
 
                 await this.sendMessage({
                     originalInteraction,
@@ -677,27 +670,6 @@ export class LookupPokemonStrategy
             if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error('An unknown error occurred whilst handling select menu interactions on /ptu lookup pokemon', error);
-            }
-
-            // Disable select menu upon timeout or delete
-            if (!hasUpdated && !messageWasDeleted)
-            {
-                const embeds = this.getLookupPokemonEmbeds({
-                    moveName,
-                    moveListType: currentMoveListType,
-                    pokemon,
-                });
-
-                await this.sendMessage({
-                    originalInteraction,
-                    interaction: originalInteraction,
-                    embeds,
-                    moveName,
-                    pokemon,
-                    interactionType: 'editReply',
-                    defaultMoveListType: currentMoveListType,
-                    isDisabled: true,
-                });
             }
         }
     }
