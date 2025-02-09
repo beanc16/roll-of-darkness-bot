@@ -123,7 +123,7 @@ export class PaginationStrategy
                     {
                         if (originalInteraction.user.id === buttonInteraction.user.id)
                         {
-                            await originalInteraction.deleteReply();
+                            await response.delete();
                         }
                         else
                         {
