@@ -1,5 +1,7 @@
 export class Timer
 {
+    private static startTimes: Record<string, number> = {};
+
     public static wait <CallbackParameters = never>({
         seconds,
         parameters,
@@ -40,5 +42,20 @@ export class Timer
                 }
             }, seconds * 1000);
         });
+    }
+
+    public static startTimer(key: string): void
+    {
+        this.startTimes[key] = Date.now();
+    }
+
+    public static getTimeElapsed(key: string): number
+    {
+        return Date.now() - this.startTimes[key];
+    }
+
+    public static clearTimer(key: string): void
+    {
+        delete this.startTimes[key];
     }
 }
