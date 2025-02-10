@@ -63,13 +63,13 @@ export interface HandleSelectMenuOptionsParameters
     interactionResponse: Message<boolean>;
     name?: string | null;
     moveName?: string | null;
-    pokemon: PtuPokemon[];
+    pokemon: PtuPokemonForLookupPokemon[];
     selectedValue?: PtuMoveListType | string;
 }
 
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
 {
-    pokemon: PtuPokemon[];
+    pokemon: PtuPokemonForLookupPokemon[];
     moveNameToMovesRecord?: Record<string, PtuMove>;
 }
 
@@ -98,13 +98,23 @@ export class LookupPokemonStrategy
         const numOfTruthyValues = [name, moveName, abilityName, capabilityName].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
-            await interaction.editReply('Cannot look up a Pokémon without a name, move, or ability.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'Cannot look up a Pokémon without a name, move, or ability.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
         if (numOfTruthyValues > 1)
         {
-            await interaction.editReply('Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
@@ -135,7 +145,12 @@ export class LookupPokemonStrategy
         // Send no results found
         if (embeds.length === 0)
         {
-            await interaction.editReply('No Pokémon were found.');
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+                content: 'No Pokémon were found.',
+                includeDeleteButton: true,
+            });
             return true;
         }
 
@@ -148,7 +163,8 @@ export class LookupPokemonStrategy
         }
         else if (name)
         {
-            selectedValue = data[0].versionName;
+            const [first] = data;
+            selectedValue = first.versionName;
         }
 
         await this.sendMessage({
@@ -746,7 +762,7 @@ export class LookupPokemonStrategy
             ? [selectMenu]
             : [];
 
-        // Send messages with pagination (fire and forget)
+        // Send messages with pagination
         const response = await PaginationStrategy.run({
             originalInteraction: interaction,
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
@@ -1144,11 +1160,10 @@ export class LookupPokemonStrategy
         name,
         moveName,
         pokemon,
-        selectedValue,
+        // selectedValue, // TODO: Fix this later
     }: HandleSelectMenuOptionsParameters): Promise<void>
     {
         let embeds: EmbedBuilder[] = [];
-        let hasUpdated = false;
 
         try
         {
@@ -1184,8 +1199,6 @@ export class LookupPokemonStrategy
                     pokemon: [versionNameToPokemon[value]],
                 });
 
-                hasUpdated = true;
-
                 await this.sendMessage({
                     originalInteraction,
                     interaction: responseInteraction,
@@ -1205,8 +1218,6 @@ export class LookupPokemonStrategy
                     moveListType,
                     pokemon,
                 });
-
-                hasUpdated = true;
 
                 await this.sendMessage({
                     originalInteraction,
@@ -1231,22 +1242,6 @@ export class LookupPokemonStrategy
             if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error('An unknown error occurred whilst handling select menu interactions on /ptu lookup pokemon', error);
-            }
-
-            // Disable select menu upon timeout or delete
-            if (!hasUpdated && !messageWasDeleted)
-            {
-                await this.sendMessage({
-                    originalInteraction,
-                    interaction: originalInteraction,
-                    embeds,
-                    name,
-                    moveName,
-                    pokemon,
-                    interactionType: 'editReply',
-                    selectedValue,
-                    isDisabled: true,
-                });
             }
         }
     }
