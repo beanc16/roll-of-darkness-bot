@@ -5,6 +5,7 @@ import {
     ComponentType,
     Message,
     MessageComponentInteraction,
+    RESTJSONErrorCodes,
     StringSelectMenuInteraction,
     User,
 } from 'discord.js';
@@ -89,12 +90,14 @@ export function awaitCombatTrackerMessageComponents({
                 user: messageComponentInteraction.member?.user,
             });
         })
-        .catch((error: Error) =>
+        .catch((error) =>
         {
             const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = error.message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = error.message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
+            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`)
+                || (error as { code: RESTJSONErrorCodes }).code === RESTJSONErrorCodes.UnknownMessage;
+
+            // Ignore timeouts & deletes
             if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error(`An unknown error occurred whilst handling /combat_tracker interactions`, error);

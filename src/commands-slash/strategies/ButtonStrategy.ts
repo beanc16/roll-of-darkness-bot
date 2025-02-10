@@ -8,6 +8,7 @@ import {
     InteractionReplyOptions,
     InteractionUpdateOptions,
     Message,
+    RESTJSONErrorCodes,
 } from 'discord.js';
 
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
@@ -92,8 +93,10 @@ export class ButtonStrategy
         {
             const errorPrefix = 'Collector received no interactions before ending with reason:';
             const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
-            // Ignore timeouts
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`)
+                || (error as { code: RESTJSONErrorCodes }).code === RESTJSONErrorCodes.UnknownMessage;
+
+            // Ignore timeouts & deleted
             if (!messageTimedOut && !messageWasDeleted)
             {
                 logger.error(`An unknown error occurred whilst handling button interactions for ${commandName}`, error);

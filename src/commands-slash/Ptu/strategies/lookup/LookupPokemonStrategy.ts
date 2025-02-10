@@ -6,6 +6,7 @@ import {
     ComponentType,
     EmbedBuilder,
     Message,
+    RESTJSONErrorCodes,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
@@ -1233,7 +1234,8 @@ export class LookupPokemonStrategy
         {
             const errorPrefix = 'Collector received no interactions before ending with reason:';
             const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`);
+            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`)
+                || (error as { code: RESTJSONErrorCodes }).code === RESTJSONErrorCodes.UnknownMessage;
 
             // Ignore timeouts
             if (!messageTimedOut && !messageWasDeleted)
