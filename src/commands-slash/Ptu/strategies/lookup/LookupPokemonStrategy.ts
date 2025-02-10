@@ -64,7 +64,6 @@ export interface HandleSelectMenuOptionsParameters
     name?: string | null;
     moveName?: string | null;
     pokemon: PtuPokemonForLookupPokemon[];
-    selectedValue?: PtuMoveListType | string;
 }
 
 interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataParameters, 'lookupType'>
@@ -782,7 +781,6 @@ export class LookupPokemonStrategy
                 name,
                 moveName,
                 pokemon,
-                selectedValue,
             });
         }
     }
@@ -1160,7 +1158,6 @@ export class LookupPokemonStrategy
         name,
         moveName,
         pokemon,
-        // selectedValue, // TODO: Fix this later
     }: HandleSelectMenuOptionsParameters): Promise<void>
     {
         let embeds: EmbedBuilder[] = [];
