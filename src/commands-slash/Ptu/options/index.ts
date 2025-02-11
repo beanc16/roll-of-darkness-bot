@@ -30,6 +30,7 @@ export enum PtuQuickReferenceInfo
 {
     ActionTypes = 'action_types',
     BookMechanics = 'book_mechanics',
+    CoupDeGrace = 'coup_de_grace',
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
     PokemonExperienceChart = 'pokemon_experience_chart',
