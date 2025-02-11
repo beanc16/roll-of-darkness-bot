@@ -33,6 +33,7 @@ export enum PtuQuickReferenceInfo
     CoupDeGrace = 'coup_de_grace',
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
+    HowToKillLegendaryPokemon = 'how_to_kill_legendary_pokemon',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
     SwitchingPokemon = 'switching_pokemon',
