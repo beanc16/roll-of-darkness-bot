@@ -46,10 +46,11 @@ jobs:
     needs: [
       register-slash-commands,
     ]
+    if: always()
     name: Notify Discord
     steps:
       - name: Notify Discord on Success
-        if: success()
+        if: needs.register-slash-commands.result == 'success'
         uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
@@ -57,7 +58,7 @@ jobs:
           args:
             '✅ {{ EVENT_PAYLOAD.repository.full_name }} successfully registered slash commands'
       - name: Notify Discord on Failure
-        if: failure()
+        if: needs.register-slash-commands.result == 'failure'
         uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
@@ -65,7 +66,7 @@ jobs:
           args:
             '❌ {{ EVENT_PAYLOAD.repository.full_name }} failed to registered slash commands'
       - name: Notify Discord on Cancel
-        if: cancelled()
+        if: needs.register-slash-commands.result == 'cancelled'
         uses: Ilshidur/action-discord@0.3.2
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_NOTIFICATION_WEBHOOK }}
