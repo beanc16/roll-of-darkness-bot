@@ -38,13 +38,20 @@ describe('class: PtuAura', () =>
                 legendaries: ['Zamazenta (If Hiding)'],
                 legendaryGroups: [],
             }],
-            ['Includes: Names, Group Name, Aura Name | Excludes: Comment, Multiple Entries', 'Legendary Birds (Articuno, Moltres, Zapdos) [Ocean]', {
+            ['Includes: Names, Group Name, Aura Name (Shared) | Excludes: Comment, Multiple Entries', 'Legendary Birds (Articuno, Moltres, Zapdos) [Ocean]', {
                 legendaries: [
                     'Articuno [Ocean]',
                     'Moltres [Ocean]',
                     'Zapdos [Ocean]',
                 ],
                 legendaryGroups: ['Legendary Birds'],
+            }],
+            ['Includes: Names, Group Name, Aura Name (Unique) | Excludes: Comment, Multiple Entries', 'Tower Duo (Ho-oh [Sky], Lugia [Ocean])', {
+                legendaries: [
+                    'Ho-oh [Sky]',
+                    'Lugia [Ocean]',
+                ],
+                legendaryGroups: ['Tower Duo'],
             }],
             ['Includes: Names, Group Name, Comment | Excludes: Aura Name, Multiple Entries', 'Weather Trio (Kyogre, Groudon, Rayquaza) {If Primal}', {
                 legendaries: [
