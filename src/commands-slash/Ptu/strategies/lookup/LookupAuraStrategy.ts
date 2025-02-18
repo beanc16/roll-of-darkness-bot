@@ -39,6 +39,12 @@ export class LookupAuraStrategy
             title: 'Auras',
             parseElementToLines: element => [
                 Text.bold(element.name),
+                ...(element.legendaries !== undefined && element.legendaries.length > 0
+                    ? [
+                        `Legendaries:\n\`\`\`\n${element.legendaries.join(', ')}\`\`\``,
+                    ]
+                    : []
+                ),
                 ...(element.effect !== undefined
                     ? [
                         `Effect:\n\`\`\`\n${element.effect}\`\`\``,
