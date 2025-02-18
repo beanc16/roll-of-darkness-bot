@@ -85,7 +85,7 @@ export class LookupEvolutionaryStoneStrategy
                 return acc;
             }
 
-            // Pokemon TO Evolve
+            // Pokemon To Evolve
             if (input.pokemonToEvolve && !element.pokemonToEvolve.includes(input.pokemonToEvolve))
             {
                 return acc;
