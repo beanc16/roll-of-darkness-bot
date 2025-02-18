@@ -30,7 +30,8 @@ import {
 
 type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
-    PtuAutocompleteParameterName.PokemonName
+    PtuAutocompleteParameterName.AuraUserName
+    | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
 >;
 

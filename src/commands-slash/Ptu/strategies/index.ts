@@ -11,6 +11,7 @@ import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/Chat
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
+import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
@@ -41,6 +42,8 @@ import { PtuVitamin } from '../types/PtuVitamin.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import lookupStrategies from './lookup/index.js';
+import { GetLookupAuraDataParameters } from './lookup/LookupAuraStrategy.js';
+import { GetLookupBerryDataParameters } from './lookup/LookupBerryStrategy.js';
 import { GetLookupCapabilityDataParameters } from './lookup/LookupCapabilityStrategy.js';
 import { GetLookupEdgeDataParameters } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupEvolutionaryStoneDataParameters } from './lookup/LookupEvolutionaryStoneStrategy.js';
@@ -59,6 +62,7 @@ import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
 
 type AllPtuLookupModels = PtuAbility
+    | PtuAura
     | PtuCapability
     | PtuEdge
     | PtuEvolutionaryStone
@@ -76,32 +80,38 @@ type LookupParamsFromLookupModel<PtuLookupModel extends AllPtuLookupModels> = Pt
     ? GetLookupMoveDataParameters
     : PtuLookupModel extends PtuAbility // Ability
         ? GetLookupAbilityDataParameters
-        : PtuLookupModel extends PtuCapability // Capability
-            ? GetLookupCapabilityDataParameters
-            : PtuLookupModel extends PtuEdge // Edge
-                ? GetLookupEdgeDataParameters
-                : PtuLookupModel extends PtuEvolutionaryStone // Evolutionary Stone
-                    ? GetLookupEvolutionaryStoneDataParameters
-                    : PtuLookupModel extends PtuFeature // Feature
-                        ? GetLookupFeatureDataParameters
-                        : PtuLookupModel extends PtuHeldItem // Held Item
-                            ? GetLookupHeldItemDataParameters
-                            : PtuLookupModel extends PtuKeyword // Keyword
-                                ? GetLookupKeywordDataParameters
-                                : PtuLookupModel extends PtuNature // Nature
-                                    ? GetLookupNatureDataParameters
-                                    : PtuLookupModel extends PtuPokeball // Pokeball
-                                        ? GetLookupPokeballDataParameters
-                                        : PtuLookupModel extends PtuPokemon // Pokemon
-                                            ? GetLookupPokemonDataParameters
-                                            : PtuLookupModel extends PtuStatus // Status
-                                                ? GetLookupStatusDataParameters
-                                                : PtuLookupModel extends PtuTm // TM
-                                                    ? GetLookupTmDataParameters
-                                                    : never;
+        : PtuLookupModel extends PtuAura // Aura
+            ? GetLookupAuraDataParameters
+            : PtuLookupModel extends PtuBerry // Berry
+                ? GetLookupBerryDataParameters
+                : PtuLookupModel extends PtuCapability // Capability
+                    ? GetLookupCapabilityDataParameters
+                    : PtuLookupModel extends PtuEdge // Edge
+                        ? GetLookupEdgeDataParameters
+                        : PtuLookupModel extends PtuEvolutionaryStone // Evolutionary Stone
+                            ? GetLookupEvolutionaryStoneDataParameters
+                            : PtuLookupModel extends PtuFeature // Feature
+                                ? GetLookupFeatureDataParameters
+                                : PtuLookupModel extends PtuHeldItem // Held Item
+                                    ? GetLookupHeldItemDataParameters
+                                    : PtuLookupModel extends PtuKeyword // Keyword
+                                        ? GetLookupKeywordDataParameters
+                                        : PtuLookupModel extends PtuNature // Nature
+                                            ? GetLookupNatureDataParameters
+                                            : PtuLookupModel extends PtuPokeball // Pokeball
+                                                ? GetLookupPokeballDataParameters
+                                                : PtuLookupModel extends PtuPokemon // Pokemon
+                                                    ? GetLookupPokemonDataParameters
+                                                    : PtuLookupModel extends PtuStatus // Status
+                                                        ? GetLookupStatusDataParameters
+                                                        : PtuLookupModel extends PtuTm // TM
+                                                            ? GetLookupTmDataParameters
+                                                            : never;
 
 type AllLookupParams = GetLookupMoveDataParameters
     | GetLookupAbilityDataParameters
+    | GetLookupAuraDataParameters
+    | GetLookupBerryDataParameters
     | GetLookupCapabilityDataParameters
     | GetLookupEdgeDataParameters
     | GetLookupEvolutionaryStoneDataParameters
@@ -196,9 +206,14 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability4]: abilityForTypeEffectivenessHandler,
-            [PtuAutocompleteParameterName.AuraName]: () => PtuStrategyExecutor.getLookupData<PtuBerry>({
+            [PtuAutocompleteParameterName.AuraName]: () => PtuStrategyExecutor.getLookupData<PtuAura>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Aura,
+            }),
+            [PtuAutocompleteParameterName.AuraUserName]: () => PtuStrategyExecutor.getLookupData<PtuAura>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Aura,
+                options: { includeAllIfNoName: true, returnLegendaryNames: true },
             }),
             [PtuAutocompleteParameterName.BerryName]: () => PtuStrategyExecutor.getLookupData<PtuBerry>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,

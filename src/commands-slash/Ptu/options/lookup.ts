@@ -96,7 +96,14 @@ export const aura = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     {
         option.setName(PtuAutocompleteParameterName.AuraName);
         option.setDescription(`The aura's name.`);
-        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    // User's Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.AuraUserName);
+        option.setDescription(`The name of the user of the aura.`);
         return option.setAutocomplete(true);
     });
 

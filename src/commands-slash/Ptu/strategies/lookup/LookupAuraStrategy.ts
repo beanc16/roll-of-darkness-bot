@@ -16,6 +16,8 @@ import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autoco
 export interface GetLookupAuraDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
+    userName?: string | null;
+    returnLegendaryNames?: boolean;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -27,11 +29,13 @@ export class LookupAuraStrategy
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.AuraName);
+        const userName = interaction.options.getString(PtuAutocompleteParameterName.AuraUserName);
 
         const data = await this.getLookupData({
             name,
+            userName,
             includeAllIfNoName: false,
-        });
+        }) as PtuAura[];
 
         // Get message
         const embeds = getPagedEmbedMessages({
@@ -62,7 +66,8 @@ export class LookupAuraStrategy
 
     private static async getLookupData(input: GetLookupAuraDataParameters = {
         includeAllIfNoName: true,
-    }): Promise<PtuAura[]>
+        returnLegendaryNames: false,
+    }): Promise<PtuAura[] | { name: string }[]>
     {
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -73,8 +78,28 @@ export class LookupAuraStrategy
         {
             const element = new PtuAura(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
+            {
+                return acc;
+            }
+
+            // User's Name
+            if (input.userName && !(
+                element.legendaries.some(legendary =>
+                    legendary.toLowerCase().includes(input.userName?.toLowerCase() as string) && (
+                        !(
+                            !input.userName?.toLowerCase()?.includes('galarian')
+                            && legendary.toLowerCase().includes(`galarian ${input.userName}`.toLowerCase())
+                        )
+                        && !(
+                            !input.userName?.toLowerCase()?.includes('mewtwo')
+                            && legendary.toLowerCase().includes('mewtwo')
+                        )
+                    ),
+                )
+                || element.legendaryGroups.some(group => group.toLowerCase().includes(input.userName?.toLowerCase() as string))
+            ))
             {
                 return acc;
             }
@@ -86,6 +111,30 @@ export class LookupAuraStrategy
         // Sort by name
         output.sort((a, b) => a.name.localeCompare(b.name));
 
-        return output;
+        // Return auras
+        if (!input.returnLegendaryNames)
+        {
+            return output;
+        }
+
+        // Return legendary names and legendary group names
+        const legendaryNames = output.reduce<{ name: string }[]>((acc, aura) =>
+        {
+            aura.legendaries.forEach(name =>
+            {
+                const nameWithoutCommentsAndAuraNames = name
+                    .replace(/\[.*?\]/g, '')
+                    .replace(/\(.*?\)/g, '')
+                    .trim();
+
+                acc.push({ name: nameWithoutCommentsAndAuraNames });
+            });
+            aura.legendaryGroups.forEach(name => acc.push({ name }));
+            return acc;
+        }, []);
+
+        // Sort by name
+        legendaryNames.sort((a, b) => a.name.localeCompare(b.name));
+        return legendaryNames;
     }
 }
