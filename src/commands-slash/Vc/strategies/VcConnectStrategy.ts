@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import { joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
 import { ChatInputCommandInteraction } from 'discord.js';
 
@@ -40,9 +41,16 @@ export class VcConnectStrategy
         // Send message to show the command was received
         connection.on(VoiceConnectionStatus.Ready, async () =>
         {
+            // TODO: Add guildId to a set/array of connected guilds. Every few minutes, check how long that connection has been active, and DC any with inactivity for longer than 5 minutes.
             await interaction.editReply({
                 content: 'Joined voice channel successfully, ready to play audio.',
             });
+        });
+
+        // Log errors
+        connection.on('error', (error) =>
+        {
+            logger.error(`Error connecting to voice channel with /vc ${VcSubcommand.Connect}`, error);
         });
 
         return true;
