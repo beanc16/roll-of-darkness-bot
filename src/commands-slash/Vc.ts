@@ -1,7 +1,11 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { connect, VcSubcommand } from './Vc/options/index.js';
+import {
+    connect,
+    disconnect,
+    VcSubcommand,
+} from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
 
 class Vc extends BaseSlashCommand
@@ -11,7 +15,8 @@ class Vc extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommand(connect);
+            .addSubcommand(connect)
+            .addSubcommand(disconnect);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
