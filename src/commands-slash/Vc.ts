@@ -1,7 +1,7 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { VcSubcommand } from './Vc/options/index.js';
+import { connect, VcSubcommand } from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
 
 class Vc extends BaseSlashCommand
@@ -10,8 +10,8 @@ class Vc extends BaseSlashCommand
     {
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
-        this._slashCommandData;
-        // TODO: Add subcommands here later
+        this._slashCommandData
+            .addSubcommand(connect);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
@@ -23,7 +23,17 @@ class Vc extends BaseSlashCommand
         // Send message to show the command was received
         await interaction.deferReply({
             fetchReply: true,
+            ephemeral: true,
         });
+
+        // Add safety rail
+        if (!interaction.guildId)
+        {
+            await interaction.editReply({
+                content: 'You must be in a server to use voice chat commands.',
+            });
+            return;
+        }
 
         // Run subcommand
         const response = await VcStrategyExecutor.run({
