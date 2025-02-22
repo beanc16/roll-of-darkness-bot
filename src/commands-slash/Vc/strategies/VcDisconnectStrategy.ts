@@ -1,4 +1,4 @@
-import { VoiceConnectionStatus } from '@discordjs/voice';
+import { VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -43,6 +43,16 @@ export class VcDisconnectStrategy
             return true;
         }
 
+        this.disconnect(interaction, existingConnection);
+
+        return true;
+    }
+
+    private static disconnect(
+        interaction: ChatInputCommandInteraction,
+        existingConnection: VoiceConnection,
+    ): void
+    {
         // Send message to show the command was received
         existingConnection.on(VoiceConnectionStatus.Destroyed, async () =>
         {
@@ -53,7 +63,5 @@ export class VcDisconnectStrategy
         });
 
         existingConnection.destroy();
-
-        return true;
     }
 }

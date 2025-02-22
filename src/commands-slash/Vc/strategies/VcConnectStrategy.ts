@@ -1,6 +1,6 @@
 import { logger } from '@beanc16/logger';
 import { joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, VoiceBasedChannel } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
@@ -32,6 +32,16 @@ export class VcConnectStrategy
             return true;
         }
 
+        this.connect(interaction, voiceChannel);
+
+        return true;
+    }
+
+    private static connect(
+        interaction: ChatInputCommandInteraction,
+        voiceChannel: VoiceBasedChannel,
+    ): void
+    {
         const connection = joinVoiceChannel({
             channelId: voiceChannel.id,
             guildId: interaction.guildId!,
@@ -52,7 +62,5 @@ export class VcConnectStrategy
         {
             logger.error(`Error connecting to voice channel with /vc ${VcSubcommand.Connect}`, error);
         });
-
-        return true;
     }
 }
