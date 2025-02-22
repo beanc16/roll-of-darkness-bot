@@ -45,18 +45,12 @@ export class VcPlayStrategy
             });
         }
 
-        await this.play(
-            interaction,
-            newConnection ?? existingConnection as VoiceConnection,
-        );
+        await this.play(newConnection ?? existingConnection as VoiceConnection);
 
         return true;
     }
 
-    private static async play(
-        interaction: ChatInputCommandInteraction,
-        connection: VoiceConnection,
-    ): Promise<void>
+    private static async play(connection: VoiceConnection): Promise<void>
     {
         return await new Promise<void>((resolve) =>
         {
@@ -81,14 +75,7 @@ export class VcPlayStrategy
             if (subscription) // could be undefined if the connection is destroyed
             {
                 // When the audio player is idle, unsubscribe from the voice connection
-                audioPlayer.on(AudioPlayerStatus.Idle, async () =>
-                {
-                    subscription.unsubscribe();
-                    await interaction.followUp({
-                        content: 'Finished playing audio.',
-                        ephemeral: true,
-                    });
-                });
+                audioPlayer.on(AudioPlayerStatus.Idle, () => subscription.unsubscribe());
             }
         });
     }

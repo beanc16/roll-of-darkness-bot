@@ -5,6 +5,7 @@ import {
     connect,
     disconnect,
     play,
+    stop,
     VcSubcommand,
 } from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
@@ -18,7 +19,8 @@ class Vc extends BaseSlashCommand
         this._slashCommandData
             .addSubcommand(connect)
             .addSubcommand(disconnect)
-            .addSubcommand(play);
+            .addSubcommand(play)
+            .addSubcommand(stop);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

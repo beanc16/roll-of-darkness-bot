@@ -6,6 +6,7 @@ import { VcSubcommand } from '../options/index.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcDisconnectStrategy } from './VcDisconnectStrategy.js';
 import { VcPlayStrategy } from './VcPlayStrategy.js';
+import { VcStopStrategy } from './VcStopStrategy.js';
 
 interface VcStrategyExecutorRunParameters
 {
@@ -24,6 +25,7 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
         VcConnectStrategy,
         VcDisconnectStrategy,
         VcPlayStrategy,
+        VcStopStrategy,
     ].reduce<VcStrategyMap>((acc, cur) =>
     {
         acc[cur.key] = cur;
