@@ -3,9 +3,12 @@ import { FileStorageMicroservice, FileStorageMicroserviceImageOptionsV1 } from '
 import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
+import type { CommandName } from '../../../../types/discord.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
+
 export class BaseImageStrategy
 {
-    public static async run(interaction: ChatInputCommandInteraction, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, commandName: CommandName, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
     {
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
@@ -39,10 +42,13 @@ export class BaseImageStrategy
             });
 
             // Send the new image
-            await interaction.editReply({
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName,
                 files: [{
                     attachment: newUrl,
                 }],
+                includeDeleteButton: true,
             });
 
             return true;
