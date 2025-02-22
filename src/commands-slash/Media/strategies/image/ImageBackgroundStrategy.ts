@@ -24,7 +24,7 @@ export class ImageBackgroundStrategy
             return false;
         }
 
-        return await BaseImageStrategy.run(interaction, {
+        return await BaseImageStrategy.run(interaction, `/image ${this.key}`, {
             background,
         });
     }

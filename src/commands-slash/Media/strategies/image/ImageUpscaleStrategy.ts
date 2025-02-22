@@ -13,7 +13,7 @@ export class ImageUpscaleStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        return await BaseImageStrategy.run(interaction, {
+        return await BaseImageStrategy.run(interaction, `/image ${this.key}`, {
             effect: FileStorageMicroserviceImageEffect.Upscale,
         });
     }
