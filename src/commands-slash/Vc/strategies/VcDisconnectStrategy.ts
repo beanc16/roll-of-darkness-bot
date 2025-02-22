@@ -1,4 +1,4 @@
-import { VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
+import { type VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';

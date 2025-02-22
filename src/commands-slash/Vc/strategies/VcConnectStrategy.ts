@@ -1,6 +1,6 @@
 import { logger } from '@beanc16/logger';
 import { joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
-import { ChatInputCommandInteraction, VoiceBasedChannel } from 'discord.js';
+import { ChatInputCommandInteraction, type VoiceBasedChannel } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
