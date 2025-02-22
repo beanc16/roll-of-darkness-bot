@@ -5,6 +5,7 @@ import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcDisconnectStrategy } from './VcDisconnectStrategy.js';
+import { VcPlayStrategy } from './VcPlayStrategy.js';
 
 interface VcStrategyExecutorRunParameters
 {
@@ -22,6 +23,7 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
     private static strategies: VcStrategyMap = [
         VcConnectStrategy,
         VcDisconnectStrategy,
+        VcPlayStrategy,
     ].reduce<VcStrategyMap>((acc, cur) =>
     {
         acc[cur.key] = cur;

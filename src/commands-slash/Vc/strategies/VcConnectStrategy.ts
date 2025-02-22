@@ -1,5 +1,9 @@
 import { logger } from '@beanc16/logger';
-import { joinVoiceChannel, VoiceConnectionStatus } from '@discordjs/voice';
+import {
+    joinVoiceChannel,
+    type VoiceConnection,
+    VoiceConnectionStatus,
+} from '@discordjs/voice';
 import { ChatInputCommandInteraction, type VoiceBasedChannel } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -32,35 +36,40 @@ export class VcConnectStrategy
             return true;
         }
 
-        this.connect(interaction, voiceChannel);
+        await this.connect(interaction, voiceChannel);
 
         return true;
     }
 
-    private static connect(
+    public static async connect(
         interaction: ChatInputCommandInteraction,
         voiceChannel: VoiceBasedChannel,
-    ): void
+        joinMessageSuffix = 'ready to play audio',
+    ): Promise<VoiceConnection>
     {
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: interaction.guildId!,
-            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-        });
-
-        // Send message to show the command was received
-        connection.on(VoiceConnectionStatus.Ready, async () =>
+        return await new Promise<VoiceConnection>((resolve) =>
         {
-            // TODO: Add guildId to a set/array of connected guilds. Every few minutes, check how long that connection has been active, and DC any with inactivity for longer than 5 minutes.
-            await interaction.editReply({
-                content: 'Joined voice channel successfully, ready to play audio.',
+            const connection = joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: interaction.guildId!,
+                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
             });
-        });
 
-        // Log errors
-        connection.on('error', (error) =>
-        {
-            logger.error(`Error connecting to voice channel with /vc ${VcSubcommand.Connect}`, error);
+            // Log errors
+            connection.on('error', (error) =>
+            {
+                logger.error(`Error connecting to voice channel with /vc ${this.key}`, error);
+            });
+
+            // Send message to show the command was received
+            connection.on(VoiceConnectionStatus.Ready, async () =>
+            {
+                // TODO: Add guildId to a set/array of connected guilds. Every few minutes, check how long that connection has been active, and DC any with inactivity for longer than 5 minutes.
+                await interaction.editReply({
+                    content: `Joined voice channel successfully, ${joinMessageSuffix}.`,
+                });
+                resolve(connection);
+            });
         });
     }
 }

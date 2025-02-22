@@ -43,25 +43,29 @@ export class VcDisconnectStrategy
             return true;
         }
 
-        this.disconnect(interaction, existingConnection);
+        await this.disconnect(interaction, existingConnection);
 
         return true;
     }
 
-    private static disconnect(
+    private static async disconnect(
         interaction: ChatInputCommandInteraction,
         existingConnection: VoiceConnection,
-    ): void
+    ): Promise<void>
     {
-        // Send message to show the command was received
-        existingConnection.on(VoiceConnectionStatus.Destroyed, async () =>
+        return await new Promise<void>((resolve) =>
         {
-            // TODO: Handle inactivity tracker removal here later.
-            await interaction.editReply({
-                content: 'Disconnected from your voice channel successfully.',
+            // Send message to show the command was received
+            existingConnection.on(VoiceConnectionStatus.Destroyed, async () =>
+            {
+                // TODO: Handle inactivity tracker removal here later.
+                await interaction.editReply({
+                    content: 'Disconnected from your voice channel successfully.',
+                });
+                resolve();
             });
-        });
 
-        existingConnection.destroy();
+            existingConnection.destroy();
+        });
     }
 }
