@@ -64,19 +64,21 @@ export class VcStopStrategy
                 });
                 resolve();
             }
-
-            // Send message to show the command was received
-            audioPlayer.on(AudioPlayerStatus.Idle, async () =>
+            else
             {
-                await interaction.followUp({
-                    content: 'Stopped playing audio.',
-                    ephemeral: true,
+                // Send message to show the command was received
+                audioPlayer.once(AudioPlayerStatus.Idle, async () =>
+                {
+                    await interaction.followUp({
+                        content: 'Stopped playing audio.',
+                        ephemeral: true,
+                    });
+                    resolve();
                 });
-                resolve();
-            });
 
-            // Stop audio
-            audioPlayer.stop(true); // true stops even if the audio is paused
+                // Stop audio
+                audioPlayer.stop(true); // true stops even if the audio is paused, rather than playing
+            }
         });
     }
 }

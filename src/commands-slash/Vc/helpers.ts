@@ -2,7 +2,6 @@ import https from 'node:https';
 
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 import {
-    type AudioPlayer,
     type AudioResource,
     createAudioPlayer,
     createAudioResource,
@@ -16,6 +15,8 @@ import {
     type GuildMember,
     type VoiceBasedChannel,
 } from 'discord.js';
+
+import type { AudioPlayerEmitter } from './types.js';
 
 export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction): {
     voiceChannel: VoiceBasedChannel | null | undefined;
@@ -38,8 +39,8 @@ export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction)
     };
 };
 
-let cachedAudioPlayer: AudioPlayer | undefined;
-export const getAudioPlayerData = (): AudioPlayer =>
+let cachedAudioPlayer: AudioPlayerEmitter | undefined;
+export const getAudioPlayerData = (): AudioPlayerEmitter =>
 {
     if (!cachedAudioPlayer)
     {
@@ -48,7 +49,7 @@ export const getAudioPlayerData = (): AudioPlayer =>
                 // Pause the player if there is no subscriber
                 noSubscriber: NoSubscriberBehavior.Pause,
             },
-        });
+        }) as AudioPlayerEmitter;
     }
 
     return cachedAudioPlayer;
