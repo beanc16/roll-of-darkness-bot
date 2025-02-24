@@ -21,7 +21,10 @@
         "postversion": "git push && git push --tags"
     },
     "eslintConfig": {
-        "extends": "lintification"
+        "extends": "lintification",
+        "rules": {
+            "no-async-promise-executor": "off"
+        }
     },
     "dependencies": {
         "@beanc16/discordjs-common-commands": "^2.1.2",

@@ -50,9 +50,20 @@ export class VcStopStrategy
 
     private static async stop(interaction: ChatInputCommandInteraction): Promise<void>
     {
-        return await new Promise<void>((resolve) =>
+        return await new Promise<void>(async (resolve) =>
         {
             const audioPlayer = getAudioPlayerData();
+
+            if (
+                audioPlayer.state.status === AudioPlayerStatus.Idle
+                || audioPlayer.state.status === AudioPlayerStatus.Buffering
+            )
+            {
+                await interaction.editReply({
+                    content: 'Audio is not playing or paused, so I cannot stop audio.',
+                });
+                resolve();
+            }
 
             // Send message to show the command was received
             audioPlayer.on(AudioPlayerStatus.Idle, async () =>
