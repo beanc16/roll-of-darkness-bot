@@ -4,8 +4,10 @@ export enum VcSubcommand
 {
     Connect = 'connect',
     Disconnect = 'disconnect',
+    Pause = 'pause',
     Play = 'play',
     Stop = 'stop',
+    Unpause = 'unpause',
 }
 
 export const connect = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -24,6 +26,14 @@ export const disconnect = (subcommand: SlashCommandSubcommandBuilder): SlashComm
     return subcommand;
 };
 
+export const pause = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Pause);
+    subcommand.setDescription('Pause audio in your voice channel.');
+
+    return subcommand;
+};
+
 export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(VcSubcommand.Play);
@@ -36,6 +46,14 @@ export const stop = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
 {
     subcommand.setName(VcSubcommand.Stop);
     subcommand.setDescription('Stop playing audio in your voice channel.');
+
+    return subcommand;
+};
+
+export const unpause = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Unpause);
+    subcommand.setDescription('Unpause audio in your voice channel.');
 
     return subcommand;
 };

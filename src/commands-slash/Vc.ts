@@ -4,8 +4,10 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import {
     connect,
     disconnect,
+    pause,
     play,
     stop,
+    unpause,
     VcSubcommand,
 } from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
@@ -19,8 +21,10 @@ class Vc extends BaseSlashCommand
         this._slashCommandData
             .addSubcommand(connect)
             .addSubcommand(disconnect)
+            .addSubcommand(pause)
             .addSubcommand(play)
-            .addSubcommand(stop);
+            .addSubcommand(stop)
+            .addSubcommand(unpause);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

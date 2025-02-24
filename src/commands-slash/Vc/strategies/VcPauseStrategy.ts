@@ -7,9 +7,9 @@ import { getAudioPlayerData, getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
-export class VcStopStrategy
+export class VcPauseStrategy
 {
-    public static key: VcSubcommand.Stop = VcSubcommand.Stop;
+    public static key: VcSubcommand.Pause = VcSubcommand.Pause;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -22,7 +22,7 @@ export class VcStopStrategy
         if (!voiceChannel)
         {
             await interaction.editReply({
-                content: 'You are not in a voice channel to stop playing audio in.',
+                content: 'You are not in a voice channel to pause audio in.',
             });
             return true;
         }
@@ -30,7 +30,7 @@ export class VcStopStrategy
         if (!existingConnection)
         {
             await interaction.editReply({
-                content: `I'm not in a voice channel, so I cannot stop playing audio.`,
+                content: `I'm not in a voice channel, so I cannot pause audio.`,
             });
             return true;
         }
@@ -38,34 +38,44 @@ export class VcStopStrategy
         if (!inSameVoiceChannelAsUser)
         {
             await interaction.editReply({
-                content: `I'm not in your voice channel, so I cannot stop playing audio.`,
+                content: `I'm not in your voice channel, so I cannot pause audio.`,
             });
             return true;
         }
 
-        await this.stop(interaction);
+        await this.pause(interaction);
 
         return true;
     }
 
-    private static async stop(interaction: ChatInputCommandInteraction): Promise<void>
+    private static async pause(interaction: ChatInputCommandInteraction): Promise<void>
     {
-        return await new Promise<void>((resolve) =>
+        const audioPlayer = getAudioPlayerData();
+
+        let success = false;
+        if (audioPlayer.state.status === AudioPlayerStatus.Playing)
         {
-            const audioPlayer = getAudioPlayerData();
-
-            // Send message to show the command was received
-            audioPlayer.on(AudioPlayerStatus.Idle, async () =>
-            {
-                await interaction.followUp({
-                    content: 'Stopped playing audio.',
-                    ephemeral: true,
-                });
-                resolve();
+            success = audioPlayer.pause();
+        }
+        else
+        {
+            await interaction.editReply({
+                content: 'Audio is not playing, so I cannot pause audio.',
             });
+            return;
+        }
 
-            // Stop audio
-            audioPlayer.stop(true); // true stops even if the audio is paused
-        });
+        if (success)
+        {
+            await interaction.editReply({
+                content: 'Paused audio.',
+            });
+        }
+        else
+        {
+            await interaction.editReply({
+                content: 'Failed to pause audio.',
+            });
+        }
     }
 }
