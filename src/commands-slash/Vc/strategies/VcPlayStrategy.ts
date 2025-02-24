@@ -45,17 +45,21 @@ export class VcPlayStrategy
             });
         }
 
-        await this.play(newConnection ?? existingConnection as VoiceConnection);
+        await this.play(interaction, newConnection ?? existingConnection as VoiceConnection);
 
         return true;
     }
 
-    private static async play(connection: VoiceConnection): Promise<void>
+    private static async play(
+        interaction: ChatInputCommandInteraction,
+        connection: VoiceConnection,
+    ): Promise<void>
     {
-        return await new Promise<void>((resolve) =>
+        // eslint-disable-next-line no-async-promise-executor
+        return await new Promise<void>(async (resolve) =>
         {
             const audioPlayer = getAudioPlayerData();
-            const audioResource = getAudioResource();
+            const audioResource = await getAudioResource({ discordUserId: interaction.user.id });
 
             // Log errors
             audioPlayer.on('error', (error) =>

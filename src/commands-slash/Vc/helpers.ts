@@ -1,7 +1,6 @@
-import { createReadStream } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import https from 'node:https';
 
+import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 import {
     type AudioPlayer,
     type AudioResource,
@@ -17,11 +16,6 @@ import {
     type GuildMember,
     type VoiceBasedChannel,
 } from 'discord.js';
-
-/* eslint-disable no-underscore-dangle */ // Matching the old __filename and __dirname standard
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-/* eslint-enable no-underscore-dangle */
 
 export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction): {
     voiceChannel: VoiceBasedChannel | null | undefined;
@@ -60,12 +54,35 @@ export const getAudioPlayerData = (): AudioPlayer =>
     return cachedAudioPlayer;
 };
 
-// TODO: Make this handle cloud resources later
-export const getAudioResource = (): AudioResource<null> =>
+export const getAudioResource = async ({ discordUserId }: { discordUserId: string }): Promise<AudioResource<null>> =>
 {
-    const resourcePath = join(__dirname, './audio.mp3');
-    const readStream = createReadStream(resourcePath);
-    const resource = createAudioResource(readStream);
+    // eslint-disable-next-line no-async-promise-executor
+    const output = await new Promise<AudioResource<null>>(async (resolve, reject) =>
+    {
+        try
+        {
+            const {
+                data: {
+                    url: imageUrl,
+                },
+            } = await FileStorageMicroservice.v1.get({
+                appId: process.env.APP_ID as string,
+                fileName: 'audio', // TODO: Make this a parameter later
+                nestedFolders: `vc-commands/${discordUserId}`,
+            });
 
-    return resource;
+            https.get(imageUrl, (stream) =>
+            {
+                const resource = createAudioResource(stream);
+                resolve(resource);
+            });
+        }
+
+        catch (error)
+        {
+            reject(error);
+        }
+    });
+
+    return output;
 };
