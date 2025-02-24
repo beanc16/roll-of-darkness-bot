@@ -1,15 +1,8 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import {
-    connect,
-    disconnect,
-    pause,
-    play,
-    stop,
-    unpause,
-    VcSubcommand,
-} from './Vc/options/index.js';
+import * as vcOptions from './Vc/options/index.js';
+import { VcSubcommand } from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
 
 class Vc extends BaseSlashCommand
@@ -17,14 +10,15 @@ class Vc extends BaseSlashCommand
     constructor()
     {
         super();
-        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
-        this._slashCommandData
-            .addSubcommand(connect)
-            .addSubcommand(disconnect)
-            .addSubcommand(pause)
-            .addSubcommand(play)
-            .addSubcommand(stop)
-            .addSubcommand(unpause);
+
+        Object.values(vcOptions).forEach((option) =>
+        {
+            if (typeof option === 'function')
+            {
+                // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
+                this._slashCommandData.addSubcommand(option);
+            }
+        });
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
