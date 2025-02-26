@@ -9,6 +9,7 @@ import { VcPauseStrategy } from './VcPauseStrategy.js';
 import { VcPlayStrategy } from './VcPlayStrategy.js';
 import { VcStopStrategy } from './VcStopStrategy.js';
 import { VcUnpauseStrategy } from './VcUnpauseStrategy.js';
+import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
 
 interface VcStrategyExecutorRunParameters
 {
@@ -30,6 +31,7 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
         VcPlayStrategy,
         VcStopStrategy,
         VcUnpauseStrategy,
+        VcViewFilesStrategy,
     ].reduce<VcStrategyMap>((acc, cur) =>
     {
         acc[cur.key] = cur;

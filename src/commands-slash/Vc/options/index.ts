@@ -8,6 +8,7 @@ export enum VcSubcommand
     Play = 'play',
     Stop = 'stop',
     Unpause = 'unpause',
+    ViewFiles = 'view_files',
 }
 
 export const connect = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -54,6 +55,14 @@ export const unpause = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
 {
     subcommand.setName(VcSubcommand.Unpause);
     subcommand.setDescription('Unpause audio in your voice channel.');
+
+    return subcommand;
+};
+
+export const viewFiles = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.ViewFiles);
+    subcommand.setDescription(`View files that you've uploaded.`);
 
     return subcommand;
 };
