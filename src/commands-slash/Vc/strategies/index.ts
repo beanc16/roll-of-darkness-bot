@@ -4,6 +4,7 @@ import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
+import { VcDeleteFileStrategy } from './VcDeleteFileStrategy.js';
 import { VcDisconnectStrategy } from './VcDisconnectStrategy.js';
 import { VcPauseStrategy } from './VcPauseStrategy.js';
 import { VcPlayStrategy } from './VcPlayStrategy.js';
@@ -26,6 +27,7 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
 {
     private static strategies: VcStrategyMap = [
         VcConnectStrategy,
+        VcDeleteFileStrategy,
         VcDisconnectStrategy,
         VcPauseStrategy,
         VcPlayStrategy,
