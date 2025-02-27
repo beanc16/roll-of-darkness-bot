@@ -1,4 +1,8 @@
-import { FileStorageMicroservice, FileStorageMicroserviceGetFilesResponseV1 } from '@beanc16/microservices-abstraction';
+import {
+    FileStorageMicroservice,
+    FileStorageMicroserviceGetFilesResponseV1,
+    FileStorageMicroserviceResourceType,
+} from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -44,7 +48,7 @@ export class VcViewFilesStrategy
         } = await FileStorageMicroservice.v1.getFiles({
             appId: process.env.APP_ID as string,
             nestedFolders: `vc-commands/${interaction.user.id}`,
-            resourceType: 'video', // Video is for audio files too
+            resourceType: FileStorageMicroserviceResourceType.Audio,
         });
 
         return files;
