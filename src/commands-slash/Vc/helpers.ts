@@ -64,7 +64,7 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
         {
             const {
                 data: {
-                    url: imageUrl,
+                    url: fileUrl,
                 },
             } = await FileStorageMicroservice.v1.get({
                 appId: process.env.APP_ID as string,
@@ -72,7 +72,7 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
                 nestedFolders: `vc-commands/${discordUserId}`,
             });
 
-            https.get(imageUrl, (stream) =>
+            https.get(fileUrl, (stream) =>
             {
                 const resource = createAudioResource(stream);
                 resolve(resource);
