@@ -4,6 +4,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { isValidAudioUrl } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -25,7 +26,13 @@ export class VcUploadFileStrategy
             return true;
         }
 
-        // TODO: Validate that its an audio file before uploading
+        if (!await isValidAudioUrl(processedFileUrl))
+        {
+            const parameterName = (file) ? 'file' : 'file_url';
+            const beOrLink = (file) ? 'be' : 'link to';
+            await interaction.editReply(`Invalid parameters were submitted. \`${parameterName}\` must ${beOrLink} an audio file.`);
+            return true;
+        }
 
         const newFileUrl = await this.uploadFile({
             interaction,

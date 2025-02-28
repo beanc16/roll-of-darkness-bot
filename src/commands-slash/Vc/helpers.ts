@@ -104,3 +104,45 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
 
     return output;
 };
+
+export const isValidAudioUrl = async (url: string): Promise<boolean> =>
+{
+    // eslint-disable-next-line no-async-promise-executor
+    const output = await new Promise<boolean>((resolve, reject) =>
+    {
+        try
+        {
+            // Input is not a valid URL
+            if (!URL.canParse(url))
+            {
+                resolve(false);
+                return;
+            }
+
+            https.get(url, (stream) =>
+            {
+                const {
+                    headers: {
+                        'content-type': contentType,
+                    },
+                } = stream;
+
+                if (contentType?.startsWith('audio'))
+                {
+                    resolve(true);
+                }
+                else
+                {
+                    resolve(false);
+                }
+            });
+        }
+
+        catch (error)
+        {
+            reject(error);
+        }
+    });
+
+    return output;
+};
