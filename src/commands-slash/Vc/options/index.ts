@@ -9,6 +9,7 @@ export enum VcSubcommand
     Play = 'play',
     Stop = 'stop',
     Unpause = 'unpause',
+    Upload = 'upload',
     ViewFiles = 'view_files',
 }
 
@@ -77,6 +78,26 @@ export const unpause = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
 {
     subcommand.setName(VcSubcommand.Unpause);
     subcommand.setDescription('Unpause audio in your voice channel.');
+
+    return subcommand;
+};
+
+export const upload = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Upload);
+    subcommand.setDescription(`Upload an audio file.`);
+
+    subcommand.addStringOption(fileNameParameter);
+    subcommand.addAttachmentOption((option) =>
+    {
+        option.setName('file');
+        return option.setDescription('An audio file. This will take precedence over file_url.');
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('file_url');
+        return option.setDescription('The URL of the file.');
+    });
 
     return subcommand;
 };
