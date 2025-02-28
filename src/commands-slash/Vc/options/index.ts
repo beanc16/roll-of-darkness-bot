@@ -60,6 +60,8 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setName(VcSubcommand.Play);
     subcommand.setDescription('Play audio in your voice channel.');
 
+    subcommand.addStringOption(fileNameParameter);
+
     return subcommand;
 };
 

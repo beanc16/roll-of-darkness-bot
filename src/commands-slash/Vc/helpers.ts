@@ -1,6 +1,6 @@
 import https from 'node:https';
 
-import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
+import { FileStorageMicroservice, type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
 import {
     type AudioResource,
     createAudioPlayer,
@@ -55,10 +55,10 @@ export const getAudioPlayerData = (): AudioPlayerEmitter =>
     return cachedAudioPlayer;
 };
 
-export const getAudioResource = async ({ discordUserId }: { discordUserId: string }): Promise<AudioResource<null>> =>
+export const getAudioResource = async ({ discordUserId, fileName }: { discordUserId: string; fileName: string }): Promise<AudioResource<null> | undefined> =>
 {
     // eslint-disable-next-line no-async-promise-executor
-    const output = await new Promise<AudioResource<null>>(async (resolve, reject) =>
+    const output = await new Promise<AudioResource<null> | undefined>(async (resolve, reject) =>
     {
         try
         {
@@ -68,7 +68,7 @@ export const getAudioResource = async ({ discordUserId }: { discordUserId: strin
                 },
             } = await FileStorageMicroservice.v1.get({
                 appId: process.env.APP_ID as string,
-                fileName: 'audio', // TODO: Make this a parameter later
+                fileName,
                 nestedFolders: `vc-commands/${discordUserId}`,
             });
 
@@ -81,7 +81,24 @@ export const getAudioResource = async ({ discordUserId }: { discordUserId: strin
 
         catch (error)
         {
-            reject(error);
+            const {
+                response: {
+                    data: { statusCode, message },
+                },
+            } = error as {
+                response: {
+                    data: FileStorageMicroserviceBaseResponseV1;
+                };
+            };
+
+            if (statusCode === 500 && message.toLowerCase().includes('failed to retrieve file'))
+            {
+                resolve(undefined);
+            }
+            else
+            {
+                reject(error);
+            }
         }
     });
 

@@ -65,8 +65,9 @@ export class VcConnectStrategy
             connection.on(VoiceConnectionStatus.Ready, async () =>
             {
                 // TODO: Add guildId to a set/array of connected guilds. Every few minutes, check how long that connection has been active, and DC any with inactivity for longer than 5 minutes.
+                const comma = (joinMessageSuffix.length > 0) ? ', ' : '';
                 await interaction.editReply({
-                    content: `Joined voice channel successfully, ${joinMessageSuffix}.`,
+                    content: `Joined voice channel successfully${comma}${joinMessageSuffix}.`,
                 });
                 resolve(connection);
             });

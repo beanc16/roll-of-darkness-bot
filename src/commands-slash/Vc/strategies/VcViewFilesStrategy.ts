@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import {
     FileStorageMicroservice,
     FileStorageMicroserviceGetFilesResponseV1,
@@ -16,24 +17,10 @@ export class VcViewFilesStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const files = await this.getUserFiles(interaction);
-
-        /* eslint-disable no-param-reassign */
-        const fileNameList = files.reduce<string>((acc, { fileName }, index) =>
-        {
-            if (index !== 0)
-            {
-                acc += '\n';
-            }
-
-            acc += `- ${fileName}`;
-
-            return acc;
-        }, '');
-        /* eslint-enable no-param-reassign */
+        const messageContent = await this.getFileNamesMessage(interaction);
 
         await interaction.editReply({
-            content: `File Names:\n\`\`\`\n${fileNameList}\n\`\`\``,
+            content: messageContent,
         });
 
         return true;
@@ -52,5 +39,25 @@ export class VcViewFilesStrategy
         });
 
         return files;
+    }
+
+    public static async getFileNamesMessage(interaction: ChatInputCommandInteraction): Promise<string>
+    {
+        const files = await this.getUserFiles(interaction);
+
+        /* eslint-disable no-param-reassign */
+        const fileNameList = files.reduce<string>((acc, { fileName }, index) =>
+        {
+            if (index !== 0)
+            {
+                acc += '\n';
+            }
+
+            acc += `- ${fileName}`;
+            return acc;
+        }, '');
+        /* eslint-enable no-param-reassign */
+
+        return `File Names:\n${Text.Code.multiLine(fileNameList)}`;
     }
 }
