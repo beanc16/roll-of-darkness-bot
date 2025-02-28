@@ -7,6 +7,7 @@ export enum VcSubcommand
     Disconnect = 'disconnect',
     Pause = 'pause',
     Play = 'play',
+    RenameFile = 'rename_file',
     Stop = 'stop',
     Unpause = 'unpause',
     Upload = 'upload_file',
@@ -62,6 +63,27 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setDescription('Play audio in your voice channel.');
 
     subcommand.addStringOption(fileNameParameter);
+
+    return subcommand;
+};
+
+export const renameFile = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.RenameFile);
+    subcommand.setDescription(`Rename a file that you've uploaded.`);
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('old_file_name');
+        option.setDescription('The old name of the file.');
+        return option.setRequired(true);
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('new_file_name');
+        option.setDescription('The new name of the file.');
+        return option.setRequired(true);
+    });
 
     return subcommand;
 };
