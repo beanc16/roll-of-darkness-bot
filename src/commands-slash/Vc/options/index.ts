@@ -9,7 +9,7 @@ export enum VcSubcommand
     Play = 'play',
     Stop = 'stop',
     Unpause = 'unpause',
-    Upload = 'upload',
+    Upload = 'upload_file',
     ViewFiles = 'view_files',
 }
 
