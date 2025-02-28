@@ -17,16 +17,16 @@ export class VcDeleteFileStrategy
         const fileName = interaction.options.getString('file_name', true);
 
         const success = await this.deleteFile(interaction, fileName);
+        const fileNames = await VcViewFilesStrategy.getFileNamesMessage(interaction);
 
         if (success)
         {
             await interaction.editReply({
-                content: `Deleted file: \`${fileName}\``,
+                content: `Deleted file: \`${fileName}\`. ${fileNames}`,
             });
         }
         else
         {
-            const fileNames = await VcViewFilesStrategy.getFileNamesMessage(interaction);
             await interaction.editReply({
                 content: `Failed to delete file: \`${fileName}\`. ${fileNames}`,
             });
