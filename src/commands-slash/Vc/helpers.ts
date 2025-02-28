@@ -1,3 +1,4 @@
+import http from 'node:http';
 import https from 'node:https';
 
 import { FileStorageMicroservice, type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
@@ -17,6 +18,16 @@ import {
 } from 'discord.js';
 
 import type { AudioPlayerEmitter } from './types.js';
+
+const getHttpModule = (url: string): typeof http | typeof https =>
+{
+    if (url.startsWith('https'))
+    {
+        return https;
+    }
+
+    return http;
+};
 
 export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction): {
     voiceChannel: VoiceBasedChannel | null | undefined;
@@ -72,7 +83,7 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
                 nestedFolders: `vc-commands/${discordUserId}`,
             });
 
-            https.get(fileUrl, (stream) =>
+            getHttpModule(fileUrl).get(fileUrl, (stream) =>
             {
                 const resource = createAudioResource(stream);
                 resolve(resource);
@@ -105,7 +116,7 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
     return output;
 };
 
-export const isValidAudioUrl = async (url: string): Promise<boolean> =>
+export const isValidAudioUrl = async (fileUrl: string): Promise<boolean> =>
 {
     // eslint-disable-next-line no-async-promise-executor
     const output = await new Promise<boolean>((resolve, reject) =>
@@ -113,13 +124,13 @@ export const isValidAudioUrl = async (url: string): Promise<boolean> =>
         try
         {
             // Input is not a valid URL
-            if (!URL.canParse(url))
+            if (!URL.canParse(fileUrl))
             {
                 resolve(false);
                 return;
             }
 
-            https.get(url, (stream) =>
+            getHttpModule(fileUrl).get(fileUrl, (stream) =>
             {
                 const {
                     headers: {
