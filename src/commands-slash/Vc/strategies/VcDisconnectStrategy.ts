@@ -50,13 +50,13 @@ export class VcDisconnectStrategy
 
     private static async disconnect(
         interaction: ChatInputCommandInteraction,
-        existingConnection: VoiceConnection,
+        connection: VoiceConnection,
     ): Promise<void>
     {
         return await new Promise<void>((resolve) =>
         {
             // Send message to show the command was received
-            existingConnection.on(VoiceConnectionStatus.Destroyed, async () =>
+            connection.on(VoiceConnectionStatus.Destroyed, async () =>
             {
                 // TODO: Handle inactivity tracker removal here later.
                 await interaction.editReply({
@@ -65,7 +65,7 @@ export class VcDisconnectStrategy
                 resolve();
             });
 
-            existingConnection.destroy();
+            connection.destroy();
         });
     }
 }
