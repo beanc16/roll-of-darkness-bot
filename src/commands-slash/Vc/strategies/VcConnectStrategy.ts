@@ -10,6 +10,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
+import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcConnectStrategy
@@ -64,11 +65,11 @@ export class VcConnectStrategy
             // Send message to show the command was received
             connection.on(VoiceConnectionStatus.Ready, async () =>
             {
-                // TODO: Add guildId to a set/array of connected guilds. Every few minutes, check how long that connection has been active, and DC any with inactivity for longer than 5 minutes.
                 const comma = (joinMessageSuffix.length > 0) ? ', ' : '';
                 await interaction.editReply({
                     content: `Joined voice channel successfully${comma}${joinMessageSuffix}.`,
                 });
+                ConnectionTimeoutManager.upsert(interaction.guildId!);
                 resolve(connection);
             });
         });

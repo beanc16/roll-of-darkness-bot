@@ -5,6 +5,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getAudioPlayerData, getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
+import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcPauseStrategy
@@ -77,5 +78,7 @@ export class VcPauseStrategy
                 content: 'Failed to pause audio.',
             });
         }
+
+        ConnectionTimeoutManager.upsert(interaction.guildId!);
     }
 }

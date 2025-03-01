@@ -60,6 +60,7 @@ export class ConnectionTimeoutManager
                 if (Date.now() - timestamp.getTime() >= this.validConnectionDuration)
                 {
                     // Disconnect from voice channel if it exists
+                    // TODO: Mock this later
                     const connection = getVoiceConnection(guildId);
                     if (connection)
                     {

@@ -5,6 +5,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
+import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcDisconnectStrategy
@@ -58,10 +59,10 @@ export class VcDisconnectStrategy
             // Send message to show the command was received
             connection.on(VoiceConnectionStatus.Destroyed, async () =>
             {
-                // TODO: Handle inactivity tracker removal here later.
                 await interaction.editReply({
                     content: 'Disconnected from your voice channel successfully.',
                 });
+                ConnectionTimeoutManager.delete(interaction.guildId!);
                 resolve();
             });
 
