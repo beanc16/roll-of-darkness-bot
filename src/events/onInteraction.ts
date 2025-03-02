@@ -28,9 +28,9 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
         }
         catch (err)
         {
-            logger.error(err);
-            await interaction.reply({
-                content: 'An error occurred while executing this command',
+            logger.error(`An unknown error occurred while executing /${slashCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
                 ephemeral: true,
             });
         }
@@ -51,7 +51,7 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
         }
         catch (err)
         {
-            logger.error(err);
+            logger.error(`An unknown error occurred while autocompleting /${slashCommand.commandName}`, err);
         }
     }
     else if (interaction.isMessageContextMenuCommand())
@@ -69,9 +69,9 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
         }
         catch (err)
         {
-            logger.error(err);
-            await interaction.reply({
-                content: 'An error occurred while executing this command',
+            logger.error(`An unknown error occurred while executing the context menu: ${contextMenuCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
                 ephemeral: true,
             });
         }
@@ -93,9 +93,9 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
         }
         catch (err)
         {
-            logger.error(err);
-            await modalSubmitInteraction.reply({
-                content: 'An error occurred while submitting this modal',
+            logger.error(`An unknown error occurred while submitting the modal with id: ${Modal.id}, and title: ${Modal.title}`, err);
+            await modalSubmitInteraction.followUp({
+                content: 'An unknown error occurred while submitting this modal',
                 ephemeral: true,
             });
         }
