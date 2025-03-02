@@ -10,7 +10,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
-import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcConnectStrategy
@@ -69,7 +69,7 @@ export class VcConnectStrategy
                 await interaction.editReply({
                     content: `Joined voice channel successfully${comma}${joinMessageSuffix}.`,
                 });
-                ConnectionTimeoutManager.upsert(interaction.guildId!);
+                VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
                 resolve(connection);
             });
         });

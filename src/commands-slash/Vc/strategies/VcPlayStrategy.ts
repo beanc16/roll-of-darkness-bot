@@ -10,7 +10,7 @@ import {
     getVoiceConnectionData,
 } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
-import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
 
@@ -89,7 +89,7 @@ export class VcPlayStrategy
                     content: `Playing audio.`,
                     ephemeral: true,
                 });
-                ConnectionTimeoutManager.upsert(interaction.guildId!);
+                VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
                 resolve();
             });
 

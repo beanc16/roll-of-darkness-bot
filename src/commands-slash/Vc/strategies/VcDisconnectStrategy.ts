@@ -5,7 +5,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
-import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcDisconnectStrategy
@@ -62,7 +62,7 @@ export class VcDisconnectStrategy
                 await interaction.editReply({
                     content: 'Disconnected from your voice channel successfully.',
                 });
-                ConnectionTimeoutManager.delete(interaction.guildId!);
+                VoiceConnectionTimeoutManager.delete(interaction.guildId!);
                 resolve();
             });
 

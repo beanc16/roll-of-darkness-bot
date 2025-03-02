@@ -5,7 +5,7 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getAudioPlayerData, getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
-import { ConnectionTimeoutManager } from '../services/ConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcStopStrategy
@@ -74,7 +74,7 @@ export class VcStopStrategy
                         content: 'Stopped playing audio.',
                         ephemeral: true,
                     });
-                    ConnectionTimeoutManager.upsert(interaction.guildId!);
+                    VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
                     resolve();
                 });
 
