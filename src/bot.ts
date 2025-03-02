@@ -1,12 +1,8 @@
-// Environment Variables (add back in if Doppler stops working)
-// import dotenv from 'dotenv';
-// dotenv.config();
+import process from 'node:process';
 
-// Libraries
 import { Client, GatewayIntentBits } from 'discord.js';
 
-// Events to listen for
-import events from './events/index.js';
+import events, { nodejsProcessEvents } from './events/index.js';
 
 // Initialize Discord Bot
 const bot = new Client({
@@ -24,3 +20,8 @@ events.forEach((event) =>
     // @ts-ignore
     bot.on(event.name as string, (...params) => event.handler(bot, ...params)); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 });
+
+process.on('uncaughtException', (error) => nodejsProcessEvents.handleError('uncaughtException', error));
+process.on('unhandledRejection', (reason) => nodejsProcessEvents.handleError('unhandledRejection', reason));
+process.on('SIGINT', () => nodejsProcessEvents.endProcess(bot));
+process.on('SIGTERM', () => nodejsProcessEvents.endProcess(bot));
