@@ -1,6 +1,6 @@
 import { getVoiceConnection } from '@discordjs/voice';
 
-export class ConnectionTimeoutManager
+export class VoiceConnectionTimeoutManager
 {
     private static guildIdToTimestamp = new Map<string, Date>();
     private static intervalTimeout: NodeJS.Timeout | undefined = undefined;
@@ -41,6 +41,26 @@ export class ConnectionTimeoutManager
         }
 
         this.tryEndInterval();
+    }
+
+    // TODO: Write unit tests for this
+    public static destroyAllConnections(): void
+    {
+        this.guildIdToTimestamp.forEach((_timestamp, guildId) =>
+        {
+            this.destroyConnection(guildId);
+        });
+    }
+
+    // TODO: Write unit tests for this
+    private static destroyConnection(guildId: string): void
+    {
+        // TODO: Mock getVoiceConnection later
+        const connection = getVoiceConnection(guildId);
+        if (connection)
+        {
+            connection.destroy();
+        }
     }
 
     private static trySetInterval(): void
