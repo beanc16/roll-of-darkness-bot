@@ -43,24 +43,23 @@ export class VoiceConnectionTimeoutManager
         this.tryEndInterval();
     }
 
-    // TODO: Write unit tests for this
+    private static destroyConnection(guildId: string): void
+    {
+        const connection = getVoiceConnection(guildId);
+        if (connection)
+        {
+            connection.destroy();
+        }
+
+        this.tryEndInterval();
+    }
+
     public static destroyAllConnections(): void
     {
         this.guildIdToTimestamp.forEach((_timestamp, guildId) =>
         {
             this.destroyConnection(guildId);
         });
-    }
-
-    // TODO: Write unit tests for this
-    private static destroyConnection(guildId: string): void
-    {
-        // TODO: Mock getVoiceConnection later
-        const connection = getVoiceConnection(guildId);
-        if (connection)
-        {
-            connection.destroy();
-        }
     }
 
     private static trySetInterval(): void
@@ -80,7 +79,6 @@ export class VoiceConnectionTimeoutManager
                 if (Date.now() - timestamp.getTime() >= this.validConnectionDuration)
                 {
                     // Disconnect from voice channel if it exists
-                    // TODO: Mock this later
                     const connection = getVoiceConnection(guildId);
                     if (connection)
                     {
