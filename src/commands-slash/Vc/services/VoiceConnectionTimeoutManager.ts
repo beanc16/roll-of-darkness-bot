@@ -1,4 +1,8 @@
-import { getVoiceConnection } from '@discordjs/voice';
+import {
+    AudioPlayerStatus,
+    getVoiceConnection,
+    type VoiceConnectionReadyState,
+} from '@discordjs/voice';
 
 export class VoiceConnectionTimeoutManager
 {
@@ -22,36 +26,56 @@ export class VoiceConnectionTimeoutManager
         return this.guildIdToTimestamp.get(guildId);
     }
 
-    public static upsert(guildId: string): void
+    public static upsert(guildId: string, shouldTryEndInterval = true): void
     {
         this.guildIdToTimestamp.set(guildId, new Date());
-        this.trySetInterval();
+        this.trySetInterval(shouldTryEndInterval);
     }
 
-    public static delete(guildIds: string | string[]): void
+    public static delete(guildIds: string | string[], shouldTryEndInterval = true): void
     {
         // Delete guildId(s)
         if (Array.isArray(guildIds))
         {
-            guildIds.forEach((guildId) => this.delete(guildId));
+            guildIds.forEach((guildId) => this.guildIdToTimestamp.delete(guildId));
         }
         else
         {
             this.guildIdToTimestamp.delete(guildIds);
         }
 
-        this.tryEndInterval();
+        if (shouldTryEndInterval)
+        {
+            this.tryEndInterval();
+        }
     }
 
-    private static destroyConnection(guildId: string): void
+    private static destroyConnection(guildId: string, shouldTryEndInterval = true): void
     {
         const connection = getVoiceConnection(guildId);
         if (connection)
         {
+            const state = connection.state as VoiceConnectionReadyState | undefined;
+
+            if (state && state.subscription && state.subscription.player)
+            {
+                const { player } = state.subscription;
+
+                // Update timestamp if audio is still playing, as that means the connection is still active
+                if (player.state.status === AudioPlayerStatus.Playing)
+                {
+                    this.upsert(guildId, shouldTryEndInterval);
+                    return;
+                }
+            }
+
             connection.destroy();
         }
 
-        this.tryEndInterval();
+        if (shouldTryEndInterval)
+        {
+            this.tryEndInterval();
+        }
     }
 
     public static destroyAllConnections(): void
@@ -62,7 +86,7 @@ export class VoiceConnectionTimeoutManager
         });
     }
 
-    private static trySetInterval(): void
+    private static trySetInterval(shouldTryEndInterval = true): void
     {
         if (this.hasInterval || this.hasNoConnections)
         {
@@ -79,11 +103,7 @@ export class VoiceConnectionTimeoutManager
                 if (Date.now() - timestamp.getTime() >= this.validConnectionDuration)
                 {
                     // Disconnect from voice channel if it exists
-                    const connection = getVoiceConnection(guildId);
-                    if (connection)
-                    {
-                        connection.destroy();
-                    }
+                    this.destroyConnection(guildId, false);
 
                     // Stage guildId for deletion
                     guildIdsToDelete.push(guildId);
@@ -91,8 +111,12 @@ export class VoiceConnectionTimeoutManager
             });
 
             // Delete guildIds
-            this.delete(guildIdsToDelete);
-            this.tryEndInterval();
+            this.delete(guildIdsToDelete, shouldTryEndInterval);
+
+            if (shouldTryEndInterval)
+            {
+                this.tryEndInterval();
+            }
         }, this.connectionCheckFrequency);
     }
 

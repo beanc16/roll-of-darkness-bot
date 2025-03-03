@@ -1,4 +1,4 @@
-import { getVoiceConnection } from '@discordjs/voice';
+import { AudioPlayerStatus, getVoiceConnection } from '@discordjs/voice';
 
 import { VoiceConnectionTimeoutManager } from '../../../../src/commands-slash/Vc/services/VoiceConnectionTimeoutManager.js';
 
@@ -11,6 +11,7 @@ describe('VoiceConnectionTimeoutManager', () =>
         jest.clearAllTimers();
         jest.clearAllMocks();
         jest.useFakeTimers();
+        jest.resetModules();
         VoiceConnectionTimeoutManager['guildIdToTimestamp'].clear();
         VoiceConnectionTimeoutManager['intervalTimeout'] = undefined;
         VoiceConnectionTimeoutManager['tryEndInterval']();
@@ -18,6 +19,7 @@ describe('VoiceConnectionTimeoutManager', () =>
 
     afterEach(() =>
     {
+        jest.restoreAllMocks();
         jest.runOnlyPendingTimers();
     });
 
@@ -175,6 +177,27 @@ describe('VoiceConnectionTimeoutManager', () =>
             expect(connection.destroy).toHaveBeenCalledTimes(0);
         });
 
+        it('should not destroy the voice connection if it exists but is playing audio', () =>
+        {
+            const connection = {
+                destroy: jest.fn(),
+                state: {
+                    subscription: {
+                        player: {
+                            state: {
+                                status: AudioPlayerStatus.Playing,
+                            },
+                        },
+                    },
+                },
+            };
+            (getVoiceConnection as jest.Mock).mockReturnValueOnce(connection);
+            VoiceConnectionTimeoutManager['destroyConnection'](guildId);
+
+            expect(getVoiceConnection).toHaveBeenCalledTimes(1);
+            expect(connection.destroy).toHaveBeenCalledTimes(0);
+        });
+
         it('should try to end interval', () =>
         {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
@@ -182,6 +205,15 @@ describe('VoiceConnectionTimeoutManager', () =>
             VoiceConnectionTimeoutManager['destroyConnection'](guildId);
 
             expect(tryEndIntervalSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not try to end interval if told not to', () =>
+        {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
+            const tryEndIntervalSpy = jest.spyOn(VoiceConnectionTimeoutManager as any, 'tryEndInterval');
+            VoiceConnectionTimeoutManager['destroyConnection'](guildId, false);
+
+            expect(tryEndIntervalSpy).not.toHaveBeenCalled();
         });
     });
 });
