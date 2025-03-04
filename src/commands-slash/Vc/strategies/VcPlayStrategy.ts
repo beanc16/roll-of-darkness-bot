@@ -42,12 +42,6 @@ export class VcPlayStrategy
         {
             newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
         }
-        else
-        {
-            await interaction.editReply({
-                content: `Playing audio.`,
-            });
-        }
 
         await this.play(interaction, newConnection ?? existingConnection as VoiceConnection, fileName);
 
