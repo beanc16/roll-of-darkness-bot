@@ -91,6 +91,9 @@ describe('VoiceConnectionTimeoutManager', () =>
                 .mockReturnValueOnce(connection2)
                 .mockReturnValueOnce(connection3);
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
+            const deleteSpy = jest.spyOn(VoiceConnectionTimeoutManager as any, 'delete');
+
             // Set connections 1 & 2 as expired, but 3 as unexpired
             const expiredTimestamp = new Date(Date.now() - VoiceConnectionTimeoutManager['validConnectionDuration'] - 1000);
             const unexpiredTimestamp = new Date();
@@ -103,6 +106,8 @@ describe('VoiceConnectionTimeoutManager', () =>
             expect(connection1.destroy).toHaveBeenCalledTimes(1);
             expect(connection2.destroy).toHaveBeenCalledTimes(1);
             expect(connection3.destroy).not.toHaveBeenCalled();
+
+            expect(deleteSpy).toHaveBeenCalledWith([guildId1, guildId2], true);
         });
     });
 
@@ -161,20 +166,22 @@ describe('VoiceConnectionTimeoutManager', () =>
         {
             const connection = { destroy: jest.fn() };
             (getVoiceConnection as jest.Mock).mockReturnValue(connection);
-            VoiceConnectionTimeoutManager['destroyConnection'](guildId);
+            const result = VoiceConnectionTimeoutManager['destroyConnection'](guildId);
 
             expect(getVoiceConnection).toHaveBeenCalledTimes(1);
             expect(connection.destroy).toHaveBeenCalledTimes(1);
+            expect(result).toEqual(true);
         });
 
         it('should not destroy the voice connection if it does not exist', () =>
         {
             const connection = { destroy: jest.fn() };
             (getVoiceConnection as jest.Mock).mockReturnValue(undefined);
-            VoiceConnectionTimeoutManager['destroyConnection'](guildId);
+            const result = VoiceConnectionTimeoutManager['destroyConnection'](guildId);
 
             expect(getVoiceConnection).toHaveBeenCalledTimes(1);
             expect(connection.destroy).toHaveBeenCalledTimes(0);
+            expect(result).toEqual(false);
         });
 
         it('should not destroy the voice connection if it exists but is playing audio', () =>
@@ -192,10 +199,11 @@ describe('VoiceConnectionTimeoutManager', () =>
                 },
             };
             (getVoiceConnection as jest.Mock).mockReturnValueOnce(connection);
-            VoiceConnectionTimeoutManager['destroyConnection'](guildId);
+            const result = VoiceConnectionTimeoutManager['destroyConnection'](guildId);
 
             expect(getVoiceConnection).toHaveBeenCalledTimes(1);
             expect(connection.destroy).toHaveBeenCalledTimes(0);
+            expect(result).toEqual(false);
         });
 
         it('should try to end interval', () =>

@@ -50,8 +50,9 @@ export class VoiceConnectionTimeoutManager
         }
     }
 
-    private static destroyConnection(guildId: string, shouldTryEndInterval = true): void
+    private static destroyConnection(guildId: string, shouldTryEndInterval = true): boolean
     {
+        let result = true;
         const connection = getVoiceConnection(guildId);
         if (connection)
         {
@@ -65,17 +66,23 @@ export class VoiceConnectionTimeoutManager
                 if (player.state.status === AudioPlayerStatus.Playing)
                 {
                     this.upsert(guildId, shouldTryEndInterval);
-                    return;
+                    return false;
                 }
             }
 
             connection.destroy();
+        }
+        else
+        {
+            result = false;
         }
 
         if (shouldTryEndInterval)
         {
             this.tryEndInterval();
         }
+
+        return result;
     }
 
     public static destroyAllConnections(): void
@@ -103,10 +110,13 @@ export class VoiceConnectionTimeoutManager
                 if (Date.now() - timestamp.getTime() >= this.validConnectionDuration)
                 {
                     // Disconnect from voice channel if it exists
-                    this.destroyConnection(guildId, false);
+                    const wasDestroyed = this.destroyConnection(guildId, false);
 
                     // Stage guildId for deletion
-                    guildIdsToDelete.push(guildId);
+                    if (wasDestroyed)
+                    {
+                        guildIdsToDelete.push(guildId);
+                    }
                 }
             });
 
