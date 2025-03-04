@@ -8,6 +8,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { getVcCommandNestedFolderName } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
@@ -34,7 +35,7 @@ export class VcViewFilesStrategy
             },
         } = await FileStorageMicroservice.v1.getFiles({
             appId: process.env.APP_ID as string,
-            nestedFolders: `vc-commands/${interaction.user.id}`,
+            nestedFolders: getVcCommandNestedFolderName(interaction.user.id),
             resourceType: FileStorageMicroserviceResourceType.Audio,
         });
 

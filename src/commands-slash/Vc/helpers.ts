@@ -1,5 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
+import { Readable } from 'node:stream';
 
 import { FileStorageMicroservice, type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
 import {
@@ -18,6 +19,8 @@ import {
 } from 'discord.js';
 
 import type { AudioPlayerEmitter } from './types.js';
+
+export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;
 
 const getHttpModule = (url: string): typeof http | typeof https =>
 {
@@ -66,6 +69,42 @@ export const getAudioPlayerData = (): AudioPlayerEmitter =>
     return cachedAudioPlayer;
 };
 
+const convertRemoteFileToBuffer = async (fileUrl: string): Promise<Buffer> =>
+{
+    const output = await new Promise<Buffer>((resolve, reject) =>
+    {
+        const chunks: Buffer[] = [];
+        const request = getHttpModule(fileUrl).get(fileUrl, (stream) =>
+        {
+            stream.on('data', (chunk) => chunks.push(chunk as Buffer));
+            stream.on('end', () =>
+            {
+                const result = Buffer.concat(chunks as unknown as Uint8Array<ArrayBufferLike>[]);
+                resolve(result);
+            });
+        });
+
+        request.on('error', reject);
+        request.end();
+    });
+
+    return output;
+};
+
+const convertBufferToReadable = (buffer: Buffer): Readable =>
+{
+    const readable = new Readable();
+
+    // eslint-disable-next-line no-underscore-dangle, @stylistic/brace-style -- Allow for no-op readability
+    readable._read = () => { /* No-op */ };
+    readable.push(buffer);
+
+    // End stream
+    readable.push(null);
+
+    return readable;
+};
+
 export const getAudioResource = async ({ discordUserId, fileName }: { discordUserId: string; fileName: string }): Promise<AudioResource<null> | undefined> =>
 {
     // eslint-disable-next-line no-async-promise-executor
@@ -80,14 +119,13 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
             } = await FileStorageMicroservice.v1.get({
                 appId: process.env.APP_ID as string,
                 fileName,
-                nestedFolders: `vc-commands/${discordUserId}`,
+                nestedFolders: getVcCommandNestedFolderName(discordUserId),
             });
 
-            getHttpModule(fileUrl).get(fileUrl, (stream) =>
-            {
-                const resource = createAudioResource(stream);
-                resolve(resource);
-            });
+            const buffer = await convertRemoteFileToBuffer(fileUrl);
+            const readable = convertBufferToReadable(buffer);
+            const resource = createAudioResource(readable);
+            resolve(resource);
         }
 
         catch (error)
