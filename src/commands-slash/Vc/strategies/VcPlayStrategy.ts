@@ -44,6 +44,11 @@ export class VcPlayStrategy
             newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
         }
 
+        await interaction.followUp({
+            content: `Loading audio...`,
+            ephemeral: true,
+        });
+
         await this.play({
             interaction,
             connection: newConnection ?? existingConnection as VoiceConnection,
