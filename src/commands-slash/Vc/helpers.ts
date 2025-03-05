@@ -1,6 +1,5 @@
 import http from 'node:http';
 import https from 'node:https';
-import { Readable } from 'node:stream';
 
 import { FileStorageMicroservice, type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
 import {
@@ -18,6 +17,8 @@ import {
     type VoiceBasedChannel,
 } from 'discord.js';
 
+import { CompositeKeyRecord } from '../../services/CompositeKeyRecord.js';
+import { LoopableAudioStream } from './services/ReadableAudioStream.js';
 import type { AudioPlayerEmitter } from './types.js';
 
 export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;
@@ -91,27 +92,28 @@ const convertRemoteFileToBuffer = async (fileUrl: string): Promise<Buffer> =>
     return output;
 };
 
-const convertBufferToReadable = (buffer: Buffer): Readable =>
-{
-    const readable = new Readable();
+const audioResourceReadableCache = new CompositeKeyRecord<[string, string], Buffer>();
 
-    // eslint-disable-next-line no-underscore-dangle, @stylistic/brace-style -- Allow for no-op readability
-    readable._read = () => { /* No-op */ };
-    readable.push(buffer);
-
-    // End stream
-    readable.push(null);
-
-    return readable;
-};
-
-export const getAudioResource = async ({ discordUserId, fileName }: { discordUserId: string; fileName: string }): Promise<AudioResource<null> | undefined> =>
+export const getAudioResource = async ({
+    discordUserId,
+    fileName,
+    shouldLoop,
+}: { discordUserId: string; fileName: string; shouldLoop: boolean }): Promise<AudioResource<null> | undefined> =>
 {
     // eslint-disable-next-line no-async-promise-executor
     const output = await new Promise<AudioResource<null> | undefined>(async (resolve, reject) =>
     {
         try
         {
+            // Create audio resource from cache if it exists
+            const cachedBuffer = audioResourceReadableCache.Get([discordUserId, fileName]);
+            if (cachedBuffer)
+            {
+                const readable = new LoopableAudioStream(cachedBuffer, shouldLoop);
+                resolve(createAudioResource(readable));
+                return;
+            }
+
             const {
                 data: {
                     url: fileUrl,
@@ -122,8 +124,14 @@ export const getAudioResource = async ({ discordUserId, fileName }: { discordUse
                 nestedFolders: getVcCommandNestedFolderName(discordUserId),
             });
 
+            // Convert file url to readable
             const buffer = await convertRemoteFileToBuffer(fileUrl);
-            const readable = convertBufferToReadable(buffer);
+            const readable = new LoopableAudioStream(buffer, shouldLoop);
+
+            // Cache buffer in-memory
+            audioResourceReadableCache.Upsert([discordUserId, fileName], buffer);
+
+            // Create audio resource
             const resource = createAudioResource(readable);
             resolve(resource);
         }

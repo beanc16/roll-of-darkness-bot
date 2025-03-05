@@ -63,6 +63,11 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setDescription('Play audio in your voice channel.');
 
     subcommand.addStringOption(fileNameParameter);
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('should_loop');
+        return option.setDescription('Should loop the audio (default: False).');
+    });
 
     return subcommand;
 };

@@ -22,6 +22,7 @@ export class VcPlayStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         const fileName = interaction.options.getString('file_name', true);
+        const shouldLoop = interaction.options.getBoolean('should_loop');
 
         const {
             existingConnection,
@@ -43,22 +44,37 @@ export class VcPlayStrategy
             newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
         }
 
-        await this.play(interaction, newConnection ?? existingConnection as VoiceConnection, fileName);
+        await this.play({
+            interaction,
+            connection: newConnection ?? existingConnection as VoiceConnection,
+            fileName,
+            shouldLoop,
+        });
 
         return true;
     }
 
-    private static async play(
-        interaction: ChatInputCommandInteraction,
-        connection: VoiceConnection,
-        fileName: string,
-    ): Promise<void>
+    private static async play({
+        interaction,
+        connection,
+        fileName,
+        shouldLoop,
+    }: {
+        interaction: ChatInputCommandInteraction;
+        connection: VoiceConnection;
+        fileName: string;
+        shouldLoop: boolean | null;
+    }): Promise<void>
     {
         // eslint-disable-next-line no-async-promise-executor
         return await new Promise<void>(async (resolve) =>
         {
             const audioPlayer = getAudioPlayerData();
-            const audioResource = await getAudioResource({ discordUserId: interaction.user.id, fileName });
+            const audioResource = await getAudioResource({
+                discordUserId: interaction.user.id,
+                fileName,
+                shouldLoop: shouldLoop ?? false,
+            });
 
             if (!audioResource)
             {
@@ -96,7 +112,10 @@ export class VcPlayStrategy
             if (subscription) // could be undefined if the connection is destroyed
             {
                 // When the audio player is idle, unsubscribe from the voice connection
-                audioPlayer.on(AudioPlayerStatus.Idle, () => subscription.unsubscribe());
+                audioPlayer.on(AudioPlayerStatus.Idle, () =>
+                {
+                    subscription.unsubscribe();
+                });
             }
         });
     }
