@@ -37,9 +37,4 @@ export class LoopableAudioStream extends Readable
             }
         }
     }
-
-    public stopLooping(): void
-    {
-        this.shouldLoop = false;
-    }
 }

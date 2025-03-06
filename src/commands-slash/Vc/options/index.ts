@@ -1,4 +1,4 @@
-import { SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js';
+import type { SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js';
 
 export enum VcSubcommand
 {
@@ -19,7 +19,6 @@ const fileNameParameter = (option: SlashCommandStringOption): SlashCommandString
     option.setName('file_name');
     option.setDescription('The name of the file.');
     option.setRequired(true);
-
     return option;
 };
 
