@@ -114,6 +114,7 @@ export const getAudioResource = async ({
                 return;
             }
 
+            // Otherwise, create audio resource from a fresh url if it exists
             const {
                 data: {
                     url: fileUrl,
