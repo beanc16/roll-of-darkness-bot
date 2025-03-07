@@ -83,9 +83,9 @@ export class VcPlayStrategy
 
             if (!audioResource)
             {
-                const fileNames = await VcViewFilesStrategy.getFileNamesMessage(interaction);
+                const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
                 await interaction.followUp({
-                    content: `A file named \`${fileName}\` does not exist. ${fileNames}`,
+                    content: `A file named \`${fileName}\` does not exist. ${fileNamesList}`,
                     ephemeral: true,
                 });
                 return;

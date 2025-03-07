@@ -27,9 +27,9 @@ export class VcRenameFileStrategy
         }
         else
         {
-            const fileNames = await VcViewFilesStrategy.getFileNamesMessage(interaction);
+            const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
             await interaction.editReply({
-                content: `Failed to rename file from \`${oldFileName}\` to \`${newFileName}\`. ${fileNames}`,
+                content: `Failed to rename file from \`${oldFileName}\` to \`${newFileName}\`. ${fileNamesList}`,
             });
         }
 

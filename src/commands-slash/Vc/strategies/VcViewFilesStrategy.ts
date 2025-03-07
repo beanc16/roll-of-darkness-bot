@@ -47,7 +47,7 @@ export class VcViewFilesStrategy
         const files = await this.getUserFiles(interaction);
 
         /* eslint-disable no-param-reassign */
-        const fileNameList = files.reduce<string>((acc, { fileName }, index) =>
+        const fileNamesList = files.reduce<string>((acc, { fileName }, index) =>
         {
             if (index !== 0)
             {
@@ -59,6 +59,6 @@ export class VcViewFilesStrategy
         }, '');
         /* eslint-enable no-param-reassign */
 
-        return `File Names:\n${Text.Code.multiLine(fileNameList)}`;
+        return `File Names:\n${Text.Code.multiLine(fileNamesList)}`;
     }
 }
