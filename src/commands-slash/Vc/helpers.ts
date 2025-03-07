@@ -92,7 +92,7 @@ const convertRemoteFileToBuffer = async (fileUrl: string): Promise<Buffer> =>
     return output;
 };
 
-const audioResourceReadableCache = new CompositeKeyRecord<[string, string], Buffer>();
+const audioResourceBufferCache = new CompositeKeyRecord<[string, string], Buffer>();
 
 export const getAudioResource = async ({
     discordUserId,
@@ -106,7 +106,7 @@ export const getAudioResource = async ({
         try
         {
             // Create audio resource from cache if it exists
-            const cachedBuffer = audioResourceReadableCache.Get([discordUserId, fileName]);
+            const cachedBuffer = audioResourceBufferCache.Get([discordUserId, fileName]);
             if (cachedBuffer)
             {
                 const readable = new LoopableAudioStream(cachedBuffer, shouldLoop);
@@ -129,7 +129,7 @@ export const getAudioResource = async ({
             const readable = new LoopableAudioStream(buffer, shouldLoop);
 
             // Cache buffer in-memory
-            audioResourceReadableCache.Upsert([discordUserId, fileName], buffer);
+            audioResourceBufferCache.Upsert([discordUserId, fileName], buffer);
 
             // Create audio resource
             const resource = createAudioResource(readable);
