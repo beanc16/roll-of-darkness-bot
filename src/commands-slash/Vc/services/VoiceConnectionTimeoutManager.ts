@@ -8,8 +8,8 @@ export class VoiceConnectionTimeoutManager
 {
     private static guildIdToTimestamp = new Map<string, Date>();
     private static intervalTimeout: NodeJS.Timeout | undefined = undefined;
-    private static connectionCheckFrequency = 60_000; // 1 minute
-    private static validConnectionDuration = 300_000; // 5 minutes
+    private static connectionCheckFrequency = 60_000; // 1 minute in milliseconds
+    private static validConnectionDuration = 300_000; // 5 minutes in milliseconds
 
     private static get hasNoConnections(): boolean
     {
