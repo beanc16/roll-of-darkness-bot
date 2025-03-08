@@ -4,7 +4,11 @@ import {
     type VoiceConnection,
     VoiceConnectionStatus,
 } from '@discordjs/voice';
-import { ChatInputCommandInteraction, type VoiceBasedChannel } from 'discord.js';
+import {
+    type ChatInputCommandInteraction,
+    PermissionFlagsBits,
+    type VoiceBasedChannel,
+} from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
@@ -46,10 +50,23 @@ export class VcConnectStrategy
         interaction: ChatInputCommandInteraction,
         voiceChannel: VoiceBasedChannel,
         joinMessageSuffix = 'ready to play audio',
-    ): Promise<VoiceConnection>
+    ): Promise<VoiceConnection | undefined>
     {
-        return await new Promise<VoiceConnection>((resolve) =>
+        return await new Promise<VoiceConnection | undefined>(async (resolve) =>
         {
+            const botPermissions = voiceChannel.permissionsFor(interaction.client.user);
+            const requiredPermissions = [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak];
+
+            // Check if the bot has the required permissions to connect
+            if (!botPermissions || !requiredPermissions.every((permission) => botPermissions.has(permission)))
+            {
+                await interaction.editReply({
+                    content: `I don't have the required permissions to connect to or speak in your voice channel.`,
+                });
+                resolve(undefined);
+                return;
+            }
+
             const connection = joinVoiceChannel({
                 channelId: voiceChannel.id,
                 guildId: interaction.guildId!,

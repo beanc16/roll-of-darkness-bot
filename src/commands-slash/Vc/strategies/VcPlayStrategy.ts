@@ -42,6 +42,12 @@ export class VcPlayStrategy
         if (!(existingConnection && inSameVoiceChannelAsUser))
         {
             newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
+
+            // If the bot can't connect to the voice channel, it can't play audio
+            if (newConnection === undefined)
+            {
+                return true;
+            }
         }
 
         await interaction.followUp({
