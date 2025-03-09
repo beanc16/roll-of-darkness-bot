@@ -124,10 +124,20 @@ export class CachedGoogleSheetsApiService
             ...parameters
         } = initialParameters;
 
+        /*
+         * TODO
+         * This is a temporarily log because Roll of Darkness is regularly
+         * causing the Google Sheets service to hit its maximum reads per minute.
+         * The hope is that this and the other below debug logs will help
+         * identify the root cause to fix.
+         */
+        logger.debug('Calling CachedGoogleSheetsApiService.getRange', initialParameters);
+
         const cacheSpreadsheetKey = parameters?.spreadsheetId as string;
         const cacheRangeKey = parameters?.range as string;
 
         const cachedData = this.cache.Get([cacheSpreadsheetKey, cacheRangeKey]);
+        logger.debug('CachedGoogleSheetsApiService.getRange cachedData:', cachedData);
 
         if (cachedData !== undefined)
         {
@@ -139,6 +149,10 @@ export class CachedGoogleSheetsApiService
         for (let i = 0; i <= this.retries; i += 1)
         {
             const authToken = await CachedAuthTokenService.getAuthToken();
+            logger.debug(`CachedGoogleSheetsApiService.getRange loop`, {
+                ...initialParameters,
+                loopNumber: i,
+            });
 
             try
             {
@@ -147,6 +161,11 @@ export class CachedGoogleSheetsApiService
                     data = [],
                     error,
                 } = await GoogleSheetsMicroservice.v1.getRange(authToken, parameters);
+                logger.debug(`CachedGoogleSheetsApiService.getRange GoogleSheetsMicroservice.v1.getRange results`, {
+                    statusCode,
+                    data,
+                    error,
+                });
 
                 if (statusCode === 200)
                 {
