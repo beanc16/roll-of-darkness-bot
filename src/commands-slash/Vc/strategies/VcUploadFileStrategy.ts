@@ -47,11 +47,8 @@ export class VcUploadFileStrategy
         }
 
         await interaction.followUp({
-            content: 'Successfully uploaded the file.',
+            content: `Successfully uploaded \`${fileName}\`.`,
             ephemeral: true,
-            files: [{
-                attachment: newFileUrl,
-            }],
         });
 
         return true;
