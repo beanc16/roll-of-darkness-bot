@@ -23,6 +23,7 @@
     "eslintConfig": {
         "extends": "lintification",
         "rules": {
+            "arrow-body-style": "off",
             "no-async-promise-executor": "off"
         }
     },
