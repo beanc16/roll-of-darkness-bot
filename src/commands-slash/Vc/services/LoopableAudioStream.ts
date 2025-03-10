@@ -9,14 +9,19 @@ export class LoopableAudioStream extends Readable
     private position: number = 0;
     private shouldLoop: boolean;
 
-    constructor(buffer: Buffer, shouldLoop = false)
+    constructor(buffer: Buffer, shouldLoop: boolean)
     {
         super();
         this.buffer = buffer;
         this.shouldLoop = shouldLoop;
     }
 
-    // eslint-disable-next-line no-underscore-dangle
+    private get isEmpty(): boolean
+    {
+        return this.position === 0 && this.buffer.length === 0;
+    }
+
+    // eslint-disable-next-line no-underscore-dangle -- This is the default implementation
     public _read(size: number): void
     {
         const chunk = Uint8Array.prototype.slice.call(
@@ -31,7 +36,7 @@ export class LoopableAudioStream extends Readable
         if (this.position >= this.buffer.length)
         {
             // Restart from the beginning
-            if (this.shouldLoop)
+            if (this.shouldLoop && !this.isEmpty)
             {
                 this.position = 0;
             }
