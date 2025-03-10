@@ -94,14 +94,13 @@ const convertRemoteFileToBuffer = async (fileUrl: string): Promise<Buffer> =>
 
 const audioResourceBufferCache = new CompositeKeyRecord<[string, string], Buffer>();
 
-export const getAudioResource = async ({
+export const getAudioResourceReadable = async ({
     discordUserId,
     fileName,
     shouldLoop,
-}: { discordUserId: string; fileName: string; shouldLoop: boolean }): Promise<AudioResource<null> | undefined> =>
+}: { discordUserId: string; fileName: string; shouldLoop: boolean }): Promise<LoopableAudioStream | undefined> =>
 {
-    // eslint-disable-next-line no-async-promise-executor
-    const output = await new Promise<AudioResource<null> | undefined>(async (resolve, reject) =>
+    const output = await new Promise<LoopableAudioStream | undefined>(async (resolve, reject) =>
     {
         try
         {
@@ -110,7 +109,7 @@ export const getAudioResource = async ({
             if (cachedBuffer)
             {
                 const readable = new LoopableAudioStream(cachedBuffer, shouldLoop);
-                resolve(createAudioResource(readable));
+                resolve(readable);
                 return;
             }
 
@@ -131,10 +130,7 @@ export const getAudioResource = async ({
 
             // Cache buffer in-memory
             audioResourceBufferCache.Upsert([discordUserId, fileName], buffer);
-
-            // Create audio resource
-            const resource = createAudioResource(readable);
-            resolve(resource);
+            resolve(readable);
         }
 
         catch (error)
@@ -157,6 +153,43 @@ export const getAudioResource = async ({
             {
                 reject(error);
             }
+        }
+    });
+
+    return output;
+};
+
+export const getAudioResource = async ({
+    discordUserId,
+    fileName,
+    shouldLoop,
+}: { discordUserId: string; fileName: string; shouldLoop: boolean }): Promise<AudioResource<null> | undefined> =>
+{
+    const output = await new Promise<AudioResource<null> | undefined>(async (resolve, reject) =>
+    {
+        try
+        {
+            // Get readable for audio resource
+            const readable = await getAudioResourceReadable({
+                discordUserId,
+                fileName,
+                shouldLoop,
+            });
+
+            if (!readable)
+            {
+                resolve(undefined);
+                return;
+            }
+
+            // Create audio resource
+            const resource = createAudioResource(readable);
+            resolve(resource);
+        }
+
+        catch (error)
+        {
+            reject(error);
         }
     });
 

@@ -5,6 +5,7 @@ export enum VcSubcommand
     Connect = 'connect',
     DeleteFile = 'delete_file',
     Disconnect = 'disconnect',
+    Load = 'load',
     Pause = 'pause',
     Play = 'play',
     RenameFile = 'rename_file',
@@ -44,6 +45,16 @@ export const disconnect = (subcommand: SlashCommandSubcommandBuilder): SlashComm
 {
     subcommand.setName(VcSubcommand.Disconnect);
     subcommand.setDescription('Disconnect from a voice channel.');
+
+    return subcommand;
+};
+
+export const load = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Load);
+    subcommand.setDescription('Pre-Buffer audio so it can be played with less delay.');
+
+    subcommand.addStringOption(fileNameParameter);
 
     return subcommand;
 };

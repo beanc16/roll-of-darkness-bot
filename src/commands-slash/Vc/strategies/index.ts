@@ -6,6 +6,7 @@ import { VcSubcommand } from '../options/index.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcDeleteFileStrategy } from './VcDeleteFileStrategy.js';
 import { VcDisconnectStrategy } from './VcDisconnectStrategy.js';
+import { VcLoadStrategy } from './VcLoadStrategy.js';
 import { VcPauseStrategy } from './VcPauseStrategy.js';
 import { VcPlayStrategy } from './VcPlayStrategy.js';
 import { VcRenameFileStrategy } from './VcRenameFileStrategy.js';
@@ -31,6 +32,7 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
         VcConnectStrategy,
         VcDeleteFileStrategy,
         VcDisconnectStrategy,
+        VcLoadStrategy,
         VcPauseStrategy,
         VcPlayStrategy,
         VcRenameFileStrategy,
