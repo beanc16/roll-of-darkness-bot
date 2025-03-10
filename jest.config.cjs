@@ -110,6 +110,12 @@ module.exports = {
             functions: 90,
             lines: 100,
         },
+        './src/commands-slash/Vc/services': {
+            statements: 100,
+            branches: 100,
+            functions: 100,
+            lines: 100,
+        },
         './src/services/MathParser': {
             statements: 100,
             branches: 100,
