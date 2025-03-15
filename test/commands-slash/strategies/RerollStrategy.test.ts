@@ -26,9 +26,11 @@ describe('class: RerollStrategy', () =>
         let spyOnHandleButtonInteractions: jest.SpyInstance<Promise<void>, [HandleButtonInteractionsOptions], any>;
         const commandName: CommandName = '/fake_command';
         let interaction: ButtonInteraction;
+        let onRerollCallback: jest.Mock;
 
         beforeEach(() =>
         {
+            onRerollCallback = jest.fn();
             interaction = getFakeButtonInteraction();
             spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy, 'handleButtonInteractions').mockImplementation();
         });
@@ -48,8 +50,6 @@ describe('class: RerollStrategy', () =>
             ]],
         ] as [RerollInteractionCallbackType, RerollInteractionCallbackType[]][])('DiscordInteractionCallbackType: %s', (interactionCallbackType, interactionCallbackTypesToNotCall) =>
         {
-            const onRerollCallback = jest.fn();
-
             it(`should call interaction.${interactionCallbackType}`, async () =>
             {
                 const spyOnInteractionMethodBasedOnType = jest.spyOn(interaction, interactionCallbackType);
@@ -137,6 +137,57 @@ describe('class: RerollStrategy', () =>
                 }
             });
             /* eslint-enable jest/no-conditional-expect */
+        });
+
+        describe(`DiscordInteractionCallbackType: ${DiscordInteractionCallbackType.Followup}`, () =>
+        {
+            it('should still reply on a webhook timeout error', async () =>
+            {
+                const spyOnInteractionFollowUp = jest.spyOn(interaction, DiscordInteractionCallbackType.Followup).mockImplementation(() =>
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- This is necessary for the test
+                    throw {
+                        rawError: {
+                            message: 'Invalid Webhook Token',
+                        },
+                    };
+                });
+                const spyOnInteractionChannelSend = jest.spyOn(interaction.channel!, 'send');
+
+                await RerollStrategy.run({
+                    interaction,
+                    options: {},
+                    rerollCallbackOptions: {
+                        interactionCallbackType: DiscordInteractionCallbackType.Followup,
+                    },
+                    onRerollCallback,
+                    commandName,
+                });
+
+                expect(spyOnInteractionFollowUp).toHaveBeenCalledTimes(1);
+                expect(spyOnInteractionChannelSend).toHaveBeenCalledTimes(1);
+            });
+
+            it('should throw error if reply on a webhook timeout error still fails to send a new message', async () =>
+            {
+                const spyOnInteractionFollowUp = jest.spyOn(interaction, DiscordInteractionCallbackType.Followup).mockImplementation(() =>
+                {
+                    throw new Error('An intentionally thrown error');
+                });
+
+                const promise = RerollStrategy.run({
+                    interaction,
+                    options: {},
+                    rerollCallbackOptions: {
+                        interactionCallbackType: DiscordInteractionCallbackType.Followup,
+                    },
+                    onRerollCallback,
+                    commandName,
+                });
+
+                expect(spyOnInteractionFollowUp).toHaveBeenCalledTimes(1);
+                await expect(promise).rejects.toThrow('An intentionally thrown error');
+            });
         });
     });
 

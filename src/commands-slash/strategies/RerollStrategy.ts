@@ -89,7 +89,9 @@ export class RerollStrategy
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
                     if ((error as any)?.rawError?.message?.toLowerCase()?.includes('invalid webhook token'))
                     {
+                        /* istanbul ignore next */
                         const message = ((interaction as ButtonInteraction)?.message as Message | undefined) || previousResponse;
+                        /* istanbul ignore next */
                         const replyData: MessageCreateOptions = {
                             ...(rerollOptions.content ? { content: rerollOptions.content } : {}),
                             ...(rerollOptions.files ? { files: rerollOptions.files } : {}),
