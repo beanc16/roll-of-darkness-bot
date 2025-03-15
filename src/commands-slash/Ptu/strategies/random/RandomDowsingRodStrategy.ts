@@ -157,7 +157,7 @@ export class RandomDowsingRodStrategy
         await RerollStrategy.run({
             interaction,
             options: responseOptions,
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

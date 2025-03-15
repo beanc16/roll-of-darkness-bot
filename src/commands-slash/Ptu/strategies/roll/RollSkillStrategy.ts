@@ -99,7 +99,7 @@ export class RollSkillStrategy
         await RerollStrategy.run({
             interaction,
             options: message,
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

@@ -65,7 +65,7 @@ export class RollStrategy
         await RerollStrategy.run({
             interaction,
             options: response,
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

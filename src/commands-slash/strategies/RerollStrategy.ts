@@ -6,8 +6,10 @@ import {
     ChatInputCommandInteraction,
     InteractionEditReplyOptions,
     InteractionReplyOptions,
+    InteractionResponse,
     InteractionUpdateOptions,
     Message,
+    MessageCreateOptions,
 } from 'discord.js';
 
 import { type CommandName, DiscordInteractionCallbackType } from '../../types/discord.js';
@@ -33,6 +35,7 @@ export interface OnRerollCallbackOptions
 {
     interactionCallbackType: RerollInteractionCallbackType;
     newCallingUserId?: string;
+    previousResponse?: Message<boolean> | InteractionResponse<boolean>;
 }
 
 type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
@@ -41,6 +44,7 @@ interface OnRerollButtonPressOptions
 {
     buttonInteraction: ButtonInteraction;
     onRerollCallback: OnRerollCallback;
+    previousResponse: Message<boolean> | InteractionResponse<boolean> | undefined;
 }
 
 export class RerollStrategy
@@ -52,13 +56,13 @@ export class RerollStrategy
     public static async run({
         interaction,
         options,
-        interactionCallbackType,
+        rerollCallbackOptions: { interactionCallbackType, previousResponse },
         onRerollCallback,
         commandName,
     }: {
         interaction: ChatInputCommandInteraction | ButtonInteraction;
         options: RerollInteractionOptions;
-        interactionCallbackType: RerollInteractionCallbackType;
+        rerollCallbackOptions: OnRerollCallbackOptions;
         onRerollCallback: OnRerollCallback;
         commandName: CommandName;
     }): Promise<void>
@@ -71,8 +75,44 @@ export class RerollStrategy
         );
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(rerollOptions as InteractionEditReplyOptions),
-            [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(rerollOptions as InteractionReplyOptions),
             [DiscordInteractionCallbackType.Update]: () => (interaction as ButtonInteraction).update(rerollOptions as InteractionUpdateOptions),
+            [DiscordInteractionCallbackType.Followup]: async () =>
+            {
+                try
+                {
+                    return await interaction.followUp(rerollOptions as InteractionReplyOptions);
+                }
+                catch (error)
+                {
+                    // If listening for too long, the webhook token may be invalid.
+                    // Thus, send the message to the channel instead.
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-explicit-any
+                    if ((error as any)?.rawError?.message?.toLowerCase()?.includes('invalid webhook token'))
+                    {
+                        const message = ((interaction as ButtonInteraction)?.message as Message | undefined) || previousResponse;
+                        const replyData: MessageCreateOptions = {
+                            ...(rerollOptions.content ? { content: rerollOptions.content } : {}),
+                            ...(rerollOptions.files ? { files: rerollOptions.files } : {}),
+                            ...(rerollOptions.embeds ? { embeds: rerollOptions.embeds } : {}),
+                            ...(rerollOptions.components ? { components: rerollOptions.components } : {}),
+                            ...(rerollOptions.allowedMentions ? { allowedMentions: rerollOptions.allowedMentions } : {}),
+                        };
+
+                        if (message)
+                        {
+                            // Fetch just in case its an interaction response, then reply
+                            const fetchedMessage = await message.fetch(true);
+                            replyData.reply = {
+                                messageReference: fetchedMessage,
+                            };
+                        }
+
+                        return await interaction.channel?.send(replyData);
+                    }
+
+                    throw error;
+                }
+            },
         };
 
         // Send/Update message
@@ -89,18 +129,24 @@ export class RerollStrategy
             onButtonPress: /* istanbul ignore next */ async buttonInteraction => await this.onRerollButtonPress({
                 buttonInteraction,
                 onRerollCallback,
+                previousResponse: response,
             }),
             getButtonRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent(),
         });
     }
 
-    private static async onRerollButtonPress({ buttonInteraction, onRerollCallback }: OnRerollButtonPressOptions): Promise<void>
+    private static async onRerollButtonPress({
+        buttonInteraction,
+        onRerollCallback,
+        previousResponse,
+    }: OnRerollButtonPressOptions): Promise<void>
     {
         await Promise.all([
             // Run callback
             await onRerollCallback({
                 interactionCallbackType: DiscordInteractionCallbackType.Followup,
                 newCallingUserId: buttonInteraction.user.id,
+                previousResponse,
             }),
 
             // Update original message with the same content so

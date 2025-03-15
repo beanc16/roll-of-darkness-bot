@@ -27,7 +27,7 @@ class Roll extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
+        rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
     ): Promise<void>
@@ -38,7 +38,7 @@ class Roll extends BaseSlashCommand
         const name = interaction.options.getString('name');
 
         // Send message to show the command was received
-        if (interactionCallbackType === DiscordInteractionCallbackType.EditReply)
+        if (rerollCallbackOptions.interactionCallbackType === DiscordInteractionCallbackType.EditReply)
         {
             await interaction.deferReply({
                 ephemeral: isSecret,
@@ -68,7 +68,7 @@ class Roll extends BaseSlashCommand
         }
 
         // Run the below separately from the try catch, so errors in super.run don't send an incorrect error message
-        const responseMessage = `${Text.Ping.user(newCallingUserId ?? interaction.user.id)} :game_die:\n`
+        const responseMessage = `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`
             + `${Text.bold(name ?? 'Result')}:${resultString}\n`
             + `${Text.bold('Total')}: ${finalRollResult}`;
 
@@ -76,10 +76,10 @@ class Roll extends BaseSlashCommand
         await RerollStrategy.run({
             interaction,
             options: responseMessage,
-            interactionCallbackType,
-            onRerollCallback: rerollCallbackOptions => this.run(
+            rerollCallbackOptions,
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
-                rerollCallbackOptions,
+                newRerollCallbackOptions,
             ),
             commandName: `/${this.commandName}`,
         });

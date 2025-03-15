@@ -36,7 +36,7 @@ class CoinFlip extends BaseSlashCommand
 
     public async run(
         interaction: ChatInputCommandInteraction,
-        { interactionCallbackType = DiscordInteractionCallbackType.EditReply, newCallingUserId }: OnRerollCallbackOptions = {
+        rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
     ): Promise<void>
@@ -47,7 +47,7 @@ class CoinFlip extends BaseSlashCommand
         const name = interaction.options.getString('name');
 
         // Send message to show the command was received
-        if (interactionCallbackType === DiscordInteractionCallbackType.EditReply)
+        if (rerollCallbackOptions.interactionCallbackType === DiscordInteractionCallbackType.EditReply)
         {
             await interaction.deferReply({
                 ephemeral: isSecret,
@@ -62,15 +62,15 @@ class CoinFlip extends BaseSlashCommand
         await RerollStrategy.run({
             interaction,
             options: CoinFlip.getResponse({
-                authorId: newCallingUserId ?? interaction.user.id,
+                authorId: rerollCallbackOptions.newCallingUserId ?? interaction.user.id,
                 headsOrTails,
                 name,
                 result,
             }),
-            interactionCallbackType,
-            onRerollCallback: rerollCallbackOptions => this.run(
+            rerollCallbackOptions,
+            onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
-                rerollCallbackOptions,
+                newRerollCallbackOptions,
             ),
             commandName: `/${this.commandName}`,
         });

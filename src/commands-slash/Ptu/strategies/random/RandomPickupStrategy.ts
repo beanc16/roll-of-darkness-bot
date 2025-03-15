@@ -121,7 +121,7 @@ export class RandomPickupStrategy
         await RerollStrategy.run({
             interaction,
             options: subcommandResponse.options,
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

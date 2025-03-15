@@ -99,7 +99,7 @@ export class RandomMushroomStrategy
             options: {
                 embeds: [embed],
             },
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

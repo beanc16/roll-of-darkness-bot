@@ -43,6 +43,7 @@ type RunRerollStrategyOptions = {
     finalRollResult: number;
     type: PtuAttackRollType;
     interactionCallbackType: DiscordInteractionCallbackType.Update;
+    rerollCallbackOptions: OnRerollCallbackOptions;
     accuracyRoll: number;
     damageDicePoolExpression: string;
     shouldUseMaxCritRoll: boolean;
@@ -54,6 +55,7 @@ type RunRerollStrategyOptions = {
     finalRollResult: number;
     type: PtuAttackRollType;
     interactionCallbackType: DiscordInteractionCallbackType.Followup;
+    rerollCallbackOptions: OnRerollCallbackOptions;
     accuracyRoll?: never;
     damageDicePoolExpression?: never;
     shouldUseMaxCritRoll?: never;
@@ -260,6 +262,7 @@ export class RollAttackStrategy
                     finalRollResult,
                     type: buttonInteraction.customId as PtuAttackRollType,
                     interactionCallbackType: DiscordInteractionCallbackType.Update,
+                    rerollCallbackOptions,
                     accuracyRoll,
                     damageDicePoolExpression,
                     shouldUseMaxCritRoll,
@@ -275,13 +278,14 @@ export class RollAttackStrategy
         interaction,
         type,
         currentMessageContent,
+        rerollCallbackOptions,
         damageResultString,
         finalRollResult,
     }: {
         interaction: ChatInputCommandInteraction;
         type: PtuAttackRollType.AutoMiss | PtuAttackRollType.AutoCrit;
         currentMessageContent: string;
-        rerollCallbackOptions?: OnRerollCallbackOptions;
+        rerollCallbackOptions: OnRerollCallbackOptions;
         damageResultString: string;
         finalRollResult: number;
     }): Promise<void>
@@ -305,6 +309,7 @@ export class RollAttackStrategy
             finalRollResult,
             type,
             interactionCallbackType: DiscordInteractionCallbackType.Followup,
+            rerollCallbackOptions,
         });
     }
 
@@ -316,6 +321,7 @@ export class RollAttackStrategy
         finalRollResult,
         type,
         interactionCallbackType,
+        rerollCallbackOptions,
         accuracyRoll,
         damageDicePoolExpression,
         shouldUseMaxCritRoll,
@@ -357,7 +363,10 @@ export class RollAttackStrategy
         await RerollStrategy.run({
             interaction: buttonInteraction ?? interaction,
             options: this.getMessageContent(getMessageContentOptions),
-            interactionCallbackType,
+            rerollCallbackOptions: {
+                ...rerollCallbackOptions,
+                interactionCallbackType,
+            },
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,

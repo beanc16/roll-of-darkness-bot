@@ -66,7 +66,9 @@ describe('class: RerollStrategy', () =>
                 await RerollStrategy.run({
                     interaction,
                     options: {},
-                    interactionCallbackType,
+                    rerollCallbackOptions: {
+                        interactionCallbackType,
+                    },
                     onRerollCallback,
                     commandName,
                 });
@@ -84,7 +86,9 @@ describe('class: RerollStrategy', () =>
                 await RerollStrategy.run({
                     interaction,
                     options: {},
-                    interactionCallbackType,
+                    rerollCallbackOptions: {
+                        interactionCallbackType,
+                    },
                     onRerollCallback,
                     commandName,
                 });
@@ -107,7 +111,9 @@ describe('class: RerollStrategy', () =>
                 await RerollStrategy.run({
                     interaction,
                     options: {},
-                    interactionCallbackType,
+                    rerollCallbackOptions: {
+                        interactionCallbackType,
+                    },
                     onRerollCallback,
                     commandName,
                 });
@@ -150,6 +156,7 @@ describe('class: RerollStrategy', () =>
             await RerollStrategy['onRerollButtonPress']({
                 buttonInteraction,
                 onRerollCallback,
+                previousResponse: undefined,
             });
 
             expect(onRerollCallback).toHaveBeenCalledTimes(1);
@@ -162,6 +169,7 @@ describe('class: RerollStrategy', () =>
             await RerollStrategy['onRerollButtonPress']({
                 buttonInteraction,
                 onRerollCallback,
+                previousResponse: undefined,
             });
 
             expect(spyOnButtonInteractionUpdate).toHaveBeenCalledTimes(1);

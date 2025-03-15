@@ -49,7 +49,7 @@ export class InitiativeStrategy
         await RerollStrategy.run({
             interaction,
             options: initiativeResponseFormatterService.getResponse(),
-            interactionCallbackType: rerollCallbackOptions.interactionCallbackType,
+            rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
                 newRerollCallbackOptions,
