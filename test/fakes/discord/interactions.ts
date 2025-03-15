@@ -6,13 +6,18 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { FakeUser, getFakeMessage } from './components.js';
+import {
+    FakeUser,
+    getFakeChannel,
+    getFakeMessage,
+} from './components.js';
 
 export const getFakeButtonInteraction = (customId: string = 'fake-id'): ButtonInteraction =>
 {
     const output: ButtonInteraction = {
         customId,
         message: getFakeMessage(),
+        channel: getFakeChannel(),
         user: new FakeUser(),
         deferReply: jest.fn(),
         deferUpdate: jest.fn(),

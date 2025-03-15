@@ -1,6 +1,10 @@
 /* eslint-disable max-classes-per-file */
 
-import { Message, User } from 'discord.js';
+import {
+    Channel,
+    Message,
+    User,
+} from 'discord.js';
 
 export const getFakeMessage = <T extends boolean = boolean>(content: string = 'fake-content'): Message<T> =>
 {
@@ -10,8 +14,19 @@ export const getFakeMessage = <T extends boolean = boolean>(content: string = 'f
         awaitMessageComponent: jest.fn(),
         delete: jest.fn(),
         edit: jest.fn(),
+        fetch: jest.fn().mockImplementation(() => Promise.resolve(output)),
         reply: jest.fn(),
+        components: [],
     } as unknown as Message<T>;
+
+    return output;
+};
+
+export const getFakeChannel = (): Channel =>
+{
+    const output: Channel = {
+        send: jest.fn().mockImplementation(() => Promise.resolve(getFakeMessage())),
+    } as unknown as Channel;
 
     return output;
 };
