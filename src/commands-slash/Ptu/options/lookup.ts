@@ -4,10 +4,8 @@ import { equalityOption } from '../../options/shared.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokeballType } from '../types/pokeballType.js';
 import {
-    PokemonMoveCategory,
     PokemonStat,
     PokemonStatusType,
-    PokemonType,
     PtuAbilityListType,
     PtuContestStatEffect,
     PtuContestStatType,
@@ -20,6 +18,11 @@ import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
 import { PtuKeyItemType } from '../types/PtuKeyItem.js';
 import { PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
+import {
+    pokemonMoveCategoryOption,
+    pokemonMoveNameOption,
+    pokemonTypeOption,
+} from './shared.js';
 
 export enum PtuLookupSubcommand
 {
@@ -455,47 +458,19 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     // Name
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuAutocompleteParameterName.MoveName);
-        option.setDescription(`The move's name.`);
-        return option.setAutocomplete(true);
+        return pokemonMoveNameOption(option, `The move's name.`);
     });
 
     // Type
-    const typeChoices = Object.entries(PokemonType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
-        {
-            return {
-                name: key,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('type');
-        option.setDescription('The type of moves to look up.');
-        return option.setChoices(
-            ...typeChoices,
-        );
+        return pokemonTypeOption(option, 'The type of moves to look up.');
     });
 
     // Move Category
-    const categoryChoices = Object.entries(PokemonMoveCategory).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
-        {
-            return {
-                name: key,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('category');
-        option.setDescription('The category of moves to look up.');
-        return option.setChoices(
-            ...categoryChoices,
-        );
+        return pokemonMoveCategoryOption(option, 'The category of moves to look up.');
     });
 
     // Damage Base

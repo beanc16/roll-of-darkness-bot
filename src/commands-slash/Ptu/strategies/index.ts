@@ -15,6 +15,7 @@ import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
+import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
@@ -41,6 +42,7 @@ import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
+import generateStrategies from './generate/index.js';
 import lookupStrategies from './lookup/index.js';
 import { GetLookupAuraDataParameters } from './lookup/LookupAuraStrategy.js';
 import { GetLookupBerryDataParameters } from './lookup/LookupBerryStrategy.js';
@@ -130,10 +132,11 @@ interface BasePtuLookupStrategy<PtuLookupModel extends AllPtuLookupModels> exten
 
 type PtuStrategyMap = StrategyMap<
     PtuSubcommandGroup,
-    PtuLookupSubcommand
-    | PtuQuickReferenceInfo
-    | PtuBreedSubcommand
+    PtuBreedSubcommand
     | PtuCalculateSubcommand
+    | PtuLookupSubcommand
+    | PtuGenerateSubcommand
+    | PtuQuickReferenceInfo
     | PtuRandomSubcommand
     | PtuRollSubcommand
     | PtuTrainSubcommand
@@ -145,6 +148,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     private static strategies: PtuStrategyMap = {
         [PtuSubcommandGroup.Breed]: BreedPokemonStrategy,
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
+        [PtuSubcommandGroup.Generate]: generateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
         [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
         [PtuSubcommandGroup.Random]: randomStrategies,
@@ -160,7 +164,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): Promise<boolean>
     {
@@ -429,7 +433,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
     }): ChatIteractionStrategy | undefined
     {

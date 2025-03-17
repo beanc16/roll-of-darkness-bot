@@ -10,6 +10,7 @@ import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
+import * as generateSubcommands from './generate.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
 import * as rollSubcommands from './roll.js';
@@ -18,6 +19,7 @@ export enum PtuSubcommandGroup
 {
     Breed = 'breed',
     Calculate = 'calculate',
+    Generate = 'generate',
     Lookup = 'lookup',
     QuickReference = 'quick_reference',
     Random = 'random',
@@ -87,6 +89,20 @@ export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): 
     subcommandGroup.setName(PtuSubcommandGroup.Calculate);
     subcommandGroup.setDescription('Run PTU calculate commands.');
     Object.values(calculateSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
+export const generate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Generate);
+    subcommandGroup.setDescription('Run PTU generative AI commands.');
+    Object.values(generateSubcommands).forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {
