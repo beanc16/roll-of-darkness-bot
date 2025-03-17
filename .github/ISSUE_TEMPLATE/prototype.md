@@ -18,9 +18,9 @@ As a user, I want to (finish this with a clear and concise description of the co
 A clear and concise description of the command in 100 characters or less.
 
 ## Parameters
-- `parameter_name_1` (data_type; a concise description in 50 characters or less)
-- `parameter_name_2` (data_type; a concise description in 50 characters or less)
-- `parameter_name_3` (data_type; a concise description in 50 characters or less)
+- `parameter_name_1` (required; data_type; a concise description in 50 characters or less)
+- `parameter_name_2` (required; data_type; a concise description in 50 characters or less)
+- `parameter_name_3` (optional; data_type; a concise description in 50 characters or less)
 
 # ⚙️ Technical Details ⚙️
 Any nitty gritty details about the prototype here.
