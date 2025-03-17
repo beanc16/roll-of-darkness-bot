@@ -54,7 +54,7 @@ export class LookupKeywordStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupKeywordDataParameters = {
+    public static async getLookupData(input: GetLookupKeywordDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuKeyword[]>
     {

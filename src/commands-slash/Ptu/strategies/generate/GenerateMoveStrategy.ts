@@ -12,6 +12,8 @@ import {
     PtuContestStatType,
     PtuMoveFrequency,
 } from '../../types/pokemon.js';
+import { PtuKeyword } from '../../types/PtuKeyword.js';
+import { LookupKeywordStrategy } from '../lookup/LookupKeywordStrategy.js';
 import { BaseGenerateStrategy } from './BaseGenerateStrategy.js';
 // import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 // import { PokemonMoveCategory } from '../../types/pokemon.js';
@@ -44,12 +46,17 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
             z.null(),
         ]).describe('The accuracy check for the move.'),
         range: z.string().describe('A CSV of keywords that describe the range of the move.'),
-        effects: z.string().describe('A description of the mechanical effects of the move.'),
+        effects: z.union([
+            z.string(),
+            z.null(),
+        ]).describe('A description of the mechanical effects of the move.'),
         contestStatType: z.nativeEnum(PtuContestStatType).describe(
             'The type of contest stat the move affects during a Pokémon Contest.',
         ),
         contestStatEffect: z.nativeEnum(PtuContestStatEffect).describe('The effect the move has in Pokémon Contests.'),
     });
+
+    private static keywords: PtuKeyword[] = [];
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -59,6 +66,10 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
         // const type = interaction.options.getString('type') as PokemonType | null;
         // const category = interaction.options.getString('category') as PokemonMoveCategory | null;
 
+        // Initialize necessary data
+        await this.initializeData();
+
+        // Generate
         const response = await this.generate({
             key: this.key,
             schema: this.schema,
@@ -66,6 +77,7 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
             prompt,
         });
 
+        // Respond
         if (response === undefined)
         {
             await interaction.editReply(
@@ -74,24 +86,32 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
             return true;
         }
 
-        // Send message
         await interaction.editReply(response.jsonString);
 
         return true;
     }
 
+    private static async initializeData(): Promise<void>
+    {
+        if (this.keywords.length === 0)
+        {
+            this.keywords = await LookupKeywordStrategy.getLookupData();
+        }
+    }
+
     private static getSystemInstructions(): string
     {
-        return `You are an assistant for generating custom Pokémon moves for the Pokémon Tabletop United (PTU) system. Your task is to design, balance, and refine custom moves while ensuring they fit within PTU’s mechanics and gameplay balance.
+        // TODO: Give examples of effects that moves can have
+        return `You are an assistant for generating custom Pokémon moves for the Pokémon Tabletop United (PTU) system. Your task is to design, balance, and refine custom moves while ensuring they fit within PTU's mechanics and gameplay balance.
 
-Each move should have clear attributes, including type, frequency, DB (Damage Base), accuracy, range, effect, and any additional conditions. Ensure that moves are viable, fair, and adhere to PTU’s move design principles.
+Each move should have clear attributes, including type, frequency, DB (Damage Base), accuracy, range, effect, and any additional conditions. Ensure that moves are viable, fair, and adhere to PTU's move design principles.
 
 # Steps
 
 1. **Analyze Input**: Examine the given move concept, identifying its type, purpose, and intended effect.
-2. **Determine Attributes**: Define the move’s type, DB if applicable, range, accuracy, frequency, and any secondary effects.
-3. **Balance According to PTU Rules**: Ensure the move aligns with PTU’s damage scaling, effect balance, and move progression rules.
-4. **Generate Output**: Present the move in a format that fits PTU’s standards.
+2. **Determine Attributes**: Define the move's type, DB if applicable, range, accuracy, frequency, and any secondary effects.
+3. **Balance According to PTU Rules**: Ensure the move aligns with PTU's damage scaling, effect balance, and move progression rules.
+4. **Generate Output**: Present the move in a format that fits PTU's standards.
 
 # Move Design Guidelines
 
@@ -115,7 +135,7 @@ Each move should have clear attributes, including type, frequency, DB (Damage Ba
 ## Special Considerations
 
 - **Moves with guaranteed status effects** may have a lower DB to balance the reliability of the effect.
-- **Moves with high AC** should not be unnecessarily favored. The accuracy should match the move’s design and purpose, with adjustments made based on balance and context.
+- **Moves with high AC** should not be unnecessarily favored. The accuracy should match the move's design and purpose, with adjustments made based on balance and context.
 - **Large AoE moves** (e.g., Ranged Blast 3, Burst 2) should typically have Scene or Daily frequencies due to their expansive effect range.
 - **Signature moves** are often slightly more powerful or flexible in frequency, particularly if they're designed for a Pokémon with weaker general moves.
 
@@ -127,12 +147,38 @@ Move frequency can be adjusted based on:
 
 ## Move Identity & Originality
 
-- **Avoid direct clones of existing moves**: Reflavoring (adjusting existing moves by changing their type and giving them a fitting name) is acceptable, but ensure the move feels distinct and fits the new context.
-- **Ensure synergy**: The move should be thematically tied to the Pokémon’s type, abilities, or lore, and should complement the Pokémon's role in a team.
+- **Avoid direct clones of existing moves**: Reflavoring (adjusting existing moves by changing their type and giving them a new, fitting name) is acceptable, but ensure the move feels distinct and fits the new context.
+- **Ensure synergy**: The move should be thematically tied to the Pokémon's type, abilities, or lore, and should complement the Pokémon's role in a team.
 
-## Range Formatting
+### Accuracy and Stat Checks
 
-A CSV of keywords that describe the range of the move, specifying the distance or area the move affects:
+- When specifying an effect that alters stats, be specific about which stat is being modified. Avoid vague terms like "some stat" or "a random stat." Always name the stat explicitly. (e.g., "This move lowers the target's Special Defense by -1 CS on a roll of 17+.")
+- The effect of lowering the stat should be tied to the accuracy roll. Use the format "on X+" where **X** is the number on the accuracy check (e.g., "on 18+" means the effect occurs if the accuracy check rolls an 18 or higher on a d20 roll).
+- If the stat change is part of the secondary effect, make it clear how significant the change is (e.g., "lowers the target's Speed by -2 CS" or "lowers the target's Attack by -1 CS").
+
+Example of a full move effect:
+- "This move lowers the target's Defense on 17+."
+- "This move Flinches the target on 15+."
+
+# Output Details
+
+## \`name\`
+NEVER do any of the following:
+- Name a move exactly the same as another move.
+
+## \`effects\`
+DO the following:
+- If there are any, describe mechanical details of the move. If there are none, do not include this property.
+- Capitalize the first letter of any status effects (e.g., "Poison" instead of "poison", "Confused" instead of "confused").
+
+NEVER do any of the following:
+- Include any flavor text, lore, or non-mechanical details.
+- Include a percentile-based effect with a percentage sign (e.g., "has a 25% chance"); instead, percentage changes should be tied to an accuracy roll (e.g., "on 18+").
+
+## \`range\`
+The \`range\` property should be a CSV of keywords that describe the range and special conditions of the move.
+
+Select one of the following ranges:
 - **"Burst X"**: Hits all legal targets surrounding the user in a radius of X.
 - **"Cardinally Adjacent Targets"**: Hits all cardinally adjacent targets.
 - **"Close Blast X"**: Creates an X by X square adjacent to the user and hits all legal targets within.
@@ -141,51 +187,41 @@ A CSV of keywords that describe the range of the move, specifying the distance o
 - **"Melee, 1 Target"**: Hits one target adjacent to the user.
 - **"X, Y Target"**: Hits Y targets within X meters of the user.
 - **"X, Ranged Blast Y"**: Creates a Y by Y square up to X meters away from the user and hits all legal targets within.
-- **"Aura"**: May be affected by certain Aura-related Abilities or effects.
-- **"Blessing"**: Provides a Blessing shared by the entire team that persists until its used up, even if the original user is KO'd or switched out.
-- **"Coat"**: Gives the targets a certain effect while the Coat persists and may be passed on by Baton Pass.
-- **"Dash"**: Cannot be used if the user has the Stuck status effect.
-- **"Domain"**: Affects an area and changes the rules of battle as specified by the Domain's effect.
-- **"Double Strike"**: Uses two Attack Rolls; hitting with both does double damage, and both attacks can Critically Hit separately.
-- **"Five Strike"**: Hits between one and five times and multiplies the move's Damage Base by the number of times hit.
-- **"Execute"**: Automatically KOs the target if they hit.
-- **"Exhaust"**: Causes the user to forfeit their Standard and Shift actions on their next turn and their trainer's Command.
-- **"Friendly"**: Does not hit allies.
-- **"Groundsource"**: Ignores Rough Terrain and Blocking Terrain when targeting.
-- **"Hazard"**: Covers a portion of the battlefield and affects foes under certain circumstances.
-- **"Healing"**: Heals targets or purifies them of status conditions.
-- **"Illusion"**: May be ignored by Trainers with the Clairsentient Feature.
-- **"Interrupt"**: Can be declared in the middle of another combatant's turn.
-- **"Pass"**: Moves through targets in a straight line, dealing damage once per target.
-- **"Push"**: Pushes the target a specified number of meters away.
-- **"Reaction"**: Works like 'Interrupts' but happens after the triggering condition resolves.
-- **"Priority"**: Happens before the user's turn if they haven't acted that round.
-- **"Recoil"**: Deals damage to the user equal to a fraction of the damage dealt.
-- **"Set-Up"**: Requires an initial action and a follow-up resolution.
-- **"Shield"**: Prevents or mitigates incoming damage.
-- **"Slice"**: Involves a blade attack and may interact with the Sharpness ability.
-- **"Smite"**: Always deals some damage, even on a miss.
-- **"Social"**: Cannot be Intercepted and ignores Substitute.
-- **"Sonic"**: Ignores Substitute.
-- **"Spirit Surge"**: Always activates its effect, even on a miss (if accuracy conditions are met).
-- **"Trigger"**: Can only be used when a specified condition is met.
-- **"Versatile"**: Can use either Attack or Special Attack for damage.
-- **"Weather"**: Alters battlefield conditions based on weather.
-- **"Field"**: Alters battlefield conditions based on the environment.
-- **"Powder"**: Has no effect on Grass-type Pokémon.
-- **"WR"**: Refers to a weapon's innate weapon range.
 
-### Accuracy and Stat Checks
-
-- When specifying an effect that alters stats, be specific about which stat is being modified. Avoid vague terms like "some stat" or "a random stat." Always name the stat explicitly. (e.g., "This move lowers the target's Special Defense by -1 CS on a roll of 17+.")
-- The effect of lowering the stat should be tied to the accuracy roll. Use the format "on X+" where **X** is the number on the accuracy check (e.g., "on 18+" means the effect occurs if the accuracy check rolls an 18 or higher).
-- If the stat change is part of the secondary effect, make it clear how significant the change is (e.g., "lowers the target's Speed by -2 CS" or "lowers the target's Attack by -1 CS").
-
-Example of a full move effect:
-- "This move lowers the target's Defense on 17+."
-- "This move Flinches the target on 15+."
+Select all of the following conditions that apply to the move:
+${this.parseKeywords()}
 
 # Summary
 Your goal is to create balanced, unique, and fun moves that enhance PTU gameplay without breaking game balance or introducing power creep. Always prioritize mechanical consistency and excitement in gameplay.`;
+    }
+
+    private static parseKeywords(): string
+    {
+        return this.keywords.reduce<string>((acc, keyword, index) =>
+        {
+            const lineBreak = (index === 0) ? '' : '\n';
+
+            // Ignore ability keywords
+            if (new Set([
+                'Connection',
+                'Immune',
+                'Pickup',
+                'Innate',
+                'Last Chance',
+                'Type Strategist',
+            ]).has(keyword.name))
+            {
+                return acc;
+            }
+
+            // Weather has too much unnecessary information, include only what's necessary.
+            if (keyword.name === 'Weather')
+            {
+                const [necessaryBlurb] = keyword.description.split('.');
+                return acc + `${lineBreak}- **${keyword.name}**: ${necessaryBlurb}`;
+            }
+
+            return acc + `${lineBreak}- **${keyword.name}**: ${keyword.description}`;
+        }, '');
     }
 }
