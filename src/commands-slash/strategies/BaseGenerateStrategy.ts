@@ -17,22 +17,19 @@ export class BaseGenerateStrategy
         prompt,
         commandName,
     }: {
-        schema: Schema;
-        systemInstructions: string;
-        prompt: string;
+        schema?: Schema;
+        systemInstructions: string | null;
+        prompt: string | null;
         commandName: CommandName;
     }): Promise<{ raw: z.infer<Schema>; jsonString: string } | undefined>
     {
         try
         {
-            const llm = new ChatOpenAI({
-                apiKey: process.env.OPENAI_API_KEY,
-                model: 'gpt-4o-mini',
-            }).withStructuredOutput(schema);
+            const llm = this.getLlm(schema);
 
             const promptTemplate = ChatPromptTemplate.fromMessages([
-                new SystemMessage(systemInstructions),
-                new HumanMessage(prompt),
+                ...(systemInstructions ? [new SystemMessage(systemInstructions)] : []),
+                ...(prompt ? [new HumanMessage(prompt)] : []),
             ]);
 
             const chain = promptTemplate.pipe(llm);
@@ -51,5 +48,21 @@ export class BaseGenerateStrategy
             logger.error(`An error occurred in ${commandName}`, error);
             return undefined;
         }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- Allow TS to infer
+    private static getLlm<Schema extends BaseSchema>(schema?: Schema)
+    {
+        const llm = new ChatOpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+            model: 'gpt-4o-mini',
+        });
+
+        if (schema)
+        {
+            return llm.withStructuredOutput(schema);
+        }
+
+        return llm;
     }
 }

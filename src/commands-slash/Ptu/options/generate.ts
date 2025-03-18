@@ -1,5 +1,6 @@
-import type { SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js';
+import type { SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { promptOption } from '../../Ai/options/sharedOptions.js';
 import {
     pokemonMoveCategoryOption,
     pokemonMoveNameOption,
@@ -11,13 +12,6 @@ export enum PtuGenerateSubcommand
     Move = 'move',
 }
 
-const promptOption = (option: SlashCommandStringOption, commandName: PtuGenerateSubcommand): SlashCommandStringOption =>
-{
-    option.setName('prompt');
-    option.setDescription(`The prompt to generate the ${commandName}.`);
-    return option.setRequired(true);
-};
-
 export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuGenerateSubcommand.Move);
@@ -26,7 +20,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     // Prompt
     subcommand.addStringOption((option) =>
     {
-        return promptOption(option, PtuGenerateSubcommand.Move);
+        return promptOption(option, { commandName: PtuGenerateSubcommand.Move });
     });
 
     // Name
