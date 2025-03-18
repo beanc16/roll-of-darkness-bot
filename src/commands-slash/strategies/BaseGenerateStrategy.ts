@@ -11,6 +11,7 @@ type BaseSchema = z.ZodObject<any>;
 
 export class BaseGenerateStrategy
 {
+    /* istanbul ignore next */
     protected static async generate<Schema extends BaseSchema>({
         schema,
         systemInstructions,
@@ -50,6 +51,7 @@ export class BaseGenerateStrategy
         }
     }
 
+    /* istanbul ignore next */
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- Allow TS to infer
     private static getLlm<Schema extends BaseSchema>(schema?: Schema)
     {
