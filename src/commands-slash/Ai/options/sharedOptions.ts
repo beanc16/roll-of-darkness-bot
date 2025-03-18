@@ -11,6 +11,6 @@ export const promptOption = (option: SlashCommandStringOption, {
 }): SlashCommandStringOption =>
 {
     option.setName('prompt');
-    option.setDescription(description ?? `The prompt to generate the ${commandName}.`);
+    option.setDescription(description ?? `The prompt to generate the ${commandName?.replaceAll('_', ' ')}.`);
     return option.setRequired(isRequired);
 };
