@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { generateIntegerArrayAsStrings } from '../../../../services/arrayHelpers.js';
+import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import {
@@ -14,7 +15,6 @@ import {
 } from '../../types/pokemon.js';
 import { PtuKeyword } from '../../types/PtuKeyword.js';
 import { LookupKeywordStrategy } from '../lookup/LookupKeywordStrategy.js';
-import { BaseGenerateStrategy } from './BaseGenerateStrategy.js';
 // import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 // import { PokemonMoveCategory } from '../../types/pokemon.js';
 
@@ -71,10 +71,10 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
 
         // Generate
         const response = await this.generate({
-            key: this.key,
             schema: this.schema,
             systemInstructions: this.getSystemInstructions(),
             prompt,
+            commandName: `/ptu generate ${this.key}`,
         });
 
         // Respond

@@ -4,33 +4,31 @@ import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
 import { z } from 'zod';
 
-import { PtuGenerateSubcommand } from '../../options/generate.js';
+import { CommandName } from '../../types/discord.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BaseSchema = z.ZodObject<any>;
 
 export class BaseGenerateStrategy
 {
-    private static llm = new ChatOpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-        model: 'gpt-4o-mini',
-    });
-
     protected static async generate<Schema extends BaseSchema>({
-        key,
         schema,
         systemInstructions,
         prompt,
+        commandName,
     }: {
-        key: PtuGenerateSubcommand;
         schema: Schema;
         systemInstructions: string;
         prompt: string;
+        commandName: CommandName;
     }): Promise<{ raw: z.infer<Schema>; jsonString: string } | undefined>
     {
         try
         {
-            const llm = this.llm.withStructuredOutput(schema);
+            const llm = new ChatOpenAI({
+                apiKey: process.env.OPENAI_API_KEY,
+                model: 'gpt-4o-mini',
+            }).withStructuredOutput(schema);
 
             const promptTemplate = ChatPromptTemplate.fromMessages([
                 new SystemMessage(systemInstructions),
@@ -50,7 +48,7 @@ export class BaseGenerateStrategy
         }
         catch (error)
         {
-            logger.error(`An error occurred in /ptu generate ${key}`, error);
+            logger.error(`An error occurred in ${commandName}`, error);
             return undefined;
         }
     }
