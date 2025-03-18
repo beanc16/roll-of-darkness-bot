@@ -3,12 +3,12 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { AiGenerateSubcommand } from '../../options/generate.js';
+import { AiDevGenerateSubcommand } from '../../options/generate_dev.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class GeneratePlaygroundStrategy extends BaseGenerateStrategy
 {
-    public static key: AiGenerateSubcommand.Playground = AiGenerateSubcommand.Playground;
+    public static key: AiDevGenerateSubcommand.Playground = AiDevGenerateSubcommand.Playground;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -29,7 +29,7 @@ export class GeneratePlaygroundStrategy extends BaseGenerateStrategy
         const response = await this.generate({
             systemInstructions,
             prompt,
-            commandName: `/ai generate ${this.key}`,
+            commandName: `/ai_dev generate ${this.key}`,
         });
 
         // Respond

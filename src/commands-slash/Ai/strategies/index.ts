@@ -3,19 +3,20 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
 import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AiGenerateSubcommand } from '../options/generate.js';
+import { AiDevGenerateSubcommand } from '../options/generate_dev.js';
 import { AiSubcommandGroup } from '../options/index.js';
 import generateStrategies from './generate/index.js';
 
 interface AiStrategyExecutorRunParameters
 {
     subcommandGroup: AiSubcommandGroup;
-    subcommand: AiGenerateSubcommand;
+    subcommand: AiGenerateSubcommand | AiDevGenerateSubcommand;
     interaction: ChatInputCommandInteraction;
 };
 
 type AiStrategyMap = StrategyMap<
     AiSubcommandGroup,
-    AiGenerateSubcommand
+    AiGenerateSubcommand | AiDevGenerateSubcommand
 >;
 
 export class AiStrategyExecutor extends BaseStrategyExecutor

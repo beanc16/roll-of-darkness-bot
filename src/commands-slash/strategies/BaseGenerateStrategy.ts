@@ -18,7 +18,7 @@ export class BaseGenerateStrategy
         commandName,
     }: {
         schema?: Schema;
-        systemInstructions: string | null;
+        systemInstructions?: string | null;
         prompt: string | null;
         commandName: CommandName;
     }): Promise<{ raw: z.infer<Schema>; jsonString: string } | undefined>

@@ -4,24 +4,17 @@ import { promptOption } from './sharedOptions.js';
 
 export enum AiGenerateSubcommand
 {
-    Playground = 'playground',
+    LightNovelSummary = 'light_novel_summary',
 }
 
-export const playground = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+export const lightNovelSummary = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
-    subcommand.setName('playground');
-    subcommand.setDescription('Generate a response with a simple system and user message.');
+    subcommand.setName(AiGenerateSubcommand.LightNovelSummary);
+    subcommand.setDescription('Generate a light novel title that summarizes anything.');
 
     subcommand.addStringOption((option) =>
     {
-        option.setName('system_instructions');
-        option.setDescription('The set of pre-defined guidelines that the AI should use to shape its behavior and responses.');
-
-        return option;
-    });
-    subcommand.addStringOption((option) =>
-    {
-        return promptOption(option, { description: 'Your prompt.', isRequired: false });
+        return promptOption(option, { commandName: AiGenerateSubcommand.LightNovelSummary });
     });
 
     return subcommand;
