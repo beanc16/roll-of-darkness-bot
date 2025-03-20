@@ -196,22 +196,27 @@ describe('class: PaginationStrategy', () =>
             [PaginationButtonName.Previous, {
                 newPageIndex: 1,
                 deleteMessage: false,
+                isRowAfterPaginationButtonPress: false,
             }],
             [PaginationButtonName.Next, {
                 newPageIndex: 3,
                 deleteMessage: false,
+                isRowAfterPaginationButtonPress: false,
             }],
             [PaginationButtonName.First, {
                 newPageIndex: 0,
                 deleteMessage: false,
+                isRowAfterPaginationButtonPress: false,
             }],
             [PaginationButtonName.Last, {
                 newPageIndex: 4,
                 deleteMessage: false,
+                isRowAfterPaginationButtonPress: false,
             }],
             [PaginationButtonName.Delete, {
                 newPageIndex: 2,
                 deleteMessage: true,
+                isRowAfterPaginationButtonPress: false,
             }],
         ])('button: %s', (customId, validExpectedResult) =>
         {
@@ -243,8 +248,8 @@ describe('class: PaginationStrategy', () =>
                     });
 
                     expect(result).toEqual({
+                        ...validExpectedResult,
                         newPageIndex: 0,
-                        deleteMessage: validExpectedResult.deleteMessage,
                     });
                 });
 
@@ -256,8 +261,8 @@ describe('class: PaginationStrategy', () =>
                     });
 
                     expect(result).toEqual({
+                        ...validExpectedResult,
                         newPageIndex: 0,
-                        deleteMessage: validExpectedResult.deleteMessage,
                     });
                 });
             });
@@ -270,9 +275,23 @@ describe('class: PaginationStrategy', () =>
                 });
 
                 expect(result).toEqual({
+                    ...validExpectedResult,
                     newPageIndex: 0,
-                    deleteMessage: validExpectedResult.deleteMessage,
                 });
+            });
+        });
+
+        it('should return isRowAfterPaginationButtonPress as true if customId is not a pagination button', () =>
+        {
+            const result = PaginationStrategy['updatePageIndex']({
+                buttonInteraction: getFakeButtonInteraction('fake-custom-id'),
+                pageIndex,
+            });
+
+            expect(result).toEqual({
+                newPageIndex: pageIndex,
+                deleteMessage: false,
+                isRowAfterPaginationButtonPress: true,
             });
         });
     });

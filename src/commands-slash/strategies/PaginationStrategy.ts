@@ -28,6 +28,8 @@ export enum PaginationButtonName
 
 export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
 
+type RowAbovePagination = ActionRowBuilder<StringSelectMenuBuilder | ButtonBuilder>;
+
 interface PaginationStrategyRunParameters
 {
     originalInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
@@ -37,11 +39,15 @@ interface PaginationStrategyRunParameters
     files?: AttachmentPayload[];
     interactionType?: PaginationInteractionType;
     rowsAbovePagination?: [
-        ActionRowBuilder<StringSelectMenuBuilder>?,
-        ActionRowBuilder<StringSelectMenuBuilder>?,
-        ActionRowBuilder<StringSelectMenuBuilder>?,
-        ActionRowBuilder<StringSelectMenuBuilder>?,
+        RowAbovePagination?,
+        RowAbovePagination?,
+        RowAbovePagination?,
+        RowAbovePagination?,
     ];
+    onRowAbovePaginationButtonPress?: (buttonInteraction: ButtonInteraction, options: {
+        embeds?: EmbedBuilder[];
+        files?: AttachmentPayload[];
+    }) => Promise<InteractionUpdateOptions> | InteractionUpdateOptions;
     includeDeleteButton?: boolean;
 }
 
@@ -64,14 +70,10 @@ export class PaginationStrategy
         files,
         interactionType = 'editReply',
         rowsAbovePagination = [],
+        onRowAbovePaginationButtonPress,
         includeDeleteButton = false,
     }: PaginationStrategyRunParameters): Promise<Message<boolean>>
     {
-        const shouldPaginate = (
-            (!!embeds && embeds.length > 1)
-            || (!!files && files.length > 1)
-        );
-
         const validRowsAbovePagination = rowsAbovePagination.filter(row => !!row);
 
         // Only include pagination buttons if there's more than one embed message
@@ -79,7 +81,10 @@ export class PaginationStrategy
             validRowsAbovePagination,
             isDisabled: false,
             includeDeleteButton,
-            includePaginationButtons: shouldPaginate,
+            includePaginationButtons: (
+                (!!embeds && embeds.length > 1)
+                || (!!files && files.length > 1)
+            ),
         });
 
         // Send first embed message
@@ -112,12 +117,41 @@ export class PaginationStrategy
                 restartStyle: ButtonListenerRestartStyle.OnSuccess,
                 onButtonPress: /* istanbul ignore next */ async (buttonInteraction) =>
                 {
-                    const { newPageIndex, deleteMessage } = this.updatePageIndex({
+                    const {
+                        newPageIndex,
+                        deleteMessage,
+                        isNonPaginationButtonPress,
+                    } = this.updatePageIndex({
                         buttonInteraction,
                         embeds,
                         files,
                         pageIndex,
                     });
+
+                    if (isNonPaginationButtonPress && onRowAbovePaginationButtonPress)
+                    {
+                        const { embeds: newEmbeds, files: newFiles } = await onRowAbovePaginationButtonPress(buttonInteraction, {
+                            ...(embeds
+                                ? { embeds }
+                                : {}
+                            ),
+                            ...(files
+                                ? { files }
+                                : {}
+                            ),
+                        });
+
+                        /* eslint-disable no-param-reassign */
+                        if (newEmbeds)
+                        {
+                            embeds = newEmbeds as EmbedBuilder[];
+                        }
+                        if (newFiles)
+                        {
+                            files = newFiles as AttachmentPayload[];
+                        }
+                        /* eslint-enable no-param-reassign */
+                    }
 
                     if (deleteMessage)
                     {
@@ -141,7 +175,10 @@ export class PaginationStrategy
                         validRowsAbovePagination,
                         isDisabled: false,
                         includeDeleteButton,
-                        includePaginationButtons: shouldPaginate,
+                        includePaginationButtons: (
+                            (!!embeds && embeds.length > 1)
+                            || (!!files && files.length > 1)
+                        ),
                     });
                     await buttonInteraction.update({
                         content,
@@ -159,7 +196,10 @@ export class PaginationStrategy
                 getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent({
                     isDisabled: false,
                     includeDeleteButton,
-                    includePaginationButtons: shouldPaginate,
+                    includePaginationButtons: (
+                        (!!embeds && embeds.length > 1)
+                        || (!!files && files.length > 1)
+                    ),
                 }) ?? new ActionRowBuilder<ButtonBuilder>(),
             });
         }
@@ -177,16 +217,18 @@ export class PaginationStrategy
         embeds?: EmbedBuilder[];
         files?: AttachmentPayload[];
         pageIndex: number;
-    }): { newPageIndex: number; deleteMessage: boolean }
+    }): { newPageIndex: number; deleteMessage: boolean; isNonPaginationButtonPress: boolean }
     {
         let newPageIndex = startingPageIndex;
         let deleteMessage = false;
+        let isNonPaginationButtonPress = true;
         const array = (embeds ?? files ?? []) as unknown[];
 
         const customId = buttonInteraction.customId as PaginationButtonName;
 
         if (customId === PaginationButtonName.Next)
         {
+            isNonPaginationButtonPress = false;
             newPageIndex += 1;
 
             // Circle back around to the first page if after the last page
@@ -198,6 +240,7 @@ export class PaginationStrategy
 
         else if (customId === PaginationButtonName.Previous)
         {
+            isNonPaginationButtonPress = false;
             newPageIndex -= 1;
 
             // Circle back around to the last page if before the first page
@@ -209,20 +252,27 @@ export class PaginationStrategy
 
         else if (customId === PaginationButtonName.First)
         {
+            isNonPaginationButtonPress = false;
             newPageIndex = 0;
         }
 
         else if (customId === PaginationButtonName.Last)
         {
+            isNonPaginationButtonPress = false;
             newPageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
         }
 
         else if (customId === PaginationButtonName.Delete)
         {
+            isNonPaginationButtonPress = false;
             deleteMessage = true;
         }
 
-        return { newPageIndex, deleteMessage };
+        return {
+            newPageIndex,
+            deleteMessage,
+            isNonPaginationButtonPress,
+        };
     }
 
     /* istanbul ignore next */
@@ -232,11 +282,11 @@ export class PaginationStrategy
         includeDeleteButton,
         includePaginationButtons,
     }: {
-        validRowsAbovePagination: ActionRowBuilder<StringSelectMenuBuilder>[];
+        validRowsAbovePagination: RowAbovePagination[];
         isDisabled: boolean;
         includeDeleteButton: boolean;
         includePaginationButtons: boolean;
-    }): (ActionRowBuilder<StringSelectMenuBuilder> | ActionRowBuilder<ButtonBuilder>)[] | undefined
+    }): RowAbovePagination[] | undefined
     {
         const components = [...validRowsAbovePagination, this.getPaginationRowComponent({
             isDisabled,
