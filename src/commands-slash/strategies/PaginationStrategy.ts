@@ -51,6 +51,14 @@ interface PaginationStrategyRunParameters
     includeDeleteButton?: boolean;
 }
 
+interface OnButtonPressResponse
+{
+    pageIndex: number;
+    components: RowAbovePagination[] | undefined;
+    embeds: EmbedBuilder[] | undefined;
+    files: AttachmentPayload[] | undefined;
+}
+
 export class PaginationStrategy
 {
     /**
@@ -117,81 +125,40 @@ export class PaginationStrategy
                 restartStyle: ButtonListenerRestartStyle.OnSuccess,
                 onButtonPress: /* istanbul ignore next */ async (buttonInteraction) =>
                 {
-                    const {
-                        newPageIndex,
-                        deleteMessage,
-                        isNonPaginationButtonPress,
-                    } = this.updatePageIndex({
+                    const onButtonPressResponse = await this.onButtonPress({
+                        originalInteraction,
                         buttonInteraction,
+                        response,
+                        content,
                         embeds,
                         files,
                         pageIndex,
+                        includeDeleteButton,
+                        validRowsAbovePagination,
+                        onRowAbovePaginationButtonPress,
                     });
 
-                    if (isNonPaginationButtonPress && onRowAbovePaginationButtonPress)
+                    if (onButtonPressResponse)
                     {
-                        const { embeds: newEmbeds, files: newFiles } = await onRowAbovePaginationButtonPress(buttonInteraction, {
-                            ...(embeds
-                                ? { embeds }
-                                : {}
-                            ),
-                            ...(files
-                                ? { files }
-                                : {}
-                            ),
-                        });
+                        pageIndex = onButtonPressResponse.pageIndex;
 
                         /* eslint-disable no-param-reassign */
-                        if (newEmbeds)
+                        if (onButtonPressResponse.embeds)
                         {
-                            embeds = newEmbeds as EmbedBuilder[];
+                            embeds = onButtonPressResponse.embeds;
                         }
-                        if (newFiles)
+
+                        if (onButtonPressResponse.files)
                         {
-                            files = newFiles as AttachmentPayload[];
+                            files = onButtonPressResponse.files;
                         }
                         /* eslint-enable no-param-reassign */
-                    }
 
-                    if (deleteMessage)
-                    {
-                        if (originalInteraction.user.id === buttonInteraction.user.id)
+                        if (onButtonPressResponse.components)
                         {
-                            await response.delete();
+                            components = onButtonPressResponse.components;
                         }
-                        else
-                        {
-                            await buttonInteraction.reply({
-                                content: 'Only the user that ran this command can delete the message.',
-                                ephemeral: true,
-                            });
-                        }
-
-                        return;
                     }
-
-                    pageIndex = newPageIndex;
-                    components = this.getComponents({
-                        validRowsAbovePagination,
-                        isDisabled: false,
-                        includeDeleteButton,
-                        includePaginationButtons: (
-                            (!!embeds && embeds.length > 1)
-                            || (!!files && files.length > 1)
-                        ),
-                    });
-                    await buttonInteraction.update({
-                        content,
-                        ...(embeds
-                            ? { embeds: [embeds[pageIndex]] }
-                            : {}
-                        ),
-                        ...(files
-                            ? { files: [files[pageIndex]] }
-                            : {}
-                        ),
-                        components,
-                    });
                 },
                 getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent({
                     isDisabled: false,
@@ -205,6 +172,111 @@ export class PaginationStrategy
         }
 
         return response;
+    }
+
+    private static async onButtonPress({
+        originalInteraction,
+        buttonInteraction,
+        response,
+        content,
+        embeds,
+        files,
+        pageIndex,
+        includeDeleteButton,
+        validRowsAbovePagination,
+        onRowAbovePaginationButtonPress,
+    }: Pick<PaginationStrategyRunParameters, 'originalInteraction' | 'content' | 'embeds' | 'files' | 'onRowAbovePaginationButtonPress'> & {
+        buttonInteraction: ButtonInteraction;
+        response: Message<boolean>;
+        pageIndex: number;
+        includeDeleteButton: boolean;
+        validRowsAbovePagination: RowAbovePagination[];
+    }): Promise<OnButtonPressResponse | undefined>
+    {
+        const {
+            newPageIndex,
+            deleteMessage,
+            isNonPaginationButtonPress,
+        } = this.updatePageIndex({
+            buttonInteraction,
+            embeds,
+            files,
+            pageIndex,
+        });
+
+        const output: OnButtonPressResponse = {
+            pageIndex: newPageIndex,
+            components: undefined,
+            embeds: undefined,
+            files: undefined,
+        };
+
+        if (isNonPaginationButtonPress && onRowAbovePaginationButtonPress)
+        {
+            const { embeds: newEmbeds, files: newFiles } = await onRowAbovePaginationButtonPress(buttonInteraction, {
+                ...(embeds
+                    ? { embeds }
+                    : {}
+                ),
+                ...(files
+                    ? { files }
+                    : {}
+                ),
+            });
+
+            if (newEmbeds)
+            {
+                output.embeds = newEmbeds as EmbedBuilder[];
+            }
+            if (newFiles)
+            {
+                output.files = newFiles as AttachmentPayload[];
+            }
+        }
+
+        output.components = this.getComponents({
+            validRowsAbovePagination,
+            isDisabled: false,
+            includeDeleteButton,
+            includePaginationButtons: (
+                (!!output.embeds && output.embeds.length > 1)
+                || (!!embeds && embeds.length > 1)
+                || (!!output.files && output.files.length > 1)
+                || (!!files && files.length > 1)
+            ),
+        });
+
+        if (deleteMessage)
+        {
+            if (originalInteraction.user.id === buttonInteraction.user.id)
+            {
+                await response.delete();
+            }
+            else
+            {
+                await buttonInteraction.reply({
+                    content: 'Only the user that ran this command can delete the message.',
+                    ephemeral: true,
+                });
+            }
+
+            return undefined;
+        }
+
+        await buttonInteraction.update({
+            content,
+            ...((output.embeds || embeds)
+                ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
+                : {}
+            ),
+            ...((output.files || files)
+                ? { files: [output.files?.[output.pageIndex] ?? files![output.pageIndex]] }
+                : {}
+            ),
+            components: output.components,
+        });
+
+        return output;
     }
 
     private static updatePageIndex({
