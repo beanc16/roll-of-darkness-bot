@@ -39,6 +39,7 @@ export class FakeChatInputCommandInteraction extends ChatInputCommandInteraction
     {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
         super({} as any, {} as any);
+        this.user = new FakeUser();
     }
 }
 
@@ -48,5 +49,6 @@ export class FakeStringSelectMenuInteraction extends StringSelectMenuInteraction
     {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
         super({} as any, {} as any);
+        this.user = new FakeUser();
     }
 }

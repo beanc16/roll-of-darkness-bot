@@ -1,4 +1,4 @@
-import type { Message } from 'discord.js';
+import type { ButtonInteraction, Message } from 'discord.js';
 
 import {
     ButtonListenerRestartStyle,
@@ -6,7 +6,11 @@ import {
     HandleButtonInteractionsOptions,
 } from '../../../src/commands-slash/strategies/ButtonStrategy.js';
 import { PaginationButtonName, PaginationStrategy } from '../../../src/commands-slash/strategies/PaginationStrategy.js';
-import { getFakeStringSelectMenuActionRowBuilder } from '../../fakes/discord/builders.js';
+import {
+    FakeEmbedBuilder,
+    getFakeButtonActionRowBuilder,
+    getFakeStringSelectMenuActionRowBuilder,
+} from '../../fakes/discord/builders.js';
 import { getFakeMessage } from '../../fakes/discord/components.js';
 import {
     FakeChatInputCommandInteraction,
@@ -27,20 +31,21 @@ describe('class: PaginationStrategy', () =>
 
     afterEach(() =>
     {
+        jest.restoreAllMocks();
         jest.clearAllMocks();
     });
 
-    describe('method: run', () =>
+    describe.each([
+        ['ChatInputCommandInteraction', new FakeChatInputCommandInteraction()],
+        ['ButtonInteraction', getFakeButtonInteraction()],
+        ['StringSelectMenuInteraction', new FakeStringSelectMenuInteraction()],
+    ])('interaction: %s', (_, interaction) =>
     {
-        const commandName = `/some_command`;
-        const interactionType = 'editReply';
-
-        describe.each([
-            ['ChatInputCommandInteraction', new FakeChatInputCommandInteraction()],
-            ['ButtonInteraction', getFakeButtonInteraction()],
-            ['StringSelectMenuInteraction', new FakeStringSelectMenuInteraction()],
-        ])('interaction: %s', (_, interaction) =>
+        describe('method: run', () =>
         {
+            const commandName = `/some_command`;
+            const interactionType = 'editReply';
+
             let response: Message<boolean>;
 
             beforeEach(() =>
@@ -184,15 +189,291 @@ describe('class: PaginationStrategy', () =>
                 );
             });
         });
-    });
 
-    describe('method: onButtonPress', () =>
-    {
-        // TODO: This will involve moving the onButtonPress handler to a different method
-        it.todo('should delete message if delete button is clicked by a user that did start the interaction');
-        it.todo('should not delete message if delete button is clicked by a user that did not start the interaction');
-        it.todo('should call onRowAbovePaginationButtonPress callback if provided and non-pagination button is pressed');
-        it.todo('should call onRowAbovePaginationButtonPress callback with embeds/files if provided');
+        describe('method: onButtonPress', () =>
+        {
+            let buttonInteraction: ButtonInteraction;
+            let response: Message;
+
+            beforeEach(() =>
+            {
+                buttonInteraction = getFakeButtonInteraction();
+                response = getFakeMessage();
+            });
+
+            it('should delete message if delete button is clicked by a user that did start the interaction', async () =>
+            {
+                const responseDeleteSpy = jest.spyOn(response, 'delete');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: true,
+                    isNonPaginationButtonPress: false,
+                });
+
+                // The user that did start the interaction
+                buttonInteraction.user.id = interaction.user.id;
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress: undefined,
+                });
+
+                expect(responseDeleteSpy).toHaveBeenCalled();
+            });
+
+            it('should not delete message if delete button is clicked by a user that did not start the interaction', async () =>
+            {
+                const responseDeleteSpy = jest.spyOn(response, 'delete');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: true,
+                    isNonPaginationButtonPress: false,
+                });
+
+                // The user that did not start the interaction
+                buttonInteraction.user.id = `${interaction.user.id}-1`;
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress: undefined,
+                });
+
+                expect(responseDeleteSpy).not.toHaveBeenCalled();
+            });
+
+            it('should call onRowAbovePaginationButtonPress callback if provided and non-pagination button is pressed', async () =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalled();
+            });
+
+            it('should not call onRowAbovePaginationButtonPress callback if provided and non-pagination button is not pressed', async () =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: false,
+                });
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(onRowAbovePaginationButtonPress).not.toHaveBeenCalled();
+            });
+
+            it('should call onRowAbovePaginationButtonPress callback with embeds/files if provided', async () =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                const embeds = [new FakeEmbedBuilder()];
+                const files = [{ attachment: 'fake-attachment-1' }];
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds,
+                    files,
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {
+                    embeds,
+                    files,
+                });
+            });
+
+            it('should call onRowAbovePaginationButtonPress callback without embeds/files if not provided', async () =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: undefined,
+                    files: undefined,
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {});
+            });
+
+            it('should include embeds & files from onRowAbovePaginationButtonPress callback in output if defined', async () =>
+            {
+                const embeds = [new FakeEmbedBuilder()];
+                const files = [{ attachment: 'fake-attachment-1' }];
+
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({
+                    embeds,
+                    files,
+                });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                const output = await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds,
+                    files,
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(output?.embeds).toEqual(embeds);
+                expect(output?.files).toEqual(files);
+            });
+
+            it('should not include embeds & files from onRowAbovePaginationButtonPress callback in output if undefined', async () =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                const output = await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(output?.embeds).toEqual(undefined);
+                expect(output?.files).toEqual(undefined);
+            });
+
+            it('should update button interaction with new page index and components', async () =>
+            {
+                const componentsOutput = getFakeButtonActionRowBuilder({ customId: 'fake-button-1' });
+
+                const buttonInteractionUpdateSpy = jest.spyOn(buttonInteraction, 'update');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: false,
+                });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'getComponents').mockReturnValue(
+                    componentsOutput,
+                );
+
+                const embeds = [
+                    new FakeEmbedBuilder({ color: 1 }),
+                    new FakeEmbedBuilder({ color: 2 }),
+                ];
+                const files = [
+                    { attachment: 'fake-attachment-1' },
+                    { attachment: 'fake-attachment-2' },
+                ];
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds,
+                    files,
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                });
+
+                expect(buttonInteractionUpdateSpy).toHaveBeenCalledWith({
+                    components: componentsOutput,
+                    content: '',
+                    embeds: [embeds[0]],
+                    files: [files[0]],
+                });
+            });
+        });
     });
 
     describe('method: updatePageIndex', () =>

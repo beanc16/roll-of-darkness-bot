@@ -2,8 +2,11 @@
 
 import {
     ActionRowBuilder,
+    type APIEmbed,
     ButtonBuilder,
     ButtonStyle,
+    EmbedBuilder,
+    type EmbedData,
     StringSelectMenuBuilder,
 } from 'discord.js';
 
@@ -71,3 +74,11 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
 
     return row;
 };
+
+export class FakeEmbedBuilder extends EmbedBuilder
+{
+    constructor(data?: EmbedData | APIEmbed)
+    {
+        super({ ...data });
+    }
+}
