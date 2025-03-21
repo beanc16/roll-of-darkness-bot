@@ -118,10 +118,6 @@ describe('class: PaginationStrategy', () =>
                     );
                 });
 
-                // TODO: This will involve architecting the onButtonPress handler with state management differently in PaginationStrategy
-                it.todo('should delete message if delete button is clicked by a user that did start the interaction');
-                it.todo('should not delete message if delete button is clicked by a user that did not start the interaction');
-
                 it(`should include rowsAbovePagination and ${parameterName} if provided`, async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
@@ -190,33 +186,42 @@ describe('class: PaginationStrategy', () =>
         });
     });
 
+    describe('method: onButtonPress', () =>
+    {
+        // TODO: This will involve moving the onButtonPress handler to a different method
+        it.todo('should delete message if delete button is clicked by a user that did start the interaction');
+        it.todo('should not delete message if delete button is clicked by a user that did not start the interaction');
+        it.todo('should call onRowAbovePaginationButtonPress callback if provided and non-pagination button is pressed');
+        it.todo('should call onRowAbovePaginationButtonPress callback with embeds/files if provided');
+    });
+
     describe('method: updatePageIndex', () =>
     {
         describe.each([
             [PaginationButtonName.Previous, {
                 newPageIndex: 1,
                 deleteMessage: false,
-                isRowAfterPaginationButtonPress: false,
+                isNonPaginationButtonPress: false,
             }],
             [PaginationButtonName.Next, {
                 newPageIndex: 3,
                 deleteMessage: false,
-                isRowAfterPaginationButtonPress: false,
+                isNonPaginationButtonPress: false,
             }],
             [PaginationButtonName.First, {
                 newPageIndex: 0,
                 deleteMessage: false,
-                isRowAfterPaginationButtonPress: false,
+                isNonPaginationButtonPress: false,
             }],
             [PaginationButtonName.Last, {
                 newPageIndex: 4,
                 deleteMessage: false,
-                isRowAfterPaginationButtonPress: false,
+                isNonPaginationButtonPress: false,
             }],
             [PaginationButtonName.Delete, {
                 newPageIndex: 2,
                 deleteMessage: true,
-                isRowAfterPaginationButtonPress: false,
+                isNonPaginationButtonPress: false,
             }],
         ])('button: %s', (customId, validExpectedResult) =>
         {
@@ -281,7 +286,7 @@ describe('class: PaginationStrategy', () =>
             });
         });
 
-        it('should return isRowAfterPaginationButtonPress as true if customId is not a pagination button', () =>
+        it('should return isNonPaginationButtonPress as true if customId is not a pagination button', () =>
         {
             const result = PaginationStrategy['updatePageIndex']({
                 buttonInteraction: getFakeButtonInteraction('fake-custom-id'),
@@ -291,7 +296,7 @@ describe('class: PaginationStrategy', () =>
             expect(result).toEqual({
                 newPageIndex: pageIndex,
                 deleteMessage: false,
-                isRowAfterPaginationButtonPress: true,
+                isNonPaginationButtonPress: true,
             });
         });
     });
