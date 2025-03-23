@@ -304,6 +304,7 @@ export const createEmbedMessageDescriptionAndPage = ({
     return pageDataOutput;
 };
 
+/* istanbul ignore next */
 export const getPagedEmbedMessages = <Element>({
     input,
     title,

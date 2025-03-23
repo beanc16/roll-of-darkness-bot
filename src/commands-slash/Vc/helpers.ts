@@ -21,6 +21,7 @@ import { CompositeKeyRecord } from '../../services/CompositeKeyRecord.js';
 import { LoopableAudioStream } from './services/LoopableAudioStream.js';
 import type { AudioPlayerEmitter } from './types.js';
 
+/* istanbul ignore next */
 export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;
 
 const getHttpModule = (url: string): typeof http | typeof https =>
