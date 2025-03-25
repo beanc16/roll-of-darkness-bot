@@ -263,18 +263,37 @@ export class PaginationStrategy
             return undefined;
         }
 
-        await buttonInteraction.update({
-            content,
-            ...((output.embeds || embeds)
-                ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
-                : {}
-            ),
-            ...((output.files || files)
-                ? { files: [output.files?.[output.pageIndex] ?? files![output.pageIndex]] }
-                : {}
-            ),
-            components: output.components,
-        });
+        // Follow up or update the message (update will throw an error if it has been replied to)
+        if (buttonInteraction.replied)
+        {
+            await buttonInteraction.editReply({
+                content,
+                ...((output.embeds || embeds)
+                    ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
+                    : {}
+                ),
+                ...((output.files || files)
+                    ? { files: [output.files?.[output.pageIndex] ?? files![output.pageIndex]] }
+                    : {}
+                ),
+                components: output.components,
+            });
+        }
+        else
+        {
+            await buttonInteraction.update({
+                content,
+                ...((output.embeds || embeds)
+                    ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
+                    : {}
+                ),
+                ...((output.files || files)
+                    ? { files: [output.files?.[output.pageIndex] ?? files![output.pageIndex]] }
+                    : {}
+                ),
+                components: output.components,
+            });
+        }
 
         return output;
     }

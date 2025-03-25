@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { GeneratePlaygroundModal } from '../../modals/GeneratePlaygroundModal.js';
 import { AiDevGenerateSubcommand } from '../../options/generate_dev.js';
 import { AiSubcommandGroup } from '../../options/index.js';
 
@@ -49,17 +50,18 @@ export class GeneratePlaygroundStrategy extends BaseGenerateStrategy
         }
 
         await this.handlePaginatedChatResponses({
+            Modal: GeneratePlaygroundModal,
             originalInteraction: interaction,
             embeds: [
                 this.getEmbed({ title: 'Playground', description: response.raw.response }),
             ],
             commandName: `/ai_dev ${AiSubcommandGroup.Generate} ${this.key}`,
-            onRespondCallback: async () =>
+            generateResponseCallback: async (newPrompt) =>
             {
                 const { raw } = await this.generate({
                     schema: this.schema,
                     systemInstructions,
-                    prompt,
+                    prompt: newPrompt,
                     commandName: `/ai_dev generate ${this.key}`,
                 }) ?? {};
 

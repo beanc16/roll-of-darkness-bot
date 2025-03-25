@@ -6,12 +6,13 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    type ChatInputCommandInteraction,
     EmbedBuilder,
 } from 'discord.js';
 import { z } from 'zod';
 
+import type { HandlePaginatedChatResponsesInput } from '../../modals/BaseGenerateModal.js';
 import { CommandName } from '../../types/discord.js';
+import { generatePlaygroundEmitter, GeneratePlaygroundEvent } from '../Ai/events/GeneratePlaygroundEmitter.js';
 import { PaginationStrategy } from './PaginationStrategy.js';
 
 const color = 0xCDCDCD;
@@ -83,17 +84,13 @@ export class BaseGenerateStrategy
         return llm;
     }
 
-    protected static async handlePaginatedChatResponses({
+    public static async handlePaginatedChatResponses({
+        Modal,
         originalInteraction,
         embeds,
         commandName,
-        onRespondCallback,
-    }: {
-        originalInteraction: ChatInputCommandInteraction;
-        embeds: EmbedBuilder[];
-        commandName: CommandName;
-        onRespondCallback: () => Promise<string | undefined>;
-    }): Promise<void>
+        generateResponseCallback,
+    }: HandlePaginatedChatResponsesInput): Promise<void>
     {
         await PaginationStrategy.run({
             originalInteraction,
@@ -111,41 +108,30 @@ export class BaseGenerateStrategy
                     ],
                 }),
             ],
-            onRowAbovePaginationButtonPress: async (buttonInteraction, { embeds: updatedEmbeds }) =>
+            onRowAbovePaginationButtonPress: async (buttonInteraction, { embeds: inputEmbeds }) =>
             {
-                const handlerMap: Record<AiButtonName, () => Promise<string | undefined>> = {
-                    [AiButtonName.Respond]: async () => await onRespondCallback(),
-                };
-
-                // TODO: Display model for user to type in response
-                // TODO: Make the model customizable based on the command
-
-                const responseText = await handlerMap[buttonInteraction.customId as AiButtonName]();
-
-                if (responseText === undefined)
+                return await new Promise(async (resolve) =>
                 {
-                    await originalInteraction.reply({
-                        content: 'An unknown error occurred. Please try again.',
-                        ephemeral: true,
+                    await Modal.showModal(buttonInteraction, {
+                        Modal,
+                        originalInteraction,
+                        embeds: inputEmbeds,
+                        commandName,
+                        generateResponseCallback,
                     });
-                    return {};
-                }
 
-                const pages = [
-                    responseText,
-                    ...updatedEmbeds!.map(embed => embed.data.description),
-                ];
-
-                return {
-                    embeds: pages.map((description, index) =>
+                    // Successful Response
+                    generatePlaygroundEmitter.on(GeneratePlaygroundEvent.Response, ({ embeds: outputEmbeds }) =>
                     {
-                        return this.getEmbed({
-                            title: updatedEmbeds![0].data.title!,
-                            description: description!,
-                            footer: `Page ${index + 1}/${pages.length}`,
-                        });
-                    }),
-                };
+                        resolve({ embeds: outputEmbeds });
+                    });
+
+                    // Failed Response
+                    generatePlaygroundEmitter.on(GeneratePlaygroundEvent.ResponseError, () =>
+                    {
+                        resolve({ embeds: inputEmbeds });
+                    });
+                });
             },
         });
     }
