@@ -565,6 +565,13 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return option;
     });
 
+    // Based On
+    subcommand.addStringOption((option) =>
+    {
+        const newOption = pokemonMoveNameOption(option, `Moves based on the given name.`);
+        return newOption.setName(PtuAutocompleteParameterName.BasedOn);
+    });
+
     // Searches
     subcommand.addStringOption((option) =>
     {

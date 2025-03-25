@@ -66,6 +66,7 @@ export const getLookupMovesEmbedMessages = (input: PtuMove[], options: {
                 ? [`Contest Effect: ${element.contestStatEffect}`]
                 : []
             ),
+            ...(element.basedOn !== undefined ? [`Based On: ${element.basedOn}`] : []),
             ...(element.effects && element.effects !== '--'
                 ? [`Effect:\n\`\`\`\n${element.effects}\`\`\``]
                 : ['']

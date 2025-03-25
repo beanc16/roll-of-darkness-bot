@@ -33,6 +33,7 @@ export interface GetLookupMoveDataParameters extends BaseLookupDataOptions
     acEquality?: EqualityOption | null;
     contestStatType?: string | null;
     contestStatEffect?: string | null;
+    basedOn?: string | null;
     nameSearch?: string | null;
     rangeSearch?: string | null;
     effectSearch?: string | null;

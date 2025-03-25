@@ -37,6 +37,7 @@ describe('class: PtuMove', () =>
         'o',                            // punkRock
         'o',                            // strongJaw
         'o',                            // recklessErrata
+        'Pound',                        // basedOn
     ];
     const invalidConstructorInput: string[] = [
         '',                         // name
@@ -60,6 +61,7 @@ describe('class: PtuMove', () =>
         '',                         // punkRock
         '',                         // strongJaw
         '',                         // recklessErrata
+        '',                         // basedOn
     ];
 
     beforeEach(() =>
@@ -166,6 +168,7 @@ describe('class: PtuMove', () =>
             ['contestStatType', PtuContestStatType.Smart],
             ['contestStatEffect', PtuContestStatEffect.GoodShow],
             ['rangeSearch', 'invalid range'],
+            ['basedOn', 'invalid based on'],
         ])('should return false if %s is invalid', (key, invalidValue) =>
         {
             const result = defaultMove.IsValidBasedOnInput({
@@ -185,6 +188,7 @@ describe('class: PtuMove', () =>
             ['range', 6],
             ['contestStatType', 8],
             ['contestStatEffect', 8],
+            ['basedOn', 10],
         ])('should return false if %s is undefined', (key, index) =>
         {
             const move = new PtuMove([

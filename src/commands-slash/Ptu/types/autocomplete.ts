@@ -37,6 +37,7 @@ export enum PtuAutocompleteParameterName
     Ability4 = 'ability_4',
     AuraName = 'aura_name',
     AuraUserName = 'aura_user_name',
+    BasedOn = 'based_on',
     BerryName = 'berry_name',
     CapabilityName = 'capability_name',
     ClassName = 'class_name',

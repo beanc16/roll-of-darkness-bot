@@ -28,6 +28,7 @@ export class PtuMove
     public effects: string;
     public contestStatEffect?: PtuContestStatEffect;
     public contestStatType?: PtuContestStatType;
+    public basedOn?: string;
     public uses: {
         sheerForce: boolean;
         toughClaws: boolean;
@@ -65,6 +66,7 @@ export class PtuMove
             punkRock,
             strongJaw,
             recklessErrata,
+            basedOn,
         ] = input;
 
         // Trim strings with necessary validation
@@ -85,6 +87,7 @@ export class PtuMove
         // Base values
         this.name = name?.trim();
         this.effects = effects?.trim();
+        this.basedOn = basedOn?.trim();
         this.contestStatType = (contestStatType !== '--' && contestStatType !== '')
             ? contestStatType as PtuContestStatType
             : undefined;
@@ -285,6 +288,12 @@ export class PtuMove
             (input.contestStatEffect && this.contestStatEffect && input.contestStatEffect !== this.contestStatEffect.toString())
             || (input.contestStatEffect && !this.contestStatEffect)
         )
+        {
+            return false;
+        }
+
+        // Frequency
+        if (input.basedOn && input.basedOn !== this.basedOn)
         {
             return false;
         }

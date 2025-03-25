@@ -41,6 +41,7 @@ export class LookupMoveStrategy
         const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
         const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
         const includeContestStats = interaction.options.getBoolean('include_contest_stats');
+        const basedOn = interaction.options.getString(PtuAutocompleteParameterName.BasedOn);
         const nameSearch = interaction.options.getString('name_search');
         const rangeSearch = interaction.options.getString('range_search');
         const effectSearch = interaction.options.getString('effect_search');
@@ -56,6 +57,7 @@ export class LookupMoveStrategy
             acEquality,
             contestStatType,
             contestStatEffect,
+            basedOn,
             nameSearch,
             rangeSearch,
             effectSearch,
