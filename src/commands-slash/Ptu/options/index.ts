@@ -112,6 +112,20 @@ export const generate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): S
     return subcommandGroup;
 };
 
+export const generateDev = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Generate);
+    subcommandGroup.setDescription('Run PTU generative AI commands.');
+    Object.values(generateSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
 export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Lookup);

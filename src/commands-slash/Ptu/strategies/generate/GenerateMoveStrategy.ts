@@ -5,7 +5,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { generateIntegerArrayAsStrings } from '../../../../services/arrayHelpers.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuGenerateSubcommand } from '../../options/generate.js';
+import { PtuGenerateDevSubcommand } from '../../options/generate_dev.js';
 import {
     PokemonMoveCategory,
     PokemonType,
@@ -21,7 +21,7 @@ import { LookupKeywordStrategy } from '../lookup/LookupKeywordStrategy.js';
 @staticImplements<ChatIteractionStrategy>()
 export class GenerateMoveStrategy extends BaseGenerateStrategy
 {
-    public static key: PtuGenerateSubcommand.Move = PtuGenerateSubcommand.Move;
+    public static key: PtuGenerateDevSubcommand.Move = PtuGenerateDevSubcommand.Move;
     public static schema = z.object({
         name: z.string().describe('The name of the Pokémon move.'),
         type: z.nativeEnum(PokemonType).describe(
