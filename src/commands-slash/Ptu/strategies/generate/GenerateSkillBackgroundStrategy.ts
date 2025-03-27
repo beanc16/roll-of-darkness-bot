@@ -5,7 +5,9 @@ import { z } from 'zod';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { GenerateSkillBackgroundModal } from '../../modals/generate/GenerateSkillBackgroundModal.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
@@ -26,7 +28,7 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
             schema: this.schema,
             systemInstructions: this.getSystemInstructions(),
             prompt,
-            commandName: `/ptu generate ${this.key}`,
+            commandName: `/ptu ${PtuSubcommandGroup.Generate} ${this.key}`,
         });
 
         // Respond
@@ -39,7 +41,26 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
         }
 
         const responseString = this.getResponseString(response.raw);
-        await interaction.editReply(responseString);
+
+        await this.handlePaginatedChatResponses({
+            Modal: GenerateSkillBackgroundModal,
+            originalInteraction: interaction,
+            embeds: [
+                this.getEmbed({ title: 'Skill Backgrounds', description: responseString }),
+            ],
+            commandName: `/ptu ${PtuSubcommandGroup.Generate} ${this.key}`,
+            generateResponseCallback: async (newPrompt) =>
+            {
+                const newResponse = await this.generate({
+                    schema: this.schema,
+                    systemInstructions: this.getSystemInstructions(),
+                    prompt: newPrompt,
+                    commandName: `/ptu ${PtuSubcommandGroup.Generate} ${this.key}`,
+                });
+
+                return this.getResponseString(newResponse?.raw ?? { skillBackgrounds: [] });
+            },
+        });
 
         return true;
     }
