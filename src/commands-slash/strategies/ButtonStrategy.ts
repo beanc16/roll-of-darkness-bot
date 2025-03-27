@@ -115,7 +115,16 @@ export class ButtonStrategy
                     () => buttonRow,
                 );
 
-                await interactionResponse.edit(messageData);
+                if (messageTimedOut)
+                {
+                    // Fetch just in case its an interaction response, then reply
+                    const fetchedMessage = await interactionResponse.fetch(true);
+                    await fetchedMessage.edit(messageData);
+                }
+                else
+                {
+                    await interactionResponse.edit(messageData);
+                }
             }
         }
     }
