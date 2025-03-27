@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { GenerateSkillBackgroundModal } from '../../modals/generate/GenerateSkillBackgroundModal.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 
@@ -41,7 +40,9 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
         }
 
         const responseString = this.getResponseString(response.raw);
+        await interaction.editReply(responseString);
 
+        /* TODO: Uncomment once chat history is added
         await this.handlePaginatedChatResponses({
             Modal: GenerateSkillBackgroundModal,
             originalInteraction: interaction,
@@ -61,6 +62,7 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
                 return this.getResponseString(newResponse?.raw ?? { skillBackgrounds: [] });
             },
         });
+        */
 
         return true;
     }
