@@ -5,8 +5,11 @@ import {
 } from 'discord.js';
 
 import { InputValuesMap } from '../../../modals/BaseCustomModal.js';
-import { BaseGenerateModal, type HandlePaginatedChatResponsesInput } from '../../../modals/BaseGenerateModal.js';
-import { generatePlaygroundEmitter, GeneratePlaygroundEvent } from '../events/GeneratePlaygroundEmitter.js';
+import {
+    BaseGenerateModal,
+    type GenerateResponse,
+    type HandlePaginatedChatResponsesInput,
+} from '../../../modals/BaseGenerateModal.js';
 
 enum GeneratePlaygroundCustomId
 {
@@ -50,7 +53,12 @@ export class GeneratePlaygroundModal extends BaseGenerateModal
         return [promptInput];
     }
 
-    public static async run(interaction: ModalSubmitInteraction): Promise <void>
+    public static async run(_interaction: ModalSubmitInteraction): Promise<void>
+    {
+        // No-op. Call generate with a buttonInteraction.awaitModalSubmit instead.
+    }
+
+    public static async generate(interaction: ModalSubmitInteraction): Promise<GenerateResponse>
     {
         // Parse input
         const previousInput = this.inputData as HandlePaginatedChatResponsesInput;
@@ -65,19 +73,18 @@ export class GeneratePlaygroundModal extends BaseGenerateModal
         };
 
         // Generate response
-        const response = await this.generate(interaction, prompt);
+        const response = await this.generateResponse(interaction, prompt);
 
         // Respond with error if response is undefined
         if (response === undefined)
         {
-            generatePlaygroundEmitter.emit(GeneratePlaygroundEvent.ResponseError, undefined);
-            return;
+            return undefined;
         }
 
         // Update embed messages with new data
         const embeds = this.getUpdatedEmbeds(response, previousInput.embeds);
 
         // Respond with new data
-        generatePlaygroundEmitter.emit(GeneratePlaygroundEvent.Response, { embeds });
+        return { embeds };
     }
 }

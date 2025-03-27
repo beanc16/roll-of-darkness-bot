@@ -10,9 +10,9 @@ import {
 } from 'discord.js';
 import { z } from 'zod';
 
+import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import type { HandlePaginatedChatResponsesInput } from '../../modals/BaseGenerateModal.js';
-import { CommandName } from '../../types/discord.js';
-import { generatePlaygroundEmitter, GeneratePlaygroundEvent } from '../Ai/events/GeneratePlaygroundEmitter.js';
+import type { CommandName } from '../../types/discord.js';
 import { PaginationStrategy } from './PaginationStrategy.js';
 
 const color = 0xCDCDCD;
@@ -96,6 +96,7 @@ export class BaseGenerateStrategy
             originalInteraction,
             commandName,
             embeds,
+            // TODO: Add button to display the user's prompt for the current response
             rowsAbovePagination: [
                 new ActionRowBuilder<ButtonBuilder>({
                     components: [
@@ -120,17 +121,24 @@ export class BaseGenerateStrategy
                         generateResponseCallback,
                     });
 
-                    // Successful Response
-                    generatePlaygroundEmitter.on(GeneratePlaygroundEvent.Response, ({ embeds: outputEmbeds }) =>
-                    {
-                        resolve({ embeds: outputEmbeds });
+                    const modalSubmitInteraction = await buttonInteraction.awaitModalSubmit({
+                        filter: (i) => (i.user.id === originalInteraction.user.id),
+                        time: timeToWaitForCommandInteractions,
                     });
 
+                    const response = await Modal.generate(modalSubmitInteraction);
+
                     // Failed Response
-                    generatePlaygroundEmitter.on(GeneratePlaygroundEvent.ResponseError, () =>
+                    if (response === undefined)
                     {
                         resolve({ embeds: inputEmbeds });
-                    });
+                    }
+
+                    // Successful Response
+                    else
+                    {
+                        resolve(response);
+                    }
                 });
             },
         });
