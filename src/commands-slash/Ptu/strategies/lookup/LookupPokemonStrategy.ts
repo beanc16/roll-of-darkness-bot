@@ -21,6 +21,7 @@ import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
     getLookupPokemonByAbilityEmbedMessages,
+    getLookupPokemonByBstEmbedMessages,
     getLookupPokemonByCapabilityEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
@@ -48,6 +49,7 @@ export interface GetLookupPokemonDataParameters
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
     capabilityName?: string | null;
+    baseStatTotal?: number | null;
 }
 
 interface AddLookupMetadataToPtuPokemonParameters
@@ -93,15 +95,16 @@ export class LookupPokemonStrategy
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
         const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const baseStatTotal = interaction.options.getInteger('base_stat_total');
         const includeContestInfo = interaction.options.getBoolean('include_contest_info');
 
-        const numOfTruthyValues = [name, moveName, abilityName, capabilityName].filter(Boolean).length;
+        const numOfTruthyValues = [name, moveName, abilityName, capabilityName, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon without a name, move, or ability.',
+                content: 'Cannot look up a Pokémon without a name, move, ability, capability, or base stat total.',
                 includeDeleteButton: true,
             });
             return true;
@@ -112,7 +115,7 @@ export class LookupPokemonStrategy
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon by more than just one of name, move, or ability at the same time.',
+                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, or base stat total at the same time.',
                 includeDeleteButton: true,
             });
             return true;
@@ -126,6 +129,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            baseStatTotal,
         });
 
         const embedsInput = await this.getFirstEmbedsInput({
@@ -135,6 +139,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            baseStatTotal,
             pokemon: data,
             moveNameToMovesRecord: {},
         }, includeContestInfo);
@@ -188,9 +193,10 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        baseStatTotal,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!(name || moveName || abilityName || capabilityName))
+        if (!(name || moveName || abilityName || capabilityName || baseStatTotal))
         {
             return [];
         }
@@ -203,6 +209,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            baseStatTotal,
         });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
@@ -794,9 +801,31 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        baseStatTotal,
     }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
         let output: ParseSearchParametersResponse = {};
+
+        if (baseStatTotal)
+        {
+            return {
+                $expr: {
+                    $eq: [
+                        {
+                            $sum: [
+                                '$baseStats.hp',
+                                '$baseStats.attack',
+                                '$baseStats.defense',
+                                '$baseStats.specialAttack',
+                                '$baseStats.specialDefense',
+                                '$baseStats.speed',
+                            ],
+                        },
+                        baseStatTotal,
+                    ],
+                },
+            };
+        }
 
         if (name)
         {
@@ -945,6 +974,7 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        baseStatTotal,
         pokemon,
         moveNameToMovesRecord,
     }: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
@@ -974,6 +1004,13 @@ export class LookupPokemonStrategy
         {
             return getLookupPokemonByCapabilityEmbedMessages(pokemon, {
                 capabilityName,
+            });
+        }
+
+        if (baseStatTotal)
+        {
+            return getLookupPokemonByBstEmbedMessages(pokemon, {
+                baseStatTotal,
             });
         }
 

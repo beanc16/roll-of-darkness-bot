@@ -750,6 +750,16 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setAutocomplete(true);
     });
 
+    // Base Stat Total
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('base_stat_total');
+        option.setDescription(`The base stat total of the Pokémon.`);
+        option.setMinValue(1);
+        option.setMaxValue(74);
+        return option;
+    });
+
     // Move contest stats
     subcommand.addBooleanOption((option) =>
     {
