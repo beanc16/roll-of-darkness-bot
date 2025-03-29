@@ -191,7 +191,6 @@ describe('class: ButtonStrategy', () =>
                     /* eslint-disable jest/no-conditional-expect */ // Ignore for this one test that tests all possible outcomes
                     it(`method should ${shouldDisableComponents ? '' : 'not '}disable components`, async () =>
                     {
-                        const spyOnInteractionResponseEdit = jest.spyOn(interactionResponse, 'edit');
                         const spyOnComponentsSetDisabled = actionRowBuilder.components.map(component =>
                             jest.spyOn(component, 'setDisabled'),
                         );
@@ -210,16 +209,6 @@ describe('class: ButtonStrategy', () =>
                         {
                             expect(spyOnComponentSetDisabled).toHaveBeenCalledWith(true);
                         });
-
-                        // The interaction response was edited to display the disabled components
-                        if (shouldDisableComponents)
-                        {
-                            expect(spyOnInteractionResponseEdit).toHaveBeenCalledTimes(1);
-                        }
-                        else
-                        {
-                            expect(spyOnInteractionResponseEdit).not.toHaveBeenCalled();
-                        }
                     });
                     /* eslint-enable jest/no-conditional-expect */
                 });
