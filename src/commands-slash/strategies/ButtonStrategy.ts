@@ -118,8 +118,8 @@ export class ButtonStrategy
                 if (messageTimedOut)
                 {
                     // Fetch just in case its an interaction response, then reply
-                    const fetchedMessage = await interactionResponse.fetch(true);
-                    await fetchedMessage.edit(messageData);
+                    const fetchedMessage = await buttonInteraction?.channel?.messages.fetch(interactionResponse.id);
+                    await fetchedMessage?.edit(messageData);
                 }
                 else
                 {
