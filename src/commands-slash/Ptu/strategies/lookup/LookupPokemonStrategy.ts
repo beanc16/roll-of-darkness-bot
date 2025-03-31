@@ -236,7 +236,9 @@ export class LookupPokemonStrategy
             ? await PokeApi.getImageUrls(names)
             : undefined;
 
-        const edenImageUrlResults = await HomebrewPokeApi.getImageUrls(edenNames);
+        const edenImageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
+            ? await HomebrewPokeApi.getImageUrls(edenNames)
+            : undefined;
 
         // Try to add imageUrl to pokemon result
         const output = results.map<PtuPokemonForLookupPokemon>((collection) =>
