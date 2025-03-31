@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 
 interface HomebrewGetImageUrlResponse
@@ -6,27 +7,35 @@ interface HomebrewGetImageUrlResponse
     imageUrl: string;
 }
 
-let unknownImageUrl: string | undefined;
-
-try
-{
-    const { data } = await FileStorageMicroservice.v1.get({
-        appId: process.env.APP_ID as string,
-        fileName: 'Unknown',
-        nestedFolders: 'ptu-pokedex/eden-dex',
-    });
-
-    unknownImageUrl = data.url;
-}
-catch (error)
-{
-    // No-op
-}
-
-// TODO: Add unit tests
-
 export class HomebrewPokeApi
 {
+    private static unknownImageUrl: string | undefined = undefined;
+
+    // eslint-disable-next-line @stylistic/brace-style -- We need a static constructor to be formatted this way to initialize
+    static {
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- This is necessary for initiailization and we can't await in a constructor
+        this.initialize();
+    }
+
+    /* istanbul ignore next */
+    public static async initialize(): Promise<void>
+    {
+        try
+        {
+            const { data } = await FileStorageMicroservice.v1.get({
+                appId: process.env.APP_ID as string,
+                fileName: 'Unknown',
+                nestedFolders: 'ptu-pokedex/eden-dex',
+            });
+
+            this.unknownImageUrl = data.url;
+        }
+        catch (error)
+        {
+            logger.error('Failed to get unknown image url in HomebrewPokeApi', error);
+        }
+    }
+
     public static async getImageUrls(names?: string[]): Promise<HomebrewGetImageUrlResponse[] | undefined>
     {
         if (names === undefined || names.length === 0)
@@ -45,9 +54,9 @@ export class HomebrewPokeApi
         const output = results.reduce<HomebrewGetImageUrlResponse[]>((acc, cur, index) =>
         {
             // Image could not be found, therefore use unknown image url
-            if (cur.status === 'rejected' && unknownImageUrl !== undefined)
+            if (cur.status === 'rejected' && this.unknownImageUrl !== undefined)
             {
-                acc.push({ name: names[index], imageUrl: unknownImageUrl });
+                acc.push({ name: names[index], imageUrl: this.unknownImageUrl });
                 return acc;
             }
 
