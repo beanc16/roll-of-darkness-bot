@@ -2,6 +2,7 @@ import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
 import { NwodCacheInitializer } from '../commands-slash/Nwod/services/NwodCacheInitializer.js';
+import { HomebrewPokeApi } from '../commands-slash/Ptu/services/HomebrewPokeApi.js';
 import { PtuCacheInitializer } from '../commands-slash/Ptu/services/PtuCacheInitializer.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
@@ -23,6 +24,7 @@ async function handler(bot: Client): Promise<void>
         await Promise.all([
             NwodCacheInitializer.initialize(),
             PtuCacheInitializer.initialize(),
+            HomebrewPokeApi.initialize(),
         ]);
 
         // Run startup functions

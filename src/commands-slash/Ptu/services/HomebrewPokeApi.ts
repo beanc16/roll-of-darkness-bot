@@ -11,12 +11,6 @@ export class HomebrewPokeApi
 {
     private static unknownImageUrl: string | undefined = undefined;
 
-    // eslint-disable-next-line @stylistic/brace-style -- We need a static constructor to be formatted this way to initialize
-    static {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- This is necessary for initiailization and we can't await in a constructor
-        this.initialize();
-    }
-
     /* istanbul ignore next */
     public static async initialize(): Promise<void>
     {
