@@ -340,7 +340,6 @@ describe('class: PaginationStrategy', () =>
                 expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {
                     embeds,
                     files,
-                    pageIndex: 0,
                 });
             });
 
@@ -367,9 +366,7 @@ describe('class: PaginationStrategy', () =>
                     onRowAbovePaginationButtonPress,
                 });
 
-                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {
-                    pageIndex: 0,
-                });
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {});
             });
 
             it('should include embeds & files from onRowAbovePaginationButtonPress callback in output if defined', async () =>
