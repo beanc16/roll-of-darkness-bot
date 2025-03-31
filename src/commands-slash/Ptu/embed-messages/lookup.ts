@@ -301,7 +301,7 @@ export const getLookupPokemonEmbedMessages = (
                 ]
                 : []
             ),
-            `${source}: ${page}`,
+            [source, page].filter(str => !!str).join(': '),
         ];
 
         // Add the pokemon's line-by-line description as pages w/ the imageUrl

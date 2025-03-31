@@ -30,6 +30,7 @@ import {
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi.js';
 import { PokeApi } from '../../services/PokeApi.js';
 import { removeExtraCharactersFromMoveName } from '../../services/pokemonMoveHelpers.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
@@ -216,12 +217,26 @@ export class LookupPokemonStrategy
         const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
         const results = untypedResults as PtuPokemonCollection[];
 
-        const names = results.map(({ name: pokemonName }) => pokemonName);
+        const { names, edenNames } = results.reduce<{ names: string[]; edenNames: string[] }>((acc, { name: pokemonName, metadata: { source } }) =>
+        {
+            if (source === 'Eden Dex')
+            {
+                acc.edenNames.push(pokemonName);
+            }
+            else
+            {
+                acc.names.push(pokemonName);
+            }
+
+            return acc;
+        }, { names: [], edenNames: [] });
 
         // Don't include images for substring searches
         const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
             ? await PokeApi.getImageUrls(names)
             : undefined;
+
+        const edenImageUrlResults = await HomebrewPokeApi.getImageUrls(edenNames);
 
         // Try to add imageUrl to pokemon result
         const output = results.map<PtuPokemonForLookupPokemon>((collection) =>
@@ -229,6 +244,8 @@ export class LookupPokemonStrategy
             const result = collection.toPtuPokemon();
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
+            ) ?? edenImageUrlResults?.find(curImageResult =>
+                curImageResult.name === result.name,
             ) ?? {};
 
             // Add imageUrl to olderVersions
