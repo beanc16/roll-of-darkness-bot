@@ -6,6 +6,8 @@ interface HomebrewGetImageUrlResponse
     imageUrl: string;
 }
 
+// TODO: Add unit tests
+
 export class HomebrewPokeApi
 {
     public static async getImageUrls(names?: string[]): Promise<HomebrewGetImageUrlResponse[] | undefined>
@@ -16,7 +18,7 @@ export class HomebrewPokeApi
             nestedFolders: 'ptu-pokedex/eden-dex',
         }));
 
-        if (!promises)
+        if (!promises || promises.length === 0)
         {
             return undefined;
         }
@@ -28,7 +30,7 @@ export class HomebrewPokeApi
             if (data)
             {
                 const { url } = data;
-                const pokemonName = names?.find(name => url.includes(name));
+                const pokemonName = names?.find(name => url.toLowerCase().includes(name.toLowerCase()));
 
                 if (pokemonName)
                 {
@@ -37,11 +39,6 @@ export class HomebrewPokeApi
             }
             return acc;
         }, []);
-
-        if (output.length === 0)
-        {
-            return undefined;
-        }
 
         return output;
     }
