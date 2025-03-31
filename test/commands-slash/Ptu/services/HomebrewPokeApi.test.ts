@@ -2,6 +2,9 @@ import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 
 import { HomebrewPokeApi } from '../../../../src/commands-slash/Ptu/services/HomebrewPokeApi.js';
 
+// We don't want to log anything during these tests that would normally log
+jest.mock('@beanc16/logger');
+
 jest.mock('@beanc16/microservices-abstraction', () =>
 {
     return {
@@ -67,6 +70,28 @@ describe('class: PokeApi', () =>
                 {
                     name: 'Charizard',
                     imageUrl: 'https://example.com/charizard.png',
+                },
+            ]);
+        });
+
+        it('should use unknown image url when promise is rejected', async () =>
+        {
+            jest.spyOn(FileStorageMicroservice.v1, 'get').mockRejectedValueOnce({
+            }).mockRejectedValueOnce({
+            });
+
+            HomebrewPokeApi['unknownImageUrl'] = 'https://example.com/unknown.png';
+            const names = ['Pikachu', 'Charizard'];
+            const result = await HomebrewPokeApi.getImageUrls(names);
+
+            expect(result).toEqual([
+                {
+                    name: 'Pikachu',
+                    imageUrl: 'https://example.com/unknown.png',
+                },
+                {
+                    name: 'Charizard',
+                    imageUrl: 'https://example.com/unknown.png',
                 },
             ]);
         });
