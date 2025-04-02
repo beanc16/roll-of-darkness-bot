@@ -34,6 +34,7 @@ export class PokeApi
             .replaceAll('galarian', 'galar')
             .replaceAll('hisuian', 'hisui')
             .replaceAll('alolan', 'alola')
+            .replaceAll('paldean', 'paldea')
             // Fix specific pokemon
             .replaceAll('aegislash', 'aegislash-blade')
             .replaceAll('basculin', 'basculin-red-striped')

@@ -51,6 +51,7 @@ describe('class: PokeApi', () =>
             ['alolan', 'alola'],
             ['galarian', 'galar'],
             ['hisuian', 'hisui'],
+            ['paldean', 'paldea'],
         ])('should replace variant name: "%s" with "%s"', (regionVariant, expectedRegionVariant) =>
         {
             const name = `Pikachu (${regionVariant})`;
