@@ -6,6 +6,7 @@ export class NwodCondition
     public beat: string | undefined;
     public possibleSources: string | undefined;
     public pageNumber: string;
+    public clarityConditionTags: string[] | undefined;
 
     constructor(input: string[])
     {
@@ -16,6 +17,7 @@ export class NwodCondition
             beat,
             possibleSources,
             pageNumber,
+            clarityCondition,
         ] = input;
 
         // Base values
@@ -27,5 +29,8 @@ export class NwodCondition
             ? possibleSources.trim()
             : undefined;
         this.pageNumber = pageNumber.trim();
+        this.clarityConditionTags = (clarityCondition)
+            ? clarityCondition.split(',').map(value => value.trim())
+            : undefined;
     }
 }

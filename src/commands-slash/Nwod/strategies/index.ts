@@ -97,6 +97,30 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Condition,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.ClarityConditionTag]: async () =>
+            {
+                const conditions = await NwodStrategyExecutor.getLookupData<NwodCondition>({
+                    subcommandGroup: NwodSubcommandGroup.Lookup,
+                    subcommand: NwodLookupSubcommand.Condition,
+                    options: { includeAllIfNoName: true, sortBy: 'name' },
+                });
+
+                const set = conditions.reduce<Set<string>>((acc, cur) =>
+                {
+                    if (cur.clarityConditionTags)
+                    {
+                        cur.clarityConditionTags.forEach(tag => acc.add(tag));
+                    }
+
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [NwodAutocompleteParameterName.ContractName]: () => NwodStrategyExecutor.getLookupData<ChangelingContract>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Contract,

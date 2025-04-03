@@ -1,6 +1,7 @@
 export enum NwodAutocompleteParameterName
 {
     ConditionName = 'condition_name',
+    ClarityConditionTag = 'clarity_condition_tag',
     ContractName = 'contract_name',
     GoblinFruitName = 'goblin_fruit_name',
     HauntName = 'haunt_name',

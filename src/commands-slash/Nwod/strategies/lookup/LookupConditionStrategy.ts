@@ -16,6 +16,7 @@ import { NwodCondition } from '../../types/NwodCondition.js';
 export interface GetLookupMeritDataOptions extends BaseLookupDataOptions
 {
     name?: string | null;
+    clarityConditionTag?: string | null;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -27,9 +28,11 @@ export class LookupConditionStrategy
     {
         // Get parameter results
         const name = interaction.options.getString(NwodAutocompleteParameterName.ConditionName);
+        const clarityConditionTag = interaction.options.getString(NwodAutocompleteParameterName.ClarityConditionTag);
 
         const data = await this.getLookupData({
             name,
+            clarityConditionTag,
             includeAllIfNoName: false,
         });
 
@@ -41,6 +44,12 @@ export class LookupConditionStrategy
                 Text.bold(element.name),
                 ...(element.pageNumber !== undefined
                     ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.clarityConditionTags !== undefined
+                    ? [
+                        `Clarity Condition Tags: \`${element.clarityConditionTags.join(', ')}\``,
+                    ]
                     : []
                 ),
                 ...(element.description !== undefined
@@ -102,6 +111,12 @@ export class LookupConditionStrategy
 
             // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
+            {
+                return acc;
+            }
+
+            // Clarity Condition Tag
+            if (input.clarityConditionTag && !element.clarityConditionTags?.includes(input.clarityConditionTag))
             {
                 return acc;
             }

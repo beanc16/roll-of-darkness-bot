@@ -28,6 +28,11 @@ import {
     SplitCommandForRefreshCache,
 } from '../types.js';
 
+type NwodAutocompleteParameterNameToCache = Exclude<
+    NwodAutocompleteParameterName,
+    NwodAutocompleteParameterName.ClarityConditionTag
+>;
+
 type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.AuraUserName
@@ -38,7 +43,7 @@ type PtuAutocompleteParameterNameToCache = Exclude<
 
 interface GetHandlerResultResponse
 {
-    handlerResult: RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterName] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterNameToCache] | undefined;
+    handlerResult: RefreshCacheHandlerMap[RefreshCacheCommand.Nwod][NwodAutocompleteParameterNameToCache] | RefreshCacheHandlerMap[RefreshCacheCommand.Ptu][PtuAutocompleteParameterNameToCache] | undefined;
     refreshCacheCommand: RefreshCacheCommand;
 }
 
@@ -56,7 +61,7 @@ interface GetDataDiffResponse
 
 type RefreshCacheHandlerMap = {
     [RefreshCacheCommand.Nwod]: {
-        [key in NwodAutocompleteParameterName]: {
+        [key in NwodAutocompleteParameterNameToCache]: {
             lookupSubcommand: NwodLookupSubcommand;
             keys: [string, NwodLookupRange];
         };
@@ -350,7 +355,7 @@ export class RefreshCacheStrategy
 
         if (refreshCacheCommand === RefreshCacheCommand.Nwod)
         {
-            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as NwodAutocompleteParameterName];
+            response.handlerResult = this.handlerMap[refreshCacheCommand][`${autocompleteParameterName}_name` as NwodAutocompleteParameterNameToCache];
         }
 
         else if (refreshCacheCommand === RefreshCacheCommand.Ptu)

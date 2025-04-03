@@ -37,7 +37,14 @@ export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashComma
     {
         option.setName(NwodAutocompleteParameterName.ConditionName);
         option.setDescription(`The condition's name.`);
-        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.ClarityConditionTag);
+        option.setDescription(`The condition's clarity tags.`);
         return option.setAutocomplete(true);
     });
 
