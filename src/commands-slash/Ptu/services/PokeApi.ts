@@ -58,6 +58,7 @@ export class PokeApi
             .replaceAll('nidoran-female', 'nidoran-f')
             .replaceAll('nidoran-male', 'nidoran-m')
             .replaceAll('oricorio', 'oricorio-baile')
+            .replaceAll('ursaluna-bloodmoon', 'ursaluna')
             .replaceAll('wishiwashi-schooling', 'wishiwashi-school')
             .replaceAll('zacian-crowned-sword', 'zacian-crowned')
             .replaceAll('zamazenta-crowned-shield', 'zamazenta-crowned')
