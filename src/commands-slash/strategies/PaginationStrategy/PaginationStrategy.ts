@@ -389,7 +389,7 @@ export class PaginationStrategy
         isDisabled: boolean;
         includeDeleteButton: boolean;
         includePaginationButtons: boolean;
-    }): ActionRowBuilder<ButtonBuilder> | undefined
+    }): PaginationActionRowBuilder | undefined
     {
         const row = new PaginationActionRowBuilder(input);
 
