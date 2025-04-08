@@ -292,6 +292,7 @@ export class ButtonBuilder
 
     constructor({
         custom_id,
+        customId,
         disabled = false,
         emoji,
         label,
@@ -299,6 +300,7 @@ export class ButtonBuilder
         url,
     }: {
         custom_id?: string;
+        customId?: string;
         disabled?: boolean;
         emoji?: ComponentEmojiResolvable;
         label?: string;
@@ -306,7 +308,7 @@ export class ButtonBuilder
         url?: string;
     } = {})
     {
-        this.customId = custom_id;
+        this.customId = custom_id ?? customId;
         this.data = { disabled };
         this.emoji = emoji;
         this.label = label;
