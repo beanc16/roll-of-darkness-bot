@@ -135,7 +135,24 @@ describe('PaginationActionRowBuilder', () =>
                 includePaginationButtons: false,
             });
 
-            expect(paginationActionRowBuilder.hasComponents).toEqual(false);
+            expect(paginationActionRowBuilder.hasComponents()).toEqual(false);
+        });
+
+        it('should return true if there are components', () =>
+        {
+            const paginationActionRowBuilder1 = new PaginationActionRowBuilder({
+                isDisabled: false,
+                includeDeleteButton: false,
+                includePaginationButtons: true,
+            });
+            const paginationActionRowBuilder2 = new PaginationActionRowBuilder({
+                isDisabled: false,
+                includeDeleteButton: true,
+                includePaginationButtons: false,
+            });
+
+            expect(paginationActionRowBuilder1.hasComponents()).toEqual(true);
+            expect(paginationActionRowBuilder2.hasComponents()).toEqual(true);
         });
     });
 });

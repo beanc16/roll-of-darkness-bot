@@ -3,7 +3,6 @@ import {
     AttachmentPayload,
     ButtonBuilder,
     ButtonInteraction,
-    ButtonStyle,
     ChatInputCommandInteraction,
     EmbedBuilder,
     InteractionEditReplyOptions,
@@ -14,17 +13,9 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { CommandName } from '../../types/discord.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from './ButtonStrategy.js';
-
-export enum PaginationButtonName
-{
-    Next = 'next_page',
-    Previous = 'previous_page',
-    First = 'first_page',
-    Last = 'last_page',
-    Delete = 'delete_message',
-}
+import { CommandName } from '../../../types/discord.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from '../ButtonStrategy.js';
+import { PaginationActionRowBuilder, PaginationButtonName } from './components/PaginationActionRowBuilder.js';
 
 export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
 
@@ -383,7 +374,7 @@ export class PaginationStrategy
             isDisabled,
             includeDeleteButton,
             includePaginationButtons,
-        })].filter(row => !!row);
+        })].filter(row => !!row && row?.components?.length !== undefined && row.components.length > 0) as RowAbovePagination[];
 
         if (components.length === 0)
         {
@@ -394,76 +385,18 @@ export class PaginationStrategy
     }
 
     /* istanbul ignore next */
-    private static getPaginationRowComponent({
-        isDisabled,
-        includeDeleteButton,
-        includePaginationButtons,
-    }: {
+    private static getPaginationRowComponent(input: {
         isDisabled: boolean;
         includeDeleteButton: boolean;
         includePaginationButtons: boolean;
     }): ActionRowBuilder<ButtonBuilder> | undefined
     {
-        const prevButton = new ButtonBuilder()
-            .setCustomId(PaginationButtonName.Previous)
-            .setLabel('Previous')
-            .setEmoji('⬅️')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(isDisabled);
+        const row = new PaginationActionRowBuilder(input);
 
-        const nextButton = new ButtonBuilder()
-            .setCustomId(PaginationButtonName.Next)
-            .setLabel('Next')
-            .setEmoji('➡️')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(isDisabled);
-
-        const firstButton = new ButtonBuilder()
-            .setCustomId(PaginationButtonName.First)
-            .setLabel('First')
-            .setEmoji('⏪')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(isDisabled);
-
-        const lastButton = new ButtonBuilder()
-            .setCustomId(PaginationButtonName.Last)
-            .setLabel('Last')
-            .setEmoji('⏩')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(isDisabled);
-
-        const deleteButton = new ButtonBuilder()
-            .setCustomId(PaginationButtonName.Delete)
-            .setLabel('Delete')
-            .setEmoji('🗑️')
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(isDisabled);
-
-        const components = [
-            ...(includePaginationButtons
-                ? [
-                    firstButton,
-                    prevButton,
-                ]
-                : []
-            ),
-            ...(includeDeleteButton ? [deleteButton] : []),
-            ...(includePaginationButtons
-                ? [
-                    nextButton,
-                    lastButton,
-                ]
-                : []
-            ),
-        ];
-
-        if (components.length === 0)
+        if (!row.hasComponents())
         {
             return undefined;
         }
-
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(...components);
 
         return row;
     }

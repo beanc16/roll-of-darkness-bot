@@ -26,7 +26,7 @@ import {
     ButtonStrategy,
     GetMessageDataResponse,
 } from './strategies/ButtonStrategy.js';
-import { PaginationStrategy } from './strategies/PaginationStrategy.js';
+import { PaginationStrategy } from './strategies/PaginationStrategy/PaginationStrategy.js';
 
 enum CounterButtonName
 {

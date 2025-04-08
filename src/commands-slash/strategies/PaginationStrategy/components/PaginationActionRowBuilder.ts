@@ -83,8 +83,8 @@ export class PaginationActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
         }
     }
 
-    get hasComponents(): boolean
+    public hasComponents(): boolean
     {
-        return (this.components.length !== 0);
+        return (this.components.length > 0);
     }
 }

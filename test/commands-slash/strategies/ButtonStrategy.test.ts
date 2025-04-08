@@ -207,7 +207,14 @@ describe('class: ButtonStrategy', () =>
                         // All components were disabled
                         spyOnComponentsSetDisabled.forEach((spyOnComponentSetDisabled) =>
                         {
-                            expect(spyOnComponentSetDisabled).toHaveBeenCalledWith(true);
+                            if (shouldDisableComponents)
+                            {
+                                expect(spyOnComponentSetDisabled).toHaveBeenCalledWith(true);
+                            }
+                            else
+                            {
+                                expect(spyOnComponentSetDisabled).not.toHaveBeenCalled();
+                            }
                         });
                     });
                     /* eslint-enable jest/no-conditional-expect */

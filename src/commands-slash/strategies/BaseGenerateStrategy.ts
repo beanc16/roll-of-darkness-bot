@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import type { HandlePaginatedChatResponsesInput } from '../../modals/BaseGenerateModal.js';
 import type { CommandName } from '../../types/discord.js';
-import { PaginationStrategy } from './PaginationStrategy.js';
+import { PaginationStrategy } from './PaginationStrategy/PaginationStrategy.js';
 
 const color = 0xCDCDCD;
 

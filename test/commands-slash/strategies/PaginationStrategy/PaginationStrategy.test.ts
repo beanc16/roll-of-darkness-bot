@@ -1,22 +1,19 @@
 import type { ButtonInteraction, Message } from 'discord.js';
 
-import {
-    ButtonListenerRestartStyle,
-    ButtonStrategy,
-    HandleButtonInteractionsOptions,
-} from '../../../src/commands-slash/strategies/ButtonStrategy.js';
-import { PaginationButtonName, PaginationStrategy } from '../../../src/commands-slash/strategies/PaginationStrategy.js';
+import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../../src/commands-slash/strategies/ButtonStrategy.js';
+import { PaginationButtonName } from '../../../../src/commands-slash/strategies/PaginationStrategy/components/PaginationActionRowBuilder.js';
+import { PaginationStrategy } from '../../../../src/commands-slash/strategies/PaginationStrategy/PaginationStrategy.js';
 import {
     FakeEmbedBuilder,
     getFakeButtonActionRowBuilder,
     getFakeStringSelectMenuActionRowBuilder,
-} from '../../fakes/discord/builders.js';
-import { getFakeMessage } from '../../fakes/discord/components.js';
+} from '../../../fakes/discord/builders.js';
+import { getFakeMessage } from '../../../fakes/discord/components.js';
 import {
     FakeChatInputCommandInteraction,
     FakeStringSelectMenuInteraction,
     getFakeButtonInteraction,
-} from '../../fakes/discord/interactions.js';
+} from '../../../fakes/discord/interactions.js';
 
 describe('class: PaginationStrategy', () =>
 {
@@ -69,10 +66,10 @@ describe('class: PaginationStrategy', () =>
                 expect(PaginationStrategy['replyToOriginalInteraction']).toHaveBeenCalledWith({
                     originalInteraction: interaction,
                     interactionType,
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- We want this to test only one parameter
-                    parameters: expect.objectContaining({
+                    parameters: {
+                        content: undefined,
                         components: undefined,
-                    }),
+                    },
                 });
             });
 
@@ -98,7 +95,7 @@ describe('class: PaginationStrategy', () =>
                 it('should paginate if provided', async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                    jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
+                    const spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
 
                     await PaginationStrategy['run']({
                         originalInteraction: interaction,
@@ -107,19 +104,12 @@ describe('class: PaginationStrategy', () =>
                         [parameterName]: array,
                     });
 
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- We want this to test only one parameter
-                    const handleButtonInteractionsCall: HandleButtonInteractionsOptions = (ButtonStrategy['handleButtonInteractions'] as any).mock.calls[0][0];
-
-                    // Similar to expect(ButtonStrategy['handleButtonInteractions']).toHaveBeenCalledWith
-                    // except without nonymous functions, which Jest doesn't evaluate correctly.
-                    expect(handleButtonInteractionsCall.interactionResponse).toEqual(
-                        response,
-                    );
-                    expect(handleButtonInteractionsCall.commandName).toEqual(
-                        commandName,
-                    );
-                    expect(handleButtonInteractionsCall.restartStyle).toEqual(
-                        ButtonListenerRestartStyle.OnSuccess,
+                    expect(spyOnHandleButtonInteractions).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            interactionResponse: response,
+                            commandName,
+                            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+                        }),
                     );
                 });
 
@@ -127,10 +117,20 @@ describe('class: PaginationStrategy', () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
                     jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
+                    const spyOnReplyToOriginalInteraction = jest.spyOn(PaginationStrategy as any, 'replyToOriginalInteraction');
 
-                    const components = [
+                    const rowsAbovePagination = [
                         getFakeStringSelectMenuActionRowBuilder({ customId: 'first' }),
                     ];
+
+                    const buttonActionRowBuilder = getFakeButtonActionRowBuilder({ customId: 'fake-button-1' });
+
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                    jest.spyOn(PaginationStrategy as any, 'getComponents').mockReturnValue([
+                        ...rowsAbovePagination,
+                        buttonActionRowBuilder,
+                    ]);
 
                     await PaginationStrategy['run']({
                         originalInteraction: interaction,
@@ -138,29 +138,22 @@ describe('class: PaginationStrategy', () =>
                         interactionType,
                         [parameterName]: array,
                         rowsAbovePagination: [
-                            components[0],
+                            rowsAbovePagination[0],
                         ],
                     });
 
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- We want this to test only one parameter
-                    const replyToOriginalInteractionFirstCallArguments = (PaginationStrategy['replyToOriginalInteraction'] as any).mock.calls[0][0];
-
-                    expect(
-                        // Must JSON.stringify because the objects
-                        // are not completely equal, since one is
-                        // real and one is a jest mock
-
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- We want this to test only one parameter
-                        JSON.stringify(replyToOriginalInteractionFirstCallArguments.parameters),
-                    ).toEqual(
-                        JSON.stringify({
+                    expect(spyOnReplyToOriginalInteraction).toHaveBeenCalledWith({
+                        originalInteraction: interaction,
+                        interactionType,
+                        parameters: {
+                            content: undefined,
                             [parameterName]: [array[0]],
                             components: [
-                                components[0],
-                                getFakeStringSelectMenuActionRowBuilder({ customId: array[0] }),
+                                ...rowsAbovePagination,
+                                buttonActionRowBuilder,
                             ],
-                        }),
-                    );
+                        },
+                    });
                 });
             });
 

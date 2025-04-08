@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import type { CommandName } from '../../../../types/discord.js';
-import { PaginationStrategy } from '../../../strategies/PaginationStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 
 export class BaseImageStrategy
 {

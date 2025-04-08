@@ -1,246 +1,11 @@
+/* eslint-disable max-classes-per-file */
+
 import { randomUUID } from 'node:crypto';
 
+import type { ComponentEmojiResolvable } from 'discord.js';
 import Discord from 'discord.js';
 
 const generateFakeId = (): string => randomUUID();
-
-/*
- * Builders
- */
-
-export const ActionRowBuilder = jest.fn<Discord.ActionRowBuilder, []>().mockImplementation(() =>
-{
-    const result: Discord.ActionRowBuilder = {
-        components: [],
-        data: {},
-        addComponents: jest.fn().mockImplementation((...components: Discord.AnyComponentBuilder[]) =>
-        {
-            result.components.push(...components);
-            return result;
-        }),
-        setComponents: jest.fn().mockImplementation((...components: Discord.AnyComponentBuilder[]) =>
-        {
-            // Remove all elements, then add the new ones
-            result.components.splice(0).push(...components);
-            return result;
-        }),
-        toJSON: jest.fn(),
-    };
-
-    return result;
-});
-
-export const ButtonBuilder = jest.fn<Discord.ButtonBuilder, []>().mockImplementation(() =>
-{
-    const result: Discord.ButtonBuilder = {
-        data: {
-            disabled: false,
-        },
-        setCustomId: jest.fn().mockImplementation(() => result),
-        setDisabled: jest.fn().mockImplementation((disabled: boolean) =>
-        {
-            result.data.disabled = disabled;
-            return result;
-        }),
-        setEmoji: jest.fn().mockImplementation(() => result),
-        setLabel: jest.fn().mockImplementation(() => result),
-        setStyle: jest.fn().mockImplementation(() => result),
-        setURL: jest.fn().mockImplementation(() => result),
-        toJSON: jest.fn(),
-    };
-
-    return result;
-});
-
-export const EmbedBuilder = jest.fn<Discord.EmbedBuilder, []>().mockImplementation(() =>
-{
-    const result: Discord.EmbedBuilder = {
-        data: {},
-        addFields: jest.fn().mockImplementation(() => result),
-        setAuthor: jest.fn().mockImplementation(() => result),
-        setColor: jest.fn().mockImplementation(() => result),
-        setDescription: jest.fn().mockImplementation(() => result),
-        setFields: jest.fn().mockImplementation(() => result),
-        setFooter: jest.fn().mockImplementation(() => result),
-        setImage: jest.fn().mockImplementation(() => result),
-        setThumbnail: jest.fn().mockImplementation(() => result),
-        setTimestamp: jest.fn().mockImplementation(() => result),
-        setTitle: jest.fn().mockImplementation(() => result),
-        setURL: jest.fn().mockImplementation(() => result),
-        spliceFields: jest.fn(),
-        toJSON: jest.fn(),
-    };
-
-    return result;
-});
-
-export const StringSelectMenuBuilder = jest.fn<Discord.StringSelectMenuBuilder, []>().mockImplementation(() =>
-{
-    const result: Discord.StringSelectMenuBuilder = {
-        data: {},
-        options: [],
-        addOptions: jest.fn().mockImplementation(() => result),
-        setCustomId: jest.fn().mockImplementation(() => result),
-        setDisabled: jest.fn().mockImplementation(() => result),
-        setPlaceholder: jest.fn().mockImplementation(() => result),
-        setMinValues: jest.fn().mockImplementation(() => result),
-        setMaxValues: jest.fn().mockImplementation(() => result),
-        setOptions: jest.fn().mockImplementation(() => result),
-        spliceOptions: jest.fn(),
-        toJSON: jest.fn(),
-    };
-
-    return result;
-});
-
-export const StringSelectMenuOptionBuilder = jest.fn<Discord.StringSelectMenuOptionBuilder, []>().mockImplementation(() =>
-{
-    const result: Discord.StringSelectMenuOptionBuilder = {
-        data: {},
-        setDefault: jest.fn().mockImplementation(() => result),
-        setDescription: jest.fn().mockImplementation(() => result),
-        setEmoji: jest.fn().mockImplementation(() => result),
-        setLabel: jest.fn().mockImplementation(() => result),
-        setValue: jest.fn().mockImplementation(() => result),
-        toJSON: jest.fn(),
-    };
-
-    return result;
-});
-
-/*
- * Clients
- */
-
-export const Client = jest.fn<Discord.Client, []>().mockImplementation(() =>
-{
-    const result: Discord.Client = {
-        login: jest.fn<Promise<string>, [string?]>().mockResolvedValue('Logged in'),
-    } as unknown as Discord.Client; // TODO: Remove this typecast once all required properties are added
-
-    return result;
-});
-
-export const WebhookClient = jest.fn().mockImplementation(() =>
-{
-    return {
-        editMessage: jest.fn(),
-        fetchMessage: jest.fn(),
-        send: jest.fn(),
-    };
-});
-
-/*
- * Components
- */
-
-export const AttachmentPayload = jest.fn().mockImplementation(() =>
-{
-    return {
-        attachment: 'fake-attachment',
-        name: 'fake-name',
-        description: 'fake-description',
-    };
-});
-
-export const Message = jest.fn<Discord.Message, []>().mockImplementation(() =>
-{
-    const output: Discord.Message = {
-        content: 'fake-content',
-        author: { bot: false },
-        awaitMessageComponent: jest.fn(),
-        delete: jest.fn(),
-        edit: jest.fn(),
-        reply: jest.fn(),
-    } as unknown as Discord.Message; // TODO: Remove this typecast once all required properties are added
-
-    return output;
-});
-
-export const User = jest.fn<Discord.User, []>().mockImplementation(() =>
-{
-    const output: Discord.User = {
-        id: generateFakeId(),
-        bot: false,
-        system: false,
-        username: 'fake-username',
-        discriminator: '0000',
-    } as unknown as Discord.User;
-
-    return output;
-});
-
-/*
- * Interactions
- */
-
-export const ButtonInteraction = jest.fn<Discord.ButtonInteraction, []>().mockImplementation(() =>
-{
-    const result: Discord.ButtonInteraction = {
-        deferReply: jest.fn(),
-        deferUpdate: jest.fn(),
-        deleteReply: jest.fn(),
-        editReply: jest.fn(),
-        fetchReply: jest.fn(),
-        followUp: jest.fn(),
-        reply: jest.fn(),
-        update: jest.fn(),
-        showModal: jest.fn(),
-    } as unknown as Discord.ButtonInteraction; // TODO: Remove this typecast once all required properties are added
-
-    return result;
-});
-
-export const ChatInputCommandInteraction = jest.fn<Discord.ChatInputCommandInteraction, []>().mockImplementation(() =>
-{
-    const result: Discord.ChatInputCommandInteraction = {
-        isCommand: jest.fn(() => true),
-        commandName: 'fake-command-name',
-        options: {
-            getSubcommand: jest.fn<string | null, [boolean?]>(),
-            getSubcommandGroup: jest.fn<string | null, [boolean?]>(),
-            getBoolean: jest.fn<boolean | null, [boolean?]>(),
-            getString: jest.fn<string | null, [boolean?]>(),
-            getInteger: jest.fn<number | null, [boolean?]>(),
-            getNumber: jest.fn<number | null, [boolean?]>(),
-        },
-        deferReply: jest.fn(),
-        deleteReply: jest.fn(),
-        editReply: jest.fn(),
-        fetchReply: jest.fn(),
-        followUp: jest.fn(),
-        reply: jest.fn(),
-        showModal: jest.fn(),
-    } as unknown as Discord.ChatInputCommandInteraction; // TODO: Remove this typecast once all required properties are added
-
-    return result;
-});
-
-export const Interaction = jest.fn().mockImplementation(() =>
-{
-    return {
-        isCommand: jest.fn(() => true),
-        commandName: '',
-        reply: jest.fn(),
-    };
-});
-
-export const StringSelectMenuInteraction = jest.fn<Discord.StringSelectMenuInteraction, []>().mockImplementation(() =>
-{
-    const result: Discord.StringSelectMenuInteraction = {
-        deferReply: jest.fn(),
-        deferUpdate: jest.fn(),
-        deleteReply: jest.fn(),
-        editReply: jest.fn(),
-        fetchReply: jest.fn(),
-        followUp: jest.fn(),
-        reply: jest.fn(),
-        update: jest.fn(),
-        showModal: jest.fn(),
-    } as unknown as Discord.StringSelectMenuInteraction; // TODO: Remove this typecast once all required properties are added
-
-    return result;
-});
 
 /*
  * Types
@@ -473,3 +238,319 @@ export enum RESTJSONErrorCodes
     WebhookServicesCannotBeUsedInForumChannels = 220004,
     MessageBlockedByHarmfulLinksFilter = 240000,
 };
+
+/*
+ * Builders
+ */
+
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+export class ActionRowBuilder
+{
+    public components: Discord.AnyComponentBuilder[];
+    public data: any;
+
+    constructor({ components = [], data = {} }: {
+        components?: Discord.AnyComponentBuilder[];
+        data?: any;
+    } = {})
+    {
+        this.components = components;
+        this.data = data;
+    }
+
+    public addComponents(...components: Discord.AnyComponentBuilder[]): ActionRowBuilder
+    {
+        this.components.push(...components);
+        return this;
+    }
+
+    public setComponents(...components: Discord.AnyComponentBuilder[]): ActionRowBuilder
+    {
+        // Remove all elements, then add the new ones
+        this.components.splice(0).push(...components);
+        return this;
+    }
+
+    public toJSON(): any
+    {
+        return {
+            ...this.data,
+            components: this.components.map((component) => component.toJSON()),
+        };
+    }
+}
+
+export class ButtonBuilder
+{
+    public customId?: string;
+    public data: { disabled: boolean };
+    public emoji?: ComponentEmojiResolvable;
+    public label?: string;
+    public style?: ButtonStyle;
+    public type = ComponentType.Button;
+    public url?: string;
+
+    constructor({
+        custom_id,
+        disabled = false,
+        emoji,
+        label,
+        style,
+        url,
+    }: {
+        custom_id?: string;
+        disabled?: boolean;
+        emoji?: ComponentEmojiResolvable;
+        label?: string;
+        style?: ButtonStyle;
+        url?: string;
+    } = {})
+    {
+        this.customId = custom_id;
+        this.data = { disabled };
+        this.emoji = emoji;
+        this.label = label;
+        this.style = style;
+        this.url = url;
+    }
+
+    public setCustomId = jest.fn((customId: string) =>
+    {
+        this.customId = customId;
+        return this;
+    });
+
+    public setDisabled = jest.fn((disabled: boolean) =>
+    {
+        this.data.disabled = disabled;
+        return this;
+    });
+
+    public setEmoji = jest.fn((emoji: ComponentEmojiResolvable) =>
+    {
+        this.emoji = emoji;
+        return this;
+    });
+
+    public setLabel = jest.fn((label: string) =>
+    {
+        this.label = label;
+        return this;
+    });
+
+    public setStyle = jest.fn((style: ButtonStyle) =>
+    {
+        this.style = style;
+        return this;
+    });
+
+    public setURL = jest.fn((url: string) =>
+    {
+        this.url = url;
+        return this;
+    });
+
+    public toJSON = jest.fn(() =>
+    {
+        return {
+            custom_id: this.customId,
+            disabled: this.data.disabled,
+            emoji: this.emoji,
+            label: this.label,
+            style: this.style,
+            type: this.type,
+            url: this.url,
+        };
+    });
+}
+/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
+
+export const EmbedBuilder = jest.fn<Discord.EmbedBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.EmbedBuilder = {
+        data: {},
+        addFields: jest.fn().mockImplementation(() => result),
+        setAuthor: jest.fn().mockImplementation(() => result),
+        setColor: jest.fn().mockImplementation(() => result),
+        setDescription: jest.fn().mockImplementation(() => result),
+        setFields: jest.fn().mockImplementation(() => result),
+        setFooter: jest.fn().mockImplementation(() => result),
+        setImage: jest.fn().mockImplementation(() => result),
+        setThumbnail: jest.fn().mockImplementation(() => result),
+        setTimestamp: jest.fn().mockImplementation(() => result),
+        setTitle: jest.fn().mockImplementation(() => result),
+        setURL: jest.fn().mockImplementation(() => result),
+        spliceFields: jest.fn(),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const StringSelectMenuBuilder = jest.fn<Discord.StringSelectMenuBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuBuilder = {
+        data: {},
+        options: [],
+        addOptions: jest.fn().mockImplementation(() => result),
+        setCustomId: jest.fn().mockImplementation(() => result),
+        setDisabled: jest.fn().mockImplementation(() => result),
+        setPlaceholder: jest.fn().mockImplementation(() => result),
+        setMinValues: jest.fn().mockImplementation(() => result),
+        setMaxValues: jest.fn().mockImplementation(() => result),
+        setOptions: jest.fn().mockImplementation(() => result),
+        spliceOptions: jest.fn(),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+export const StringSelectMenuOptionBuilder = jest.fn<Discord.StringSelectMenuOptionBuilder, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuOptionBuilder = {
+        data: {},
+        setDefault: jest.fn().mockImplementation(() => result),
+        setDescription: jest.fn().mockImplementation(() => result),
+        setEmoji: jest.fn().mockImplementation(() => result),
+        setLabel: jest.fn().mockImplementation(() => result),
+        setValue: jest.fn().mockImplementation(() => result),
+        toJSON: jest.fn(),
+    };
+
+    return result;
+});
+
+/*
+ * Clients
+ */
+
+export const Client = jest.fn<Discord.Client, []>().mockImplementation(() =>
+{
+    const result: Discord.Client = {
+        login: jest.fn<Promise<string>, [string?]>().mockResolvedValue('Logged in'),
+    } as unknown as Discord.Client; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
+
+export const WebhookClient = jest.fn().mockImplementation(() =>
+{
+    return {
+        editMessage: jest.fn(),
+        fetchMessage: jest.fn(),
+        send: jest.fn(),
+    };
+});
+
+/*
+ * Components
+ */
+
+export const AttachmentPayload = jest.fn().mockImplementation(() =>
+{
+    return {
+        attachment: 'fake-attachment',
+        name: 'fake-name',
+        description: 'fake-description',
+    };
+});
+
+export const Message = jest.fn<Discord.Message, []>().mockImplementation(() =>
+{
+    const output: Discord.Message = {
+        content: 'fake-content',
+        author: { bot: false },
+        awaitMessageComponent: jest.fn(),
+        delete: jest.fn(),
+        edit: jest.fn(),
+        reply: jest.fn(),
+    } as unknown as Discord.Message; // TODO: Remove this typecast once all required properties are added
+
+    return output;
+});
+
+export const User = jest.fn<Discord.User, []>().mockImplementation(() =>
+{
+    const output: Discord.User = {
+        id: generateFakeId(),
+        bot: false,
+        system: false,
+        username: 'fake-username',
+        discriminator: '0000',
+    } as unknown as Discord.User;
+
+    return output;
+});
+
+/*
+ * Interactions
+ */
+
+export const ButtonInteraction = jest.fn<Discord.ButtonInteraction, []>().mockImplementation(() =>
+{
+    const result: Discord.ButtonInteraction = {
+        deferReply: jest.fn(),
+        deferUpdate: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+        update: jest.fn(),
+        showModal: jest.fn(),
+    } as unknown as Discord.ButtonInteraction; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
+
+export const ChatInputCommandInteraction = jest.fn<Discord.ChatInputCommandInteraction, []>().mockImplementation(() =>
+{
+    const result: Discord.ChatInputCommandInteraction = {
+        isCommand: jest.fn(() => true),
+        commandName: 'fake-command-name',
+        options: {
+            getSubcommand: jest.fn<string | null, [boolean?]>(),
+            getSubcommandGroup: jest.fn<string | null, [boolean?]>(),
+            getBoolean: jest.fn<boolean | null, [boolean?]>(),
+            getString: jest.fn<string | null, [boolean?]>(),
+            getInteger: jest.fn<number | null, [boolean?]>(),
+            getNumber: jest.fn<number | null, [boolean?]>(),
+        },
+        deferReply: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+        showModal: jest.fn(),
+    } as unknown as Discord.ChatInputCommandInteraction; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
+
+export const Interaction = jest.fn().mockImplementation(() =>
+{
+    return {
+        isCommand: jest.fn(() => true),
+        commandName: '',
+        reply: jest.fn(),
+    };
+});
+
+export const StringSelectMenuInteraction = jest.fn<Discord.StringSelectMenuInteraction, []>().mockImplementation(() =>
+{
+    const result: Discord.StringSelectMenuInteraction = {
+        deferReply: jest.fn(),
+        deferUpdate: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+        update: jest.fn(),
+        showModal: jest.fn(),
+    } as unknown as Discord.StringSelectMenuInteraction; // TODO: Remove this typecast once all required properties are added
+
+    return result;
+});
