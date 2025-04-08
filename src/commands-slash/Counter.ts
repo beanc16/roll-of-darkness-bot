@@ -4,16 +4,14 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import { logger } from '@beanc16/logger';
 import {
-    ActionRowBuilder,
-    ButtonBuilder,
     ButtonInteraction,
-    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
     Message,
     TextChannel,
 } from 'discord.js';
 
+import { CounterActionRowBuilder } from './Counter/components/CounterActionRowBuilder.js';
 import { CounterController } from './Counter/dal/CounterMongoController.js';
 import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
@@ -87,7 +85,7 @@ class Counter extends BaseSlashCommand
                     Counter.getMessageData(name, guid),
                 );
             },
-            getButtonRowComponent: () => Counter.getButtonRowComponent(),
+            getButtonRowComponent: () => new CounterActionRowBuilder(),
         });
     }
 
@@ -137,35 +135,8 @@ class Counter extends BaseSlashCommand
 
         return ButtonStrategy.getMessageData(
             message,
-            () => Counter.getButtonRowComponent(),
+            () => new CounterActionRowBuilder(),
         );
-    }
-
-    private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
-    {
-        const plusButton = new ButtonBuilder()
-            .setCustomId(CounterButtonName.Plus)
-            .setEmoji('➕')
-            .setStyle(ButtonStyle.Success);
-
-        const minusButton = new ButtonBuilder()
-            .setCustomId(CounterButtonName.Minus)
-            .setEmoji('➖')
-            .setStyle(ButtonStyle.Danger);
-
-        const auditLogButton = new ButtonBuilder()
-            .setCustomId(CounterButtonName.AuditLog)
-            .setEmoji('📋')
-            .setStyle(ButtonStyle.Secondary);
-
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(
-                plusButton,
-                auditLogButton,
-                minusButton,
-            );
-
-        return row;
     }
 
     private static updateCount(buttonInteraction: ButtonInteraction, guid: UUID): void
@@ -291,7 +262,7 @@ class Counter extends BaseSlashCommand
                                 Counter.getMessageData(newCounter.name, newCounter.guid),
                             );
                         },
-                        getButtonRowComponent: () => Counter.getButtonRowComponent(),
+                        getButtonRowComponent: () => new CounterActionRowBuilder(),
                     });
                 }
             });
