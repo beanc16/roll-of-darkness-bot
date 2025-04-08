@@ -2,25 +2,16 @@ import { logger } from '@beanc16/logger';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
-import {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    EmbedBuilder,
-} from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import { z } from 'zod';
 
-import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
-import type { HandlePaginatedChatResponsesInput } from '../../modals/BaseGenerateModal.js';
-import type { CommandName } from '../../types/discord.js';
-import { PaginationStrategy } from './PaginationStrategy/PaginationStrategy.js';
+import { timeToWaitForCommandInteractions } from '../../../constants/discord.js';
+import type { GenerateResponse, HandlePaginatedChatResponsesInput } from '../../../modals/BaseGenerateModal.js';
+import type { CommandName } from '../../../types/discord.js';
+import { PaginationStrategy } from '../PaginationStrategy/PaginationStrategy.js';
+import { AiButtonName, AiRespondActionRowBuilder } from './components/AiRespondActionRowBuilder.js';
 
 const color = 0xCDCDCD;
-
-enum AiButtonName
-{
-    Respond = 'Respond',
-}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BaseSchema = z.ZodObject<any>;
@@ -96,27 +87,17 @@ export class BaseGenerateStrategy
             originalInteraction,
             commandName,
             embeds,
-            // TODO: Add button to display the user's prompt for the current response
             rowsAbovePagination: [
-                new ActionRowBuilder<ButtonBuilder>({
-                    components: [
-                        new ButtonBuilder({
-                            customId: AiButtonName.Respond,
-                            label: AiButtonName.Respond,
-                            emoji: '🗨️',
-                            style: ButtonStyle.Secondary,
-                        }),
-                    ],
-                }),
+                new AiRespondActionRowBuilder(),
             ],
-            onRowAbovePaginationButtonPress: async (buttonInteraction, { embeds: inputEmbeds }) =>
+            onRowAbovePaginationButtonPress: async (buttonInteraction, input) =>
             {
                 return await new Promise(async (resolve) =>
                 {
                     await Modal.showModal(buttonInteraction, {
                         Modal,
                         originalInteraction,
-                        embeds: inputEmbeds,
+                        embeds: input.embeds,
                         commandName,
                         generateResponseCallback,
                     });
@@ -126,12 +107,16 @@ export class BaseGenerateStrategy
                         time: timeToWaitForCommandInteractions,
                     });
 
-                    const response = await Modal.generate(modalSubmitInteraction);
+                    const handlerMap: Record<AiButtonName, () => Promise<GenerateResponse | undefined>> = {
+                        [AiButtonName.Respond]: async () => await Modal.generate(modalSubmitInteraction),
+                    };
+
+                    const response = await handlerMap[buttonInteraction.customId as AiButtonName]();
 
                     // Failed Response
                     if (response === undefined)
                     {
-                        resolve({ embeds: inputEmbeds });
+                        resolve(input);
                     }
 
                     // Successful Response

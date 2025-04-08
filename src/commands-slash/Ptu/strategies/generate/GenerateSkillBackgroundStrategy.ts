@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
+import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import { PtuSubcommandGroup } from '../../options/index.js';

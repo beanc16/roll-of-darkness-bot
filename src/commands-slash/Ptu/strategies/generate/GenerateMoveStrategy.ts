@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { generateIntegerArrayAsStrings } from '../../../../services/arrayHelpers.js';
-import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
+import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateDevSubcommand } from '../../options/generate_dev.js';
 import {

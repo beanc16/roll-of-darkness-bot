@@ -2,7 +2,7 @@ import type { ChatInputCommandInteraction } from 'discord.js';
 import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy.js';
+import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { GeneratePlaygroundModal } from '../../modals/GeneratePlaygroundModal.js';
 import { AiDevGenerateSubcommand } from '../../options/generate_dev.js';
