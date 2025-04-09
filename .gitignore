@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# AI Files
+src/commands-slash/Ai/files/**/*.md
