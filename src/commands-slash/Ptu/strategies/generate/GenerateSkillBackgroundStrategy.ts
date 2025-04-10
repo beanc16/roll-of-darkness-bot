@@ -3,10 +3,12 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuSkill } from '../../types/pokemonTrainers.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
@@ -17,6 +19,22 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
             z.string().describe('A skill background.'),
         ).describe('A list of 10 skill backgrounds.'),
     });
+
+    private static validSkills = Object.values(PtuSkill).reduce<PtuSkill[]>((acc, cur) =>
+    {
+        // Don't include education rolls as valid random skills to roll
+        if (![
+            PtuSkill.GeneralEducation,
+            PtuSkill.MedicineEducation,
+            PtuSkill.OccultEducation,
+            PtuSkill.PokemonEducation,
+            PtuSkill.TechnologyEducation,
+        ].includes(cur))
+        {
+            acc.push(cur);
+        }
+        return acc;
+    }, []);
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -71,27 +89,25 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
     {
         // Get parameter results
         const pokemonSpecies = interaction.options.getString('pokemon_species', true);
-        const raisedSkill1 = interaction.options.getString('raised_skill_1', true);
+        const raisedSkill1 = interaction.options.getString('raised_skill_1');
         const raisedSkill2 = interaction.options.getString('raised_skill_2');
         const raisedSkill3 = interaction.options.getString('raised_skill_3');
-        const loweredSkill1 = interaction.options.getString('lowered_skill_1', true);
+        const loweredSkill1 = interaction.options.getString('lowered_skill_1');
         const loweredSkill2 = interaction.options.getString('lowered_skill_2');
         const loweredSkill3 = interaction.options.getString('lowered_skill_3');
         const significance = interaction.options.getString('significance');
         const lore = interaction.options.getString('lore');
 
-        // Convert skills to array
-        const raisedSkills = [
-            raisedSkill1,
+        // Convert skills to arrays and generate random skills if at least 2 are not provided
+        const { raisedSkills, loweredSkills } = this.getRandomSkills([
+            ...(raisedSkill1 ? [raisedSkill1] : []),
             ...(raisedSkill2 ? [raisedSkill2] : []),
             ...(raisedSkill3 ? [raisedSkill3] : []),
-        ];
-
-        const loweredSkills = [
-            loweredSkill1,
+        ], [
+            ...(loweredSkill1 ? [loweredSkill1] : []),
             ...(loweredSkill2 ? [loweredSkill2] : []),
             ...(loweredSkill3 ? [loweredSkill3] : []),
-        ];
+        ]);
 
         // Create lines of prompt
         const lines = [
@@ -111,6 +127,36 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
         }
 
         return lines.join('\n');
+    }
+
+    private static getRandomSkills(raisedSkills: string[], loweredSkills: string[]): { raisedSkills: string[]; loweredSkills: string[] }
+    {
+        // Ensure that there's alway at least 2 raised and lowered skills
+        // based on input or randomly generated.
+        const numOfRandomRaisedSkills = Math.max(2 - raisedSkills.length, 0);
+        const numOfRandomLoweredSkills = Math.max(2 - loweredSkills.length, 0);
+
+        for (let index = 0; index < numOfRandomRaisedSkills; index += 1)
+        {
+            const [rollResult] = new DiceLiteService({
+                count: 1,
+                sides: this.validSkills.length,
+            }).roll();
+
+            raisedSkills.push(this.validSkills[rollResult - 1]);
+        }
+
+        for (let index = 0; index < numOfRandomLoweredSkills; index += 1)
+        {
+            const [rollResult] = new DiceLiteService({
+                count: 1,
+                sides: this.validSkills.length,
+            }).roll();
+
+            loweredSkills.push(this.validSkills[rollResult - 1]);
+        }
+
+        return { raisedSkills, loweredSkills };
     }
 
     /* istanbul ignore next */

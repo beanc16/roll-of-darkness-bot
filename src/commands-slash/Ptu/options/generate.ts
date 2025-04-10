@@ -31,11 +31,6 @@ const skill = (
     );
     option.addChoices(...choices);
 
-    if (index <= 2)
-    {
-        option.setRequired(true);
-    }
-
     return option;
 };
 
