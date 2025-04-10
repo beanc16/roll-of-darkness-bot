@@ -21,9 +21,6 @@ export class QrActionPointsStrategy
             `${Text.bold('Maximum Action Points')}:`,
             'Trainers have a maximum Action Point pool equal to 5, plus 1 more for every 5 Trainer Levels they have achieved.',
             '',
-            `${Text.bold('Modifying Rolls')}:`,
-            'Trainers may spend 1 Action Point as a Free Action before they or their Pokemon make an Accuracy Roll or Skill Check to add +1 to the result. This cannot be done more than once per roll.',
-            '',
             `${Text.bold('Spent Action Points')}:`,
             'Spent Action Points are consumed, then completed regained at the end of each Scene.',
             '',
@@ -35,6 +32,9 @@ export class QrActionPointsStrategy
             '',
             `${Text.bold('Drained Action Points')}:`,
             'Drained Action Points become unavailable for use until after an Extended Rest is taken.',
+            '',
+            `${Text.bold('Modifying Rolls')}:`,
+            'Trainers may spend 1 Action Point as a Free Action before they or their Pokemon make an Accuracy Roll or Skill Check to add +1 to the result. This cannot be done more than once per roll.',
         ];
 
         // Parse the text into embed messages
