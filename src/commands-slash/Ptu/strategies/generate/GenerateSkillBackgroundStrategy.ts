@@ -38,7 +38,8 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const prompt = this.getPrompt(interaction);
+        const { raisedSkills, loweredSkills } = this.getSkills(interaction);
+        const prompt = this.getPrompt(interaction, raisedSkills, loweredSkills);
 
         // Generate
         const response = await this.generate({
@@ -57,7 +58,11 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
             return true;
         }
 
-        const responseString = this.getResponseString(response.raw);
+        const responseString = this.getResponseString({
+            raisedSkills,
+            loweredSkills,
+            skillBackgrounds: response.raw.skillBackgrounds,
+        });
         await interaction.editReply(responseString);
 
         /* TODO: Uncomment once chat history is added
@@ -85,29 +90,16 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
         return true;
     }
 
-    private static getPrompt(interaction: ChatInputCommandInteraction): string
+    private static getPrompt(
+        interaction: ChatInputCommandInteraction,
+        raisedSkills: string[],
+        loweredSkills: string[],
+    ): string
     {
         // Get parameter results
         const pokemonSpecies = interaction.options.getString('pokemon_species', true);
-        const raisedSkill1 = interaction.options.getString('raised_skill_1');
-        const raisedSkill2 = interaction.options.getString('raised_skill_2');
-        const raisedSkill3 = interaction.options.getString('raised_skill_3');
-        const loweredSkill1 = interaction.options.getString('lowered_skill_1');
-        const loweredSkill2 = interaction.options.getString('lowered_skill_2');
-        const loweredSkill3 = interaction.options.getString('lowered_skill_3');
         const significance = interaction.options.getString('significance');
         const lore = interaction.options.getString('lore');
-
-        // Convert skills to arrays and generate random skills if at least 2 are not provided
-        const { raisedSkills, loweredSkills } = this.getRandomSkills([
-            ...(raisedSkill1 ? [raisedSkill1] : []),
-            ...(raisedSkill2 ? [raisedSkill2] : []),
-            ...(raisedSkill3 ? [raisedSkill3] : []),
-        ], [
-            ...(loweredSkill1 ? [loweredSkill1] : []),
-            ...(loweredSkill2 ? [loweredSkill2] : []),
-            ...(loweredSkill3 ? [loweredSkill3] : []),
-        ]);
 
         // Create lines of prompt
         const lines = [
@@ -129,8 +121,28 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
         return lines.join('\n');
     }
 
-    private static getRandomSkills(raisedSkills: string[], loweredSkills: string[]): { raisedSkills: string[]; loweredSkills: string[] }
+    private static getSkills(interaction: ChatInputCommandInteraction): { raisedSkills: string[]; loweredSkills: string[] }
     {
+        // Get parameter results
+        const raisedSkill1 = interaction.options.getString('raised_skill_1');
+        const raisedSkill2 = interaction.options.getString('raised_skill_2');
+        const raisedSkill3 = interaction.options.getString('raised_skill_3');
+        const loweredSkill1 = interaction.options.getString('lowered_skill_1');
+        const loweredSkill2 = interaction.options.getString('lowered_skill_2');
+        const loweredSkill3 = interaction.options.getString('lowered_skill_3');
+
+        // Convert skills to arrays
+        const raisedSkills = [
+            ...(raisedSkill1 ? [raisedSkill1] : []),
+            ...(raisedSkill2 ? [raisedSkill2] : []),
+            ...(raisedSkill3 ? [raisedSkill3] : []),
+        ];
+        const loweredSkills = [
+            ...(loweredSkill1 ? [loweredSkill1] : []),
+            ...(loweredSkill2 ? [loweredSkill2] : []),
+            ...(loweredSkill3 ? [loweredSkill3] : []),
+        ];
+
         // Ensure that there's alway at least 2 raised and lowered skills
         // based on input or randomly generated.
         const numOfRandomRaisedSkills = Math.max(2 - raisedSkills.length, 0);
@@ -251,13 +263,44 @@ Examples:
   - Significance: Sounds snuggly. Worded to be tongue-in-cheek, since it's fiery and snuggling it would hurt.`;
     }
 
-    private static getResponseString({ skillBackgrounds = [] }: { skillBackgrounds: string[] }): string
+    private static getResponseString({
+        raisedSkills,
+        loweredSkills,
+        skillBackgrounds = [],
+    }: {
+        raisedSkills: string[];
+        loweredSkills: string[];
+        skillBackgrounds: string[];
+    }): string
     {
-        return skillBackgrounds.reduce((acc, skillBackground, index) =>
+        const skillBackgroundsOutput = skillBackgrounds.reduce((acc, skillBackground, index) =>
         {
             const lineBreak = (index === 0) ? '' : '\n';
 
             return acc + `${lineBreak}${index + 1}. ${skillBackground}`;
         }, '');
+
+        const raisedSkillsOutput = raisedSkills.reduce((acc, cur, index) =>
+        {
+            const lineBreak = (index === 0) ? '' : '\n';
+            return acc + `${lineBreak}- ${cur}`;
+        }, '');
+
+        const loweredSkillsOutput = loweredSkills.reduce((acc, cur, index) =>
+        {
+            const lineBreak = (index === 0) ? '' : '\n';
+            return acc + `${lineBreak}- ${cur}`;
+        }, '');
+
+        return [
+            Text.bold('Skill Backgrounds:'),
+            skillBackgroundsOutput,
+            '',
+            Text.bold('Raised Skills:'),
+            raisedSkillsOutput,
+            '',
+            Text.bold('Lowered Skills:'),
+            loweredSkillsOutput,
+        ].join('\n');
     }
 }
