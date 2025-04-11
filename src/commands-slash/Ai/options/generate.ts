@@ -5,6 +5,7 @@ import { promptOption } from './sharedOptions.js';
 export enum AiGenerateSubcommand
 {
     LightNovelSummary = 'light_novel_summary',
+    Summary = 'summary',
 }
 
 export const lightNovelSummary = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -15,6 +16,23 @@ export const lightNovelSummary = (subcommand: SlashCommandSubcommandBuilder): Sl
     subcommand.addStringOption((option) =>
     {
         return promptOption(option, { commandName: AiGenerateSubcommand.LightNovelSummary });
+    });
+
+    return subcommand;
+};
+
+export const summary = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(AiGenerateSubcommand.Summary);
+    subcommand.setDescription('Generate a summary of anything.');
+
+    subcommand.addStringOption((option) =>
+    {
+        return promptOption(option, {
+            commandName: AiGenerateSubcommand.Summary,
+            description: 'The text to summarize.',
+            isRequired: true,
+        });
     });
 
     return subcommand;
