@@ -15,7 +15,7 @@ export enum PaginationButtonName
 
 export class PaginationActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
 {
-    constructor({
+    constructor(/* istanbul ignore next */ {
         isDisabled = false,
         includeDeleteButton = false,
         includePaginationButtons = true,

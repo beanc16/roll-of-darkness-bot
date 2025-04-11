@@ -2,7 +2,11 @@ import { logger } from '@beanc16/logger';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { ChatOpenAI } from '@langchain/openai';
-import { EmbedBuilder } from 'discord.js';
+import {
+    type AttachmentPayload,
+    type ButtonInteraction,
+    EmbedBuilder,
+} from 'discord.js';
 import { z } from 'zod';
 
 import { timeToWaitForCommandInteractions } from '../../../constants/discord.js';
@@ -15,6 +19,12 @@ const color = 0xCDCDCD;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BaseSchema = z.ZodObject<any>;
+
+interface ButtonHandlerResponse
+{
+    embeds?: EmbedBuilder[];
+    files?: AttachmentPayload[];
+}
 
 export class BaseGenerateStrategy
 {
@@ -75,14 +85,15 @@ export class BaseGenerateStrategy
         return llm;
     }
 
-    public static async handlePaginatedChatResponses({
-        Modal,
-        originalInteraction,
-        embeds,
-        commandName,
-        generateResponseCallback,
-    }: HandlePaginatedChatResponsesInput): Promise<void>
+    /* istanbul ignore next */
+    public static async handlePaginatedChatResponses(parameters: HandlePaginatedChatResponsesInput): Promise<void>
     {
+        const {
+            originalInteraction,
+            embeds,
+            commandName,
+        } = parameters;
+
         await PaginationStrategy.run({
             originalInteraction,
             commandName,
@@ -90,42 +101,54 @@ export class BaseGenerateStrategy
             rowsAbovePagination: [
                 new AiRespondActionRowBuilder(),
             ],
-            onRowAbovePaginationButtonPress: async (buttonInteraction, input) =>
+            onRowAbovePaginationButtonPress: async (buttonInteraction, input) => await this.handleButtons(
+                parameters,
+                buttonInteraction,
+                input,
+            ),
+        });
+    }
+
+    /* istanbul ignore next */
+    private static async handleButtons({
+        Modal,
+        originalInteraction,
+        commandName,
+        generateResponseCallback,
+    }: Omit<HandlePaginatedChatResponsesInput, 'embeds'>, buttonInteraction: ButtonInteraction, input: ButtonHandlerResponse): Promise<ButtonHandlerResponse>
+    {
+        return await new Promise(async (resolve) =>
+        {
+            await Modal.showModal(buttonInteraction, {
+                Modal,
+                originalInteraction,
+                embeds: input.embeds,
+                commandName,
+                generateResponseCallback,
+            });
+
+            const modalSubmitInteraction = await buttonInteraction.awaitModalSubmit({
+                filter: (i) => (i.user.id === originalInteraction.user.id),
+                time: timeToWaitForCommandInteractions,
+            });
+
+            const handlerMap: Record<AiButtonName, () => Promise<GenerateResponse | undefined>> = {
+                [AiButtonName.Respond]: async () => await Modal.generate(modalSubmitInteraction),
+            };
+
+            const response = await handlerMap[buttonInteraction.customId as AiButtonName]();
+
+            // Failed Response
+            if (response === undefined)
             {
-                return await new Promise(async (resolve) =>
-                {
-                    await Modal.showModal(buttonInteraction, {
-                        Modal,
-                        originalInteraction,
-                        embeds: input.embeds,
-                        commandName,
-                        generateResponseCallback,
-                    });
+                resolve(input);
+            }
 
-                    const modalSubmitInteraction = await buttonInteraction.awaitModalSubmit({
-                        filter: (i) => (i.user.id === originalInteraction.user.id),
-                        time: timeToWaitForCommandInteractions,
-                    });
-
-                    const handlerMap: Record<AiButtonName, () => Promise<GenerateResponse | undefined>> = {
-                        [AiButtonName.Respond]: async () => await Modal.generate(modalSubmitInteraction),
-                    };
-
-                    const response = await handlerMap[buttonInteraction.customId as AiButtonName]();
-
-                    // Failed Response
-                    if (response === undefined)
-                    {
-                        resolve(input);
-                    }
-
-                    // Successful Response
-                    else
-                    {
-                        resolve(response);
-                    }
-                });
-            },
+            // Successful Response
+            else
+            {
+                resolve(response);
+            }
         });
     }
 

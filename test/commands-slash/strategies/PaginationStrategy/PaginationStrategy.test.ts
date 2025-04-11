@@ -336,8 +336,12 @@ describe('class: PaginationStrategy', () =>
                 });
             });
 
-            it('should call onRowAbovePaginationButtonPress callback without embeds/files if not provided', async () =>
+            it.each([
+                ['is not', false],
+                ['is', true],
+            ])('should call onRowAbovePaginationButtonPress callback without embeds/files if not provided and button interaction %s replied to', async (_1, replied) =>
             {
+                buttonInteraction = getFakeButtonInteraction(undefined, { replied });
                 const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
                 jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
@@ -420,6 +424,52 @@ describe('class: PaginationStrategy', () =>
 
                 expect(output?.embeds).toEqual(undefined);
                 expect(output?.files).toEqual(undefined);
+            });
+
+            it('should edit reply on button interaction with new page index and components if button interaction was replied to', async () =>
+            {
+                buttonInteraction = getFakeButtonInteraction(undefined, { replied: true });
+                const componentsOutput = getFakeButtonActionRowBuilder({ customId: 'fake-button-1' });
+
+                const buttonInteractionEditReplySpy = jest.spyOn(buttonInteraction, 'editReply');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: false,
+                });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'getComponents').mockReturnValue(
+                    componentsOutput,
+                );
+
+                const embeds = [
+                    new FakeEmbedBuilder({ color: 1 }),
+                    new FakeEmbedBuilder({ color: 2 }),
+                ];
+                const files = [
+                    { attachment: 'fake-attachment-1' },
+                    { attachment: 'fake-attachment-2' },
+                ];
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    buttonInteraction,
+                    response,
+                    content: '',
+                    embeds,
+                    files,
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                });
+
+                expect(buttonInteractionEditReplySpy).toHaveBeenCalledWith({
+                    components: componentsOutput,
+                    content: '',
+                    embeds: [embeds[0]],
+                    files: [files[0]],
+                });
             });
 
             it('should update button interaction with new page index and components', async () =>

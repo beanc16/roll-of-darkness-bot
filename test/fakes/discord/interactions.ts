@@ -12,10 +12,16 @@ import {
     getFakeMessage,
 } from './components.js';
 
-export const getFakeButtonInteraction = (customId: string = 'fake-id'): ButtonInteraction =>
+export const getFakeButtonInteraction = (
+    customId: string = 'fake-id',
+    options: Pick<ButtonInteraction, 'replied'> = {
+        replied: false,
+    },
+): ButtonInteraction =>
 {
     const output: ButtonInteraction = {
         customId,
+        ...options,
         message: getFakeMessage(),
         channel: getFakeChannel(),
         user: new FakeUser(),
