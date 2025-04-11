@@ -59,6 +59,9 @@ module.exports = {
         '/.*/BaseRollStrategy.ts',
         '/.*/NwodCacheInitializer.ts',
 
+        // AI
+        '/.*/BaseGenerateStrategy/.*/*.ts',
+
         // Curseborne
         '/.*/CurseborneDiceService.ts',
         '/.*/BaseCurseborneLookupStrategy.ts',
