@@ -62,15 +62,27 @@ export const getRandomYouFoundNothingEmbedMessage = ({ itemNamePluralized, rollR
 export const getRandomDowsingRodEmbedMessage = ({
     itemNamePluralized,
     results,
-    findingShardRollResults,
+    findingShardsRollResults,
     shardColorRollResults,
 }: {
     itemNamePluralized: string;
     results: RandomResult[];
-    findingShardRollResults: string;
-    shardColorRollResults: string;
+    findingShardsRollResults: number[][];
+    shardColorRollResults: number[][];
 }): EmbedBuilder =>
 {
+    const parseShardRollResults = (rollResults: number[][]): string =>
+    {
+        return rollResults.reduce((acc, cur, index) =>
+        {
+            const lineBreak = (index === 0) ? '' : '\n';
+            const resultStr = (cur.length > 0)
+                ? `(${cur.join(', ')})`
+                : '--';
+            return acc + `${lineBreak}${resultStr}`;
+        }, '');
+    };
+
     const fields = results.map(({
         name,
         cost,
@@ -92,9 +104,17 @@ export const getRandomDowsingRodEmbedMessage = ({
         } as APIEmbedField;
     });
 
+    const description = [
+        'Finding Shard Result:',
+        parseShardRollResults(findingShardsRollResults),
+        '',
+        'Shard Color Result:',
+        parseShardRollResults(shardColorRollResults),
+    ].join('\n');
+
     const embed = new EmbedBuilder()
         .setTitle(`Random ${itemNamePluralized}`)
-        .setDescription(`Finding Shard Result: (${findingShardRollResults})\nShard Color Result: (${shardColorRollResults})`)
+        .setDescription(description)
         .setColor(color)
         .setFields(...fields);
 

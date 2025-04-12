@@ -40,14 +40,14 @@ const numberOfDice = (option: SlashCommandIntegerOption): SlashCommandIntegerOpt
     return option;
 };
 
-// const numberOfIterations = (option: SlashCommandIntegerOption) =>
-// {
-//     option.setName('number_of_iterations');
-//     option.setDescription('The number of times to roll (default: 1)');
-//     option.setMinValue(1);
-//     option.setMaxValue(50);
-//     return option;
-// };
+const numberOfIterations = (option: SlashCommandIntegerOption): SlashCommandIntegerOption =>
+{
+    option.setName('number_of_iterations');
+    option.setDescription('The number of times to roll (default: 1)');
+    option.setMinValue(1);
+    option.setMaxValue(50);
+    return option;
+};
 
 export const apricorn = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
@@ -106,8 +106,6 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder): SlashComm
 {
     subcommand.setName(PtuRandomSubcommand.DowsingRod);
     subcommand.setDescription('Get a random item using a Dowsing Rod.');
-    // TODO: Add number of iterations
-    // subcommand.addIntegerOption(numberOfIterations);
     subcommand.addIntegerOption((option) =>
     {
         option.setName('occult_education_rank');
@@ -117,6 +115,7 @@ export const dowsingRod = (subcommand: SlashCommandSubcommandBuilder): SlashComm
         option.setRequired(true);
         return option;
     });
+    subcommand.addIntegerOption(numberOfIterations);
     subcommand.addBooleanOption((option) =>
     {
         option.setName('has_crystal_resonance');
