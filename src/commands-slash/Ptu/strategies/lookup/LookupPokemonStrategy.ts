@@ -51,6 +51,7 @@ export interface GetLookupPokemonDataParameters
     abilityListType?: PtuAbilityListType;
     capabilityName?: string | null;
     baseStatTotal?: number | null;
+    getAll?: boolean;
 }
 
 interface AddLookupMetadataToPtuPokemonParameters
@@ -195,9 +196,10 @@ export class LookupPokemonStrategy
         abilityListType = PtuAbilityListType.All,
         capabilityName,
         baseStatTotal,
+        getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!(name || moveName || abilityName || capabilityName || baseStatTotal))
+        if (!(name || moveName || abilityName || capabilityName || baseStatTotal || getAll))
         {
             return [];
         }
@@ -211,6 +213,7 @@ export class LookupPokemonStrategy
             abilityListType,
             capabilityName,
             baseStatTotal,
+            getAll,
         });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
@@ -821,9 +824,15 @@ export class LookupPokemonStrategy
         abilityListType = PtuAbilityListType.All,
         capabilityName,
         baseStatTotal,
+        getAll,
     }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
     {
         let output: ParseSearchParametersResponse = {};
+
+        if (getAll)
+        {
+            return output;
+        }
 
         if (baseStatTotal)
         {
