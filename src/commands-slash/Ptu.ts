@@ -5,6 +5,7 @@ import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js
 import {
     breed,
     calculate,
+    game,
     PtuSubcommandGroup,
     random,
     roll,
@@ -24,6 +25,7 @@ class Ptu extends BaseSlashCommand
         this._slashCommandData
             .addSubcommand(breed)
             .addSubcommandGroup(calculate)
+            .addSubcommandGroup(game)
             .addSubcommandGroup(random)
             .addSubcommandGroup(roll)
             .addSubcommand(train)
