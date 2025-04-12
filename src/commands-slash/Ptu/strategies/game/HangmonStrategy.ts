@@ -38,7 +38,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const players = this.getPlayers(interaction);
         const { allPokemon, randomPokemon } = await this.getPokemon();
 
-        // Send message
+        // Build embed
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
@@ -67,6 +67,9 @@ export class HangmonStrategy extends BaseGenerateStrategy
             ],
             maxAttempts: 6,
         });
+
+        const message = await interaction.fetchReply();
+
         await interaction.editReply({
             embeds: [embed],
             components: [
@@ -75,6 +78,15 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         customId: 'hangmon_selection',
                         elementName: 'Pokemon',
                         elements: allPokemon,
+                        message,
+                        commandName: `/${interaction.commandName}`,
+                        embeds: [embed],
+                        onSelect: (receivedInteraction) =>
+                        {
+                            // TODO: Do something here
+                            const { customId, values: [value] = [] } = receivedInteraction;
+                            console.log('\n selected:', { customId, value });
+                        },
                         optionParser: (curPokemon) =>
                         {
                             const typesLabel = (curPokemon.types.length > 1) ? 'Types' : 'Type';

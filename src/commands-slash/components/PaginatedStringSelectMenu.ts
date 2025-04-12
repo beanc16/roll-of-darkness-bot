@@ -1,6 +1,17 @@
-import { SelectMenuComponentOptionData, StringSelectMenuBuilder } from 'discord.js';
+import {
+    ActionRowBuilder,
+    EmbedBuilder,
+    Message,
+    SelectMenuComponentOptionData,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
 import { chunkArray } from '../../services/chunkArray.js';
+import { CommandName } from '../../types/discord.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../strategies/InteractionStrategy.js';
+
+type OnSelect = (receivedInteraction: StringSelectMenuInteraction) => Promise<void> | void;
 
 export enum PageNavigation
 {
@@ -8,6 +19,15 @@ export enum PageNavigation
     Next = 'Next →',
     First = '←← First',
     Last = 'Last →→',
+}
+
+interface HandleInteractionsOptions
+{
+    customId: string;
+    message: Message;
+    commandName: CommandName;
+    embeds: EmbedBuilder[];
+    onSelect: OnSelect;
 }
 
 export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
@@ -23,12 +43,15 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         elementName,
         elements,
         optionParser,
+        message,
+        commandName,
+        embeds,
+        onSelect,
     }: {
-        customId: string;
         elementName: string;
         elements: Element[];
         optionParser: (element: Element) => SelectMenuComponentOptionData;
-    })
+    } & HandleInteractionsOptions)
     {
         const options = elements.map(optionParser);
 
@@ -37,7 +60,62 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         this.elementOptions = options;
         this.setPage(PageNavigation.First);
 
-        // TODO: Add interaction listener that calls callback if a non-pagination option is selected
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.handleInteractions({
+            customId,
+            message,
+            commandName,
+            embeds,
+            onSelect,
+        });
+    }
+
+    private async handleInteractions({
+        customId,
+        message,
+        commandName,
+        embeds,
+        onSelect,
+    }: HandleInteractionsOptions): Promise<void>
+    {
+        await InteractionStrategy.handleInteractions({
+            interactionResponse: message,
+            commandName,
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: /* istanbul ignore next */ async (receivedInteraction) =>
+            {
+                const { customId: receivedCustomId, values: [value] = [] } = receivedInteraction as StringSelectMenuInteraction;
+
+                if (customId !== receivedCustomId || !value)
+                {
+                    await onSelect(receivedInteraction as StringSelectMenuInteraction);
+                    return;
+                }
+
+                const handlerMap: Record<PageNavigation, () => void> = {
+                    [PageNavigation.Previous]: () => this.setPage(PageNavigation.Previous),
+                    [PageNavigation.Next]: () => this.setPage(PageNavigation.Next),
+                    [PageNavigation.First]: () => this.setPage(PageNavigation.First),
+                    [PageNavigation.Last]: () => this.setPage(PageNavigation.Last),
+                };
+
+                const handler = handlerMap[value as PageNavigation];
+
+                if (handler)
+                {
+                    handler();
+                    await receivedInteraction.update({
+                        embeds,
+                        components: [this.toActionRowBuilder()],
+                    });
+                }
+                else
+                {
+                    await onSelect(receivedInteraction as StringSelectMenuInteraction);
+                }
+            },
+            getActionRowComponent: () => this.toActionRowBuilder(),
+        });
     }
 
     private get elementsPerPage(): number
@@ -97,7 +175,7 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
                 });
             }
             // 2+ pages, not the first page
-            else if (this.index !== 0 && this.numOfPages >= 2)
+            if (this.index !== 0 && this.numOfPages >= 2)
             {
                 mainPage.unshift({
                     label: PageNavigation.Previous,
@@ -150,5 +228,13 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
 
         this.setOptions(this.curPage);
         this.setPlaceholder(`${this.elementName} List - Page ${this.index + 1}`);
+    }
+
+    /* istanbul ignore next */
+    private toActionRowBuilder(): ActionRowBuilder<PaginatedStringSelectMenu<Element>>
+    {
+        return new ActionRowBuilder<PaginatedStringSelectMenu<Element>>({
+            components: [this],
+        });
     }
 }
