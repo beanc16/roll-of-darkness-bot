@@ -6,10 +6,10 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
-import { HangmonStringSelectMenu } from '../../components/game/HangmonStringSelectMenu.js';
 import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
@@ -70,8 +70,25 @@ export class HangmonStrategy extends BaseGenerateStrategy
         await interaction.editReply({
             embeds: [embed],
             components: [
-                new ActionRowBuilder<HangmonStringSelectMenu>({
-                    components: [new HangmonStringSelectMenu(allPokemon)],
+                new ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>({
+                    components: [new PaginatedStringSelectMenu({
+                        customId: 'hangmon_selection',
+                        elementName: 'Pokemon',
+                        elements: allPokemon,
+                        optionParser: (curPokemon) =>
+                        {
+                            const typesLabel = (curPokemon.types.length > 1) ? 'Types' : 'Type';
+
+                            return {
+                                label: curPokemon.name,
+                                value: curPokemon.name,
+                                description: [
+                                    `${typesLabel}: ${curPokemon.types.join(' / ')}`,
+                                    `${curPokemon.metadata.source}`,
+                                ].join(' | '),
+                            };
+                        },
+                    })],
                 }),
             ],
         });

@@ -1,9 +1,8 @@
 import { SelectMenuComponentOptionData, StringSelectMenuBuilder } from 'discord.js';
 
-import { chunkArray } from '../../../../services/chunkArray.js';
-import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
+import { chunkArray } from '../../services/chunkArray.js';
 
-export enum PagedStringSelectMenuPageNavigation
+export enum PageNavigation
 {
     Previous = '← Previous',
     Next = 'Next →',
@@ -11,33 +10,32 @@ export enum PagedStringSelectMenuPageNavigation
     Last = 'Last →→',
 }
 
-export class HangmonStringSelectMenu extends StringSelectMenuBuilder
+export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
 {
     private MAX_OPTIONS_PER_PAGE = 25;
 
-    private pokemonOptions: SelectMenuComponentOptionData[];
+    private elementName: string;
+    private elementOptions: SelectMenuComponentOptionData[];
     private index = 0;
 
-    constructor(pokemon: PtuPokemonForLookupPokemon[])
+    constructor({
+        customId,
+        elementName,
+        elements,
+        optionParser,
+    }: {
+        customId: string;
+        elementName: string;
+        elements: Element[];
+        optionParser: (element: Element) => SelectMenuComponentOptionData;
+    })
     {
-        // Parse options
-        const options = pokemon.map<SelectMenuComponentOptionData>((curPokemon) =>
-        {
-            const typesLabel = (curPokemon.types.length > 1) ? 'Types' : 'Type';
+        const options = elements.map(optionParser);
 
-            return {
-                label: curPokemon.name,
-                value: curPokemon.name,
-                description: [
-                    `${typesLabel}: ${curPokemon.types.join(' / ')}`,
-                    `${curPokemon.metadata.source}`,
-                ].join(' | '),
-            };
-        });
-
-        super({ customId: 'hangmon_selection', placeholder: `Pokemon List - Page 1` });
-        this.pokemonOptions = options;
-        this.setPage('first');
+        super({ customId, placeholder: `${elementName} List - Page 1` });
+        this.elementName = elementName;
+        this.elementOptions = options;
+        this.setPage(PageNavigation.First);
 
         // TODO: Add interaction listener that calls callback if a non-pagination option is selected
     }
@@ -46,7 +44,7 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
     {
         if (this.numOfPages === 1)
         {
-            return this.pokemonOptions.length;
+            return this.elementOptions.length;
         }
 
         if (this.numOfPages === 2)
@@ -59,23 +57,23 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
 
     private get numOfPages(): number
     {
-        if (this.pokemonOptions.length <= this.MAX_OPTIONS_PER_PAGE)
+        if (this.elementOptions.length <= this.MAX_OPTIONS_PER_PAGE)
         {
             return 1;
         }
 
-        if (this.pokemonOptions.length <= 2 * (this.MAX_OPTIONS_PER_PAGE - 1))
+        if (this.elementOptions.length <= 2 * (this.MAX_OPTIONS_PER_PAGE - 1))
         {
             return 2;
         }
 
-        return Math.ceil(this.pokemonOptions.length / (this.MAX_OPTIONS_PER_PAGE - 2));
+        return Math.ceil(this.elementOptions.length / (this.MAX_OPTIONS_PER_PAGE - 2));
     }
 
     private get pages(): SelectMenuComponentOptionData[][]
     {
         return chunkArray({
-            array: this.pokemonOptions,
+            array: this.elementOptions,
             shouldMoveToNextChunk: (_, index) => (
                 index % this.elementsPerPage === 0
                 && index !== 0
@@ -93,8 +91,8 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
             if (this.index !== this.numOfPages - 1 && this.numOfPages >= 2)
             {
                 mainPage.push({
-                    label: PagedStringSelectMenuPageNavigation.Next,
-                    value: PagedStringSelectMenuPageNavigation.Next,
+                    label: PageNavigation.Next,
+                    value: PageNavigation.Next,
                     description: `Page ${this.index + 2}`,
                 });
             }
@@ -102,8 +100,8 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
             else if (this.index !== 0 && this.numOfPages >= 2)
             {
                 mainPage.unshift({
-                    label: PagedStringSelectMenuPageNavigation.Previous,
-                    value: PagedStringSelectMenuPageNavigation.Previous,
+                    label: PageNavigation.Previous,
+                    value: PageNavigation.Previous,
                     description: `Page ${this.index}`,
                 });
             }
@@ -112,8 +110,8 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
             if (this.index === 0 && this.numOfPages >= 3)
             {
                 mainPage.unshift({
-                    label: PagedStringSelectMenuPageNavigation.Last,
-                    value: PagedStringSelectMenuPageNavigation.Last,
+                    label: PageNavigation.Last,
+                    value: PageNavigation.Last,
                     description: `Page ${this.numOfPages}`,
                 });
             }
@@ -121,8 +119,8 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
             else if (this.index === this.numOfPages - 1 && this.numOfPages >= 3)
             {
                 mainPage.push({
-                    label: PagedStringSelectMenuPageNavigation.First,
-                    value: PagedStringSelectMenuPageNavigation.First,
+                    label: PageNavigation.First,
+                    value: PageNavigation.First,
                     description: 'Page 1',
                 });
             }
@@ -131,26 +129,26 @@ export class HangmonStringSelectMenu extends StringSelectMenuBuilder
         return mainPage;
     }
 
-    public setPage(value: 'previous' | 'next' | 'first' | 'last'): void
+    public setPage(value: PageNavigation): void
     {
-        if (value === 'previous')
+        if (value === PageNavigation.Previous)
         {
             this.index -= 1;
         }
-        else if (value === 'next')
+        else if (value === PageNavigation.Next)
         {
             this.index += 1;
         }
-        else if (value === 'first')
+        else if (value === PageNavigation.First)
         {
             this.index = 0;
         }
-        else if (value === 'last')
+        else if (value === PageNavigation.Last)
         {
             this.index = this.numOfPages - 1;
         }
 
         this.setOptions(this.curPage);
-        this.setPlaceholder(`Pokemon List - Page ${this.index + 1}`);
+        this.setPlaceholder(`${this.elementName} List - Page ${this.index + 1}`);
     }
 }
