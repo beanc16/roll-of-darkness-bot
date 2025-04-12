@@ -1,6 +1,6 @@
 import type { ButtonInteraction, Message } from 'discord.js';
 
-import { ButtonStrategy, HandleButtonInteractionsOptions } from '../../../src/commands-slash/strategies/ButtonStrategy.js';
+import { HandleInteractionsOptions, InteractionStrategy } from '../../../src/commands-slash/strategies/InteractionStrategy.js';
 import { RerollInteractionCallbackType, RerollStrategy } from '../../../src/commands-slash/strategies/RerollStrategy.js';
 import { CommandName, DiscordInteractionCallbackType } from '../../../src/types/discord.js';
 import { getFakeButtonInteraction } from '../../fakes/discord/interactions.js';
@@ -11,7 +11,7 @@ describe('class: RerollStrategy', () =>
     {
         jest.clearAllMocks();
 
-        jest.spyOn(ButtonStrategy, 'getMessageData').mockImplementation(() =>
+        jest.spyOn(InteractionStrategy, 'getMessageData').mockImplementation(() =>
         {
             return {
                 content: 'fake-content',
@@ -23,7 +23,7 @@ describe('class: RerollStrategy', () =>
     describe('method: run', () =>
     {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow for testing purposes
-        let spyOnHandleButtonInteractions: jest.SpyInstance<Promise<void>, [HandleButtonInteractionsOptions], any>;
+        let spyOnHandleInteractions: jest.SpyInstance<Promise<void>, [HandleInteractionsOptions], any>;
         const commandName: CommandName = '/fake_command';
         let interaction: ButtonInteraction;
         let onRerollCallback: jest.Mock;
@@ -32,7 +32,7 @@ describe('class: RerollStrategy', () =>
         {
             onRerollCallback = jest.fn();
             interaction = getFakeButtonInteraction();
-            spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy, 'handleButtonInteractions').mockImplementation();
+            spyOnHandleInteractions = jest.spyOn(InteractionStrategy, 'handleInteractions').mockImplementation();
         });
 
         describe.each([
@@ -81,7 +81,7 @@ describe('class: RerollStrategy', () =>
                 });
             });
 
-            it('should call ButtonStrategy.handleButtonInteractions', async () =>
+            it('should call InteractionStrategy.handleInteractions', async () =>
             {
                 await RerollStrategy.run({
                     interaction,
@@ -93,11 +93,11 @@ describe('class: RerollStrategy', () =>
                     commandName,
                 });
 
-                expect(spyOnHandleButtonInteractions).toHaveBeenCalledTimes(1);
+                expect(spyOnHandleInteractions).toHaveBeenCalledTimes(1);
             });
 
             /* eslint-disable jest/no-conditional-expect */ // Ignore for this one test that tests all possible outcomes
-            it('should call ButtonStrategy.handleButtonInteractions with the correct interactionResponse', async () =>
+            it('should call InteractionStrategy.handleInteractions with the correct interactionResponse', async () =>
             {
                 const messageResponse: Message = {
                     content: 'fake-message-response-content',
@@ -119,19 +119,19 @@ describe('class: RerollStrategy', () =>
                 });
 
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- We want this to test only one parameter
-                const handleButtonInteractionsCall: HandleButtonInteractionsOptions = (ButtonStrategy['handleButtonInteractions'] as any).mock.calls[0][0];
+                const handleInteractionsCall: HandleInteractionsOptions = (InteractionStrategy['handleInteractions'] as any).mock.calls[0][0];
 
-                // Similar to expect(ButtonStrategy['handleButtonInteractions']).toHaveBeenCalledWith
+                // Similar to expect(InteractionStrategy['handleInteractions']).toHaveBeenCalledWith
                 // except without nonymous functions, which Jest doesn't evaluate correctly.
                 if (interactionCallbackType === DiscordInteractionCallbackType.Update)
                 {
-                    expect(handleButtonInteractionsCall.interactionResponse).toEqual(
+                    expect(handleInteractionsCall.interactionResponse).toEqual(
                         interaction.message,
                     );
                 }
                 else
                 {
-                    expect(handleButtonInteractionsCall.interactionResponse).toEqual(
+                    expect(handleInteractionsCall.interactionResponse).toEqual(
                         messageResponse,
                     );
                 }

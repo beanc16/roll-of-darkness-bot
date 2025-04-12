@@ -9,25 +9,27 @@ import {
     InteractionUpdateOptions,
     Message,
     RESTJSONErrorCodes,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { timeToWaitForCommandInteractions } from '../../constants/discord.js';
 import type { CommandName } from '../../types/discord.js';
 
-export enum ButtonListenerRestartStyle
+export enum InteractionListenerRestartStyle
 {
     OnSuccess = 'onSuccess',
     Never = 'never',
 }
 
-export interface HandleButtonInteractionsOptions
+export interface HandleInteractionsOptions
 {
     interactionResponse: Message<boolean>;
     commandName: CommandName;
-    restartStyle: ButtonListenerRestartStyle;
+    restartStyle: InteractionListenerRestartStyle;
     timeToWaitForInteractions?: number;
-    onButtonPress: (buttonInteraction: ButtonInteraction) => Promise<void> | void;
-    getButtonRowComponent: () => ActionRowBuilder<ButtonBuilder>;
+    onInteraction: (receivedInteraction: ButtonInteraction | StringSelectMenuInteraction) => Promise<void> | void;
+    getActionRowComponent: () => ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>;
     curRecursionDepth?: number;
     maxRecursionDepth?: number; // This is to prevent infinite recursion and should only be used by unit tests
 }
@@ -40,36 +42,39 @@ export type GetMessageDataOptions = string | (Omit<
 
 export interface GetMessageDataResponse extends Omit<InteractionEditReplyOptions | InteractionReplyOptions | InteractionUpdateOptions, 'components'>
 {
-    components: ActionRowBuilder<ButtonBuilder>[];
+    components: ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>[];
 }
 
-export class ButtonStrategy
+export class InteractionStrategy
 {
-    public static async handleButtonInteractions({
+    public static async handleInteractions({
         interactionResponse,
         commandName,
         restartStyle,
         timeToWaitForInteractions = timeToWaitForCommandInteractions,
-        onButtonPress,
-        getButtonRowComponent,
+        onInteraction,
+        getActionRowComponent,
         curRecursionDepth = 0,
         maxRecursionDepth,
-    }: HandleButtonInteractionsOptions): Promise<void>
+    }: HandleInteractionsOptions): Promise<void>
     {
-        let buttonInteraction: ButtonInteraction | undefined;
+        let receivedInteraction: ButtonInteraction | StringSelectMenuInteraction | undefined;
 
         try
         {
-            // Wait for button interactions
-            buttonInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.Button,
+            // Wait for valid interactions
+            receivedInteraction = await interactionResponse.awaitMessageComponent({
+                filter: /* istanbul ignore next */ (i) => (
+                    i.componentType === ComponentType.Button
+                    || i.componentType === ComponentType.StringSelect
+                ),
                 time: timeToWaitForInteractions,
-            });
+            }) as ButtonInteraction | StringSelectMenuInteraction;
 
-            await onButtonPress(buttonInteraction);
+            await onInteraction(receivedInteraction);
 
             if (
-                restartStyle === ButtonListenerRestartStyle.OnSuccess
+                restartStyle === InteractionListenerRestartStyle.OnSuccess
                 && (maxRecursionDepth === undefined || (
                     maxRecursionDepth !== undefined
                     && curRecursionDepth < maxRecursionDepth
@@ -78,12 +83,12 @@ export class ButtonStrategy
             {
                 // Restart listener
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-                this.handleButtonInteractions({
-                    interactionResponse: buttonInteraction?.message ?? interactionResponse,
+                this.handleInteractions({
+                    interactionResponse: receivedInteraction?.message ?? interactionResponse,
                     commandName,
                     restartStyle,
-                    onButtonPress,
-                    getButtonRowComponent,
+                    onInteraction,
+                    getActionRowComponent,
                     curRecursionDepth: curRecursionDepth + 1,
                     maxRecursionDepth,
                 });
@@ -99,26 +104,26 @@ export class ButtonStrategy
             // Ignore timeouts & deleted
             if (!messageTimedOut && !messageWasDeleted)
             {
-                logger.error(`An unknown error occurred whilst handling button interactions for ${commandName}`, error);
+                logger.error(`An unknown error occurred whilst handling interactions for ${commandName}`, error);
             }
 
-            // Disable paginated buttons upon non-deletes
+            // Disable components upon non-deletes
             if (!messageWasDeleted)
             {
                 // Disable each component
-                const buttonRow = getButtonRowComponent();
-                buttonRow.components.forEach(component => component.setDisabled(true));
+                const actionRow = getActionRowComponent();
+                actionRow.components.forEach(component => component.setDisabled(true));
 
                 // Update message with the same content, but with disabled components
-                const messageData = ButtonStrategy.getMessageData(
+                const messageData = InteractionStrategy.getMessageData(
                     interactionResponse.content,
-                    () => buttonRow,
+                    () => actionRow,
                 );
 
                 if (messageTimedOut)
                 {
                     // Fetch just in case its an interaction response, then reply
-                    const fetchedMessage = await buttonInteraction?.channel?.messages.fetch(interactionResponse.id);
+                    const fetchedMessage = await receivedInteraction?.channel?.messages.fetch(interactionResponse.id);
                     await fetchedMessage?.edit(messageData);
                 }
                 else
@@ -131,17 +136,17 @@ export class ButtonStrategy
 
     public static getMessageData(
         options: GetMessageDataOptions,
-        getButtonRowComponent: () => ActionRowBuilder<ButtonBuilder>,
+        getActionRowComponent: HandleInteractionsOptions['getActionRowComponent'],
     ): GetMessageDataResponse
     {
-        const buttonRow = getButtonRowComponent();
+        const actionRow = getActionRowComponent();
         const typedOptions = (typeof options === 'string')
             ? { content: options }
             : options;
 
         return {
             ...typedOptions,
-            components: [buttonRow],
+            components: [actionRow],
         };
     }
 }

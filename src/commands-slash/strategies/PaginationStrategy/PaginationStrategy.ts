@@ -14,7 +14,7 @@ import {
 } from 'discord.js';
 
 import { CommandName } from '../../../types/discord.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../InteractionStrategy.js';
 import { PaginationActionRowBuilder, PaginationButtonName } from './components/PaginationActionRowBuilder.js';
 
 export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
@@ -110,15 +110,15 @@ export class PaginationStrategy
             let pageIndex = 0;
 
             // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            ButtonStrategy.handleButtonInteractions({
+            InteractionStrategy.handleInteractions({
                 interactionResponse: response,
                 commandName,
-                restartStyle: ButtonListenerRestartStyle.OnSuccess,
-                onButtonPress: /* istanbul ignore next */ async (buttonInteraction) =>
+                restartStyle: InteractionListenerRestartStyle.OnSuccess,
+                onInteraction: /* istanbul ignore next */ async (receivedInteraction) =>
                 {
                     const onButtonPressResponse = await this.onButtonPress({
                         originalInteraction,
-                        buttonInteraction,
+                        buttonInteraction: receivedInteraction as ButtonInteraction,
                         response,
                         content,
                         embeds,
@@ -151,7 +151,7 @@ export class PaginationStrategy
                         }
                     }
                 },
-                getButtonRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent({
+                getActionRowComponent: /* istanbul ignore next */ () => this.getPaginationRowComponent({
                     isDisabled: false,
                     includeDeleteButton,
                     includePaginationButtons: (

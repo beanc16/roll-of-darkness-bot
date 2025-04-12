@@ -1,6 +1,6 @@
 import type { ButtonInteraction, Message } from 'discord.js';
 
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../../src/commands-slash/strategies/ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../../src/commands-slash/strategies/InteractionStrategy.js';
 import { PaginationButtonName } from '../../../../src/commands-slash/strategies/PaginationStrategy/components/PaginationActionRowBuilder.js';
 import { PaginationStrategy } from '../../../../src/commands-slash/strategies/PaginationStrategy/PaginationStrategy.js';
 import {
@@ -76,7 +76,7 @@ describe('class: PaginationStrategy', () =>
             it(`should not paginate if there's no embeds or files`, async () =>
             {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
+                jest.spyOn(InteractionStrategy as any, 'handleInteractions').mockImplementation(() => undefined);
 
                 await PaginationStrategy['run']({
                     originalInteraction: interaction,
@@ -84,7 +84,7 @@ describe('class: PaginationStrategy', () =>
                     interactionType,
                 });
 
-                expect(ButtonStrategy['handleButtonInteractions']).not.toHaveBeenCalled();
+                expect(InteractionStrategy['handleInteractions']).not.toHaveBeenCalled();
             });
 
             describe.each([
@@ -95,7 +95,7 @@ describe('class: PaginationStrategy', () =>
                 it('should paginate if provided', async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                    const spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
+                    const spyOnHandleInteractions = jest.spyOn(InteractionStrategy as any, 'handleInteractions').mockImplementation(() => undefined);
 
                     await PaginationStrategy['run']({
                         originalInteraction: interaction,
@@ -104,11 +104,11 @@ describe('class: PaginationStrategy', () =>
                         [parameterName]: array,
                     });
 
-                    expect(spyOnHandleButtonInteractions).toHaveBeenCalledWith(
+                    expect(spyOnHandleInteractions).toHaveBeenCalledWith(
                         expect.objectContaining({
                             interactionResponse: response,
                             commandName,
-                            restartStyle: ButtonListenerRestartStyle.OnSuccess,
+                            restartStyle: InteractionListenerRestartStyle.OnSuccess,
                         }),
                     );
                 });
@@ -116,7 +116,7 @@ describe('class: PaginationStrategy', () =>
                 it(`should include rowsAbovePagination and ${parameterName} if provided`, async () =>
                 {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
-                    jest.spyOn(ButtonStrategy as any, 'handleButtonInteractions').mockImplementation(() => undefined);
+                    jest.spyOn(InteractionStrategy as any, 'handleInteractions').mockImplementation(() => undefined);
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of the private method
                     const spyOnReplyToOriginalInteraction = jest.spyOn(PaginationStrategy as any, 'replyToOriginalInteraction');
 

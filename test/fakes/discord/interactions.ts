@@ -3,6 +3,7 @@
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
+    ComponentType,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
@@ -22,6 +23,7 @@ export const getFakeButtonInteraction = (
     const output: ButtonInteraction = {
         customId,
         ...options,
+        componentType: ComponentType.Button,
         message: getFakeMessage(),
         channel: getFakeChannel(),
         user: new FakeUser(),

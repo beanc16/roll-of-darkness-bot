@@ -3,28 +3,41 @@ import type {
     ActionRowBuilder,
     ButtonBuilder,
     Message,
+    StringSelectMenuBuilder,
 } from 'discord.js';
 
 import {
-    ButtonListenerRestartStyle,
-    ButtonStrategy,
     GetMessageDataOptions,
     GetMessageDataResponse,
-} from '../../../src/commands-slash/strategies/ButtonStrategy.js';
+    InteractionListenerRestartStyle,
+    InteractionStrategy,
+} from '../../../src/commands-slash/strategies/InteractionStrategy.js';
 import type { CommandName } from '../../../src/types/discord.js';
-import { getFakeButtonActionRowBuilder } from '../../fakes/discord/builders.js';
+import { getFakeButtonActionRowBuilder, getFakeStringSelectMenuActionRowBuilder } from '../../fakes/discord/builders.js';
 import { getFakeMessage } from '../../fakes/discord/components.js';
-import { getFakeButtonInteraction } from '../../fakes/discord/interactions.js';
+import { FakeStringSelectMenuInteraction, getFakeButtonInteraction } from '../../fakes/discord/interactions.js';
 
-describe('class: ButtonStrategy', () =>
+describe.each([
+    ['buttons', {
+        interaction: getFakeButtonInteraction('fake-button'),
+        actionRowBuilder: getFakeButtonActionRowBuilder({
+            customId: 'fake-button',
+        }),
+    }],
+    ['string select menus', {
+        interaction: new FakeStringSelectMenuInteraction(),
+        actionRowBuilder: getFakeStringSelectMenuActionRowBuilder({
+            customId: 'fake-string-select-menu',
+        }),
+    }],
+])('class: InteractionStrategy - %s', (_1, { interaction, actionRowBuilder }) =>
 {
-    describe('method: handleButtonInteractions', () =>
+    describe('method: handleInteractions', () =>
     {
         let commandName: CommandName;
         let interactionResponse: Message<boolean>;
-        let actionRowBuilder: ActionRowBuilder<ButtonBuilder>;
-        let onButtonPress: jest.Mock;
-        let getButtonRowComponent: jest.Mock<ActionRowBuilder<ButtonBuilder>>;
+        let onInteraction: jest.Mock;
+        let getActionRowComponent: jest.Mock<ActionRowBuilder<ButtonBuilder> | ActionRowBuilder<StringSelectMenuBuilder>>;
 
         beforeEach(() =>
         {
@@ -32,75 +45,72 @@ describe('class: ButtonStrategy', () =>
 
             commandName = '/fake_command';
             interactionResponse = getFakeMessage('fake-content');
-            actionRowBuilder = getFakeButtonActionRowBuilder({
-                customId: 'fake-button',
-            });
-            onButtonPress = jest.fn();
-            getButtonRowComponent = jest.fn(() => actionRowBuilder);
+            onInteraction = jest.fn();
+            getActionRowComponent = jest.fn(() => actionRowBuilder);
         });
 
-        describe('does receive button interactions', () =>
+        describe('does receive interactions', () =>
         {
             beforeEach(() =>
             {
                 jest.spyOn(interactionResponse, 'awaitMessageComponent').mockResolvedValue(
-                    getFakeButtonInteraction('fake-button'),
+                    interaction,
                 );
             });
 
             describe.each([
-                [ButtonListenerRestartStyle.OnSuccess, true],
-                [ButtonListenerRestartStyle.Never, false],
+                [InteractionListenerRestartStyle.OnSuccess, true],
+                [InteractionListenerRestartStyle.Never, false],
             ])('restartStyle: %s', (restartStyle, shouldListenRecursively) =>
             {
-                it('should call the onButtonPress parameter', async () =>
+                it('should call the onInteraction parameter', async () =>
                 {
-                    await ButtonStrategy.handleButtonInteractions({
+                    await InteractionStrategy.handleInteractions({
                         interactionResponse,
                         commandName,
                         restartStyle,
-                        onButtonPress,
-                        getButtonRowComponent,
+                        onInteraction,
+                        getActionRowComponent,
                         maxRecursionDepth: 1,
                     });
 
-                    expect(onButtonPress).toHaveBeenCalled();
+                    expect(onInteraction).toHaveBeenCalled();
                 });
 
                 /* eslint-disable jest/no-conditional-expect */ // Ignore for this one test that tests all possible outcomes
                 it(`method should ${shouldListenRecursively ? '' : 'not '}recursively call itself`, async () =>
                 {
-                    const spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy, 'handleButtonInteractions');
+                    const spyOnHandleInteractions = jest.spyOn(InteractionStrategy, 'handleInteractions');
 
-                    await ButtonStrategy.handleButtonInteractions({
+                    await InteractionStrategy.handleInteractions({
                         interactionResponse,
                         commandName,
                         restartStyle,
-                        onButtonPress,
-                        getButtonRowComponent,
+                        onInteraction,
+                        getActionRowComponent,
                         maxRecursionDepth: 1,
                     });
 
                     if (shouldListenRecursively)
                     {
                         // Called once in this test, then again in the function itself
-                        expect(spyOnHandleButtonInteractions).toHaveBeenCalledTimes(2);
+                        expect(spyOnHandleInteractions).toHaveBeenCalledTimes(2);
                     }
                     else
                     {
                         // Called once in this test, but not afterwards
-                        expect(spyOnHandleButtonInteractions).toHaveBeenCalledTimes(1);
+                        expect(spyOnHandleInteractions).toHaveBeenCalledTimes(1);
                     }
                 });
                 /* eslint-enable jest/no-conditional-expect */
             });
         });
 
-        describe('does not receive button interactions', () =>
+        describe('does not receive interactions', () =>
         {
             describe.each([
-                [ButtonListenerRestartStyle.OnSuccess],
-                [ButtonListenerRestartStyle.Never],
+                [InteractionListenerRestartStyle.OnSuccess],
+                [InteractionListenerRestartStyle.Never],
             ])('restartStyle: %s', (restartStyle) =>
             {
                 beforeEach(() =>
@@ -110,35 +120,35 @@ describe('class: ButtonStrategy', () =>
                     );
                 });
 
-                it('should not call the onButtonPress parameter', async () =>
+                it('should not call the onInteraction parameter', async () =>
                 {
-                    await ButtonStrategy.handleButtonInteractions({
+                    await InteractionStrategy.handleInteractions({
                         interactionResponse,
                         commandName,
                         restartStyle,
-                        onButtonPress,
-                        getButtonRowComponent,
+                        onInteraction,
+                        getActionRowComponent,
                         maxRecursionDepth: 1,
                     });
 
-                    expect(onButtonPress).not.toHaveBeenCalled();
+                    expect(onInteraction).not.toHaveBeenCalled();
                 });
 
                 it(`method should not recursively call itself`, async () =>
                 {
-                    const spyOnHandleButtonInteractions = jest.spyOn(ButtonStrategy, 'handleButtonInteractions');
+                    const spyOnHandleInteractions = jest.spyOn(InteractionStrategy, 'handleInteractions');
 
-                    await ButtonStrategy.handleButtonInteractions({
+                    await InteractionStrategy.handleInteractions({
                         interactionResponse,
                         commandName,
                         restartStyle,
-                        onButtonPress,
-                        getButtonRowComponent,
+                        onInteraction,
+                        getActionRowComponent,
                         maxRecursionDepth: 1,
                     });
 
                     // Called once in this test, but not afterwards
-                    expect(spyOnHandleButtonInteractions).toHaveBeenCalledTimes(1);
+                    expect(spyOnHandleInteractions).toHaveBeenCalledTimes(1);
                 });
 
                 describe.each([
@@ -168,12 +178,12 @@ describe('class: ButtonStrategy', () =>
                     {
                         const spyOnLoggerError = jest.spyOn(logger, 'error');
 
-                        await ButtonStrategy.handleButtonInteractions({
+                        await InteractionStrategy.handleInteractions({
                             interactionResponse,
                             commandName,
                             restartStyle,
-                            onButtonPress,
-                            getButtonRowComponent,
+                            onInteraction,
+                            getActionRowComponent,
                             maxRecursionDepth: 1,
                         });
 
@@ -195,12 +205,12 @@ describe('class: ButtonStrategy', () =>
                             jest.spyOn(component, 'setDisabled'),
                         );
 
-                        await ButtonStrategy.handleButtonInteractions({
+                        await InteractionStrategy.handleInteractions({
                             interactionResponse,
                             commandName,
                             restartStyle,
-                            onButtonPress,
-                            getButtonRowComponent,
+                            onInteraction,
+                            getActionRowComponent,
                             maxRecursionDepth: 1,
                         });
 
@@ -226,11 +236,7 @@ describe('class: ButtonStrategy', () =>
     describe('method: getMessageData', () =>
     {
         const content = 'Some Message';
-        const components = [
-            getFakeButtonActionRowBuilder({
-                customId: 'fake-button',
-            }),
-        ];
+        const components = [actionRowBuilder];
         let expectedResult: GetMessageDataResponse;
 
         beforeEach(() =>
@@ -244,9 +250,9 @@ describe('class: ButtonStrategy', () =>
         it.each([
             ['a string', content],
             ['an object with a string', { content }],
-        ] as [string, GetMessageDataOptions][])('should return the message data if given %s', (_, options) =>
+        ] as [string, GetMessageDataOptions][])('should return the message data if given %s', (_2, options) =>
         {
-            const result = ButtonStrategy.getMessageData(
+            const result = InteractionStrategy.getMessageData(
                 options,
                 () => components[0],
             );
@@ -256,8 +262,8 @@ describe('class: ButtonStrategy', () =>
 
         it('should call the given callback', () =>
         {
-            const callback = jest.fn((): ActionRowBuilder<ButtonBuilder> => components[0]);
-            ButtonStrategy.getMessageData(
+            const callback = jest.fn((): ActionRowBuilder<ButtonBuilder> | ActionRowBuilder<StringSelectMenuBuilder> => components[0]);
+            InteractionStrategy.getMessageData(
                 content,
                 callback,
             );

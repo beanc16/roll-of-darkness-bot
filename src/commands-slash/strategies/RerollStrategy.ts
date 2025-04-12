@@ -14,7 +14,7 @@ import {
 
 import { type CommandName, DiscordInteractionCallbackType } from '../../types/discord.js';
 import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from './ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from './InteractionStrategy.js';
 
 enum RerollButtonName
 {
@@ -68,7 +68,7 @@ export class RerollStrategy
     }): Promise<void>
     {
         // Set up message response
-        const rerollOptions = ButtonStrategy.getMessageData(
+        const rerollOptions = InteractionStrategy.getMessageData(
             options,
             /* istanbul ignore next */
             () => this.getButtonRowComponent(),
@@ -120,20 +120,20 @@ export class RerollStrategy
         // Send/Update message
         const response = await handlerMap[interactionCallbackType]();
 
-        // Handle any interactions on the buttons
+        // Handle any interactions
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        ButtonStrategy.handleButtonInteractions({
+        InteractionStrategy.handleInteractions({
             interactionResponse: (interactionCallbackType === DiscordInteractionCallbackType.Update)
                 ? (interaction as ButtonInteraction).message
                 : response as Message<boolean>,
             commandName,
-            restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: /* istanbul ignore next */ async buttonInteraction => await this.onRerollButtonPress({
-                buttonInteraction,
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: /* istanbul ignore next */ async (receivedInteraction) => await this.onRerollButtonPress({
+                buttonInteraction: receivedInteraction as ButtonInteraction,
                 onRerollCallback,
                 previousResponse: response,
             }),
-            getButtonRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent(),
+            getActionRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent(),
         });
     }
 
@@ -154,7 +154,7 @@ export class RerollStrategy
             // Update original message with the same content so
             // the buttons know that the interaction was successful
             await buttonInteraction.update(
-                ButtonStrategy.getMessageData(
+                InteractionStrategy.getMessageData(
                     buttonInteraction.message.content,
                     /* istanbul ignore next */
                     () => this.getButtonRowComponent(),

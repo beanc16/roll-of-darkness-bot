@@ -11,7 +11,7 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
@@ -242,14 +242,14 @@ export class BreedPokemonStrategy
 
         let nature: PtuNature | undefined = randomNature;
         let buttonInteraction: ButtonInteraction | undefined;
-        await ButtonStrategy.handleButtonInteractions({
+        await InteractionStrategy.handleInteractions({
             interactionResponse: message!,
             commandName: `/ptu ${this.key}`,
-            restartStyle: ButtonListenerRestartStyle.Never,
-            onButtonPress: async (buttonInteractionOnPress) =>
+            restartStyle: InteractionListenerRestartStyle.Never,
+            onInteraction: async (receivedInteraction) =>
             {
-                buttonInteraction = buttonInteractionOnPress;
-                const key = buttonInteractionOnPress.customId as BreedPokemonButtonName;
+                buttonInteraction = receivedInteraction as ButtonInteraction;
+                const key = receivedInteraction.customId as BreedPokemonButtonName;
                 const handlerMap: ButtonHandlerMap<BreedPokemonButtonName> = {
                     [BreedPokemonButtonName.Yes]: () =>
                     {
@@ -264,7 +264,7 @@ export class BreedPokemonStrategy
 
                 await handlerMap[key]();
             },
-            getButtonRowComponent: () => this.getYesNoButtonRowComponent(),
+            getActionRowComponent: () => this.getYesNoButtonRowComponent(),
         });
 
         return {
@@ -303,13 +303,13 @@ export class BreedPokemonStrategy
         });
 
         let buttonInteraction: ButtonInteraction | undefined;
-        await ButtonStrategy.handleButtonInteractions({
+        await InteractionStrategy.handleInteractions({
             interactionResponse: message!,
             commandName: `/ptu ${this.key}`,
-            restartStyle: ButtonListenerRestartStyle.Never,
-            onButtonPress: async (buttonInteractionOnPress) =>
+            restartStyle: InteractionListenerRestartStyle.Never,
+            onInteraction: async (receivedInteraction) =>
             {
-                buttonInteraction = buttonInteractionOnPress;
+                buttonInteraction = receivedInteraction as ButtonInteraction;
                 const key = buttonInteraction.customId as BreedPokemonButtonName;
                 const handlerMap: ButtonHandlerMap<BreedPokemonButtonName> = {
                     [BreedPokemonButtonName.Yes]: () =>
@@ -325,7 +325,7 @@ export class BreedPokemonStrategy
 
                 await handlerMap[key]();
             },
-            getButtonRowComponent: () => this.getYesNoButtonRowComponent(),
+            getActionRowComponent: () => this.getYesNoButtonRowComponent(),
         });
 
         return { shouldPickAbilityManually, buttonInteraction };
@@ -362,13 +362,13 @@ export class BreedPokemonStrategy
 
         let buttonInteraction: ButtonInteraction | undefined;
         let gender: PokemonGender | undefined;
-        await ButtonStrategy.handleButtonInteractions({
+        await InteractionStrategy.handleInteractions({
             interactionResponse: message!,
             commandName: `/ptu ${this.key}`,
-            restartStyle: ButtonListenerRestartStyle.Never,
-            onButtonPress: async (buttonInteractionOnPress) =>
+            restartStyle: InteractionListenerRestartStyle.Never,
+            onInteraction: async (receivedInteraction) =>
             {
-                buttonInteraction = buttonInteractionOnPress;
+                buttonInteraction = receivedInteraction as ButtonInteraction;
                 const key = buttonInteraction.customId as PokemonGender;
                 const handlerMap: ButtonHandlerMap<PokemonGender | 'Random'> = {
                     [PokemonGender.Male]: () =>
@@ -388,7 +388,7 @@ export class BreedPokemonStrategy
 
                 await handlerMap[key]();
             },
-            getButtonRowComponent: () => this.getGenderButtonRowComponent(),
+            getActionRowComponent: () => this.getGenderButtonRowComponent(),
         });
 
         if (gender === undefined)
@@ -539,11 +539,11 @@ export class BreedPokemonStrategy
 
     private static async handleUpdatableButtonInteractions(message: Message): Promise<void>
     {
-        await ButtonStrategy.handleButtonInteractions({
+        await InteractionStrategy.handleInteractions({
             interactionResponse: message,
             commandName: `/ptu ${PtuBreedSubcommand.Breed}`,
-            restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async (buttonInteraction) =>
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: async (receivedInteraction) =>
             {
                 const {
                     user,
@@ -552,9 +552,9 @@ export class BreedPokemonStrategy
                     gmShouldPick,
                 } = breedPokemonStateSingleton.get(message.id);
 
-                const key = buttonInteraction.customId as Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>;
+                const key = receivedInteraction.customId as Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>;
 
-                const { user: buttonInteractionUser } = buttonInteraction;
+                const { user: buttonInteractionUser } = receivedInteraction;
                 const userHasPermissionToPick = (
                     key === BreedPokemonShouldPickKey.InheritanceMoves
                     || (buttonInteractionUser.id === user.id && userShouldPick[key])
@@ -563,7 +563,7 @@ export class BreedPokemonStrategy
 
                 if (!userHasPermissionToPick)
                 {
-                    await buttonInteraction.reply({
+                    await receivedInteraction.reply({
                         content: 'You do not have permission to do this.',
                         ephemeral: true,
                     });
@@ -573,21 +573,21 @@ export class BreedPokemonStrategy
                 const handlerMap: Record<Exclude<BreedPokemonShouldPickKey, BreedPokemonShouldPickKey.Shiny>, () => Promise<void> | void> = {
                     [BreedPokemonShouldPickKey.Ability]: async () =>
                     {
-                        await BreedPokemonUpdateAbilityModal.showModal(buttonInteraction);
+                        await BreedPokemonUpdateAbilityModal.showModal(receivedInteraction);
                     },
                     [BreedPokemonShouldPickKey.Gender]: async () =>
                     {
-                        await BreedPokemonUpdateGenderModal.showModal(buttonInteraction);
+                        await BreedPokemonUpdateGenderModal.showModal(receivedInteraction);
                     },
                     [BreedPokemonShouldPickKey.Nature]: async () =>
                     {
-                        await BreedPokemonUpdateNatureModal.showModal(buttonInteraction);
+                        await BreedPokemonUpdateNatureModal.showModal(receivedInteraction);
                     },
                     [BreedPokemonShouldPickKey.InheritanceMoves]: async () =>
                     {
                         const { inheritanceMoves } = breedPokemonStateSingleton.get(message.id);
 
-                        await BreedPokemonUpdateInheritanceMovesModal.showModal(buttonInteraction, {
+                        await BreedPokemonUpdateInheritanceMovesModal.showModal(receivedInteraction, {
                             inheritanceMoves,
                         });
                     },
@@ -595,7 +595,7 @@ export class BreedPokemonStrategy
 
                 await handlerMap[key]();
             },
-            getButtonRowComponent: () =>
+            getActionRowComponent: () =>
             {
                 const state = breedPokemonStateSingleton.get(message.id);
                 return getBreedPokemonUpdatablesButtonRowComponent({

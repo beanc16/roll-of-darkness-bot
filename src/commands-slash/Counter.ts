@@ -20,10 +20,10 @@ import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCo
 import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
 import {
-    ButtonListenerRestartStyle,
-    ButtonStrategy,
     GetMessageDataResponse,
-} from './strategies/ButtonStrategy.js';
+    InteractionListenerRestartStyle,
+    InteractionStrategy,
+} from './strategies/InteractionStrategy.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy/PaginationStrategy.js';
 
 enum CounterButtonName
@@ -71,21 +71,21 @@ class Counter extends BaseSlashCommand
             type,
         });
 
-        // Handle button interactions
+        // Handle interactions
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        ButtonStrategy.handleButtonInteractions({
+        InteractionStrategy.handleInteractions({
             interactionResponse,
             commandName: '/counter',
-            restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async (buttonInteraction) =>
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: async (receivedInteraction) =>
             {
                 // Update count based on interaction
-                Counter.updateCount(buttonInteraction, guid);
-                await buttonInteraction.update(
+                Counter.updateCount(receivedInteraction as ButtonInteraction, guid);
+                await receivedInteraction.update(
                     Counter.getMessageData(name, guid),
                 );
             },
-            getButtonRowComponent: () => new CounterActionRowBuilder(),
+            getActionRowComponent: () => new CounterActionRowBuilder(),
         });
     }
 
@@ -133,7 +133,7 @@ class Counter extends BaseSlashCommand
     {
         const message = `${Text.bold(`${name}:`)} ${counterSingleton.get(guid)?.count ?? 0}`;
 
-        return ButtonStrategy.getMessageData(
+        return InteractionStrategy.getMessageData(
             message,
             () => new CounterActionRowBuilder(),
         );
@@ -247,22 +247,22 @@ class Counter extends BaseSlashCommand
                         Counter.getMessageData(newCounter.name, newCounter.guid),
                     );
 
-                    // Listen for button interactions
+                    // Listen for interactions
                     // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-                    ButtonStrategy.handleButtonInteractions({
+                    InteractionStrategy.handleInteractions({
                         interactionResponse: message,
                         commandName: `/${this.commandName}`,
-                        restartStyle: ButtonListenerRestartStyle.OnSuccess,
+                        restartStyle: InteractionListenerRestartStyle.OnSuccess,
                         timeToWaitForInteractions: 86_400_000, // 24 hours
-                        onButtonPress: async (buttonInteraction) =>
+                        onInteraction: async (receivedInteraction) =>
                         {
                             // Update count based on interaction
-                            Counter.updateCount(buttonInteraction, newCounter.guid);
-                            await buttonInteraction.update(
+                            Counter.updateCount(receivedInteraction as ButtonInteraction, newCounter.guid);
+                            await receivedInteraction.update(
                                 Counter.getMessageData(newCounter.name, newCounter.guid),
                             );
                         },
-                        getButtonRowComponent: () => new CounterActionRowBuilder(),
+                        getActionRowComponent: () => new CounterActionRowBuilder(),
                     });
                 }
             });

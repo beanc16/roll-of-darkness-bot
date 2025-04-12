@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 
 import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomModal.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { NwodCalculateSubcommand } from '../../options/calculate.js';
 import { NwodSubcommandGroup } from '../../options/index.js';
 
@@ -254,11 +254,11 @@ export class CalculateHedgeDicepoolModal extends BaseCustomModal
         });
 
         let numOfTurnsPassed = 0;
-        await ButtonStrategy.handleButtonInteractions({
+        await InteractionStrategy.handleInteractions({
             interactionResponse: resultMessage,
             commandName: `/nwod ${NwodSubcommandGroup.Calculate} ${NwodCalculateSubcommand.HedgeNavigation}`,
-            restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async (buttonInteraction) =>
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: async (receivedInteraction) =>
             {
                 const handlerMap: Record<TurnUpdateButtonName, () => void> = {
                     [TurnUpdateButtonName.PreviousTurn]: () =>
@@ -270,10 +270,10 @@ export class CalculateHedgeDicepoolModal extends BaseCustomModal
                         numOfTurnsPassed += 1;
                     },
                 };
-                handlerMap[buttonInteraction.customId as TurnUpdateButtonName]();
+                handlerMap[receivedInteraction.customId as TurnUpdateButtonName]();
 
                 // Update message
-                await buttonInteraction.update({
+                await receivedInteraction.update({
                     content: [
                         `You need a total of ${successes} successes to navigate the hedge.`,
                         `The hedge's dicepool is ${hedgesDicePool + numOfTurnsPassed}.`,
@@ -283,7 +283,7 @@ export class CalculateHedgeDicepoolModal extends BaseCustomModal
                     ],
                 });
             },
-            getButtonRowComponent: () => this.getButtonRowComponent(),
+            getActionRowComponent: () => this.getButtonRowComponent(),
         });
     }
 

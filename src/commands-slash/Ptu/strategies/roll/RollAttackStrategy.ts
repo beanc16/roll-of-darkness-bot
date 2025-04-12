@@ -13,7 +13,7 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -227,19 +227,19 @@ export class RollAttackStrategy
         // Send message
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(
-                ButtonStrategy.getMessageData(
+                InteractionStrategy.getMessageData(
                     message,
                     () => this.getButtonRowComponent(),
                 ),
             ),
             [DiscordInteractionCallbackType.Followup]: () => interaction.followUp(
-                ButtonStrategy.getMessageData(
+                InteractionStrategy.getMessageData(
                     message,
                     () => this.getButtonRowComponent(),
                 ) as InteractionReplyOptions,
             ),
             [DiscordInteractionCallbackType.Update]: () => interaction.editReply(
-                ButtonStrategy.getMessageData(
+                InteractionStrategy.getMessageData(
                     message,
                     () => this.getButtonRowComponent(),
                 ),
@@ -247,20 +247,20 @@ export class RollAttackStrategy
         };
         const interactionResponse = await handlerMap[rerollCallbackOptions.interactionCallbackType]();
 
-        // Handle any interactions on the buttons
+        // Handle any interactions
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        ButtonStrategy.handleButtonInteractions({
+        InteractionStrategy.handleInteractions({
             interactionResponse,
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
-            restartStyle: ButtonListenerRestartStyle.Never,
-            onButtonPress: async (buttonInteraction) =>
+            restartStyle: InteractionListenerRestartStyle.Never,
+            onInteraction: async (receivedInteraction) =>
             {
                 await this.runRerollStrategy({
                     interaction,
-                    buttonInteraction,
+                    buttonInteraction: receivedInteraction as ButtonInteraction,
                     damageResultString,
                     finalRollResult,
-                    type: buttonInteraction.customId as PtuAttackRollType,
+                    type: receivedInteraction.customId as PtuAttackRollType,
                     interactionCallbackType: DiscordInteractionCallbackType.Update,
                     rerollCallbackOptions,
                     accuracyRoll,
@@ -268,7 +268,7 @@ export class RollAttackStrategy
                     shouldUseMaxCritRoll,
                 });
             },
-            getButtonRowComponent: () => this.getButtonRowComponent(),
+            getActionRowComponent: () => this.getButtonRowComponent(),
         });
     }
 

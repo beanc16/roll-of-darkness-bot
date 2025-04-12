@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ButtonListenerRestartStyle, ButtonStrategy } from '../../../strategies/ButtonStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { CalculateHedgeDicepoolModal } from '../../modals/calculate/CalculateHedgeDicepoolModal.js';
 import {
@@ -50,26 +50,26 @@ export class CalculateHedgeNavigationStrategy
         const successes = this.calculateSuccesses(parameterResults);
 
         // Send message
-        const replyOptions = ButtonStrategy.getMessageData(
+        const replyOptions = InteractionStrategy.getMessageData(
             `You need a total of ${successes} successes to navigate the hedge.`,
             () => this.getButtonRowComponent(),
         );
         const interactionResponse = await interaction.editReply(replyOptions);
 
-        // Handle any interactions on the buttons
+        // Handle any interactions
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-        ButtonStrategy.handleButtonInteractions({
+        InteractionStrategy.handleInteractions({
             interactionResponse,
             commandName: `/nwod ${NwodSubcommandGroup.Calculate} ${NwodCalculateSubcommand.HedgeNavigation}`,
-            restartStyle: ButtonListenerRestartStyle.OnSuccess,
-            onButtonPress: async (buttonInteraction) =>
+            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            onInteraction: async (receivedInteraction) =>
             {
                 // Display modal to handle calculating the hedge's dicepool
-                await CalculateHedgeDicepoolModal.showModal(buttonInteraction, {
+                await CalculateHedgeDicepoolModal.showModal(receivedInteraction, {
                     successes,
                 });
             },
-            getButtonRowComponent: () => this.getButtonRowComponent(),
+            getActionRowComponent: () => this.getButtonRowComponent(),
         });
 
         return true;
