@@ -4,7 +4,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { HangmonEmbedMessage } from '../../embed-messages/game.js';
+import { HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
 import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
@@ -37,9 +37,9 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
-            fields: [
+            fields: [ // TODO: This is for temporary testing purposes, only show name and 5 other random values with "???" later and only one non-name field revealed as a hint
                 { name: HangmonPropertyHints.Name, value: randomPokemon.name },
-                { name: HangmonPropertyHints.OneType, value: randomPokemon.types[0] }, // TODO: Randomize this later
+                { name: HangmonPropertyHints.OneType, value: randomPokemon.types[0] },
                 { name: HangmonPropertyHints.PtuSize, value: randomPokemon.sizeInformation.height.ptu },
                 { name: HangmonPropertyHints.PtuWeightClass, value: randomPokemon.sizeInformation.weight.ptu.toString() },
                 { name: HangmonPropertyHints.Habitat, value: randomPokemon.habitats[0] },
