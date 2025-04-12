@@ -5,7 +5,10 @@ import {
     type User,
 } from 'discord.js';
 
-export type HangmonEmbedField = Pick<APIEmbedField, 'name' | 'value'>;
+export interface HangmonEmbedField extends Pick<APIEmbedField, 'name' | 'value'>
+{
+    success: boolean;
+}
 
 interface HangmonEmbedMessageOptions
 {
@@ -30,11 +33,7 @@ export class HangmonEmbedMessage extends EmbedBuilder
         super({
             title: 'Hangmon',
             description: `Players: ${players.map(player => Text.Ping.user(player.id)).join(', ')}`,
-            fields: fields.map(({ name, value }) => ({
-                name,
-                value: Text.Code.multiLine(value),
-                inline: true,
-            })),
+            fields: HangmonEmbedMessage.parseFields(fields),
             thumbnail: {
                 url: user.displayAvatarURL(),
             },
@@ -43,6 +42,31 @@ export class HangmonEmbedMessage extends EmbedBuilder
         this.attempts = 0;
         this.maxAttempts = maxAttempts;
         this.setAttempts(0);
+    }
+
+    public setFields(fields: HangmonEmbedField[]): this
+    {
+        const parsedFields = HangmonEmbedMessage.parseFields(fields);
+        super.setFields(parsedFields);
+        return this;
+    }
+
+    private static parseFields(fields: HangmonEmbedField[]): APIEmbedField[]
+    {
+        return fields.map(({
+            name,
+            value,
+            success,
+        }) =>
+        {
+            const successEmoji = success ? '🟢' : '🔴';
+
+            return {
+                name: `${successEmoji} ${name}`,
+                value: Text.Code.multiLine(value),
+                inline: true,
+            };
+        });
     }
 
     private setAttempts(attempts: number): this

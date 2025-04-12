@@ -1,10 +1,15 @@
-import type { ChatInputCommandInteraction, User } from 'discord.js';
+import {
+    ActionRowBuilder,
+    type ChatInputCommandInteraction,
+    type User,
+} from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
+import { HangmonStringSelectMenu } from '../../components/game/HangmonStringSelectMenu.js';
 import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
@@ -31,24 +36,45 @@ export class HangmonStrategy extends BaseGenerateStrategy
     {
         // Get data
         const players = this.getPlayers(interaction);
-        const { randomPokemon } = await this.getPokemon();
+        const { allPokemon, randomPokemon } = await this.getPokemon();
 
         // Send message
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
             fields: [ // TODO: This is for temporary testing purposes, only show name and 5 other random values with "???" later and only one non-name field revealed as a hint
-                { name: HangmonPropertyHints.Name, value: randomPokemon.name },
-                { name: HangmonPropertyHints.OneType, value: randomPokemon.types[0] },
-                { name: HangmonPropertyHints.PtuSize, value: randomPokemon.sizeInformation.height.ptu },
-                { name: HangmonPropertyHints.PtuWeightClass, value: randomPokemon.sizeInformation.weight.ptu.toString() },
-                { name: HangmonPropertyHints.Habitat, value: randomPokemon.habitats[0] },
-                { name: HangmonPropertyHints.OneEggGroup, value: randomPokemon.breedingInformation.eggGroups[0] },
-                { name: HangmonPropertyHints.DexName, value: randomPokemon.metadata.source },
+                {
+                    name: HangmonPropertyHints.Name, value: randomPokemon.name, success: true,
+                },
+                {
+                    name: HangmonPropertyHints.OneType, value: randomPokemon.types[0], success: false,
+                },
+                {
+                    name: HangmonPropertyHints.PtuSize, value: randomPokemon.sizeInformation.height.ptu, success: true,
+                },
+                {
+                    name: HangmonPropertyHints.PtuWeightClass, value: randomPokemon.sizeInformation.weight.ptu.toString(), success: true,
+                },
+                {
+                    name: HangmonPropertyHints.Habitat, value: randomPokemon.habitats[0], success: false,
+                },
+                {
+                    name: HangmonPropertyHints.OneEggGroup, value: randomPokemon.breedingInformation.eggGroups[0], success: false,
+                },
+                {
+                    name: HangmonPropertyHints.DexName, value: randomPokemon.metadata.source, success: true,
+                },
             ],
             maxAttempts: 6,
         });
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({
+            embeds: [embed],
+            components: [
+                new ActionRowBuilder<HangmonStringSelectMenu>({
+                    components: [new HangmonStringSelectMenu(allPokemon)],
+                }),
+            ],
+        });
 
         return true;
     }
