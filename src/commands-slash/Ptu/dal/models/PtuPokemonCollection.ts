@@ -107,16 +107,30 @@ export class PtuPokemonCollection
         // Update output with remaining edits so it has the most up-to-date data
         remainingEdits?.forEach((edit) =>
         {
+            const {
+                versionName: _,
+                ...editData
+            } = PtuPokemonCollection.toPtuPokemonEdit(output, edit);
+
             output = {
                 name: output.name,
-                ...PtuPokemonCollection.toPtuPokemonEdit(output, edit),
+                versionName: output.versionName,
+                ...editData,
             };
         });
 
         // Get older versions
+        let previousVersion = originalPokemon;
         const olderVersions = remainingEdits?.toReversed().map((edit) =>
-            PtuPokemonCollection.toPtuPokemonEdit(output, edit),
-        ) ?? [];
+        {
+            const newVersion = PtuPokemonCollection.toPtuPokemonEdit(previousVersion, edit);
+            previousVersion = {
+                ...previousVersion,
+                ...newVersion,
+            };
+
+            return newVersion;
+        }) ?? [];
 
         // Add the original data as the "last" edit
         if (edits && edits.length > 0)
