@@ -48,6 +48,7 @@ export class PokeApi
             .replaceAll('keldeo', 'keldeo-ordinary')
             .replaceAll('kyurem-zekrom', 'kyurem-black')
             .replaceAll('kyurem-reshiram', 'kyurem-white')
+            .replaceAll('maushold', 'maushold-family-of-four')
             .replaceAll('meloetta-step', 'meloetta-pirouette')
             .replaceAll('mimikyu', 'mimikyu-disguised')
             .replaceAll('minior-core', 'minior-red')
