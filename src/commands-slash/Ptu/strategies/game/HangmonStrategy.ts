@@ -90,7 +90,6 @@ export class HangmonStrategy extends BaseGenerateStrategy
         // Build embed
         const fields = this.getEmbedFields(guid);
         const embed = new HangmonEmbedMessage({
-            user: interaction.user,
             players,
             fields,
             maxAttempts: 6,

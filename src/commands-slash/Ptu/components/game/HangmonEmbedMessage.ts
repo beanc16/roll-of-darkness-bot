@@ -12,7 +12,6 @@ export interface HangmonEmbedField extends Pick<APIEmbedField, 'name' | 'value'>
 
 interface HangmonEmbedMessageOptions
 {
-    user: User;
     players: User[];
     fields: HangmonEmbedField[];
     maxAttempts: number;
@@ -24,7 +23,6 @@ export class HangmonEmbedMessage extends EmbedBuilder
     private maxAttempts: number;
 
     constructor({
-        user,
         players,
         fields = [],
         maxAttempts,
@@ -35,7 +33,7 @@ export class HangmonEmbedMessage extends EmbedBuilder
             description: `Players: ${players.map(player => Text.Ping.user(player.id)).join(', ')}`,
             fields: HangmonEmbedMessage.parseFields(fields),
             thumbnail: {
-                url: user.displayAvatarURL(),
+                url: players[0].displayAvatarURL(),
             },
         });
 
