@@ -95,7 +95,6 @@ export class HangmonStrategy extends BaseGenerateStrategy
             maxAttempts: 6,
         });
 
-        // TODO: Make it so only players can select options
         await interaction.editReply({
             embeds: [embed],
             components: [
@@ -107,7 +106,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         message,
                         commandName: `/${interaction.commandName}`,
                         embeds: [embed],
-                        onSelect: (receivedInteraction) => this.onSelectHandler(receivedInteraction, guid),
+                        onSelect: async (receivedInteraction) => await this.onSelectHandler(receivedInteraction, guid, players),
                         optionParser: (curPokemon) =>
                         {
                             const typesLabel = (curPokemon.types.length > 1) ? 'Types' : 'Type';
@@ -129,8 +128,22 @@ export class HangmonStrategy extends BaseGenerateStrategy
         return true;
     }
 
-    private static onSelectHandler(receivedInteraction: StringSelectMenuInteraction, guid: UUID): void
+    private static async onSelectHandler(
+        receivedInteraction: StringSelectMenuInteraction,
+        guid: UUID,
+        players: User[],
+    ): Promise<void>
     {
+        // Only allow players to select
+        if (!players.map((user) => user.id).includes(receivedInteraction.user.id))
+        {
+            await receivedInteraction.reply({
+                content: 'Only players are allowed to select a guess.',
+                ephemeral: true,
+            });
+            return;
+        }
+
         // TODO: Do something here
         const state = this.guidToState[guid];
         const { customId, values: [value] = [] } = receivedInteraction;
