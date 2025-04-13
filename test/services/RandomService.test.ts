@@ -43,6 +43,10 @@ describe('class: RandomService', () =>
     describe('method: getUniqueRandomIntegers', () =>
     {
         it.each([
+            ['with max of 0 and count of 0', {
+                max: 0,
+                count: 0,
+            }],
             ['with max of 1000 and count of 100', {
                 max: 1000,
                 count: 100,
