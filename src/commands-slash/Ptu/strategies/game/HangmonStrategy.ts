@@ -1,5 +1,6 @@
 import { randomUUID, UUID } from 'node:crypto';
 
+import type { Entries } from '@beanc16/utility-types';
 import {
     ActionRowBuilder,
     type ChatInputCommandInteraction,
@@ -261,19 +262,25 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const hints = this.sortHints([
             ...correctHints.map(hint => ({
                 hint,
+                value: undefined,
                 success: true,
             })),
-            ...(Object.keys(incorrectHints) as HangmonPropertyHint[]).map(hint => ({
+            ...(Object.entries(incorrectHints) as Entries<Record<HangmonPropertyHint, string[]>>).map(([hint, values]) => ({
                 hint,
+                value: values[values.length - 1],
                 success: false,
             })),
-        ]) as { hint: HangmonPropertyHint; success: boolean }[];
+        ]) as { hint: HangmonPropertyHint; success: boolean; value: string | undefined }[];
 
-        return hints.map(({ hint, success }) => ({
+        return hints.map(({
+            hint,
+            value,
+            success,
+        }) => ({
             name: hint,
             value: (success)
                 ? this.getStatFromHint(pokemon, hint)
-                : '???',
+                : value ?? '???',
             success,
         }));
     }
