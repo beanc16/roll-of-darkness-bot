@@ -9,21 +9,22 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
+import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
 import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 
 // Always include name, then pick 5 others randomly
-enum HangmonPropertyHints
+enum HangmonPropertyHint
 {
     Name = 'Name',
     OneType = 'One Type',
+    DexName = 'Pokédex Name',
     PtuSize = 'PTU Size',
     PtuWeightClass = 'PTU Weight Class',
     Habitat = 'Habitat',
+    Diet = 'Diet',
     OneEggGroup = 'One Egg Group',
-    DexName = 'Pokédex Name',
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -31,6 +32,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
 {
     public static key: PtuGameSubcommand.Hangmon = PtuGameSubcommand.Hangmon;
     private static maxNumberOfPlayers = 6;
+    private static numOfHints = 5;
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -42,34 +44,13 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
-            fields: [ // TODO: This is for temporary testing purposes, only show name and 5 other random values with "???" later and only one non-name field revealed as a hint
-                {
-                    name: HangmonPropertyHints.Name, value: randomPokemon.name, success: true,
-                },
-                {
-                    name: HangmonPropertyHints.OneType, value: randomPokemon.types[0], success: false,
-                },
-                {
-                    name: HangmonPropertyHints.PtuSize, value: randomPokemon.sizeInformation.height.ptu, success: true,
-                },
-                {
-                    name: HangmonPropertyHints.PtuWeightClass, value: randomPokemon.sizeInformation.weight.ptu.toString(), success: true,
-                },
-                {
-                    name: HangmonPropertyHints.Habitat, value: randomPokemon.habitats[0], success: false,
-                },
-                {
-                    name: HangmonPropertyHints.OneEggGroup, value: randomPokemon.breedingInformation.eggGroups[0], success: false,
-                },
-                {
-                    name: HangmonPropertyHints.DexName, value: randomPokemon.metadata.source, success: true,
-                },
-            ],
+            fields: this.getEmbedFields(randomPokemon),
             maxAttempts: 6,
         });
 
         const message = await interaction.fetchReply();
 
+        // TODO: Make it so only players can select options
         await interaction.editReply({
             embeds: [embed],
             components: [
@@ -140,5 +121,95 @@ export class HangmonStrategy extends BaseGenerateStrategy
             allPokemon,
             randomPokemon: allPokemon[index - 1],
         };
+    }
+
+    /* istanbul ignore next */
+    private static getHintCategories(): HangmonPropertyHint[]
+    {
+        // Add mandatory hints
+        const hints = [HangmonPropertyHint.Name];
+
+        // Add possible required hints
+        const minNumOfRequiredHints = 1;
+        const possibleRequiredHints = [
+            HangmonPropertyHint.OneType,
+            HangmonPropertyHint.DexName,
+        ];
+        const [requiredIndex] = new DiceLiteService({
+            count: minNumOfRequiredHints,
+            sides: possibleRequiredHints.length,
+        }).roll({ uniqueRolls: true });
+        hints.push(possibleRequiredHints[requiredIndex - 1]);
+
+        // Add possible optional hints
+        const possibleOptionalHints = Object.values(HangmonPropertyHint).filter(value => !hints.includes(value));
+        const indices = new DiceLiteService({
+            count: this.numOfHints - minNumOfRequiredHints,
+            sides: possibleOptionalHints.length,
+        }).roll({ uniqueRolls: true });
+        indices.forEach(index => hints.push(possibleOptionalHints[index - 1]));
+
+        // Sort so that hints are always in the same order across each game
+        const hintToIndex = Object.values(HangmonPropertyHint).reduce<Record<HangmonPropertyHint, number>>((acc, value, index) =>
+        {
+            acc[value] = index;
+            return acc;
+        }, {} as Record<HangmonPropertyHint, number>);
+        return hints.sort((a, b) => hintToIndex[a] - hintToIndex[b]);
+    }
+
+    private static getEmbedFields(pokemon: PtuPokemonForLookupPokemon): HangmonEmbedField[]
+    {
+        const handlerMap: Record<HangmonPropertyHint, () => string> = {
+            [HangmonPropertyHint.Name]: () => pokemon.name,
+            [HangmonPropertyHint.OneType]: () =>
+            {
+                const [index] = new DiceLiteService({
+                    count: 1,
+                    sides: pokemon.types.length,
+                }).roll();
+
+                return pokemon.types[index - 1];
+            },
+            [HangmonPropertyHint.PtuSize]: () => pokemon.sizeInformation.height.ptu,
+            [HangmonPropertyHint.PtuWeightClass]: () => pokemon.sizeInformation.weight.ptu.toString(),
+            [HangmonPropertyHint.Habitat]: () =>
+            {
+                const [index] = new DiceLiteService({
+                    count: 1,
+                    sides: pokemon.habitats.length,
+                }).roll();
+
+                return pokemon.habitats[index - 1];
+            },
+            [HangmonPropertyHint.Diet]: () =>
+            {
+                const [index] = new DiceLiteService({
+                    count: 1,
+                    sides: pokemon.diets.length,
+                }).roll();
+
+                return pokemon.diets[index - 1];
+            },
+            [HangmonPropertyHint.OneEggGroup]: () =>
+            {
+                const [index] = new DiceLiteService({
+                    count: 1,
+                    sides: pokemon.breedingInformation.eggGroups.length,
+                }).roll();
+
+                return pokemon.breedingInformation.eggGroups[index - 1];
+            },
+            [HangmonPropertyHint.DexName]: () => pokemon.metadata.source,
+        };
+
+        const hints = this.getHintCategories();
+
+        // TODO: Handle hidden/visible properties later
+        return hints.map(hint => ({
+            name: hint,
+            value: handlerMap[hint](),
+            success: true,
+        }));
     }
 }
