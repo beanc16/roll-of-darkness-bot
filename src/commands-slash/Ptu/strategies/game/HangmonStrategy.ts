@@ -270,7 +270,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 value: values[values.length - 1],
                 success: false,
             })),
-        ]) as { hint: HangmonPropertyHint; success: boolean; value: string | undefined }[];
+        ]);
 
         return hints.map(({
             hint,
@@ -373,7 +373,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         });
     }
 
-    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: Element[]): { hint: HangmonPropertyHint }[]
+    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: Element[]): Element[]
     {
         // Sort so that hints are always in the same order across each game and guess
         const hintToIndex = Object.values(HangmonPropertyHint).reduce<Record<HangmonPropertyHint, number>>((acc, value, index) =>
