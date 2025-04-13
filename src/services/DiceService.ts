@@ -7,7 +7,6 @@ import { RandomService } from './RandomService.js';
 export interface RollOptions
 {
     shouldRollMaxOnSecondHalfOfDicepool?: boolean;
-    uniqueRolls?: boolean;
 }
 
 export class DiceService
@@ -65,38 +64,19 @@ export class DiceService
         return dicePoolGroup;
     }
 
-    public rollDicepool({ shouldRollMaxOnSecondHalfOfDicepool = false, uniqueRolls = false }: RollOptions = {}): DicePool
+    public rollDicepool({ shouldRollMaxOnSecondHalfOfDicepool = false }: RollOptions = {}): DicePool
     {
         const dicePool = new DicePool({
             successOnGreaterThanOrEqualTo: this.successOnGreaterThanOrEqualTo,
             extraSuccesses: this.extraSuccesses,
         });
 
-        if (uniqueRolls)
+        for (let i = 0; i < this.count; i += 1)
         {
-            const rolls = new Set<number>();
-            while (rolls.size < this.count)
-            {
-                const result = this.rollOne({
-                    shouldRollMax: (shouldRollMaxOnSecondHalfOfDicepool && rolls.size >= Math.ceil(this.count / 2)),
-                });
-
-                if (!rolls.has(result[0].number))
-                {
-                    rolls.add(result[0].number);
-                    dicePool.push(result);
-                }
-            }
-        }
-        else
-        {
-            for (let i = 0; i < this.count; i += 1)
-            {
-                const result = this.rollOne({
-                    shouldRollMax: (shouldRollMaxOnSecondHalfOfDicepool && i >= Math.ceil(this.count / 2)),
-                });
-                dicePool.push(result);
-            }
+            const result = this.rollOne({
+                shouldRollMax: (shouldRollMaxOnSecondHalfOfDicepool && i >= Math.ceil(this.count / 2)),
+            });
+            dicePool.push(result);
         }
 
         return dicePool;
