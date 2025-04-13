@@ -1,6 +1,9 @@
+import { randomUUID, UUID } from 'node:crypto';
+
 import {
     ActionRowBuilder,
     type ChatInputCommandInteraction,
+    type StringSelectMenuInteraction,
     type User,
 } from 'discord.js';
 
@@ -14,7 +17,6 @@ import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js'
 import { PtuGameSubcommand } from '../../options/game.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 
-// Always include name, then pick 5 others randomly
 enum HangmonPropertyHint
 {
     Name = 'Name',
@@ -27,12 +29,41 @@ enum HangmonPropertyHint
     OneEggGroup = 'One Egg Group',
 }
 
+enum HangmonVictoryState
+{
+    Win = 'Win',
+    Loss = 'Loss',
+    InProgress = 'In Progress',
+}
+
+interface GetPokemonResponse
+{
+    allPokemon: PtuPokemonForLookupPokemon[];
+    randomPokemon: PtuPokemonForLookupPokemon;
+}
+
+interface HangmonState
+{
+    numOfGuesses: number;
+    victoryState: HangmonVictoryState;
+    remainingPokemonOptions: PtuPokemonForLookupPokemon[];
+    correct: {
+        pokemon: PtuPokemonForLookupPokemon;
+        hints: Record<HangmonPropertyHint, string | undefined>;
+    };
+    incorrect: {
+        pokemon: PtuPokemonForLookupPokemon[];
+        hints: Record<HangmonPropertyHint, string[]>;
+    };
+}
+
 @staticImplements<ChatIteractionStrategy>()
 export class HangmonStrategy extends BaseGenerateStrategy
 {
     public static key: PtuGameSubcommand.Hangmon = PtuGameSubcommand.Hangmon;
     private static maxNumberOfPlayers = 6;
     private static numOfHints = 5;
+    private static guidToState: Record<UUID, HangmonState> = {};
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -41,14 +72,21 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const { allPokemon, randomPokemon } = await this.getPokemon();
 
         // Build embed
+        const { fields, visibleHints } = this.getEmbedFields(randomPokemon);
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
-            fields: this.getEmbedFields(randomPokemon),
+            fields,
             maxAttempts: 6,
         });
 
         const message = await interaction.fetchReply();
+
+        const guid = this.initializeGameState({
+            allPokemon,
+            randomPokemon,
+            visibleHints,
+        });
 
         // TODO: Make it so only players can select options
         await interaction.editReply({
@@ -62,12 +100,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         message,
                         commandName: `/${interaction.commandName}`,
                         embeds: [embed],
-                        onSelect: (receivedInteraction) =>
-                        {
-                            // TODO: Do something here
-                            const { customId, values: [value] = [] } = receivedInteraction;
-                            console.log('\n selected:', { customId, value });
-                        },
+                        onSelect: (receivedInteraction) => this.onSelectHandler(receivedInteraction, guid),
                         optionParser: (curPokemon) =>
                         {
                             const typesLabel = (curPokemon.types.length > 1) ? 'Types' : 'Type';
@@ -89,6 +122,14 @@ export class HangmonStrategy extends BaseGenerateStrategy
         return true;
     }
 
+    private static onSelectHandler(receivedInteraction: StringSelectMenuInteraction, guid: UUID): void
+    {
+        // TODO: Do something here
+        const state = this.guidToState[guid];
+        const { customId, values: [value] = [] } = receivedInteraction;
+        console.log('\n selected:', { customId, value }, '\n state:', state);
+    }
+
     /* istanbul ignore next */
     private static getPlayers(interaction: ChatInputCommandInteraction): User[]
     {
@@ -108,7 +149,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
     }
 
     /* istanbul ignore next */
-    private static async getPokemon(): Promise<{ allPokemon: PtuPokemonForLookupPokemon[]; randomPokemon: PtuPokemonForLookupPokemon }>
+    private static async getPokemon(): Promise<GetPokemonResponse>
     {
         const allPokemon = await LookupPokemonStrategy.getLookupData({ getAll: true });
 
@@ -158,7 +199,10 @@ export class HangmonStrategy extends BaseGenerateStrategy
         return hints.sort((a, b) => hintToIndex[a] - hintToIndex[b]);
     }
 
-    private static getEmbedFields(pokemon: PtuPokemonForLookupPokemon): HangmonEmbedField[]
+    private static getStatFromHint(
+        pokemon: PtuPokemonForLookupPokemon,
+        hint: HangmonPropertyHint,
+    ): string
     {
         const handlerMap: Record<HangmonPropertyHint, () => string> = {
             [HangmonPropertyHint.Name]: () => pokemon.name,
@@ -203,13 +247,69 @@ export class HangmonStrategy extends BaseGenerateStrategy
             [HangmonPropertyHint.DexName]: () => pokemon.metadata.source,
         };
 
+        return handlerMap[hint]();
+    }
+
+    // TODO: Handle non-initial field creation later
+    private static getEmbedFields(pokemon: PtuPokemonForLookupPokemon): { fields: HangmonEmbedField[]; visibleHints: HangmonPropertyHint[] }
+    {
         const hints = this.getHintCategories();
 
-        // TODO: Handle hidden/visible properties later
-        return hints.map(hint => ({
-            name: hint,
-            value: handlerMap[hint](),
-            success: true,
-        }));
+        const [index] = new DiceLiteService({
+            count: 1,
+            sides: hints.length,
+        }).roll();
+        const visibleHint = hints[index - 1];
+
+        return {
+            fields: hints.map(hint => ({
+                name: hint,
+                value: (hint === visibleHint)
+                    ? this.getStatFromHint(pokemon, hint)
+                    : '???',
+                success: hint === visibleHint,
+            })),
+            visibleHints: [visibleHint],
+        };
+    }
+
+    /* istanbul ignore next */
+    private static initializeGameState({
+        allPokemon,
+        randomPokemon,
+        visibleHints,
+    }: GetPokemonResponse & { visibleHints: HangmonPropertyHint[] }): UUID
+    {
+        const guid = randomUUID();
+
+        const correctHints = Object.values(HangmonPropertyHint)
+            .reduce<Record<HangmonPropertyHint, string | undefined>>((acc, value) => ({
+                ...acc,
+                [value]: visibleHints.includes(value)
+                    ? this.getStatFromHint(randomPokemon, value)
+                    : undefined,
+            }), {} as Record<HangmonPropertyHint, string | undefined>);
+
+        const incorrectHints = Object.values(HangmonPropertyHint)
+            .reduce<Record<HangmonPropertyHint, string[]>>((acc, value) => ({
+                ...acc,
+                [value]: [],
+            }), {} as Record<HangmonPropertyHint, string[]>);
+
+        this.guidToState[guid] = {
+            numOfGuesses: 0,
+            victoryState: HangmonVictoryState.InProgress,
+            remainingPokemonOptions: allPokemon, // TODO: Parse down based on correct and incorrect hints
+            correct: {
+                pokemon: randomPokemon,
+                hints: correctHints,
+            },
+            incorrect: {
+                pokemon: [],
+                hints: incorrectHints,
+            },
+        };
+
+        return guid;
     }
 }
