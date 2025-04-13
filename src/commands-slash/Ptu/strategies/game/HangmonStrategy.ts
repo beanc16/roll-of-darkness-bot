@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { RandomService } from '../../../../services/RandomService.js';
 import { PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
@@ -42,6 +42,12 @@ interface GetPokemonResponse
     randomPokemon: PtuPokemonForLookupPokemon;
 }
 
+interface GetInitialHintsResponse
+{
+    hints: HangmonPropertyHint[];
+    visibleHint: HangmonPropertyHint;
+}
+
 interface HangmonState
 {
     numOfGuesses: number;
@@ -49,7 +55,7 @@ interface HangmonState
     remainingPokemonOptions: PtuPokemonForLookupPokemon[];
     correct: {
         pokemon: PtuPokemonForLookupPokemon;
-        hints: Record<HangmonPropertyHint, string | undefined>;
+        hints: HangmonPropertyHint[];
     };
     incorrect: {
         pokemon: PtuPokemonForLookupPokemon[];
@@ -71,21 +77,23 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const players = this.getPlayers(interaction);
         const { allPokemon, randomPokemon } = await this.getPokemon();
 
+        const message = await interaction.fetchReply();
+
+        const { hints, visibleHint } = this.getInitialHints();
+        const guid = this.initializeGameState({
+            allPokemon,
+            randomPokemon,
+            hints,
+            visibleHint,
+        });
+
         // Build embed
-        const { fields, visibleHints } = this.getEmbedFields(randomPokemon);
+        const fields = this.getEmbedFields(guid);
         const embed = new HangmonEmbedMessage({
             user: interaction.user,
             players,
             fields,
             maxAttempts: 6,
-        });
-
-        const message = await interaction.fetchReply();
-
-        const guid = this.initializeGameState({
-            allPokemon,
-            randomPokemon,
-            visibleHints,
         });
 
         // TODO: Make it so only players can select options
@@ -96,7 +104,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                     components: [new PaginatedStringSelectMenu({
                         customId: 'hangmon_selection',
                         elementName: 'Pokemon',
-                        elements: allPokemon,
+                        elements: this.guidToState[guid].remainingPokemonOptions,
                         message,
                         commandName: `/${interaction.commandName}`,
                         embeds: [embed],
@@ -152,11 +160,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
     private static async getPokemon(): Promise<GetPokemonResponse>
     {
         const allPokemon = await LookupPokemonStrategy.getLookupData({ getAll: true });
-
-        const [index] = new DiceLiteService({
-            count: 1,
-            sides: allPokemon.length,
-        }).roll();
+        const index = RandomService.getRandomInteger(allPokemon.length);
 
         return {
             allPokemon,
@@ -176,18 +180,18 @@ export class HangmonStrategy extends BaseGenerateStrategy
             HangmonPropertyHint.OneType,
             HangmonPropertyHint.DexName,
         ];
-        const [requiredIndex] = new DiceLiteService({
-            count: minNumOfRequiredHints,
-            sides: possibleRequiredHints.length,
-        }).roll({ uniqueRolls: true });
-        hints.push(possibleRequiredHints[requiredIndex - 1]);
+        const requiredIndices = RandomService.getUniqueRandomIntegers(
+            possibleRequiredHints.length,
+            minNumOfRequiredHints,
+        );
+        requiredIndices.forEach(index => hints.push(possibleRequiredHints[index - 1]));
 
         // Add possible optional hints
         const possibleOptionalHints = Object.values(HangmonPropertyHint).filter(value => !hints.includes(value));
-        const indices = new DiceLiteService({
-            count: this.numOfHints - minNumOfRequiredHints,
-            sides: possibleOptionalHints.length,
-        }).roll({ uniqueRolls: true });
+        const indices = RandomService.getUniqueRandomIntegers(
+            possibleOptionalHints.length,
+            this.numOfHints - minNumOfRequiredHints,
+        );
         indices.forEach(index => hints.push(possibleOptionalHints[index - 1]));
 
         // Sort so that hints are always in the same order across each game
@@ -208,40 +212,24 @@ export class HangmonStrategy extends BaseGenerateStrategy
             [HangmonPropertyHint.Name]: () => pokemon.name,
             [HangmonPropertyHint.OneType]: () =>
             {
-                const [index] = new DiceLiteService({
-                    count: 1,
-                    sides: pokemon.types.length,
-                }).roll();
-
+                const index = RandomService.getRandomInteger(pokemon.types.length);
                 return pokemon.types[index - 1];
             },
             [HangmonPropertyHint.PtuSize]: () => pokemon.sizeInformation.height.ptu,
             [HangmonPropertyHint.PtuWeightClass]: () => pokemon.sizeInformation.weight.ptu.toString(),
             [HangmonPropertyHint.Habitat]: () =>
             {
-                const [index] = new DiceLiteService({
-                    count: 1,
-                    sides: pokemon.habitats.length,
-                }).roll();
-
+                const index = RandomService.getRandomInteger(pokemon.habitats.length);
                 return pokemon.habitats[index - 1];
             },
             [HangmonPropertyHint.Diet]: () =>
             {
-                const [index] = new DiceLiteService({
-                    count: 1,
-                    sides: pokemon.diets.length,
-                }).roll();
-
+                const index = RandomService.getRandomInteger(pokemon.diets.length);
                 return pokemon.diets[index - 1];
             },
             [HangmonPropertyHint.OneEggGroup]: () =>
             {
-                const [index] = new DiceLiteService({
-                    count: 1,
-                    sides: pokemon.breedingInformation.eggGroups.length,
-                }).roll();
-
+                const index = RandomService.getRandomInteger(pokemon.breedingInformation.eggGroups.length);
                 return pokemon.breedingInformation.eggGroups[index - 1];
             },
             [HangmonPropertyHint.DexName]: () => pokemon.metadata.source,
@@ -250,26 +238,45 @@ export class HangmonStrategy extends BaseGenerateStrategy
         return handlerMap[hint]();
     }
 
-    // TODO: Handle non-initial field creation later
-    private static getEmbedFields(pokemon: PtuPokemonForLookupPokemon): { fields: HangmonEmbedField[]; visibleHints: HangmonPropertyHint[] }
+    private static getEmbedFields(guid: UUID): HangmonEmbedField[]
+    {
+        // eslint-disable-next-line newline-destructuring/newline
+        const {
+            correct: { pokemon, hints: correctHints },
+            incorrect: { hints: incorrectHints },
+        } = this.guidToState[guid];
+
+        const hints = this.sortHints([
+            ...correctHints.map(hint => ({
+                hint,
+                success: true,
+            })),
+            ...(Object.keys(incorrectHints) as HangmonPropertyHint[]).map(hint => ({
+                hint,
+                success: false,
+            })),
+        ]) as { hint: HangmonPropertyHint; success: boolean }[];
+
+        return hints.map(({ hint, success }) => ({
+            name: hint,
+            value: (success)
+                ? this.getStatFromHint(pokemon, hint)
+                : '???',
+            success,
+        }));
+    }
+
+    /* istanbul ignore next */
+    private static getInitialHints(): GetInitialHintsResponse
     {
         const hints = this.getHintCategories();
 
-        const [index] = new DiceLiteService({
-            count: 1,
-            sides: hints.length,
-        }).roll();
-        const visibleHint = hints[index - 1];
+        // Exclude the first hint, which is always name
+        const index = RandomService.getRandomInteger(hints.length - 1);
 
         return {
-            fields: hints.map(hint => ({
-                name: hint,
-                value: (hint === visibleHint)
-                    ? this.getStatFromHint(pokemon, hint)
-                    : '???',
-                success: hint === visibleHint,
-            })),
-            visibleHints: [visibleHint],
+            hints,
+            visibleHint: hints[index],
         };
     }
 
@@ -277,39 +284,85 @@ export class HangmonStrategy extends BaseGenerateStrategy
     private static initializeGameState({
         allPokemon,
         randomPokemon,
-        visibleHints,
-    }: GetPokemonResponse & { visibleHints: HangmonPropertyHint[] }): UUID
+        hints,
+        visibleHint,
+    }: GetPokemonResponse & GetInitialHintsResponse): UUID
     {
         const guid = randomUUID();
 
-        const correctHints = Object.values(HangmonPropertyHint)
-            .reduce<Record<HangmonPropertyHint, string | undefined>>((acc, value) => ({
-                ...acc,
-                [value]: visibleHints.includes(value)
-                    ? this.getStatFromHint(randomPokemon, value)
-                    : undefined,
-            }), {} as Record<HangmonPropertyHint, string | undefined>);
+        const incorrectHints = hints.reduce<Record<HangmonPropertyHint, string[]>>((acc, value) =>
+        {
+            if (value === visibleHint)
+            {
+                return acc;
+            }
 
-        const incorrectHints = Object.values(HangmonPropertyHint)
-            .reduce<Record<HangmonPropertyHint, string[]>>((acc, value) => ({
+            return {
                 ...acc,
                 [value]: [],
-            }), {} as Record<HangmonPropertyHint, string[]>);
+            };
+        }, {} as Record<HangmonPropertyHint, string[]>);
 
         this.guidToState[guid] = {
             numOfGuesses: 0,
             victoryState: HangmonVictoryState.InProgress,
-            remainingPokemonOptions: allPokemon, // TODO: Parse down based on correct and incorrect hints
+            remainingPokemonOptions: allPokemon,
             correct: {
                 pokemon: randomPokemon,
-                hints: correctHints,
+                hints: [visibleHint],
             },
             incorrect: {
                 pokemon: [],
                 hints: incorrectHints,
             },
         };
+        this.updateRemainingPokemonOptionsBasedOnHints(guid);
 
         return guid;
+    }
+
+    private static updateRemainingPokemonOptionsBasedOnHints(guid: UUID): void
+    {
+        const {
+            remainingPokemonOptions,
+            correct: { hints: correctHints, pokemon: correctPokemon },
+            incorrect: { hints: incorrectHints },
+        } = this.guidToState[guid];
+
+        this.guidToState[guid].remainingPokemonOptions = remainingPokemonOptions.filter(pokemon =>
+        {
+            for (let index = 0; index < correctHints.length; index += 1)
+            {
+                if (this.getStatFromHint(pokemon, correctHints[index]) !== this.getStatFromHint(correctPokemon, correctHints[index]))
+                {
+                    return false;
+                }
+            }
+
+            const incorrectHintEntries = Object.entries(incorrectHints);
+            for (let index = 0; index < incorrectHintEntries.length; index += 1)
+            {
+                const [hint, values] = incorrectHintEntries[index] as [HangmonPropertyHint, string[]];
+
+                if (values.includes(this.getStatFromHint(pokemon, hint)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: Element[]): { hint: HangmonPropertyHint }[]
+    {
+        // Sort so that hints are always in the same order across each game and guess
+        const hintToIndex = Object.values(HangmonPropertyHint).reduce<Record<HangmonPropertyHint, number>>((acc, value, index) =>
+        {
+            acc[value] = index;
+            return acc;
+        }, {} as Record<HangmonPropertyHint, number>);
+
+        return hintsData.sort((a, b) => hintToIndex[a.hint] - hintToIndex[b.hint]);
     }
 }
