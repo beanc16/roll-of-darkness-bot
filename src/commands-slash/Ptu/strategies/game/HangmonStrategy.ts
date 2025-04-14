@@ -610,7 +610,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         // Get all pokemon that match the search parameters
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
         const { results = [] } = await PokemonController.getAll(searchParams) as { results: PtuPokemonCollection[] };
-        this.guidToState[guid].remainingPokemonOptions = results.map(pokemon => pokemon.toPtuPokemon());
+        this.guidToState[guid].remainingPokemonOptions = results.map(pokemon => pokemon.toPtuPokemon()).sort((a, b) => a.name.localeCompare(b.name));
     }
 
     private static async addGuessToState(guid: UUID, guessedPokemonName: string): Promise<void>
