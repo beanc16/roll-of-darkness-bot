@@ -120,6 +120,9 @@ export class HangmonStrategy extends BaseGenerateStrategy
             return;
         }
 
+        // Defer update in case it takes too long
+        const deferredResponse = await receivedInteraction.deferUpdate();
+
         const { values: [guessedPokemonName] = [] } = receivedInteraction;
 
         await this.addGuessToState(guid, guessedPokemonName);
@@ -164,7 +167,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 embed.markAsLoss(state.correct.pokemon.name);
             }
 
-            await receivedInteraction.update({
+            await deferredResponse.edit({
                 embeds: [embed],
                 components: [],
                 // TODO: Include play again button
@@ -175,7 +178,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
         // In Progress - update display and components
         actionRowBuilder.update({ embed, state });
-        await receivedInteraction.update({
+        await deferredResponse.edit({
             embeds: [embed],
             components: [actionRowBuilder],
         });
