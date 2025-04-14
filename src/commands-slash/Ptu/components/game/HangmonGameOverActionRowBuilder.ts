@@ -7,6 +7,7 @@ import {
 export enum HangmonGameOverCustomIds
 {
     PlayAgain = 'Play Again',
+    LookupPokemon = 'Lookup Pokemon',
 }
 
 export class HangmonGameOverActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
@@ -17,11 +18,16 @@ export class HangmonGameOverActionRowBuilder extends ActionRowBuilder<ButtonBuil
             components: [
                 new ButtonBuilder({
                     customId: HangmonGameOverCustomIds.PlayAgain,
-                    label: 'Play Again',
+                    label: HangmonGameOverCustomIds.PlayAgain,
                     emoji: '🔄',
                     style: ButtonStyle.Secondary,
                 }),
-                // TODO: Include button that replies with a fully featured version of looking up that pokemon by name
+                new ButtonBuilder({
+                    customId: HangmonGameOverCustomIds.LookupPokemon,
+                    label: HangmonGameOverCustomIds.LookupPokemon,
+                    emoji: '🔎',
+                    style: ButtonStyle.Secondary,
+                }),
             ],
         });
     }

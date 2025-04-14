@@ -89,6 +89,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             maxAttempts: this.maxNumberOfGuesses,
         });
 
+        const activeGameAbortController = new AbortController();
         const commandName: CommandName = `/${rerunOptions?.commandName ?? (interaction as ChatInputCommandInteraction).commandName}`;
         await interaction.editReply({
             embeds: [embed],
@@ -98,13 +99,20 @@ export class HangmonStrategy extends BaseGenerateStrategy
                     commandName,
                     embed,
                     state: this.guidToState[guid],
-                    onSelect: async (receivedInteraction, actionRowBuilder) => await this.onSelectHandler({
-                        receivedInteraction,
-                        actionRowBuilder,
-                        guid,
-                        players,
-                        commandName,
-                    }),
+                    onSelect: async (receivedInteraction, actionRowBuilder) =>
+                    {
+                        if (!activeGameAbortController.signal.aborted)
+                        {
+                            await this.onSelectHandler({
+                                receivedInteraction,
+                                actionRowBuilder,
+                                guid,
+                                players,
+                                activeGameAbortController,
+                                commandName,
+                            });
+                        }
+                    },
                 }),
             ],
         });
@@ -117,12 +125,14 @@ export class HangmonStrategy extends BaseGenerateStrategy
         actionRowBuilder,
         guid,
         players,
+        activeGameAbortController,
         commandName,
     }: {
         receivedInteraction: StringSelectMenuInteraction;
         actionRowBuilder: HangmonActionRowBuilder;
         guid: UUID;
         players: User[];
+        activeGameAbortController: AbortController;
         commandName: CommandName;
     }): Promise<void>
     {
@@ -200,10 +210,21 @@ export class HangmonStrategy extends BaseGenerateStrategy
                             players,
                             commandName,
                         }),
+                        [HangmonGameOverCustomIds.LookupPokemon]: async () => await LookupPokemonStrategy.run(newReceivedInteraction as ButtonInteraction, {
+                            name: state.correct.pokemon.name,
+                        }),
                     };
 
-                    await newReceivedInteraction.deferReply();
-                    await handlerMap[newReceivedInteraction.customId as HangmonGameOverCustomIds]();
+                    await newReceivedInteraction.deferReply({ fetchReply: true });
+                    const handler = handlerMap[newReceivedInteraction.customId as HangmonGameOverCustomIds];
+
+                    // @ts-expect-error -- This could actually be undefined
+                    if (handler)
+                    {
+                        activeGameAbortController.abort();
+                    }
+
+                    await handler();
                 },
                 getActionRowComponent: () => new HangmonGameOverActionRowBuilder(),
             });

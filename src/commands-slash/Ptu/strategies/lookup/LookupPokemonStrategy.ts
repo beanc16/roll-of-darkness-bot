@@ -2,6 +2,7 @@ import { logger } from '@beanc16/logger';
 import type { Entries } from '@beanc16/utility-types';
 import {
     ActionRowBuilder,
+    ButtonInteraction,
     ChatInputCommandInteraction,
     ComponentType,
     EmbedBuilder,
@@ -41,6 +42,18 @@ import {
 } from '../../types/pokemon.js';
 import { LookupMoveStrategy } from './LookupMoveStrategy.js';
 
+interface GetOptionsResponse
+{
+    name?: string | null;
+    moveName?: string | null;
+    moveListType: PtuMoveListType;
+    abilityName?: string | null;
+    abilityListType: PtuAbilityListType;
+    capabilityName?: string | null;
+    baseStatTotal?: number | null;
+    includeContestInfo?: boolean | null;
+}
+
 export interface GetLookupPokemonDataParameters
 {
     name?: string | null;
@@ -64,7 +77,7 @@ interface AddLookupMetadataToPtuPokemonParameters
 
 export interface HandleSelectMenuOptionsParameters
 {
-    originalInteraction: ChatInputCommandInteraction;
+    originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
     interactionResponse: Message<boolean>;
     name?: string | null;
     moveName?: string | null;
@@ -88,17 +101,24 @@ export class LookupPokemonStrategy
         MoveViewSelect: 'move_view_select',
     };
 
-    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, options?: Partial<GetOptionsResponse>): Promise<boolean>;
+    public static async run(
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
+        options?: Partial<GetOptionsResponse>,
+    ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.PokemonName);
-        const moveName = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
-        const moveListType = (interaction.options.getString('move_list_type') ?? PtuMoveListType.All) as PtuMoveListType;
-        const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
-        const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
-        const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
-        const baseStatTotal = interaction.options.getInteger('base_stat_total');
-        const includeContestInfo = interaction.options.getBoolean('include_contest_info');
+        const {
+            name,
+            moveName,
+            moveListType,
+            abilityName,
+            abilityListType,
+            capabilityName,
+            baseStatTotal,
+            includeContestInfo,
+        } = this.getOptions(interaction as ButtonInteraction, options);
 
         const numOfTruthyValues = [name, moveName, abilityName, capabilityName, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
@@ -667,7 +687,7 @@ export class LookupPokemonStrategy
     // Get input for getFirstEmbeds
     private static async getFirstEmbedsInput(
         options: GetLookupPokemonEmbedsParameters,
-        includeContestInfo: boolean | null,
+        includeContestInfo?: boolean | null,
     ): Promise<GetLookupPokemonEmbedsParameters>
     {
         const output: GetLookupPokemonEmbedsParameters = {
@@ -753,8 +773,8 @@ export class LookupPokemonStrategy
         selectedValue,
         isDisabled = false,
     }: {
-        originalInteraction: ChatInputCommandInteraction;
-        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction;
+        originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
+        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction | ButtonInteraction;
         embeds: EmbedBuilder[];
         name?: string | null;
         moveName?: string | null;
@@ -1308,5 +1328,44 @@ export class LookupPokemonStrategy
                 logger.error('An unknown error occurred whilst handling select menu interactions on /ptu lookup pokemon', error);
             }
         }
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): GetOptionsResponse;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<GetOptionsResponse>): GetOptionsResponse;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction,
+        options?: GetOptionsResponse,
+    ): GetOptionsResponse
+    {
+        if (options)
+        {
+            return {
+                ...options,
+                moveListType: options.moveListType ?? PtuMoveListType.All,
+                abilityListType: options.abilityListType ?? PtuAbilityListType.All,
+            };
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
+        const name = interaction.options.getString(PtuAutocompleteParameterName.PokemonName);
+        const moveName = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
+        const moveListType = (interaction.options.getString('move_list_type') ?? PtuMoveListType.All) as PtuMoveListType;
+        const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
+        const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
+        const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const baseStatTotal = interaction.options.getInteger('base_stat_total');
+        const includeContestInfo = interaction.options.getBoolean('include_contest_info');
+
+        return {
+            name,
+            moveName,
+            moveListType,
+            abilityName,
+            abilityListType,
+            capabilityName,
+            baseStatTotal,
+            includeContestInfo,
+        };
     }
 }
