@@ -11,7 +11,7 @@ import { chunkArray } from '../../services/chunkArray.js';
 import { CommandName } from '../../types/discord.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../strategies/InteractionStrategy.js';
 
-type OnSelect = (receivedInteraction: StringSelectMenuInteraction) => Promise<void> | void;
+export type PaginatedStringSelectMenuOnSelect = (receivedInteraction: StringSelectMenuInteraction) => Promise<void> | void;
 
 export enum PageNavigation
 {
@@ -21,18 +21,29 @@ export enum PageNavigation
     Last = 'Last →→',
 }
 
+interface PaginatedStringSelectMenuOptions<Element> extends HandleInteractionsOptions
+{
+    elementName: string;
+    elements: Element[];
+    optionParser: OptionParser<Element>;
+}
+
 interface HandleInteractionsOptions
 {
     customId: string;
     message: Message;
     commandName: CommandName;
     embeds: EmbedBuilder[];
-    onSelect: OnSelect;
+    onSelect: PaginatedStringSelectMenuOnSelect;
 }
+
+type OptionParser<Element> = (element: Element) => SelectMenuComponentOptionData;
 
 export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
 {
     private MAX_OPTIONS_PER_PAGE = 25;
+    private optionParser: OptionParser<Element>;
+    private embeds: EmbedBuilder[];
 
     private elementName: string;
     private elementOptions: SelectMenuComponentOptionData[];
@@ -47,17 +58,13 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         commandName,
         embeds,
         onSelect,
-    }: {
-        elementName: string;
-        elements: Element[];
-        optionParser: (element: Element) => SelectMenuComponentOptionData;
-    } & HandleInteractionsOptions)
+    }: PaginatedStringSelectMenuOptions<Element>)
     {
-        const options = elements.map(optionParser);
-
         super({ customId, placeholder: `${elementName} List - Page 1` });
         this.elementName = elementName;
-        this.elementOptions = options;
+        this.elementOptions = elements.map(optionParser);
+        this.optionParser = optionParser;
+        this.embeds = embeds;
         this.setPage(PageNavigation.First);
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -74,7 +81,6 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         customId,
         message,
         commandName,
-        embeds,
         onSelect,
     }: HandleInteractionsOptions): Promise<void>
     {
@@ -105,7 +111,7 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
                 {
                     handler();
                     await receivedInteraction.update({
-                        embeds,
+                        embeds: this.embeds,
                         components: [this.toActionRowBuilder()],
                     });
                 }
@@ -236,5 +242,13 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         return new ActionRowBuilder<PaginatedStringSelectMenu<Element>>({
             components: [this],
         });
+    }
+
+    /* istanbul ignore next */
+    public update({ embeds, elements }: Pick<PaginatedStringSelectMenuOptions<Element>, 'embeds' | 'elements'>): void
+    {
+        this.embeds = embeds;
+        this.elementOptions = elements.map(this.optionParser);
+        this.setPage(PageNavigation.First);
     }
 }
