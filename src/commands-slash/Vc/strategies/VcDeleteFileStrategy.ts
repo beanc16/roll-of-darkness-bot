@@ -4,6 +4,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import { removeAudioBufferFromCache } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
 
@@ -50,6 +51,7 @@ export class VcDeleteFileStrategy
                 nestedFolders: `vc-commands/${interaction.user.id}`,
                 resourceType: FileStorageMicroserviceResourceType.Audio,
             });
+            removeAudioBufferFromCache(interaction.user.id, fileName);
             return true;
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -197,6 +197,11 @@ export const getAudioResource = async ({
     return output;
 };
 
+export const removeAudioBufferFromCache = (discordUserId: string, fileName: string): void =>
+{
+    audioResourceBufferCache.Clear([discordUserId, fileName]);
+};
+
 export const isValidAudioUrl = async (fileUrl: string): Promise<boolean> =>
 {
     // eslint-disable-next-line no-async-promise-executor
