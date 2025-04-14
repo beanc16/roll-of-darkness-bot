@@ -1,4 +1,4 @@
-import { PtuPokemonForLookupPokemon } from '../embed-messages/lookup.js';
+import type { PtuPokemon } from './pokemon.js';
 
 export enum HangmonPropertyHint
 {
@@ -23,13 +23,13 @@ export interface HangmonState
 {
     numOfGuesses: number;
     victoryState: HangmonVictoryState;
-    remainingPokemonOptions: PtuPokemonForLookupPokemon[];
+    remainingPokemonOptions: PtuPokemon[];
     correct: {
-        pokemon: PtuPokemonForLookupPokemon;
+        pokemon: PtuPokemon;
         hints: Partial<Record<HangmonPropertyHint, string>>;
     };
     incorrect: {
-        pokemon: PtuPokemonForLookupPokemon[];
+        pokemon: PtuPokemon[];
         hints: Record<HangmonPropertyHint, string[]>;
     };
 }

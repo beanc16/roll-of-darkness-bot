@@ -15,25 +15,33 @@ import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/B
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonActionRowBuilder } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
-import type { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
+import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
+import { PokemonController } from '../../dal/PtuController.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import {
     HangmonPropertyHint,
     type HangmonState,
     HangmonVictoryState,
 } from '../../types/hangmon.js';
+import { PtuPokemon } from '../../types/pokemon.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 
 interface GetPokemonResponse
 {
-    allPokemon: PtuPokemonForLookupPokemon[];
-    randomPokemon: PtuPokemonForLookupPokemon;
+    allPokemon: PtuPokemon[];
+    randomPokemon: PtuPokemon;
 }
 
 interface GetInitialHintsResponse
 {
     hints: HangmonPropertyHint[];
     visibleHint: HangmonPropertyHint;
+}
+
+interface StatsAreEqualForHintResponse
+{
+    areEqual: boolean;
+    stat?: string;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -54,7 +62,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const message = await interaction.fetchReply();
 
         const { hints, visibleHint } = this.getInitialHints();
-        const guid = this.initializeGameState({
+        const guid = await this.initializeGameState({
             allPokemon,
             randomPokemon,
             hints,
@@ -114,7 +122,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
         const { values: [guessedPokemonName] = [] } = receivedInteraction;
 
-        this.addGuessToState(guid, guessedPokemonName);
+        await this.addGuessToState(guid, guessedPokemonName);
         const state = this.guidToState[guid];
 
         // Get new embed to display with updated game state
@@ -239,7 +247,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
     }
 
     private static getRandomStatFromHint(
-        pokemon: PtuPokemonForLookupPokemon,
+        pokemon: PtuPokemon,
         hint: HangmonPropertyHint,
         { onlyNewStats = false, guid }: { onlyNewStats?: boolean; guid?: UUID } = {},
     ): string
@@ -276,7 +284,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             },
             [HangmonPropertyHint.PtuSize]: () => pokemon.sizeInformation.height.ptu,
             [HangmonPropertyHint.PtuWeightClass]: () => pokemon.sizeInformation.weight.ptu.toString(),
-            [HangmonPropertyHint.Habitat]: () =>
+            [HangmonPropertyHint.OneHabitat]: () =>
             {
                 let index: number;
 
@@ -300,7 +308,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
                 return pokemon.habitats[index - 1];
             },
-            [HangmonPropertyHint.Diet]: () =>
+            [HangmonPropertyHint.OneDiet]: () =>
             {
                 let index: number;
 
@@ -354,71 +362,128 @@ export class HangmonStrategy extends BaseGenerateStrategy
         return handlerMap[hint]();
     }
 
-    private static statsAreEqualForHint(
-        pokemon1: PtuPokemonForLookupPokemon,
-        pokemon2: PtuPokemonForLookupPokemon,
+    private static getFirstEqualStatForHint(
+        pokemon1: PtuPokemon,
+        pokemon2: PtuPokemon,
         hint: HangmonPropertyHint,
-    ): boolean;
-    private static statsAreEqualForHint(
-        pokemon1: PtuPokemonForLookupPokemon,
-        incorrectGuesses: string[],
+    ): StatsAreEqualForHintResponse;
+    private static getFirstEqualStatForHint(
+        pokemon1: PtuPokemon,
+        guesses: string[],
         hint: HangmonPropertyHint,
-    ): boolean;
-    private static statsAreEqualForHint(
-        pokemon1: PtuPokemonForLookupPokemon,
-        pokemon2OrIncorrectGuesses: PtuPokemonForLookupPokemon | string[],
+    ): StatsAreEqualForHintResponse;
+    private static getFirstEqualStatForHint(
+        pokemon1: PtuPokemon,
+        pokemon2OrGuesses: PtuPokemon | string[],
         hint: HangmonPropertyHint,
-    ): boolean
+    ): StatsAreEqualForHintResponse
     {
-        const pokemon2 = (Array.isArray(pokemon2OrIncorrectGuesses))
+        const pokemon2 = (Array.isArray(pokemon2OrGuesses))
             ? undefined
-            : pokemon2OrIncorrectGuesses;
-        const incorrectGuesses = (Array.isArray(pokemon2OrIncorrectGuesses))
-            ? pokemon2OrIncorrectGuesses
+            : pokemon2OrGuesses;
+        const guesses = (Array.isArray(pokemon2OrGuesses))
+            ? pokemon2OrGuesses
             : [];
 
-        const handlerMap: Record<HangmonPropertyHint, () => boolean> = {
-            [HangmonPropertyHint.Name]: () => (pokemon2)
-                ? pokemon1.name === pokemon2?.name
-                : incorrectGuesses.includes(pokemon1.name),
-            [HangmonPropertyHint.OneType]: () => pokemon1.types.some(element =>
-                (pokemon2?.types ?? incorrectGuesses).includes(element),
+        const handlerMap: Record<HangmonPropertyHint, () => string | undefined> = {
+            [HangmonPropertyHint.Name]: () =>
+            {
+                if (pokemon2)
+                {
+                    if (pokemon1.name === pokemon2.name)
+                    {
+                        return pokemon1.name;
+                    }
+                }
+                else
+                {
+                    return guesses.find((guess) => guess === pokemon1.name);
+                }
+
+                return undefined;
+            },
+            [HangmonPropertyHint.OneType]: () => pokemon1.types.find(element =>
+                (pokemon2?.types ?? guesses).includes(element),
             ),
-            [HangmonPropertyHint.PtuSize]: () => (pokemon2)
-                ? pokemon1.sizeInformation.height.ptu === pokemon2.sizeInformation.height.ptu
-                : incorrectGuesses.includes(pokemon1.sizeInformation.height.ptu),
-            [HangmonPropertyHint.PtuWeightClass]: () => (pokemon2)
-                ? pokemon1.sizeInformation.weight.ptu === pokemon2.sizeInformation.weight.ptu
-                : incorrectGuesses.includes(pokemon1.sizeInformation.weight.ptu.toString()),
-            [HangmonPropertyHint.Habitat]: () => pokemon1.habitats.some(element =>
-                (pokemon2?.habitats ?? incorrectGuesses).includes(element),
+            [HangmonPropertyHint.PtuSize]: () =>
+            {
+                if (pokemon2)
+                {
+                    if (pokemon1.sizeInformation.height.ptu === pokemon2.sizeInformation.height.ptu)
+                    {
+                        return pokemon1.sizeInformation.height.ptu;
+                    }
+                }
+                else
+                {
+                    return guesses.find((guess) => guess === pokemon1.sizeInformation.height.ptu);
+                }
+
+                return undefined;
+            },
+            [HangmonPropertyHint.PtuWeightClass]: () =>
+            {
+                if (pokemon2)
+                {
+                    if (pokemon1.sizeInformation.weight.ptu === pokemon2.sizeInformation.weight.ptu)
+                    {
+                        return pokemon1.sizeInformation.weight.ptu.toString();
+                    }
+                }
+                else
+                {
+                    return guesses.find((guess) => guess === pokemon1.sizeInformation.weight.ptu.toString());
+                }
+
+                return undefined;
+            },
+            [HangmonPropertyHint.OneHabitat]: () => pokemon1.habitats.find(element =>
+                (pokemon2?.habitats ?? guesses).includes(element),
             ),
-            [HangmonPropertyHint.Diet]: () => pokemon1.diets.some(element =>
-                (pokemon2?.diets ?? incorrectGuesses).includes(element),
+            [HangmonPropertyHint.OneDiet]: () => pokemon1.diets.find(element =>
+                (pokemon2?.diets ?? guesses).includes(element),
             ),
-            [HangmonPropertyHint.OneEggGroup]: () => pokemon1.breedingInformation.eggGroups.some(element =>
-                (pokemon2?.breedingInformation.eggGroups ?? incorrectGuesses).includes(element),
+            [HangmonPropertyHint.OneEggGroup]: () => pokemon1.breedingInformation.eggGroups.find(element =>
+                (pokemon2?.breedingInformation.eggGroups ?? guesses).includes(element),
             ),
-            [HangmonPropertyHint.DexName]: () => (pokemon2)
-                ? pokemon1.metadata.source === pokemon2.metadata.source
-                : incorrectGuesses.includes(pokemon1.metadata.source),
+            [HangmonPropertyHint.DexName]: () =>
+            {
+                if (pokemon2)
+                {
+                    if (pokemon1.metadata.source === pokemon2.metadata.source)
+                    {
+                        return pokemon1.metadata.source;
+                    }
+                }
+                else
+                {
+                    return guesses.find((guess) => guess === pokemon1.metadata.source);
+                }
+
+                return undefined;
+            },
         };
 
-        return handlerMap[hint]();
+        const stat = handlerMap[hint]();
+
+        return {
+            areEqual: !!stat,
+            stat,
+        };
     }
 
     private static getEmbedFields(guid: UUID): HangmonEmbedField[]
     {
         // eslint-disable-next-line newline-destructuring/newline
         const {
-            correct: { pokemon, hints: correctHints },
+            correct: { hints: correctHints },
             incorrect: { hints: incorrectHints },
         } = this.guidToState[guid];
 
         const hints = this.sortHints([
-            ...correctHints.map(hint => ({
+            ...(Object.entries(correctHints) as Entries<Record<HangmonPropertyHint, string>>).map(([hint, value]) => ({
                 hint,
-                value: undefined,
+                value,
                 success: true,
             })),
             ...(Object.entries(incorrectHints) as Entries<Record<HangmonPropertyHint, string[]>>).map(([hint, values]) => ({
@@ -434,9 +499,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             success,
         }) => ({
             name: hint,
-            value: (success)
-                ? this.getRandomStatFromHint(pokemon, hint)
-                : value ?? '???',
+            value: value ?? '???',
             success,
         }));
     }
@@ -455,13 +518,12 @@ export class HangmonStrategy extends BaseGenerateStrategy
         };
     }
 
-    /* istanbul ignore next */
-    private static initializeGameState({
+    private static async initializeGameState({
         allPokemon,
         randomPokemon,
         hints,
         visibleHint,
-    }: GetPokemonResponse & GetInitialHintsResponse): UUID
+    }: GetPokemonResponse & GetInitialHintsResponse): Promise<UUID>
     {
         const guid = randomUUID();
 
@@ -484,52 +546,71 @@ export class HangmonStrategy extends BaseGenerateStrategy
             remainingPokemonOptions: allPokemon,
             correct: {
                 pokemon: randomPokemon,
-                hints: [visibleHint],
+                hints: {
+                    [visibleHint]: this.getFirstEqualStatForHint(randomPokemon, randomPokemon, visibleHint).stat!,
+                },
             },
             incorrect: {
                 pokemon: [],
                 hints: incorrectHints,
             },
         };
-        this.updateRemainingPokemonOptionsBasedOnHints(guid);
+        await this.updateRemainingPokemonOptionsBasedOnHints(guid);
 
         return guid;
     }
 
-    private static updateRemainingPokemonOptionsBasedOnHints(guid: UUID): void
+    private static async updateRemainingPokemonOptionsBasedOnHints(guid: UUID): Promise<void>
     {
+        // eslint-disable-next-line newline-destructuring/newline
         const {
-            remainingPokemonOptions,
-            correct: { hints: correctHints, pokemon: correctPokemon },
+            correct: { hints: correctHints },
             incorrect: { hints: incorrectHints },
         } = this.guidToState[guid];
 
-        this.guidToState[guid].remainingPokemonOptions = remainingPokemonOptions.filter(pokemon =>
+        // Map each hint to the corresponding database key for filtering
+        const hintToDbKey: Record<HangmonPropertyHint, string> = {
+            [HangmonPropertyHint.Name]: 'name',
+            [HangmonPropertyHint.OneType]: 'types',
+            [HangmonPropertyHint.DexName]: 'metadata.source',
+            [HangmonPropertyHint.PtuSize]: 'sizeInformation.height.ptu',
+            [HangmonPropertyHint.PtuWeightClass]: 'sizeInformation.weight.ptu',
+            [HangmonPropertyHint.OneHabitat]: 'habitats',
+            [HangmonPropertyHint.OneDiet]: 'diets',
+            [HangmonPropertyHint.OneEggGroup]: 'breedingInformation.eggGroups',
+        };
+
+        // Build the search parameters
+        const searchParams: Record<string, { $in?: (string | number)[]; $nin?: (string | number)[] }> = {};
+
+        (Object.entries(correctHints) as Entries<Record<HangmonPropertyHint, string>>).forEach(([hint, value]) =>
         {
-            for (let index = 0; index < correctHints.length; index += 1)
-            {
-                if (!this.statsAreEqualForHint(correctPokemon, pokemon, correctHints[index]))
-                {
-                    return false;
-                }
-            }
+            const parsedValue = (hint === HangmonPropertyHint.PtuWeightClass)
+                ? parseInt(value, 10)
+                : value;
 
-            const incorrectHintEntries = Object.entries(incorrectHints) as Entries<Record<HangmonPropertyHint, string[]>>;
-            for (let index = 0; index < incorrectHintEntries.length; index += 1)
-            {
-                const [hint, incorrectGuesses] = incorrectHintEntries[index];
-
-                if (this.statsAreEqualForHint(pokemon, incorrectGuesses, hint))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            searchParams[hintToDbKey[hint]] = { $in: [parsedValue] };
         });
+
+        (Object.entries(incorrectHints) as Entries<Record<HangmonPropertyHint, string[]>>).forEach(([hint, values]) =>
+        {
+            const parsedValues = (hint === HangmonPropertyHint.PtuWeightClass)
+                ? values.map(value => parseInt(value, 10))
+                : values;
+
+            if (parsedValues.length > 0)
+            {
+                searchParams[hintToDbKey[hint]] = { $nin: parsedValues };
+            }
+        });
+
+        // Get all pokemon that match the search parameters
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- This is safe based on knowledge of the consumed package
+        const { results = [] } = await PokemonController.getAll(searchParams) as { results: PtuPokemonCollection[] };
+        this.guidToState[guid].remainingPokemonOptions = results.map(pokemon => pokemon.toPtuPokemon());
     }
 
-    private static addGuessToState(guid: UUID, guessedPokemonName: string): void
+    private static async addGuessToState(guid: UUID, guessedPokemonName: string): Promise<void>
     {
         const state = this.guidToState[guid];
 
@@ -566,10 +647,10 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
         // Update game state's hints and remaining pokemon options
         this.setCorrectAndIncorrectHints(guid, guessedPokemon);
-        this.updateRemainingPokemonOptionsBasedOnHints(guid);
+        await this.updateRemainingPokemonOptionsBasedOnHints(guid);
     }
 
-    private static setCorrectAndIncorrectHints(guid: UUID, guessedPokemon: PtuPokemonForLookupPokemon): void
+    private static setCorrectAndIncorrectHints(guid: UUID, guessedPokemon: PtuPokemon): void
     {
         // eslint-disable-next-line newline-destructuring/newline
         const {
@@ -577,14 +658,15 @@ export class HangmonStrategy extends BaseGenerateStrategy
             incorrect: { hints: incorrectHints },
         } = this.guidToState[guid];
 
-        [...correctHints, ...(Object.keys(incorrectHints) as HangmonPropertyHint[])].reduce((acc, hint) =>
+        const correctHintsKeys = Object.keys(correctHints) as HangmonPropertyHint[];
+
+        [...correctHintsKeys, ...(Object.keys(incorrectHints) as HangmonPropertyHint[])].reduce((acc, hint) =>
         {
-            if (
-                this.statsAreEqualForHint(correctPokemon, guessedPokemon, hint)
-                && !this.guidToState[guid].correct.hints.includes(hint)
-            )
+            const { areEqual, stat } = this.getFirstEqualStatForHint(correctPokemon, guessedPokemon, hint);
+
+            if (areEqual && !correctHintsKeys.includes(hint))
             {
-                this.guidToState[guid].correct.hints.push(hint);
+                this.guidToState[guid].correct.hints[hint] = stat!;
                 delete this.guidToState[guid].incorrect.hints[hint];
             }
             else if (this.guidToState[guid].incorrect.hints[hint])
