@@ -639,7 +639,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         {
             this.guidToState[guid].victoryState = HangmonVictoryState.Win;
         }
-        if (state.numOfGuesses >= this.maxNumberOfGuesses)
+        else if (state.numOfGuesses >= this.maxNumberOfGuesses)
         {
             this.guidToState[guid].victoryState = HangmonVictoryState.Loss;
         }
