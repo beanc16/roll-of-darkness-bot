@@ -14,6 +14,7 @@ interface HangmonEmbedMessageOptions
 {
     players: User[];
     fields: HangmonEmbedField[];
+    attempts?: number;
     maxAttempts: number;
 }
 
@@ -25,6 +26,7 @@ export class HangmonEmbedMessage extends EmbedBuilder
     constructor({
         players,
         fields = [],
+        attempts = 0,
         maxAttempts,
     }: HangmonEmbedMessageOptions)
     {
@@ -37,9 +39,9 @@ export class HangmonEmbedMessage extends EmbedBuilder
             },
         });
 
-        this.attempts = 0;
+        this.attempts = attempts;
         this.maxAttempts = maxAttempts;
-        this.setAttempts(0);
+        this.setAttempts(attempts);
     }
 
     public setFields(fields: HangmonEmbedField[]): this
@@ -76,8 +78,18 @@ export class HangmonEmbedMessage extends EmbedBuilder
         return this;
     }
 
-    public incrementAttempts(): this
+    public markAsLoss(pokemonName: string): this
     {
-        return this.setAttempts(this.maxAttempts + 1);
+        const description = [
+            `😥👎 ${this.data.description!} 😥👎`,
+            `### Pokemon: ${pokemonName}`,
+        ].join('\n');
+
+        return this.setDescription(description);
+    }
+
+    public markAsVictory(): this
+    {
+        return this.setDescription(`🏆 ${this.data.description!} 🏆`);
     }
 }
