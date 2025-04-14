@@ -7,8 +7,8 @@ export enum HangmonPropertyHint
     DexName = 'Pokédex Name',
     PtuSize = 'PTU Size',
     PtuWeightClass = 'PTU Weight Class',
-    Habitat = 'Habitat',
-    Diet = 'Diet',
+    OneHabitat = 'One Habitat',
+    OneDiet = 'One Diet',
     OneEggGroup = 'One Egg Group',
 }
 
@@ -26,7 +26,7 @@ export interface HangmonState
     remainingPokemonOptions: PtuPokemonForLookupPokemon[];
     correct: {
         pokemon: PtuPokemonForLookupPokemon;
-        hints: HangmonPropertyHint[];
+        hints: Partial<Record<HangmonPropertyHint, string>>;
     };
     incorrect: {
         pokemon: PtuPokemonForLookupPokemon[];
