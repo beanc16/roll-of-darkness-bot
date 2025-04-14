@@ -26,6 +26,7 @@ interface PaginatedStringSelectMenuOptions<Element> extends HandleInteractionsOp
     elementName: string;
     elements: Element[];
     optionParser: OptionParser<Element>;
+    embeds: EmbedBuilder[];
 }
 
 interface HandleInteractionsOptions
@@ -33,7 +34,6 @@ interface HandleInteractionsOptions
     customId: string;
     message: Message;
     commandName: CommandName;
-    embeds: EmbedBuilder[];
     onSelect: PaginatedStringSelectMenuOnSelect;
 }
 
@@ -72,7 +72,6 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
             customId,
             message,
             commandName,
-            embeds,
             onSelect,
         });
     }
