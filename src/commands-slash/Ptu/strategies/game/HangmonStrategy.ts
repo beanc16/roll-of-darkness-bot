@@ -3,6 +3,7 @@ import { randomUUID, UUID } from 'node:crypto';
 import { logger } from '@beanc16/logger';
 import type { Entries } from '@beanc16/utility-types';
 import {
+    ButtonInteraction,
     type ChatInputCommandInteraction,
     type StringSelectMenuInteraction,
     type User,
@@ -11,10 +12,13 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { RandomService } from '../../../../services/RandomService.js';
 import { RegexLookupType } from '../../../../services/stringHelpers.js';
+import { CommandName } from '../../../../types/discord.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonActionRowBuilder } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
+import { HangmonGameOverActionRowBuilder, HangmonGameOverCustomIds } from '../../components/game/HangmonGameOverActionRowBuilder.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import { PtuGameSubcommand } from '../../options/game.js';
@@ -53,10 +57,18 @@ export class HangmonStrategy extends BaseGenerateStrategy
     private static numOfHints = 5;
     private static guidToState: Record<UUID, HangmonState> = {};
 
-    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, rerunOptions?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, rerunOptions: {
+        players: User[];
+        commandName: CommandName;
+    }): Promise<boolean>;
+    public static async run(interaction: ChatInputCommandInteraction | ButtonInteraction, rerunOptions?: {
+        players?: User[];
+        commandName?: CommandName;
+    }): Promise<boolean>
     {
         // Get data
-        const players = this.getPlayers(interaction);
+        const players = (rerunOptions?.players) ? rerunOptions.players : this.getPlayers(interaction as ChatInputCommandInteraction);
         const { allPokemon, randomPokemon } = await this.getPokemon();
 
         const message = await interaction.fetchReply();
@@ -77,12 +89,13 @@ export class HangmonStrategy extends BaseGenerateStrategy
             maxAttempts: this.maxNumberOfGuesses,
         });
 
+        const commandName: CommandName = `/${rerunOptions?.commandName ?? (interaction as ChatInputCommandInteraction).commandName}`;
         await interaction.editReply({
             embeds: [embed],
             components: [
                 new HangmonActionRowBuilder({
                     message,
-                    commandName: `/${interaction.commandName}`,
+                    commandName,
                     embed,
                     state: this.guidToState[guid],
                     onSelect: async (receivedInteraction, actionRowBuilder) => await this.onSelectHandler({
@@ -90,6 +103,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         actionRowBuilder,
                         guid,
                         players,
+                        commandName,
                     }),
                 }),
             ],
@@ -103,11 +117,13 @@ export class HangmonStrategy extends BaseGenerateStrategy
         actionRowBuilder,
         guid,
         players,
+        commandName,
     }: {
         receivedInteraction: StringSelectMenuInteraction;
         actionRowBuilder: HangmonActionRowBuilder;
         guid: UUID;
         players: User[];
+        commandName: CommandName;
     }): Promise<void>
     {
         // Only allow players to select
@@ -167,11 +183,29 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 embed.markAsLoss(state.correct.pokemon.name);
             }
 
-            await deferredResponse.edit({
+            const interactionResponse = await deferredResponse.edit({
                 embeds: [embed],
-                components: [],
-                // TODO: Include play again button
-                // TODO: Include button that replies with a fully featured version of looking up that pokemon by name
+                components: [
+                    new HangmonGameOverActionRowBuilder(),
+                ],
+            });
+            await InteractionStrategy.handleInteractions({
+                interactionResponse,
+                commandName,
+                restartStyle: InteractionListenerRestartStyle.OnSuccess,
+                onInteraction: async (newReceivedInteraction) =>
+                {
+                    const handlerMap: Record<HangmonGameOverCustomIds, () => Promise<boolean>> = {
+                        [HangmonGameOverCustomIds.PlayAgain]: async () => await this.run(newReceivedInteraction as ButtonInteraction, {
+                            players,
+                            commandName,
+                        }),
+                    };
+
+                    await newReceivedInteraction.deferReply();
+                    await handlerMap[newReceivedInteraction.customId as HangmonGameOverCustomIds]();
+                },
+                getActionRowComponent: () => new HangmonGameOverActionRowBuilder(),
             });
             return;
         }
