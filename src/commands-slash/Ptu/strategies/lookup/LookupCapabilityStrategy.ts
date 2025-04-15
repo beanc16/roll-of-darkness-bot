@@ -137,7 +137,7 @@ export class LookupCapabilityStrategy
 
         return {
             name,
-            includeAllIfNoName: false,
+            includeAllIfNoName: !name,
         };
     }
 }
