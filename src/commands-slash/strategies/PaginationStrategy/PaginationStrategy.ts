@@ -21,8 +21,9 @@ export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
 
 type RowAbovePagination = ActionRowBuilder<StringSelectMenuBuilder | ButtonBuilder>;
 
-export interface OnRowAbovePaginationButtonPressResponse extends InteractionUpdateOptions
+export interface OnRowAbovePaginationButtonPressResponse extends Omit<InteractionUpdateOptions, 'components'>
 {
+    rowsAbovePagination?: PaginationStrategyRunParameters['rowsAbovePagination'];
     shouldUpdateMessage?: boolean;
 }
 
@@ -213,6 +214,7 @@ export class PaginationStrategy
             const {
                 embeds: newEmbeds,
                 files: newFiles,
+                rowsAbovePagination = [],
                 shouldUpdateMessage,
             } = await onRowAbovePaginationButtonPress(receivedInteraction, {
                 ...(embeds
@@ -225,6 +227,12 @@ export class PaginationStrategy
                 ),
             }) ?? {};
 
+            const newValidRowsAbovePagination = rowsAbovePagination.filter(row => !!row);
+
+            if (newValidRowsAbovePagination.length > 0)
+            {
+                output.components = newValidRowsAbovePagination;
+            }
             if (newEmbeds)
             {
                 output.embeds = newEmbeds as EmbedBuilder[];
@@ -240,7 +248,7 @@ export class PaginationStrategy
         }
 
         output.components = this.getComponents({
-            validRowsAbovePagination,
+            validRowsAbovePagination: output.components ?? validRowsAbovePagination,
             isDisabled: false,
             includeDeleteButton,
             includePaginationButtons: (

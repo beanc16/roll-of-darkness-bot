@@ -816,9 +816,7 @@ export class LookupPokemonStrategy
         const rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
             ActionRowBuilder<ButtonBuilder>?,
-        ] = (selectMenuRow || buttonRow)
-            ? [selectMenuRow, buttonRow]
-            : [];
+        ] = [selectMenuRow, buttonRow];
 
         // Send messages with pagination
         await PaginationStrategy.run({
@@ -863,6 +861,12 @@ export class LookupPokemonStrategy
                         name,
                         pokemon: [versionNameToPokemon[value]],
                     });
+                    selectMenuRow = this.getLookupPokemonSelectMenu({
+                        pokemon,
+                        isDisabled,
+                        selectedValue: value,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
                 }
                 else if (customId === this.selectMenuCustomIds.MoveViewSelect)
                 {
@@ -872,6 +876,13 @@ export class LookupPokemonStrategy
                         moveListType,
                         pokemon,
                     });
+                    selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
+                        defaultMoveListType: moveListType,
+                        moveName: moveName as string,
+                        pokemon,
+                        isDisabled,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
                 }
                 else if (customId === LookupPokemonCustomId.LookupMove.toString())
                 {
@@ -890,7 +901,7 @@ export class LookupPokemonStrategy
                     return { shouldUpdateMessage: false };
                 }
 
-                return { embeds: newEmbeds };
+                return { embeds: newEmbeds, rowsAbovePagination };
             },
             includeDeleteButton: true,
         });
