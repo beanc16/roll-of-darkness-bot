@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { CommandName } from '../../types/discord.js';
-import { PaginationStrategy } from './PaginationStrategy/PaginationStrategy.js';
+import { PaginationStrategy, PaginationStrategyRunParameters } from './PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from './types/ChatIteractionStrategy.js';
 
 export enum BaseGetLookupSearchMatchType
@@ -34,6 +34,8 @@ export class LookupStrategy
         options: {
             commandName: CommandName;
             noEmbedsErrorMessage: string;
+            rowsAbovePagination?: PaginationStrategyRunParameters['rowsAbovePagination'];
+            onRowAbovePaginationButtonPress?: PaginationStrategyRunParameters['onRowAbovePaginationButtonPress'];
         },
     ): Promise<boolean>
     {
@@ -45,6 +47,8 @@ export class LookupStrategy
                 originalInteraction: interaction,
                 commandName: options.commandName,
                 content: options.noEmbedsErrorMessage,
+                rowsAbovePagination: options.rowsAbovePagination,
+                onRowAbovePaginationButtonPress: options.onRowAbovePaginationButtonPress,
                 includeDeleteButton: true,
             });
             return true;
@@ -56,6 +60,8 @@ export class LookupStrategy
             originalInteraction: interaction,
             commandName: options.commandName,
             embeds,
+            rowsAbovePagination: options.rowsAbovePagination,
+            onRowAbovePaginationButtonPress: options.onRowAbovePaginationButtonPress,
             includeDeleteButton: true,
         });
 

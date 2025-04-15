@@ -21,7 +21,12 @@ export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
 
 type RowAbovePagination = ActionRowBuilder<StringSelectMenuBuilder | ButtonBuilder>;
 
-interface PaginationStrategyRunParameters
+export interface OnRowAbovePaginationButtonPressResponse extends InteractionUpdateOptions
+{
+    shouldUpdateMessage?: boolean;
+}
+
+export interface PaginationStrategyRunParameters
 {
     originalInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
     commandName: CommandName;
@@ -38,7 +43,7 @@ interface PaginationStrategyRunParameters
     onRowAbovePaginationButtonPress?: (buttonInteraction: ButtonInteraction, options: {
         embeds?: EmbedBuilder[];
         files?: AttachmentPayload[];
-    }) => Promise<InteractionUpdateOptions> | InteractionUpdateOptions;
+    }) => Promise<OnRowAbovePaginationButtonPressResponse> | OnRowAbovePaginationButtonPressResponse;
     includeDeleteButton?: boolean;
 }
 
@@ -48,6 +53,7 @@ interface OnButtonPressResponse
     components: RowAbovePagination[] | undefined;
     embeds: EmbedBuilder[] | undefined;
     files: AttachmentPayload[] | undefined;
+    shouldUpdateMessage: boolean;
 }
 
 export class PaginationStrategy
@@ -200,11 +206,16 @@ export class PaginationStrategy
             components: undefined,
             embeds: undefined,
             files: undefined,
+            shouldUpdateMessage: true,
         };
 
         if (isNonPaginationButtonPress && onRowAbovePaginationButtonPress)
         {
-            const { embeds: newEmbeds, files: newFiles } = await onRowAbovePaginationButtonPress(buttonInteraction, {
+            const {
+                embeds: newEmbeds,
+                files: newFiles,
+                shouldUpdateMessage,
+            } = await onRowAbovePaginationButtonPress(buttonInteraction, {
                 ...(embeds
                     ? { embeds }
                     : {}
@@ -213,7 +224,7 @@ export class PaginationStrategy
                     ? { files }
                     : {}
                 ),
-            });
+            }) ?? {};
 
             if (newEmbeds)
             {
@@ -222,6 +233,10 @@ export class PaginationStrategy
             if (newFiles)
             {
                 output.files = newFiles as AttachmentPayload[];
+            }
+            if (shouldUpdateMessage !== undefined)
+            {
+                output.shouldUpdateMessage = shouldUpdateMessage;
             }
         }
 
@@ -255,7 +270,7 @@ export class PaginationStrategy
         }
 
         // Follow up or update the message (update will throw an error if it has been replied to)
-        if (buttonInteraction.replied)
+        if (buttonInteraction.replied && output.shouldUpdateMessage)
         {
             await buttonInteraction.editReply({
                 content,
@@ -270,7 +285,7 @@ export class PaginationStrategy
                 components: output.components,
             });
         }
-        else
+        else if (output.shouldUpdateMessage)
         {
             await buttonInteraction.update({
                 content,
