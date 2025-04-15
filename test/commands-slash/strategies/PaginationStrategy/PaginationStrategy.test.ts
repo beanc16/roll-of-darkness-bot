@@ -437,6 +437,37 @@ describe('class: PaginationStrategy', () =>
                 expect(output?.files).toEqual(undefined);
             });
 
+            it.each([
+                ['', true],
+                ['not ', false],
+                ['', undefined],
+            ])('should %sedit/update interaction if onRowAbovePaginationButtonPress returns shouldUpdateMessage = %s', async (_3, shouldUpdateMessage) =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({ shouldUpdateMessage });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+                const receivedInteractionUpdateSpy = jest.spyOn(receivedInteraction, 'update');
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    receivedInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(receivedInteractionUpdateSpy).toHaveBeenCalledTimes((shouldUpdateMessage === false) ? 0 : 1);
+            });
+
             it('should edit reply on button interaction with new page index and components if button interaction was replied to', async () =>
             {
                 receivedInteraction = getFakeButtonInteraction(undefined, { replied: true });
