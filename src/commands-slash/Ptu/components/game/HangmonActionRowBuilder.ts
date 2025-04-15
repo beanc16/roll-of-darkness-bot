@@ -22,6 +22,12 @@ interface HangmonActionRowBuilderOptions
     ) => Promise<void>;
 }
 
+export enum HangmonCustomIds
+{
+    PokemonSelector = 'Pokemon',
+    GuessHistory = 'Guess History',
+}
+
 export class HangmonActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
     private stringSelectMenu: PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>;
@@ -35,8 +41,8 @@ export class HangmonActionRowBuilder extends ActionRowBuilder<PaginatedStringSel
     }: HangmonActionRowBuilderOptions)
     {
         const stringSelectMenu = new PaginatedStringSelectMenu({
-            customId: 'hangmon_selection',
-            elementName: 'Pokemon',
+            customId: HangmonCustomIds.PokemonSelector,
+            elementName: HangmonCustomIds.PokemonSelector,
             elements: state.remainingPokemonOptions,
             message,
             commandName,
@@ -62,7 +68,6 @@ export class HangmonActionRowBuilder extends ActionRowBuilder<PaginatedStringSel
         super({
             components: [
                 stringSelectMenu,
-                // TODO: Add guess history button
             ],
         });
 

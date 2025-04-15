@@ -4,6 +4,8 @@ import {
     ButtonStyle,
 } from 'discord.js';
 
+import { HangmonGuessHistoryButton } from './HangmonGuessHistoryButton.js';
+
 export enum HangmonGameOverCustomIds
 {
     PlayAgain = 'Play Again',
@@ -29,12 +31,7 @@ export class HangmonGameOverActionRowBuilder extends ActionRowBuilder<ButtonBuil
                     emoji: '🔎',
                     style: ButtonStyle.Secondary,
                 }),
-                new ButtonBuilder({
-                    customId: HangmonGameOverCustomIds.GuessHistory,
-                    label: HangmonGameOverCustomIds.GuessHistory,
-                    emoji: '📋',
-                    style: ButtonStyle.Secondary,
-                }),
+                new HangmonGuessHistoryButton(HangmonGameOverCustomIds.GuessHistory),
             ],
         });
     }

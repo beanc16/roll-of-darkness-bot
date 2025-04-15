@@ -3,6 +3,8 @@ import { randomUUID, UUID } from 'node:crypto';
 import { logger } from '@beanc16/logger';
 import type { Entries } from '@beanc16/utility-types';
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
     ButtonInteraction,
     type ChatInputCommandInteraction,
     type StringSelectMenuInteraction,
@@ -17,9 +19,10 @@ import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/B
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { HangmonActionRowBuilder } from '../../components/game/HangmonActionRowBuilder.js';
+import { HangmonActionRowBuilder, HangmonCustomIds } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
 import { HangmonGameOverActionRowBuilder, HangmonGameOverCustomIds } from '../../components/game/HangmonGameOverActionRowBuilder.js';
+import { HangmonGuessHistoryButton } from '../../components/game/HangmonGuessHistoryButton.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import { PtuGameSubcommand } from '../../options/game.js';
@@ -101,13 +104,13 @@ export class HangmonStrategy extends BaseGenerateStrategy
                     commandName,
                     embed,
                     state: this.guidToState[guid],
-                    onSelect: async (receivedInteraction, actionRowBuilder) =>
+                    onSelect: async (receivedInteraction, stringSelectActionRowBuilder) =>
                     {
                         if (!activeGameAbortController.signal.aborted)
                         {
                             await this.onSelectHandler({
                                 receivedInteraction,
-                                actionRowBuilder,
+                                stringSelectActionRowBuilder,
                                 guid,
                                 players,
                                 activeGameAbortController,
@@ -115,6 +118,11 @@ export class HangmonStrategy extends BaseGenerateStrategy
                             });
                         }
                     },
+                }),
+                new ActionRowBuilder<ButtonBuilder>({
+                    components: [
+                        new HangmonGuessHistoryButton(HangmonCustomIds.GuessHistory),
+                    ],
                 }),
             ],
         });
@@ -124,20 +132,31 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
     private static async onSelectHandler({
         receivedInteraction,
-        actionRowBuilder,
+        stringSelectActionRowBuilder,
         guid,
         players,
         activeGameAbortController,
         commandName,
     }: {
         receivedInteraction: StringSelectMenuInteraction;
-        actionRowBuilder: HangmonActionRowBuilder;
+        stringSelectActionRowBuilder: HangmonActionRowBuilder;
         guid: UUID;
         players: User[];
         activeGameAbortController: AbortController;
         commandName: CommandName;
     }): Promise<void>
     {
+        if (receivedInteraction.customId === HangmonCustomIds.GuessHistory.toString())
+        {
+            await receivedInteraction.deferReply({ fetchReply: true, ephemeral: true });
+            await this.sendGuessHistory({
+                receivedInteraction,
+                guid,
+                commandName,
+            });
+            return;
+        }
+
         // Only allow players to select
         if (!players.map((user) => user.id).includes(receivedInteraction.user.id))
         {
@@ -217,7 +236,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                             name: state.correct.pokemon.name,
                         }),
                         [HangmonGameOverCustomIds.GuessHistory]: async () => await this.sendGuessHistory({
-                            newReceivedInteraction: newReceivedInteraction as ButtonInteraction,
+                            receivedInteraction: newReceivedInteraction as ButtonInteraction,
                             guid,
                             commandName,
                         }),
@@ -245,10 +264,17 @@ export class HangmonStrategy extends BaseGenerateStrategy
         }
 
         // In Progress - update display and components
-        actionRowBuilder.update({ embed, state });
+        stringSelectActionRowBuilder.update({ embed, state });
         await deferredResponse.edit({
             embeds: [embed],
-            components: [actionRowBuilder],
+            components: [
+                stringSelectActionRowBuilder,
+                new ActionRowBuilder<ButtonBuilder>({
+                    components: [
+                        new HangmonGuessHistoryButton(HangmonCustomIds.GuessHistory),
+                    ],
+                }),
+            ],
         });
     }
 
@@ -767,11 +793,11 @@ export class HangmonStrategy extends BaseGenerateStrategy
     }
 
     private static async sendGuessHistory({
-        newReceivedInteraction,
+        receivedInteraction,
         guid,
         commandName,
     }: {
-        newReceivedInteraction: ButtonInteraction;
+        receivedInteraction: ButtonInteraction | StringSelectMenuInteraction;
         guid: UUID;
         commandName: CommandName;
     }): Promise<void>
@@ -779,11 +805,10 @@ export class HangmonStrategy extends BaseGenerateStrategy
         const { allGuessEmbeds } = this.guidToState[guid];
 
         await PaginationStrategy.run({
-            originalInteraction: newReceivedInteraction,
+            originalInteraction: receivedInteraction,
             commandName,
             interactionType: 'editReply',
             embeds: allGuessEmbeds.map((embed) => embed.displayAttemptsInDescription()),
-            includeDeleteButton: true,
         });
     }
 }

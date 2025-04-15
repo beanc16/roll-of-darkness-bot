@@ -95,10 +95,12 @@ export class HangmonEmbedMessage extends EmbedBuilder
 
     public displayAttemptsInDescription(): this
     {
-        const description = [
-            this.data.description!,
-            `### Attempt: ${this.attempts}/${this.maxAttempts}`,
-        ].join('\n');
+        const description = (this.data.description!.includes('Attempt'))
+            ? this.data.description!
+            : [
+                this.data.description!,
+                `### Attempt: ${this.attempts}/${this.maxAttempts}`,
+            ].join('\n');
 
         return this.setDescription(description);
     }
