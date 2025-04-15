@@ -7,12 +7,14 @@ import {
 export enum LookupPokemonCustomId
 {
     LookupAbility = 'Lookup Ability',
+    LookupCapability = 'Lookup Capability',
     LookupMove = 'Lookup Move',
 }
 
 interface LookupPokemonActionRowBuilderOptions
 {
     abilityName?: string;
+    capabilityName?: string;
     moveName?: string;
 }
 
@@ -44,6 +46,7 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
     {
         const labelMap: Record<LookupPokemonCustomId, string> = {
             [LookupPokemonCustomId.LookupAbility]: 'Lookup Ability',
+            [LookupPokemonCustomId.LookupCapability]: 'Lookup Capability',
             [LookupPokemonCustomId.LookupMove]: 'Lookup Move',
         };
 
@@ -52,6 +55,14 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
             return {
                 customId: LookupPokemonCustomId.LookupAbility,
                 label: labelMap[LookupPokemonCustomId.LookupAbility],
+            };
+        }
+
+        if (options.capabilityName)
+        {
+            return {
+                customId: LookupPokemonCustomId.LookupCapability,
+                label: labelMap[LookupPokemonCustomId.LookupCapability],
             };
         }
 

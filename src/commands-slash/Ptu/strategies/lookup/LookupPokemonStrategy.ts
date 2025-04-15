@@ -199,6 +199,7 @@ export class LookupPokemonStrategy
             name,
             moveName,
             abilityName,
+            capabilityName,
             pokemon: data,
             selectedValue,
         });
@@ -769,6 +770,7 @@ export class LookupPokemonStrategy
         name,
         moveName,
         abilityName,
+        capabilityName,
         pokemon,
         interactionType,
         selectedValue,
@@ -780,6 +782,7 @@ export class LookupPokemonStrategy
         name?: string | null;
         moveName?: string | null;
         abilityName?: string | null;
+        capabilityName?: string | null;
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
         selectedValue?: PtuMoveListType | string;
@@ -812,6 +815,10 @@ export class LookupPokemonStrategy
         {
             buttonRow = new LookupPokemonActionRowBuilder({ abilityName });
         }
+        else if (capabilityName)
+        {
+            buttonRow = new LookupPokemonActionRowBuilder({ capabilityName });
+        }
 
         const rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
@@ -828,7 +835,7 @@ export class LookupPokemonStrategy
             onRowAbovePaginationButtonPress: async (receivedInteraction) =>
             {
                 // The only options with string select menus or buttons
-                if (!(name || moveName || abilityName))
+                if (!(name || moveName || abilityName || capabilityName))
                 {
                     return { embeds };
                 }
@@ -897,6 +904,14 @@ export class LookupPokemonStrategy
                     await receivedInteraction.deferReply({ fetchReply: true });
                     await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability]?.run(receivedInteraction as ButtonInteraction, strategies, {
                         name: abilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupCapability.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Capability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: capabilityName,
                     });
                     return { shouldUpdateMessage: false };
                 }
