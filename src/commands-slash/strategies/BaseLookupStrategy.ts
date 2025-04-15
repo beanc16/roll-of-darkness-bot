@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import type {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+} from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { CommandName } from '../../types/discord.js';
@@ -29,7 +33,7 @@ export interface BaseLookupStrategy<Params extends BaseGetLookupDataParams, Clas
 export class LookupStrategy
 {
     public static async run(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
         embeds: EmbedBuilder[],
         options: {
             commandName: CommandName;

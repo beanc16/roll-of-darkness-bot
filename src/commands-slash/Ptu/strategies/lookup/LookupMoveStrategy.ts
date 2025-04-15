@@ -24,50 +24,37 @@ import {
 } from '../../types/pokemon.js';
 import { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
+interface GetOptionsResponse extends GetLookupMoveDataParameters
+{
+    includeContestStats?: boolean | null;
+}
+
 @staticImplements<PtuLookupIteractionStrategy>()
 export class LookupMoveStrategy
 {
     public static key: PtuLookupSubcommand.Move = PtuLookupSubcommand.Move;
 
-    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<GetOptionsResponse>): Promise<boolean>;
+    public static async run(
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
+        strategies: PtuStrategyMap,
+        inputOptions?: Partial<GetOptionsResponse>,
+    ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
-        const type = interaction.options.getString('type') as PokemonType | null;
-        const category = interaction.options.getString('category') as PokemonMoveCategory | null;
-        const db = interaction.options.getInteger('damage_base');
-        const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption;
-        const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
-        const ac = interaction.options.getInteger('ac');
-        const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
-        const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
-        const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
-        const includeContestStats = interaction.options.getBoolean('include_contest_stats');
-        const basedOn = interaction.options.getString(PtuAutocompleteParameterName.BasedOn);
-        const nameSearch = interaction.options.getString('name_search');
-        const rangeSearch = interaction.options.getString('range_search');
-        const effectSearch = interaction.options.getString('effect_search');
+        const options = this.getOptions(interaction as ButtonInteraction, inputOptions);
 
-        const data = await this.getLookupData({
-            names: [name],
-            type,
-            category,
-            db,
-            dbEquality,
-            frequency,
-            ac,
-            acEquality,
-            contestStatType,
-            contestStatEffect,
-            basedOn,
-            nameSearch,
-            rangeSearch,
-            effectSearch,
-        });
+        // Get data
+        const data = await this.getLookupData(options);
 
         // Get message
         const embeds = getLookupMovesEmbedMessages(data, {
-            includeContestStats: (includeContestStats || contestStatType !== null || contestStatEffect !== null),
+            includeContestStats: (
+                options.includeContestStats
+                || options.contestStatType !== null
+                || options.contestStatEffect !== null
+            ),
         });
 
         return await LookupStrategy.run(interaction, embeds, {
@@ -198,5 +185,56 @@ export class LookupMoveStrategy
         await handlerMap[buttonInteraction.customId as LookupMoveCustomId]();
 
         return { shouldUpdateMessage: false };
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): GetOptionsResponse;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<GetOptionsResponse>): GetOptionsResponse;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction,
+        options?: Partial<GetOptionsResponse>,
+    ): GetOptionsResponse
+    {
+        if (options)
+        {
+            return {
+                ...options,
+            };
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
+        const name = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
+        const type = interaction.options.getString('type') as PokemonType | null;
+        const category = interaction.options.getString('category') as PokemonMoveCategory | null;
+        const db = interaction.options.getInteger('damage_base');
+        const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption;
+        const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
+        const ac = interaction.options.getInteger('ac');
+        const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+        const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
+        const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
+        const includeContestStats = interaction.options.getBoolean('include_contest_stats');
+        const basedOn = interaction.options.getString(PtuAutocompleteParameterName.BasedOn);
+        const nameSearch = interaction.options.getString('name_search');
+        const rangeSearch = interaction.options.getString('range_search');
+        const effectSearch = interaction.options.getString('effect_search');
+
+        return {
+            names: [name],
+            type,
+            category,
+            db,
+            dbEquality,
+            frequency,
+            ac,
+            acEquality,
+            contestStatType,
+            contestStatEffect,
+            includeContestStats,
+            basedOn,
+            nameSearch,
+            rangeSearch,
+            effectSearch,
+        };
     }
 }

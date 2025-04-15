@@ -1,6 +1,7 @@
 import type { Entries } from '@beanc16/utility-types';
 import {
     ActionRowBuilder,
+    ButtonBuilder,
     ButtonInteraction,
     ChatInputCommandInteraction,
     EmbedBuilder,
@@ -13,6 +14,7 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
+import { LookupPokemonActionRowBuilder, LookupPokemonCustomId } from '../../components/lookup/LookupPokemonActionRowBuilder.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
@@ -96,7 +98,6 @@ export class LookupPokemonStrategy
         MoveViewSelect: 'move_view_select',
     };
 
-    // TODO: Add ability to go to move, ability, or capability that's currently being looked up.
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<GetOptionsResponse>): Promise<boolean>;
     public static async run(
@@ -193,7 +194,7 @@ export class LookupPokemonStrategy
 
         await this.sendMessage({
             originalInteraction: interaction,
-            interaction,
+            strategies,
             embeds,
             name,
             moveName,
@@ -762,7 +763,7 @@ export class LookupPokemonStrategy
 
     private static async sendMessage({
         originalInteraction,
-        interaction: _, // TODO: Delete this later
+        strategies,
         embeds,
         name,
         moveName,
@@ -772,7 +773,7 @@ export class LookupPokemonStrategy
         isDisabled = false,
     }: {
         originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
-        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction | ButtonInteraction;
+        strategies: PtuStrategyMap;
         embeds: EmbedBuilder[];
         name?: string | null;
         moveName?: string | null;
@@ -783,11 +784,12 @@ export class LookupPokemonStrategy
     }): Promise<void>
     {
         // Get the select menu based on how the lookup is happening
-        let selectMenu: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+        let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+        let buttonRow: LookupPokemonActionRowBuilder | undefined;
 
         if (name)
         {
-            selectMenu = this.getLookupPokemonSelectMenu({
+            selectMenuRow = this.getLookupPokemonSelectMenu({
                 pokemon,
                 isDisabled,
                 selectedValue,
@@ -795,18 +797,20 @@ export class LookupPokemonStrategy
         }
         else if (moveName)
         {
-            selectMenu = this.getLookupPokemonByMoveSelectMenu({
+            selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
                 defaultMoveListType: selectedValue as PtuMoveListType,
                 moveName,
                 pokemon,
                 isDisabled,
             });
+            buttonRow = new LookupPokemonActionRowBuilder({ moveName });
         }
 
         const rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
-        ] = selectMenu
-            ? [selectMenu]
+            ActionRowBuilder<ButtonBuilder>?,
+        ] = selectMenuRow
+            ? [selectMenuRow, buttonRow]
             : [];
 
         // Send messages with pagination
@@ -816,7 +820,7 @@ export class LookupPokemonStrategy
             embeds,
             interactionType,
             rowsAbovePagination,
-            onRowAbovePaginationButtonPress: (receivedInteraction) =>
+            onRowAbovePaginationButtonPress: async (receivedInteraction) =>
             {
                 // The only options with string select menus
                 if (!(name || moveName))
@@ -861,6 +865,14 @@ export class LookupPokemonStrategy
                         moveListType,
                         pokemon,
                     });
+                }
+                else if (customId === LookupPokemonCustomId.LookupMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        names: [moveName],
+                    });
+                    return { shouldUpdateMessage: false }; // TODO: Figure out if this return is necessary or not
                 }
 
                 return { embeds: newEmbeds };
