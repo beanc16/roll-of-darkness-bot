@@ -8,6 +8,7 @@ export enum HangmonGameOverCustomIds
 {
     PlayAgain = 'Play Again',
     LookupPokemon = 'Lookup Pokemon',
+    GuessHistory = 'Guess History',
 }
 
 export class HangmonGameOverActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
@@ -26,6 +27,12 @@ export class HangmonGameOverActionRowBuilder extends ActionRowBuilder<ButtonBuil
                     customId: HangmonGameOverCustomIds.LookupPokemon,
                     label: HangmonGameOverCustomIds.LookupPokemon,
                     emoji: '🔎',
+                    style: ButtonStyle.Secondary,
+                }),
+                new ButtonBuilder({
+                    customId: HangmonGameOverCustomIds.GuessHistory,
+                    label: HangmonGameOverCustomIds.GuessHistory,
+                    emoji: '📋',
                     style: ButtonStyle.Secondary,
                 }),
             ],

@@ -15,6 +15,7 @@ import { RegexLookupType } from '../../../../services/stringHelpers.js';
 import { CommandName } from '../../../../types/discord.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonActionRowBuilder } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
@@ -88,6 +89,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             fields,
             maxAttempts: this.maxNumberOfGuesses,
         });
+        this.guidToState[guid].allGuessEmbeds.push(embed);
 
         const activeGameAbortController = new AbortController();
         const commandName: CommandName = `/${rerunOptions?.commandName ?? (interaction as ChatInputCommandInteraction).commandName}`;
@@ -162,6 +164,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             attempts: state.numOfGuesses,
             maxAttempts: this.maxNumberOfGuesses,
         });
+        this.guidToState[guid].allGuessEmbeds.push(embed);
 
         // Win & Loss
         if (
@@ -205,7 +208,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 restartStyle: InteractionListenerRestartStyle.OnSuccess,
                 onInteraction: async (newReceivedInteraction) =>
                 {
-                    const handlerMap: Record<HangmonGameOverCustomIds, () => Promise<boolean>> = {
+                    const handlerMap: Record<HangmonGameOverCustomIds, () => Promise<boolean | void>> = {
                         [HangmonGameOverCustomIds.PlayAgain]: async () => await this.run(newReceivedInteraction as ButtonInteraction, {
                             players,
                             commandName,
@@ -213,9 +216,19 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         [HangmonGameOverCustomIds.LookupPokemon]: async () => await LookupPokemonStrategy.run(newReceivedInteraction as ButtonInteraction, {
                             name: state.correct.pokemon.name,
                         }),
+                        [HangmonGameOverCustomIds.GuessHistory]: async () => await this.sendGuessHistory({
+                            newReceivedInteraction: newReceivedInteraction as ButtonInteraction,
+                            guid,
+                            commandName,
+                        }),
                     };
 
-                    await newReceivedInteraction.deferReply({ fetchReply: true });
+                    await newReceivedInteraction.deferReply({
+                        fetchReply: true,
+                        ephemeral: new Set([
+                            HangmonGameOverCustomIds.GuessHistory,
+                        ]).has(newReceivedInteraction.customId as HangmonGameOverCustomIds),
+                    });
                     const handler = handlerMap[newReceivedInteraction.customId as HangmonGameOverCustomIds];
 
                     // @ts-expect-error -- This could actually be undefined
@@ -602,6 +615,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
             numOfGuesses: 0,
             victoryState: HangmonVictoryState.InProgress,
             remainingPokemonOptions: allPokemon,
+            allGuessEmbeds: [],
             correct: {
                 pokemon: randomPokemon,
                 hints: {
@@ -750,5 +764,26 @@ export class HangmonStrategy extends BaseGenerateStrategy
         }, {} as Record<HangmonPropertyHint, number>);
 
         return hintsData.sort((a, b) => hintToIndex[a.hint] - hintToIndex[b.hint]);
+    }
+
+    private static async sendGuessHistory({
+        newReceivedInteraction,
+        guid,
+        commandName,
+    }: {
+        newReceivedInteraction: ButtonInteraction;
+        guid: UUID;
+        commandName: CommandName;
+    }): Promise<void>
+    {
+        const { allGuessEmbeds } = this.guidToState[guid];
+
+        await PaginationStrategy.run({
+            originalInteraction: newReceivedInteraction,
+            commandName,
+            interactionType: 'editReply',
+            embeds: allGuessEmbeds.map((embed) => embed.displayAttemptsInDescription()),
+            includeDeleteButton: true,
+        });
     }
 }

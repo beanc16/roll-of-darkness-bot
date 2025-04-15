@@ -92,4 +92,14 @@ export class HangmonEmbedMessage extends EmbedBuilder
     {
         return this.setDescription(`🏆 ${this.data.description!} 🏆`);
     }
+
+    public displayAttemptsInDescription(): this
+    {
+        const description = [
+            this.data.description!,
+            `### Attempt: ${this.attempts}/${this.maxAttempts}`,
+        ].join('\n');
+
+        return this.setDescription(description);
+    }
 }

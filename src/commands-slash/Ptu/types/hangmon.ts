@@ -1,3 +1,4 @@
+import type { HangmonEmbedMessage } from '../components/game/HangmonEmbedMessage.js';
 import type { PtuPokemon } from './pokemon.js';
 
 export enum HangmonPropertyHint
@@ -24,6 +25,7 @@ export interface HangmonState
     numOfGuesses: number;
     victoryState: HangmonVictoryState;
     remainingPokemonOptions: PtuPokemon[];
+    allGuessEmbeds: HangmonEmbedMessage[];
     correct: {
         pokemon: PtuPokemon;
         hints: Partial<Record<HangmonPropertyHint, string>>;
