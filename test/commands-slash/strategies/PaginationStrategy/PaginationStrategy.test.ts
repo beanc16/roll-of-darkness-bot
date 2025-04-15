@@ -468,6 +468,45 @@ describe('class: PaginationStrategy', () =>
                 expect(receivedInteractionUpdateSpy).toHaveBeenCalledTimes((shouldUpdateMessage === false) ? 0 : 1);
             });
 
+            it.each([
+                ['', ' buttons', {
+                    rowsAbovePagination: [getFakeButtonActionRowBuilder({ customId: 'first' })],
+                }],
+                ['', ' string select menus', {
+                    rowsAbovePagination: [getFakeStringSelectMenuActionRowBuilder({ customId: 'first' })],
+                }],
+                ['not ', ' nothing', { rowsAbovePagination: [] }],
+                ['not ', ' undefined', { rowsAbovePagination: undefined }],
+            ])('should %scall getComponents with RowAbovePagination components if onRowAbovePaginationButtonPress returns rowsAbovePagination with%s', async (_3, _4, { rowsAbovePagination }) =>
+            {
+                const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({ rowsAbovePagination });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                const getComponentsSpy = jest.spyOn(PaginationStrategy as any, 'getComponents');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
+                jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
+                    newPageIndex: 0,
+                    deleteMessage: false,
+                    isNonPaginationButtonPress: true,
+                });
+
+                await PaginationStrategy['onButtonPress']({
+                    originalInteraction: interaction,
+                    receivedInteraction,
+                    response,
+                    content: '',
+                    embeds: [],
+                    files: [],
+                    pageIndex,
+                    includeDeleteButton: true,
+                    validRowsAbovePagination: [],
+                    onRowAbovePaginationButtonPress,
+                });
+
+                expect(getComponentsSpy).toHaveBeenCalledWith(expect.objectContaining({
+                    validRowsAbovePagination: rowsAbovePagination ?? [],
+                }));
+            });
+
             it('should edit reply on button interaction with new page index and components if button interaction was replied to', async () =>
             {
                 receivedInteraction = getFakeButtonInteraction(undefined, { replied: true });
