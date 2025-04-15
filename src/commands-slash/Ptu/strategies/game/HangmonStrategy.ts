@@ -335,12 +335,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         indices.forEach(index => hints.push(possibleOptionalHints[index - 1]));
 
         // Sort so that hints are always in the same order across each game
-        const hintToIndex = Object.values(HangmonPropertyHint).reduce<Record<HangmonPropertyHint, number>>((acc, value, index) =>
-        {
-            acc[value] = index;
-            return acc;
-        }, {} as Record<HangmonPropertyHint, number>);
-        return hints.sort((a, b) => hintToIndex[a] - hintToIndex[b]);
+        return this.sortHints(hints);
     }
 
     private static getRandomStatFromHint(
@@ -780,18 +775,27 @@ export class HangmonStrategy extends BaseGenerateStrategy
         });
     }
 
-    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: Element[]): Element[]
+    private static sortHints(hints: HangmonPropertyHint[]): HangmonPropertyHint[];
+    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: Element[]): Element[];
+    private static sortHints<Element extends { hint: HangmonPropertyHint }>(hintsData: HangmonPropertyHint[] | Element[]): HangmonPropertyHint[] | Element[]
     {
-        // Sort so that hints are always in the same order across each game and guess
+        // Get the index that each hint should be at in the sorted array
         const hintToIndex = Object.values(HangmonPropertyHint).reduce<Record<HangmonPropertyHint, number>>((acc, value, index) =>
         {
             acc[value] = index;
             return acc;
         }, {} as Record<HangmonPropertyHint, number>);
 
-        return hintsData.sort((a, b) => hintToIndex[a.hint] - hintToIndex[b.hint]);
+        // Sort so that hints are always in the same order across each game and guess
+        return hintsData.sort((a, b) =>
+        {
+            const aValue = (typeof a === 'string') ? hintToIndex[a] : hintToIndex[a.hint];
+            const bValue = (typeof b === 'string') ? hintToIndex[b] : hintToIndex[b.hint];
+            return aValue - bValue;
+        });
     }
 
+    /* istanbul ignore next */
     private static async sendGuessHistory({
         receivedInteraction,
         guid,
