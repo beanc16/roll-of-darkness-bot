@@ -156,7 +156,6 @@ export const capability = (subcommand: SlashCommandSubcommandBuilder): SlashComm
     {
         option.setName(PtuAutocompleteParameterName.CapabilityName);
         option.setDescription(`The capability's name.`);
-        option.setRequired(true);
         return option.setAutocomplete(true);
     });
 
