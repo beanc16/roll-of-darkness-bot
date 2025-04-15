@@ -22,20 +22,19 @@ export class LookupAbilityStrategy
 {
     public static key: PtuLookupSubcommand.Ability = PtuLookupSubcommand.Ability;
 
-    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<GetLookupAbilityDataParameters>): Promise<boolean>;
+    public static async run(
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
+        strategies: PtuStrategyMap,
+        inputOptions?: Partial<GetLookupAbilityDataParameters>,
+    ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
-        const nameSearch = interaction.options.getString('name_search');
-        const frequencySearch = interaction.options.getString('frequency_search');
-        const effectSearch = interaction.options.getString('effect_search');
+        const options = this.getOptions(interaction as ButtonInteraction, inputOptions);
 
-        const data = await this.getLookupData({
-            name,
-            nameSearch,
-            frequencySearch,
-            effectSearch,
-        });
+        // Get data
+        const data = await this.getLookupData(options);
 
         // Get message
         const embeds = getPagedEmbedMessages({
@@ -127,5 +126,34 @@ export class LookupAbilityStrategy
         await handlerMap[buttonInteraction.customId as LookupAbilityCustomId]();
 
         return { shouldUpdateMessage: false };
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): GetLookupAbilityDataParameters;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<GetLookupAbilityDataParameters>): GetLookupAbilityDataParameters;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction,
+        options?: Partial<GetLookupAbilityDataParameters>,
+    ): GetLookupAbilityDataParameters
+    {
+        if (options)
+        {
+            return {
+                ...options,
+            };
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
+        const name = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
+        const nameSearch = interaction.options.getString('name_search');
+        const frequencySearch = interaction.options.getString('frequency_search');
+        const effectSearch = interaction.options.getString('effect_search');
+
+        return {
+            name,
+            nameSearch,
+            frequencySearch,
+            effectSearch,
+        };
     }
 }

@@ -198,6 +198,7 @@ export class LookupPokemonStrategy
             embeds,
             name,
             moveName,
+            abilityName,
             pokemon: data,
             selectedValue,
         });
@@ -767,6 +768,7 @@ export class LookupPokemonStrategy
         embeds,
         name,
         moveName,
+        abilityName,
         pokemon,
         interactionType,
         selectedValue,
@@ -777,6 +779,7 @@ export class LookupPokemonStrategy
         embeds: EmbedBuilder[];
         name?: string | null;
         moveName?: string | null;
+        abilityName?: string | null;
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
         selectedValue?: PtuMoveListType | string;
@@ -805,11 +808,15 @@ export class LookupPokemonStrategy
             });
             buttonRow = new LookupPokemonActionRowBuilder({ moveName });
         }
+        else if (abilityName)
+        {
+            buttonRow = new LookupPokemonActionRowBuilder({ abilityName });
+        }
 
         const rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
             ActionRowBuilder<ButtonBuilder>?,
-        ] = selectMenuRow
+        ] = (selectMenuRow || buttonRow)
             ? [selectMenuRow, buttonRow]
             : [];
 
@@ -822,8 +829,8 @@ export class LookupPokemonStrategy
             rowsAbovePagination,
             onRowAbovePaginationButtonPress: async (receivedInteraction) =>
             {
-                // The only options with string select menus
-                if (!(name || moveName))
+                // The only options with string select menus or buttons
+                if (!(name || moveName || abilityName))
                 {
                     return { embeds };
                 }
@@ -872,7 +879,15 @@ export class LookupPokemonStrategy
                     await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
                         names: [moveName],
                     });
-                    return { shouldUpdateMessage: false }; // TODO: Figure out if this return is necessary or not
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupAbility.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: abilityName,
+                    });
+                    return { shouldUpdateMessage: false };
                 }
 
                 return { embeds: newEmbeds };
