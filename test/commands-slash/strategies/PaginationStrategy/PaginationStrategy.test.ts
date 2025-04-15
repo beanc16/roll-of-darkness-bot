@@ -1,4 +1,8 @@
-import type { ButtonInteraction, Message } from 'discord.js';
+import type {
+    ButtonInteraction,
+    Message,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../../src/commands-slash/strategies/InteractionStrategy.js';
 import { PaginationButtonName } from '../../../../src/commands-slash/strategies/PaginationStrategy/components/PaginationActionRowBuilder.js';
@@ -183,14 +187,21 @@ describe('class: PaginationStrategy', () =>
             });
         });
 
-        describe('method: onButtonPress', () =>
+        describe.each([
+            ['ButtonInteraction', {
+                baseReceivedInteraction: getFakeButtonInteraction(),
+            }],
+            ['StringSelectMenuInteraction', {
+                baseReceivedInteraction: new FakeStringSelectMenuInteraction(),
+            }],
+        ])('method: onButtonPress - %s', (_2, { baseReceivedInteraction }) =>
         {
-            let buttonInteraction: ButtonInteraction;
+            let receivedInteraction: ButtonInteraction | StringSelectMenuInteraction;
             let response: Message;
 
             beforeEach(() =>
             {
-                buttonInteraction = getFakeButtonInteraction();
+                receivedInteraction = baseReceivedInteraction;
                 response = getFakeMessage();
             });
 
@@ -205,11 +216,11 @@ describe('class: PaginationStrategy', () =>
                 });
 
                 // The user that did start the interaction
-                buttonInteraction.user.id = interaction.user.id;
+                receivedInteraction.user.id = interaction.user.id;
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: [],
@@ -234,11 +245,11 @@ describe('class: PaginationStrategy', () =>
                 });
 
                 // The user that did not start the interaction
-                buttonInteraction.user.id = `${interaction.user.id}-1`;
+                receivedInteraction.user.id = `${interaction.user.id}-1`;
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: [],
@@ -264,7 +275,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: [],
@@ -290,7 +301,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: [],
@@ -319,7 +330,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds,
@@ -330,7 +341,7 @@ describe('class: PaginationStrategy', () =>
                     onRowAbovePaginationButtonPress,
                 });
 
-                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(receivedInteraction, {
                     embeds,
                     files,
                 });
@@ -341,7 +352,7 @@ describe('class: PaginationStrategy', () =>
                 ['is', true],
             ])('should call onRowAbovePaginationButtonPress callback without embeds/files if not provided and button interaction %s replied to', async (_1, replied) =>
             {
-                buttonInteraction = getFakeButtonInteraction(undefined, { replied });
+                receivedInteraction = getFakeButtonInteraction(undefined, { replied });
                 const onRowAbovePaginationButtonPress = jest.fn().mockReturnValue({});
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
                 jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
@@ -352,7 +363,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: undefined,
@@ -363,7 +374,7 @@ describe('class: PaginationStrategy', () =>
                     onRowAbovePaginationButtonPress,
                 });
 
-                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(buttonInteraction, {});
+                expect(onRowAbovePaginationButtonPress).toHaveBeenCalledWith(receivedInteraction, {});
             });
 
             it('should include embeds & files from onRowAbovePaginationButtonPress callback in output if defined', async () =>
@@ -384,7 +395,7 @@ describe('class: PaginationStrategy', () =>
 
                 const output = await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds,
@@ -411,7 +422,7 @@ describe('class: PaginationStrategy', () =>
 
                 const output = await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds: [],
@@ -428,10 +439,10 @@ describe('class: PaginationStrategy', () =>
 
             it('should edit reply on button interaction with new page index and components if button interaction was replied to', async () =>
             {
-                buttonInteraction = getFakeButtonInteraction(undefined, { replied: true });
+                receivedInteraction = getFakeButtonInteraction(undefined, { replied: true });
                 const componentsOutput = getFakeButtonActionRowBuilder({ customId: 'fake-button-1' });
 
-                const buttonInteractionEditReplySpy = jest.spyOn(buttonInteraction, 'editReply');
+                const buttonInteractionEditReplySpy = jest.spyOn(receivedInteraction, 'editReply');
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
                 jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
                     newPageIndex: 0,
@@ -454,7 +465,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds,
@@ -476,7 +487,7 @@ describe('class: PaginationStrategy', () =>
             {
                 const componentsOutput = getFakeButtonActionRowBuilder({ customId: 'fake-button-1' });
 
-                const buttonInteractionUpdateSpy = jest.spyOn(buttonInteraction, 'update');
+                const buttonInteractionUpdateSpy = jest.spyOn(receivedInteraction, 'update');
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- This is necessary for mocking the result of private methods
                 jest.spyOn(PaginationStrategy as any, 'updatePageIndex').mockReturnValue({
                     newPageIndex: 0,
@@ -499,7 +510,7 @@ describe('class: PaginationStrategy', () =>
 
                 await PaginationStrategy['onButtonPress']({
                     originalInteraction: interaction,
-                    buttonInteraction,
+                    receivedInteraction,
                     response,
                     content: '',
                     embeds,
@@ -557,7 +568,7 @@ describe('class: PaginationStrategy', () =>
                 it(`should return correct index for page`, () =>
                 {
                     const result = PaginationStrategy['updatePageIndex']({
-                        buttonInteraction: getFakeButtonInteraction(customId),
+                        receivedInteraction: getFakeButtonInteraction(customId),
                         pageIndex,
                         [parameterName]: array,
                     });
@@ -571,7 +582,7 @@ describe('class: PaginationStrategy', () =>
                 ])('should always return an index of 0 if the array %s', (_, inputArray) =>
                 {
                     const result = PaginationStrategy['updatePageIndex']({
-                        buttonInteraction: getFakeButtonInteraction(customId),
+                        receivedInteraction: getFakeButtonInteraction(customId),
                         pageIndex: 0,
                         [parameterName]: inputArray,
                     });
@@ -585,7 +596,7 @@ describe('class: PaginationStrategy', () =>
                 it('should always return an index of 0 if no array is provided', () =>
                 {
                     const result = PaginationStrategy['updatePageIndex']({
-                        buttonInteraction: getFakeButtonInteraction(customId),
+                        receivedInteraction: getFakeButtonInteraction(customId),
                         pageIndex: 0,
                     });
 
@@ -599,7 +610,7 @@ describe('class: PaginationStrategy', () =>
             it('should always return an index of 0 if no array is provided', () =>
             {
                 const result = PaginationStrategy['updatePageIndex']({
-                    buttonInteraction: getFakeButtonInteraction(customId),
+                    receivedInteraction: getFakeButtonInteraction(customId),
                     pageIndex: 0,
                 });
 
@@ -613,7 +624,7 @@ describe('class: PaginationStrategy', () =>
         it('should return isNonPaginationButtonPress as true if customId is not a pagination button', () =>
         {
             const result = PaginationStrategy['updatePageIndex']({
-                buttonInteraction: getFakeButtonInteraction('fake-custom-id'),
+                receivedInteraction: getFakeButtonInteraction('fake-custom-id'),
                 pageIndex,
             });
 
