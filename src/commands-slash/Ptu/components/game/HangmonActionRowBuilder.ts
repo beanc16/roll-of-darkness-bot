@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { CommandName } from '../../../../types/discord.js';
-import { PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
+import { type HandleInteractionsOptions, PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { HangmonState } from '../../types/hangmon.js';
 import { HangmonEmbedMessage } from './HangmonEmbedMessage.js';
@@ -20,6 +20,7 @@ interface HangmonActionRowBuilderOptions
         receivedInteraction: StringSelectMenuInteraction,
         actionRowBuilder: HangmonActionRowBuilder,
     ) => Promise<void>;
+    rowsBelowStringSelect: HandleInteractionsOptions['rowsBelowStringSelect'];
 }
 
 export enum HangmonCustomIds
@@ -38,6 +39,7 @@ export class HangmonActionRowBuilder extends ActionRowBuilder<PaginatedStringSel
         embed,
         state,
         onSelect,
+        rowsBelowStringSelect,
     }: HangmonActionRowBuilderOptions)
     {
         const stringSelectMenu = new PaginatedStringSelectMenu({
@@ -47,6 +49,7 @@ export class HangmonActionRowBuilder extends ActionRowBuilder<PaginatedStringSel
             message,
             commandName,
             embeds: [embed],
+            rowsBelowStringSelect,
             onSelect: (receivedInteraction) => onSelect(receivedInteraction, this),
             optionParser: (curPokemon) =>
             {

@@ -1,5 +1,6 @@
 import {
     ActionRowBuilder,
+    ButtonBuilder,
     EmbedBuilder,
     Message,
     SelectMenuComponentOptionData,
@@ -29,12 +30,18 @@ interface PaginatedStringSelectMenuOptions<Element> extends HandleInteractionsOp
     embeds: EmbedBuilder[];
 }
 
-interface HandleInteractionsOptions
+export interface HandleInteractionsOptions
 {
     customId: string;
     message: Message;
     commandName: CommandName;
     onSelect: PaginatedStringSelectMenuOnSelect;
+    rowsBelowStringSelect?: [
+        ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>?,
+        ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>?,
+        ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>?,
+        ActionRowBuilder<ButtonBuilder | StringSelectMenuBuilder>?,
+    ];
 }
 
 type OptionParser<Element> = (element: Element) => SelectMenuComponentOptionData;
@@ -58,6 +65,7 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         commandName,
         embeds,
         onSelect,
+        rowsBelowStringSelect,
     }: PaginatedStringSelectMenuOptions<Element>)
     {
         super({ customId, placeholder: `${elementName} List - Page 1` });
@@ -73,6 +81,7 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
             message,
             commandName,
             onSelect,
+            rowsBelowStringSelect,
         });
     }
 
@@ -81,8 +90,10 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
         message,
         commandName,
         onSelect,
+        rowsBelowStringSelect = [],
     }: HandleInteractionsOptions): Promise<void>
     {
+        const validRowsBelowStringSelect = rowsBelowStringSelect.filter(row => !!row);
         await InteractionStrategy.handleInteractions({
             interactionResponse: message,
             commandName,
@@ -111,7 +122,10 @@ export class PaginatedStringSelectMenu<Element> extends StringSelectMenuBuilder
                     handler();
                     await receivedInteraction.update({
                         embeds: this.embeds,
-                        components: [this.toActionRowBuilder()],
+                        components: [
+                            this.toActionRowBuilder(),
+                            ...validRowsBelowStringSelect,
+                        ],
                     });
                 }
                 else

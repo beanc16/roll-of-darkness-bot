@@ -96,6 +96,11 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
         const activeGameAbortController = new AbortController();
         const commandName: CommandName = `/${rerunOptions?.commandName ?? (interaction as ChatInputCommandInteraction).commandName}`;
+        const guessHistroyActionRowBuilder = new ActionRowBuilder<ButtonBuilder>({
+            components: [
+                new HangmonGuessHistoryButton(HangmonCustomIds.GuessHistory),
+            ],
+        });
         await interaction.editReply({
             embeds: [embed],
             components: [
@@ -104,6 +109,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                     commandName,
                     embed,
                     state: this.guidToState[guid],
+                    rowsBelowStringSelect: [guessHistroyActionRowBuilder],
                     onSelect: async (receivedInteraction, stringSelectActionRowBuilder) =>
                     {
                         if (!activeGameAbortController.signal.aborted)
@@ -119,11 +125,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         }
                     },
                 }),
-                new ActionRowBuilder<ButtonBuilder>({
-                    components: [
-                        new HangmonGuessHistoryButton(HangmonCustomIds.GuessHistory),
-                    ],
-                }),
+                guessHistroyActionRowBuilder,
             ],
         });
 
