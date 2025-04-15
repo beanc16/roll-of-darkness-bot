@@ -6,11 +6,11 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RollCaptureStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
@@ -19,6 +19,7 @@ export class RollCaptureStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -65,6 +66,7 @@ export class RollCaptureStrategy
         {
             await this.sendMessage({
                 interaction,
+                strategies,
                 message: `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`
                     + `${Text.bold('Accuracy')}: ${accuracyRoll}\n`
                     + `${Text.bold('Result')}: Failed to hit the Pokémon with the Pokéball`,
@@ -109,6 +111,7 @@ export class RollCaptureStrategy
         // Send message
         await this.sendMessage({
             interaction,
+            strategies,
             message: startOfMessage + endOfMessage,
             rerollCallbackOptions,
         });
@@ -118,12 +121,14 @@ export class RollCaptureStrategy
 
     private static async sendMessage({
         interaction,
+        strategies,
         message,
         rerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
     }: {
         interaction: ChatInputCommandInteraction;
+        strategies: PtuStrategyMap;
         message: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
     }): Promise<void>
@@ -134,6 +139,7 @@ export class RollCaptureStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

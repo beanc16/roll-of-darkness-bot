@@ -6,6 +6,7 @@ import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { HealingAndStatusOption, PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
+import type { PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
@@ -28,6 +29,7 @@ export class RandomHealingItemStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        _strategies: PtuStrategyMap,
         shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {

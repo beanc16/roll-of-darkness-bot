@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { BaseQuickReferenceStrategy } from './BaseQuickReferenceStrategy.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class QrDamageFormulaStrategy
 {
     public static key: PtuQuickReferenceInfo.DamageFormula = PtuQuickReferenceInfo.DamageFormula;

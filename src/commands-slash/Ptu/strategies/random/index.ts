@@ -1,5 +1,3 @@
-import { ChatIteractionStrategyRecord } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomApricornStrategy } from './RandomApricornStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
 import { RandomDowsingRodStrategy } from './RandomDowsingRodStrategy.js';
@@ -36,4 +34,4 @@ export default {
     [RandomTmStrategy.key]: RandomTmStrategy,
     [RandomVitaminStrategy.key]: RandomVitaminStrategy,
     [RandomXItemStrategy.key]: RandomXItemStrategy,
-} as ChatIteractionStrategyRecord<PtuRandomSubcommand>;
+};

@@ -6,12 +6,12 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuNature } from '../../types/PtuNature.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupNatureDataParameters
 {
@@ -20,7 +20,7 @@ export interface GetLookupNatureDataParameters
     loweredStat?: string | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupNatureStrategy
 {
     public static key: PtuLookupSubcommand.Nature = PtuLookupSubcommand.Nature;

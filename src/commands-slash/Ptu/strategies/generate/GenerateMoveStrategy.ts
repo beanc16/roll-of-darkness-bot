@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { generateIntegerArrayAsStrings } from '../../../../services/arrayHelpers.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateDevSubcommand } from '../../options/generate_dev.js';
 import {
     PokemonMoveCategory,
@@ -14,11 +13,10 @@ import {
     PtuMoveFrequency,
 } from '../../types/pokemon.js';
 import { PtuKeyword } from '../../types/PtuKeyword.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { LookupKeywordStrategy } from '../lookup/LookupKeywordStrategy.js';
-// import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
-// import { PokemonMoveCategory } from '../../types/pokemon.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class GenerateMoveStrategy extends BaseGenerateStrategy
 {
     public static key: PtuGenerateDevSubcommand.Move = PtuGenerateDevSubcommand.Move;

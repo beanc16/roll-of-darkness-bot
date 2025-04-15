@@ -11,8 +11,9 @@ import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { PokeballType } from '../../types/pokeballType.js';
 import { RandomPokeball } from '../../types/PtuRandom.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
-import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
+import { PtuRandomPickupSubcommandResponse } from './types.js';
 
 interface ShouldIncludeParameters
 {
@@ -36,17 +37,18 @@ interface RerollForPokeballsOnlyResponse
     description: string;
 }
 
-@staticImplements<PtuRandomPickupSubcommandStrategy>()
+@staticImplements<PtuChatIteractionStrategy<boolean | PtuRandomPickupSubcommandResponse>>()
 export class RandomPokeballStrategy
 {
     public static key: PtuRandomSubcommand.Pokeball = PtuRandomSubcommand.Pokeball;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        rerollCallbackOptions: OnRerollCallbackOptions = {
+        strategies: PtuStrategyMap,
+        options: Partial<OnRerollCallbackOptions> & { shouldReturnMessageOptions?: boolean } = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
+            shouldReturnMessageOptions: false,
         },
-        shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results
@@ -186,6 +188,11 @@ export class RandomPokeballStrategy
             rollResults,
         });
 
+        const {
+            shouldReturnMessageOptions = false,
+            ...rerollCallbackOptions
+        } = options;
+
         if (shouldReturnMessageOptions)
         {
             return {
@@ -202,9 +209,10 @@ export class RandomPokeballStrategy
             options: {
                 embeds: [embed],
             },
-            rerollCallbackOptions,
+            rerollCallbackOptions: rerollCallbackOptions as OnRerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

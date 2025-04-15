@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getTypeEffectivenessEmbedMessages } from '../../embed-messages/typeEffectiveness.js';
 import { PtuTypeEffectivenessSubcommand } from '../../options/typeEffectiveness.js';
 import {
@@ -11,8 +10,9 @@ import {
 } from '../../services/PokemonTypeEffectivenessService.js';
 import { PokemonTypeAndNone } from '../../types/pokemon.js';
 import { PtuAbilityForTypeEffectiveness } from '../../types/PtuAbilityForTypeEffectiveness.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class TypeEffectivenessStrategy
 {
     public static key = PtuTypeEffectivenessSubcommand.TypeEffectiveness;

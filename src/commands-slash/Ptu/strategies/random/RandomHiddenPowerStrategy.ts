@@ -4,10 +4,10 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { PokemonType } from '../../types/pokemon.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 interface GetRollsAndTypeResponse
 {
@@ -15,7 +15,7 @@ interface GetRollsAndTypeResponse
     type: PokemonType;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RandomHiddenPowerStrategy
 {
     public static key: PtuRandomSubcommand.HiddenPower = PtuRandomSubcommand.HiddenPower;
@@ -42,6 +42,7 @@ export class RandomHiddenPowerStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -62,6 +63,7 @@ export class RandomHiddenPowerStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

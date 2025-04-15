@@ -18,21 +18,23 @@ import { CommandName } from '../../../../types/discord.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
-import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { HangmonActionRowBuilder, HangmonCustomIds } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
 import { HangmonGameOverActionRowBuilder, HangmonGameOverCustomIds } from '../../components/game/HangmonGameOverActionRowBuilder.js';
 import { HangmonGuessHistoryButton } from '../../components/game/HangmonGuessHistoryButton.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuGameSubcommand } from '../../options/game.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 import {
     HangmonPropertyHint,
     type HangmonState,
     HangmonVictoryState,
 } from '../../types/hangmon.js';
 import { PtuPokemon } from '../../types/pokemon.js';
-import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 interface GetPokemonResponse
 {
@@ -52,7 +54,7 @@ interface StatsAreEqualForHintResponse
     stat?: string;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class HangmonStrategy extends BaseGenerateStrategy
 {
     public static key: PtuGameSubcommand.Hangmon = PtuGameSubcommand.Hangmon;
@@ -61,19 +63,19 @@ export class HangmonStrategy extends BaseGenerateStrategy
     private static numOfHints = 5;
     private static guidToState: Record<UUID, HangmonState> = {};
 
-    public static async run(interaction: ChatInputCommandInteraction, rerunOptions?: never): Promise<boolean>;
-    public static async run(interaction: ButtonInteraction, rerunOptions: {
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, rerunOptions?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, rerunOptions: {
         players: User[];
         commandName: CommandName;
     }): Promise<boolean>;
-    public static async run(interaction: ChatInputCommandInteraction | ButtonInteraction, rerunOptions?: {
+    public static async run(interaction: ChatInputCommandInteraction | ButtonInteraction, strategies: PtuStrategyMap, rerunOptions?: {
         players?: User[];
         commandName?: CommandName;
     }): Promise<boolean>
     {
         // Get data
         const players = (rerunOptions?.players) ? rerunOptions.players : this.getPlayers(interaction as ChatInputCommandInteraction);
-        const { allPokemon, randomPokemon } = await this.getPokemon();
+        const { allPokemon, randomPokemon } = await this.getPokemon(strategies);
 
         const message = await interaction.fetchReply();
 
@@ -116,6 +118,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                         {
                             await this.onSelectHandler({
                                 receivedInteraction,
+                                strategies,
                                 stringSelectActionRowBuilder,
                                 guid,
                                 players,
@@ -134,6 +137,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
 
     private static async onSelectHandler({
         receivedInteraction,
+        strategies,
         stringSelectActionRowBuilder,
         guid,
         players,
@@ -141,6 +145,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         commandName,
     }: {
         receivedInteraction: StringSelectMenuInteraction;
+        strategies: PtuStrategyMap;
         stringSelectActionRowBuilder: HangmonActionRowBuilder;
         guid: UUID;
         players: User[];
@@ -194,10 +199,10 @@ export class HangmonStrategy extends BaseGenerateStrategy
         )
         {
             // Get the correct pokemon's data with image url
-            const [fullPokemonData] = await LookupPokemonStrategy.getLookupData({
+            const [fullPokemonData] = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
                 name: state.correct.pokemon.name,
                 lookupType: RegexLookupType.ExactMatchCaseInsensitive,
-            });
+            }) as PtuPokemonForLookupPokemon[];
 
             // Update embed with correct pokemon's image
             if (fullPokemonData.metadata.imageUrl)
@@ -230,13 +235,13 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 onInteraction: async (newReceivedInteraction) =>
                 {
                     const handlerMap: Record<HangmonGameOverCustomIds, () => Promise<boolean | void>> = {
-                        [HangmonGameOverCustomIds.PlayAgain]: async () => await this.run(newReceivedInteraction as ButtonInteraction, {
+                        [HangmonGameOverCustomIds.PlayAgain]: async () => await this.run(newReceivedInteraction as ButtonInteraction, strategies, {
                             players: players.some((player) => player.id === newReceivedInteraction.user.id)
                                 ? players
                                 : [newReceivedInteraction.user, ...players],
                             commandName,
                         }),
-                        [HangmonGameOverCustomIds.LookupPokemon]: async () => await LookupPokemonStrategy.run(newReceivedInteraction as ButtonInteraction, {
+                        [HangmonGameOverCustomIds.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(newReceivedInteraction as ButtonInteraction, strategies, {
                             name: state.correct.pokemon.name,
                         }),
                         [HangmonGameOverCustomIds.GuessHistory]: async () => await this.sendGuessHistory({
@@ -301,9 +306,9 @@ export class HangmonStrategy extends BaseGenerateStrategy
     }
 
     /* istanbul ignore next */
-    private static async getPokemon(): Promise<GetPokemonResponse>
+    private static async getPokemon(strategies: PtuStrategyMap): Promise<GetPokemonResponse>
     {
-        const allPokemon = await LookupPokemonStrategy.getLookupData({ getAll: true });
+        const allPokemon = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({ getAll: true }) as PtuPokemonForLookupPokemon[];
         const index = RandomService.getRandomInteger(allPokemon.length);
 
         return {

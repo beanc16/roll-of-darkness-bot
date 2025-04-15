@@ -5,12 +5,12 @@ import { z } from 'zod';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuSkill } from '../../types/pokemonTrainers.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
 {
     public static key: PtuGenerateSubcommand.SkillBackground = PtuGenerateSubcommand.SkillBackground;

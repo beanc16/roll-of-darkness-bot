@@ -1,14 +1,14 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import {
     PtuCalculateSubcommand,
     PtuPokemonEvolutionaryStage,
     PtuPokemonHpPercentage,
 } from '../../options/calculate.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class CalculateCaptureRatingStrategy
 {
     public static key: PtuCalculateSubcommand.CaptureRating = PtuCalculateSubcommand.CaptureRating;

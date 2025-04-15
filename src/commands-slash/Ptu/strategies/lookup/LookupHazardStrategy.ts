@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuHazard } from '../../types/PtuHazard.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupHazardDataParameters extends BaseLookupDataOptions
 {
@@ -20,7 +20,7 @@ export interface GetLookupHazardDataParameters extends BaseLookupDataOptions
     abilityName?: string | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupHazardStrategy
 {
     public static key: PtuLookupSubcommand.Hazard = PtuLookupSubcommand.Hazard;
@@ -72,7 +72,7 @@ export class LookupHazardStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupHazardDataParameters = {
+    public static async getLookupData(input: GetLookupHazardDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuHazard[]>
     {

@@ -8,9 +8,9 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 enum GumdropFlavor
 {
@@ -28,7 +28,7 @@ interface GetNumOfGumdropsResponse
     numOfGumdrops: number;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RandomGumdropStrategy
 {
     public static key: PtuRandomSubcommand.Gumdrop = PtuRandomSubcommand.Gumdrop;
@@ -43,6 +43,7 @@ export class RandomGumdropStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -70,6 +71,7 @@ export class RandomGumdropStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

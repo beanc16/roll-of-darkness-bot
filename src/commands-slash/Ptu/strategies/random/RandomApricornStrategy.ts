@@ -6,6 +6,7 @@ import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { RandomResult } from '../../types/PtuRandom.js';
+import type { PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
@@ -16,6 +17,7 @@ export class RandomApricornStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        _strategies: PtuStrategyMap,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {
         // Get parameter results

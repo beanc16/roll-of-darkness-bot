@@ -6,11 +6,11 @@ import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RollSkillStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
@@ -18,6 +18,7 @@ export class RollSkillStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -75,6 +76,7 @@ export class RollSkillStrategy
         // Send message
         await this.sendMessage({
             interaction,
+            strategies,
             message: `${Text.Ping.user(rerollCallbackOptions.newCallingUserId ?? interaction.user.id)} :game_die:\n`
                 + `${Text.bold('Roll')}: ${numberOfDice}d6 (${rolls.join(', ')})\n`
                 + `${Text.bold(name ?? 'Result')}: ${result}${resultFormulaForDisplay}`,
@@ -87,11 +89,13 @@ export class RollSkillStrategy
     private static async sendMessage({
         interaction,
         message,
+        strategies,
         rerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
     }: {
         interaction: ChatInputCommandInteraction;
+        strategies: PtuStrategyMap;
         message: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
     }): Promise<void>
@@ -102,6 +106,7 @@ export class RollSkillStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

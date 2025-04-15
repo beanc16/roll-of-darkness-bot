@@ -5,12 +5,12 @@ import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleS
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomNatureEmbedMessage } from '../../embed-messages/random.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { PtuNature } from '../../types/PtuNature.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 
 interface GetRandomNaturesResult
@@ -19,13 +19,14 @@ interface GetRandomNaturesResult
     rollResults: string;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RandomNatureStrategy
 {
     public static key: PtuRandomSubcommand.Nature = PtuRandomSubcommand.Nature;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -55,6 +56,7 @@ export class RandomNatureStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,

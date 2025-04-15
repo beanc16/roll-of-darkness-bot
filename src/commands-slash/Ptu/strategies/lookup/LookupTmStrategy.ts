@@ -5,20 +5,20 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuTm } from '../../types/PtuTm.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupTmDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupTmStrategy
 {
     public static key: PtuLookupSubcommand.Tm = PtuLookupSubcommand.Tm;
@@ -55,7 +55,7 @@ export class LookupTmStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupTmDataParameters = {
+    public static async getLookupData(input: GetLookupTmDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuTm[]>
     {

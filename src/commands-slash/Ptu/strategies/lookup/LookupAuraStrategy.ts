@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuAura } from '../../models/PtuAura.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
+import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupAuraDataParameters extends BaseLookupDataOptions
 {
@@ -20,7 +20,7 @@ export interface GetLookupAuraDataParameters extends BaseLookupDataOptions
     returnLegendaryNames?: boolean;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupAuraStrategy
 {
     public static key: PtuLookupSubcommand.Aura = PtuLookupSubcommand.Aura;
@@ -64,7 +64,7 @@ export class LookupAuraStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupAuraDataParameters = {
+    public static async getLookupData(input: GetLookupAuraDataParameters = {
         includeAllIfNoName: true,
         returnLegendaryNames: false,
     }): Promise<PtuAura[] | { name: string }[]>

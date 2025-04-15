@@ -103,7 +103,7 @@ export class BaseGenerateStrategy
             ],
             onRowAbovePaginationButtonPress: async (buttonInteraction, input) => await this.handleButtons(
                 parameters,
-                buttonInteraction,
+                buttonInteraction as ButtonInteraction,
                 input,
             ),
         });

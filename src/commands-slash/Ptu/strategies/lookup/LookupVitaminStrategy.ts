@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuVitamin, PtuVitaminEnhancedStat } from '../../types/PtuVitamin.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupVitaminDataParameters extends BaseLookupDataOptions
 {
@@ -19,7 +19,7 @@ export interface GetLookupVitaminDataParameters extends BaseLookupDataOptions
     enhancedStat?: PtuVitaminEnhancedStat | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupVitaminStrategy
 {
     public static key: PtuLookupSubcommand.Vitamin = PtuLookupSubcommand.Vitamin;
@@ -58,7 +58,7 @@ export class LookupVitaminStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupVitaminDataParameters = {
+    public static async getLookupData(input: GetLookupVitaminDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuVitamin[]>
     {

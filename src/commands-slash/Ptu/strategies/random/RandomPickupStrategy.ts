@@ -4,10 +4,10 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getRandomYouFoundNothingEmbedMessage } from '../../embed-messages/random.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { RandomBerryStrategy } from './RandomBerryStrategy.js';
 import { RandomEvolutionaryStoneStrategy } from './RandomEvolutionaryStoneStrategy.js';
@@ -19,13 +19,14 @@ import { RandomVitaminStrategy } from './RandomVitaminStrategy.js';
 import { RandomXItemStrategy } from './RandomXItemStrategy.js';
 import { PtuRandomPickupSubcommandResponse } from './types.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RandomPickupStrategy
 {
     public static key: PtuRandomSubcommand.Pickup = PtuRandomSubcommand.Pickup;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
@@ -68,49 +69,49 @@ export class RandomPickupStrategy
         // X-Item
         else if (roll === 6 || roll === 7)
         {
-            subcommandResponse = await RandomXItemStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomXItemStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Berries
         else if (roll >= 8 && roll <= 10)
         {
-            subcommandResponse = await RandomBerryStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomBerryStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Pokeball
         else if (roll >= 11 && roll <= 13)
         {
-            subcommandResponse = await RandomPokeballStrategy.run(interaction, undefined, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomPokeballStrategy.run(interaction, strategies, { shouldReturnMessageOptions: true }) as PtuRandomPickupSubcommandResponse;
         }
 
         // Healing
         else if (roll >= 14 && roll <= 16)
         {
-            subcommandResponse = await RandomHealingItemStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomHealingItemStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Evolutionary Stone
         else if (roll === 17)
         {
-            subcommandResponse = await RandomEvolutionaryStoneStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomEvolutionaryStoneStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Vitamin
         else if (roll === 18)
         {
-            subcommandResponse = await RandomVitaminStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomVitaminStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Held Item
         else if (roll === 19)
         {
-            subcommandResponse = await RandomHeldItemStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomHeldItemStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // TM
         else if (roll === 20)
         {
-            subcommandResponse = await RandomTmStrategy.run(interaction, true) as PtuRandomPickupSubcommandResponse;
+            subcommandResponse = await RandomTmStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
         // Send response with reroll button
@@ -124,6 +125,7 @@ export class RandomPickupStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}${subcommandStr}`,

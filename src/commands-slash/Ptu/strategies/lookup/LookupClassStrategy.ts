@@ -2,13 +2,13 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import { PokemonType } from '../../types/pokemon.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
+import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 
 export interface GetLookupClassDataParameters extends BaseLookupDataOptions
@@ -157,7 +157,7 @@ enum PtuClassName
     Disciple = 'Disciple',
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupClassStrategy
 {
     public static key: PtuLookupSubcommand.Class = PtuLookupSubcommand.Class;
@@ -195,7 +195,7 @@ export class LookupClassStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
+    public static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
     {
         // For autocomplete
         if (input?.name === undefined)

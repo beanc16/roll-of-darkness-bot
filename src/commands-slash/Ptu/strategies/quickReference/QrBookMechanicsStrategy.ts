@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getQrBookMechanicsEmbedMessages } from '../../embed-messages/quickReference.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class QrBookMechanicsStrategy
 {
     public static key: PtuQuickReferenceInfo.BookMechanics = PtuQuickReferenceInfo.BookMechanics;

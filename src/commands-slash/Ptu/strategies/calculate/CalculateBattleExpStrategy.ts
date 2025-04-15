@@ -2,10 +2,10 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { AddMathParser } from '../../../../services/MathParser/AddMathParser.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuCalculateSubcommand } from '../../options/calculate.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class CalculateBattleExpStrategy
 {
     private static mathParser = new AddMathParser();

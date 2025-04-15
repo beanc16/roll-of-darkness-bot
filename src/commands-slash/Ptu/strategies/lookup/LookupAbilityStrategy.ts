@@ -1,12 +1,13 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { logger } from '@beanc16/logger';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import { OnRowAbovePaginationButtonPressResponse } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
+import { LookupAbilityActionRowBuilder, LookupAbilityCustomId } from '../../components/lookup/LookupAbilityActionRowBuilder.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuAbility } from '../../models/PtuAbility.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -14,13 +15,14 @@ import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAbilitiesSearchService } from '../../services/PtuAbilitiesSearchService.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { GetLookupAbilityDataParameters } from '../../types/modelParameters.js';
+import { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupAbilityStrategy
 {
     public static key: PtuLookupSubcommand.Ability = PtuLookupSubcommand.Ability;
 
-    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
@@ -55,6 +57,16 @@ export class LookupAbilityStrategy
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Ability}`,
             noEmbedsErrorMessage: 'No abilities were found.',
+            ...(data.length === 1
+                ? {
+                    rowsAbovePagination: [
+                        new LookupAbilityActionRowBuilder(),
+                    ],
+                    onRowAbovePaginationButtonPress: async (buttonInteraction) =>
+                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name),
+                }
+                : {}
+            ),
         });
     }
 
@@ -97,5 +109,23 @@ export class LookupAbilityStrategy
             logger.error('Failed to retrieve ptu abilities', error);
             return [];
         }
+    }
+
+    private static async handleButtons(
+        buttonInteraction: ButtonInteraction,
+        strategies: PtuStrategyMap,
+        abilityName: string,
+    ): Promise<Pick<OnRowAbovePaginationButtonPressResponse, 'shouldUpdateMessage'>>
+    {
+        const handlerMap: Record<LookupAbilityCustomId, () => Promise<boolean | undefined>> = {
+            [LookupAbilityCustomId.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(buttonInteraction, strategies, {
+                abilityName,
+            }),
+        };
+
+        await buttonInteraction.deferReply({ fetchReply: true });
+        await handlerMap[buttonInteraction.customId as LookupAbilityCustomId]();
+
+        return { shouldUpdateMessage: false };
     }
 }

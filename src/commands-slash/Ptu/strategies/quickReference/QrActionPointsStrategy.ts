@@ -3,10 +3,10 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { getPagedEmbedBuilders } from '../../../embed-messages/shared.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class QrActionPointsStrategy
 {
     public static key: PtuQuickReferenceInfo.ActionPoints = PtuQuickReferenceInfo.ActionPoints;

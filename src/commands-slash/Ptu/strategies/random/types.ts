@@ -1,7 +1,7 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
+import type { EmbedBuilder } from 'discord.js';
 
-import { CommandName } from '../../../../types/discord.js';
-import { BaseStrategy } from '../../../strategies/types/BaseStrategy.js';
+import type { CommandName } from '../../../../types/discord.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
 export interface PtuRandomPickupSubcommandResponse
 {
@@ -11,7 +11,4 @@ export interface PtuRandomPickupSubcommandResponse
     commandName: CommandName;
 }
 
-export type PtuRandomPickupSubcommandStrategy = BaseStrategy<
-    ChatInputCommandInteraction,
-    Promise<boolean | PtuRandomPickupSubcommandResponse>
->;
+export type PtuRandomPickupSubcommandStrategy = PtuChatIteractionStrategy<boolean | PtuRandomPickupSubcommandResponse, boolean>;

@@ -5,20 +5,20 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { PtuTerrain } from '../../types/PtuTerrain.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupTerrainDataParameters extends BaseLookupDataOptions
 {
     name?: string | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupTerrainStrategy
 {
     public static key: PtuLookupSubcommand.Terrain = PtuLookupSubcommand.Terrain;
@@ -54,7 +54,7 @@ export class LookupTerrainStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupTerrainDataParameters = {
+    public static async getLookupData(input: GetLookupTerrainDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuTerrain[]>
     {

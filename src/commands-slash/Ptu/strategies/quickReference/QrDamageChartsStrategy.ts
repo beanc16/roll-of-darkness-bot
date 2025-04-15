@@ -1,12 +1,12 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getQrDamageChartsEmbedMessages } from '../../embed-messages/quickReference.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
 import { PtuDamageChartService } from '../../services/PtuDamageChartService.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class QrDamageChartsStrategy
 {
     public static key: PtuQuickReferenceInfo.DamageCharts = PtuQuickReferenceInfo.DamageCharts;

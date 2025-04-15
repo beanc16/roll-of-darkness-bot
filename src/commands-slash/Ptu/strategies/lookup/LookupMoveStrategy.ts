@@ -1,11 +1,12 @@
 import { logger } from '@beanc16/logger';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { EqualityOption } from '../../../options/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
+import type { OnRowAbovePaginationButtonPressResponse } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
+import { LookupMoveActionRowBuilder, LookupMoveCustomId } from '../../components/lookup/LookupMoveActionRowBuilder.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
@@ -21,13 +22,14 @@ import {
     PtuContestStatType,
     PtuMoveFrequency,
 } from '../../types/pokemon.js';
+import { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupMoveStrategy
 {
     public static key: PtuLookupSubcommand.Move = PtuLookupSubcommand.Move;
 
-    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
@@ -71,6 +73,16 @@ export class LookupMoveStrategy
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Move}`,
             noEmbedsErrorMessage: 'No moves were found.',
+            ...(data.length === 1
+                ? {
+                    rowsAbovePagination: [
+                        new LookupMoveActionRowBuilder(),
+                    ],
+                    onRowAbovePaginationButtonPress: async (buttonInteraction) =>
+                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name),
+                }
+                : {}
+            ),
         });
     }
 
@@ -168,5 +180,23 @@ export class LookupMoveStrategy
             logger.error('Failed to retrieve ptu moves', error);
             return [];
         }
+    }
+
+    private static async handleButtons(
+        buttonInteraction: ButtonInteraction,
+        strategies: PtuStrategyMap,
+        moveName: string,
+    ): Promise<Pick<OnRowAbovePaginationButtonPressResponse, 'shouldUpdateMessage'>>
+    {
+        const handlerMap: Record<LookupMoveCustomId, () => Promise<boolean | undefined>> = {
+            [LookupMoveCustomId.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(buttonInteraction, strategies, {
+                moveName,
+            }),
+        };
+
+        await buttonInteraction.deferReply({ fetchReply: true });
+        await handlerMap[buttonInteraction.customId as LookupMoveCustomId]();
+
+        return { shouldUpdateMessage: false };
     }
 }

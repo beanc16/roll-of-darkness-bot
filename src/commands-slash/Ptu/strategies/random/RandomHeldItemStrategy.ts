@@ -7,6 +7,7 @@ import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
 import { HeldItemType } from '../../types/PtuHeldItem.js';
 import { RandomResult } from '../../types/PtuRandom.js';
+import type { PtuStrategyMap } from '../../types/strategies.js';
 import { BaseRandomStrategy } from './BaseRandomStrategy.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from './types.js';
 
@@ -24,6 +25,7 @@ export class RandomHeldItemStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        _strategies: PtuStrategyMap,
         shouldReturnMessageOptions = false,
     ): Promise<boolean | PtuRandomPickupSubcommandResponse>
     {

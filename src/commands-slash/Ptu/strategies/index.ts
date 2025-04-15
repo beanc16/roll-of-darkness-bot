@@ -7,7 +7,6 @@ import {
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
-import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuAbility } from '../models/PtuAbility.js';
@@ -15,14 +14,10 @@ import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
-import { PtuGameSubcommand } from '../options/game.js';
 import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
-import { PtuRollSubcommand } from '../options/roll.js';
-import { PtuTrainSubcommand } from '../options/train.js';
-import { PtuTypeEffectivenessSubcommand } from '../options/typeEffectiveness.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import { PtuPokemon } from '../types/pokemon.js';
@@ -41,6 +36,7 @@ import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
+import { PtuChatIteractionStrategy, PtuStrategyMap } from '../types/strategies.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import gameStrategies from './game/index.js';
@@ -127,24 +123,10 @@ type AllLookupParams = GetLookupMoveDataParameters
     | GetLookupStatusDataParameters
     | GetLookupTmDataParameters;
 
-interface BasePtuLookupStrategy<PtuLookupModel extends AllPtuLookupModels> extends ChatIteractionStrategy
+interface BasePtuLookupStrategy<PtuLookupModel extends AllPtuLookupModels> extends PtuChatIteractionStrategy
 {
     getLookupData(input?: AllLookupParams): Promise<PtuLookupModel[]>;
 }
-
-type PtuStrategyMap = StrategyMap<
-    PtuSubcommandGroup,
-    PtuBreedSubcommand
-    | PtuCalculateSubcommand
-    | PtuLookupSubcommand
-    | PtuGameSubcommand
-    | PtuGenerateSubcommand
-    | PtuQuickReferenceInfo
-    | PtuRandomSubcommand
-    | PtuRollSubcommand
-    | PtuTrainSubcommand
-    | PtuTypeEffectivenessSubcommand
->;
 
 export class PtuStrategyExecutor extends BaseStrategyExecutor
 {
@@ -180,7 +162,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
         if (Strategy)
         {
-            return await Strategy.run(interaction);
+            return await Strategy.run(interaction, this.strategies);
         }
 
         return false;
@@ -422,7 +404,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     }): Promise<PtuLookupModel[]>
     {
         const Strategy = super.getStrategy({
-            strategies: this.strategies,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+            strategies: this.strategies as any,
             subcommandGroup,
             subcommand,
         }) as BasePtuLookupStrategy<PtuLookupModel> | undefined;
@@ -444,16 +427,17 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
         interaction: ChatInputCommandInteraction;
-    }): ChatIteractionStrategy | undefined
+    }): PtuChatIteractionStrategy | undefined
     {
-        let Strategy: ChatIteractionStrategy | undefined;
+        let Strategy: PtuChatIteractionStrategy | undefined;
 
         if (subcommand === PtuSubcommandGroup.QuickReference)
         {
             const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
 
             Strategy = super.getStrategy({
-                strategies: this.strategies,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                strategies: this.strategies as any,
                 subcommandGroup: subcommand,
                 subcommand: referenceInfo,
             });
@@ -461,7 +445,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         else
         {
             Strategy = super.getStrategy({
-                strategies: this.strategies,
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                strategies: this.strategies as any,
                 subcommandGroup,
                 subcommand,
             });

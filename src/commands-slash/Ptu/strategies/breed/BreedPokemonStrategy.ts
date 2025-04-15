@@ -12,7 +12,6 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { DiceLiteService } from '../../../../services/DiceLiteService.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
@@ -32,6 +31,7 @@ import {
 } from '../../types/breed.js';
 import { PtuNature } from '../../types/PtuNature.js';
 import { PtuPokemonMinimal } from '../../types/PtuPokemonMinimal.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { RandomNatureStrategy } from '../random/RandomNatureStrategy.js';
 
 export interface GetLookupBreedPokemonDataParameters extends BaseLookupDataOptions
@@ -52,7 +52,7 @@ interface GetResult
 
 type ButtonHandlerMap<Key extends string> = Record<Key, () => Promise<void> | void>;
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class BreedPokemonStrategy
 {
     public static key = PtuBreedSubcommand.Breed;

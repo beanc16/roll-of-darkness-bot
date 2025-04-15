@@ -5,10 +5,10 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../../services/CachedGoogleSheetsApiService/types.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getSpreadsheetIdFromCharacterSheetName } from '../../constants.js';
 import { PtuTrainSubcommand } from '../../options/train.js';
 import { PtuCharacterSheetName } from '../../types/sheets.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { CharacterSheetStrategy } from '../CharacterSheetStrategy.js';
 
 interface GetSpreadsheetValuesResponse
@@ -36,7 +36,7 @@ interface CalculateTrainingExpResponse
     newNumOfTrainingSessionsLeft: number;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class TrainPokemonStrategy extends CharacterSheetStrategy
 {
     public static key = PtuTrainSubcommand.Train;

@@ -1,23 +1,18 @@
-import { logger } from '@beanc16/logger';
 import type { Entries } from '@beanc16/utility-types';
 import {
     ActionRowBuilder,
     ButtonInteraction,
     ChatInputCommandInteraction,
-    ComponentType,
     EmbedBuilder,
     Message,
-    RESTJSONErrorCodes,
     StringSelectMenuBuilder,
     StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
-import { timeToWaitForCommandInteractions } from '../../../../constants/discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
@@ -40,7 +35,7 @@ import {
     PtuMoveListType,
     PtuPokemon,
 } from '../../types/pokemon.js';
-import { LookupMoveStrategy } from './LookupMoveStrategy.js';
+import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 interface GetOptionsResponse
 {
@@ -92,7 +87,7 @@ interface GetLookupPokemonEmbedsParameters extends Omit<GetLookupPokemonDataPara
 
 type ParseSearchParametersResponse = Record<string, string | RegExp | object | object[] | undefined>;
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupPokemonStrategy
 {
     public static key: PtuLookupSubcommand.Pokemon = PtuLookupSubcommand.Pokemon;
@@ -101,10 +96,12 @@ export class LookupPokemonStrategy
         MoveViewSelect: 'move_view_select',
     };
 
-    public static async run(interaction: ChatInputCommandInteraction, options?: never): Promise<boolean>;
-    public static async run(interaction: ButtonInteraction, options?: Partial<GetOptionsResponse>): Promise<boolean>;
+    // TODO: Add ability to go to move, ability, or capability that's currently being looked up.
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<GetOptionsResponse>): Promise<boolean>;
     public static async run(
         interaction: ChatInputCommandInteraction | ButtonInteraction,
+        strategies: PtuStrategyMap,
         options?: Partial<GetOptionsResponse>,
     ): Promise<boolean>
     {
@@ -164,7 +161,7 @@ export class LookupPokemonStrategy
             baseStatTotal,
             pokemon: data,
             moveNameToMovesRecord: {},
-        }, includeContestInfo);
+        }, strategies, includeContestInfo);
 
         // Get message
         const embeds = this.getFirstEmbeds(embedsInput);
@@ -687,6 +684,7 @@ export class LookupPokemonStrategy
     // Get input for getFirstEmbeds
     private static async getFirstEmbedsInput(
         options: GetLookupPokemonEmbedsParameters,
+        strategies: PtuStrategyMap,
         includeContestInfo?: boolean | null,
     ): Promise<GetLookupPokemonEmbedsParameters>
     {
@@ -716,9 +714,9 @@ export class LookupPokemonStrategy
                 return acc;
             }, new Set<string>([]));
 
-            const moves = await LookupMoveStrategy.getLookupData({
+            const moves = await strategies[PtuSubcommandGroup.Lookup]?.[PtuLookupSubcommand.Move]?.getLookupData({
                 names: Array.from(allMoveNames),
-            });
+            }) as PtuMove[];
             output.moveNameToMovesRecord = moves.reduce<Record<string, PtuMove>>((acc, move) =>
             {
                 acc[move.name] = move;
@@ -764,7 +762,7 @@ export class LookupPokemonStrategy
 
     private static async sendMessage({
         originalInteraction,
-        interaction,
+        interaction: _, // TODO: Delete this later
         embeds,
         name,
         moveName,
@@ -812,27 +810,63 @@ export class LookupPokemonStrategy
             : [];
 
         // Send messages with pagination
-        const response = await PaginationStrategy.run({
-            originalInteraction: interaction,
+        await PaginationStrategy.run({
+            originalInteraction,
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
             embeds,
             interactionType,
             rowsAbovePagination,
+            onRowAbovePaginationButtonPress: (receivedInteraction) =>
+            {
+                // The only options with string select menus
+                if (!(name || moveName))
+                {
+                    return { embeds };
+                }
+
+                const { customId, values = [] } = receivedInteraction as StringSelectMenuInteraction;
+                const [value] = values;
+
+                let newEmbeds: EmbedBuilder[] = [];
+
+                if (customId.includes(this.selectMenuCustomIds.PokemonViewSelect))
+                {
+                    // Create a map of version name to pokemon
+                    const [onlyPokemon] = pokemon;
+                    const { olderVersions = [] } = onlyPokemon;
+                    const versionNameToPokemon: Record<string, PtuPokemon> = {
+                        [onlyPokemon.versionName]: onlyPokemon,
+                    };
+
+                    olderVersions.forEach((curPokemon) =>
+                    {
+                        const { versionName } = curPokemon;
+
+                        versionNameToPokemon[versionName] = {
+                            name: onlyPokemon.name,
+                            ...curPokemon,
+                        };
+                    });
+
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        name,
+                        pokemon: [versionNameToPokemon[value]],
+                    });
+                }
+                else if (customId === this.selectMenuCustomIds.MoveViewSelect)
+                {
+                    const moveListType = value as PtuMoveListType;
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        moveName,
+                        moveListType,
+                        pokemon,
+                    });
+                }
+
+                return { embeds: newEmbeds };
+            },
             includeDeleteButton: true,
         });
-
-        if (name || moveName)
-        {
-            // Handle select menu options (fire and forget)
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
-            this.handleSelectMenuOptions({
-                originalInteraction,
-                interactionResponse: response,
-                name,
-                moveName,
-                pokemon,
-            });
-        }
     }
 
     private static parseSearchParameters({
@@ -1236,98 +1270,6 @@ export class LookupPokemonStrategy
             .addComponents(selectMenu);
 
         return row;
-    }
-
-    private static async handleSelectMenuOptions({
-        originalInteraction,
-        interactionResponse,
-        name,
-        moveName,
-        pokemon,
-    }: HandleSelectMenuOptionsParameters): Promise<void>
-    {
-        let embeds: EmbedBuilder[] = [];
-
-        try
-        {
-            const responseInteraction = await interactionResponse.awaitMessageComponent({
-                componentType: ComponentType.StringSelect,
-                time: timeToWaitForCommandInteractions,
-            });
-
-            const { customId, values = [] } = responseInteraction;
-            const [value] = values;
-
-            if (customId.includes(this.selectMenuCustomIds.PokemonViewSelect))
-            {
-                // Create a map of version name to pokemon
-                const [onlyPokemon] = pokemon;
-                const { olderVersions = [] } = onlyPokemon;
-                const versionNameToPokemon: Record<string, PtuPokemon> = {
-                    [onlyPokemon.versionName]: onlyPokemon,
-                };
-
-                olderVersions.forEach((curPokemon) =>
-                {
-                    const { versionName } = curPokemon;
-
-                    versionNameToPokemon[versionName] = {
-                        name: onlyPokemon.name,
-                        ...curPokemon,
-                    };
-                });
-
-                embeds = this.getLookupPokemonEmbeds({
-                    name,
-                    pokemon: [versionNameToPokemon[value]],
-                });
-
-                await this.sendMessage({
-                    originalInteraction,
-                    interaction: responseInteraction,
-                    embeds,
-                    name,
-                    moveName,
-                    pokemon,
-                    interactionType: 'update',
-                    selectedValue: value,
-                });
-            }
-            else if (customId === this.selectMenuCustomIds.MoveViewSelect)
-            {
-                const moveListType = value as PtuMoveListType;
-                embeds = this.getLookupPokemonEmbeds({
-                    moveName,
-                    moveListType,
-                    pokemon,
-                });
-
-                await this.sendMessage({
-                    originalInteraction,
-                    interaction: responseInteraction,
-                    embeds,
-                    name,
-                    moveName,
-                    pokemon,
-                    interactionType: 'update',
-                    selectedValue: moveListType,
-                });
-            }
-        }
-
-        catch (error)
-        {
-            const errorPrefix = 'Collector received no interactions before ending with reason:';
-            const messageTimedOut = (error as Error).message.includes(`${errorPrefix} time`);
-            const messageWasDeleted = (error as Error).message.includes(`${errorPrefix} messageDelete`)
-                || (error as { code: RESTJSONErrorCodes }).code === RESTJSONErrorCodes.UnknownMessage;
-
-            // Ignore timeouts
-            if (!messageTimedOut && !messageWasDeleted)
-            {
-                logger.error('An unknown error occurred whilst handling select menu interactions on /ptu lookup pokemon', error);
-            }
-        }
     }
 
     private static getOptions(interaction: ChatInputCommandInteraction, options?: never): GetOptionsResponse;

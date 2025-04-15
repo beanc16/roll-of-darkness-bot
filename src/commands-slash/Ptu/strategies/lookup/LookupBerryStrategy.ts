@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { BerryTier, PtuBerry } from '../../types/PtuBerry.js';
+import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupBerryDataParameters extends BaseLookupDataOptions
 {
@@ -19,7 +19,7 @@ export interface GetLookupBerryDataParameters extends BaseLookupDataOptions
     tier?: BerryTier | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupBerryStrategy
 {
     public static key: PtuLookupSubcommand.Berry = PtuLookupSubcommand.Berry;
@@ -59,7 +59,7 @@ export class LookupBerryStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupBerryDataParameters = {
+    public static async getLookupData(input: GetLookupBerryDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuBerry[]>
     {

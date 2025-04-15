@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import { HeldItemType, PtuHeldItem } from '../../types/PtuHeldItem.js';
+import type { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 
 export interface GetLookupHeldItemDataParameters extends BaseLookupDataOptions
 {
@@ -19,7 +19,7 @@ export interface GetLookupHeldItemDataParameters extends BaseLookupDataOptions
     type?: HeldItemType | null;
 }
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuLookupIteractionStrategy>()
 export class LookupHeldItemStrategy
 {
     public static key: PtuLookupSubcommand.HeldItem = PtuLookupSubcommand.HeldItem;
@@ -59,7 +59,7 @@ export class LookupHeldItemStrategy
         });
     }
 
-    private static async getLookupData(input: GetLookupHeldItemDataParameters = {
+    public static async getLookupData(input: GetLookupHeldItemDataParameters = {
         includeAllIfNoName: true,
     }): Promise<PtuHeldItem[]>
     {

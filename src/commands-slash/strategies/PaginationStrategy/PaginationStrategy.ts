@@ -40,7 +40,7 @@ export interface PaginationStrategyRunParameters
         RowAbovePagination?,
         RowAbovePagination?,
     ];
-    onRowAbovePaginationButtonPress?: (buttonInteraction: ButtonInteraction, options: {
+    onRowAbovePaginationButtonPress?: (receivedInteraction: ButtonInteraction | StringSelectMenuInteraction, options: {
         embeds?: EmbedBuilder[];
         files?: AttachmentPayload[];
     }) => Promise<OnRowAbovePaginationButtonPressResponse> | OnRowAbovePaginationButtonPressResponse;
@@ -53,7 +53,6 @@ interface OnButtonPressResponse
     components: RowAbovePagination[] | undefined;
     embeds: EmbedBuilder[] | undefined;
     files: AttachmentPayload[] | undefined;
-    shouldUpdateMessage: boolean;
 }
 
 export class PaginationStrategy
@@ -124,7 +123,7 @@ export class PaginationStrategy
                 {
                     const onButtonPressResponse = await this.onButtonPress({
                         originalInteraction,
-                        buttonInteraction: receivedInteraction as ButtonInteraction,
+                        receivedInteraction,
                         response,
                         content,
                         embeds,
@@ -173,7 +172,7 @@ export class PaginationStrategy
 
     private static async onButtonPress({
         originalInteraction,
-        buttonInteraction,
+        receivedInteraction,
         response,
         content,
         embeds,
@@ -183,7 +182,7 @@ export class PaginationStrategy
         validRowsAbovePagination,
         onRowAbovePaginationButtonPress,
     }: Pick<PaginationStrategyRunParameters, 'originalInteraction' | 'content' | 'embeds' | 'files' | 'onRowAbovePaginationButtonPress'> & {
-        buttonInteraction: ButtonInteraction;
+        receivedInteraction: ButtonInteraction | StringSelectMenuInteraction;
         response: Message<boolean>;
         pageIndex: number;
         includeDeleteButton: boolean;
@@ -195,13 +194,13 @@ export class PaginationStrategy
             deleteMessage,
             isNonPaginationButtonPress,
         } = this.updatePageIndex({
-            buttonInteraction,
+            receivedInteraction,
             embeds,
             files,
             pageIndex,
         });
 
-        const output: OnButtonPressResponse = {
+        const output: OnButtonPressResponse & { shouldUpdateMessage: boolean } = {
             pageIndex: newPageIndex,
             components: undefined,
             embeds: undefined,
@@ -215,7 +214,7 @@ export class PaginationStrategy
                 embeds: newEmbeds,
                 files: newFiles,
                 shouldUpdateMessage,
-            } = await onRowAbovePaginationButtonPress(buttonInteraction, {
+            } = await onRowAbovePaginationButtonPress(receivedInteraction, {
                 ...(embeds
                     ? { embeds }
                     : {}
@@ -254,13 +253,13 @@ export class PaginationStrategy
 
         if (deleteMessage)
         {
-            if (originalInteraction.user.id === buttonInteraction.user.id)
+            if (originalInteraction.user.id === receivedInteraction.user.id)
             {
                 await response.delete();
             }
             else
             {
-                await buttonInteraction.reply({
+                await receivedInteraction.reply({
                     content: 'Only the user that ran this command can delete the message.',
                     ephemeral: true,
                 });
@@ -270,9 +269,9 @@ export class PaginationStrategy
         }
 
         // Follow up or update the message (update will throw an error if it has been replied to)
-        if (buttonInteraction.replied && output.shouldUpdateMessage)
+        if (receivedInteraction.replied && output.shouldUpdateMessage)
         {
-            await buttonInteraction.editReply({
+            await receivedInteraction.editReply({
                 content,
                 ...((output.embeds || embeds)
                     ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
@@ -287,7 +286,7 @@ export class PaginationStrategy
         }
         else if (output.shouldUpdateMessage)
         {
-            await buttonInteraction.update({
+            await receivedInteraction.update({
                 content,
                 ...((output.embeds || embeds)
                     ? { embeds: [output.embeds?.[output.pageIndex] ?? embeds![output.pageIndex]] }
@@ -305,12 +304,12 @@ export class PaginationStrategy
     }
 
     private static updatePageIndex({
-        buttonInteraction,
+        receivedInteraction,
         embeds,
         files,
         pageIndex: startingPageIndex,
     }: {
-        buttonInteraction: ButtonInteraction;
+        receivedInteraction: ButtonInteraction | StringSelectMenuInteraction;
         embeds?: EmbedBuilder[];
         files?: AttachmentPayload[];
         pageIndex: number;
@@ -320,10 +319,9 @@ export class PaginationStrategy
         let deleteMessage = false;
         let isNonPaginationButtonPress = true;
         const array = (embeds ?? files ?? []) as unknown[];
+        const { customId } = receivedInteraction;
 
-        const customId = buttonInteraction.customId as PaginationButtonName;
-
-        if (customId === PaginationButtonName.Next)
+        if (customId === PaginationButtonName.Next.toString())
         {
             isNonPaginationButtonPress = false;
             newPageIndex += 1;
@@ -335,7 +333,7 @@ export class PaginationStrategy
             }
         }
 
-        else if (customId === PaginationButtonName.Previous)
+        else if (customId === PaginationButtonName.Previous.toString())
         {
             isNonPaginationButtonPress = false;
             newPageIndex -= 1;
@@ -347,19 +345,19 @@ export class PaginationStrategy
             }
         }
 
-        else if (customId === PaginationButtonName.First)
+        else if (customId === PaginationButtonName.First.toString())
         {
             isNonPaginationButtonPress = false;
             newPageIndex = 0;
         }
 
-        else if (customId === PaginationButtonName.Last)
+        else if (customId === PaginationButtonName.Last.toString())
         {
             isNonPaginationButtonPress = false;
             newPageIndex = (array.length || 1) - 1; // The || 1 is to prevent an incorrect index if the array is empty
         }
 
-        else if (customId === PaginationButtonName.Delete)
+        else if (customId === PaginationButtonName.Delete.toString())
         {
             isNonPaginationButtonPress = false;
             deleteMessage = true;

@@ -15,9 +15,9 @@ import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAnd
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 enum AttackButtonName
 {
@@ -37,6 +37,7 @@ enum PtuAttackRollType
 
 type RunRerollStrategyOptions = {
     interaction: ChatInputCommandInteraction;
+    strategies: PtuStrategyMap;
     messageContentOptions?: never;
     buttonInteraction: ButtonInteraction;
     damageResultString: string;
@@ -49,6 +50,7 @@ type RunRerollStrategyOptions = {
     shouldUseMaxCritRoll: boolean;
 } | {
     interaction: ChatInputCommandInteraction;
+    strategies: PtuStrategyMap;
     messageContentOptions: GetMessageContentOptions;
     buttonInteraction?: never;
     damageResultString: string;
@@ -86,7 +88,7 @@ type RollDamageResponse = {
     damageResultString: string;
 } | undefined;
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<PtuChatIteractionStrategy>()
 export class RollAttackStrategy
 {
     private static mathParser = new AddAndSubtractMathParser();
@@ -94,6 +96,7 @@ export class RollAttackStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.Update,
         },
@@ -165,6 +168,7 @@ export class RollAttackStrategy
         {
             await this.skipAccuracyRollMessage({
                 interaction,
+                strategies,
                 type: PtuAttackRollType.AutoMiss,
                 currentMessageContent: messagePrefix,
                 rerollCallbackOptions,
@@ -178,6 +182,7 @@ export class RollAttackStrategy
         {
             await this.skipAccuracyRollMessage({
                 interaction,
+                strategies,
                 type: PtuAttackRollType.AutoCrit,
                 currentMessageContent: messagePrefix,
                 rerollCallbackOptions,
@@ -190,6 +195,7 @@ export class RollAttackStrategy
         {
             await this.sendAccuracyRollMessage({
                 interaction,
+                strategies,
                 message: messagePrefix,
                 rerollCallbackOptions,
                 damageResultString,
@@ -207,6 +213,7 @@ export class RollAttackStrategy
     /* istanbul ignore next */
     private static async sendAccuracyRollMessage({
         interaction,
+        strategies,
         message,
         rerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.Update,
@@ -218,6 +225,7 @@ export class RollAttackStrategy
         shouldUseMaxCritRoll,
     }: {
         interaction: ChatInputCommandInteraction;
+        strategies: PtuStrategyMap;
         message: string;
         rerollCallbackOptions?: OnRerollCallbackOptions;
         damageResultString: string;
@@ -258,6 +266,7 @@ export class RollAttackStrategy
                 await this.runRerollStrategy({
                     interaction,
                     buttonInteraction: receivedInteraction as ButtonInteraction,
+                    strategies,
                     damageResultString,
                     finalRollResult,
                     type: receivedInteraction.customId as PtuAttackRollType,
@@ -276,6 +285,7 @@ export class RollAttackStrategy
     /* istanbul ignore next */
     private static async skipAccuracyRollMessage({
         interaction,
+        strategies,
         type,
         currentMessageContent,
         rerollCallbackOptions,
@@ -283,6 +293,7 @@ export class RollAttackStrategy
         finalRollResult,
     }: {
         interaction: ChatInputCommandInteraction;
+        strategies: PtuStrategyMap;
         type: PtuAttackRollType.AutoMiss | PtuAttackRollType.AutoCrit;
         currentMessageContent: string;
         rerollCallbackOptions: OnRerollCallbackOptions;
@@ -304,6 +315,7 @@ export class RollAttackStrategy
 
         await this.runRerollStrategy({
             interaction,
+            strategies,
             messageContentOptions,
             damageResultString,
             finalRollResult,
@@ -316,6 +328,7 @@ export class RollAttackStrategy
     private static async runRerollStrategy({
         interaction,
         buttonInteraction,
+        strategies,
         messageContentOptions,
         damageResultString,
         finalRollResult,
@@ -369,6 +382,7 @@ export class RollAttackStrategy
             },
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}`,
