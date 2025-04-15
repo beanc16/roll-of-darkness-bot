@@ -229,7 +229,9 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 {
                     const handlerMap: Record<HangmonGameOverCustomIds, () => Promise<boolean | void>> = {
                         [HangmonGameOverCustomIds.PlayAgain]: async () => await this.run(newReceivedInteraction as ButtonInteraction, {
-                            players,
+                            players: players.some((player) => player.id === newReceivedInteraction.user.id)
+                                ? players
+                                : [newReceivedInteraction.user, ...players],
                             commandName,
                         }),
                         [HangmonGameOverCustomIds.LookupPokemon]: async () => await LookupPokemonStrategy.run(newReceivedInteraction as ButtonInteraction, {
