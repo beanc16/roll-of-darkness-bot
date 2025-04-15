@@ -6,6 +6,7 @@ import { PtuMove } from '../models/PtuMove.js';
 interface PtuMovesSearchOptions
 {
     nameSearch?: string | null;
+    rangeSearch?: string | null;
     effectSearch?: string | null;
 }
 
@@ -20,6 +21,7 @@ export class PtuMovesSearchService
         // Initialize search service parameters
         const searchableKeys = [
             ...(options.nameSearch ? [{ name: 'name', weight: 1 }] : []),
+            ...(options.rangeSearch ? [{ name: 'range', weight: 1 }] : []),
             ...(options.effectSearch ? [{ name: 'effects', weight: 3 }] : []),
         ];
         const maxAllowedScore = this.getMaxAllowedScore(options);
@@ -39,6 +41,7 @@ export class PtuMovesSearchService
         // Search
         const keysToSearch = [
             ...(options.nameSearch ? [options.nameSearch] : []),
+            ...(options.rangeSearch ? [options.rangeSearch] : []),
             ...(options.effectSearch ? [options.effectSearch] : []),
         ];
 
@@ -47,19 +50,13 @@ export class PtuMovesSearchService
 
     private static getMaxAllowedScore(options: PtuMovesSearchOptions): number
     {
-        // Name & Effect
-        if (options.nameSearch && options.effectSearch)
+        // 2-3 are present
+        if ([options.nameSearch, options.rangeSearch, options.effectSearch].filter(Boolean).length >= 2)
         {
             return 0.5;
         }
 
-        // Name
-        if (options.nameSearch && !options.effectSearch)
-        {
-            return 0.3;
-        }
-
-        // Effect
+        // Only 1 is present
         return 0.3;
     }
 }

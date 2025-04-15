@@ -97,7 +97,7 @@ export class LookupMoveStrategy
             };
 
             let beyondWeaponMovesAndManuevers = false;
-            const output = data.reduce((acc, cur) =>
+            let output = data.reduce((acc, cur) =>
             {
                 const element = new PtuMove(cur);
 
@@ -128,10 +128,47 @@ export class LookupMoveStrategy
             }, [] as PtuMove[]);
 
             // Sort manually if there's no searches
-            if (parsedInput.nameSearch || parsedInput.effectSearch)
+            if (parsedInput.nameSearch || parsedInput.rangeSearch || parsedInput.effectSearch)
             {
+                const {
+                    nameSearch,
+                    rangeSearch,
+                    effectSearch,
+                } = parsedInput;
+
                 const results = PtuMovesSearchService.search(output, parsedInput);
-                return results;
+
+                const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
+                const manualResults = output.filter((element) =>
+                {
+                    // Only add moves not already in the list
+                    if (resultNames.has(element.name.toLowerCase()))
+                    {
+                        return false;
+                    }
+
+                    if (nameSearch && element.name.toLowerCase().includes(nameSearch.toLowerCase()))
+                    {
+                        return true;
+                    }
+
+                    if (rangeSearch && element.range && element.range.toLowerCase().includes(rangeSearch.toLowerCase()))
+                    {
+                        return true;
+                    }
+
+                    if (effectSearch && element.effects.toLowerCase().includes(effectSearch.toLowerCase()))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                output = [
+                    ...manualResults,
+                    ...results,
+                ];
             }
 
             output.sort((a, b) =>
