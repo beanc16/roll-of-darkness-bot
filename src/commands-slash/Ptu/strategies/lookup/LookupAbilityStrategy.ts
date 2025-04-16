@@ -78,7 +78,7 @@ export class LookupAbilityStrategy
                 range: PtuLookupRange.Ability,
             });
 
-            const output = data.reduce<PtuAbility[]>((acc, cur) =>
+            let output = data.reduce<PtuAbility[]>((acc, cur) =>
             {
                 const element = new PtuAbility(cur);
 
@@ -95,8 +95,34 @@ export class LookupAbilityStrategy
             // Sort manually if there's no searches
             if (input.nameSearch || input.effectSearch)
             {
+                // TODO: Update this to filter manually similar to moves now
                 const results = PtuAbilitiesSearchService.search(output, input);
-                return results;
+                const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
+                const manualResults = output.filter((element) =>
+                {
+                    // Only add items not already in the list
+                    if (resultNames.has(element.name.toLowerCase()))
+                    {
+                        return false;
+                    }
+
+                    if (input.nameSearch && element.name.toLowerCase().includes(input.nameSearch.toLowerCase()))
+                    {
+                        return true;
+                    }
+
+                    if (input.effectSearch && element.effect2?.toLowerCase()?.includes(input.effectSearch.toLowerCase()))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                });
+
+                output = [
+                    ...manualResults,
+                    ...results,
+                ];
             }
 
             output.sort((a, b) => a.name.localeCompare(b.name));

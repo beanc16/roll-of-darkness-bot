@@ -141,7 +141,7 @@ export class LookupMoveStrategy
                 const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
                 const manualResults = output.filter((element) =>
                 {
-                    // Only add moves not already in the list
+                    // Only add items not already in the list
                     if (resultNames.has(element.name.toLowerCase()))
                     {
                         return false;
