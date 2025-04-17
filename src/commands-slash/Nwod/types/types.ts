@@ -29,6 +29,8 @@ export enum ChangelingContractType
     Summer = 'Summer',
     Autumn = 'Autumn',
     Winter = 'Winter',
+    VICI = 'VICI',
+    Blackstone = 'Blackstone',
     Common = 'Common',
     Royal = 'Royal',
     Goblin = 'Goblin',
