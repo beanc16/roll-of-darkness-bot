@@ -95,7 +95,6 @@ export class LookupAbilityStrategy
             // Sort manually if there's no searches
             if (input.nameSearch || input.effectSearch)
             {
-                // TODO: Update this to filter manually similar to moves now
                 const results = PtuAbilitiesSearchService.search(output, input);
                 const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
                 const manualResults = output.filter((element) =>
