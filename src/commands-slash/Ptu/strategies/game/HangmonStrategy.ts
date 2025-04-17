@@ -62,6 +62,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
     private static maxNumberOfGuesses = 6;
     private static numOfHints = 5;
     private static guidToState: Record<UUID, HangmonState> = {};
+    private static userIdToWinStreak: Record<string, number> = {};
 
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, rerunOptions?: never): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, rerunOptions: {
@@ -210,16 +211,36 @@ export class HangmonStrategy extends BaseGenerateStrategy
                 embed.setThumbnail(fullPokemonData.metadata.imageUrl);
             }
 
-            // Update description as victory
+            // Update win streak and description as victory
             if (state.victoryState === HangmonVictoryState.Win)
             {
-                embed.markAsVictory();
+                const newUserIdToWinStreak: Record<string, number> = {};
+                players.forEach((player) =>
+                {
+                    this.userIdToWinStreak[player.id] = (this.userIdToWinStreak[player.id] ?? 0) + 1;
+                    newUserIdToWinStreak[player.id] = this.userIdToWinStreak[player.id];
+                });
+
+                embed.addWinStreak(newUserIdToWinStreak, 'set');
             }
 
-            // Update description with correct pokemon's name
+            // Update win streak and description with correct pokemon's name
             if (state.victoryState === HangmonVictoryState.Loss)
             {
+                const previousUserIdToWinStreak: Record<string, number> = {};
                 embed.markAsLoss(state.correct.pokemon.name);
+
+                players.forEach((player) =>
+                {
+                    previousUserIdToWinStreak[player.id] = 0 + (this.userIdToWinStreak[player.id] ?? 0);
+                    this.userIdToWinStreak[player.id] = 0;
+                });
+
+                // Only add win streak if users had won at least once before
+                if (!Object.values(previousUserIdToWinStreak).every((winCount) => winCount === 0))
+                {
+                    embed.addWinStreak(previousUserIdToWinStreak, 'add');
+                }
             }
 
             const interactionResponse = await deferredResponse.edit({

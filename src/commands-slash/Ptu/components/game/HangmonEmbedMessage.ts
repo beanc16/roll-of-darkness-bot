@@ -1,4 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
+import type { Entries } from '@beanc16/utility-types';
 import {
     type APIEmbedField,
     EmbedBuilder,
@@ -88,9 +89,38 @@ export class HangmonEmbedMessage extends EmbedBuilder
         return this.setDescription(description);
     }
 
-    public markAsVictory(): this
+    public addWinStreak(userIdToWinStreak: Record<string, number>, mode: 'add' | 'set'): this
     {
-        return this.setDescription(`🏆 ${this.data.description!} 🏆`);
+        // Group users by their number of wins
+        const winCountToUserIds = (Object.entries(userIdToWinStreak) as Entries<Record<string, number>>).reduce((acc, [userId, winCount]) =>
+        {
+            if (!acc[winCount])
+            {
+                acc[winCount] = [];
+            }
+
+            acc[winCount].push(userId);
+            return acc;
+        }, {} as Record<number, string[]>);
+
+        // Put each win count on a separate line
+        const winStreakStr = Object.entries(winCountToUserIds).reduce((acc, [winCount, userIds]) =>
+        {
+            const lineBreak = (acc === '') ? '' : '\n';
+            const userIdPings = userIds.map(userId => Text.Ping.user(userId)).join(', ');
+            const winSingularOrPlural = (winCount === '1') ? 'Win' : 'Wins';
+            return `${acc}${lineBreak}🏆 ${winCount} ${winSingularOrPlural}: ${userIdPings} 🏆`;
+        }, '');
+
+        // Set the description
+        // eslint-disable-next-line no-nested-ternary -- TODO: Update this later
+        const description = (this.data.description!.includes('Wins'))
+            ? this.data.description!
+            : (mode === 'add')
+                ? `${this.data.description!}\n${winStreakStr}`
+                : winStreakStr;
+
+        return this.setDescription(description);
     }
 
     public displayAttemptsInDescription(): this
