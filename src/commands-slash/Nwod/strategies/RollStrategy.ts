@@ -40,6 +40,7 @@ export class RollStrategy
                 interaction,
                 numberOfDice,
                 commandName: `/nwod ${NwodSubcommand.Roll}`,
+                canTakeDramaticFailure: true,
             });
         }
 

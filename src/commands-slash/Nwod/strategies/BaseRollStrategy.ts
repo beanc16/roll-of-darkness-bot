@@ -3,7 +3,11 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import rollConstants from '../../../constants/roll.js';
 import { DiceService } from '../../../services/DiceService.js';
 import { CommandName, DiscordInteractionCallbackType } from '../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import {
+    type OnRerollCallbackOptions,
+    type RerollButtonRowComponentOptions,
+    RerollStrategy,
+} from '../../strategies/RerollStrategy.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';
 
 export class BaseRollStrategy
@@ -15,12 +19,14 @@ export class BaseRollStrategy
         rerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
         },
+        canTakeDramaticFailure,
+        hasTakenDramaticFailure,
     }: {
         interaction: ChatInputCommandInteraction;
         numberOfDice: number | null;
         commandName: CommandName;
         rerollCallbackOptions?: OnRerollCallbackOptions;
-    }): Promise<boolean>
+    } & RerollButtonRowComponentOptions): Promise<boolean>
     {
         // Get parameter results
         const name = interaction.options.getString('name');
@@ -67,13 +73,17 @@ export class BaseRollStrategy
             interaction,
             options: rollResponseFormatterService.getResponse(),
             rerollCallbackOptions,
-            onRerollCallback: newRerollCallbackOptions => this.run({
+            onRerollCallback: (newRerollCallbackOptions, rerollButtonRowComponentOptions) => this.run({
                 interaction,
                 numberOfDice,
                 commandName,
                 rerollCallbackOptions: newRerollCallbackOptions,
+                canTakeDramaticFailure,
+                hasTakenDramaticFailure: rerollButtonRowComponentOptions.hasTakenDramaticFailure || hasTakenDramaticFailure,
             }),
             commandName,
+            canTakeDramaticFailure,
+            hasTakenDramaticFailure,
         });
 
         return true;

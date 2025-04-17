@@ -16,9 +16,10 @@ import { type CommandName, DiscordInteractionCallbackType } from '../../types/di
 import { PtuRandomPickupSubcommandResponse } from '../Ptu/strategies/random/types.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from './InteractionStrategy.js';
 
-enum RerollButtonName
+export enum RerollButtonName
 {
-    Reroll = 'reroll',
+    Reroll = 'Reroll',
+    TakeDramaticFailure = 'Take a Dramatic Failure',
 }
 
 export type RerollInteractionOptions = string | Omit<
@@ -38,13 +39,22 @@ export interface OnRerollCallbackOptions
     previousResponse?: Message<boolean> | InteractionResponse<boolean>;
 }
 
-type OnRerollCallback = (options: OnRerollCallbackOptions) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
+type OnRerollCallback = (
+    rerollCallbackOptions: OnRerollCallbackOptions,
+    rerollButtonRowComponentOptions: Pick<RerollButtonRowComponentOptions, 'hasTakenDramaticFailure'>,
+) => Promise<void | boolean | PtuRandomPickupSubcommandResponse>;
 
-interface OnRerollButtonPressOptions
+interface OnRerollButtonPressOptions extends RerollButtonRowComponentOptions
 {
     buttonInteraction: ButtonInteraction;
     onRerollCallback: OnRerollCallback;
     previousResponse: Message<boolean> | InteractionResponse<boolean> | undefined;
+}
+
+export interface RerollButtonRowComponentOptions
+{
+    canTakeDramaticFailure?: boolean;
+    hasTakenDramaticFailure?: boolean;
 }
 
 export class RerollStrategy
@@ -59,19 +69,21 @@ export class RerollStrategy
         rerollCallbackOptions: { interactionCallbackType, previousResponse },
         onRerollCallback,
         commandName,
+        canTakeDramaticFailure,
+        hasTakenDramaticFailure,
     }: {
         interaction: ChatInputCommandInteraction | ButtonInteraction;
         options: RerollInteractionOptions;
         rerollCallbackOptions: OnRerollCallbackOptions;
         onRerollCallback: OnRerollCallback;
         commandName: CommandName;
-    }): Promise<void>
+    } & RerollButtonRowComponentOptions): Promise<void>
     {
         // Set up message response
         const rerollOptions = InteractionStrategy.getMessageData(
             options,
             /* istanbul ignore next */
-            () => this.getButtonRowComponent(),
+            () => this.getButtonRowComponent({ canTakeDramaticFailure, hasTakenDramaticFailure }),
         );
         const handlerMap = {
             [DiscordInteractionCallbackType.EditReply]: () => interaction.editReply(rerollOptions as InteractionEditReplyOptions),
@@ -132,8 +144,10 @@ export class RerollStrategy
                 buttonInteraction: receivedInteraction as ButtonInteraction,
                 onRerollCallback,
                 previousResponse: response,
+                canTakeDramaticFailure,
+                hasTakenDramaticFailure,
             }),
-            getActionRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent(),
+            getActionRowComponent: /* istanbul ignore next */ () => this.getButtonRowComponent({ canTakeDramaticFailure, hasTakenDramaticFailure }),
         });
     }
 
@@ -141,39 +155,127 @@ export class RerollStrategy
         buttonInteraction,
         onRerollCallback,
         previousResponse,
+        canTakeDramaticFailure,
+        hasTakenDramaticFailure,
     }: OnRerollButtonPressOptions): Promise<void>
     {
-        await Promise.all([
-            // Run callback
-            await onRerollCallback({
-                interactionCallbackType: DiscordInteractionCallbackType.Followup,
-                newCallingUserId: buttonInteraction.user.id,
-                previousResponse,
-            }),
+        const handlerMap: Record<RerollButtonName, () => Promise<void>> = {
+            [RerollButtonName.Reroll]: async () =>
+            {
+                const {
+                    message: {
+                        content,
+                        mentions: {
+                            users: usersPingedInMessage,
+                        },
+                    },
+                } = buttonInteraction;
+                const userPingedInMessage = usersPingedInMessage.get(buttonInteraction.user.id);
+                /* istanbul ignore next */
+                const numOfTimesUserIsPinged = content.split(`${userPingedInMessage?.id ?? ''}`).length - 1;
 
-            // Update original message with the same content so
-            // the buttons know that the interaction was successful
-            await buttonInteraction.update(
-                InteractionStrategy.getMessageData(
-                    buttonInteraction.message.content,
-                    /* istanbul ignore next */
-                    () => this.getButtonRowComponent(),
-                ),
-            ),
-        ]);
+                await Promise.all([
+                    // Run callback
+                    onRerollCallback({
+                        interactionCallbackType: DiscordInteractionCallbackType.Followup,
+                        newCallingUserId: buttonInteraction.user.id,
+                        previousResponse,
+                    }, { hasTakenDramaticFailure: false }),
+
+                    // Update original message with the same content so
+                    // the buttons know that the interaction was successful
+                    buttonInteraction.update(
+                        InteractionStrategy.getMessageData(
+                            buttonInteraction.message.content,
+                            /* istanbul ignore next */
+                            () => this.getButtonRowComponent({
+                                canTakeDramaticFailure,
+                                hasTakenDramaticFailure: hasTakenDramaticFailure ?? numOfTimesUserIsPinged > 1,
+                            }),
+                        ),
+                    ),
+                ]);
+            },
+            [RerollButtonName.TakeDramaticFailure]: async () =>
+            {
+                const {
+                    message: {
+                        content,
+                        mentions: {
+                            users: usersPingedInMessage,
+                        },
+                    },
+                } = buttonInteraction;
+                const userPingedInMessage = usersPingedInMessage.get(buttonInteraction.user.id);
+                /* istanbul ignore next */
+                const numOfTimesUserIsPinged = content.split(`${userPingedInMessage?.id ?? ''}`).length - 1;
+
+                // Only allow roll commands that the user of this command rolled
+                if (!userPingedInMessage || buttonInteraction.user.id !== userPingedInMessage.id)
+                {
+                    await buttonInteraction.reply({
+                        content: 'You can only take a dramatic failure on your own rolls.',
+                        ephemeral: true,
+                    });
+                    return;
+                }
+                // Only take a dramatic failure once
+                if (numOfTimesUserIsPinged > 1)
+                {
+                    await buttonInteraction.reply({
+                        content: 'You can only take a dramatic failure for a beat once.',
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const contentWithoutStrikethrough = content.replaceAll('~', '');
+                const userPing = `<@${userPingedInMessage.id}>`;
+
+                await buttonInteraction.update(
+                    InteractionStrategy.getMessageData(
+                        [
+                            `~~${contentWithoutStrikethrough}~~`,
+                            '',
+                            `${userPing} took a Dramatic Failure for a beat 😈`,
+                        ].join('\n'),
+                        /* istanbul ignore next */
+                        () => this.getButtonRowComponent({
+                            canTakeDramaticFailure,
+                            hasTakenDramaticFailure: true,
+                        }),
+                    ),
+                );
+                await buttonInteraction.followUp({
+                    content: `${userPing} took a Dramatic Failure for a beat 😈`,
+                });
+            },
+        };
+
+        await handlerMap[buttonInteraction.customId as RerollButtonName]();
     }
 
     /* istanbul ignore next */
-    private static getButtonRowComponent(): ActionRowBuilder<ButtonBuilder>
+    private static getButtonRowComponent({ canTakeDramaticFailure, hasTakenDramaticFailure }: RerollButtonRowComponentOptions = {}): ActionRowBuilder<ButtonBuilder>
     {
         const diceButton = new ButtonBuilder()
             .setCustomId(RerollButtonName.Reroll)
-            .setLabel('Reroll')
+            .setLabel(RerollButtonName.Reroll)
             .setEmoji('🎲')
             .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder<ButtonBuilder>()
-            .addComponents(diceButton);
+        const dramaticFailureButton = new ButtonBuilder()
+            .setCustomId(RerollButtonName.TakeDramaticFailure)
+            .setLabel(RerollButtonName.TakeDramaticFailure)
+            .setEmoji('😈')
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder<ButtonBuilder>({
+            components: [
+                diceButton,
+                ...((canTakeDramaticFailure && hasTakenDramaticFailure !== true) ? [dramaticFailureButton] : []),
+            ],
+        });
 
         return row;
     }

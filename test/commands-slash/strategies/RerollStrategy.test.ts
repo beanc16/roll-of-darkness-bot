@@ -1,7 +1,11 @@
 import type { ButtonInteraction, Message } from 'discord.js';
 
 import { HandleInteractionsOptions, InteractionStrategy } from '../../../src/commands-slash/strategies/InteractionStrategy.js';
-import { RerollInteractionCallbackType, RerollStrategy } from '../../../src/commands-slash/strategies/RerollStrategy.js';
+import {
+    RerollButtonName,
+    type RerollInteractionCallbackType,
+    RerollStrategy,
+} from '../../../src/commands-slash/strategies/RerollStrategy.js';
 import { CommandName, DiscordInteractionCallbackType } from '../../../src/types/discord.js';
 import { getFakeButtonInteraction } from '../../fakes/discord/interactions.js';
 
@@ -193,37 +197,147 @@ describe('class: RerollStrategy', () =>
 
     describe('method: onRerollButtonPress', () =>
     {
+        const userId = '1234';
+        const otherUserId = '5678';
+
         let buttonInteraction: ButtonInteraction;
         let onRerollCallback: jest.Mock;
 
         beforeEach(() =>
         {
-            buttonInteraction = getFakeButtonInteraction();
             onRerollCallback = jest.fn();
         });
 
-        it('should call onRerollCallback', async () =>
+        describe(`RerollButtonName: ${RerollButtonName.Reroll}`, () =>
         {
-            await RerollStrategy['onRerollButtonPress']({
-                buttonInteraction,
-                onRerollCallback,
-                previousResponse: undefined,
+            beforeEach(() =>
+            {
+                buttonInteraction = getFakeButtonInteraction(RerollButtonName.Reroll);
             });
 
-            expect(onRerollCallback).toHaveBeenCalledTimes(1);
+            it('should call onRerollCallback', async () =>
+            {
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(onRerollCallback).toHaveBeenCalledTimes(1);
+                expect(onRerollCallback).toHaveBeenCalledWith(
+                    expect.any(Object),
+                    { hasTakenDramaticFailure: false },
+                );
+            });
+
+            it('should call buttonInteraction.update on success', async () =>
+            {
+                const spyOnButtonInteractionUpdate = jest.spyOn(buttonInteraction, 'update');
+
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(spyOnButtonInteractionUpdate).toHaveBeenCalledTimes(1);
+            });
         });
 
-        it('should call buttonInteraction.update', async () =>
+        describe(`RerollButtonName: ${RerollButtonName.TakeDramaticFailure}`, () =>
         {
-            const spyOnButtonInteractionUpdate = jest.spyOn(buttonInteraction, 'update');
-
-            await RerollStrategy['onRerollButtonPress']({
-                buttonInteraction,
-                onRerollCallback,
-                previousResponse: undefined,
+            beforeEach(() =>
+            {
+                buttonInteraction = getFakeButtonInteraction(
+                    RerollButtonName.TakeDramaticFailure,
+                    undefined,
+                    {
+                        content: `<@${userId}> rolled 5 dice.`,
+                    },
+                    {
+                        id: userId,
+                    },
+                );
             });
 
-            expect(spyOnButtonInteractionUpdate).toHaveBeenCalledTimes(1);
+            it('should not call onRerollCallback', async () =>
+            {
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(onRerollCallback).not.toHaveBeenCalled();
+            });
+
+            it('should call buttonInteraction.update and buttonInteraction.followUp on success', async () =>
+            {
+                const spyOnButtonInteractionFollowUp = jest.spyOn(buttonInteraction, 'followUp');
+                const spyOnButtonInteractionUpdate = jest.spyOn(buttonInteraction, 'update');
+
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(spyOnButtonInteractionFollowUp).toHaveBeenCalledTimes(1);
+                expect(spyOnButtonInteractionUpdate).toHaveBeenCalledTimes(1);
+            });
+
+            it('should reply with error message if user is not pinged in message', async () =>
+            {
+                buttonInteraction = getFakeButtonInteraction(
+                    RerollButtonName.TakeDramaticFailure,
+                    undefined,
+                    {
+                        content: `<@${userId}> rolled 5 dice.`,
+                    },
+                    {
+                        id: userId,
+                    },
+                );
+                buttonInteraction.user.id = otherUserId;
+
+                const spyOnButtonInteractionReply = jest.spyOn(buttonInteraction, 'reply');
+                const spyOnButtonInteractionUpdate = jest.spyOn(buttonInteraction, 'update');
+
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(spyOnButtonInteractionReply).toHaveBeenCalledTimes(1);
+                expect(spyOnButtonInteractionUpdate).not.toHaveBeenCalled();
+            });
+
+            it('should reply with error message if user is pinged more than once in message', async () =>
+            {
+                buttonInteraction = getFakeButtonInteraction(
+                    RerollButtonName.TakeDramaticFailure,
+                    undefined,
+                    {
+                        content: `<@${userId}> rolled 5 dice. <@${userId}> did that!`,
+                    },
+                    {
+                        id: userId,
+                    },
+                );
+
+                const spyOnButtonInteractionReply = jest.spyOn(buttonInteraction, 'reply');
+                const spyOnButtonInteractionUpdate = jest.spyOn(buttonInteraction, 'update');
+
+                await RerollStrategy['onRerollButtonPress']({
+                    buttonInteraction,
+                    onRerollCallback,
+                    previousResponse: undefined,
+                });
+
+                expect(spyOnButtonInteractionReply).toHaveBeenCalledTimes(1);
+                expect(spyOnButtonInteractionUpdate).not.toHaveBeenCalled();
+            });
         });
     });
 });

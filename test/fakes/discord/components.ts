@@ -5,12 +5,40 @@ import {
     Message,
     User,
 } from 'discord.js';
+import { RawUserData } from 'discord.js/typings/rawDataTypes.js';
 
-export const getFakeMessage = <T extends boolean = boolean>(content: string = 'fake-content'): Message<T> =>
+export class FakeUser extends User
 {
+    constructor(data: Partial<RawUserData> = {})
+    {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
+        super({} as any, { ...data } as any);
+
+        Object.entries(data).forEach(([key, value]) =>
+        {
+            if (value !== undefined)
+            {
+                // @ts-expect-error -- Allow for testing purposes
+                this[key] = value;
+            }
+        });
+    }
+}
+
+export const getFakeMessage = <T extends boolean = boolean>(
+    content: string = 'fake-content',
+    userData: Partial<RawUserData> = {},
+): Message<T> =>
+{
+    const user = new FakeUser(userData);
     const output: Message<T> = {
         content,
         author: { bot: false },
+        mentions: {
+            users: {
+                get: jest.fn().mockImplementation((_id: string) => user),
+            },
+        },
         awaitMessageComponent: jest.fn(),
         delete: jest.fn(),
         edit: jest.fn(),
@@ -30,12 +58,3 @@ export const getFakeChannel = (): Channel =>
 
     return output;
 };
-
-export class FakeUser extends User
-{
-    constructor()
-    {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
-        super({} as any, {} as any);
-    }
-}

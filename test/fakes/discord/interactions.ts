@@ -18,15 +18,21 @@ export const getFakeButtonInteraction = (
     options: Pick<ButtonInteraction, 'replied'> = {
         replied: false,
     },
+    messageOptions: {
+        content?: string;
+    } = {},
+    userOptions: {
+        id?: string;
+    } = {},
 ): ButtonInteraction =>
 {
     const output: ButtonInteraction = {
         customId,
         ...options,
         componentType: ComponentType.Button,
-        message: getFakeMessage(),
+        message: getFakeMessage(messageOptions?.content, userOptions),
         channel: getFakeChannel(),
-        user: new FakeUser(),
+        user: new FakeUser(userOptions),
         deferReply: jest.fn(),
         deferUpdate: jest.fn(),
         deleteReply: jest.fn(),
