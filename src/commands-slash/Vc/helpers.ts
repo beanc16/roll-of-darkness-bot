@@ -245,6 +245,50 @@ export const isValidAudioUrl = async (fileUrl: string): Promise<boolean> =>
     return output;
 };
 
+export const isValidFileName = async ({ discordUserId, fileName }: { discordUserId: string; fileName: string }): Promise<boolean> =>
+{
+    return await new Promise<boolean>(async (resolve, reject) =>
+    {
+        try
+        {
+            // Otherwise, create audio resource from a fresh url if it exists
+            const {
+                data: {
+                    url: fileUrl,
+                },
+            } = await FileStorageMicroservice.v1.get({
+                appId: process.env.APP_ID as string,
+                fileName,
+                nestedFolders: getVcCommandNestedFolderName(discordUserId),
+            });
+
+            resolve(!!fileUrl);
+        }
+
+        catch (error)
+        {
+            const {
+                response: {
+                    data: { statusCode, message },
+                },
+            } = error as {
+                response: {
+                    data: FileStorageMicroserviceBaseResponseV1;
+                };
+            };
+
+            if (statusCode === 500 && message.toLowerCase().includes('failed to retrieve file'))
+            {
+                resolve(false);
+            }
+            else
+            {
+                reject(error);
+            }
+        }
+    });
+};
+
 const channelIdToQueueCache: Record<string, Queue<VcQueueData>> = {};
 
 export const getQueue = (channelId: string): Queue<VcQueueData> =>

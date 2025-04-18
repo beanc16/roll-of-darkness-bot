@@ -9,7 +9,7 @@ import {
 export enum VcQueueSubcommand
 {
     // TODO: Add these subcommands later
-    // View = 'view',
+    View = 'view',
     Add = 'add',
     // Remove = 'remove',
     // Clear = 'clear',
@@ -26,5 +26,12 @@ export const add = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
     subcommand.addBooleanOption(shouldLoop);
     subcommand.addStringOption(queuePosition);
 
+    return subcommand;
+};
+
+export const view = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcQueueSubcommand.View);
+    subcommand.setDescription(`View files in the queue.`);
     return subcommand;
 };

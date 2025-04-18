@@ -26,20 +26,6 @@ export enum VcSubcommand
     ViewFiles = 'view_files',
 }
 
-export const queue = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
-{
-    subcommandGroup.setName(VcSubcommandGroup.Queue);
-    subcommandGroup.setDescription('Run VC queue commands.');
-    Object.values(queueSubcommands).forEach((subcommand) =>
-    {
-        if (typeof subcommand === 'function')
-        {
-            subcommandGroup.addSubcommand(subcommand);
-        }
-    });
-    return subcommandGroup;
-};
-
 export const connect = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(VcSubcommand.Connect);
@@ -93,6 +79,20 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.addBooleanOption(shouldLoop);
 
     return subcommand;
+};
+
+export const queue = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(VcSubcommandGroup.Queue);
+    subcommandGroup.setDescription('Run VC queue commands.');
+    Object.values(queueSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
 };
 
 export const renameFile = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
