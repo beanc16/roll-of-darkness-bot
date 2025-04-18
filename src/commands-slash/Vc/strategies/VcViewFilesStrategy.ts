@@ -46,6 +46,11 @@ export class VcViewFilesStrategy
     {
         const files = await this.getUserFiles(interaction);
 
+        if (files.length === 0)
+        {
+            return 'You have no uploaded files.';
+        }
+
         const fileNamesList = files.reduce<string>((acc, { fileName }, index) =>
         {
             const lineBreak = (index !== 0) ? '\n' : '';
