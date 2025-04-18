@@ -1,12 +1,23 @@
-import type { SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js';
+import type { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
+
+import * as queueSubcommands from './queue.js';
+import { fileNameParameter, shouldLoop } from './vcParameters.js';
+
+export enum VcSubcommandGroup
+{
+    Queue = 'queue',
+}
 
 export enum VcSubcommand
 {
+    // TODO: Add the commented out subcommands later
     Connect = 'connect',
     DeleteFile = 'delete_file',
     Disconnect = 'disconnect',
     Load = 'load',
+    Next = 'next',
     Pause = 'pause',
+    Previous = 'previous',
     Play = 'play',
     RenameFile = 'rename_file',
     Stop = 'stop',
@@ -15,12 +26,18 @@ export enum VcSubcommand
     ViewFiles = 'view_files',
 }
 
-const fileNameParameter = (option: SlashCommandStringOption): SlashCommandStringOption =>
+export const queue = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
-    option.setName('file_name');
-    option.setDescription('The name of the file.');
-    option.setRequired(true);
-    return option;
+    subcommandGroup.setName(VcSubcommandGroup.Queue);
+    subcommandGroup.setDescription('Run VC queue commands.');
+    Object.values(queueSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
 };
 
 export const connect = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -73,11 +90,7 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setDescription('Play audio in your voice channel.');
 
     subcommand.addStringOption(fileNameParameter);
-    subcommand.addBooleanOption((option) =>
-    {
-        option.setName('should_loop');
-        return option.setDescription('Should loop the audio (default: False).');
-    });
+    subcommand.addBooleanOption(shouldLoop);
 
     return subcommand;
 };

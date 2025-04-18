@@ -2,7 +2,7 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import * as vcOptions from './Vc/options/index.js';
-import { VcSubcommand } from './Vc/options/index.js';
+import { VcSubcommand, VcSubcommandGroup } from './Vc/options/index.js';
 import { VcStrategyExecutor } from './Vc/strategies/index.js';
 
 class Vc extends BaseSlashCommand
@@ -11,7 +11,15 @@ class Vc extends BaseSlashCommand
     {
         super();
 
-        Object.values(vcOptions).forEach((option) =>
+        const {
+            queue,
+            ...remainingVcOptions
+        } = vcOptions;
+
+        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
+        this._slashCommandData.addSubcommandGroup(queue);
+
+        Object.values(remainingVcOptions).forEach((option) =>
         {
             if (typeof option === 'function')
             {
@@ -25,6 +33,7 @@ class Vc extends BaseSlashCommand
     public async run(interaction: ChatInputCommandInteraction): Promise<void>
     {
         // Get parameter results
+        const subcommandGroup = interaction.options.getSubcommandGroup() as VcSubcommandGroup;
         const subcommand = interaction.options.getSubcommand() as VcSubcommand;
 
         // Send message to show the command was received
@@ -45,6 +54,7 @@ class Vc extends BaseSlashCommand
         // Run subcommand
         const response = await VcStrategyExecutor.run({
             interaction,
+            subcommandGroup,
             subcommand,
         });
 

@@ -18,8 +18,9 @@ import {
 } from 'discord.js';
 
 import { CompositeKeyRecord } from '../../services/CompositeKeyRecord.js';
+import { Queue } from '../../services/Queue.js';
 import { LoopableAudioStream } from './services/LoopableAudioStream.js';
-import type { AudioPlayerEmitter } from './types.js';
+import type { AudioPlayerEmitter, VcQueueData } from './types.js';
 
 /* istanbul ignore next */
 export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;
@@ -242,4 +243,16 @@ export const isValidAudioUrl = async (fileUrl: string): Promise<boolean> =>
     });
 
     return output;
+};
+
+const channelIdToQueueCache: Record<string, Queue<VcQueueData>> = {};
+
+export const getQueue = (channelId: string): Queue<VcQueueData> =>
+{
+    if (!channelIdToQueueCache[channelId])
+    {
+        channelIdToQueueCache[channelId] = new Queue<VcQueueData>({ shouldLoop: false });
+    }
+
+    return channelIdToQueueCache[channelId];
 };

@@ -11,3 +11,9 @@ import { AudioPlayer } from '@discordjs/voice';
  * in the type.
  */
 export type AudioPlayerEmitter = AudioPlayer & EventEmitter;
+
+export interface VcQueueData
+{
+    fileName: string;
+    shouldLoop: boolean;
+}
