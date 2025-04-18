@@ -3,9 +3,14 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { QueuePosition } from '../../../../services/Queue.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
-import { getQueue, getVoiceConnectionData } from '../../helpers.js';
+import {
+    getQueue,
+    getVoiceConnectionData,
+    isValidFileName,
+} from '../../helpers.js';
 import { VcQueueSubcommand } from '../../options/queue.js';
 import { VcQueueData } from '../../types.js';
+import { VcViewFilesStrategy } from '../VcViewFilesStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class QueueAddStrategy
@@ -14,7 +19,6 @@ export class QueueAddStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        // Get parameter results
         const fileName = interaction.options.getString('file_name', true);
         const shouldLoop = interaction.options.getBoolean('should_loop') || false;
         const queuePosition = interaction.options.getString('queue_position') as QueuePosition || QueuePosition.Last;
@@ -29,19 +33,51 @@ export class QueueAddStrategy
             return true;
         }
 
-        this.addToQueue(voiceChannel.id, { fileName, shouldLoop }, queuePosition);
-
-        // Send message
-        await interaction.editReply({
-            content: `Successfully added \`${fileName}\` to the queue.`,
+        const { wasSuccess } = await this.addToQueue({
+            channelId: voiceChannel.id,
+            discordUserId: interaction.user.id,
+            fileName,
+            position: queuePosition,
+            shouldLoop,
         });
+
+        if (wasSuccess)
+        {
+            await interaction.editReply({
+                content: `Successfully added \`${fileName}\` to the queue.`,
+            });
+        }
+        else
+        {
+            const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
+            await interaction.followUp({
+                content: `A file named \`${fileName}\` does not exist. ${fileNamesList}`,
+                ephemeral: true,
+            });
+        }
 
         return true;
     }
 
-    private static addToQueue(channelId: string, data: VcQueueData, position: QueuePosition): void
+    private static async addToQueue({
+        channelId,
+        discordUserId,
+        fileName,
+        position,
+        shouldLoop,
+    }: {
+        channelId: string;
+        discordUserId: string;
+        position: QueuePosition;
+    } & VcQueueData): Promise<{ wasSuccess: boolean }>
     {
+        if (!(await isValidFileName({ discordUserId, fileName })))
+        {
+            return { wasSuccess: false };
+        }
+
         const queue = getQueue(channelId);
-        queue.enqueue(data, position);
+        queue.enqueue({ fileName, shouldLoop }, position);
+        return { wasSuccess: true };
     }
 }
