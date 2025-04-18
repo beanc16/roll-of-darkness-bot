@@ -147,7 +147,10 @@ export const getAudioResourceReadable = async ({
                 };
             };
 
-            if (statusCode === 500 && message.toLowerCase().includes('failed to retrieve file'))
+            if (
+                (statusCode === 500 && message.toLowerCase().includes('failed to retrieve file'))
+                || (statusCode === 404 && message.toLowerCase().includes('file does not exist'))
+            )
             {
                 resolve(undefined);
             }
