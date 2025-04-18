@@ -1,4 +1,4 @@
-import { Queue } from '../../src/services/Queue.js';
+import { Queue, QueuePosition } from '../../src/services/Queue.js';
 
 describe('Queue', () =>
 {
@@ -11,17 +11,17 @@ describe('Queue', () =>
 
     it('enqueue to LAST adds item at the end', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         expect(queue.elements).toEqual(['a', 'b']);
     });
 
     it('enqueue to NEXT adds after current index', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
-        queue.enqueue('c', 'NEXT');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
+        queue.enqueue('c', QueuePosition.Next);
 
         expect(queue.elements).toEqual(['a', 'c', 'b']);
     });
@@ -36,9 +36,9 @@ describe('Queue', () =>
 
     it('dequeue removes current item and shifts index if needed', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
-        queue.enqueue('c', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
+        queue.enqueue('c', QueuePosition.Last);
 
         const removed = queue.dequeue();
         expect(removed).toEqual('a');
@@ -48,9 +48,9 @@ describe('Queue', () =>
 
     it('dequeue removes current item and shifts index if it would be out of bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
-        queue.enqueue('c', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
+        queue.enqueue('c', QueuePosition.Last);
         queue['currentIndex'] = 2;
 
         const removed = queue.dequeue();
@@ -67,8 +67,8 @@ describe('Queue', () =>
 
     it('update by index modifies the correct item', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const result = queue.update(1, 'newB');
         expect(result).toEqual(true);
@@ -77,8 +77,8 @@ describe('Queue', () =>
 
     it('update by predicate modifies the correct item', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const result = queue.update((item) => item === 'b', 'newB');
         expect(result).toEqual(true);
@@ -87,8 +87,8 @@ describe('Queue', () =>
 
     it('update by index modifies nothing if index is out of bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const result = queue.update(2, 'newC');
         expect(result).toEqual(false);
@@ -97,8 +97,8 @@ describe('Queue', () =>
 
     it('update by predicate modifies nothing if element is not found', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const result = queue.update((item) => item === 'c', 'newC');
         expect(result).toEqual(false);
@@ -107,8 +107,8 @@ describe('Queue', () =>
 
     it('remove by index removes the correct item', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const removed = queue.remove(0);
         expect(removed).toEqual('a');
@@ -117,8 +117,8 @@ describe('Queue', () =>
 
     it('remove by predicate removes correct item', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const removed = queue.remove((item) => item === 'b');
         expect(removed).toEqual('b');
@@ -127,8 +127,8 @@ describe('Queue', () =>
 
     it('remove by index removes the correct item and shifts index if it would be out of bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
         queue['currentIndex'] = 1;
 
         const removed = queue.remove(1);
@@ -139,8 +139,8 @@ describe('Queue', () =>
 
     it('remove by index removes nothing if index is out of bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const removed = queue.remove(2);
         expect(removed).toBeUndefined();
@@ -149,8 +149,8 @@ describe('Queue', () =>
 
     it('remove by predicate removes nothing if index is out of bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         const removed = queue.remove((item) => item === 'c');
         expect(removed).toBeUndefined();
@@ -159,9 +159,9 @@ describe('Queue', () =>
 
     it('next moves forward and respects bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
-        queue.enqueue('c', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
+        queue.enqueue('c', QueuePosition.Last);
 
         expect(queue.current).toEqual('a');
         expect(queue.next()).toEqual('b');
@@ -171,8 +171,8 @@ describe('Queue', () =>
 
     it('previous moves backward and respects bounds', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
         queue.next(); // move to b
 
         expect(queue.previous()).toEqual('a');
@@ -182,8 +182,8 @@ describe('Queue', () =>
     it('next and previous loop correctly when shouldLoop is true', () =>
     {
         queue = new Queue({ shouldLoop: true });
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
 
         // Loop forward
         expect(queue.current).toEqual('a');
@@ -196,8 +196,8 @@ describe('Queue', () =>
 
     it('clear empties the queue and resets index', () =>
     {
-        queue.enqueue('a', 'LAST');
-        queue.enqueue('b', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
+        queue.enqueue('b', QueuePosition.Last);
         expect(queue.elements).toEqual(['a', 'b']);
 
         queue.clear();
@@ -215,7 +215,7 @@ describe('Queue', () =>
     it('length reflects current queue size', () =>
     {
         expect(queue.length).toEqual(0);
-        queue.enqueue('a', 'LAST');
+        queue.enqueue('a', QueuePosition.Last);
         expect(queue.length).toEqual(1);
     });
 });

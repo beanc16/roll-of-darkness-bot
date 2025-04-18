@@ -3,6 +3,12 @@ interface QueueSettings
     shouldLoop: boolean;
 }
 
+export enum QueuePosition
+{
+    Next = 'NEXT',
+    Last = 'LAST',
+}
+
 export class Queue<Element>
 {
     private queue: Element[] = [];
@@ -24,9 +30,9 @@ export class Queue<Element>
         return [...this.queue];
     }
 
-    public enqueue(item: Element, position: 'NEXT' | 'LAST'): void
+    public enqueue(item: Element, position: QueuePosition): void
     {
-        if (position === 'NEXT')
+        if (position === QueuePosition.Next)
         {
             this.queue.splice(this.currentIndex + 1, 0, item);
         }
