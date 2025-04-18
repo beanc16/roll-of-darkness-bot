@@ -5,8 +5,8 @@ interface QueueSettings
 
 export enum QueuePosition
 {
-    Next = 'NEXT',
-    Last = 'LAST',
+    Next = 'Next',
+    Last = 'Last',
 }
 
 export class Queue<Element>
