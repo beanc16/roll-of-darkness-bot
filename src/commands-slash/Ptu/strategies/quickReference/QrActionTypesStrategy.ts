@@ -51,6 +51,9 @@ export class QrActionTypesStrategy
             '',
             `${Text.bold('Interrupt Actions')}:`,
             `Interrupt Moves may be declared in the middle of another combatant's turn to allow the user to take an action. They work similarly to Priority (Advanced, Limited) effects in that they only allow you to take the action that has Interrupt and not a full turn.`,
+            '',
+            `${Text.bold('Reaction Actions')}:`,
+            `Reactions work exactly like Interrupts, except that they happen after the triggering condition is fully resolved, instead of before. Thus, the user must survive the triggering condition to be able to perform the reaction.`,
         ];
 
         // Parse the text into embed messages
