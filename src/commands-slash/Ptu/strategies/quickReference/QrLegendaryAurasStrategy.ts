@@ -22,6 +22,7 @@ export class QrLegendaryAurasStrategy
             '- Arceus has access to every Legendary Aura except for Glitch, Rivalry, and Symbiotic.',
             '',
             `${Text.bold('Active Effects')}`,
+            `- Any number of Auras can be actived as a Free Action on a Legendary Pokemon's turn.`,
             '- While a Legendary Pokemon has an Aura active, they may treat the Type Effectiveness of a single Super Effective attack as a Neutral Resistance once per round for each Aura activated as a Free Action Interrupt (so, if they have 3 Auras active, this can be done thrice per round).',
             '- If an Aura is disabled by any means and a Legendary Pokemon possesses more than just the currently active Auras, they may activate a remaining one as a Free Action.',
             '- A Legendary Pokemon may extend their Aura to an ally as a Swift Action, empowering them. This may be a permanent or temporary blessing.',
