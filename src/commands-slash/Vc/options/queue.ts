@@ -11,7 +11,7 @@ export enum VcQueueSubcommand
     // TODO: Add these subcommands later
     View = 'view',
     Add = 'add',
-    // Remove = 'remove',
+    Remove = 'remove',
     // Clear = 'clear',
     // Loop = 'loop',
     // LoopTrack = 'loop_track',
@@ -25,6 +25,16 @@ export const add = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
     subcommand.addStringOption(fileNameParameter);
     subcommand.addBooleanOption(shouldLoop);
     subcommand.addStringOption(queuePosition);
+
+    return subcommand;
+};
+
+export const remove = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcQueueSubcommand.Remove);
+    subcommand.setDescription('Remove an audio file from the queue.');
+
+    subcommand.addStringOption(fileNameParameter);
 
     return subcommand;
 };

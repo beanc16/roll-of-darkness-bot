@@ -39,7 +39,7 @@ export class QueueViewStrategy
         return queue.elements;
     }
 
-    private static getQueueDataMessage(channelId: string): string
+    public static getQueueDataMessage(channelId: string): string
     {
         const queueData = this.getQueueData(channelId);
 
