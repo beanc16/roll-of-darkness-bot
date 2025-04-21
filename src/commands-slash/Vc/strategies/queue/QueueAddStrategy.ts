@@ -11,6 +11,7 @@ import {
 import { VcQueueSubcommand } from '../../options/queue.js';
 import { VcQueueData } from '../../types.js';
 import { VcViewFilesStrategy } from '../VcViewFilesStrategy.js';
+import { QueueViewStrategy } from './QueueViewStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class QueueAddStrategy
@@ -43,8 +44,9 @@ export class QueueAddStrategy
 
         if (wasSuccess)
         {
+            const queueFilesList = QueueViewStrategy.getQueueDataMessage(voiceChannel.id);
             await interaction.editReply({
-                content: `Successfully added \`${fileName}\` to the queue.`,
+                content: `Successfully added \`${fileName}\` to the queue. ${queueFilesList}`,
             });
         }
         else
