@@ -62,6 +62,24 @@ export class Queue<Element>
         return removedElement;
     }
 
+    public find(predicate: (item: Element, index: number) => boolean): {
+        element: Element;
+        index: number;
+    } | undefined
+    {
+        const index = this.queue.findIndex(predicate);
+
+        if (index === -1)
+        {
+            return undefined;
+        }
+
+        return {
+            element: this.queue[index],
+            index,
+        };
+    }
+
     public update(index: number, newItem: Element): boolean;
     public update(predicate: (item: Element, index: number) => boolean, newItem: Element): boolean;
     public update(indexOrPredicate: number | ((item: Element, index: number) => boolean), newItem: Element): boolean
