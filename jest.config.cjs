@@ -125,6 +125,12 @@ module.exports = {
             functions: 100,
             lines: 100,
         },
+        './src/services/Queue': {
+            statements: 100,
+            branches: 100,
+            functions: 100,
+            lines: 100,
+        },
     },
     moduleFileExtensions: ['js', 'ts'],
     extensionsToTreatAsEsm: ['.ts'],
