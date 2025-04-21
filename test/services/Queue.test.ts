@@ -118,6 +118,45 @@ describe('Queue', () =>
             expect(queue.elements).toEqual(['a', 'newB']);
         });
 
+        it.each([
+            [0, QueuePosition.Last, ['b', 'c', 'a']],
+            [2, QueuePosition.Next, ['a', 'c', 'b']],
+        ])(`update by index modifies the item at index %s to the "%s" position in the queue`, (index, queuePosition, expectedResult) =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+
+            const result = queue.update(index, queue['elements'][index], queuePosition);
+            expect(result).toEqual(true);
+            expect(queue.elements).toEqual(expectedResult);
+        });
+
+        it.each([
+            ['a', QueuePosition.Last, ['b', 'c', 'a']],
+            ['c', QueuePosition.Next, ['a', 'c', 'b']],
+        ])(`update by predicate modifies the item equal to "%s" to the "%s" position in the queue`, (element, queuePosition, expectedResult) =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+
+            const result = queue.update((item) => item === element, element, queuePosition);
+            expect(result).toEqual(true);
+            expect(queue.elements).toEqual(expectedResult);
+        });
+
+        it(`update by predicate modifies the correct item's position in the queue`, () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+
+            const result = queue.update((item) => item === 'a', queue['elements'][0], QueuePosition.Last);
+            expect(result).toEqual(true);
+            expect(queue.elements).toEqual(['b', 'c', 'a']);
+        });
+
         it('update by index modifies nothing if index is out of bounds', () =>
         {
             queue.enqueue('a', QueuePosition.Last);

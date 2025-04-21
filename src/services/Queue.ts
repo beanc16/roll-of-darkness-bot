@@ -80,19 +80,19 @@ export class Queue<Element>
         };
     }
 
-    public update(index: number, newItem: Element): boolean;
-    public update(predicate: (item: Element, index: number) => boolean, newItem: Element): boolean;
-    public update(indexOrPredicate: number | ((item: Element, index: number) => boolean), newItem: Element): boolean
+    public update(index: number, newItem: Partial<Element>, position?: QueuePosition | null): boolean;
+    public update(predicate: (item: Element, index: number) => boolean, newItem: Element, position?: QueuePosition | null): boolean;
+    public update(indexOrPredicate: number | ((item: Element, index: number) => boolean), newItem: Element, position?: QueuePosition | null): boolean
     {
         if (typeof indexOrPredicate === 'number')
         {
-            return this.updateAtIndex(indexOrPredicate, newItem);
+            return this.updateAtIndex(indexOrPredicate, newItem, position);
         }
 
-        return this.updateByPredicate(indexOrPredicate, newItem);
+        return this.updateByPredicate(indexOrPredicate, newItem, position);
     }
 
-    private updateAtIndex(index: number, newItem: Element): boolean
+    private updateAtIndex(index: number, newItem: Element, position?: QueuePosition | null): boolean
     {
         // Check if index is valid
         if (index < 0 || index >= this.queue.length)
@@ -100,20 +100,49 @@ export class Queue<Element>
             return false;
         }
 
+        // Update the element
         this.queue[index] = newItem;
+
+        // Update the position if one is given
+        if (position === QueuePosition.Next)
+        {
+            this.enqueue(this.queue[index], QueuePosition.Next);
+            this.remove(index + 1);
+        }
+        else if (position === QueuePosition.Last)
+        {
+            this.enqueue(this.queue[index], QueuePosition.Last);
+            this.remove(index);
+        }
+
         return true;
     }
 
-    private updateByPredicate(predicate: (item: Element, index: number) => boolean, newItem: Element): boolean
+    private updateByPredicate(predicate: (item: Element, index: number) => boolean, newItem: Element, position?: QueuePosition | null): boolean
     {
         const index = this.queue.findIndex(predicate);
 
+        // Check if index is valid
         if (index === -1)
         {
             return false;
         }
 
+        // Update the element
         this.queue[index] = newItem;
+
+        // Update the position if one is given
+        if (position === QueuePosition.Next)
+        {
+            this.enqueue(this.queue[index], QueuePosition.Next);
+            this.remove(index + 1);
+        }
+        else if (position === QueuePosition.Last)
+        {
+            this.enqueue(this.queue[index], QueuePosition.Last);
+            this.remove(index);
+        }
+
         return true;
     }
 
