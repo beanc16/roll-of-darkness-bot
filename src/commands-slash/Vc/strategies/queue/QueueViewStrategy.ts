@@ -41,6 +41,7 @@ export class QueueViewStrategy
 
     public static getQueueDataMessage(channelId: string): string
     {
+        const queue = getQueue(channelId);
         const queueData = this.getQueueData(channelId);
 
         if (queueData.length === 0)
@@ -55,6 +56,8 @@ export class QueueViewStrategy
             return `${acc}${lineBreak}- ${fileName} (${loopingText})`;
         }, '');
 
-        return `Queue:\n${Text.Code.multiLine(trackNamesList)}`;
+        const queueLoopingText = (queue.settings.shouldLoop) ? 'Looping' : 'Not Looping';
+
+        return `Queue (${queueLoopingText}):\n${Text.Code.multiLine(trackNamesList)}`;
     }
 }
