@@ -442,6 +442,18 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: referenceInfo,
             });
         }
+        else if (subcommandGroup.includes(PtuSubcommandGroup.Lookup))
+        {
+            for (let index = 1; index <= 2; index += 1)
+            {
+                Strategy = super.getStrategy({
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                    strategies: this.strategies as any,
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand,
+                });
+            }
+        }
         else
         {
             Strategy = super.getStrategy({
