@@ -8,12 +8,11 @@ import {
 
 export enum VcQueueSubcommand
 {
-    // TODO: Add these subcommands later
     Add = 'add',
     Clear = 'clear',
-    // Loop = 'loop',
     Remove = 'remove',
     Update = 'update',
+    UpdateSettings = 'update_settings',
     View = 'view',
 }
 
@@ -33,6 +32,20 @@ export const clear = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
 {
     subcommand.setName(VcQueueSubcommand.Clear);
     subcommand.setDescription('Clear all audio files from the queue.');
+
+    return subcommand;
+};
+
+export const updateSettings = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcQueueSubcommand.UpdateSettings);
+    subcommand.setDescription(`Set whether the queue should loop back to the first track when the last track finishes playing.`);
+
+    subcommand.addBooleanOption((option) =>
+    {
+        const newOption = shouldLoop(option);
+        return newOption.setRequired(true);
+    });
 
     return subcommand;
 };
