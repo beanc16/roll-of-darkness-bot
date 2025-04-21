@@ -4,6 +4,7 @@ import {
     SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
+import { chunkArray } from '../../../services/chunkArray.js';
 import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
 import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
@@ -39,6 +40,7 @@ export enum PtuQuickReferenceInfo
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
     HowToKillLegendaryPokemon = 'how_to_kill_legendary_pokemon',
+    LegendaryAuras = 'legendary_auras',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
     SwitchingPokemon = 'switching_pokemon',
@@ -143,11 +145,18 @@ export const generateDev = (subcommandGroup: SlashCommandSubcommandGroupBuilder)
     return subcommandGroup;
 };
 
-export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+// Subcommand groups can have a max of 25 subcommands, so we need to create multiple subcommand groups.
+const chunkedLookupSubcommands = chunkArray({
+    array: Object.values(lookupSubcommands),
+    shouldMoveToNextChunk: (_item, _index, chunk) => chunk.length >= 25,
+});
+
+export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder, index: number): SlashCommandSubcommandGroupBuilder =>
 {
-    subcommandGroup.setName(PtuSubcommandGroup.Lookup);
+    subcommandGroup.setName(`${PtuSubcommandGroup.Lookup}${index + 1}`);
     subcommandGroup.setDescription('Run PTU lookup commands.');
-    Object.values(lookupSubcommands).forEach((subcommand) =>
+
+    chunkedLookupSubcommands[index].forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {

@@ -33,7 +33,8 @@ class Ptu_Ref extends BaseSlashCommand
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommandGroup(lookup)
+            .addSubcommandGroup((subcommandGroup) => lookup(subcommandGroup, 0))
+            .addSubcommandGroup((subcommandGroup) => lookup(subcommandGroup, 1))
             .addSubcommand(quickReference);
     }
 

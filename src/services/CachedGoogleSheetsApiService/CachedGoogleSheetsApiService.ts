@@ -228,6 +228,19 @@ export class CachedGoogleSheetsApiService
                     error,
                 } = await GoogleSheetsMicroservice.v1.getRanges(authToken, parameters);
 
+                const spreadsheetIdToRanges = parameters.ranges?.reduce<Record<string, string[]>>((acc, { range, spreadsheetId }) =>
+                {
+                    if (spreadsheetId && !acc[spreadsheetId])
+                    {
+                        acc[spreadsheetId] = [];
+                    }
+                    if (spreadsheetId && range)
+                    {
+                        acc[spreadsheetId].push(range);
+                    }
+                    return acc;
+                }, {}) ?? {};
+
                 if (statusCode === 200)
                 {
                     // Save to cache by spreadsheet / spreadsheetId
@@ -235,9 +248,11 @@ export class CachedGoogleSheetsApiService
                     {
                         data.forEach(({ spreadsheetId, valueRanges }) =>
                         {
-                            valueRanges.forEach(({ range, values }) =>
+                            valueRanges.forEach(({ values }, index) =>
                             {
-                                this.cache.Upsert([spreadsheetId, range], values);
+                                // Use input range, as it will differ from the range the response returns
+                                const rangeKey = spreadsheetIdToRanges[spreadsheetId]?.[index];
+                                this.cache.Upsert([spreadsheetId, rangeKey], values);
                             });
                         });
                     }
