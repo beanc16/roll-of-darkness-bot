@@ -9,12 +9,12 @@ import {
 export enum VcQueueSubcommand
 {
     // TODO: Add these subcommands later
-    View = 'view',
     Add = 'add',
-    Remove = 'remove',
-    // Clear = 'clear',
+    Clear = 'clear',
     // Loop = 'loop',
     // LoopTrack = 'loop_track',
+    Remove = 'remove',
+    View = 'view',
 }
 
 export const add = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -25,6 +25,14 @@ export const add = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
     subcommand.addStringOption(fileNameParameter);
     subcommand.addBooleanOption(shouldLoop);
     subcommand.addStringOption(queuePosition);
+
+    return subcommand;
+};
+
+export const clear = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcQueueSubcommand.Clear);
+    subcommand.setDescription('Clear all audio files from the queue.');
 
     return subcommand;
 };
