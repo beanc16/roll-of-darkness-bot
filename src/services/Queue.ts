@@ -30,6 +30,13 @@ export class Queue<Element>
         return [...this.queue];
     }
 
+    get settings(): { shouldLoop: boolean }
+    {
+        return {
+            shouldLoop: this.shouldLoop,
+        };
+    }
+
     public enqueue(item: Element, position: QueuePosition): void
     {
         if (position === QueuePosition.Next)

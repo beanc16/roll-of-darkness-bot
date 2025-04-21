@@ -19,6 +19,16 @@ describe('Queue', () =>
         });
     });
 
+    describe('property: settings', () =>
+    {
+        it(`settings reflect the queue's settings`, () =>
+        {
+            expect(queue.settings).toEqual({ shouldLoop: false });
+            queue['shouldLoop'] = true;
+            expect(queue.settings).toEqual({ shouldLoop: true });
+        });
+    });
+
     describe('method: enqueue', () =>
     {
         it('enqueue to LAST adds item at the end', () =>
