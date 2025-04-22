@@ -136,6 +136,11 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Haunt,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.KithName]: () => NwodStrategyExecutor.getLookupData<GeistHaunt>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Kith,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
             [NwodAutocompleteParameterName.MementoName]: () => NwodStrategyExecutor.getLookupData<NwodMerit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Memento,
