@@ -2,6 +2,7 @@ import { LookupConditionStrategy } from './LookupConditionStrategy.js';
 import { LookupContractStrategy } from './LookupContractStrategy.js';
 import { LookupGoblinFruitStrategy } from './LookupGoblinFruitStrategy.js';
 import { LookupHauntStrategy } from './LookupHauntStrategy.js';
+import { LookupKithStrategy } from './LookupKithStrategy.js';
 import { LookupMementoStrategy } from './LookupMementoStrategy.js';
 import { LookupMeritStrategy } from './LookupMeritStrategy.js';
 import { LookupNeedleStrategy } from './LookupNeedleStrategy.js';
@@ -16,6 +17,7 @@ export default {
     [LookupContractStrategy.key]: LookupContractStrategy,
     [LookupGoblinFruitStrategy.key]: LookupGoblinFruitStrategy,
     [LookupHauntStrategy.key]: LookupHauntStrategy,
+    [LookupKithStrategy.key]: LookupKithStrategy,
     [LookupMementoStrategy.key]: LookupMementoStrategy,
     [LookupMeritStrategy.key]: LookupMeritStrategy,
     [LookupNeedleStrategy.key]: LookupNeedleStrategy,

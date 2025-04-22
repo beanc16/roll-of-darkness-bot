@@ -17,6 +17,7 @@ export enum NwodLookupSubcommand
     Contract = 'contract',
     GoblinFruit = 'goblin_fruit',
     Haunt = 'haunt',
+    Kith = 'kith',
     Memento = 'memento',
     Merit = 'merit',
     Needle = 'needle',
@@ -136,6 +137,22 @@ export const haunt = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
         option.setName(NwodAutocompleteParameterName.HauntName);
         option.setDescription(`The haunt's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const kith = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Kith);
+    subcommand.setDescription('Get a list of kith based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.KithName);
+        option.setDescription(`The kith's name.`);
         return option.setAutocomplete(true);
     });
 

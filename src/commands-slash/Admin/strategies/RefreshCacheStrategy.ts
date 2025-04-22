@@ -102,6 +102,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Haunt],
                 lookupSubcommand: NwodLookupSubcommand.Haunt,
             },
+            [NwodAutocompleteParameterName.KithName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Kith],
+                lookupSubcommand: NwodLookupSubcommand.Kith,
+            },
             [NwodAutocompleteParameterName.MementoName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Memento],
                 lookupSubcommand: NwodLookupSubcommand.Memento,
