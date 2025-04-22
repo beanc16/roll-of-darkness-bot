@@ -9,8 +9,10 @@ import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcDeleteFileStrategy } from './VcDeleteFileStrategy.js';
 import { VcDisconnectStrategy } from './VcDisconnectStrategy.js';
 import { VcLoadStrategy } from './VcLoadStrategy.js';
+import { VcNextStrategy } from './VcNextStrategy.js';
 import { VcPauseStrategy } from './VcPauseStrategy.js';
 import { VcPlayStrategy } from './VcPlayStrategy.js';
+import { VcPreviousStrategy } from './VcPreviousStrategy.js';
 import { VcRenameFileStrategy } from './VcRenameFileStrategy.js';
 import { VcStopStrategy } from './VcStopStrategy.js';
 import { VcUnpauseStrategy } from './VcUnpauseStrategy.js';
@@ -38,8 +40,10 @@ export class VcStrategyExecutor extends BaseStrategyExecutor
             VcDeleteFileStrategy,
             VcDisconnectStrategy,
             VcLoadStrategy,
+            VcNextStrategy,
             VcPauseStrategy,
             VcPlayStrategy,
+            VcPreviousStrategy,
             VcRenameFileStrategy,
             VcStopStrategy,
             VcUnpauseStrategy,

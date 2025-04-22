@@ -15,9 +15,9 @@ export enum VcSubcommand
     DeleteFile = 'delete_file',
     Disconnect = 'disconnect',
     Load = 'load',
-    // Next = 'next',
+    Next = 'next',
     Pause = 'pause',
-    // Previous = 'previous',
+    Previous = 'previous',
     Play = 'play',
     RenameFile = 'rename_file',
     Stop = 'stop',
@@ -62,6 +62,14 @@ export const load = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     return subcommand;
 };
 
+export const next = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Next);
+    subcommand.setDescription('Play the next audio file in the queue.');
+
+    return subcommand;
+};
+
 export const pause = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(VcSubcommand.Pause);
@@ -77,6 +85,14 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
 
     subcommand.addStringOption(fileNameParameter);
     subcommand.addBooleanOption(shouldLoop);
+
+    return subcommand;
+};
+
+export const previous = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(VcSubcommand.Previous);
+    subcommand.setDescription('Play the previous audio file in the queue.');
 
     return subcommand;
 };
