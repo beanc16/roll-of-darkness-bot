@@ -67,6 +67,14 @@ export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setAutocomplete(true);
     });
 
+    // Based On
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BasedOnAbility);
+        option.setDescription(`Abilities based on the given name.`);
+        return option.setAutocomplete(true);
+    });
+
     // Searches
     subcommand.addStringOption((option) =>
     {
@@ -568,7 +576,7 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.addStringOption((option) =>
     {
         const newOption = pokemonMoveNameOption(option, `Moves based on the given name.`);
-        return newOption.setName(PtuAutocompleteParameterName.BasedOn);
+        return newOption.setName(PtuAutocompleteParameterName.BasedOnMove);
     });
 
     // Searches

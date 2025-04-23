@@ -46,6 +46,10 @@ export class LookupAbilityStrategy
                     ? [`Frequency: ${element.frequency}`]
                     : []
                 ),
+                ...(element.basedOn !== undefined
+                    ? [`Based On: ${element.basedOn}`]
+                    : []
+                ),
                 ...(element.effect2 && element.effect2 !== '--'
                     ? [`Effect:\n\`\`\`\n${element.effect2}\`\`\``]
                     : ['']
@@ -173,12 +177,14 @@ export class LookupAbilityStrategy
         const nameSearch = interaction.options.getString('name_search');
         const frequencySearch = interaction.options.getString('frequency_search');
         const effectSearch = interaction.options.getString('effect_search');
+        const basedOn = interaction.options.getString(PtuAutocompleteParameterName.BasedOnAbility);
 
         return {
             name,
             nameSearch,
             frequencySearch,
             effectSearch,
+            basedOn,
         };
     }
 }

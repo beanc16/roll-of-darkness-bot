@@ -12,6 +12,7 @@ export interface GetLookupAbilityDataParameters
     nameSearch?: string | null;
     frequencySearch?: string | null;
     effectSearch?: string | null;
+    basedOn?: string | null;
 }
 
 export interface PtuMoveExclude

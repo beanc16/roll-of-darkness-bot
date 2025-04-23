@@ -9,6 +9,7 @@ export class PtuAbility
     public target?: string;
     public keywords?: string;
     public effect2?: string;
+    public basedOn?: string;
 
     constructor(input: string[])
     {
@@ -20,6 +21,7 @@ export class PtuAbility
             untrimmedTarget,
             untrimmedKeywords,
             untrimmedEffect2,
+            basedOn,
         ] = input;
 
         // Base values
@@ -30,6 +32,7 @@ export class PtuAbility
         this.target = untrimmedTarget?.trim();
         this.keywords = untrimmedKeywords?.trim();
         this.effect2 = untrimmedEffect2?.trim();
+        this.basedOn = basedOn?.trim();
     }
 
     public IsValidBasedOnInput(input: GetLookupAbilityDataParameters): boolean
@@ -42,6 +45,12 @@ export class PtuAbility
 
         // Frequency
         if (input.frequencySearch && this.frequency && !this.frequency.toLowerCase().includes(input.frequencySearch.toLowerCase()))
+        {
+            return false;
+        }
+
+        // Based On
+        if (input.basedOn && input.basedOn !== this.basedOn)
         {
             return false;
         }
