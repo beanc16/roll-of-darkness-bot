@@ -292,7 +292,7 @@ export class PtuMove
             return false;
         }
 
-        // Frequency
+        // Based On
         if (input.basedOn && input.basedOn !== this.basedOn)
         {
             return false;

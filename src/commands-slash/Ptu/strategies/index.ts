@@ -205,7 +205,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: PtuLookupSubcommand.Aura,
                 options: { includeAllIfNoName: true, returnLegendaryNames: true },
             }),
-            [PtuAutocompleteParameterName.BasedOn]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
+            [PtuAutocompleteParameterName.BasedOnAbility]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Ability,
+                options: { sortBy: 'name' },
+            }),
+            [PtuAutocompleteParameterName.BasedOnMove]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Move,
                 options: { sortBy: 'name' },

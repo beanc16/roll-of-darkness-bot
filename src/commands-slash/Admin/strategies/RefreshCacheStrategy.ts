@@ -36,7 +36,8 @@ type NwodAutocompleteParameterNameToCache = Exclude<
 type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.AuraUserName
-    | PtuAutocompleteParameterName.BasedOn
+    | PtuAutocompleteParameterName.BasedOnAbility
+    | PtuAutocompleteParameterName.BasedOnMove
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
 >;
