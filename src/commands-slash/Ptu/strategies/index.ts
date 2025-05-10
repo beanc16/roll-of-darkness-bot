@@ -447,7 +447,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: referenceInfo,
             });
         }
-        else if (subcommandGroup.includes(PtuSubcommandGroup.Lookup))
+        else if (subcommandGroup?.includes(PtuSubcommandGroup.Lookup))
         {
             for (let index = 1; index <= 2; index += 1)
             {
