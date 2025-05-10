@@ -8,6 +8,7 @@ export enum LookupPokemonCustomId
 {
     LookupAbility = 'Lookup Ability',
     LookupCapability = 'Lookup Capability',
+    LookupEggGroups = 'Lookup Egg Groups',
     LookupMove = 'Lookup Move',
 }
 
@@ -15,6 +16,7 @@ interface LookupPokemonActionRowBuilderOptions
 {
     abilityName?: string;
     capabilityName?: string;
+    eggGroups?: string[];
     moveName?: string;
 }
 
@@ -44,17 +46,11 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
         label: string;
     }
     {
-        const labelMap: Record<LookupPokemonCustomId, string> = {
-            [LookupPokemonCustomId.LookupAbility]: 'Lookup Ability',
-            [LookupPokemonCustomId.LookupCapability]: 'Lookup Capability',
-            [LookupPokemonCustomId.LookupMove]: 'Lookup Move',
-        };
-
         if (options.abilityName)
         {
             return {
                 customId: LookupPokemonCustomId.LookupAbility,
-                label: labelMap[LookupPokemonCustomId.LookupAbility],
+                label: LookupPokemonCustomId.LookupAbility,
             };
         }
 
@@ -62,7 +58,15 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
         {
             return {
                 customId: LookupPokemonCustomId.LookupCapability,
-                label: labelMap[LookupPokemonCustomId.LookupCapability],
+                label: LookupPokemonCustomId.LookupCapability,
+            };
+        }
+
+        if (options.eggGroups)
+        {
+            return {
+                customId: LookupPokemonCustomId.LookupEggGroups,
+                label: LookupPokemonCustomId.LookupEggGroups,
             };
         }
 
@@ -70,7 +74,7 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
         {
             return {
                 customId: LookupPokemonCustomId.LookupMove,
-                label: labelMap[LookupPokemonCustomId.LookupMove],
+                label: LookupPokemonCustomId.LookupMove,
             };
         }
 

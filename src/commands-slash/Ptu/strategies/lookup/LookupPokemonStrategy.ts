@@ -21,6 +21,7 @@ import {
     getLookupPokemonByAbilityEmbedMessages,
     getLookupPokemonByBstEmbedMessages,
     getLookupPokemonByCapabilityEmbedMessages,
+    getLookupPokemonByEggGroupsEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
     PtuPokemonForLookupPokemon,
@@ -48,6 +49,7 @@ interface GetOptionsResponse
     abilityListType: PtuAbilityListType;
     capabilityName?: string | null;
     baseStatTotal?: number | null;
+    eggGroups?: string[];
     includeContestInfo?: boolean | null;
 }
 
@@ -60,6 +62,7 @@ export interface GetLookupPokemonDataParameters
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
     capabilityName?: string | null;
+    eggGroups?: string[];
     baseStatTotal?: number | null;
     getAll?: boolean;
 }
@@ -114,17 +117,18 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            eggGroups,
             baseStatTotal,
             includeContestInfo,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
-        const numOfTruthyValues = [name, moveName, abilityName, capabilityName, baseStatTotal].filter(Boolean).length;
+        const numOfTruthyValues = [name, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon without a name, move, ability, capability, or base stat total.',
+                content: 'Cannot look up a Pokémon without a name, move, ability, capability, egg groups, or base stat total.',
                 includeDeleteButton: true,
             });
             return true;
@@ -135,7 +139,7 @@ export class LookupPokemonStrategy
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, or base stat total at the same time.',
+                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, egg groups, or base stat total at the same time.',
                 includeDeleteButton: true,
             });
             return true;
@@ -149,6 +153,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            eggGroups,
             baseStatTotal,
         });
 
@@ -159,6 +164,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            eggGroups,
             baseStatTotal,
             pokemon: data,
             moveNameToMovesRecord: {},
@@ -215,11 +221,12 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        eggGroups,
         baseStatTotal,
         getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!(name || moveName || abilityName || capabilityName || baseStatTotal || getAll))
+        if (!(name || moveName || abilityName || capabilityName || eggGroups || baseStatTotal || getAll))
         {
             return [];
         }
@@ -232,6 +239,7 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            eggGroups,
             baseStatTotal,
             getAll,
         });
@@ -771,6 +779,7 @@ export class LookupPokemonStrategy
         moveName,
         abilityName,
         capabilityName,
+        eggGroups,
         pokemon,
         interactionType,
         selectedValue,
@@ -783,6 +792,7 @@ export class LookupPokemonStrategy
         moveName?: string | null;
         abilityName?: string | null;
         capabilityName?: string | null;
+        eggGroups?: string[];
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
         selectedValue?: PtuMoveListType | string;
@@ -818,6 +828,10 @@ export class LookupPokemonStrategy
         else if (capabilityName)
         {
             buttonRow = new LookupPokemonActionRowBuilder({ capabilityName });
+        }
+        else if (eggGroups)
+        {
+            buttonRow = new LookupPokemonActionRowBuilder({ eggGroups });
         }
 
         const rowsAbovePagination: [
@@ -930,6 +944,7 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        eggGroups,
         baseStatTotal,
         getAll,
     }: GetLookupPokemonDataParameters = {}): Record<string, string | RegExp | object | object[] | undefined>
@@ -1085,6 +1100,15 @@ export class LookupPokemonStrategy
             }
         }
 
+        if (eggGroups)
+        {
+            output = {
+                'breedingInformation.eggGroups': {
+                    $all: eggGroups.map((eggGroup) => parseRegexByType(eggGroup, lookupType)),
+                },
+            };
+        }
+
         // Add the same searches for edits
         output = {
             $or: [
@@ -1109,6 +1133,7 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        eggGroups,
         baseStatTotal,
         pokemon,
         moveNameToMovesRecord,
@@ -1139,6 +1164,13 @@ export class LookupPokemonStrategy
         {
             return getLookupPokemonByCapabilityEmbedMessages(pokemon, {
                 capabilityName,
+            });
+        }
+
+        if (eggGroups)
+        {
+            return getLookupPokemonByEggGroupsEmbedMessages(pokemon, {
+                eggGroups,
             });
         }
 
@@ -1349,6 +1381,8 @@ export class LookupPokemonStrategy
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
         const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const eggGroup1 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup1);
+        const eggGroup2 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup2);
         const baseStatTotal = interaction.options.getInteger('base_stat_total');
         const includeContestInfo = interaction.options.getBoolean('include_contest_info');
 
@@ -1359,6 +1393,10 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            ...((eggGroup1 || eggGroup2)
+                ? { eggGroups: [eggGroup1, eggGroup2].filter(eg => eg !== null) }
+                : { eggGroups: undefined }
+            ),
             baseStatTotal,
             includeContestInfo,
         };

@@ -43,6 +43,8 @@ export enum PtuAutocompleteParameterName
     CapabilityName = 'capability_name',
     ClassName = 'class_name',
     EdgeName = 'edge_name',
+    EggGroup1 = 'egg_group_1',
+    EggGroup2 = 'egg_group_2',
     EquipmentName = 'equipment_name',
     EvolutionaryStone = 'evolutionary_stone_name',
     FeatureName = 'feature_name',

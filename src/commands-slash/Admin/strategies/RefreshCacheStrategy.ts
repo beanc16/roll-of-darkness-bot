@@ -38,6 +38,8 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName.AuraUserName
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.EggGroup1
+    | PtuAutocompleteParameterName.EggGroup2
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
 >;

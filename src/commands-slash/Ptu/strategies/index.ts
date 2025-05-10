@@ -184,7 +184,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             );
         };
 
-        let propertyToExtract: 'name' | 'patron' = 'name';
+        let propertyToExtract: 'name' | 'patron' | 'breedingInformation.eggGroups' = 'name';
 
         // Get data based on the autocompleteName
         const handlerMap: AutocompleteHandlerMap<PtuAutocompleteParameterName> = {
@@ -231,6 +231,22 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
             }),
+            [PtuAutocompleteParameterName.EggGroup1]: () =>
+            {
+                propertyToExtract = 'breedingInformation.eggGroups';
+                return PtuStrategyExecutor.getLookupData({
+                    subcommandGroup: PtuSubcommandGroup.Breed,
+                    subcommand: PtuBreedSubcommand.Breed,
+                });
+            },
+            [PtuAutocompleteParameterName.EggGroup2]: () =>
+            {
+                propertyToExtract = 'breedingInformation.eggGroups';
+                return PtuStrategyExecutor.getLookupData({
+                    subcommandGroup: PtuSubcommandGroup.Breed,
+                    subcommand: PtuBreedSubcommand.Breed,
+                });
+            },
             [PtuAutocompleteParameterName.EquipmentName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Equipment,
@@ -243,7 +259,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             }),
-            [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
+            [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData({
                 subcommandGroup: PtuSubcommandGroup.Breed,
                 subcommand: PtuBreedSubcommand.Breed,
             }),
@@ -349,18 +365,13 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.XItem,
             }),
-            [PtuAutocompleteParameterName.PokemonName]: async () =>
-            {
-                const output = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                    subcommandGroup: PtuSubcommandGroup.Lookup,
-                    subcommand: PtuLookupSubcommand.Pokemon,
-                    options: {
-                        name: focusedValue.value,
-                    },
-                });
-
-                return output;
-            },
+            [PtuAutocompleteParameterName.PokemonName]: () => PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Pokemon,
+                options: {
+                    name: focusedValue.value,
+                },
+            }),
         };
 
         const data = await handlerMap[autocompleteName]();
@@ -375,8 +386,36 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         // Get only unique values
         const choiceValues = data.reduce<Set<string>>((acc, element) =>
         {
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
+            if (propertyToExtract.includes('.'))
+            {
+                const properties = propertyToExtract.split('.');
+
+                // Traverse the object down to the expected value
+                let currentElement = element;
+                // eslint-disable-next-line no-restricted-syntax
+                for (const property of properties)
+                {
+                    // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
+                    currentElement = currentElement[property];
+                }
+
+                if (Array.isArray(currentElement))
+                {
+                    currentElement.forEach(value => acc.add(value as string));
+                    return acc;
+                }
+
+                // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
+                acc.add(currentElement ?? element.name);
+                return acc;
+            }
+
+            // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
             acc.add(element[propertyToExtract] ?? element.name);
             return acc;
+
+            /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
         }, new Set());
 
         // Parse data to discord's format

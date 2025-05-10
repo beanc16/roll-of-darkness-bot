@@ -757,6 +757,20 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setAutocomplete(true);
     });
 
+    // Egg Groups
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EggGroup1);
+        option.setDescription(`The egg group's name.`);
+        return option.setAutocomplete(true);
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EggGroup2);
+        option.setDescription(`The egg group's name.`);
+        return option.setAutocomplete(true);
+    });
+
     // Base Stat Total
     subcommand.addIntegerOption((option) =>
     {

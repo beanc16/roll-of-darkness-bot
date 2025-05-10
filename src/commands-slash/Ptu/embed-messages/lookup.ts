@@ -840,6 +840,50 @@ export const getLookupPokemonByCapabilityEmbedMessages = (pokemon: PtuPokemonFor
     });
 };
 
+export const getLookupPokemonByEggGroupsEmbedMessages = (pokemon: PtuPokemonForLookupPokemon[], { eggGroups }: {
+    eggGroups: string[];
+}): EmbedBuilder[] =>
+{
+    const lines = pokemon.reduce<string[]>((acc, { name, groupedVersions }) =>
+    {
+        if (groupedVersions && groupedVersions.length > 0)
+        {
+            groupedVersions.forEach(({ versionNames }) =>
+            {
+                acc.push(`${name} [${versionNames.join(', ')}]`);
+            });
+        }
+        else
+        {
+            acc.push(name);
+        }
+
+        return acc;
+    }, []);
+
+    const { pages } = lines.reduce((acc, line) =>
+    {
+        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        {
+            acc.curPageIndex += 1;
+        }
+
+        acc.pages[acc.curPageIndex] += `${line}\n`;
+
+        return acc;
+    }, {
+        pages: [
+            `${Text.bold(`Pokemon that have the ${eggGroups.join(' & ')} Egg Group${eggGroups.length > 1 ? 's' : ''}`)}\n\n`,
+        ],
+        curPageIndex: 0,
+    });
+
+    return getPagedEmbedBuilders({
+        title: 'Pokemon',
+        pages,
+    });
+};
+
 export const getLookupPokemonByBstEmbedMessages = (pokemon: PtuPokemonForLookupPokemon[], { baseStatTotal }: {
     baseStatTotal: number;
 }): EmbedBuilder[] =>
