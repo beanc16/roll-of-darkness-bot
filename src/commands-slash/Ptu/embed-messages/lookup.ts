@@ -204,7 +204,7 @@ export const getLookupPokemonEmbedMessages = (
             '',
             Text.bold('Breeding Information'),
             `Gender Ratio: ${!genderRatio.none ? `${genderRatio.male}% M / ${genderRatio.female}% F` : 'No Gender'}`,
-            ...(eggGroups.length > 0 ? [`Egg Group${eggGroups.length > 1 ? 's' : ''}: ${eggGroups.join(' / ')}`] : ['None']),
+            `Egg Group${eggGroups.length > 1 ? 's' : ''}: ${eggGroups.length > 0 ? eggGroups.join(', ') : 'None'}`,
             ...(averageHatchRate ? [`Average Hatch Rate: ${averageHatchRate}`, ''] : ['']),
             Text.bold('Environment'),
             `Diet: ${diets.join(', ')}`,
