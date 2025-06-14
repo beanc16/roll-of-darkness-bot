@@ -72,7 +72,7 @@ export class RandomHiddenPowerStrategy
         return true;
     }
 
-    private static getRollsAndType(): GetRollsAndTypeResponse
+    public static getRollsAndType(): GetRollsAndTypeResponse
     {
         const rolls = [];
 

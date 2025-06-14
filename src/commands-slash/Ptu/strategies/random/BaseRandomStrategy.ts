@@ -17,7 +17,7 @@ interface BaseRandomStrategyOptions
     parsedData?: RandomResult[];
 }
 
-type BaseRandomSubcommands = Exclude<PtuRandomSubcommand, PtuRandomSubcommand.Gumdrop | PtuRandomSubcommand.HiddenPower>;
+type BaseRandomSubcommands = Exclude<PtuRandomSubcommand, PtuRandomSubcommand.Gumdrop | PtuRandomSubcommand.HiddenPower | PtuRandomSubcommand.Unown>;
 
 export class BaseRandomStrategy
 {

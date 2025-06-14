@@ -312,7 +312,7 @@ export const getPagedEmbedMessages = <Element>({
 }: {
     input: Element[];
     title: string;
-    parseElementToLines: (element: Element) => string[];
+    parseElementToLines: (element: Element, index: number) => string[];
 }): EmbedBuilder[] =>
 {
     if (input.length === 0) return [];
@@ -320,7 +320,7 @@ export const getPagedEmbedMessages = <Element>({
     const { pages } = input.reduce((pageData, element, index) =>
     {
         // Stage the individual lines of the description
-        const lines = parseElementToLines(element);
+        const lines = parseElementToLines(element, index);
 
         return createEmbedMessageDescriptionAndPage({
             lines,

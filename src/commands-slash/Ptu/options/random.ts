@@ -26,6 +26,7 @@ export enum PtuRandomSubcommand
     Pickup = 'pickup',
     Pokeball = 'pokeball',
     TM = 'tm',
+    Unown = 'unown',
     Vitamin = 'vitamin',
     XItem = 'x-item',
 };
@@ -324,6 +325,19 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
     subcommand.setName(PtuRandomSubcommand.TM);
     subcommand.setDescription('Get one or more random TMs/HMs.');
     subcommand.addIntegerOption(numberOfDice);
+    return subcommand;
+};
+
+export const unown = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRandomSubcommand.Unown);
+    subcommand.setDescription('Get one or more random Unowns following Gather Unown rules.');
+    subcommand.addIntegerOption((option) =>
+    {
+        const diceOption = numberOfDice(option);
+        diceOption.setName('number_of_unowns');
+        return diceOption.setDescription('The number of unowns to roll');
+    });
     return subcommand;
 };
 
