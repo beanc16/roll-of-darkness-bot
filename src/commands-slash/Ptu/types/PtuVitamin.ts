@@ -15,6 +15,7 @@ export class PtuVitamin
     public name: string;
     public cost: number;
     public description: string;
+    public excludeFromRandomRolls: boolean;
 
     constructor(input: string[])
     {
@@ -22,6 +23,7 @@ export class PtuVitamin
             name,
             unparsedCost,
             description,
+            excludeFromRandomRolls,
         ] = input;
 
         // Parse numbers
@@ -31,5 +33,6 @@ export class PtuVitamin
         this.name = name;
         this.cost = cost;
         this.description = description;
+        this.excludeFromRandomRolls = excludeFromRandomRolls === 'TRUE';
     }
 }

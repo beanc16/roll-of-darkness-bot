@@ -204,13 +204,16 @@ export class BaseRandomStrategy
         });
 
         // Parse data
-        return data.reduce<RandomResult[]>((acc, [name, cost, description]) =>
+        return data.reduce<RandomResult[]>((acc, [name, cost, description, excludeFromRandomRolls]) =>
         {
-            acc.push({
-                name,
-                cost,
-                description,
-            });
+            if (excludeFromRandomRolls !== 'TRUE')
+            {
+                acc.push({
+                    name,
+                    cost,
+                    description,
+                });
+            }
             return acc;
         }, []);
     }
