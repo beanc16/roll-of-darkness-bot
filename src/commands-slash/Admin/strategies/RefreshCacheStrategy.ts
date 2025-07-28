@@ -159,10 +159,6 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
                 lookupSubcommand: PtuLookupSubcommand.Ability,
             },
-            [PtuAutocompleteParameterName.Ability4]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
-                lookupSubcommand: PtuLookupSubcommand.Ability,
-            },
             [PtuAutocompleteParameterName.AuraName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Aura],
                 lookupSubcommand: PtuLookupSubcommand.Aura,

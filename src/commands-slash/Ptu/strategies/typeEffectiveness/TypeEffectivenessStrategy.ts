@@ -24,10 +24,11 @@ export class TypeEffectivenessStrategy
         const type1 = interaction.options.getString('type_1', true) as PokemonTypeAndNone;
         const type2 = interaction.options.getString('type_2') as PokemonTypeAndNone | null;
         const type3 = interaction.options.getString('type_3') as PokemonTypeAndNone | null;
+        const type4 = interaction.options.getString('type_4') as PokemonTypeAndNone | null;
+        const type5 = interaction.options.getString('type_5') as PokemonTypeAndNone | null;
         const ability1 = interaction.options.getString('ability_1') as PtuAbilityForTypeEffectiveness | null;
         const ability2 = interaction.options.getString('ability_2') as PtuAbilityForTypeEffectiveness | null;
         const ability3 = interaction.options.getString('ability_3') as PtuAbilityForTypeEffectiveness | null;
-        const ability4 = interaction.options.getString('ability_4') as PtuAbilityForTypeEffectiveness | null;
 
         // Create input types
         const types = [type1];
@@ -35,7 +36,6 @@ export class TypeEffectivenessStrategy
             ability1,
             ability2,
             ability3,
-            ability4,
         ].filter(ability => ability !== null);
 
         if (type2)
@@ -45,6 +45,14 @@ export class TypeEffectivenessStrategy
         if (type3)
         {
             types.push(type3);
+        }
+        if (type4)
+        {
+            types.push(type4);
+        }
+        if (type5)
+        {
+            types.push(type5);
         }
 
         // Get type effectiveness

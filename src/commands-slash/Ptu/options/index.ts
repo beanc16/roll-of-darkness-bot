@@ -312,7 +312,7 @@ export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): Sl
             };
         },
     );
-    for (let index = 1; index <= 3; index += 1)
+    for (let index = 1; index <= 5; index += 1)
     {
         subcommand.addStringOption((option) =>
         {
@@ -334,7 +334,6 @@ export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): Sl
         PtuAutocompleteParameterName.Ability1,
         PtuAutocompleteParameterName.Ability2,
         PtuAutocompleteParameterName.Ability3,
-        PtuAutocompleteParameterName.Ability4,
     ].forEach((name) =>
     {
         subcommand.addStringOption((option) =>
