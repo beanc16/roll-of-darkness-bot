@@ -42,6 +42,7 @@ export class PokeApi
             .replaceAll('calyrex-shadow-rider', 'calyrex-shadow')
             .replaceAll('darmanitan-galar', 'darmanitan-galar-standard')
             .replaceAll('darmanitan-galar-standard-zen', 'darmanitan-galar-zen') // Undo the previous replace all if it's zen mode
+            .replaceAll('dudunsparce', 'dudunsparce-two-segment')
             .replaceAll('eiscue-ice-face', 'eiscue-ice')
             .replaceAll('eiscue-noice-face', 'eiscue-noice')
             .replaceAll('hoopa-confined', 'hoopa')
