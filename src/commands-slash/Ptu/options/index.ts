@@ -43,9 +43,9 @@ export enum PtuQuickReferenceInfo
     LegendaryAuras = 'legendary_auras',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
+    SizeChart = 'size_chart',
     SwitchingPokemon = 'switching_pokemon',
     TrainingPokemon = 'training_pokemon',
-    WeightClassChart = 'weight_class_chart',
     TypeChart = 'type_chart',
 }
 

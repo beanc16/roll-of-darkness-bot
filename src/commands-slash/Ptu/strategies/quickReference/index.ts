@@ -11,7 +11,7 @@ import { QrPowerChartStrategy } from './QrPowerChartStrategy.js';
 import { QrSwitchingPokemonStrategy } from './QrSwitchingPokemonStrategy.js';
 import { QrTrainingPokemonStrategy } from './QrTrainingPokemonStrategy.js';
 import { QrTypeChartStrategy } from './QrTypeChartStrategy.js';
-import { QrWeightClassChartStrategy } from './QrWeightClassChartStrategy.js';
+import { QrSizeChartChartStrategy } from './QrSizeChartStrategy.js';
 
 export default {
     [QrActionTypesStrategy.key]: QrActionTypesStrategy,
@@ -26,6 +26,6 @@ export default {
     [QrPowerChartStrategy.key]: QrPowerChartStrategy,
     [QrSwitchingPokemonStrategy.key]: QrSwitchingPokemonStrategy,
     [QrTrainingPokemonStrategy.key]: QrTrainingPokemonStrategy,
-    [QrWeightClassChartStrategy.key]: QrWeightClassChartStrategy,
+    [QrSizeChartChartStrategy.key]: QrSizeChartChartStrategy,
     [QrTypeChartStrategy.key]: QrTypeChartStrategy,
 };
