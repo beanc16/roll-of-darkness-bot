@@ -8,6 +8,7 @@ import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 interface HeightChart
 {
     name: string;
+    size: number;
     min: {
         imperial: string;
         metric: string;
@@ -40,6 +41,7 @@ export class QrSizeChartChartStrategy
     private static heightCharts: HeightChart[] = [
         {
             name: 'Small',
+            size: 1,
             min: {
                 imperial: `0'1"`,
                 metric: '2.5cm',
@@ -51,6 +53,7 @@ export class QrSizeChartChartStrategy
         },
         {
             name: 'Medium',
+            size: 1,
             min: {
                 imperial: `3'3"`,
                 metric: '1m',
@@ -62,6 +65,7 @@ export class QrSizeChartChartStrategy
         },
         {
             name: 'Large',
+            size: 2,
             min: {
                 imperial: `6'0"`,
                 metric: '1.5m',
@@ -73,6 +77,7 @@ export class QrSizeChartChartStrategy
         },
         {
             name: 'Huge',
+            size: 3,
             min: {
                 imperial: `9'0"`,
                 metric: '2.7m',
@@ -84,6 +89,7 @@ export class QrSizeChartChartStrategy
         },
         {
             name: 'Gigantic',
+            size: 4,
             min: {
                 imperial: `14'0"+`,
                 metric: '4.3m+',
@@ -181,11 +187,12 @@ export class QrSizeChartChartStrategy
 
         const heightDescription = this.heightCharts.reduce((acc, {
             name,
+            size,
             min,
             max,
         }) =>
         {
-            return acc + `${Text.bold(name)}: ${this.getRange({ min, max })}\n`;
+            return acc + `${Text.bold(name)}: ${this.getRange({ min, max })} [${size}x${size}]\n`;
         }, '');
 
         const weightDescription = this.weightCharts.reduce((acc, chart) =>
