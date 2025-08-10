@@ -42,6 +42,7 @@ export enum PtuQuickReferenceInfo
     Disposition = 'disposition_chart',
     HowToKillLegendaryPokemon = 'how_to_kill_legendary_pokemon',
     LegendaryAuras = 'legendary_auras',
+    MoveRanges = 'move_range',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
     SizeChart = 'size_chart',

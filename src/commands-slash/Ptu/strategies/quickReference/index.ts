@@ -7,6 +7,7 @@ import { QrDamageFormulaStrategy } from './QrDamageFormulaStrategy.js';
 import { QrDispositionChartStrategy } from './QrDispositionChartStrategy.js';
 import { QrKillLegendaryPokemonStrategy } from './QrKillLegendaryPokemonStrategy.js';
 import { QrLegendaryAurasStrategy } from './QrLegendaryAurasStrategy.js';
+import { QrMoveRangesStrategy } from './QrMoveRangesStrategy.js';
 import { QrPokemonExperienceChartStrategy } from './QrPokemonExperienceChartStrategy.js';
 import { QrPowerChartStrategy } from './QrPowerChartStrategy.js';
 import { QrSizeChartChartStrategy } from './QrSizeChartStrategy.js';
@@ -24,6 +25,7 @@ export default {
     [QrDispositionChartStrategy.key]: QrDispositionChartStrategy,
     [QrKillLegendaryPokemonStrategy.key]: QrKillLegendaryPokemonStrategy,
     [QrLegendaryAurasStrategy.key]: QrLegendaryAurasStrategy,
+    [QrMoveRangesStrategy.key]: QrMoveRangesStrategy,
     [QrPokemonExperienceChartStrategy.key]: QrPokemonExperienceChartStrategy,
     [QrPowerChartStrategy.key]: QrPowerChartStrategy,
     [QrSwitchingPokemonStrategy.key]: QrSwitchingPokemonStrategy,
