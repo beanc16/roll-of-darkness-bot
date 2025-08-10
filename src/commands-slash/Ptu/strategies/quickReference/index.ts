@@ -4,14 +4,15 @@ import { QrBookMechanicsStrategy } from './QrBookMechanicsStrategy.js';
 import { QrCoupDeGraceStrategy } from './QrCoupDeGraceStrategy.js';
 import { QrDamageChartsStrategy } from './QrDamageChartsStrategy.js';
 import { QrDamageFormulaStrategy } from './QrDamageFormulaStrategy.js';
+import { QrDispositionChartStrategy } from './QrDispositionChartStrategy.js';
 import { QrKillLegendaryPokemonStrategy } from './QrKillLegendaryPokemonStrategy.js';
 import { QrLegendaryAurasStrategy } from './QrLegendaryAurasStrategy.js';
 import { QrPokemonExperienceChartStrategy } from './QrPokemonExperienceChartStrategy.js';
 import { QrPowerChartStrategy } from './QrPowerChartStrategy.js';
+import { QrSizeChartChartStrategy } from './QrSizeChartStrategy.js';
 import { QrSwitchingPokemonStrategy } from './QrSwitchingPokemonStrategy.js';
 import { QrTrainingPokemonStrategy } from './QrTrainingPokemonStrategy.js';
 import { QrTypeChartStrategy } from './QrTypeChartStrategy.js';
-import { QrSizeChartChartStrategy } from './QrSizeChartStrategy.js';
 
 export default {
     [QrActionTypesStrategy.key]: QrActionTypesStrategy,
@@ -20,6 +21,7 @@ export default {
     [QrCoupDeGraceStrategy.key]: QrCoupDeGraceStrategy,
     [QrDamageChartsStrategy.key]: QrDamageChartsStrategy,
     [QrDamageFormulaStrategy.key]: QrDamageFormulaStrategy,
+    [QrDispositionChartStrategy.key]: QrDispositionChartStrategy,
     [QrKillLegendaryPokemonStrategy.key]: QrKillLegendaryPokemonStrategy,
     [QrLegendaryAurasStrategy.key]: QrLegendaryAurasStrategy,
     [QrPokemonExperienceChartStrategy.key]: QrPokemonExperienceChartStrategy,
