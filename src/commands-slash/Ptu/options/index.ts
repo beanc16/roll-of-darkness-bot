@@ -40,6 +40,7 @@ export enum PtuQuickReferenceInfo
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
     Disposition = 'disposition_chart',
+    EggGroups = 'egg_groups',
     HowToKillLegendaryPokemon = 'how_to_kill_legendary_pokemon',
     LegendaryAuras = 'legendary_auras',
     MoveRanges = 'move_range',
