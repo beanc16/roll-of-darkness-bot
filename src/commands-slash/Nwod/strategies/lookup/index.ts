@@ -7,6 +7,7 @@ import { LookupKithStrategy } from './LookupKithStrategy.js';
 import { LookupMementoStrategy } from './LookupMementoStrategy.js';
 import { LookupMeritStrategy } from './LookupMeritStrategy.js';
 import { LookupNeedleStrategy } from './LookupNeedleStrategy.js';
+import { LookupNuminaStrategy } from './LookupNuminaStrategy.js';
 import { LookupRootAndBloomStrategy } from './LookupRootBloomStrategy.js';
 import { LookupThreadStrategy } from './LookupThreadStrategy.js';
 import { LookupTiltStrategy } from './LookupTiltStrategy.js';
@@ -23,6 +24,7 @@ export default {
     [LookupMementoStrategy.key]: LookupMementoStrategy,
     [LookupMeritStrategy.key]: LookupMeritStrategy,
     [LookupNeedleStrategy.key]: LookupNeedleStrategy,
+    [LookupNuminaStrategy.key]: LookupNuminaStrategy,
     [LookupRootAndBloomStrategy.key]: LookupRootAndBloomStrategy,
     [LookupThreadStrategy.key]: LookupThreadStrategy,
     [LookupTiltStrategy.key]: LookupTiltStrategy,

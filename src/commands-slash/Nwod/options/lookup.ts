@@ -22,6 +22,7 @@ export enum NwodLookupSubcommand
     Memento = 'memento',
     Merit = 'merit',
     Needle = 'needle',
+    Numina = 'numina',
     RootAndBloom = 'root_bloom',
     Thread = 'thread',
     Tilt = 'tilt',
@@ -290,6 +291,30 @@ export const needle = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         option.setName(NwodAutocompleteParameterName.NeedleName);
         option.setDescription(`The needle's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const numina = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Numina);
+    subcommand.setDescription('Get a list of numina based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.NuminaName);
+        option.setDescription(`The numina's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.NuminaType);
+        option.setDescription(`The numina's type.`);
         return option.setAutocomplete(true);
     });
 

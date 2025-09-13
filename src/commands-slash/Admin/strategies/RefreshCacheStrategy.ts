@@ -32,6 +32,7 @@ type NwodAutocompleteParameterNameToCache = Exclude<
     NwodAutocompleteParameterName,
     NwodAutocompleteParameterName.ClarityConditionTag
     | NwodAutocompleteParameterName.DreadPowerType
+    | NwodAutocompleteParameterName.NuminaType
 >;
 
 type PtuAutocompleteParameterNameToCache = Exclude<
@@ -125,6 +126,10 @@ export class RefreshCacheStrategy
             [NwodAutocompleteParameterName.NeedleName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Needle],
                 lookupSubcommand: NwodLookupSubcommand.Needle,
+            },
+            [NwodAutocompleteParameterName.NuminaName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Numina],
+                lookupSubcommand: NwodLookupSubcommand.Numina,
             },
             [NwodAutocompleteParameterName.RootAndBloomName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.RootAndBloom],
