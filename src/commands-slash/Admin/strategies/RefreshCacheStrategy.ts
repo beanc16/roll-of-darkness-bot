@@ -31,6 +31,7 @@ import {
 type NwodAutocompleteParameterNameToCache = Exclude<
     NwodAutocompleteParameterName,
     NwodAutocompleteParameterName.ClarityConditionTag
+    | NwodAutocompleteParameterName.DreadPowerType
 >;
 
 type PtuAutocompleteParameterNameToCache = Exclude<
@@ -96,6 +97,10 @@ export class RefreshCacheStrategy
             [NwodAutocompleteParameterName.ContractName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Contract],
                 lookupSubcommand: NwodLookupSubcommand.Contract,
+            },
+            [NwodAutocompleteParameterName.DreadPowerName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.DreadPower],
+                lookupSubcommand: NwodLookupSubcommand.DreadPower,
             },
             [NwodAutocompleteParameterName.GoblinFruitName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.GoblinFruit],

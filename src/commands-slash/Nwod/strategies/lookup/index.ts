@@ -1,5 +1,6 @@
 import { LookupConditionStrategy } from './LookupConditionStrategy.js';
 import { LookupContractStrategy } from './LookupContractStrategy.js';
+import { LookupDreadPowerStrategy } from './LookupDreadPowerStrategy.js';
 import { LookupGoblinFruitStrategy } from './LookupGoblinFruitStrategy.js';
 import { LookupHauntStrategy } from './LookupHauntStrategy.js';
 import { LookupKithStrategy } from './LookupKithStrategy.js';
@@ -15,6 +16,7 @@ import { LookupWeaponStrategy } from './LookupWeaponStrategy.js';
 export default {
     [LookupConditionStrategy.key]: LookupConditionStrategy,
     [LookupContractStrategy.key]: LookupContractStrategy,
+    [LookupDreadPowerStrategy.key]: LookupDreadPowerStrategy,
     [LookupGoblinFruitStrategy.key]: LookupGoblinFruitStrategy,
     [LookupHauntStrategy.key]: LookupHauntStrategy,
     [LookupKithStrategy.key]: LookupKithStrategy,

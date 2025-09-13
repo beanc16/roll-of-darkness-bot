@@ -3,6 +3,8 @@ export enum NwodAutocompleteParameterName
     ConditionName = 'condition_name',
     ClarityConditionTag = 'clarity_condition_tag',
     ContractName = 'contract_name',
+    DreadPowerName = 'dread_power_name',
+    DreadPowerType = 'dread_power_type',
     GoblinFruitName = 'goblin_fruit_name',
     HauntName = 'haunt_name',
     KithName = 'kith_name',
@@ -20,6 +22,7 @@ export enum NwodLookupRange
 {
     Condition = `'Conditions Index'!A2:Z`,
     Contract = `'Changeling Contracts'!A2:Z`,
+    DreadPower = `'Dread Power Reference'!A2:Z`,
     GoblinFruit = `'Goblin Fruit Index'!A3:Z`,
     Haunt = `'Haunt Powers Index'!A3:Z`,
     Kith = `'Kiths Index'!A2:Z`,

@@ -19,6 +19,7 @@ import { ChangelingToken } from '../types/ChangelingToken.js';
 import { GeistHaunt } from '../types/GeistHaunt.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
+import { NwodDreadPower } from '../types/NwodDreadPower.js';
 import { NwodMerit } from '../types/NwodMerit.js';
 import { NwodTilt } from '../types/NwodTilt.js';
 import { NwodWeapon } from '../types/NwodWeapon.js';
@@ -126,6 +127,35 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.DreadPowerName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.DreadPower,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.DreadPowerType]: async () =>
+            {
+                const dreadPowers = await NwodStrategyExecutor.getLookupData<NwodDreadPower>({
+                    subcommandGroup: NwodSubcommandGroup.Lookup,
+                    subcommand: NwodLookupSubcommand.DreadPower,
+                    options: { includeAllIfNoName: true, sortBy: 'name' },
+                });
+
+                const set = dreadPowers.reduce<Set<string>>((acc, cur) =>
+                {
+                    if (cur.types)
+                    {
+                        cur.types.forEach(type => acc.add(type));
+                    }
+
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [NwodAutocompleteParameterName.GoblinFruitName]: () => NwodStrategyExecutor.getLookupData<ChangelingGoblinFruit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.GoblinFruit,

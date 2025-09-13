@@ -15,6 +15,7 @@ export enum NwodLookupSubcommand
 {
     Condition = 'condition',
     Contract = 'contract',
+    DreadPower = 'dread_power',
     GoblinFruit = 'goblin_fruit',
     Haunt = 'haunt',
     Kith = 'kith',
@@ -87,6 +88,30 @@ export const contract = (subcommand: SlashCommandSubcommandBuilder): SlashComman
             );
         });
     }
+
+    return subcommand;
+};
+
+export const dreadPower = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.DreadPower);
+    subcommand.setDescription('Get a list of dread powers based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.DreadPowerName);
+        option.setDescription(`The dread power's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.DreadPowerType);
+        option.setDescription(`The dread power's type.`);
+        return option.setAutocomplete(true);
+    });
 
     return subcommand;
 };
