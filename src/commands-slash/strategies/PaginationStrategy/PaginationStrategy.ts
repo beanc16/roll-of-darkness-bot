@@ -6,6 +6,7 @@ import {
     ChatInputCommandInteraction,
     EmbedBuilder,
     InteractionEditReplyOptions,
+    InteractionReplyOptions,
     InteractionUpdateOptions,
     Message,
     MessageCreateOptions,
@@ -17,7 +18,7 @@ import { CommandName } from '../../../types/discord.js';
 import { InteractionListenerRestartStyle, InteractionStrategy } from '../InteractionStrategy.js';
 import { PaginationActionRowBuilder, PaginationButtonName } from './components/PaginationActionRowBuilder.js';
 
-export type PaginationInteractionType = 'editReply' | 'dm' | 'update';
+export type PaginationInteractionType = 'editReply' | 'dm' | 'update' | 'followUp';
 
 type RowAbovePagination = ActionRowBuilder<StringSelectMenuBuilder | ButtonBuilder>;
 
@@ -35,6 +36,8 @@ export interface PaginationStrategyRunParameters
     embeds?: EmbedBuilder[];
     files?: AttachmentPayload[];
     interactionType?: PaginationInteractionType;
+    /** Can only be used with `interactionType: 'followUp'` */
+    ephemeral?: boolean;
     rowsAbovePagination?: [
         RowAbovePagination?,
         RowAbovePagination?,
@@ -74,6 +77,7 @@ export class PaginationStrategy
         embeds,
         files,
         interactionType = 'editReply',
+        ephemeral,
         rowsAbovePagination = [],
         onRowAbovePaginationButtonPress,
         includeDeleteButton = false,
@@ -107,6 +111,7 @@ export class PaginationStrategy
                     : {}
                 ),
                 components,
+                ephemeral,
             },
         });
 
@@ -430,7 +435,7 @@ export class PaginationStrategy
     }: {
         originalInteraction: PaginationStrategyRunParameters['originalInteraction'];
         interactionType: NonNullable<PaginationStrategyRunParameters['interactionType']>;
-        parameters: InteractionEditReplyOptions | InteractionUpdateOptions | MessageCreateOptions;
+        parameters: InteractionEditReplyOptions | InteractionUpdateOptions | InteractionReplyOptions | MessageCreateOptions;
     }): Promise<Message>
     {
         const handlerMap: Record<
@@ -444,6 +449,7 @@ export class PaginationStrategy
                 await (originalInteraction as StringSelectMenuInteraction).update(parameters as InteractionUpdateOptions);
                 return (originalInteraction as StringSelectMenuInteraction).message;
             },
+            followUp: async () => await originalInteraction.followUp(parameters as InteractionReplyOptions),
         };
 
         return handlerMap[interactionType]();
