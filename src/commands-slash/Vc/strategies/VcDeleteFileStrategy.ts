@@ -3,6 +3,7 @@ import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@b
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { removeAudioBufferFromCache } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
@@ -18,20 +19,20 @@ export class VcDeleteFileStrategy
         const fileName = interaction.options.getString('file_name', true);
 
         const success = await this.deleteFile(interaction, fileName);
-        const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
+        const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
 
-        if (success)
-        {
-            await interaction.editReply({
-                content: `Deleted file: \`${fileName}\`. ${fileNamesList}`,
-            });
-        }
-        else
-        {
-            await interaction.editReply({
-                content: `Failed to delete file: \`${fileName}\`. ${fileNamesList}`,
-            });
-        }
+        const content = success
+            ? `Deleted file: \`${fileName}\`.`
+            : `Failed to delete file: \`${fileName}\`.`;
+
+        // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+        PaginationStrategy.run({
+            originalInteraction: interaction,
+            commandName: `/vc delete_file`,
+            content,
+            embeds: fileNamesEmbeds,
+        });
 
         return true;
     }

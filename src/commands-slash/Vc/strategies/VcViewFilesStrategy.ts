@@ -1,12 +1,13 @@
-import { Text } from '@beanc16/discordjs-helpers';
 import {
     FileStorageMicroservice,
     FileStorageMicroserviceGetFilesResponseV1,
     FileStorageMicroserviceResourceType,
 } from '@beanc16/microservices-abstraction';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../embed-messages/shared.js';
+import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVcCommandNestedFolderName } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
@@ -18,10 +19,14 @@ export class VcViewFilesStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const messageContent = await this.getFileNamesMessage(interaction);
+        const embeds = await this.getFileNamesEmbeds(interaction);
 
-        await interaction.editReply({
-            content: messageContent,
+        // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+        PaginationStrategy.run({
+            originalInteraction: interaction,
+            commandName: `/vc view_files`,
+            embeds,
         });
 
         return true;
@@ -42,23 +47,16 @@ export class VcViewFilesStrategy
         return files;
     }
 
-    public static async getFileNamesMessage(interaction: ChatInputCommandInteraction): Promise<string>
+    public static async getFileNamesEmbeds(interaction: ChatInputCommandInteraction): Promise<EmbedBuilder[]>
     {
         const files = await this.getUserFiles(interaction);
 
-        /* eslint-disable no-param-reassign */
-        const fileNamesList = files.reduce<string>((acc, { fileName }, index) =>
-        {
-            if (index !== 0)
-            {
-                acc += '\n';
-            }
-
-            acc += `- ${fileName}`;
-            return acc;
-        }, '');
-        /* eslint-enable no-param-reassign */
-
-        return `File Names:\n${Text.Code.multiLine(fileNamesList)}`;
+        return getPagedEmbedMessages<typeof files[number]>({
+            title: 'File Names',
+            input: files,
+            parseElementToLines: element => [
+                `- ${element.fileName}`,
+            ],
+        });
     }
 }

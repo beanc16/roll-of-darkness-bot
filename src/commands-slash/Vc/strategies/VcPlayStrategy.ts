@@ -3,6 +3,7 @@ import { AudioPlayerStatus, type VoiceConnection } from '@discordjs/voice';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import {
     getAudioPlayerData,
@@ -89,9 +90,15 @@ export class VcPlayStrategy
 
             if (!audioResource)
             {
-                const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
-                await interaction.followUp({
-                    content: `A file named \`${fileName}\` does not exist. ${fileNamesList}`,
+                const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
+                // Send messages with pagination (fire and forget)
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+                PaginationStrategy.run({
+                    originalInteraction: interaction,
+                    commandName: `/vc play`,
+                    content: `A file named \`${fileName}\` does not exist.`,
+                    embeds: fileNamesEmbeds,
+                    interactionType: 'followUp',
                     ephemeral: true,
                 });
                 return;
