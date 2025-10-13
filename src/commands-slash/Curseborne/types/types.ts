@@ -3,6 +3,8 @@ export enum CurseborneAutocompleteParameterName
     AreaEffect = 'area_effect',
     Artifact = 'artifact_name',
     EdgeName = 'edge_name',
+    EquipmentName = 'equipment_name',
+    EquipmentTag = 'equipment_tag',
     MotifName = 'motif_name',
     SpellName = 'spell_name',
     SpellAvailableTo = 'spell_available_to',
@@ -26,6 +28,14 @@ export enum CurseborneEdgeType
     Influence = 'Influence',
     Investigation = 'Investigation',
     Supernatural = 'Supernatural',
+}
+
+export enum CurseborneEquipmentType
+{
+    Ammunition = 'Ammunition',
+    Armor = 'Armor',
+    Tool = 'Tool',
+    Weapon = 'Weapon',
 }
 
 export enum CurseborneStatusType

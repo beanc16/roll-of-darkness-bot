@@ -16,12 +16,14 @@ import {
     CurseborneSubcommandGroup,
 } from '../options/index.js';
 import { CurseborneLookupSubcommand } from '../options/lookup.js';
+import { CurseborneEquipment } from '../types/CurseborneEquipment.js';
 import { CurseborneSpell } from '../types/CurseborneSpell.js';
 import { CurseborneTrick } from '../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
 import { GetLookupAreaEffectDataParameters, LookupAreaEffectStrategy } from './lookup/LookupAreaEffectStrategy.js';
 import { GetLookupArtifactDataParameters, LookupArtifactStrategy } from './lookup/LookupArtifactStrategy.js';
 import { GetLookupEdgeDataParameters, LookupEdgeStrategy } from './lookup/LookupEdgeStrategy.js';
+import { GetLookupEquipmentDataParameters, LookupEquipmentStrategy } from './lookup/LookupEquipmentStrategy.js';
 import { GetLookupMotifDataParameters, LookupMotifStrategy } from './lookup/LookupMotifStrategy.js';
 import { GetLookupSpellAdvanceDataParameters, LookupSpellAdvanceStrategy } from './lookup/LookupSpellAdvanceStrategy.js';
 import { GetLookupSpellDataParameters, LookupSpellStrategy } from './lookup/LookupSpellStrategy.js';
@@ -40,6 +42,7 @@ interface CursebourneStrategyExecutorRunParameters
 type AllLookupParams = GetLookupAreaEffectDataParameters
     | GetLookupArtifactDataParameters
     | GetLookupEdgeDataParameters
+    | GetLookupEquipmentDataParameters
     | GetLookupMotifDataParameters
     | GetLookupSpellDataParameters
     | GetLookupSpellAdvanceDataParameters
@@ -59,6 +62,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
             [LookupAreaEffectStrategy.key]: LookupAreaEffectStrategy,
             [LookupArtifactStrategy.key]: LookupArtifactStrategy,
             [LookupEdgeStrategy.key]: LookupEdgeStrategy,
+            [LookupEquipmentStrategy.key]: LookupEquipmentStrategy,
             [LookupMotifStrategy.key]: LookupMotifStrategy,
             [LookupSpellAdvanceStrategy.key]: LookupSpellAdvanceStrategy,
             [LookupSpellStrategy.key]: LookupSpellStrategy,
@@ -126,6 +130,42 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
                     },
                 },
             }),
+            [CurseborneAutocompleteParameterName.EquipmentName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Equipment,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.EquipmentTag]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneEquipment>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Equipment,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { tags = [] }) =>
+                {
+                    tags.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [CurseborneAutocompleteParameterName.MotifName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Motif,

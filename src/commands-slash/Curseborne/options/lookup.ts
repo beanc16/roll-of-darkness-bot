@@ -4,6 +4,7 @@ import {
     CurseborneAreaEffectSeverity,
     CurseborneAutocompleteParameterName,
     CurseborneEdgeType,
+    CurseborneEquipmentType,
     CurseborneStatusType,
     CurseborneTagType,
 } from '../types/types.js';
@@ -13,6 +14,7 @@ export enum CurseborneLookupSubcommand
     AreaEffect = 'area_effect',
     Artifact = 'artifact',
     Edge = 'edge',
+    Equipment = 'equipment',
     Motif = 'motif',
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
@@ -34,7 +36,7 @@ export function areaEffect(subcommand: SlashCommandSubcommandBuilder): SlashComm
         return option.setAutocomplete(true);
     });
 
-    // Type
+    // Severity
     const severityChoices = Object.entries(CurseborneAreaEffectSeverity).map<APIApplicationCommandOptionChoice<string>>(
         ([key, value]) =>
         {
@@ -98,6 +100,47 @@ export function edge(subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setName('type');
         option.setDescription(`The edge's type.`);
         return option.setChoices(...typeChoices);
+    });
+
+    return subcommand;
+};
+
+export function equipment(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Equipment);
+    subcommand.setDescription('Get one or more equipments based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.EquipmentName);
+        option.setDescription(`The equipment's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(CurseborneEquipmentType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription(`The equipment's type.`);
+        return option.setChoices(...typeChoices);
+    });
+
+    // Tag
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.EquipmentTag);
+        option.setDescription(`One of the equipment's tags.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
