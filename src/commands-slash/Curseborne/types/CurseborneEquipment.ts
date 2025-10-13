@@ -1,11 +1,11 @@
 import { BaseCurseborneModel } from './BaseCurseborneModel.js';
 
-export class CurseborneTrick extends BaseCurseborneModel
+export class CurseborneEquipment extends BaseCurseborneModel
 {
     public name: string;
-    public hits: string;
+    public type: string;
+    public tags: string[];
     public description: string;
-    public formattedDescription: string;
 
     constructor(input: string[])
     {
@@ -13,15 +13,15 @@ export class CurseborneTrick extends BaseCurseborneModel
 
         const [
             name = '',
-            hits = '',
+            type = '',
+            tags = '',
             description = '',
-            formattedDescription = '',
         ] = input;
 
         // Base values
         this.name = name.trim();
-        this.hits = hits.trim();
+        this.type = type.trim();
+        this.tags = CurseborneEquipment.toArray(tags);
         this.description = description.trim();
-        this.formattedDescription = formattedDescription.trim();
     }
 }

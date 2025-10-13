@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import {
     BaseGetLookupDataParams,
     BaseGetLookupSearchMatchType,
@@ -12,7 +13,6 @@ import { CurseborneSubcommandGroup } from '../../options/index.js';
 import { CurseborneLookupSubcommand } from '../../options/lookup.js';
 import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../../types/types.js';
-import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {
@@ -40,11 +40,15 @@ export class LookupTrickStrategy
         });
 
         // Send message
-        return await BaseCurseborneLookupStrategy.run({
-            interaction,
+        const embeds = getPagedEmbedMessages({
+            input: data,
+            title: 'Tricks',
+            parseElementToLines: ({ formattedDescription }) => [formattedDescription],
+        });
+
+        return await LookupStrategy.run(interaction, embeds, {
             commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Trick}`,
-            data,
-            embedTitle: 'Tricks',
+            noEmbedsErrorMessage: `No tricks were found.`,
         });
     }
 
