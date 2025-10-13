@@ -13,6 +13,7 @@ import { CurseborneSubcommandGroup } from '../../options/index.js';
 import { CurseborneLookupSubcommand } from '../../options/lookup.js';
 import { CurseborneTrick } from '../../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../../types/types.js';
+import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {
@@ -20,7 +21,7 @@ export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 }
 
 @staticImplements<BaseLookupStrategy<GetLookupTrickDataParameters, CurseborneTrick>>()
-export class LookupTrickStrategy
+export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
 {
     public static key: CurseborneLookupSubcommand.Trick = CurseborneLookupSubcommand.Trick;
 
@@ -54,38 +55,7 @@ export class LookupTrickStrategy
 
     public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
-        const {
-            options: _options,
-            ...remainingProperties
-        } = input;
-        const numOfKeys = Object.keys(remainingProperties).length;
-
-        const {
-            options: {
-                matchType,
-            },
-        } = input;
-
-        const hasMatch = ({ inputValue, elementValue }: {
-            inputValue?: string | null | undefined;
-            elementValue: string;
-        }): boolean =>
-        {
-            const map: Record<BaseGetLookupSearchMatchType, boolean> = {
-                [BaseGetLookupSearchMatchType.ExactMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && inputValue === elementValue
-                ),
-                [BaseGetLookupSearchMatchType.SubstringMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && elementValue.toLowerCase().includes(inputValue.toLowerCase())
-                ),
-            };
-
-            return map[matchType];
-        };
+        const numOfDefinedLookupProperties = this.getNumOfDefinedLookupProperties(input);
 
         return await LookupStrategy.getLookupData({
             Class: CurseborneTrick,
@@ -96,8 +66,8 @@ export class LookupTrickStrategy
                 const element = new CurseborneTrick(cur);
 
                 if (
-                    numOfKeys === 0
-                    || hasMatch({
+                    numOfDefinedLookupProperties === 0
+                    || this.hasMatch(input, {
                         inputValue: input.name,
                         elementValue: element.name,
                     })

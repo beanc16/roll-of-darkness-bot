@@ -14,6 +14,7 @@ import { CurseborneSubcommandGroup } from '../../options/index.js';
 import { CurseborneLookupSubcommand } from '../../options/lookup.js';
 import { CurseborneEdge } from '../../types/CurseborneEdge.js';
 import { CurseborneAutocompleteParameterName, CurseborneEdgeType } from '../../types/types.js';
+import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js';
 
 export interface GetLookupEdgeDataParameters extends BaseGetLookupDataParams
 {
@@ -22,7 +23,7 @@ export interface GetLookupEdgeDataParameters extends BaseGetLookupDataParams
 }
 
 @staticImplements<BaseLookupStrategy<GetLookupEdgeDataParameters, CurseborneEdge>>()
-export class LookupEdgeStrategy
+export class LookupEdgeStrategy extends BaseCurseborneLookupStrategy
 {
     public static key: CurseborneLookupSubcommand.Edge = CurseborneLookupSubcommand.Edge;
 
@@ -49,15 +50,15 @@ export class LookupEdgeStrategy
             title: 'Tricks',
             parseElementToLines: (element) => [
                 `${Text.bold(element.name)} (${element.dotsAvailable})`,
-                ...(element.type !== undefined
-                    ? [`Type: ${element.type}`]
-                    : []
-                ),
                 ...(element.prerequisites !== undefined
                     ? [[
                         element.prerequisites.length > 1 ? 'Prerequisites' : 'Prerequisite',
                         element.prerequisites.join(', '),
                     ].join(': ')]
+                    : []
+                ),
+                ...(element.type !== undefined
+                    ? [`Type: ${element.type}`]
                     : []
                 ),
                 ...(element.effect !== undefined
@@ -77,45 +78,7 @@ export class LookupEdgeStrategy
 
     public static async getLookupData(input: GetLookupEdgeDataParameters): Promise<CurseborneEdge[]>
     {
-        const {
-            options: _options,
-            ...remainingProperties
-        } = input;
-        const numOfDefinedLookupProperties = Object.values(remainingProperties).reduce((acc, cur) =>
-        {
-            if (cur !== undefined && cur !== null)
-            {
-                return acc + 1;
-            }
-            return acc;
-        }, 0);
-
-        const {
-            options: {
-                matchType,
-            },
-        } = input;
-
-        const hasMatch = ({ inputValue, elementValue }: {
-            inputValue?: string | null | undefined;
-            elementValue: string;
-        }): boolean =>
-        {
-            const map: Record<BaseGetLookupSearchMatchType, boolean> = {
-                [BaseGetLookupSearchMatchType.ExactMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && inputValue === elementValue
-                ),
-                [BaseGetLookupSearchMatchType.SubstringMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && elementValue.toLowerCase().includes(inputValue.toLowerCase())
-                ),
-            };
-
-            return map[matchType];
-        };
+        const numOfDefinedLookupProperties = this.getNumOfDefinedLookupProperties(input);
 
         return await LookupStrategy.getLookupData({
             Class: CurseborneEdge,
@@ -127,11 +90,11 @@ export class LookupEdgeStrategy
 
                 if (
                     numOfDefinedLookupProperties === 0
-                    || hasMatch({
+                    || this.hasMatch(input, {
                         inputValue: input.name,
                         elementValue: element.name,
                     })
-                    || hasMatch({
+                    || this.hasMatch(input, {
                         inputValue: input.type,
                         elementValue: element.type,
                     })
