@@ -7,6 +7,8 @@ export enum CurseborneAutocompleteParameterName
     EquipmentTag = 'equipment_tag',
     MotifName = 'motif_name',
     SpellName = 'spell_name',
+    SpellType = 'spell_type',
+    SpellAttunement = 'spell_attunement',
     SpellAvailableTo = 'spell_available_to',
     SpellAdvanceName = 'spell_advance_name',
     StatusName = 'status_name',

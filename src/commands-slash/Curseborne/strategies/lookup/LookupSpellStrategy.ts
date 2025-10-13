@@ -20,6 +20,8 @@ export interface GetLookupSpellDataParameters extends BaseGetLookupDataParams
 {
     name?: string | null;
     spellAvailableTo?: string | null;
+    type?: string | null;
+    attunement?: string | null;
 }
 
 @staticImplements<BaseLookupStrategy<GetLookupSpellDataParameters, CurseborneSpell>>()
@@ -34,11 +36,15 @@ export class LookupSpellStrategy extends BaseCurseborneLookupStrategy
         // Get parameter results
         const name = interaction.options.getString(CurseborneAutocompleteParameterName.SpellName);
         const spellAvailableTo = interaction.options.getString(CurseborneAutocompleteParameterName.SpellAvailableTo);
+        const type = interaction.options.getString(CurseborneAutocompleteParameterName.SpellType);
+        const attunement = interaction.options.getString(CurseborneAutocompleteParameterName.SpellAttunement);
 
         // Get data
         const data = await this.getLookupData({
             name,
             spellAvailableTo,
+            type,
+            attunement,
             options: {
                 matchType: BaseGetLookupSearchMatchType.ExactMatch,
             },
@@ -118,6 +124,14 @@ export class LookupSpellStrategy extends BaseCurseborneLookupStrategy
                     || this.hasArrayMatch(input, {
                         inputValue: input.spellAvailableTo,
                         elementValue: element.availableTo,
+                    })
+                    || this.hasArrayMatch(input, {
+                        inputValue: input.type,
+                        elementValue: element.types,
+                    })
+                    || this.hasArrayMatch(input, {
+                        inputValue: input.attunement,
+                        elementValue: element.attunements,
                     })
                 )
                 {

@@ -212,6 +212,58 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
                 output.sort((a, b) => a.name.localeCompare(b.name));
                 return output;
             },
+            [CurseborneAutocompleteParameterName.SpellType]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneSpell>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Spell,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { types = [] }) =>
+                {
+                    types.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
+            [CurseborneAutocompleteParameterName.SpellAttunement]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneSpell>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Spell,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { attunements = [] }) =>
+                {
+                    attunements.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [CurseborneAutocompleteParameterName.SpellAdvanceName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.SpellAdvance,

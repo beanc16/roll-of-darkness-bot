@@ -183,6 +183,22 @@ export function spell(subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
         return option.setAutocomplete(true);
     });
 
+    // Type
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellType);
+        option.setDescription(`One of the types of the spell.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Attunement
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellAttunement);
+        option.setDescription(`One of the attunements of the spell.`);
+        return option.setAutocomplete(true);
+    });
+
     return subcommand;
 };
 
