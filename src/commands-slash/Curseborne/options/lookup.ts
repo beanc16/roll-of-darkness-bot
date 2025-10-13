@@ -1,12 +1,17 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { CurseborneAutocompleteParameterName, CurseborneEdgeType } from '../types/types.js';
+import {
+    CurseborneAutocompleteParameterName,
+    CurseborneEdgeType,
+    CurseborneStatusType,
+} from '../types/types.js';
 
 export enum CurseborneLookupSubcommand
 {
     Edge = 'edge',
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
+    Status = 'status',
     Trick = 'trick',
 }
 
@@ -86,6 +91,39 @@ export function spellAdvance(subcommand: SlashCommandSubcommandBuilder): SlashCo
         option.setName(CurseborneAutocompleteParameterName.SpellName);
         option.setDescription(`The spell advance's associated spell.`);
         return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export function status(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Status);
+    subcommand.setDescription('Get one or more statuses based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.StatusName);
+        option.setDescription(`The status' name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(CurseborneStatusType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription(`The status' type.`);
+        return option.setChoices(...typeChoices);
     });
 
     return subcommand;

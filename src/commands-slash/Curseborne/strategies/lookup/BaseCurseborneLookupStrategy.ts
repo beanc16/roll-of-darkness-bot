@@ -48,9 +48,14 @@ export class BaseCurseborneLookupStrategy
 
     protected static hasArrayMatch = (lookupParams: BaseGetLookupDataParams, { inputValue, elementValue }: {
         inputValue?: string | null | undefined;
-        elementValue: string[];
+        elementValue: string[] | null | undefined;
     }): boolean =>
     {
+        if (elementValue === undefined || elementValue === null)
+        {
+            return false;
+        }
+
         const map: Record<BaseGetLookupSearchMatchType, boolean> = {
             [BaseGetLookupSearchMatchType.ExactMatch]: (
                 inputValue !== undefined
