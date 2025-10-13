@@ -17,6 +17,7 @@ import {
 } from '../options/index.js';
 import { CurseborneLookupSubcommand } from '../options/lookup.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
+import { GetLookupEdgeDataParameters, LookupEdgeStrategy } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupTrickDataParameters, LookupTrickStrategy } from './lookup/LookupTrickStrategy.js';
 import { RollStrategy } from './RollStrategy.js';
 
@@ -27,7 +28,7 @@ interface CursebourneStrategyExecutorRunParameters
     interaction: ChatInputCommandInteraction;
 }
 
-type AllLookupParams = GetLookupTrickDataParameters;
+type AllLookupParams = GetLookupEdgeDataParameters | GetLookupTrickDataParameters;
 
 type CurseborneStrategyMap = StrategyMap<
     CurseborneSubcommandGroup,
@@ -38,6 +39,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 {
     protected static strategies: CurseborneStrategyMap = {
         [CurseborneSubcommandGroup.Lookup]: {
+            [LookupEdgeStrategy.key]: LookupEdgeStrategy,
             [LookupTrickStrategy.key]: LookupTrickStrategy,
         },
         [RollStrategy.key]: RollStrategy,
@@ -70,6 +72,16 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 
         // Get data based on the autocompleteName
         const handlerMap: AutocompleteHandlerMap<CurseborneAutocompleteParameterName> = {
+            [CurseborneAutocompleteParameterName.EdgeName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Edge,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
             [CurseborneAutocompleteParameterName.TrickName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
