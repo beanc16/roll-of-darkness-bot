@@ -67,7 +67,7 @@ export class LookupSpellAdvanceStrategy extends BaseCurseborneLookupStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.SpellAdvance}`,
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${this.key}`,
             noEmbedsErrorMessage: `No spell advances were found.`,
         });
     }

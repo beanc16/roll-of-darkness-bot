@@ -92,7 +92,7 @@ export class LookupSpellStrategy extends BaseCurseborneLookupStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Spell}`,
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${this.key}`,
             noEmbedsErrorMessage: `No spells were found.`,
         });
     }

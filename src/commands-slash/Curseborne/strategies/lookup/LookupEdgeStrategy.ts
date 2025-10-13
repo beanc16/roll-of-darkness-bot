@@ -71,7 +71,7 @@ export class LookupEdgeStrategy extends BaseCurseborneLookupStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Edge}`,
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${this.key}`,
             noEmbedsErrorMessage: `No edges were found.`,
         });
     }

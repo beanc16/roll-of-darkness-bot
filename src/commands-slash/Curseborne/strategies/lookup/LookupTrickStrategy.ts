@@ -66,7 +66,7 @@ export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
         });
 
         return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Trick}`,
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${this.key}`,
             noEmbedsErrorMessage: `No tricks were found.`,
         });
     }
