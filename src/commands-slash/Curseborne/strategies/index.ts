@@ -17,6 +17,7 @@ import {
 } from '../options/index.js';
 import { CurseborneLookupSubcommand } from '../options/lookup.js';
 import { CurseborneSpell } from '../types/CurseborneSpell.js';
+import { CurseborneTrick } from '../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
 import { GetLookupEdgeDataParameters, LookupEdgeStrategy } from './lookup/LookupEdgeStrategy.js';
 import { LookupSpellAdvanceStrategy } from './lookup/LookupSpellAdvanceStrategy.js';
@@ -145,6 +146,32 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
                     },
                 },
             }),
+            [CurseborneAutocompleteParameterName.TrickTag]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneTrick>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Trick,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { tags = [] }) =>
+                {
+                    tags.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
         };
 
         const data = await handlerMap[autocompleteName]();

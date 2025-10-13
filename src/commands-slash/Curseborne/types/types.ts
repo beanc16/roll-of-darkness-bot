@@ -5,6 +5,7 @@ export enum CurseborneAutocompleteParameterName
     SpellAvailableTo = 'spell_available_to',
     SpellAdvanceName = 'spell_advance_name',
     TrickName = 'trick_name',
+    TrickTag = 'trick_tag',
 }
 
 export enum CurseborneEdgeType

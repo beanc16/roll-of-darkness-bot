@@ -4,6 +4,7 @@ export class CurseborneTrick extends BaseCurseborneModel
 {
     public name: string;
     public hits: string;
+    public tags: string[];
     public description: string;
     public formattedDescription: string;
 
@@ -14,6 +15,7 @@ export class CurseborneTrick extends BaseCurseborneModel
         const [
             name = '',
             hits = '',
+            tags = '',
             description = '',
             formattedDescription = '',
         ] = input;
@@ -21,6 +23,7 @@ export class CurseborneTrick extends BaseCurseborneModel
         // Base values
         this.name = name.trim();
         this.hits = hits.trim();
+        this.tags = CurseborneTrick.toArray(tags);
         this.description = description.trim();
         this.formattedDescription = formattedDescription.trim();
     }

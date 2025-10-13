@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
@@ -18,6 +19,7 @@ import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js'
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {
     name?: string | null;
+    tag?: string | null;
 }
 
 @staticImplements<BaseLookupStrategy<GetLookupTrickDataParameters, CurseborneTrick>>()
@@ -30,11 +32,13 @@ export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
     ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(CurseborneAutocompleteParameterName.TrickName, true);
+        const name = interaction.options.getString(CurseborneAutocompleteParameterName.TrickName);
+        const tag = interaction.options.getString(CurseborneAutocompleteParameterName.TrickTag);
 
         // Get data
         const data = await this.getLookupData({
             name,
+            tag,
             options: {
                 matchType: BaseGetLookupSearchMatchType.ExactMatch,
             },
@@ -44,7 +48,21 @@ export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
         const embeds = getPagedEmbedMessages({
             input: data,
             title: 'Tricks',
-            parseElementToLines: ({ formattedDescription }) => [formattedDescription],
+            parseElementToLines: (element) => [
+                `${Text.bold(element.name)} (${element.hits} ${element.hits === '1' ? 'Hit' : 'Hits'})`,
+                ...(element.tags !== undefined
+                    ? [
+                        `Tags: ${element.tags.join(', ')}`,
+                    ]
+                    : []
+                ),
+                ...(element.description !== undefined
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
         });
 
         return await LookupStrategy.run(interaction, embeds, {
@@ -70,6 +88,10 @@ export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
                     || this.hasMatch(input, {
                         inputValue: input.name,
                         elementValue: element.name,
+                    })
+                    || this.hasArrayMatch(input, {
+                        inputValue: input.tag,
+                        elementValue: element.tags,
                     })
                 )
                 {

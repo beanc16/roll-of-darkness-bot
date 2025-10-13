@@ -101,7 +101,14 @@ export function trick(subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
     {
         option.setName(CurseborneAutocompleteParameterName.TrickName);
         option.setDescription(`The trick's name.`);
-        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    // Tags
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.TrickTag);
+        option.setDescription(`One of the trick's tags.`);
         return option.setAutocomplete(true);
     });
 
