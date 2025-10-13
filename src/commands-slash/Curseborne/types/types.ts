@@ -1,6 +1,7 @@
 export enum CurseborneAutocompleteParameterName
 {
     AreaEffect = 'area_effect',
+    Artifact = 'artifact_name',
     EdgeName = 'edge_name',
     MotifName = 'motif_name',
     SpellName = 'spell_name',

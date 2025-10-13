@@ -11,6 +11,7 @@ import {
 export enum CurseborneLookupSubcommand
 {
     AreaEffect = 'area_effect',
+    Artifact = 'artifact',
     Edge = 'edge',
     Motif = 'motif',
     Spell = 'spell',
@@ -48,6 +49,22 @@ export function areaEffect(subcommand: SlashCommandSubcommandBuilder): SlashComm
         option.setName('severity');
         option.setDescription(`The area effect's severity.`);
         return option.setChoices(...severityChoices);
+    });
+
+    return subcommand;
+};
+
+export function artifact(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Artifact);
+    subcommand.setDescription('Get one or more artifacts based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.Artifact);
+        option.setDescription(`The artifact's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
