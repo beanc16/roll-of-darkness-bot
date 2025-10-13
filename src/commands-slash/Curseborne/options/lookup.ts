@@ -4,6 +4,7 @@ import {
     CurseborneAutocompleteParameterName,
     CurseborneEdgeType,
     CurseborneStatusType,
+    CurseborneTagType,
 } from '../types/types.js';
 
 export enum CurseborneLookupSubcommand
@@ -12,6 +13,7 @@ export enum CurseborneLookupSubcommand
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
     Status = 'status',
+    Tag = 'tag',
     Trick = 'trick',
 }
 
@@ -123,6 +125,39 @@ export function status(subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     {
         option.setName('type');
         option.setDescription(`The status' type.`);
+        return option.setChoices(...typeChoices);
+    });
+
+    return subcommand;
+};
+
+export function tag(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Tag);
+    subcommand.setDescription('Get one or more tags based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.TagName);
+        option.setDescription(`The tag's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const typeChoices = Object.entries(CurseborneTagType).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('type');
+        option.setDescription(`The tag's type.`);
         return option.setChoices(...typeChoices);
     });
 

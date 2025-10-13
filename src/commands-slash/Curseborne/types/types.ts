@@ -5,6 +5,7 @@ export enum CurseborneAutocompleteParameterName
     SpellAvailableTo = 'spell_available_to',
     SpellAdvanceName = 'spell_advance_name',
     StatusName = 'status_name',
+    TagName = 'tag_name',
     TrickName = 'trick_name',
     TrickTag = 'trick_tag',
 }
@@ -22,4 +23,11 @@ export enum CurseborneStatusType
     Combat = 'Combat',
     None = '--',
     Social = 'Social',
+}
+
+export enum CurseborneTagType
+{
+    Weapon = 'Weapon',
+    Armor = 'Armor',
+    Tool = 'Tool',
 }
