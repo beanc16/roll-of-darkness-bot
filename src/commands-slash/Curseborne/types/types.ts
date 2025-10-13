@@ -1,5 +1,6 @@
 export enum CurseborneAutocompleteParameterName
 {
+    AreaEffect = 'area_effect',
     EdgeName = 'edge_name',
     SpellName = 'spell_name',
     SpellAvailableTo = 'spell_available_to',
@@ -8,6 +9,13 @@ export enum CurseborneAutocompleteParameterName
     TagName = 'tag_name',
     TrickName = 'trick_name',
     TrickTag = 'trick_tag',
+}
+
+export enum CurseborneAreaEffectSeverity
+{
+    Major = 'Major',
+    Minor = 'Minor',
+    Moderate = 'Moderate',
 }
 
 export enum CurseborneEdgeType

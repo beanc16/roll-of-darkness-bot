@@ -1,6 +1,7 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import {
+    CurseborneAreaEffectSeverity,
     CurseborneAutocompleteParameterName,
     CurseborneEdgeType,
     CurseborneStatusType,
@@ -9,6 +10,7 @@ import {
 
 export enum CurseborneLookupSubcommand
 {
+    AreaEffect = 'area_effect',
     Edge = 'edge',
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
@@ -16,6 +18,39 @@ export enum CurseborneLookupSubcommand
     Tag = 'tag',
     Trick = 'trick',
 }
+
+export function areaEffect(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.AreaEffect);
+    subcommand.setDescription('Get one or more area effects based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.AreaEffect);
+        option.setDescription(`The area effect's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Type
+    const severityChoices = Object.entries(CurseborneAreaEffectSeverity).map<APIApplicationCommandOptionChoice<string>>(
+        ([key, value]) =>
+        {
+            return {
+                name: key,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('severity');
+        option.setDescription(`The area effect's severity.`);
+        return option.setChoices(...severityChoices);
+    });
+
+    return subcommand;
+};
 
 export function edge(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
 {

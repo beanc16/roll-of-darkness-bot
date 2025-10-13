@@ -19,6 +19,7 @@ import { CurseborneLookupSubcommand } from '../options/lookup.js';
 import { CurseborneSpell } from '../types/CurseborneSpell.js';
 import { CurseborneTrick } from '../types/CurseborneTrick.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
+import { GetLookupAreaEffectDataParameters, LookupAreaEffectStrategy } from './lookup/LookupAreaEffectStrategy.js';
 import { GetLookupEdgeDataParameters, LookupEdgeStrategy } from './lookup/LookupEdgeStrategy.js';
 import { GetLookupSpellAdvanceDataParameters, LookupSpellAdvanceStrategy } from './lookup/LookupSpellAdvanceStrategy.js';
 import { GetLookupSpellDataParameters, LookupSpellStrategy } from './lookup/LookupSpellStrategy.js';
@@ -34,7 +35,8 @@ interface CursebourneStrategyExecutorRunParameters
     interaction: ChatInputCommandInteraction;
 }
 
-type AllLookupParams = GetLookupEdgeDataParameters
+type AllLookupParams = GetLookupAreaEffectDataParameters
+    | GetLookupEdgeDataParameters
     | GetLookupSpellDataParameters
     | GetLookupSpellAdvanceDataParameters
     | GetLookupStatusDataParameters
@@ -50,6 +52,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 {
     protected static strategies: CurseborneStrategyMap = {
         [CurseborneSubcommandGroup.Lookup]: {
+            [LookupAreaEffectStrategy.key]: LookupAreaEffectStrategy,
             [LookupEdgeStrategy.key]: LookupEdgeStrategy,
             [LookupSpellAdvanceStrategy.key]: LookupSpellAdvanceStrategy,
             [LookupSpellStrategy.key]: LookupSpellStrategy,
@@ -87,6 +90,16 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 
         // Get data based on the autocompleteName
         const handlerMap: AutocompleteHandlerMap<CurseborneAutocompleteParameterName> = {
+            [CurseborneAutocompleteParameterName.AreaEffect]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.AreaEffect,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
             [CurseborneAutocompleteParameterName.EdgeName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Edge,
