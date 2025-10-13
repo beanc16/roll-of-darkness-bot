@@ -6,6 +6,7 @@ export enum CurseborneLookupSubcommand
 {
     Edge = 'edge',
     Spell = 'spell',
+    SpellAdvance = 'spell_advance',
     Trick = 'trick',
 }
 
@@ -60,6 +61,30 @@ export function spell(subcommand: SlashCommandSubcommandBuilder): SlashCommandSu
     {
         option.setName(CurseborneAutocompleteParameterName.SpellAvailableTo);
         option.setDescription(`One of the groups that the spell is available to.`);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export function spellAdvance(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.SpellAdvance);
+    subcommand.setDescription('Get one or more spell advances based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellAdvanceName);
+        option.setDescription(`The spell advance's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Spell Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellName);
+        option.setDescription(`The spell advance's associated spell.`);
         return option.setAutocomplete(true);
     });
 
