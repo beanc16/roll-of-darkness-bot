@@ -45,4 +45,33 @@ export class BaseCurseborneLookupStrategy
 
         return map[matchType];
     };
+
+    protected static hasArrayMatch = (lookupParams: BaseGetLookupDataParams, { inputValue, elementValue }: {
+        inputValue?: string | null | undefined;
+        elementValue: string[];
+    }): boolean =>
+    {
+        const map: Record<BaseGetLookupSearchMatchType, boolean> = {
+            [BaseGetLookupSearchMatchType.ExactMatch]: (
+                inputValue !== undefined
+                && inputValue !== null
+                && elementValue.some((element) => element === inputValue)
+            ),
+            [BaseGetLookupSearchMatchType.SubstringMatch]: (
+                inputValue !== undefined
+                && inputValue !== null
+                && elementValue.some((element) =>
+                    element.toLowerCase().includes(inputValue.toLowerCase()),
+                )
+            ),
+        };
+
+        const {
+            options: {
+                matchType,
+            },
+        } = lookupParams;
+
+        return map[matchType];
+    };
 }

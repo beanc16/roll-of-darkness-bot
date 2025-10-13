@@ -5,6 +5,7 @@ import { CurseborneAutocompleteParameterName, CurseborneEdgeType } from '../type
 export enum CurseborneLookupSubcommand
 {
     Edge = 'edge',
+    Spell = 'spell',
     Trick = 'trick',
 }
 
@@ -36,6 +37,30 @@ export function edge(subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setName('type');
         option.setDescription(`The edge's type.`);
         return option.setChoices(...typeChoices);
+    });
+
+    return subcommand;
+};
+
+export function spell(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Spell);
+    subcommand.setDescription('Get one or more spells based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellName);
+        option.setDescription(`The spell's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Available to
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.SpellAvailableTo);
+        option.setDescription(`One of the groups that the spell is available to.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
