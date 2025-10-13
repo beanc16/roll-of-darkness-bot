@@ -12,6 +12,7 @@ export enum CurseborneLookupSubcommand
 {
     AreaEffect = 'area_effect',
     Edge = 'edge',
+    Motif = 'motif',
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
     Status = 'status',
@@ -80,6 +81,22 @@ export function edge(subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         option.setName('type');
         option.setDescription(`The edge's type.`);
         return option.setChoices(...typeChoices);
+    });
+
+    return subcommand;
+};
+
+export function motif(subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder
+{
+    subcommand.setName(CurseborneLookupSubcommand.Motif);
+    subcommand.setDescription('Get one or more motifs based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(CurseborneAutocompleteParameterName.MotifName);
+        option.setDescription(`The motif's name.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;

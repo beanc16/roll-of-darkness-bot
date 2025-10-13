@@ -2,6 +2,7 @@ export enum CurseborneAutocompleteParameterName
 {
     AreaEffect = 'area_effect',
     EdgeName = 'edge_name',
+    MotifName = 'motif_name',
     SpellName = 'spell_name',
     SpellAvailableTo = 'spell_available_to',
     SpellAdvanceName = 'spell_advance_name',
