@@ -47,8 +47,8 @@ export class BaseCurseborneLookupStrategy
     };
 
     protected static hasArrayMatch = (lookupParams: BaseGetLookupDataParams, { inputValue, elementValue }: {
-        inputValue?: string | null | undefined;
-        elementValue: string[] | null | undefined;
+        inputValue?: string[] | string | null | undefined;
+        elementValue: string[] | string | null | undefined;
     }): boolean =>
     {
         if (elementValue === undefined || elementValue === null)
@@ -60,13 +60,73 @@ export class BaseCurseborneLookupStrategy
             [BaseGetLookupSearchMatchType.ExactMatch]: (
                 inputValue !== undefined
                 && inputValue !== null
-                && elementValue.some((element) => element === inputValue)
+                && (
+                    (
+                        Array.isArray(elementValue)
+                        && elementValue.some((element) =>
+                            (
+                                Array.isArray(inputValue)
+                                && inputValue.some((nestedInputValue) =>
+                                    element === nestedInputValue,
+                                )
+                            )
+                            || (
+                                typeof inputValue === 'string'
+                                && element === inputValue
+                            ),
+                        )
+                    )
+                    || (
+                        typeof elementValue === 'string'
+                        && (
+                            (
+                                typeof inputValue === 'string'
+                                && elementValue === inputValue
+                            )
+                            || (
+                                Array.isArray(inputValue)
+                                && inputValue.some((nestedInputValue) =>
+                                    elementValue === nestedInputValue,
+                                )
+                            )
+                        )
+                    )
+                )
             ),
             [BaseGetLookupSearchMatchType.SubstringMatch]: (
                 inputValue !== undefined
                 && inputValue !== null
-                && elementValue.some((element) =>
-                    element.toLowerCase().includes(inputValue.toLowerCase()),
+                && (
+                    (
+                        Array.isArray(elementValue)
+                        && elementValue.some((element) =>
+                            (
+                                Array.isArray(inputValue)
+                                && inputValue.some((nestedInputValue) =>
+                                    element.toLowerCase().includes(nestedInputValue.toLowerCase()),
+                                )
+                            )
+                            || (
+                                typeof inputValue === 'string'
+                                && element.toLowerCase().includes(inputValue.toLowerCase())
+                            ),
+                        )
+                    )
+                    || (
+                        typeof elementValue === 'string'
+                        && (
+                            (
+                                typeof inputValue === 'string'
+                                && elementValue.toLowerCase().includes(inputValue.toLowerCase())
+                            )
+                            || (
+                                Array.isArray(inputValue)
+                                && inputValue.some((nestedInputValue) =>
+                                    elementValue.toLowerCase().includes(nestedInputValue.toLowerCase()),
+                                )
+                            )
+                        )
+                    )
                 )
             ),
         };

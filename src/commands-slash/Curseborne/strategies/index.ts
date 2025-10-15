@@ -8,7 +8,6 @@ import type {
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseGetLookupSearchMatchType, BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
-import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import {
     CurseborneAllNestedSubcommands,
@@ -19,6 +18,7 @@ import { CurseborneLookupSubcommand } from '../options/lookup.js';
 import { CurseborneEquipment } from '../types/CurseborneEquipment.js';
 import { CurseborneSpell } from '../types/CurseborneSpell.js';
 import { CurseborneTrick } from '../types/CurseborneTrick.js';
+import { CurseborneChatIteractionStrategy, CurseborneStrategyMap } from '../types/strategies.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
 import { GetLookupAreaEffectDataParameters, LookupAreaEffectStrategy } from './lookup/LookupAreaEffectStrategy.js';
 import { GetLookupArtifactDataParameters, LookupArtifactStrategy } from './lookup/LookupArtifactStrategy.js';
@@ -50,11 +50,6 @@ type AllLookupParams = GetLookupAreaEffectDataParameters
     | GetLookupTagDataParameters
     | GetLookupTrickDataParameters;
 
-type CurseborneStrategyMap = StrategyMap<
-    CurseborneSubcommandGroup,
-    CurseborneSubcommand | CurseborneLookupSubcommand
->;
-
 export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 {
     protected static strategies: CurseborneStrategyMap = {
@@ -80,15 +75,14 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: CursebourneStrategyExecutorRunParameters): Promise<boolean>
     {
-        const Strategy = this.getStrategy({
-            strategies: this.strategies,
+        const Strategy = this.getCurseborneStrategy({
             subcommandGroup,
             subcommand,
         });
 
         if (Strategy)
         {
-            return await Strategy.run(interaction);
+            return await Strategy.run(interaction, this.strategies);
         }
 
         return false;
@@ -268,7 +262,7 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.SpellAdvance,
                 lookupParams: {
-                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    ...(focusedValue.value.length > 0 ? { names: [focusedValue.value] } : {}),
                     options: {
                         matchType: BaseGetLookupSearchMatchType.SubstringMatch,
                     },
@@ -367,7 +361,8 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
     }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'> & { lookupParams: AllLookupParams }): Promise<ClassInstance[]>
     {
         const Strategy = this.getStrategy({
-            strategies: this.strategies,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+            strategies: this.strategies as any,
             subcommandGroup,
             subcommand,
         }) as BaseLookupStrategy<AllLookupParams, ClassInstance>;
@@ -378,5 +373,38 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         }
 
         return [];
+    }
+
+    /* istanbul ignore next */
+    private static getCurseborneStrategy({ subcommandGroup, subcommand }: {
+        subcommandGroup: CurseborneSubcommandGroup | undefined;
+        subcommand: CurseborneLookupSubcommand | CurseborneSubcommand;
+    }): CurseborneChatIteractionStrategy | undefined
+    {
+        let Strategy: CurseborneChatIteractionStrategy | undefined;
+
+        if (subcommandGroup?.includes(CurseborneSubcommandGroup.Lookup))
+        {
+            for (let index = 1; index <= 2; index += 1)
+            {
+                Strategy = super.getStrategy({
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                    strategies: this.strategies as any,
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand,
+                });
+            }
+        }
+        else
+        {
+            Strategy = super.getStrategy({
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                strategies: this.strategies as any,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+
+        return Strategy;
     }
 }
