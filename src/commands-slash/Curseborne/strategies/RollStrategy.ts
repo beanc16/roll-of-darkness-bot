@@ -4,18 +4,19 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
 import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
-import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { CurseborneSubcommand } from '../options/index.js';
 import { TwoSuccessesOption } from '../options/roll.js';
 import { CurseborneDiceService } from '../services/CurseborneDiceService.js';
+import { CurseborneChatIteractionStrategy, CurseborneStrategyMap } from '../types/strategies.js';
 
-@staticImplements<ChatIteractionStrategy>()
+@staticImplements<CurseborneChatIteractionStrategy>()
 export class RollStrategy
 {
     public static key: CurseborneSubcommand.Roll = CurseborneSubcommand.Roll;
 
     public static async run(
         interaction: ChatInputCommandInteraction,
+        strategies: CurseborneStrategyMap,
         rerollCallbackOptions: OnRerollCallbackOptions = {
             interactionCallbackType: DiscordInteractionCallbackType.EditReply,
             newCallingUserId: interaction.user.id,
@@ -68,6 +69,7 @@ export class RollStrategy
             rerollCallbackOptions,
             onRerollCallback: newRerollCallbackOptions => this.run(
                 interaction,
+                strategies,
                 newRerollCallbackOptions,
             ),
             commandName: `/cb ${CurseborneSubcommand.Roll}`,

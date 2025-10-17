@@ -25,6 +25,7 @@ export interface CurseborneLookupIteractionStrategy<Response = boolean> extends 
 
 export type CurseborneStrategyMap = StrategyMap<
     CurseborneSubcommandGroup,
-    CurseborneSubcommand
+    CurseborneSubcommand,
+    CurseborneChatIteractionStrategy
 >
 & StrategyMap<CurseborneSubcommandGroup.Lookup, CurseborneLookupSubcommand, CurseborneLookupIteractionStrategy>;
