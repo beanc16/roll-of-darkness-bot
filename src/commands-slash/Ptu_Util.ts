@@ -3,25 +3,27 @@ import { logger } from '@beanc16/logger';
 import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import {
-    calculate,
+    breed,
+    game,
     PtuSubcommandGroup,
-    random,
-    roll,
+    train,
+    typeEffectiveness,
 } from './Ptu/options/index.js';
 import { PtuLookupSubcommand } from './Ptu/options/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/options/random.js';
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 
-class Ptu extends BaseSlashCommand
+class Ptu_Util extends BaseSlashCommand
 {
     constructor()
     {
         super();
         // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
         this._slashCommandData
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(random)
-            .addSubcommandGroup(roll);
+            .addSubcommand(breed)
+            .addSubcommandGroup(game)
+            .addSubcommand(train)
+            .addSubcommand(typeEffectiveness);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
@@ -75,8 +77,8 @@ class Ptu extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     get description(): string
     {
-        return `Run Pokemon Tabletop United commands.`;
+        return `Run utility commands for Pokemon Tabletop United.`;
     }
 }
 
-export default new Ptu();
+export default new Ptu_Util();
