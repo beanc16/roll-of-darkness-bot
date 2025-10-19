@@ -349,11 +349,11 @@ export const healingItem = (subcommand: SlashCommandSubcommandBuilder): SlashCom
     });
 
     // Type
-    const typeChoices = Object.entries(HealingItemType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
+    const typeChoices = Object.values(HealingItemType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
         {
             return {
-                name: key,
+                name: value,
                 value,
             };
         },
