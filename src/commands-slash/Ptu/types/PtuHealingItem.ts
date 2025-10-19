@@ -2,6 +2,7 @@ export enum HealingItemType
 {
     Healing = 'Healing',
     Status = 'Status',
+    MedicalSupply = 'Medical Supply',
 }
 
 export class PtuHealingItem
