@@ -87,7 +87,9 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
 
     private static getEmbeds([{ names = [] }]: GetNicknamesResponse[]): EmbedBuilder[]
     {
-        const overview = names.reduce<{
+        const overview = names.sort((a, b) =>
+            (a?.startingLevel || 0) - (b?.startingLevel || 0),
+        ).reduce<{
             sumOfLevels: number;
             numOfLevelsSummed: number;
             minLevel: number;
