@@ -71,7 +71,7 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
             return true;
         }
 
-        const embeds = this.getEmbeds(spreadsheetValuesResult);
+        const embeds = this.getEmbeds(spreadsheetValuesResult, characterName);
 
         // Send messages with pagination (fire and forget)
         // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
@@ -85,11 +85,12 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
         return true;
     }
 
-    private static getEmbeds([{ names = [] }]: GetNicknamesResponse[]): EmbedBuilder[]
+    private static getEmbeds([{ names = [] }]: GetNicknamesResponse[], characterName: PtuCharacterSheetName): EmbedBuilder[]
     {
-        const overview = names.sort((a, b) =>
+        const sortedNames = names.sort((a, b) =>
             (a?.startingLevel || 0) - (b?.startingLevel || 0),
-        ).reduce<{
+        );
+        const overview = sortedNames.reduce<{
             sumOfLevels: number;
             numOfLevelsSummed: number;
             minLevel: number;
@@ -130,11 +131,40 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
             maxName: '',
         });
 
-        const averageLevel = (overview.sumOfLevels / overview.numOfLevelsSummed).toFixed(2);
+        const averageLevel = (overview.sumOfLevels / overview.numOfLevelsSummed).toFixed(1);
+        const roundedAverageLevel = Math.round(Number(averageLevel));
+        const averageLevelBreakdown = sortedNames.reduce<{
+            numOfPokemonBelow: number;
+            numOfPokemonAt: number;
+            numOfPokemonAbove: number;
+        }>((acc, { startingLevel }) =>
+        {
+            if (startingLevel !== undefined)
+            {
+                if (startingLevel < roundedAverageLevel)
+                {
+                    acc.numOfPokemonBelow += 1;
+                }
+                else if (startingLevel === roundedAverageLevel)
+                {
+                    acc.numOfPokemonAt += 1;
+                }
+                else
+                {
+                    acc.numOfPokemonAbove += 1;
+                }
+            }
+            return acc;
+        }, {
+            numOfPokemonBelow: 0,
+            numOfPokemonAt: 0,
+            numOfPokemonAbove: 0,
+        });
+        const numberOfPokemon = sortedNames.length;
 
         return getPagedEmbedMessages({
-            input: names,
-            title: 'Metadata',
+            input: sortedNames,
+            title: `${characterName}'s Metadata`,
             parseElementToLines: (element, index) => [
                 // Add overview before the first element
                 ...(index === 0
@@ -143,6 +173,11 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
                         `Average Level: ${averageLevel}`,
                         `Lowest Level: ${overview.minLevel} (${overview.minName})`,
                         `Highest Level: ${overview.maxLevel} (${overview.maxName})`,
+                        '',
+                        `Number of Pokemon: ${numberOfPokemon}`,
+                        `Below Average Level: ${averageLevelBreakdown.numOfPokemonBelow} Pokemon (${(averageLevelBreakdown.numOfPokemonBelow / numberOfPokemon * 100).toFixed(1)}%)`,
+                        `At Average Level: ${averageLevelBreakdown.numOfPokemonAt} Pokemon (${(averageLevelBreakdown.numOfPokemonAt / numberOfPokemon * 100).toFixed(1)}%)`,
+                        `Above Average Level: ${averageLevelBreakdown.numOfPokemonAbove} Pokemon (${(averageLevelBreakdown.numOfPokemonAbove / numberOfPokemon * 100).toFixed(1)}%)`,
                         '',
                     ]
                     : []),
