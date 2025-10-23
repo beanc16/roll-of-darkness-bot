@@ -330,7 +330,11 @@ describe('class: CharacterSheetStrategy', () =>
                 {
                     return {
                         spreadsheetId: curSpreadsheetId,
-                        names: [{ nickname: 'Pika', pageName: 'Pikachu' }],
+                        names: [{
+                            nickname: 'Pika',
+                            pageName: 'Pikachu',
+                            startingLevel: 49,
+                        }],
                     };
                 });
                 expect(result).toEqual(expectedResult);
@@ -417,7 +421,7 @@ describe('class: CharacterSheetStrategy', () =>
                 validGetPageTitlesBatchResponse,
             );
 
-            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+            const result = await CharacterSheetStrategy['getAllPokemonNames'](characterSheetSpreadsheetIds);
             const spreadsheetMetadata = characterSheetSpreadsheetIds.map((spreadsheetId) =>
             {
                 return { spreadsheetId };
@@ -439,7 +443,7 @@ describe('class: CharacterSheetStrategy', () =>
                 errorType,
             });
 
-            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+            const result = await CharacterSheetStrategy['getAllPokemonNames'](characterSheetSpreadsheetIds);
 
             expect(result).toEqual(errorType);
         });
@@ -450,7 +454,7 @@ describe('class: CharacterSheetStrategy', () =>
                 // No data or errorType
             });
 
-            const result = await CharacterSheetStrategy['getAllPokemonNames']();
+            const result = await CharacterSheetStrategy['getAllPokemonNames'](characterSheetSpreadsheetIds);
 
             expect(result).toBeUndefined();
         });
