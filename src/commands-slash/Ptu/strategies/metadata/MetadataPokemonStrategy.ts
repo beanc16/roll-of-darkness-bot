@@ -131,6 +131,11 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
             maxName: '',
         });
 
+        const pokemonWithDefinedLevels = sortedNames.filter(({ startingLevel }) =>
+            startingLevel !== undefined,
+        );
+        const medianPokemon = pokemonWithDefinedLevels[Math.floor(pokemonWithDefinedLevels.length / 2)];
+
         const averageLevel = (overview.sumOfLevels / overview.numOfLevelsSummed).toFixed(1);
         const roundedAverageLevel = Math.round(Number(averageLevel));
         const averageLevelBreakdown = sortedNames.reduce<{
@@ -172,6 +177,7 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
                         Text.bold('Overview'),
                         `Average Level: ${averageLevel}`,
                         `Lowest Level: ${overview.minLevel} (${overview.minName})`,
+                        `Median Level: ${medianPokemon.startingLevel} (${medianPokemon.nickname || medianPokemon.pageName})`,
                         `Highest Level: ${overview.maxLevel} (${overview.maxName})`,
                         '',
                         `Number of Pokemon: ${numberOfPokemon}`,
