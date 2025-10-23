@@ -24,6 +24,7 @@ export enum PtuSubcommandGroup
     Game = 'game',
     Generate = 'generate',
     Lookup = 'lookup',
+    Metadata = 'metadata',
     QuickReference = 'quick_reference',
     Random = 'random',
     Roll = 'roll',
@@ -167,6 +168,33 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder, inde
         }
     });
     return subcommandGroup;
+};
+
+export const metadata = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuSubcommandGroup.Metadata);
+    subcommand.setDescription(`Get metadata about a character sheet's Pokemon.`);
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('character_name');
+        option.setDescription('The name of the character to train pokemon on.');
+
+        const choices = Object.values(PtuCharacterSheetName).map<APIApplicationCommandOptionChoice<string>>(
+            (name) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            },
+        );
+        option.addChoices(...choices);
+
+        return option.setRequired(true);
+    });
+
+    return subcommand;
 };
 
 export const quickReference = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>

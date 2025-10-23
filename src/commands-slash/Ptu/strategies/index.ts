@@ -55,6 +55,7 @@ import { GetLookupPokeballDataParameters } from './lookup/LookupPokeballStrategy
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
+import { MetadataPokemonStrategy } from './metadata/MetadataPokemonStrategy.js';
 import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
@@ -136,6 +137,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         [PtuSubcommandGroup.Game]: gameStrategies,
         [PtuSubcommandGroup.Generate]: generateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
+        [PtuSubcommandGroup.Metadata]: MetadataPokemonStrategy,
         [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
         [PtuSubcommandGroup.Random]: randomStrategies,
         [PtuSubcommandGroup.Roll]: rollStrategies,

@@ -9,7 +9,7 @@ import { CachedGoogleSheetsApiService, RetryOptions } from '../../../services/Ca
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
 import { chunkArray } from '../../../services/chunkArray.js';
 import { CommandName } from '../../../types/discord.js';
-import { characterSheetSpreadsheetIds, getSpreadsheetNameFromSpreadsheetIds } from '../constants.js';
+import { getSpreadsheetNameFromSpreadsheetIds } from '../constants.js';
 
 export interface GetSpreadsheetValuesOptions
 {
@@ -61,6 +61,7 @@ export interface GetNicknamesResponse
     names: {
         nickname: string;
         pageName: string;
+        startingLevel?: number;
     }[];
 }
 
@@ -280,9 +281,9 @@ export class CharacterSheetStrategy
         return result;
     }
 
-    protected static async getAllPokemonNames(): Promise<GoogleSheetsGetPageTitleSpreadsheet[] | GoogleSheetsApiErrorType | undefined>
+    protected static async getAllPokemonNames(spreadsheetIds: string[]): Promise<GoogleSheetsGetPageTitleSpreadsheet[] | GoogleSheetsApiErrorType | undefined>
     {
-        const spreadsheetMetadata = characterSheetSpreadsheetIds.map((spreadsheetId) =>
+        const spreadsheetMetadata = spreadsheetIds.map((spreadsheetId) =>
         {
             return { spreadsheetId };
         });
@@ -323,9 +324,9 @@ export class CharacterSheetStrategy
     }
 
     /* istanbul ignore next */
-    public static async getAllPokemonNamesAndNicknames(): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
+    public static async getAllPokemonNamesAndNicknames(spreadsheetIds: string[]): Promise<GetNicknamesResponse[] | GoogleSheetsApiErrorType | undefined>
     {
-        const pokemonNamesResponse = await this.getAllPokemonNames();
+        const pokemonNamesResponse = await this.getAllPokemonNames(spreadsheetIds);
 
         if (!Array.isArray(pokemonNamesResponse))
         {
@@ -404,6 +405,7 @@ export class CharacterSheetStrategy
                 nickname,
                 pageName,
                 isValid,
+                startingLevel,
             },
         }) =>
         {
@@ -411,7 +413,11 @@ export class CharacterSheetStrategy
             {
                 const { [spreadsheetId]: names = [] } = acc;
 
-                names.push({ nickname, pageName });
+                names.push({
+                    nickname,
+                    pageName,
+                    startingLevel,
+                });
                 acc[spreadsheetId] = names;
             }
 

@@ -7,6 +7,7 @@ import { PtuGameSubcommand } from '../options/game.js';
 import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
+import { PtuMetadataSubcommand } from '../options/metadata.js';
 import { PtuRandomSubcommand } from '../options/random.js';
 import { PtuRollSubcommand } from '../options/roll.js';
 import { PtuTrainSubcommand } from '../options/train.js';
@@ -38,6 +39,7 @@ export type PtuStrategyMap = StrategyMap<
     | PtuCalculateSubcommand
     | PtuGameSubcommand
     | PtuGenerateSubcommand
+    | PtuMetadataSubcommand
     | PtuQuickReferenceInfo
     | PtuRollSubcommand
     | PtuTrainSubcommand
