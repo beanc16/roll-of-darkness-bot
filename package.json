@@ -7,7 +7,7 @@
     "author": "ShockingShots",
     "type": "module",
     "scripts": {
-        "build": "rm -rf dist && tsc",
+        "build": "rm -rf dist && swc src -d dist --strip-leading-paths",
         "start": "npm run build && node dist/bot.js",
         "start:dev": "node --loader ts-node/esm --watch src/bot.ts",
         "lint": "eslint --config eslintrc.cjs --cache --ext js --ext ts ./",
@@ -44,8 +44,9 @@
     },
     "devDependencies": {
         "@beanc16/utility-types": "^1.1.0",
-        "@swc/core": "^1.10.1",
-        "@swc/jest": "^0.2.37",
+        "@swc/cli": "^0.7.8",
+        "@swc/core": "^1.13.21",
+        "@swc/jest": "^0.2.39",
         "@types/jest": "^29.5.14",
         "@types/node": "^20.9.0",
         "dotenv": "^16.4.7",
