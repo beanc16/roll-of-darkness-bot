@@ -15,7 +15,7 @@ import {
 } from 'discord.js';
 
 import { CommandName } from '../../../types/discord.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../InteractionStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../InteractionStrategy/InteractionStrategy.js';
 import { PaginationActionRowBuilder, PaginationButtonName } from './components/PaginationActionRowBuilder.js';
 
 export type PaginationInteractionType = 'editReply' | 'dm' | 'update' | 'followUp';

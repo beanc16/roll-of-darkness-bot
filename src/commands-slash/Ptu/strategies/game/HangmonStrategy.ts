@@ -12,11 +12,11 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { RandomService } from '../../../../services/RandomService.js';
-import { RegexLookupType } from '../../../../services/stringHelpers.js';
+import { RandomService } from '../../../../services/RandomService/RandomService.js';
+import { RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
 import { CommandName } from '../../../../types/discord.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy/InteractionStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { HangmonActionRowBuilder, HangmonCustomIds } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';

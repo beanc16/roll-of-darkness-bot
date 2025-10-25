@@ -2,8 +2,8 @@ import { UUID } from 'node:crypto';
 
 import dayjs from 'dayjs';
 
-import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord.js';
-import { Timer } from '../../../services/Timer.js';
+import { CompositeKeyRecord } from '../../../services/CompositeKeyRecord/CompositeKeyRecord.js';
+import { Timer } from '../../../services/Timer/Timer.js';
 import { CounterController } from '../dal/CounterMongoController.js';
 import counterSingleton from './CounterSingleton.js';
 

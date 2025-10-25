@@ -12,7 +12,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers.js';
+import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { LookupPokemonActionRowBuilder, LookupPokemonCustomId } from '../../components/lookup/LookupPokemonActionRowBuilder.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
@@ -29,9 +29,9 @@ import {
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
-import { HomebrewPokeApi } from '../../services/HomebrewPokeApi.js';
-import { PokeApi } from '../../services/PokeApi.js';
-import { removeExtraCharactersFromMoveName } from '../../services/pokemonMoveHelpers.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
+import { PokeApi } from '../../services/PokeApi/PokeApi.js';
+import { removeExtraCharactersFromMoveName } from '../../services/pokemonMoveHelpers/pokemonMoveHelpers.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
     PtuAbilityListType,

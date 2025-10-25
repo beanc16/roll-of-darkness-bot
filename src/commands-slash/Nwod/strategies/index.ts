@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
-import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutocompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';

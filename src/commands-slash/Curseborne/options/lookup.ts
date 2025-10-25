@@ -13,13 +13,16 @@ export enum CurseborneLookupSubcommand
 {
     AreaEffect = 'area_effect',
     Artifact = 'artifact',
+    // DamnationAndInheritance = 'damnation_and_inheritance',
     Edge = 'edge',
     Equipment = 'equipment',
+    // GearOrRelic = 'gear_or_relic',
     Motif = 'motif',
     Spell = 'spell',
     SpellAdvance = 'spell_advance',
     Status = 'status',
     Tag = 'tag',
+    // Torment = 'torment',
     Trick = 'trick',
 }
 

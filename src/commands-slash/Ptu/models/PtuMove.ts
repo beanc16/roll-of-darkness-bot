@@ -1,6 +1,6 @@
 import { logger } from '@beanc16/logger';
 
-import { EnumParserService } from '../../../services/EnumParserService.js';
+import { EnumParserService } from '../../../services/EnumParserService/EnumParserService.js';
 import { EqualityOption } from '../../options/shared.js';
 import { GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {

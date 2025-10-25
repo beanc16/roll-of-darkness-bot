@@ -8,9 +8,9 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { chunkArray } from '../../services/chunkArray.js';
+import { chunkArray } from '../../services/chunkArray/chunkArray.js';
 import { CommandName } from '../../types/discord.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../strategies/InteractionStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../strategies/InteractionStrategy/InteractionStrategy.js';
 
 export type PaginatedStringSelectMenuOnSelect = (receivedInteraction: StringSelectMenuInteraction) => Promise<void> | void;
 

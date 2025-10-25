@@ -4,7 +4,7 @@ import {
     SlashCommandStringOption,
 } from 'discord.js';
 
-import rollConstants from '../../../constants/roll.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 
 export function numberOfDice(option: SlashCommandStringOption): SlashCommandStringOption
 {

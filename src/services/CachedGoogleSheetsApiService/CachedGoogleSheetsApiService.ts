@@ -10,8 +10,8 @@ import type {
 import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
 
 import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
-import { CompositeKeyRecord } from '../CompositeKeyRecord.js';
-import { Timer } from '../Timer.js';
+import { CompositeKeyRecord } from '../CompositeKeyRecord/CompositeKeyRecord.js';
+import { Timer } from '../Timer/Timer.js';
 import {
     GoogleSheetsApiErrorType,
     type GoogleSheetsGetPageTitlesBatchResponse,

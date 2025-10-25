@@ -7,7 +7,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { CachedGoogleSheetsApiService, RetryOptions } from '../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../services/CachedGoogleSheetsApiService/types.js';
-import { chunkArray } from '../../../services/chunkArray.js';
+import { chunkArray } from '../../../services/chunkArray/chunkArray.js';
 import { CommandName } from '../../../types/discord.js';
 import { getSpreadsheetNameFromSpreadsheetIds } from '../constants.js';
 

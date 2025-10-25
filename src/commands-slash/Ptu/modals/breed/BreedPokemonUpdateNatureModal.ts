@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomModal.js';
-import { capitalizeFirstLetter } from '../../../../services/stringHelpers.js';
+import { capitalizeFirstLetter } from '../../../../services/stringHelpers/stringHelpers.js';
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';

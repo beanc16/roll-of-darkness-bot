@@ -7,7 +7,7 @@ import {
     PokemonTypeEffectivenessService,
     PokemonTypePossibility,
     TypeEffectivenessRole,
-} from '../../services/PokemonTypeEffectivenessService.js';
+} from '../../services/PokemonTypeEffectivenessService/PokemonTypeEffectivenessService.js';
 import { PokemonTypeAndNone } from '../../types/pokemon.js';
 import { PtuAbilityForTypeEffectiveness } from '../../types/PtuAbilityForTypeEffectiveness.js';
 import type { PtuChatIteractionStrategy } from '../../types/strategies.js';

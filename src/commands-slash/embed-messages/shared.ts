@@ -1,7 +1,7 @@
 import { APIEmbedField, EmbedBuilder } from 'discord.js';
 
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../constants/discord.js';
-import { chunkArray } from '../../services/chunkArray.js';
+import { chunkArray } from '../../services/chunkArray/chunkArray.js';
 
 export interface TableColumn
 {

@@ -1,0 +1,17 @@
+import { ChatIteractionStrategy } from '../commands-slash/strategies/types/ChatIteractionStrategy.js';
+import { staticImplements } from '../decorators/staticImplements.js';
+import { FakeChatInputCommandInteraction } from './discord/interactions.js';
+
+@staticImplements<ChatIteractionStrategy>()
+export class FakeChatInteractionStrategy
+{
+    public static key = 'some-key';
+
+    public static run(_interaction: FakeChatInputCommandInteraction): Promise<boolean>
+    {
+        return new Promise((resolve) =>
+        {
+            resolve(true);
+        });
+    }
+}

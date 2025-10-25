@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "src/**/*.test.ts",
+        "src/**/fakes",
+        "__mocks__/**/*.ts",
+    ],
+    "compilerOptions": {
+        "noEmit": true,
+    },
+    "exclude": [
+        "node_modules",
+        "dist",
+    ]
+}

@@ -2,7 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { discordLogger, logger } from '@beanc16/logger';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 
-import { Timer } from '../services/Timer.js';
+import { Timer } from '../services/Timer/Timer.js';
 
 let exitCode = 0;
 

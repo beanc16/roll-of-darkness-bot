@@ -17,8 +17,8 @@ import {
     type VoiceBasedChannel,
 } from 'discord.js';
 
-import { CompositeKeyRecord } from '../../services/CompositeKeyRecord.js';
-import { LoopableAudioStream } from './services/LoopableAudioStream.js';
+import { CompositeKeyRecord } from '../../services/CompositeKeyRecord/CompositeKeyRecord.js';
+import { LoopableAudioStream } from './services/LoopableAudioStream/LoopableAudioStream.js';
 import type { AudioPlayerEmitter } from './types.js';
 
 /* istanbul ignore next */

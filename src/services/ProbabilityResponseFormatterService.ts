@@ -1,4 +1,4 @@
-import rollConstants from '../constants/roll.js';
+import rollConstants from './Dice/rollConstants.js';
 import { ResponseFormatterService } from './ResponseFormatterService.js';
 
 export default class ProbabilityResponseFormatterService extends ResponseFormatterService

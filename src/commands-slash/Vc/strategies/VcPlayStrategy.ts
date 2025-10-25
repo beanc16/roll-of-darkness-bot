@@ -11,7 +11,7 @@ import {
     getVoiceConnectionData,
 } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
-import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
 

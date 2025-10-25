@@ -23,7 +23,7 @@ import {
     GetMessageDataResponse,
     InteractionListenerRestartStyle,
     InteractionStrategy,
-} from './strategies/InteractionStrategy.js';
+} from './strategies/InteractionStrategy/InteractionStrategy.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy/PaginationStrategy.js';
 
 enum CounterButtonName

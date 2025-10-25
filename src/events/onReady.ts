@@ -1,7 +1,7 @@
 import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
-import { HomebrewPokeApi } from '../commands-slash/Ptu/services/HomebrewPokeApi.js';
+import { HomebrewPokeApi } from '../commands-slash/Ptu/services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 import { LookupCacheInitializer } from '../services/LookupCacheInitializer.js';

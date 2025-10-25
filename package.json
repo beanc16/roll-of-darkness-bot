@@ -10,8 +10,8 @@
         "build": "rm -rf dist && tsc",
         "start": "npm run build && node dist/bot.js",
         "start:dev": "node --loader ts-node/esm --watch src/bot.ts",
-        "lint": "eslint --cache --ext js --ext ts ./",
-        "lint:fix": "eslint --cache --fix --ext js --ext ts ./",
+        "lint": "eslint --config eslintrc.cjs --cache --ext js --ext ts ./",
+        "lint:fix": "eslint --config eslintrc.cjs --cache --fix --ext js --ext ts ./",
         "test": "jest --passWithNoTests --detectOpenHandles",
         "test:watch": "jest --passWithNoTests --detectOpenHandles --watch",
         "test:watch:all": "jest --passWithNoTests --detectOpenHandles --watchAll",
@@ -20,13 +20,6 @@
         "preversion": "npm run lint",
         "version": "git add -A",
         "postversion": "git push && git push --tags"
-    },
-    "eslintConfig": {
-        "extends": "lintification",
-        "rules": {
-            "arrow-body-style": "off",
-            "no-async-promise-executor": "off"
-        }
     },
     "dependencies": {
         "@beanc16/discordjs-common-commands": "^2.1.2",

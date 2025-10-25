@@ -4,9 +4,9 @@ import {
     SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
-import { chunkArray } from '../../../services/chunkArray.js';
-import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
-import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
+import { chunkArray } from '../../../services/chunkArray/chunkArray.js';
+import { capitalizeFirstLetter } from '../../../services/stringHelpers/stringHelpers.js';
+import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService/PokemonTypeEffectivenessService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';

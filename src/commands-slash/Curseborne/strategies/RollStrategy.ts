@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy/RerollStrategy.js';
 import { CurseborneSubcommand } from '../options/index.js';
 import { TwoSuccessesOption } from '../options/roll.js';
 import { CurseborneDiceService } from '../services/CurseborneDiceService.js';

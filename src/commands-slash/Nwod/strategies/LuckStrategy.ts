@@ -1,10 +1,10 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
-import { DiceService } from '../../../services/DiceService.js';
+import { DiceService } from '../../../services/Dice/DiceService.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 import { DiscordInteractionCallbackType } from '../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../strategies/RerollStrategy/RerollStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { NwodSubcommand } from '../options/index.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';

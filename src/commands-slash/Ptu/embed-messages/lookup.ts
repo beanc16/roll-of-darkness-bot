@@ -4,7 +4,7 @@ import { EmbedBuilder } from 'discord.js';
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { getPagedEmbedBuilders, getPagedEmbedMessages } from '../../embed-messages/shared.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { removeExtraCharactersFromMoveName } from '../services/pokemonMoveHelpers.js';
+import { removeExtraCharactersFromMoveName } from '../services/pokemonMoveHelpers/pokemonMoveHelpers.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,

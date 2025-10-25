@@ -1,5 +1,5 @@
-import rollConstants from '../../../constants/roll.js';
-import { DiceService } from '../../../services/DiceService.js';
+import { DiceService } from '../../../services/Dice/DiceService.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 import { CurseborneDicePool } from './CurseborneDicePool.js';
 
 export class CurseborneDiceService

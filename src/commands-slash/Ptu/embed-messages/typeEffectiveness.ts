@@ -1,9 +1,9 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import { EmbedBuilder } from 'discord.js';
 
-import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
+import { capitalizeFirstLetter } from '../../../services/stringHelpers/stringHelpers.js';
 import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
-import { PokemonTypePossibility, TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
+import { PokemonTypePossibility, TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService/PokemonTypeEffectivenessService.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuAbilityForTypeEffectiveness } from '../types/PtuAbilityForTypeEffectiveness.js';
 
