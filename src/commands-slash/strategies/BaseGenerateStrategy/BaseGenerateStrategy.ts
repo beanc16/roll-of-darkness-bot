@@ -1,7 +1,7 @@
 import { logger } from '@beanc16/logger';
+import { ChatAnthropic } from '@langchain/anthropic';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { ChatAnthropic } from '@langchain/anthropic';
 import {
     type AttachmentPayload,
     type ButtonInteraction,
@@ -79,7 +79,7 @@ export class BaseGenerateStrategy
 
         if (schema)
         {
-            // @ts-expect-error
+            // @ts-expect-error -- TypeScript complains about an infinitely recursive initiation, even though this is the correct way to do it
             return llm.withStructuredOutput(schema);
         }
 
