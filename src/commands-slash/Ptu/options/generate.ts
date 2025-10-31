@@ -9,9 +9,44 @@ import { PtuSkill } from '../types/pokemonTrainers.js';
 
 export enum PtuGenerateSubcommand
 {
+    AbilityNames = 'ability_names',
     MoveNames = 'move_names',
     SkillBackground = 'skill_background',
 }
+
+export const abilityNames = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuGenerateSubcommand.AbilityNames);
+    subcommand.setDescription('Generate a list of ability name ideas.');
+
+    // Prompt
+    subcommand.addStringOption((option) =>
+    {
+        return promptOption(option, {
+            commandName: PtuGenerateSubcommand.AbilityNames,
+            description: 'The description of the ability you want to generate.',
+            isRequired: true,
+        });
+    });
+
+    // Number of abilities
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('number_of_abilities');
+        option.setDescription('The number of ability names to generate (default: 10).');
+        option.setMinValue(1);
+        return option.setMaxValue(25);
+    });
+
+    // Include descriptions
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('include_descriptions');
+        return option.setDescription('Include ability flavor descriptions (default: false).');
+    })
+
+    return subcommand;
+};
 
 export const moveNames = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
