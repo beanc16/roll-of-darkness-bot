@@ -2,12 +2,12 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages, paginateCsv } from '../../../embed-messages/shared.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
-import { getPagedEmbedMessages, paginateCsv } from '../../../embed-messages/shared.js';
-import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 
 @staticImplements<PtuChatIteractionStrategy>()
 export class GenerateAbilityNamesStrategy extends BaseGenerateStrategy
@@ -35,10 +35,12 @@ export class GenerateAbilityNamesStrategy extends BaseGenerateStrategy
             systemInstructions: this.getSystemInstructions(numOfAbilities),
             prompt: [
                 prompt,
-                ...(shouldIncludeDescriptions ? [
-                    '',
-                    `Include a concise sentence evocatively describing how each ability would be flavored.`,
-                ] : []),
+                ...(shouldIncludeDescriptions
+                    ? [
+                        '',
+                        `Include a concise sentence evocatively describing how each ability would be flavored.`,
+                    ]
+                    : []),
             ].join('\n'),
             commandName: `/ptu ${PtuSubcommandGroup.Generate} ${this.key}`,
         });

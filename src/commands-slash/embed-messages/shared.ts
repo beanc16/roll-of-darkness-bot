@@ -340,7 +340,7 @@ export const getPagedEmbedMessages = <Element>({
 
 /**
  * Splits a CSV string into pages, ensuring each page doesn't exceed the character limit.
- * 
+ *
  * @param input - The input CSV string to paginate
  * @param delimiter - The delimiter to split on (default: '\n')
  * @param maxChars - Maximum characters per page (default: 2000)
@@ -385,9 +385,10 @@ export const paginateCsv = ({
     });
 
     // Add the last page if it has content
-    if (currentPage.length > 0) {
+    if (currentPage.length > 0)
+    {
         pages.push(currentPage.join(delimiter));
     }
 
     return pages;
-}
+};

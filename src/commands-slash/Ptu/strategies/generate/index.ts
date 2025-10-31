@@ -1,6 +1,6 @@
 import { GenerateAbilityNamesStrategy } from './GenerateAbilityNamesStrategy.js';
-import { GenerateMoveStrategy } from './GenerateMoveStrategy.js';
 import { GenerateMoveNamesStrategy } from './GenerateMoveNamesStrategy.js';
+import { GenerateMoveStrategy } from './GenerateMoveStrategy.js';
 import { GenerateSkillBackgroundStrategy } from './GenerateSkillBackgroundStrategy.js';
 
 export default {

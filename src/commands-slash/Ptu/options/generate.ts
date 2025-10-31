@@ -43,7 +43,7 @@ export const abilityNames = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     {
         option.setName('include_descriptions');
         return option.setDescription('Include ability flavor descriptions (default: false).');
-    })
+    });
 
     return subcommand;
 };
@@ -77,7 +77,7 @@ export const moveNames = (subcommand: SlashCommandSubcommandBuilder): SlashComma
     {
         option.setName('include_descriptions');
         return option.setDescription('Include move flavor descriptions (default: false).');
-    })
+    });
 
     return subcommand;
 };
