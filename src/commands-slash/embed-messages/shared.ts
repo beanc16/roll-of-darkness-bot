@@ -337,3 +337,57 @@ export const getPagedEmbedMessages = <Element>({
         pages,
     });
 };
+
+/**
+ * Splits a CSV string into pages, ensuring each page doesn't exceed the character limit.
+ * 
+ * @param input - The input CSV string to paginate
+ * @param delimiter - The delimiter to split on (default: '\n')
+ * @param maxChars - Maximum characters per page (default: 2000)
+ * @returns Array of paginated strings
+ */
+export const paginateCsv = ({
+    input,
+    delimiter = '\n',
+    maxChars = 2000,
+}: {
+    input: string;
+    delimiter?: string;
+    maxChars?: number;
+}): string[] =>
+{
+    const rows = input.split(delimiter);
+
+    const pages: string[] = [];
+    let currentPage: string[] = [];
+    let currentLength = 0;
+
+    rows.forEach((row) =>
+    {
+        // Calculate length including the delimiter (except for first row in page)
+        const rowLength = row.length + (currentPage.length > 0 ? delimiter.length : 0);
+
+        // Adding this row would exceed the limit
+        if (currentLength + rowLength > maxChars && currentPage.length > 0)
+        {
+            // Save current page and start a new one
+            pages.push(currentPage.join(delimiter));
+            currentPage = [row];
+            currentLength = row.length;
+        }
+
+        else
+        {
+            // Add row to current page
+            currentPage.push(row);
+            currentLength += rowLength;
+        }
+    });
+
+    // Add the last page if it has content
+    if (currentPage.length > 0) {
+        pages.push(currentPage.join(delimiter));
+    }
+
+    return pages;
+}

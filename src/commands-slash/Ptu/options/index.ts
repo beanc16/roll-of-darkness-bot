@@ -13,6 +13,7 @@ import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
 import * as gameSubcommands from './game.js';
 import * as generateSubcommands from './generate.js';
+import * as generateDevSubcommands from './generate_dev.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
 import * as rollSubcommands from './roll.js';
@@ -139,7 +140,7 @@ export const generateDev = (subcommandGroup: SlashCommandSubcommandGroupBuilder)
 {
     subcommandGroup.setName(PtuSubcommandGroup.Generate);
     subcommandGroup.setDescription('Run PTU generative AI commands.');
-    Object.values(generateSubcommands).forEach((subcommand) =>
+    Object.values(generateDevSubcommands).forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {

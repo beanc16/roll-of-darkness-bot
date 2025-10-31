@@ -4,12 +4,48 @@ import type {
     SlashCommandSubcommandBuilder,
 } from 'discord.js';
 
+import { promptOption } from '../../Ai/options/sharedOptions.js';
 import { PtuSkill } from '../types/pokemonTrainers.js';
 
 export enum PtuGenerateSubcommand
 {
+    MoveNames = 'move_names',
     SkillBackground = 'skill_background',
 }
+
+export const moveNames = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuGenerateSubcommand.MoveNames);
+    subcommand.setDescription('Generate a list of move name ideas.');
+
+    // Prompt
+    subcommand.addStringOption((option) =>
+    {
+        return promptOption(option, {
+            commandName: PtuGenerateSubcommand.MoveNames,
+            description: 'The description of the move you want to generate.',
+            isRequired: true,
+        });
+    });
+
+    // Number of moves
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('number_of_moves');
+        option.setDescription('The number of move names to generate (default: 10).');
+        option.setMinValue(1);
+        return option.setMaxValue(25);
+    });
+
+    // Include descriptions
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('include_descriptions');
+        return option.setDescription('Include move flavor descriptions (default: false).');
+    })
+
+    return subcommand;
+};
 
 const skill = (
     option: SlashCommandStringOption,
