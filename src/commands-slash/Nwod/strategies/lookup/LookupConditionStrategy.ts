@@ -17,6 +17,7 @@ export interface GetLookupMeritDataOptions extends BaseLookupDataOptions
 {
     name?: string | null;
     clarityConditionTag?: string | null;
+    conditionType?: string | null;
 }
 
 @staticImplements<ChatIteractionStrategy>()
@@ -29,10 +30,12 @@ export class LookupConditionStrategy
         // Get parameter results
         const name = interaction.options.getString(NwodAutocompleteParameterName.ConditionName);
         const clarityConditionTag = interaction.options.getString(NwodAutocompleteParameterName.ClarityConditionTag);
+        const conditionType = interaction.options.getString(NwodAutocompleteParameterName.ConditionType);
 
         const data = await this.getLookupData({
             name,
             clarityConditionTag,
+            conditionType,
             includeAllIfNoName: false,
         });
 
@@ -44,6 +47,15 @@ export class LookupConditionStrategy
                 Text.bold(element.name),
                 ...(element.pageNumber !== undefined
                     ? [`Page Number: ${element.pageNumber}`]
+                    : []
+                ),
+                ...(element.types !== undefined
+                    ? [
+                        [
+                            element.types.length > 1 ? 'Types' : 'Type',
+                            `\`${element.types.join(', ')}\``,
+                        ].join(': '),
+                    ]
                     : []
                 ),
                 ...(element.clarityConditionTags !== undefined
@@ -117,6 +129,12 @@ export class LookupConditionStrategy
 
             // Clarity Condition Tag
             if (input.clarityConditionTag && !element.clarityConditionTags?.includes(input.clarityConditionTag))
+            {
+                return acc;
+            }
+
+            // Type
+            if (input.conditionType && !element.types?.includes(input.conditionType))
             {
                 return acc;
             }

@@ -43,11 +43,19 @@ export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashComma
         return option.setAutocomplete(true);
     });
 
-    // Name
+    // Clarity Condition Tags
     subcommand.addStringOption((option) =>
     {
         option.setName(NwodAutocompleteParameterName.ClarityConditionTag);
         option.setDescription(`The condition's clarity tags.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.ConditionType);
+        option.setDescription(`The condition's type(s).`);
         return option.setAutocomplete(true);
     });
 

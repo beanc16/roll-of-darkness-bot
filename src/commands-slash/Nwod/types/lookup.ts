@@ -2,6 +2,7 @@ export enum NwodAutocompleteParameterName
 {
     ConditionName = 'condition_name',
     ClarityConditionTag = 'clarity_condition_tag',
+    ConditionType = 'condition_type',
     ContractName = 'contract_name',
     DreadPowerName = 'dread_power_name',
     DreadPowerType = 'dread_power_type',

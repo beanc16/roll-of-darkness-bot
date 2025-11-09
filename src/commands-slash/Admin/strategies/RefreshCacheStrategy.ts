@@ -31,6 +31,7 @@ import {
 type NwodAutocompleteParameterNameToCache = Exclude<
     NwodAutocompleteParameterName,
     NwodAutocompleteParameterName.ClarityConditionTag
+    | NwodAutocompleteParameterName.ConditionType
     | NwodAutocompleteParameterName.DreadPowerType
     | NwodAutocompleteParameterName.NuminaType
 >;
