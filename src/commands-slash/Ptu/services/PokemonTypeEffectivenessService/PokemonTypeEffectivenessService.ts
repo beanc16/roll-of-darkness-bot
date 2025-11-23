@@ -183,7 +183,7 @@ export class PokemonTypeEffectivenessService
             [PokemonTypeAndNone.Water]: 1,
             [PokemonTypeAndNone.Grass]: 1,
             [PokemonTypeAndNone.Electric]: 1,
-            [PokemonTypeAndNone.Psychic]: 1,
+            [PokemonTypeAndNone.Psychic]: 2,
             [PokemonTypeAndNone.Ice]: 1,
             [PokemonTypeAndNone.Dragon]: 1,
             [PokemonTypeAndNone.Dark]: 2,
