@@ -13,6 +13,7 @@ import { QrPokemonExperienceChartStrategy } from './QrPokemonExperienceChartStra
 import { QrPowerChartStrategy } from './QrPowerChartStrategy.js';
 import { QrSizeChartChartStrategy } from './QrSizeChartStrategy.js';
 import { QrSwitchingPokemonStrategy } from './QrSwitchingPokemonStrategy.js';
+import { QrTempHpStrategy } from './QrTempHpStrategy.js';
 import { QrTrainingPokemonStrategy } from './QrTrainingPokemonStrategy.js';
 import { QrTypeChartStrategy } from './QrTypeChartStrategy.js';
 
@@ -33,5 +34,6 @@ export default {
     [QrSwitchingPokemonStrategy.key]: QrSwitchingPokemonStrategy,
     [QrTrainingPokemonStrategy.key]: QrTrainingPokemonStrategy,
     [QrSizeChartChartStrategy.key]: QrSizeChartChartStrategy,
+    [QrTempHpStrategy.key]: QrTempHpStrategy,
     [QrTypeChartStrategy.key]: QrTypeChartStrategy,
 };

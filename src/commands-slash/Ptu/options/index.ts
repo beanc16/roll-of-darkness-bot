@@ -50,6 +50,7 @@ export enum PtuQuickReferenceInfo
     PowerChart = 'power_chart',
     SizeChart = 'size_chart',
     SwitchingPokemon = 'switching_pokemon',
+    TempHp = 'temp_hp',
     TrainingPokemon = 'training_pokemon',
     TypeChart = 'type_chart',
 }
