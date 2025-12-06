@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
@@ -10,6 +10,8 @@ import { PokemonType } from '../../types/pokemon.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
+import { Text } from '@beanc16/discordjs-helpers';
 
 export interface GetLookupClassDataParameters extends BaseLookupDataOptions
 {
@@ -157,6 +159,495 @@ enum PtuClassName
     Disciple = 'Disciple',
 }
 
+enum PtuClassRole
+{
+    PassivePokemonSupport = 'Passive Pokemon Support',
+    ActivePokemonSupport = 'Active Pokemon Support',
+    TravelAndInvestigation = 'Travel and Investigation',
+    TrainerCombat = 'Trainer Combat',
+    Crafting = 'Crafting',
+}
+
+const ptuClassNameToClassRole: Record<PtuClassName, Partial<Record<PtuClassRole, number>>> = {
+    [PtuClassName.AceTrainer]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.CaptureSpecialist]: {
+        [PtuClassRole.TravelAndInvestigation]: 4,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Commander]: {
+        [PtuClassRole.ActivePokemonSupport]: 5,
+    },
+    [PtuClassName.Coordinator]: {
+        [PtuClassRole.ActivePokemonSupport]: 3,
+        [PtuClassRole.PassivePokemonSupport]: 2,
+    },
+    [PtuClassName.Hobbyist]: {
+        [PtuClassRole.ActivePokemonSupport]: 1,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.Crafting]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Mentor]: {
+        [PtuClassRole.PassivePokemonSupport]: 5,
+    },
+    [PtuClassName.Cheerleader]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.Duelist]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.EnduringSoul]: {
+        [PtuClassRole.PassivePokemonSupport]: 5,
+    },
+    [PtuClassName.Juggler]: {
+        [PtuClassRole.ActivePokemonSupport]: 5,
+    },
+    [PtuClassName.Rider]: {
+        [PtuClassRole.PassivePokemonSupport]: 2,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Taskmaster]: {
+        [PtuClassRole.ActivePokemonSupport]: 3,
+        [PtuClassRole.PassivePokemonSupport]: 2,
+    },
+    [PtuClassName.Trickster]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.StatAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.AttackAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.DefenseAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.SpecialAttackAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.SpecialDefenseAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.SpeedAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 4,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.StyleExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.BeautyExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.CoolExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.CuteExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.SmartExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.ToughExpert]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.TypeAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.BugAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.DarkAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.DragonAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.ElectricAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.FairyAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.FightingAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.FireAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.FlyingAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.GhostAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.GrassAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.GroundAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.IceAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.NormalAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.PoisonAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.PsychicAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.RockAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.SteelAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.WaterAce]: {
+        [PtuClassRole.PassivePokemonSupport]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.Chef]: {
+        [PtuClassRole.Crafting]: 5,
+    },
+    [PtuClassName.Chronicler]: {
+        [PtuClassRole.PassivePokemonSupport]: 2,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.Fashionista]: {
+        [PtuClassRole.Crafting]: 3,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+    },
+    [PtuClassName.Researcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.GeneralResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.ApothecaryResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.ArtificerResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.BotanyResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.ChemistryResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.ClimatologyResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.OccultismResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.PaleontologyResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.PokemonCaretakingResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Survivalist]: {
+        [PtuClassRole.TravelAndInvestigation]: 2,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Athlete]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.Dancer]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.Hunter]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 1,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.MartialArtist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Musician]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.Provocateur]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Rogue]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Roughneck]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Tumbler]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.AuraGuardian]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Channeler]: {
+        [PtuClassRole.ActivePokemonSupport]: 3,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+    },
+    [PtuClassName.HexManiac]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Ninja]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.Crafting]: 1,
+    },
+    [PtuClassName.Oracle]: {
+        [PtuClassRole.TravelAndInvestigation]: 3,
+        [PtuClassRole.TrainerCombat]: 2,
+    },
+    [PtuClassName.Sage]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Telekinetic]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Telepath]: {
+        [PtuClassRole.TravelAndInvestigation]: 3,
+        [PtuClassRole.TrainerCombat]: 2,
+    },
+    [PtuClassName.Warper]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+    },
+    [PtuClassName.Berserker]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.RuneMaster]: {
+        [PtuClassRole.TravelAndInvestigation]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 2,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Arcanist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Fortress]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Marksman]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Skirmisher]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.BugElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.DarkElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.DragonElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.ElectricElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.FairyElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.FireElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.FlyingElementalist]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+    },
+    [PtuClassName.GhostElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.GrassElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.GroundElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.IceElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.NormalElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.PoisonElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.RockElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.SteelElementalist]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.WaterElementalist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.EngineerResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.JailbreakerResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.UpgraderResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Glitchbender]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.CheerleaderPlaytest]: {
+        [PtuClassRole.ActivePokemonSupport]: 4,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+    },
+    [PtuClassName.Medic]: {
+        [PtuClassRole.TravelAndInvestigation]: 3,
+        [PtuClassRole.ActivePokemonSupport]: 2,
+    },
+    [PtuClassName.Backpacker]: {
+        [PtuClassRole.TravelAndInvestigation]: 3,
+        [PtuClassRole.TrainerCombat]: 2,
+    },
+    [PtuClassName.GadgeteerResearcher]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.GeneralResearcherPlaytest]: {
+        [PtuClassRole.Crafting]: 2,
+        [PtuClassRole.PassivePokemonSupport]: 1,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+        [PtuClassRole.TrainerCombat]: 1,
+    },
+    [PtuClassName.Signer]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+    },
+    [PtuClassName.Messiah]: {
+        [PtuClassRole.TrainerCombat]: 3,
+        [PtuClassRole.TravelAndInvestigation]: 2,
+    },
+    [PtuClassName.Branded]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Usurper]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Inquisitor]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Scion]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Cultist]: {
+        [PtuClassRole.TrainerCombat]: 4,
+        [PtuClassRole.TravelAndInvestigation]: 1,
+    },
+    [PtuClassName.Scorned]: {
+        [PtuClassRole.TrainerCombat]: 5,
+    },
+    [PtuClassName.Disciple]: {
+        [PtuClassRole.TravelAndInvestigation]: 5,
+    },
+}
+
 @staticImplements<PtuLookupIteractionStrategy>()
 export class LookupClassStrategy
 {
@@ -187,7 +678,7 @@ export class LookupClassStrategy
             ? 'Class'
             : 'Class-Adjacent';
 
-        const embeds = LookupFeatureStrategy.getEmbedMessages(data, messageTitle);
+        const embeds = this.getEmbedMessages(data, messageTitle);
 
         return await LookupStrategy.run(interaction, embeds, {
             commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
@@ -1333,6 +1824,8 @@ export class LookupClassStrategy
                 'Shared Strengths Rank 3',
                 'True Power',
                 'Gift of Power',
+                'Create Vassal Rank 1',
+                'Create Vassal Rank 2',
             ],
             [PtuClassName.Inquisitor]: [
                 PtuClassName.Inquisitor,
@@ -1405,5 +1898,62 @@ export class LookupClassStrategy
 
             return name;
         });
+    }
+
+    public static getEmbedMessages(data: PtuFeature[], title = 'Features'): EmbedBuilder[]
+    {
+        const [{ name: featureName }] = data;
+
+        const classRoleMetadata = ptuClassNameToClassRole[featureName as PtuClassName];
+
+        const metadata = Object.entries(classRoleMetadata).reduce((acc, [key, value]) => {
+            return [
+                ...(acc === '' ? [] : [acc]),
+                `${key}: ${value}`,
+            ].join('\n');
+        }, '');
+
+        const embeds = getPagedEmbedMessages({
+            input: data,
+            title,
+            parseElementToLines: (element, index) => [
+                Text.bold(element.name),
+                ...(element.tags !== undefined && element.tags !== '-'
+                    ? [
+                        `Tags: ${element.tags}`,
+                    ]
+                    : []
+                ),
+                ...(element.prerequisites !== undefined && element.prerequisites !== '-'
+                    ? [
+                        `Prerequisites: ${element.prerequisites}`,
+                    ]
+                    : []
+                ),
+                ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
+                    ? [
+                        `Frequency / Action: ${element.frequencyAndAction}`,
+                    ]
+                    : []
+                ),
+                ...(element.effect !== undefined && element.effect !== '--'
+                    ? [
+                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                    ]
+                    : []
+                ),
+
+                // Add roles after the last element
+                ...(index === data.length - 1
+                    ? [
+                        Text.underline('Roles'),
+                        metadata,
+                        '',
+                    ]
+                    : []),
+            ],
+        });
+
+        return embeds;
     }
 }
