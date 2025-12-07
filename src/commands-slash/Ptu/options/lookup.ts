@@ -181,7 +181,6 @@ export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     {
         option.setName(PtuAutocompleteParameterName.ClassName);
         option.setDescription(`The class' name.`);
-        option.setRequired(true);
         return option.setAutocomplete(true);
     });
 

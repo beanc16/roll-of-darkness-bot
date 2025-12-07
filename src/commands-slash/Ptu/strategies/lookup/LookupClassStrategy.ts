@@ -656,7 +656,18 @@ export class LookupClassStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.ClassName, true) as PtuClassName;
+        const name = interaction.options.getString(PtuAutocompleteParameterName.ClassName) as PtuClassName | null;
+
+        // Return list of all classes if no name is given
+        if (name === null)
+        {
+            const embeds = this.getClassListEmbedMessages();
+
+            return await LookupStrategy.run(interaction, embeds, {
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
+                noEmbedsErrorMessage: 'No classes were found.',
+            });
+        }
 
         const data = await this.getLookupData({
             name,
@@ -1951,6 +1962,28 @@ export class LookupClassStrategy
                         '',
                     ]
                     : []),
+            ],
+        });
+
+        return embeds;
+    }
+
+    public static getClassListEmbedMessages(): EmbedBuilder[]
+    {
+        const classNames = Object.values(PtuClassName);
+
+        const embeds = getPagedEmbedMessages({
+            input: classNames,
+            title: 'Classes',
+            parseElementToLines: (element) => [
+                Text.bold(element),
+                Object.entries(ptuClassNameToClassRole[element]).reduce((acc, [key, value]) => {
+                    return [
+                        ...(acc === '' ? [] : [acc]),
+                        `${key}: ${value}`,
+                    ].join('\n');
+                }, ''),
+                '',
             ],
         });
 
