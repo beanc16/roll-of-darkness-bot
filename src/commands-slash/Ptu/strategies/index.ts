@@ -224,10 +224,58 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             }),
-            [PtuAutocompleteParameterName.ClassName]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Class,
-            }),
+            [PtuAutocompleteParameterName.ClassName1]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName2]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName3]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName4]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
             [PtuAutocompleteParameterName.EdgeName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,

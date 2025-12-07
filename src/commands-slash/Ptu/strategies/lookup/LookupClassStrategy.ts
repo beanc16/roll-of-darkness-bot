@@ -1,7 +1,10 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
@@ -10,12 +13,10 @@ import { PokemonType } from '../../types/pokemon.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
-import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 export interface GetLookupClassDataParameters extends BaseLookupDataOptions
 {
-    name: PtuClassName;
+    names: PtuClassName[];
 }
 
 enum PtuClassName
@@ -646,7 +647,7 @@ const ptuClassNameToClassRole: Record<PtuClassName, Partial<Record<PtuClassRole,
     [PtuClassName.Disciple]: {
         [PtuClassRole.TravelAndInvestigation]: 5,
     },
-}
+};
 
 @staticImplements<PtuLookupIteractionStrategy>()
 export class LookupClassStrategy
@@ -656,10 +657,14 @@ export class LookupClassStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.ClassName) as PtuClassName | null;
+        const name1 = interaction.options.getString(PtuAutocompleteParameterName.ClassName1) as PtuClassName | null;
+        const name2 = interaction.options.getString(PtuAutocompleteParameterName.ClassName2) as PtuClassName | null;
+        const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
+        const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
+        const names = [name1, name2, name3, name4].filter(element => element !== null);
 
         // Return list of all classes if no name is given
-        if (name === null)
+        if (names.length === 0)
         {
             const embeds = this.getClassListEmbedMessages();
 
@@ -670,37 +675,32 @@ export class LookupClassStrategy
         }
 
         const data = await this.getLookupData({
-            name,
+            names,
             includeAllIfNoName: false,
         });
 
         // Get message
-        const messageTitle = (!(
-            PtuClassName.Signer === name
-            || PtuClassName.Messiah === name
-            || PtuClassName.Branded === name
-            || PtuClassName.Usurper === name
-            || PtuClassName.Inquisitor === name
-            || PtuClassName.Scion === name
-            || PtuClassName.Cultist === name
-            || PtuClassName.Scorned === name
-            || PtuClassName.Disciple === name
-        ))
-            ? 'Class'
-            : 'Class-Adjacent';
+        const embeds = this.getEmbedMessages(data);
 
-        const embeds = this.getEmbedMessages(data, messageTitle);
+        for (let i = 0; i < embeds.length; i += 1)
+        {
+            // eslint-disable-next-line no-await-in-loop -- We want to send messages sequentially with followups, so do them one at a time
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
+                embeds: embeds[i],
+                interactionType: i === 0 ? 'editReply' : 'followUp',
+                includeDeleteButton: true,
+            });
+        }
 
-        return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
-            noEmbedsErrorMessage: 'No classes were found.',
-        });
+        return true;
     }
 
-    public static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
+    public static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[][]>
     {
         // For autocomplete
-        if (input?.name === undefined)
+        if (input?.names === undefined || input?.names?.length === 0)
         {
             const classNames = Object.values(PtuClassName);
 
@@ -709,7 +709,7 @@ export class LookupClassStrategy
                 sortByName: true,
             });
 
-            return [
+            return [[
                 ...classFeatures,
                 ...classNames.reduce<PtuFeature[]>((acc, cur) =>
                 {
@@ -725,7 +725,7 @@ export class LookupClassStrategy
 
                     return acc;
                 }, []),
-            ];
+            ]];
         }
 
         // Create base lists for type ace and elementalist
@@ -1865,16 +1865,21 @@ export class LookupClassStrategy
             ],
         };
 
-        const featureNames = this.convertFeatureNames(classToFeaturesMap[input.name]);
+        const featureNames = input.names.reduce<string[]>((acc, name) =>
+        {
+            acc.push(...classToFeaturesMap[name]);
+            return acc;
+        }, []);
+        const convertedFeatureNames = this.convertFeatureNames(featureNames);
 
         const {
-            name: _,
+            names: _,
             ...parsedInput
         } = input;
 
         const features = await LookupFeatureStrategy.getLookupData({
             ...parsedInput,
-            names: featureNames,
+            names: convertedFeatureNames,
             sortByName: false,
         });
 
@@ -1885,13 +1890,17 @@ export class LookupClassStrategy
             return acc;
         }, {});
 
-        return featureNames.reduce<PtuFeature[]>((acc, featureName) =>
+        return convertedFeatureNames.reduce<PtuFeature[][]>((acc, featureName) =>
         {
             const feature = featureNameToFeature[featureName];
 
             if (feature)
             {
-                acc.push(feature);
+                if (input.names.includes(feature.name as PtuClassName))
+                {
+                    acc.push([] as PtuFeature[]);
+                }
+                acc[acc.length - 1].push(feature);
             }
 
             return acc;
@@ -1911,61 +1920,64 @@ export class LookupClassStrategy
         });
     }
 
-    public static getEmbedMessages(data: PtuFeature[], title = 'Features'): EmbedBuilder[]
+    public static getEmbedMessages(data: PtuFeature[][]): EmbedBuilder[][]
     {
-        const [{ name: featureName }] = data;
+        return data.map((curData) =>
+        {
+            let metadata: string = '';
 
-        const classRoleMetadata = ptuClassNameToClassRole[featureName as PtuClassName];
+            const embeds = getPagedEmbedMessages({
+                input: curData,
+                title: this.getEmbedMessageTitle(curData[0].name as PtuClassName),
+                parseElementToLines: (element, index) =>
+                {
+                    if (index === 0)
+                    {
+                        const classRoleMetadata = ptuClassNameToClassRole[element.name as PtuClassName];
+                        metadata = this.formatClassRoleMetadata(classRoleMetadata);
+                    }
 
-        const metadata = Object.entries(classRoleMetadata).reduce((acc, [key, value]) => {
-            return [
-                ...(acc === '' ? [] : [acc]),
-                `${key}: ${value}`,
-            ].join('\n');
-        }, '');
+                    return [
+                        Text.bold(element.name),
+                        ...(element.tags !== undefined && element.tags !== '-'
+                            ? [
+                                `Tags: ${element.tags}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.prerequisites !== undefined && element.prerequisites !== '-'
+                            ? [
+                                `Prerequisites: ${element.prerequisites}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
+                            ? [
+                                `Frequency / Action: ${element.frequencyAndAction}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.effect !== undefined && element.effect !== '--'
+                            ? [
+                                `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                            ]
+                            : []
+                        ),
 
-        const embeds = getPagedEmbedMessages({
-            input: data,
-            title,
-            parseElementToLines: (element, index) => [
-                Text.bold(element.name),
-                ...(element.tags !== undefined && element.tags !== '-'
-                    ? [
-                        `Tags: ${element.tags}`,
-                    ]
-                    : []
-                ),
-                ...(element.prerequisites !== undefined && element.prerequisites !== '-'
-                    ? [
-                        `Prerequisites: ${element.prerequisites}`,
-                    ]
-                    : []
-                ),
-                ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
-                    ? [
-                        `Frequency / Action: ${element.frequencyAndAction}`,
-                    ]
-                    : []
-                ),
-                ...(element.effect !== undefined && element.effect !== '--'
-                    ? [
-                        `Effect:\n\`\`\`\n${element.effect}\`\`\``,
-                    ]
-                    : []
-                ),
+                        // Add roles after the last element
+                        ...(index === curData.length - 1 && metadata.length > 0
+                            ? [
+                                Text.underline('Roles'),
+                                metadata,
+                                '',
+                            ]
+                            : []),
+                    ];
+                },
+            });
 
-                // Add roles after the last element
-                ...(index === data.length - 1
-                    ? [
-                        Text.underline('Roles'),
-                        metadata,
-                        '',
-                    ]
-                    : []),
-            ],
+            return embeds;
         });
-
-        return embeds;
     }
 
     public static getClassListEmbedMessages(): EmbedBuilder[]
@@ -1977,16 +1989,39 @@ export class LookupClassStrategy
             title: 'Classes',
             parseElementToLines: (element) => [
                 Text.bold(element),
-                Object.entries(ptuClassNameToClassRole[element]).reduce((acc, [key, value]) => {
-                    return [
-                        ...(acc === '' ? [] : [acc]),
-                        `${key}: ${value}`,
-                    ].join('\n');
-                }, ''),
+                this.formatClassRoleMetadata(ptuClassNameToClassRole[element]),
                 '',
             ],
         });
 
         return embeds;
+    }
+
+    private static formatClassRoleMetadata(classRoleToMetadata: Partial<Record<PtuClassRole, number>>): string
+    {
+        return Object.entries(classRoleToMetadata).reduce((acc, [key, value]) =>
+        {
+            return [
+                ...(acc === '' ? [] : [acc]),
+                `${key}: ${value}`,
+            ].join('\n');
+        }, '');
+    }
+
+    private static getEmbedMessageTitle(className: PtuClassName): 'Class' | 'Class-Adjacent'
+    {
+        return (!(
+            PtuClassName.Signer === className
+            || PtuClassName.Messiah === className
+            || PtuClassName.Branded === className
+            || PtuClassName.Usurper === className
+            || PtuClassName.Inquisitor === className
+            || PtuClassName.Scion === className
+            || PtuClassName.Cultist === className
+            || PtuClassName.Scorned === className
+            || PtuClassName.Disciple === className
+        ))
+            ? 'Class'
+            : 'Class-Adjacent'; ;
     }
 }

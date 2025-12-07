@@ -37,6 +37,7 @@ export class LookupStrategy
         embeds: EmbedBuilder[],
         options: {
             commandName: CommandName;
+            interactionType?: PaginationStrategyRunParameters['interactionType'];
             noEmbedsErrorMessage: string;
             rowsAbovePagination?: PaginationStrategyRunParameters['rowsAbovePagination'];
             onRowAbovePaginationButtonPress?: PaginationStrategyRunParameters['onRowAbovePaginationButtonPress'];
@@ -51,6 +52,7 @@ export class LookupStrategy
                 originalInteraction: interaction,
                 commandName: options.commandName,
                 content: options.noEmbedsErrorMessage,
+                interactionType: options.interactionType,
                 rowsAbovePagination: options.rowsAbovePagination,
                 onRowAbovePaginationButtonPress: options.onRowAbovePaginationButtonPress,
                 includeDeleteButton: true,
@@ -64,6 +66,7 @@ export class LookupStrategy
             originalInteraction: interaction,
             commandName: options.commandName,
             embeds,
+            interactionType: options.interactionType,
             rowsAbovePagination: options.rowsAbovePagination,
             onRowAbovePaginationButtonPress: options.onRowAbovePaginationButtonPress,
             includeDeleteButton: true,

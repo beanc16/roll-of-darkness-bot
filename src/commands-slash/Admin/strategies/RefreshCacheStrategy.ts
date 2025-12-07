@@ -41,6 +41,9 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName.AuraUserName
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.ClassName2
+    | PtuAutocompleteParameterName.ClassName3
+    | PtuAutocompleteParameterName.ClassName4
     | PtuAutocompleteParameterName.EggGroup1
     | PtuAutocompleteParameterName.EggGroup2
     | PtuAutocompleteParameterName.PokemonName
@@ -182,7 +185,7 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Capability],
                 lookupSubcommand: PtuLookupSubcommand.Capability,
             },
-            [PtuAutocompleteParameterName.ClassName]: {
+            [PtuAutocompleteParameterName.ClassName1]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Class,
             },

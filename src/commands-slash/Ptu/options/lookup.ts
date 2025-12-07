@@ -176,12 +176,20 @@ export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     subcommand.setName(PtuLookupSubcommand.Class);
     subcommand.setDescription('Get the features of a class based on the given parameters.');
 
-    // Name
-    subcommand.addStringOption((option) =>
+    // Names
+    [
+        PtuAutocompleteParameterName.ClassName1,
+        PtuAutocompleteParameterName.ClassName2,
+        PtuAutocompleteParameterName.ClassName3,
+        PtuAutocompleteParameterName.ClassName4,
+    ].forEach((paramName) =>
     {
-        option.setName(PtuAutocompleteParameterName.ClassName);
-        option.setDescription(`The class' name.`);
-        return option.setAutocomplete(true);
+        subcommand.addStringOption((option) =>
+        {
+            option.setName(paramName);
+            option.setDescription(`The class' name.`);
+            return option.setAutocomplete(true);
+        });
     });
 
     return subcommand;
