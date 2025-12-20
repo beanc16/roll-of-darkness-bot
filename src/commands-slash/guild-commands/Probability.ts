@@ -6,7 +6,7 @@ import DiceProbabilityService from '../../services/Dice/DiceProbabilityService.j
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
 import * as rollOptions from '../Nwod/options/roll.js';
 import * as probabilityOptions from '../options/probability.js';
-import { numberOfDice as numberOfDiceOption } from '../options/shared.js';
+import { numberOfDice as numberOfDiceOption } from '../shared/options/shared.js';
 
 class Probability extends BaseSlashCommand
 {

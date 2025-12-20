@@ -2,7 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';

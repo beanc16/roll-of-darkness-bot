@@ -1,4 +1,4 @@
-import { EqualityOption } from '../../../options/shared.js';
+import { EqualityOption } from '../../../shared/options/shared.js';
 import {
     PokemonMoveCategory,
     PokemonType,

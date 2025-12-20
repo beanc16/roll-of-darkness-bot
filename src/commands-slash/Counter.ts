@@ -17,8 +17,8 @@ import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
 import counterSingleton from './Counter/services/CounterSingleton.js';
 import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCounterCountainer.js';
-import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
+import { getPagedEmbedBuilders } from './shared/embed-messages/shared.js';
 import {
     GetMessageDataResponse,
     InteractionListenerRestartStyle,

@@ -2,7 +2,7 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { getPagedEmbedBuilders } from '../../../embed-messages/shared.js';
+import { getPagedEmbedBuilders } from '../../../shared/embed-messages/shared.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
 import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 

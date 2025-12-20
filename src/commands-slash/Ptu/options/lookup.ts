@@ -1,6 +1,6 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { equalityOption } from '../../options/shared.js';
+import { equalityOption } from '../../shared/options/shared.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokeballType } from '../types/pokeballType.js';
 import {

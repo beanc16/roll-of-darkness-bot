@@ -1,4 +1,4 @@
-import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../constants/discord.js';
+import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import {
     createEmbedMessageDescriptionAndPage,
     CreateEmbedMessageDescriptionAndPageOptions,

@@ -6,7 +6,7 @@ import {
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
-import { getPagedEmbedMessages } from '../../embed-messages/shared.js';
+import { getPagedEmbedMessages } from '../../shared/embed-messages/shared.js';
 import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVcCommandNestedFolderName } from '../helpers.js';

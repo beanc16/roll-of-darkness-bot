@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { z } from 'zod';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { getPagedEmbedMessages, paginateCsv } from '../../../embed-messages/shared.js';
+import { getPagedEmbedMessages, paginateCsv } from '../../../shared/embed-messages/shared.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { PtuGenerateSubcommand } from '../../options/generate.js';

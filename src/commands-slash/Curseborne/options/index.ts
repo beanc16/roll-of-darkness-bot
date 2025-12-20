@@ -1,6 +1,6 @@
 import { SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder } from 'discord.js';
 
-import * as sharedOptions from '../../options/shared.js';
+import * as sharedOptions from '../../shared/options/shared.js';
 import * as lookupSubcommands from './lookup.js';
 import * as rollOptions from './roll.js';
 
