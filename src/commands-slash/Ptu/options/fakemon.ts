@@ -1,0 +1,59 @@
+import { SlashCommandSubcommandBuilder } from 'discord.js';
+
+import { imageOption, imageUrlOption } from '../../shared/options/image.js';
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+
+export enum PtuFakemonSubcommand
+{
+    Create = 'create',
+    Delete = 'delete',
+    Edit = 'edit',
+    Review = 'review',
+    Transfer = 'transfer',
+    ViewAll = 'view_all',
+}
+
+export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Create);
+    subcommand.setDescription('Create a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('species_name');
+        option.setDescription(`The name of the custom Pokémon species.`);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseSpeciesOn);
+        option.setDescription(`The species to base the custom Pokémon on.`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseMovesOn);
+        option.setDescription(`The species to base the custom Pokémon's moveset on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseAbilitiesOn);
+        option.setDescription(`The species to base the custom Pokémon's abilities on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor');
+        return option.setDescription('A co-editor of the custom Pokémon.');
+    });
+
+    return subcommand;
+};

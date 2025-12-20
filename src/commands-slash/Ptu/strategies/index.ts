@@ -39,6 +39,7 @@ import { PtuVitamin } from '../types/PtuVitamin.js';
 import { PtuChatIteractionStrategy, PtuStrategyMap } from '../types/strategies.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
+import fakemonStrategies from './fakemon/index.js';
 import gameStrategies from './game/index.js';
 import generateStrategies from './generate/index.js';
 import lookupStrategies from './lookup/index.js';
@@ -134,6 +135,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     private static strategies: PtuStrategyMap = {
         [PtuSubcommandGroup.Breed]: BreedPokemonStrategy,
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
+        [PtuSubcommandGroup.Fakemon]: fakemonStrategies,
         [PtuSubcommandGroup.Game]: gameStrategies,
         [PtuSubcommandGroup.Generate]: generateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
@@ -206,6 +208,39 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: PtuLookupSubcommand.Aura,
                 options: { includeAllIfNoName: true, returnLegendaryNames: true },
             }),
+            [PtuAutocompleteParameterName.BaseAbilitiesOn]: async () =>
+            {
+                // TODO: Make this combine with fakemon names later
+                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Pokemon,
+                    options: {
+                        name: focusedValue.value,
+                    },
+                });
+            },
+            [PtuAutocompleteParameterName.BaseMovesOn]: async () =>
+            {
+                // TODO: Make this combine with fakemon names later
+                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Pokemon,
+                    options: {
+                        name: focusedValue.value,
+                    },
+                });
+            },
+            [PtuAutocompleteParameterName.BaseSpeciesOn]: async () =>
+            {
+                // TODO: Make this combine with fakemon names later
+                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Pokemon,
+                    options: {
+                        name: focusedValue.value,
+                    },
+                });
+            },
             [PtuAutocompleteParameterName.BasedOnAbility]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
@@ -361,6 +396,13 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokeball,
             }),
+            [PtuAutocompleteParameterName.PokemonName]: () => PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Pokemon,
+                options: {
+                    name: focusedValue.value,
+                },
+            }),
             [PtuAutocompleteParameterName.PokemonToEvolve]: async () =>
             {
                 const evolutionaryStones = await PtuStrategyExecutor.getLookupData<PtuEvolutionaryStone>({
@@ -413,13 +455,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.XItemName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.XItem,
-            }),
-            [PtuAutocompleteParameterName.PokemonName]: () => PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Pokemon,
-                options: {
-                    name: focusedValue.value,
-                },
             }),
         };
 

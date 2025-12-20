@@ -39,6 +39,9 @@ type NwodAutocompleteParameterNameToCache = Exclude<
 type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.AuraUserName
+    | PtuAutocompleteParameterName.BaseAbilitiesOn
+    | PtuAutocompleteParameterName.BaseMovesOn
+    | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
     | PtuAutocompleteParameterName.ClassName2

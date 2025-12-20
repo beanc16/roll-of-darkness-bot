@@ -11,6 +11,7 @@ import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
+import * as fakemonSubcommands from './fakemon.js';
 import * as gameSubcommands from './game.js';
 import * as generateSubcommands from './generate.js';
 import * as generateDevSubcommands from './generate_dev.js';
@@ -22,6 +23,7 @@ export enum PtuSubcommandGroup
 {
     Breed = 'breed',
     Calculate = 'calculate',
+    Fakemon = 'fakemon',
     Game = 'game',
     Generate = 'generate',
     Lookup = 'lookup',
@@ -100,6 +102,20 @@ export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): 
     subcommandGroup.setName(PtuSubcommandGroup.Calculate);
     subcommandGroup.setDescription('Run PTU calculate commands.');
     Object.values(calculateSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
+export const fakemon = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Fakemon);
+    subcommandGroup.setDescription('Run PTU fakemon commands.');
+    Object.values(fakemonSubcommands).forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {
