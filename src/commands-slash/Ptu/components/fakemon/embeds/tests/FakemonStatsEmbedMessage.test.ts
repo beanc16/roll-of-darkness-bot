@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { FakemonStatsEmbedMessage } from '../FakemonStatsEmbedMessage';
 
 describe('class: FakemonStatsEmbedMessage', () =>

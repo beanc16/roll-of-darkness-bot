@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { EmbedBuilder } from 'discord.js';
-import { FakemonEmbedMessage, FakemonMoveEmbedMessage } from '../FakemonEmbedMessage';
-import { PtuMove } from '../../../../models/PtuMove';
+
 import { PtuContestStatEffect, PtuContestStatType } from '../../../../types/pokemon';
+import { FakemonEmbedMessage, FakemonMoveEmbedMessage } from '../FakemonEmbedMessage';
 
 jest.mock('discord.js');
 
@@ -25,13 +28,14 @@ describe.each([
 
         it('should call EmbedBuilder constructor with correct parameters', () =>
         {
+            // eslint-disable-next-line no-new
             new Class(input);
             expect(EmbedBuilder).toHaveBeenCalledWith({
                 title: input.title,
                 color: 0xCDCDCD,
                 description: input.descriptionLines.join('\n'),
             });
-        })
+        });
     });
 });
 
@@ -59,7 +63,6 @@ describe('class: FakemonMoveEmbedMessage', () =>
 
         it('should return correctly formatted value', () =>
         {
-
             const result = FakemonMoveEmbedMessage['getContestStatInfoByMoveName'](
                 moveName,
                 moveNameToMovesRecord,
@@ -100,7 +103,7 @@ describe('class: FakemonMoveEmbedMessage', () =>
             expect(result).toBe('');
         });
     });
-    
+
     describe('method: joinWithContestInfo', () =>
     {
         const moveNames = ['moveName1', 'moveName2'];
