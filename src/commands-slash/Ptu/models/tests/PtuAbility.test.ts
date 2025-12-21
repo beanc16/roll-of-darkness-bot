@@ -47,6 +47,7 @@ describe('class: PtuAbility', () =>
             defaultInput = {
                 name: 'Run Away',
                 frequencySearch: '',
+                basedOn: '',
             };
         });
 
@@ -74,6 +75,16 @@ describe('class: PtuAbility', () =>
             const result = defaultAbility.IsValidBasedOnInput({
                 ...defaultInput,
                 frequencySearch: 'Invalid Frequency',
+            });
+
+            expect(result).toEqual(false);
+        });
+
+        it('should return false if based on is excluded', () =>
+        {
+            const result = defaultAbility.IsValidBasedOnInput({
+                ...defaultInput,
+                basedOn: 'Invalid Based On',
             });
 
             expect(result).toEqual(false);
