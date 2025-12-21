@@ -1,4 +1,9 @@
-import { ActionRowBuilder, BaseMessageOptions, ButtonBuilder } from 'discord.js';
+import {
+    ActionRowBuilder,
+    BaseMessageOptions,
+    ButtonBuilder,
+} from 'discord.js';
+
 import { FakemonStatsActionRowBuilder } from '../actionRowBuilders/FakemonStatsActionRowBuilder.js';
 import { FakemonBackToOverviewButton } from '../button/FakemonBackToOverviewButton.js';
 

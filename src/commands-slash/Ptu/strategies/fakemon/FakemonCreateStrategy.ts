@@ -8,10 +8,10 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
-import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
 
 interface FakemonCreateGetParameterResults
 {

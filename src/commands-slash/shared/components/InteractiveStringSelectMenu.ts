@@ -39,7 +39,9 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
         rowsBelowStringSelect,
     }: PaginatedStringSelectMenuOptions<Element>)
     {
-        super({ customId, placeholder, options: elements.map(optionParser) });
+        super({
+            customId, placeholder, options: elements.map(optionParser),
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.handleInteractions({

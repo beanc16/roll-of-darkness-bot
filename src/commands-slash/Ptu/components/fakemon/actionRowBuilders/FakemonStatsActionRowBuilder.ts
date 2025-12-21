@@ -1,12 +1,9 @@
-import {
-    ActionRowBuilder,
-    type Message,
-} from 'discord.js';
+import { ActionRowBuilder, type Message } from 'discord.js';
 
 import { CommandName } from '../../../../../types/discord.js';
+import { InteractiveStringSelectMenu } from '../../../../shared/components/InteractiveStringSelectMenu.js';
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
-import { InteractiveStringSelectMenu } from '../../../../shared/components/InteractiveStringSelectMenu.js';
 
 interface FakemonStatsActionRowBuilderOptions
 {
@@ -32,10 +29,7 @@ export enum FakemonStatsElementOptions
 
 export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
-    constructor({
-        message,
-        commandName,
-    }: FakemonStatsActionRowBuilderOptions)
+    constructor({ message, commandName }: FakemonStatsActionRowBuilderOptions)
     {
         const stringSelectMenu = new InteractiveStringSelectMenu({
             customId: FakemonStatsCustomIds.Selector,
@@ -43,10 +37,12 @@ export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStri
             elements: Object.values(FakemonStatsElementOptions),
             message,
             commandName,
-            onSelectDropdownOption: (_receivedInteraction) => {
+            onSelectDropdownOption: (_receivedInteraction) =>
+            {
                 // TODO: Implement
             },
-            onSelectOtherOption: (_receivedInteraction) => {
+            onSelectOtherOption: (_receivedInteraction) =>
+            {
                 // TODO: Implement
             },
             optionParser: (option) => ({ label: option, value: option }),
