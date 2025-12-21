@@ -33,6 +33,9 @@ module.exports = {
         // Dals
         '/.*/dal',
 
+        // Fakes
+        '/.*/fakes',
+
         // Events
         '/.*/events/onReady.ts',
 
