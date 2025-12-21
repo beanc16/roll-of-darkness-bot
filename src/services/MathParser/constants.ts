@@ -1,4 +1,4 @@
-import type { ParserOptions } from 'expr-eval';
+import type { ParserOptions } from 'expr-eval-fork';
 
 export const addMathParserOptions: ParserOptions = {
     operators: {

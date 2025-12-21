@@ -2,7 +2,7 @@ import {
     Parser,
     ParserOptions,
     Value,
-} from 'expr-eval';
+} from 'expr-eval-fork';
 
 export class MathParser
 {
