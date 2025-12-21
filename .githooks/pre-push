@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ALL_PUSHES_CMD="npm run build; npm run lint"
+ALL_PUSHES_CMD="npm run typecheck; npm run build; npm run lint"
 PROTECTED_PUSHES_CMD="npm run test"
 protected_branch='main'
 
