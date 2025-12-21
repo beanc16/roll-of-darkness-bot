@@ -19,7 +19,7 @@ export interface GetLookupClassDataParameters extends BaseLookupDataOptions
     names: PtuClassName[];
 }
 
-enum PtuClassName
+export enum PtuClassName
 {
     // Introductory Classes
     AceTrainer = 'Ace Trainer',
@@ -1896,11 +1896,11 @@ export class LookupClassStrategy
 
             if (feature)
             {
-                if (input.names.includes(feature.name as PtuClassName))
+                if (input.names.includes(feature.name as PtuClassName) || !acc[Math.max(acc.length - 1, 0)])
                 {
                     acc.push([] as PtuFeature[]);
                 }
-                acc[acc.length - 1].push(feature);
+                acc[Math.max(acc.length - 1, 0)].push(feature);
             }
 
             return acc;
