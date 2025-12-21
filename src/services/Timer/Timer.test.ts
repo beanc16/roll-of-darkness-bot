@@ -122,4 +122,41 @@ describe('class: Timer', () =>
             );
         });
     });
+
+    describe('method: startTimer', () =>
+    {
+        it('should set the start time for the specified key', () =>
+        {
+            const key = 'test';
+            Timer.startTimer(key);
+            expect(Timer['startTimes'][key]).toBeDefined();
+        });
+    });
+
+    describe('method: getTimeElapsed', () =>
+    {
+        it('should return the time elapsed since the start time for the specified key', () =>
+        {
+            const key = 'test';
+            Timer.startTimer(key);
+
+            jest.advanceTimersByTime(seconds * 1000);
+            const timeElapsed = Timer.getTimeElapsed(key);
+
+            expect(timeElapsed).toBeGreaterThanOrEqual(2000);
+        });
+    });
+
+    describe('method: clearTimer', () =>
+    {
+        it('should clear the start time for the specified key', () =>
+        {
+            const key = 'test';
+            Timer.startTimer(key);
+            expect(Timer['startTimes'][key]).toBeDefined();
+
+            Timer.clearTimer(key);
+            expect(Timer['startTimes'][key]).toBeUndefined();
+        });
+    });
 });
