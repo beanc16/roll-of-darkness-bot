@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { FakeEmbedBuilder } from '../../../../../fakes/discord/builders';
 import { FakeChatInputCommandInteraction } from '../../../../../fakes/discord/interactions';
 import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
@@ -32,7 +35,7 @@ jest.mock('@beanc16/microservices-abstraction', () =>
     };
 });
 
-// This throws an error if not mocked
+// This mock is necessary to prevent an ESM export error with @swc/jest
 jest.mock('@beanc16/discordjs-helpers');
 
 jest.mock('../../../../strategies/PaginationStrategy/PaginationStrategy.js', () =>
@@ -76,7 +79,7 @@ describe('class: LookupClassStrategy', () =>
 
             chunkedClasses.forEach((classNames) =>
             {
-                describe(classNames.join(', '), () =>
+                describe(`${classNames.join(', ')}`, () =>
                 {
                     beforeEach(() =>
                     {
@@ -89,7 +92,7 @@ describe('class: LookupClassStrategy', () =>
                         jest.clearAllMocks();
                     });
 
-                    it('should not throw error', async () =>
+                    it('should not throw error', () =>
                     {
                         expect(async () =>
                         {
