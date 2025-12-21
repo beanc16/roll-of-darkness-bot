@@ -1,7 +1,8 @@
 import { PtuPokemon } from '../../types/pokemon.js';
 import { PtuPokemonCollection } from './PtuPokemonCollection.js';
 
-export enum PtuFakemonStatus {
+export enum PtuFakemonStatus
+{
     DRAFT = 'Draft',
     READY_FOR_REVIEW = 'Ready for Review',
     FAILED_REVIEW = 'Failed Review',
@@ -21,7 +22,7 @@ type PtuFakemonCollectionConstructorArgs = ConstructorParameters<typeof PtuPokem
     /** Discord Text Channel ID that the command to create this fakemon was initially executed in */
     creationChannelId: string;
     feedbacks?: PtuFakemonFeedback[];
-}
+};
 
 export class PtuFakemonCollection extends PtuPokemonCollection
 {

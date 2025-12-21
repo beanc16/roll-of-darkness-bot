@@ -3,8 +3,21 @@ import { EmbedBuilder } from 'discord.js';
 
 import { MAX_EMBED_DESCRIPTION_LENGTH } from '../../../constants/discord.js';
 import { getPagedEmbedBuilders, getPagedEmbedMessages } from '../../shared/embed-messages/shared.js';
+import { FakemonBasicInformationEmbedMessage } from '../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
+import { FakemonBreedingInformationEmbedMessage } from '../components/fakemon/embeds/FakemonBreedingInformationEmbedMessage.js';
+import { FakemonCapabilitiesEmbedMessage } from '../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
+import { FakemonEggMovesEmbedMessage } from '../components/fakemon/embeds/FakemonEggMovesEmbedMessage.js';
+import { FakemonEnvironmentEmbedMessage } from '../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
+import { FakemonEvolutionsEmbedMessage } from '../components/fakemon/embeds/FakemonEvolutionsEmbedMessage.js';
+import { FakemonLevelUpMovesEmbedMessage } from '../components/fakemon/embeds/FakemonLevelUpMovesEmbedMessage.js';
+import { FakemonMegaFormEmbedMessage } from '../components/fakemon/embeds/FakemonMegaFormEmbedMessage.js';
+import { FakemonSizeInformationEmbedMessage } from '../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
+import { FakemonSkillsEmbedMessage } from '../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
+import { FakemonStatsEmbedMessage } from '../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
+import { FakemonTmHmMovesEmbedMessage } from '../components/fakemon/embeds/FakemonTmHmMovesEmbedMessage.js';
+import { FakemonTutorMovesEmbedMessage } from '../components/fakemon/embeds/FakemonTutorMovesEmbedMessage.js';
+import { FakemonZygardeCubeMovesEmbedMessage } from '../components/fakemon/embeds/FakemonZygardeCubeMovesEmbedMessage.js';
 import { PtuMove } from '../models/PtuMove.js';
-import { removeExtraCharactersFromMoveName } from '../services/pokemonMoveHelpers/pokemonMoveHelpers.js';
 import {
     PtuAbilityListType,
     PtuMoveListType,
@@ -84,47 +97,6 @@ export const getLookupPokemonEmbedMessages = (
 {
     if (pokemon.length === 0) return [];
 
-    const hasMoveNameToMovesRecord = Object.keys(moveNameToMovesRecord).length > 0
-        ? 'true'
-        : 'false';
-
-    const getContestStatInfoByMoveName = (moveName: string): string =>
-    {
-        const parsedMoveName = removeExtraCharactersFromMoveName(moveName);
-
-        if (!moveNameToMovesRecord[parsedMoveName])
-        {
-            return '';
-        }
-
-        const { contestStatType, contestStatEffect } = moveNameToMovesRecord[parsedMoveName];
-
-        if (!(contestStatType || contestStatEffect))
-        {
-            return '';
-        }
-
-        return `(${[contestStatType, contestStatEffect].join(' - ')})`;
-    };
-
-    const joinWithContestInfo = (moveNames: string[]): string =>
-    {
-        const output = moveNames.reduce<string>((acc, cur, index) =>
-        {
-            const contestInfo = getContestStatInfoByMoveName(cur);
-            const booleanToSeparator: Record<'true' | 'false', string> = {
-                true: '\n',
-                false: ', ',
-            };
-
-            const separator = (index > 0) ? booleanToSeparator[hasMoveNameToMovesRecord] : '';
-
-            return `${acc}${separator}${cur}${contestInfo ? ` ${contestInfo}` : ''}`;
-        }, '');
-
-        return output;
-    };
-
     const pages = pokemon.reduce<{
         description: string;
         imageUrl?: string;
@@ -132,29 +104,15 @@ export const getLookupPokemonEmbedMessages = (
         name,
         baseStats,
         types,
-        abilities: {
-            basicAbilities,
-            advancedAbilities,
-            highAbility,
-        },
+        abilities,
         evolution,
-        sizeInformation: { height, weight },
-        breedingInformation: {
-            genderRatio,
-            eggGroups,
-            averageHatchRate,
-        },
+        sizeInformation,
+        breedingInformation,
         diets,
         habitats,
         capabilities,
         skills,
-        moveList: {
-            levelUp,
-            eggMoves,
-            tmHm,
-            tutorMoves,
-            zygardeCubeMoves,
-        },
+        moveList,
         metadata: {
             dexNumber,
             source,
@@ -170,128 +128,66 @@ export const getLookupPokemonEmbedMessages = (
             Text.bold(`${dexNumber !== undefined ? `${dexNumber} ` : ''}${name}`),
             '',
             Text.bold('Base Stats'),
-            `HP: ${baseStats.hp}`,
-            `Attack: ${baseStats.attack}`,
-            `Defense: ${baseStats.defense}`,
-            `Special Attack: ${baseStats.specialAttack}`,
-            `Special Defense: ${baseStats.specialDefense}`,
-            `Speed: ${baseStats.speed}`,
-            `Total: ${Object.values(baseStats).reduce((acc2, val) => acc2 + val, 0)}`,
+            ...FakemonStatsEmbedMessage.constructDescriptionLines({ baseStats }),
             '',
             Text.bold('Basic Information'),
-            `Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`,
-            ...basicAbilities.map((ability, index) => `Basic Ability: ${index + 1}: ${ability}`),
-            ...advancedAbilities.map((ability, index) => `Advanced Ability: ${index + 1}: ${ability}`),
-            `High Ability: ${highAbility}`,
+            ...FakemonBasicInformationEmbedMessage.constructDescriptionLines({ types, abilities }),
             '',
             Text.bold('Evolution'),
-            ...evolution.sort((a, b) => a.stage - b.stage).map(({
-                name: evolutionName,
-                level,
-                stage,
-            }) =>
-            {
-                const minimumLevelString = (stage >= 2 && level > 1)
-                    ? ` Minimum ${level}`
-                    : ''; // Don't include minimum level for 2+ stage evolutions that're level 1. They probably evolve with an evolution stone, which is included in the name.
-
-                return `${stage} - ${evolutionName}${minimumLevelString}`;
-            }),
+            ...FakemonEvolutionsEmbedMessage.constructDescriptionLines({ evolution }),
             '',
             Text.bold('Size Information'),
-            `Height: ${height.freedom} / ${height.metric} (${height.ptu})`,
-            `Weight: ${weight.freedom} / ${weight.metric} (${weight.ptu})`,
+            ...FakemonSizeInformationEmbedMessage.constructDescriptionLines({ sizeInformation }),
             '',
             Text.bold('Breeding Information'),
-            `Gender Ratio: ${!genderRatio.none ? `${genderRatio.male}% M / ${genderRatio.female}% F` : 'No Gender'}`,
-            `Egg Group${eggGroups.length > 1 ? 's' : ''}: ${eggGroups.length > 0 ? eggGroups.join(', ') : 'None'}`,
-            ...(averageHatchRate ? [`Average Hatch Rate: ${averageHatchRate}`, ''] : ['']),
+            ...FakemonBreedingInformationEmbedMessage.constructDescriptionLines({ breedingInformation }),
             Text.bold('Environment'),
-            `Diet: ${diets.join(', ')}`,
-            `Habitat${habitats.length > 1 ? 's' : ''}: ${habitats.join(', ')}`,
+            ...FakemonEnvironmentEmbedMessage.constructDescriptionLines({ diets, habitats }),
             '',
             Text.bold('Capabilities'),
-            [ // String
-                `Overland: ${capabilities.overland}`,
-                ...(capabilities.swim !== undefined ? [`Swim: ${capabilities.swim}`] : []),
-                ...(capabilities.sky !== undefined ? [`Sky: ${capabilities.sky}`] : []),
-                ...(capabilities.levitate !== undefined ? [`Levitate: ${capabilities.levitate}`] : []),
-                ...(capabilities.burrow !== undefined ? [`Burrow: ${capabilities.burrow}`] : []),
-                `Jump: ${capabilities.highJump}/${capabilities.lowJump}`,
-                `Power: ${capabilities.power}`,
-                ...(capabilities.other ?? []),
-            ].join(', '),
+            FakemonCapabilitiesEmbedMessage.constructDescriptionLines({ capabilities }).join(', '),
             '',
             Text.bold('Skills'),
-            [ // String
-                `Acro: ${skills.acrobatics}`,
-                `Athl: ${skills.athletics}`,
-                `Combat: ${skills.combat}`,
-                `Focus: ${skills.focus}`,
-                `Percep: ${skills.perception}`,
-                `Stealth: ${skills.stealth}`,
-            ].join(', '),
+            FakemonSkillsEmbedMessage.constructDescriptionLines({ skills }).join(', '),
             '',
             Text.bold('Level Up Move List'),
-            ...levelUp.map(({
-                level,
-                move,
-                type,
-            }) => `${level} ${move} - ${type}${getContestStatInfoByMoveName(move) ? ` ${getContestStatInfoByMoveName(move)}` : ''}`),
+            ...FakemonLevelUpMovesEmbedMessage.constructDescriptionLines({ moveList }, moveNameToMovesRecord),
             '',
-            ...(eggMoves.length > 0
+            ...(moveList.eggMoves.length > 0
                 ? [
                     Text.bold('Egg Move List'),
-                    joinWithContestInfo(eggMoves),
+                    FakemonEggMovesEmbedMessage.constructDescription({ moveList }, moveNameToMovesRecord),
                     '',
                 ]
                 : []
             ),
-            ...(tmHm.length > 0
+            ...(moveList.tmHm.length > 0
                 ? [
                     Text.bold('TM/HM Move List'),
-                    joinWithContestInfo(tmHm),
+                    FakemonTmHmMovesEmbedMessage.constructDescription({ moveList }, moveNameToMovesRecord),
                     '',
                 ]
                 : []
             ),
-            ...(tutorMoves.length > 0
+            ...(moveList.tutorMoves.length > 0
                 ? [
                     Text.bold('Tutor Move List'),
-                    joinWithContestInfo(tutorMoves),
+                    FakemonTutorMovesEmbedMessage.constructDescription({ moveList }, moveNameToMovesRecord),
                     '',
                 ]
                 : []
             ),
-            ...(zygardeCubeMoves && zygardeCubeMoves.length > 0
+            ...(moveList.zygardeCubeMoves && moveList.zygardeCubeMoves.length > 0
                 ? [
                     Text.bold('Zygarde Cube Move List'),
-                    joinWithContestInfo(zygardeCubeMoves),
+                    FakemonZygardeCubeMovesEmbedMessage.constructDescription({ moveList }, moveNameToMovesRecord),
                     '',
                 ]
                 : []
             ),
             (megaEvolutions !== undefined && megaEvolutions.length > 0
-                ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n` + megaEvolutions.map(megaEvolution =>
-                    [
-                        megaEvolution.name,
-                        `Type${megaEvolution.types.length > 1 ? 's' : ''}: ${megaEvolution.types.join('/')}`,
-                        `Stats: ${[
-                            (megaEvolution.stats.hp !== undefined ? `${megaEvolution.stats.hp} HP` : ''),
-                            (megaEvolution.stats.attack !== undefined ? `${megaEvolution.stats.attack} Attack` : ''),
-                            (megaEvolution.stats.defense !== undefined ? `${megaEvolution.stats.defense} Defense` : ''),
-                            (megaEvolution.stats.specialAttack !== undefined ? `${megaEvolution.stats.specialAttack} Special Attack` : ''),
-                            (megaEvolution.stats.specialDefense !== undefined ? `${megaEvolution.stats.specialDefense} Special Defense` : ''),
-                            (megaEvolution.stats.speed !== undefined ? `${megaEvolution.stats.speed} Speed` : ''),
-                        ].filter(str => str.length > 0).join(', ')}`,
-                        `Ability: ${megaEvolution.ability}`,
-                        [
-                            (megaEvolution.abilityShift ? megaEvolution.abilityShift : ''),
-                            (megaEvolution.capabilities ? `Capabilities: ${megaEvolution.capabilities.join(', ')}` : ''),
-                            '',
-                        ].filter(str => str.length > 0).join('\n'),
-                    ].join('\n'),
-                ).join('\n')
+                ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n`
+                + FakemonMegaFormEmbedMessage.constructDescriptionLines({ megaEvolutions }).join('\n')
                 : []
             ),
             ...(extras && extras.length > 0

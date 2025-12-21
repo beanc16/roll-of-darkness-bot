@@ -1,9 +1,14 @@
-import { Attachment, ChatInputCommandInteraction, EmbedBuilder, User } from 'discord.js';
+import {
+    Attachment,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    User,
+} from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
-import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
+import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -21,17 +26,21 @@ export class FakemonCreateStrategy
 {
     public static key = PtuFakemonSubcommand.Create;
 
-    public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        _strategies: PtuStrategyMap,
+    ): Promise<boolean>
     {
-        const {
-            // speciesName,
-            // baseSpeciesOn,
-            // baseMovesOn,
-            // baseAbilitiesOn,
-            // image,
-            // imageUrl,
-            // coEditor,
-        } = this.getParameterResults(interaction);
+        // const {
+        //     speciesName,
+        //     baseSpeciesOn,
+        //     baseMovesOn,
+        //     baseAbilitiesOn,
+        //     image,
+        //     imageUrl,
+        //     coEditor,
+        // } = this.getParameterResults(interaction);
+        this.getOptions(interaction);
 
         // Send response
         const embeds = this.getEmbeds();
@@ -44,7 +53,7 @@ export class FakemonCreateStrategy
         return true;
     }
 
-    private static getParameterResults(interaction: ChatInputCommandInteraction): FakemonCreateGetParameterResults
+    private static getOptions(interaction: ChatInputCommandInteraction): FakemonCreateGetParameterResults
     {
         const speciesName = interaction.options.getString('species_name', true);
         const baseSpeciesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseSpeciesOn);
@@ -67,6 +76,7 @@ export class FakemonCreateStrategy
 
     private static getEmbeds(): EmbedBuilder[]
     {
-        return [];
+        return [
+        ];
     }
 }
