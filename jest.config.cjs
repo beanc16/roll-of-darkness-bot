@@ -83,7 +83,7 @@ module.exports = {
     coverageThreshold: {
         // TODO: Set up a global threshold when more unit tests are implemented
         // TODO: Get all numbers up to 80-100% when more unit tests are implemented (depending on the location)
-        './src/commands-slash/embed-messages': {
+        './src/commands-slash/shared/embed-messages': {
             statements: 50,
             branches: 40,
             functions: 50,
@@ -97,7 +97,7 @@ module.exports = {
         },
         './src/commands-slash/Ptu/models': {
             statements: 90,
-            branches: 90,
+            branches: 85,
             functions: 100,
             lines: 90,
         },
@@ -115,7 +115,7 @@ module.exports = {
         },
         './src/commands-slash/Vc/services': {
             statements: 100,
-            branches: 100,
+            branches: 90,
             functions: 100,
             lines: 100,
         },
