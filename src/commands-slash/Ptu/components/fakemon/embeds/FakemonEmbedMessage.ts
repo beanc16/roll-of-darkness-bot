@@ -37,7 +37,7 @@ export class FakemonMoveEmbedMessage extends FakemonEmbedMessage
 {
     protected static getContestStatInfoByMoveName(
         moveName: string,
-        moveNameToMovesRecord: Record<string, PtuMove> = {},
+        moveNameToMovesRecord: Record<string, Pick<PtuMove, 'contestStatType' | 'contestStatEffect'>> = {},
     ): string
     {
         const parsedMoveName = removeExtraCharactersFromMoveName(moveName);
@@ -49,7 +49,7 @@ export class FakemonMoveEmbedMessage extends FakemonEmbedMessage
 
         const { contestStatType, contestStatEffect } = moveNameToMovesRecord[parsedMoveName];
 
-        if (!(contestStatType || contestStatEffect))
+        if (!(contestStatType && contestStatEffect))
         {
             return '';
         }
@@ -59,7 +59,7 @@ export class FakemonMoveEmbedMessage extends FakemonEmbedMessage
 
     protected static joinWithContestInfo(
         moveNames: string[],
-        moveNameToMovesRecord: Record<string, PtuMove> = {},
+        moveNameToMovesRecord: Record<string, Pick<PtuMove, 'contestStatType' | 'contestStatEffect'>> = {},
     ): string
     {
         const hasMoveNameToMovesRecord = Object.keys(moveNameToMovesRecord).length > 0
@@ -68,7 +68,7 @@ export class FakemonMoveEmbedMessage extends FakemonEmbedMessage
 
         return moveNames.reduce<string>((acc, cur, index) =>
         {
-            const contestInfo = this.getContestStatInfoByMoveName(cur);
+            const contestInfo = this.getContestStatInfoByMoveName(cur, moveNameToMovesRecord);
             const booleanToSeparator: Record<'true' | 'false', string> = {
                 true: '\n',
                 false: ', ',
