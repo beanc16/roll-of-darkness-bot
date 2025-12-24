@@ -112,25 +112,25 @@ export class RollAlchemyStrategy
         // for the given location
         switch (location)
         {
-        case PtuAlchemyLocation.DistractingSpace:
-        case PtuAlchemyLocation.AnySpace:
-            // Always requires an alchemy lab:
-            // 2 catalysts & 4+ extras
-            // or: 3 catalysts and any number of extras
-            if (new Set([
-                PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras,
-                PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras,
-                PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras,
-                PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras,
-            ]).has(catalystsAndExtras))
-            {
-                return null;
-            }
-            break;
-        case PtuAlchemyLocation.YourAlchemyLab:
-            break;
-        default:
-            throw new Error(`Unknown location: ${location as PtuAlchemyLocation}`);
+            case PtuAlchemyLocation.DistractingSpace:
+            case PtuAlchemyLocation.AnySpace:
+                // Always requires an alchemy lab:
+                // 2 catalysts & 4+ extras
+                // or: 3 catalysts and any number of extras
+                if (new Set([
+                    PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras,
+                    PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras,
+                    PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras,
+                    PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras,
+                ]).has(catalystsAndExtras))
+                {
+                    return null;
+                }
+                break;
+            case PtuAlchemyLocation.YourAlchemyLab:
+                break;
+            default:
+                throw new Error(`Unknown location: ${location as PtuAlchemyLocation}`);
         }
 
         const handlerMap: Record<PtuAlchemyCatalystsAndExtras, PtuSkillRank> = {
@@ -248,57 +248,57 @@ export class RollAlchemyStrategy
         // for the given location
         switch (location)
         {
-        case PtuAlchemyLocation.DistractingSpace: {
-            const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
-                [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: 1,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: 2,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 3,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 3,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 4,
-                // Always require an alchemy lab, invalid:
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: null,
-            };
+            case PtuAlchemyLocation.DistractingSpace: {
+                const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: 1,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: 2,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 3,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 3,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 4,
+                    // Always require an alchemy lab, invalid:
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: null,
+                };
 
-            return handlerMap[catalystsAndExtras];
-        }
-        case PtuAlchemyLocation.AnySpace: {
-            const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
-                [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: 1,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 2,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 2,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 3,
-                // Always require an alchemy lab, invalid:
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: null,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: null,
-            };
+                return handlerMap[catalystsAndExtras];
+            }
+            case PtuAlchemyLocation.AnySpace: {
+                const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: 1,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 2,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 2,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 3,
+                    // Always require an alchemy lab, invalid:
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: null,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: null,
+                };
 
-            return handlerMap[catalystsAndExtras];
-        }
-        case PtuAlchemyLocation.YourAlchemyLab: {
-            const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
-                [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: -2,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: -1,
-                [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 0,
-                // Always require an alchemy lab:
-                [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: 0,
-                [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: 0,
-            };
+                return handlerMap[catalystsAndExtras];
+            }
+            case PtuAlchemyLocation.YourAlchemyLab: {
+                const handlerMap: Record<PtuAlchemyCatalystsAndExtras, number | null> = {
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystLowExtras]: -2,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystMidExtras]: -1,
+                    [PtuAlchemyCatalystsAndExtras.OneCatalystHighExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsLowExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsMidExtras]: 0,
+                    // Always require an alchemy lab:
+                    [PtuAlchemyCatalystsAndExtras.TwoCatalystsHighExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsLowExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsMidExtras]: 0,
+                    [PtuAlchemyCatalystsAndExtras.ThreeCatalystsHighExtras]: 0,
+                };
 
-            return handlerMap[catalystsAndExtras];
-        }
-        default: {
-            throw new Error(`Unknown location: ${location as PtuAlchemyLocation}`);
-        }
+                return handlerMap[catalystsAndExtras];
+            }
+            default: {
+                throw new Error(`Unknown location: ${location as PtuAlchemyLocation}`);
+            }
         }
     }
 

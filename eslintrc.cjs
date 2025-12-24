@@ -28,10 +28,6 @@ module.exports = {
     rules: {
         // Spacing, Whitespace, Padding, Etc.
         'brace-style': ['error', 'allman'],     // Make curly braces exist on the next line
-        indent: ['error', 4, {                  // Do 4-space indentation (not tabs)
-            offsetTernaryExpressions: true,     // Indent all ternary operator values
-            SwitchCase: 1,                      // Indent case clauses for switch statements
-        }],
         'linebreak-style': 'off',               // Don't enforce unix or windows-specific linebreaks, use whatever linebreaks you want
         'max-len': ['error', {
             code: 160,                          // Maximum line length
@@ -125,6 +121,7 @@ module.exports = {
         // Miscellaneous
         'arrow-body-style': 'off',              // Do not require braces around arrow function bodies
         'file-progress/activate': 1,            // Show progress in console while linting
+        'no-case-declarations': 'off',          // Allow variable declarations in "case" statements in switch statements
         'no-control-regex': 'off',              // Allow control characters in regular expressions
     },
     overrides: [
@@ -159,6 +156,7 @@ module.exports = {
                     CallExpression: { arguments: 'first' },                     // For function calls, align arguments with the first argument on the next line
                     ArrayExpression: 'first',                                   // For array literals, align elements with the first element on the next line
                     ObjectExpression: 'first',                                  // For object literals, align properties with the first property on the next line
+                    SwitchCase: 1,                                              // For switch cases, indent once relative to initial "switch"
                 }],
                 '@stylistic/indent-binary-ops': ['error', 4],               // Do 4-space indentation (not tabs) for binary operations
 
@@ -196,6 +194,9 @@ module.exports = {
                     },
                 }],
                 '@typescript-eslint/return-await': ['error', 'always'],     // Allow return await
+                '@typescript-eslint/restrict-template-expressions': ['error', {
+                    allowNever: true,                                       // Allow "never" in template literals
+                }],
                 '@typescript-eslint/naming-convention': ['error', {    // Define naming convention rules
                     selector: 'variable',
                     modifiers: ['unused'],                             // Specifically target unused variables
