@@ -5,7 +5,7 @@ import { PtuPokemon } from '../../../types/pokemon.js';
 
 export class FakemonOverviewEmbedMessage extends EmbedBuilder
 {
-    constructor(pokemon: PtuPokemon)
+    constructor(pokemon: Omit<PtuPokemon, 'versionName' | 'olderVersions'>)
     {
         const [embed] = getLookupPokemonEmbedMessages([pokemon], {});
         super(embed.data);

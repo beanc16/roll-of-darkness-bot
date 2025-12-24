@@ -3,13 +3,14 @@ import { randomUUID } from 'node:crypto';
 import {
     Attachment,
     ChatInputCommandInteraction,
-    EmbedBuilder,
     User,
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { FakemonInteractionManagerPage, FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
@@ -47,11 +48,15 @@ export class FakemonCreateStrategy
             tutorMoves: [],
         },
         abilities: {
-            basicAbilities: [],
-            advancedAbilities: [],
-            highAbility: '',
+            basicAbilities: ['PLACEHOLDER', 'PLACEHOLDER'],
+            advancedAbilities: ['PLACEHOLDER', 'PLACEHOLDER'],
+            highAbility: 'PLACEHOLDER',
         },
-        evolution: [],
+        evolution: [{
+            level: 1,
+            name: '',
+            stage: 1,
+        }],
         capabilities: {
             overland: 0,
             swim: 0,
@@ -65,22 +70,22 @@ export class FakemonCreateStrategy
         },
         sizeInformation: {
             height: {
-                freedom: '',
-                metric: '',
+                freedom: `0'0"`,
+                metric: '0m',
                 ptu: '0',
             },
             weight: {
-                freedom: '',
-                metric: '',
+                freedom: '0lbs',
+                metric: '0kg',
                 ptu: 0,
             },
         },
         breedingInformation: {
-            genderRatio: {},
+            genderRatio: { none: true },
             eggGroups: [],
         },
-        diets: [],
-        habitats: [],
+        diets: ['PLACEHOLDER'],
+        habitats: ['PLACEHOLDER'],
         skills: {
             acrobatics: '2d6+0',
             athletics: '2d6+0',
@@ -99,26 +104,36 @@ export class FakemonCreateStrategy
         _strategies: PtuStrategyMap,
     ): Promise<boolean>
     {
-        // const {
-        //     speciesName,
-        //     baseSpeciesOn,
-        //     baseMovesOn,
-        //     baseAbilitiesOn,
-        //     image,
-        //     imageUrl,
-        //     coEditor,
-        // } = this.getParameterResults(interaction);
+        const {
+            speciesName,
+            // baseSpeciesOn,
+            // baseMovesOn,
+            // baseAbilitiesOn,
+            // image,
+            // imageUrl,
+            // coEditor,
+        } = this.getOptions(interaction);
         this.getOptions(interaction);
-        this.initializeState(this.basePokemon);
+        const state = this.initializeState({
+            ...this.basePokemon,
+            name: speciesName,
+            evolution: [{
+                level: 1,
+                name: speciesName,
+                stage: 1,
+            }],
+        });
 
         // Send response
-        const embeds = this.getEmbeds();
+        const message = await interaction.fetchReply();
 
-        // const message = await interaction.fetchReply();
-
-        await interaction.editReply({
-            content: 'This command is not yet implemented.',
-            embeds,
+        await FakemonInteractionManagerService.navigateTo({
+            interaction,
+            message,
+            commandName: `/${interaction.commandName} ${PtuSubcommandGroup.Fakemon} ${PtuFakemonSubcommand.Create}`,
+            page: FakemonInteractionManagerPage.Overview,
+            state,
+            interactionType: 'editReply',
         });
 
         return true;
@@ -143,12 +158,6 @@ export class FakemonCreateStrategy
             imageUrl,
             coEditor,
         };
-    }
-
-    private static getEmbeds(): EmbedBuilder[]
-    {
-        return [
-        ];
     }
 
     private static initializeState(pokemon: FakemonState['pokemon']): FakemonState

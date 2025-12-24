@@ -91,7 +91,7 @@ export const getLookupMovesEmbedMessages = (input: PtuMove[], options: {
 };
 
 export const getLookupPokemonEmbedMessages = (
-    pokemon: PtuPokemon[],
+    pokemon: Omit<PtuPokemon, 'versionName' | 'olderVersions'>[],
     moveNameToMovesRecord: Record<string, PtuMove>,
 ): EmbedBuilder[] =>
 {
