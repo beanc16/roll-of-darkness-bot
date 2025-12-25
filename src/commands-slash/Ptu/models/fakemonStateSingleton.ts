@@ -3,7 +3,6 @@ import { PtuPokemon } from '../types/pokemon.js';
 
 export interface FakemonState
 {
-    key: string;
     pokemon: Omit<PtuPokemon, 'versionName' | 'olderVersions' | 'extras'>;
 }
 

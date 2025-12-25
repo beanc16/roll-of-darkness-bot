@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 import {
     Attachment,
     ButtonInteraction,
@@ -11,10 +9,12 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
-import { PtuSubcommandGroup } from '../../options/index.js';
-import { FakemonInteractionManagerPage, FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
+import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type { PtuButtonIteractionStrategy, PtuChatIteractionStrategy, PtuStrategyMap, PtuStringSelectMenuIteractionStrategy } from '../../types/strategies.js';
+import { FakemonSelectorCustomIds } from '../../components/fakemon/types.js';
+import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
+import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -119,8 +119,8 @@ export class FakemonCreateStrategy
             // imageUrl,
             // coEditor,
         } = this.getOptions(interaction);
-        this.getOptions(interaction);
-        const state = this.initializeState({
+        const message = await interaction.fetchReply();
+        const state = this.initializeState(message.id, {
             ...this.basePokemon,
             name: speciesName,
             evolution: [{
@@ -131,12 +131,8 @@ export class FakemonCreateStrategy
         });
 
         // Send response
-        const message = await interaction.fetchReply();
-
         await FakemonInteractionManagerService.navigateTo({
             interaction,
-            message,
-            commandName: `/${interaction.commandName} ${PtuSubcommandGroup.Fakemon} ${PtuFakemonSubcommand.Create}`,
             page: FakemonInteractionManagerPage.Overview,
             state,
             interactionType: 'editReply',
@@ -150,10 +146,27 @@ export class FakemonCreateStrategy
         _strategies: PtuStrategyMap,
     ): Promise<boolean>
     {
-        // TODO: Implement
-        console.log('\n FakemonCreateStrategy.runButton:', {
-            customId: interaction.customId,
-        });
+        const { customId } = interaction as {
+            customId: typeof fakemonBackToOverviewButtonCustomId;
+        };
+        const state = fakemonStateSingleton.get(interaction.message.id);
+
+        switch (customId)
+        {
+            // Back to overview
+            case fakemonBackToOverviewButtonCustomId:
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Overview,
+                    state,
+                });
+                break;
+
+            default:
+                const typeGuard: never = customId;
+                throw new Error(`Unhandled customId: ${typeGuard}`);
+        }
+
         return true;
     }
 
@@ -162,11 +175,29 @@ export class FakemonCreateStrategy
         _strategies: PtuStrategyMap,
     ): Promise<boolean>
     {
-        // TODO: Implement
-        console.log('\n FakemonCreateStrategy.runStringSelect:', {
-            customId: interaction.customId,
-            values: interaction.values,
-        });
+        const { customId, values: [value] = [] } = interaction as {
+            customId: FakemonSelectorCustomIds;
+            values: FakemonInteractionManagerPage[];
+        };
+        const state = fakemonStateSingleton.get(interaction.message.id);
+
+        switch (customId)
+        {
+            // Navigation-related selectors
+            case FakemonSelectorCustomIds.Overview:
+            case FakemonSelectorCustomIds.Stats:
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: value,
+                    state,
+                });
+                break;
+
+            default:
+                const typeGuard: never = customId;
+                throw new Error(`Unhandled customId: ${typeGuard}`);
+        }
+
         return true;
     }
 
@@ -191,11 +222,9 @@ export class FakemonCreateStrategy
         };
     }
 
-    private static initializeState(pokemon: FakemonState['pokemon']): FakemonState
+    private static initializeState(key: string, pokemon: FakemonState['pokemon']): FakemonState
     {
-        const guid = randomUUID();
-
-        fakemonStateSingleton.upsert(guid, { key: guid, pokemon });
-        return fakemonStateSingleton.get(guid);
+        fakemonStateSingleton.upsert(key, { pokemon });
+        return fakemonStateSingleton.get(key);
     }
 }
