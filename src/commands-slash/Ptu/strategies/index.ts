@@ -177,10 +177,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
     /* istanbul ignore next */
     public static async runStringSelect({
+        commandName,
         subcommandGroup,
         subcommand,
         interaction,
     }: {
+        commandName: string;
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuFakemonSubcommand;
         interaction: StringSelectMenuInteraction;
@@ -194,7 +196,11 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
         if (Strategy && Strategy.runStringSelect)
         {
-            return await Strategy.runStringSelect(interaction, this.strategies);
+            return await Strategy.runStringSelect(interaction, this.strategies, {
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
         }
 
         return false;
@@ -202,10 +208,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
     /* istanbul ignore next */
     public static async runButton({
+        commandName,
         subcommandGroup,
         subcommand,
         interaction,
     }: {
+        commandName: string;
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuFakemonSubcommand;
         interaction: ButtonInteraction;
@@ -219,7 +227,11 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
         if (Strategy && Strategy.runButton)
         {
-            return await Strategy.runButton(interaction, this.strategies);
+            return await Strategy.runButton(interaction, this.strategies, {
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
         }
 
         return false;

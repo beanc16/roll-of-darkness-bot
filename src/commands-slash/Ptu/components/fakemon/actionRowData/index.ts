@@ -8,21 +8,17 @@ import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOve
 import { FakemonStatsActionRowBuilder } from '../actionRowBuilders/FakemonStatsActionRowBuilder.js';
 import { FakemonBackToOverviewButton } from '../button/FakemonBackToOverviewButton.js';
 
-export function getFakemonOverviewComponents(
-    args: ConstructorParameters<typeof FakemonOverviewActionRowBuilder>[0],
-): BaseMessageOptions['components']
+export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
     return [
-        new FakemonOverviewActionRowBuilder(args),
+        new FakemonOverviewActionRowBuilder(),
     ];
 }
 
-export function getFakemonStatsComponents(
-    args: ConstructorParameters<typeof FakemonStatsActionRowBuilder>[0],
-): BaseMessageOptions['components']
+export function getFakemonStatsComponents(): BaseMessageOptions['components']
 {
     return [
-        new FakemonStatsActionRowBuilder(args),
+        new FakemonStatsActionRowBuilder(),
         new ActionRowBuilder<ButtonBuilder>({
             components: [
                 new FakemonBackToOverviewButton(),

@@ -1,21 +1,11 @@
-import { ActionRowBuilder, type Message } from 'discord.js';
+import {
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+} from 'discord.js';
 
-import { CommandName } from '../../../../../types/discord.js';
-import { InteractiveStringSelectMenu } from '../../../../shared/components/InteractiveStringSelectMenu.js';
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
-
-interface FakemonStatsActionRowBuilderOptions
-{
-    message: Message;
-    commandName: CommandName;
-    stateGuid: string;
-}
-
-export enum FakemonStatsCustomIds
-{
-    Selector = 'selector',
-}
+import { FakemonSelectorCustomIds } from '../types.js';
 
 export enum FakemonStatsElementOptions
 {
@@ -29,28 +19,16 @@ export enum FakemonStatsElementOptions
 
 export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
-    constructor({ message, commandName }: FakemonStatsActionRowBuilderOptions)
+    constructor()
     {
-        const stringSelectMenu = new InteractiveStringSelectMenu({
-            customId: FakemonStatsCustomIds.Selector,
-            placeholder: 'Edit Stat',
-            elements: Object.values(FakemonStatsElementOptions),
-            message,
-            commandName,
-            onSelectDropdownOption: (_receivedInteraction) =>
-            {
-                // TODO: Implement
-            },
-            onSelectOtherOption: (_receivedInteraction) =>
-            {
-                // TODO: Implement
-            },
-            optionParser: (option) => ({ label: option, value: option }),
-        });
-
         super({
             components: [
-                stringSelectMenu,
+                new StringSelectMenuBuilder({
+                    customId: FakemonSelectorCustomIds.Stats,
+                    placeholder: 'Edit Stat',
+                    options: Object.values(FakemonStatsElementOptions)
+                        .map(option => ({ label: option, value: option })),
+                }),
             ],
         });
     }
