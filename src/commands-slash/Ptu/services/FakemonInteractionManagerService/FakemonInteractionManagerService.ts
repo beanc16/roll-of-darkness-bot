@@ -1,31 +1,23 @@
 import {
+    ButtonInteraction,
     ChatInputCommandInteraction,
     InteractionEditReplyOptions,
     InteractionUpdateOptions,
-    Message,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { CommandName } from '../../../../types/discord.js';
-import { getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
+import type { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
+import { getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
-import { FakemonState } from '../../models/fakemonStateSingleton.js';
-
-export enum FakemonInteractionManagerPage
-{
-    Overview = 'Overview',
-    Stats = 'Stats',
-}
+import { FakemonInteractionManagerPage } from './types.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 
 interface NavigateToOptions
 {
-    interaction: ChatInputCommandInteraction | StringSelectMenuInteraction;
+    interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
     page: FakemonInteractionManagerPage;
-    message: Message;
-    commandName: CommandName;
     state: FakemonState;
     interactionType?: FakemonInteractionManagerInteractionType;
 }
@@ -61,17 +53,9 @@ export class FakemonInteractionManagerService
 
     private static getInteractionOptions({
         page,
-        message,
-        commandName,
         state,
     }: NavigateToOptions): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
     {
-        const commonArgs = {
-            message,
-            commandName,
-            stateGuid: state.key,
-        };
-
         switch (page)
         {
             case FakemonInteractionManagerPage.Overview:
@@ -79,7 +63,7 @@ export class FakemonInteractionManagerService
                     embeds: [
                         new FakemonOverviewEmbedMessage(state.pokemon),
                     ],
-                    components: getFakemonOverviewComponents(commonArgs),
+                    components: getFakemonOverviewComponents(),
                 };
 
             case FakemonInteractionManagerPage.Stats:
@@ -87,7 +71,7 @@ export class FakemonInteractionManagerService
                     embeds: [
                         new FakemonStatsEmbedMessage(state.pokemon),
                     ],
-                    components: getFakemonStatsComponents(commonArgs),
+                    components: getFakemonStatsComponents(),
                 };
 
             default:
