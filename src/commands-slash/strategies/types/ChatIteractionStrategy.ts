@@ -1,4 +1,8 @@
-import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
 import {
     BaseStrategy,

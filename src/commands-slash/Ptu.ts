@@ -1,7 +1,13 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
-import { AutocompleteInteraction, ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
+import {
+    AutocompleteInteraction,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
+import { PtuFakemonSubcommand } from './Ptu/options/fakemon.js';
 import {
     calculate,
     PtuSubcommandGroup,
@@ -11,7 +17,6 @@ import {
 import { PtuLookupSubcommand } from './Ptu/options/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/options/random.js';
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
-import { PtuFakemonSubcommand } from './Ptu/options/fakemon.js';
 
 export class Ptu extends BaseSlashCommand
 {

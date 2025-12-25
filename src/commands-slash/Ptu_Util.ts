@@ -1,3 +1,4 @@
+import { Ptu } from './Ptu.js';
 import {
     breed,
     game,
@@ -5,7 +6,6 @@ import {
     train,
     typeEffectiveness,
 } from './Ptu/options/index.js';
-import { Ptu } from './Ptu.js';
 
 class Ptu_Util extends Ptu
 {

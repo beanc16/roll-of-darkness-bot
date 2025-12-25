@@ -1,5 +1,5 @@
-import { fakemon } from '../Ptu/options/index.js';
 import { Ptu } from '../Ptu.js';
+import { fakemon } from '../Ptu/options/index.js';
 
 class Ptu_Util_Dev extends Ptu
 {

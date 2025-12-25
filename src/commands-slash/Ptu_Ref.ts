@@ -1,8 +1,5 @@
-import {
-    lookup,
-    quickReference,
-} from './Ptu/options/index.js';
 import { Ptu } from './Ptu.js';
+import { lookup, quickReference } from './Ptu/options/index.js';
 
 class Ptu_Ref extends Ptu
 {

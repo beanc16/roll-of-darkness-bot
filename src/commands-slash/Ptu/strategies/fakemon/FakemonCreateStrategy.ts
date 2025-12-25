@@ -7,14 +7,19 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
+import { FakemonSelectorCustomIds } from '../../components/fakemon/types.js';
 import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
-import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
-import type { PtuButtonIteractionStrategy, PtuChatIteractionStrategy, PtuStrategyMap, PtuStringSelectMenuIteractionStrategy } from '../../types/strategies.js';
-import { FakemonSelectorCustomIds } from '../../components/fakemon/types.js';
-import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
+import type {
+    PtuButtonIteractionStrategy,
+    PtuChatIteractionStrategy,
+    PtuStrategyMap,
+    PtuStringSelectMenuIteractionStrategy,
+} from '../../types/strategies.js';
 
 interface FakemonCreateGetParameterResults
 {

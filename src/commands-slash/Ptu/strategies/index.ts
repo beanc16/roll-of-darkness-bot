@@ -16,6 +16,7 @@ import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
+import { PtuFakemonSubcommand } from '../options/fakemon.js';
 import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
@@ -38,7 +39,12 @@ import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
-import { PtuButtonIteractionStrategy, PtuChatIteractionStrategy, PtuStrategyMap, PtuStringSelectMenuIteractionStrategy } from '../types/strategies.js';
+import {
+    PtuButtonIteractionStrategy,
+    PtuChatIteractionStrategy,
+    PtuStrategyMap,
+    PtuStringSelectMenuIteractionStrategy,
+} from '../types/strategies.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import fakemonStrategies from './fakemon/index.js';
@@ -64,7 +70,6 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
-import { PtuFakemonSubcommand } from '../options/fakemon.js';
 
 type AllPtuLookupModels = PtuAbility
     | PtuAura

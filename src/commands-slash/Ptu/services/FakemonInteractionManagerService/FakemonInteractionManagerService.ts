@@ -6,10 +6,10 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import type { FakemonState } from '../../models/fakemonStateSingleton.js';
-import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
+import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
+import type { FakemonState } from '../../models/fakemonStateSingleton.js';
 import { FakemonInteractionManagerPage } from './types.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
@@ -51,10 +51,7 @@ export class FakemonInteractionManagerService
         }
     }
 
-    private static getInteractionOptions({
-        page,
-        state,
-    }: NavigateToOptions): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
+    private static getInteractionOptions({ page, state }: NavigateToOptions): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
     {
         switch (page)
         {

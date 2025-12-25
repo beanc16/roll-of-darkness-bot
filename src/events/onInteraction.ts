@@ -15,9 +15,9 @@ import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCo
 async function handler(
     bot: Client,
     interaction: CommandInteraction
-    | AutocompleteInteraction
-    | StringSelectMenuInteraction
-    | ButtonInteraction,
+        | AutocompleteInteraction
+        | StringSelectMenuInteraction
+        | ButtonInteraction,
 ): Promise<void>
 {
     if (interaction.isChatInputCommand())

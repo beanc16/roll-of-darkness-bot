@@ -1,8 +1,18 @@
-import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
-import { ButtonIteractionStrategy, ChatIteractionStrategy, StrategyMap, StringSelectMenuIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
+import {
+    ButtonIteractionStrategy,
+    ChatIteractionStrategy,
+    StrategyMap,
+    StringSelectMenuIteractionStrategy,
+} from '../../strategies/types/ChatIteractionStrategy.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
+import { PtuFakemonSubcommand } from '../options/fakemon.js';
 import { PtuGameSubcommand } from '../options/game.js';
 import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
@@ -13,7 +23,6 @@ import { PtuRollSubcommand } from '../options/roll.js';
 import { PtuTrainSubcommand } from '../options/train.js';
 import { PtuTypeEffectivenessSubcommand } from '../options/typeEffectiveness.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from '../strategies/random/types.js';
-import { PtuFakemonSubcommand } from '../options/fakemon.js';
 
 interface Metadata
 {

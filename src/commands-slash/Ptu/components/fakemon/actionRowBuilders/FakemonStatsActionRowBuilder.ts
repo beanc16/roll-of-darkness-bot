@@ -1,7 +1,4 @@
-import {
-    ActionRowBuilder,
-    StringSelectMenuBuilder,
-} from 'discord.js';
+import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';

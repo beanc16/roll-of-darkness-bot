@@ -1,5 +1,5 @@
-import { generateDev } from '../Ptu/options/index.js';
 import { Ptu } from '../Ptu.js';
+import { generateDev } from '../Ptu/options/index.js';
 
 class Ptu_Ai_Dev extends Ptu
 {

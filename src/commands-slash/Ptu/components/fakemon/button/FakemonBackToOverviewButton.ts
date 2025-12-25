@@ -1,7 +1,4 @@
-import {
-    ButtonBuilder,
-    ButtonStyle,
-} from 'discord.js';
+import { ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export const fakemonBackToOverviewButtonCustomId = 'back-to-overview-button';
 

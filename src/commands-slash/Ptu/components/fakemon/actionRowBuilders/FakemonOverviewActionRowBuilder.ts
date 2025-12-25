@@ -6,9 +6,8 @@ import {
 
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
-import { FakemonSelectorCustomIds } from '../types.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
-
+import { FakemonSelectorCustomIds } from '../types.js';
 
 export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
