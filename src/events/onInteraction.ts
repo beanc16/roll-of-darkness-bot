@@ -1,16 +1,24 @@
 import { logger } from '@beanc16/logger';
 import {
     AutocompleteInteraction,
+    ButtonInteraction,
     Client,
     CommandInteraction,
     Events,
     ModalSubmitInteraction,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { modalMap } from '../modals/index.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 
-async function handler(bot: Client, interaction: CommandInteraction | AutocompleteInteraction): Promise<void>
+async function handler(
+    bot: Client,
+    interaction: CommandInteraction
+    | AutocompleteInteraction
+    | StringSelectMenuInteraction
+    | ButtonInteraction,
+): Promise<void>
 {
     if (interaction.isChatInputCommand())
     {
@@ -96,6 +104,66 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
             logger.error(`An unknown error occurred while submitting the modal with id: ${Modal.id}, and title: ${Modal.title}`, err);
             await modalSubmitInteraction.followUp({
                 content: 'An unknown error occurred while submitting this modal',
+                ephemeral: true,
+            });
+        }
+    }
+    else if (interaction.isStringSelectMenu())
+    {
+        const message = await interaction.deferUpdate({ fetchReply: true });
+        const [
+            commandName = '',
+            subcommandGroup = '',
+            subcommand = '',
+        ] = message.interaction?.commandName?.split(' ') ?? [];
+
+        const slashCommand = SlashCommandsContainer.getCommand(commandName)
+            || SlashCommandsContainer.getGuildCommand(commandName);
+        if (!slashCommand)
+        {
+            logger.error(`No command named ${commandName} was found.`);
+            return;
+        }
+
+        try
+        {
+            await slashCommand.runStringSelect(interaction, [commandName, subcommandGroup, subcommand]);
+        }
+        catch (err)
+        {
+            logger.error(`An unknown error occurred while executing string select for /${slashCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
+                ephemeral: true,
+            });
+        }
+    }
+    else if (interaction.isButton())
+    {
+        const message = await interaction.deferUpdate({ fetchReply: true });
+        const [
+            commandName = '',
+            subcommandGroup = '',
+            subcommand = '',
+        ] = message.interaction?.commandName?.split(' ') ?? [];
+
+        const slashCommand = SlashCommandsContainer.getCommand(commandName)
+            || SlashCommandsContainer.getGuildCommand(commandName);
+        if (!slashCommand)
+        {
+            logger.error(`No command named ${commandName} was found.`);
+            return;
+        }
+
+        try
+        {
+            await slashCommand.runButton(interaction, [commandName, subcommandGroup, subcommand]);
+        }
+        catch (err)
+        {
+            logger.error(`An unknown error occurred while executing button for /${slashCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
                 ephemeral: true,
             });
         }

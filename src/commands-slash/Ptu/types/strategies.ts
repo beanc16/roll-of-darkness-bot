@@ -1,6 +1,6 @@
-import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
 
-import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
+import { ButtonIteractionStrategy, ChatIteractionStrategy, StrategyMap, StringSelectMenuIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
 import { PtuGameSubcommand } from '../options/game.js';
@@ -13,6 +13,14 @@ import { PtuRollSubcommand } from '../options/roll.js';
 import { PtuTrainSubcommand } from '../options/train.js';
 import { PtuTypeEffectivenessSubcommand } from '../options/typeEffectiveness.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from '../strategies/random/types.js';
+import { PtuFakemonSubcommand } from '../options/fakemon.js';
+
+interface Metadata
+{
+    commandName: string;
+    subcommandGroup: PtuSubcommandGroup;
+    subcommand: PtuFakemonSubcommand;
+}
 
 export interface PtuChatIteractionStrategy<
     Response = boolean,
@@ -23,6 +31,34 @@ export interface PtuChatIteractionStrategy<
     run(
         interaction: ChatInputCommandInteraction | ButtonInteraction,
         strategies: PtuStrategyMap,
+        options?: Options,
+    ): Promise<Response>;
+}
+
+export interface PtuButtonIteractionStrategy<
+    Response = boolean,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow in this case
+    Options = Record<string, any>,
+> extends Omit<ButtonIteractionStrategy, 'run'>
+{
+    runButton(
+        interaction: ButtonInteraction,
+        strategies: PtuStrategyMap,
+        metadata: Metadata,
+        options?: Options,
+    ): Promise<Response>;
+}
+
+export interface PtuStringSelectMenuIteractionStrategy<
+    Response = boolean,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Allow in this case
+    Options = Record<string, any>,
+> extends Omit<StringSelectMenuIteractionStrategy, 'run'>
+{
+    runStringSelect(
+        interaction: StringSelectMenuInteraction,
+        strategies: PtuStrategyMap,
+        metadata: Metadata,
         options?: Options,
     ): Promise<Response>;
 }

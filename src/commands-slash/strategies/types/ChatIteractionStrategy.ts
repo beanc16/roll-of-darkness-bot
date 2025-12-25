@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
 
 import {
     BaseStrategy,
@@ -20,6 +20,16 @@ export type NestedChatIteractionStrategyRecord<
     Key1 extends string,
     Key2 extends string,
 > = NestedBaseStrategyRecord<Key1, ChatIteractionStrategyRecord<Key2>>;
+
+export type ButtonIteractionStrategy = BaseStrategy<
+    ButtonInteraction,
+    Promise<boolean>
+>;
+
+export type StringSelectMenuIteractionStrategy = BaseStrategy<
+    StringSelectMenuInteraction,
+    Promise<boolean>
+>;
 
 export type StrategyMap<SubcommandGroup extends string, Subcommand extends string, Strategy = ChatIteractionStrategy> = {
     [Group in SubcommandGroup]: {

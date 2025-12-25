@@ -2,7 +2,9 @@ import { randomUUID } from 'node:crypto';
 
 import {
     Attachment,
+    ButtonInteraction,
     ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
     User,
 } from 'discord.js';
 
@@ -12,7 +14,7 @@ import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { FakemonInteractionManagerPage, FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
-import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
+import type { PtuButtonIteractionStrategy, PtuChatIteractionStrategy, PtuStrategyMap, PtuStringSelectMenuIteractionStrategy } from '../../types/strategies.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -25,7 +27,11 @@ interface FakemonCreateGetParameterResults
     coEditor: User | null;
 }
 
-@staticImplements<PtuChatIteractionStrategy>()
+@staticImplements<
+    PtuChatIteractionStrategy
+    & PtuButtonIteractionStrategy
+    & PtuStringSelectMenuIteractionStrategy
+>()
 export class FakemonCreateStrategy
 {
     public static key = PtuFakemonSubcommand.Create;
@@ -136,6 +142,31 @@ export class FakemonCreateStrategy
             interactionType: 'editReply',
         });
 
+        return true;
+    }
+
+    public static async runButton(
+        interaction: ButtonInteraction,
+        _strategies: PtuStrategyMap,
+    ): Promise<boolean>
+    {
+        // TODO: Implement
+        console.log('\n FakemonCreateStrategy.runButton:', {
+            customId: interaction.customId,
+        });
+        return true;
+    }
+
+    public static async runStringSelect(
+        interaction: StringSelectMenuInteraction,
+        _strategies: PtuStrategyMap,
+    ): Promise<boolean>
+    {
+        // TODO: Implement
+        console.log('\n FakemonCreateStrategy.runStringSelect:', {
+            customId: interaction.customId,
+            values: interaction.values,
+        });
         return true;
     }
 

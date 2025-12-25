@@ -1,6 +1,6 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
-import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { AutocompleteInteraction, ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
 
 import {
     calculate,
@@ -11,17 +11,21 @@ import {
 import { PtuLookupSubcommand } from './Ptu/options/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/options/random.js';
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
+import { PtuFakemonSubcommand } from './Ptu/options/fakemon.js';
 
-class Ptu extends BaseSlashCommand
+export class Ptu extends BaseSlashCommand
 {
-    constructor()
+    constructor(initializeSlashCommandData = true)
     {
         super();
-        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
-        this._slashCommandData
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(random)
-            .addSubcommandGroup(roll);
+        if (initializeSlashCommandData)
+        {
+            // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
+            this._slashCommandData
+                .addSubcommandGroup(calculate)
+                .addSubcommandGroup(random)
+                .addSubcommandGroup(roll);
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
@@ -70,6 +74,48 @@ class Ptu extends BaseSlashCommand
         }
 
         await interaction.respond(choices);
+    }
+
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async runStringSelect(
+        interaction: StringSelectMenuInteraction,
+        [commandName, subcommandGroup, subcommand]: [string, PtuSubcommandGroup, PtuFakemonSubcommand],
+    ): Promise<void>
+    {
+        // Run subcommand
+        const response = await PtuStrategyExecutor.runStringSelect({
+            interaction,
+            commandName,
+            subcommandGroup,
+            subcommand,
+        });
+
+        // Send response if the handler failed or was undefined
+        if (!response)
+        {
+            await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+        }
+    }
+
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async runButton(
+        interaction: ButtonInteraction,
+        [commandName, subcommandGroup, subcommand]: [string, PtuSubcommandGroup, PtuFakemonSubcommand],
+    ): Promise<void>
+    {
+        // Run subcommand
+        const response = await PtuStrategyExecutor.runButton({
+            interaction,
+            commandName,
+            subcommandGroup,
+            subcommand,
+        });
+
+        // Send response if the handler failed or was undefined
+        if (!response)
+        {
+            await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

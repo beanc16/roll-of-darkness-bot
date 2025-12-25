@@ -2,7 +2,9 @@ import { logger } from '@beanc16/logger';
 import {
     ApplicationCommandOptionChoiceData,
     AutocompleteFocusedOption,
+    ButtonInteraction,
     ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
@@ -36,7 +38,7 @@ import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
-import { PtuChatIteractionStrategy, PtuStrategyMap } from '../types/strategies.js';
+import { PtuButtonIteractionStrategy, PtuChatIteractionStrategy, PtuStrategyMap, PtuStringSelectMenuIteractionStrategy } from '../types/strategies.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import fakemonStrategies from './fakemon/index.js';
@@ -62,6 +64,7 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
+import { PtuFakemonSubcommand } from '../options/fakemon.js';
 
 type AllPtuLookupModels = PtuAbility
     | PtuAura
@@ -167,6 +170,56 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         if (Strategy)
         {
             return await Strategy.run(interaction, this.strategies);
+        }
+
+        return false;
+    }
+
+    /* istanbul ignore next */
+    public static async runStringSelect({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuFakemonSubcommand;
+        interaction: StringSelectMenuInteraction;
+    }): Promise<boolean>
+    {
+        const Strategy = this.getPtuStrategy({
+            subcommandGroup,
+            subcommand,
+            interaction,
+        });
+
+        if (Strategy && Strategy.runStringSelect)
+        {
+            return await Strategy.runStringSelect(interaction, this.strategies);
+        }
+
+        return false;
+    }
+
+    /* istanbul ignore next */
+    public static async runButton({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuFakemonSubcommand;
+        interaction: ButtonInteraction;
+    }): Promise<boolean>
+    {
+        const Strategy = this.getPtuStrategy({
+            subcommandGroup,
+            subcommand,
+            interaction,
+        });
+
+        if (Strategy && Strategy.runButton)
+        {
+            return await Strategy.runButton(interaction, this.strategies);
         }
 
         return false;
@@ -546,6 +599,33 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return [];
     }
 
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ChatInputCommandInteraction;
+    }): PtuChatIteractionStrategy | undefined;
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: StringSelectMenuInteraction;
+    }): PtuStringSelectMenuIteractionStrategy | undefined;
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ButtonInteraction;
+    }): PtuButtonIteractionStrategy | undefined;
     /* istanbul ignore next */
     private static getPtuStrategy({
         subcommandGroup,
@@ -553,13 +633,13 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
-        interaction: ChatInputCommandInteraction;
-    }): PtuChatIteractionStrategy | undefined
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction | ButtonInteraction;
+    }): PtuChatIteractionStrategy | PtuStringSelectMenuIteractionStrategy | PtuButtonIteractionStrategy | undefined
     {
         let Strategy: PtuChatIteractionStrategy | undefined;
 
-        if (subcommand === PtuSubcommandGroup.QuickReference)
+        if (subcommand === PtuSubcommandGroup.QuickReference && 'options' in interaction)
         {
             const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
 
