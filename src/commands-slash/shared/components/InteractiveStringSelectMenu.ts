@@ -5,7 +5,8 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../../strategies/InteractionStrategy/InteractionStrategy.js';
+import type { HandleInteractionsOptions as InteractionStrategyHandleInteractionsOptions } from '../../strategies/InteractionStrategy/InteractionStrategy.js';
+import { InteractionStrategy } from '../../strategies/InteractionStrategy/InteractionStrategy.js';
 import type { HandleInteractionsOptions as PaginatedHandleInteractionsOptions, PaginatedStringSelectMenuOnSelect } from './PaginatedStringSelectMenu.js';
 
 interface PaginatedStringSelectMenuOptions<Element> extends Omit<HandleInteractionsOptions, 'onSelect'>
@@ -14,14 +15,15 @@ interface PaginatedStringSelectMenuOptions<Element> extends Omit<HandleInteracti
     optionParser: OptionParser<Element>;
     placeholder: string;
     onSelectDropdownOption: PaginatedStringSelectMenuOnSelect;
-    onSelectOtherOption: PaginatedStringSelectMenuOnSelect;
+    onSelectOtherOption?: PaginatedStringSelectMenuOnSelect;
 }
 
-interface HandleInteractionsOptions extends Omit<PaginatedHandleInteractionsOptions, 'onSelect'>
-{
-    onSelectDropdownOption: PaginatedStringSelectMenuOnSelect;
-    onSelectOtherOption: PaginatedStringSelectMenuOnSelect;
-}
+type HandleInteractionsOptions = Omit<PaginatedHandleInteractionsOptions, 'onSelect'>
+    & Pick<InteractionStrategyHandleInteractionsOptions, 'restartStyle'>
+    & {
+        onSelectDropdownOption: PaginatedStringSelectMenuOnSelect;
+        onSelectOtherOption?: PaginatedStringSelectMenuOnSelect;
+    };
 
 type OptionParser<Element> = (element: Element) => SelectMenuComponentOptionData;
 
@@ -34,6 +36,7 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
         optionParser,
         message,
         commandName,
+        restartStyle,
         onSelectDropdownOption,
         onSelectOtherOption,
         rowsBelowStringSelect,
@@ -48,6 +51,7 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
             customId,
             message,
             commandName,
+            restartStyle,
             onSelectDropdownOption,
             onSelectOtherOption,
             rowsBelowStringSelect,
@@ -58,6 +62,7 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
         customId,
         message,
         commandName,
+        restartStyle,
         onSelectDropdownOption,
         onSelectOtherOption,
     }: HandleInteractionsOptions): Promise<void>
@@ -65,7 +70,7 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
         await InteractionStrategy.handleInteractions({
             interactionResponse: message,
             commandName,
-            restartStyle: InteractionListenerRestartStyle.OnSuccess,
+            restartStyle,
             onInteraction: /* istanbul ignore next */ async (receivedInteraction) =>
             {
                 const { customId: receivedCustomId, values: [value] = [] } = receivedInteraction as StringSelectMenuInteraction;
@@ -78,7 +83,10 @@ export class InteractiveStringSelectMenu<Element = string> extends StringSelectM
                 }
 
                 // Is not this string select menu
-                await onSelectOtherOption(receivedInteraction as StringSelectMenuInteraction);
+                if (onSelectOtherOption)
+                {
+                    await onSelectOtherOption(receivedInteraction as StringSelectMenuInteraction);
+                }
             },
             getActionRowComponent: () => this.toActionRowBuilder(),
         });
