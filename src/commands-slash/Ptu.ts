@@ -4,6 +4,7 @@ import {
     AutocompleteInteraction,
     ButtonInteraction,
     ChatInputCommandInteraction,
+    Message,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
@@ -84,12 +85,23 @@ export class Ptu extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async runStringSelect(
         interaction: StringSelectMenuInteraction,
-        [commandName, subcommandGroup, subcommand]: [string, PtuSubcommandGroup, PtuFakemonSubcommand],
+        {
+            commandName,
+            subcommandGroup,
+            subcommand,
+            message,
+        }: {
+            commandName: string;
+            subcommandGroup: PtuSubcommandGroup;
+            subcommand: PtuFakemonSubcommand;
+            message: Message;
+        },
     ): Promise<void>
     {
         // Run subcommand
         const response = await PtuStrategyExecutor.runStringSelect({
             interaction,
+            message,
             commandName,
             subcommandGroup,
             subcommand,
@@ -105,12 +117,23 @@ export class Ptu extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async runButton(
         interaction: ButtonInteraction,
-        [commandName, subcommandGroup, subcommand]: [string, PtuSubcommandGroup, PtuFakemonSubcommand],
+        {
+            commandName,
+            subcommandGroup,
+            subcommand,
+            message,
+        }: {
+            message: Message;
+            commandName: string;
+            subcommandGroup: PtuSubcommandGroup;
+            subcommand: PtuFakemonSubcommand;
+        },
     ): Promise<void>
     {
         // Run subcommand
         const response = await PtuStrategyExecutor.runButton({
             interaction,
+            message,
             commandName,
             subcommandGroup,
             subcommand,

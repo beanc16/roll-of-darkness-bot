@@ -4,6 +4,7 @@ import {
     AutocompleteFocusedOption,
     ButtonInteraction,
     ChatInputCommandInteraction,
+    Message,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
@@ -182,15 +183,17 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
     /* istanbul ignore next */
     public static async runStringSelect({
+        interaction,
+        message,
         commandName,
         subcommandGroup,
         subcommand,
-        interaction,
     }: {
+        interaction: StringSelectMenuInteraction;
+        message: Message;
         commandName: string;
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuFakemonSubcommand;
-        interaction: StringSelectMenuInteraction;
     }): Promise<boolean>
     {
         const Strategy = this.getPtuStrategy({
@@ -202,6 +205,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         if (Strategy && Strategy.runStringSelect)
         {
             return await Strategy.runStringSelect(interaction, this.strategies, {
+                message,
                 commandName,
                 subcommandGroup,
                 subcommand,
@@ -213,15 +217,17 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
     /* istanbul ignore next */
     public static async runButton({
+        interaction,
+        message,
         commandName,
         subcommandGroup,
         subcommand,
-        interaction,
     }: {
+        interaction: ButtonInteraction;
+        message: Message;
         commandName: string;
         subcommandGroup: PtuSubcommandGroup;
         subcommand: PtuFakemonSubcommand;
-        interaction: ButtonInteraction;
     }): Promise<boolean>
     {
         const Strategy = this.getPtuStrategy({
@@ -233,6 +239,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         if (Strategy && Strategy.runButton)
         {
             return await Strategy.runButton(interaction, this.strategies, {
+                message,
                 commandName,
                 subcommandGroup,
                 subcommand,

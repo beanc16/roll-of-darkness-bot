@@ -1,6 +1,7 @@
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
+    Message,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
@@ -24,8 +25,9 @@ import { PtuTrainSubcommand } from '../options/train.js';
 import { PtuTypeEffectivenessSubcommand } from '../options/typeEffectiveness.js';
 import { PtuRandomPickupSubcommandResponse, PtuRandomPickupSubcommandStrategy } from '../strategies/random/types.js';
 
-interface Metadata
+export interface PtuStrategyMetadata
 {
+    message: Message;
     commandName: string;
     subcommandGroup: PtuSubcommandGroup;
     subcommand: PtuFakemonSubcommand;
@@ -53,7 +55,7 @@ export interface PtuButtonIteractionStrategy<
     runButton(
         interaction: ButtonInteraction,
         strategies: PtuStrategyMap,
-        metadata: Metadata,
+        metadata: PtuStrategyMetadata,
         options?: Options,
     ): Promise<Response>;
 }
@@ -67,7 +69,7 @@ export interface PtuStringSelectMenuIteractionStrategy<
     runStringSelect(
         interaction: StringSelectMenuInteraction,
         strategies: PtuStrategyMap,
-        metadata: Metadata,
+        metadata: PtuStrategyMetadata,
         options?: Options,
     ): Promise<Response>;
 }

@@ -110,12 +110,11 @@ async function handler(
     }
     else if (interaction.isStringSelectMenu())
     {
-        const message = await interaction.deferUpdate({ fetchReply: true });
         const [
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = message.interaction?.commandName?.split(' ') ?? [];
+        ] = interaction.message.interaction?.commandName?.split(' ') ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);
@@ -127,7 +126,12 @@ async function handler(
 
         try
         {
-            await slashCommand.runStringSelect(interaction, [commandName, subcommandGroup, subcommand]);
+            await slashCommand.runStringSelect(interaction, {
+                message: interaction.message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
         }
         catch (err)
         {
@@ -140,12 +144,11 @@ async function handler(
     }
     else if (interaction.isButton())
     {
-        const message = await interaction.deferUpdate({ fetchReply: true });
         const [
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = message.interaction?.commandName?.split(' ') ?? [];
+        ] = interaction.message.interaction?.commandName?.split(' ') ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);
@@ -157,7 +160,12 @@ async function handler(
 
         try
         {
-            await slashCommand.runButton(interaction, [commandName, subcommandGroup, subcommand]);
+            await slashCommand.runButton(interaction, {
+                message: interaction.message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
         }
         catch (err)
         {
