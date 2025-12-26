@@ -7,14 +7,14 @@ import {
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
-import { FakemonSelectorCustomIds } from '../types.js';
+import { FakemonTopLevelSelectorCustomIds } from '../types.js';
 
 export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
     constructor()
     {
         const stringSelectMenu = new StringSelectMenuBuilder({
-            customId: FakemonSelectorCustomIds.Overview,
+            customId: FakemonTopLevelSelectorCustomIds.Overview,
             placeholder: 'Edit...',
             options: Object.values(FakemonInteractionManagerPage)
                 .reduce<APISelectMenuOption[]>((acc, cur) =>

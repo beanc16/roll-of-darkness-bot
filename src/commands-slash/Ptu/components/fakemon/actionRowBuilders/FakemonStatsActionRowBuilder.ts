@@ -2,7 +2,7 @@ import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
-import { FakemonSelectorCustomIds } from '../types.js';
+import { FakemonTopLevelSelectorCustomIds } from '../types.js';
 
 export enum FakemonStatsElementOptions
 {
@@ -21,7 +21,7 @@ export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStri
         super({
             components: [
                 new StringSelectMenuBuilder({
-                    customId: FakemonSelectorCustomIds.Stats,
+                    customId: FakemonTopLevelSelectorCustomIds.Stats,
                     placeholder: 'Edit Stat',
                     options: Object.values(FakemonStatsElementOptions)
                         .map(option => ({ label: option, value: option })),
