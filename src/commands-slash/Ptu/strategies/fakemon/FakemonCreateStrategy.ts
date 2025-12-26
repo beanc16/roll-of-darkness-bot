@@ -8,8 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
-import { FakemonSelectorCustomIds } from '../../components/fakemon/types.js';
-import fakemonStateSingleton, { FakemonState } from '../../models/fakemonStateSingleton.js';
+import { FakemonTopLevelSelectorCustomIds } from '../../components/fakemon/types.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
@@ -146,7 +145,7 @@ export class FakemonCreateStrategy
         await FakemonInteractionManagerService.navigateTo({
             interaction,
             page: FakemonInteractionManagerPage.Overview,
-            state,
+            fakemon: state,
             interactionType: 'editReply',
         });
 
@@ -156,12 +155,20 @@ export class FakemonCreateStrategy
     public static async runButton(
         interaction: ButtonInteraction,
         _strategies: PtuStrategyMap,
+        _metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
+        // Defer update
+        await interaction.deferUpdate();
+
         const { customId } = interaction as {
             customId: typeof fakemonBackToOverviewButtonCustomId;
         };
-        const state = fakemonStateSingleton.get(interaction.message.id);
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
 
         switch (customId)
         {
@@ -170,7 +177,7 @@ export class FakemonCreateStrategy
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Overview,
-                    state,
+                    fakemon,
                 });
                 break;
 
@@ -185,23 +192,40 @@ export class FakemonCreateStrategy
     public static async runStringSelect(
         interaction: StringSelectMenuInteraction,
         _strategies: PtuStrategyMap,
+        { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
         const { customId, values: [value] = [] } = interaction as {
-            customId: FakemonSelectorCustomIds;
+            customId: FakemonTopLevelSelectorCustomIds.Overview;
             values: FakemonInteractionManagerPage[];
+        } | {
+            customId: FakemonTopLevelSelectorCustomIds.Stats;
+            values: FakemonStatsElementOptions[];
         };
-        const state = fakemonStateSingleton.get(interaction.message.id);
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
 
         switch (customId)
         {
-            // Navigation-related selectors
-            case FakemonSelectorCustomIds.Overview:
-            case FakemonSelectorCustomIds.Stats:
+            // Navigation selector
+            case FakemonTopLevelSelectorCustomIds.Overview:
+                await interaction.deferUpdate(); // Defer for navigation
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
-                    page: value,
-                    state,
+                    page: value as FakemonInteractionManagerPage,
+                    fakemon,
+                });
+                break;
+
+            // Stat selector
+            case FakemonTopLevelSelectorCustomIds.Stats:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonStatEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    statToEdit: value as FakemonStatsElementOptions,
                 });
                 break;
 
