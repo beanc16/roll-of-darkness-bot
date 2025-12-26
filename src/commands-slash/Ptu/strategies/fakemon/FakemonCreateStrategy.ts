@@ -222,10 +222,13 @@ export class FakemonCreateStrategy
 
             // Stat selector
             case FakemonTopLevelSelectorCustomIds.Stats:
+                const statKey = FakemonStatEditingModal.getStatKey(value as FakemonStatsElementOptions);
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonStatEditingModal.showModal(interaction, {
                     messageId: message.id,
                     statToEdit: value as FakemonStatsElementOptions,
+                    // Add default value if stat is not 0
+                    stat: fakemon.baseStats[statKey],
                 });
                 break;
 

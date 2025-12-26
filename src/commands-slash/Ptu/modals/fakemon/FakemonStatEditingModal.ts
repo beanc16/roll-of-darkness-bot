@@ -50,6 +50,12 @@ export class FakemonStatEditingModal extends BaseCustomModal
             .setMaxLength(2)
             .setRequired(true);
 
+        const typedInputData = this.inputData as Partial<Record<'stat', number>>;
+        if (typedInputData?.stat && typedInputData?.stat?.toString())
+        {
+            promptInput.setValue(typedInputData.stat.toString());
+        }
+
         return [promptInput];
     }
 
@@ -95,7 +101,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         });
     }
 
-    private static getStatKey(statToEdit: FakemonStatsElementOptions): keyof PtuFakemonCollection['baseStats']
+    public static getStatKey(statToEdit: FakemonStatsElementOptions): keyof PtuFakemonCollection['baseStats']
     {
         switch (statToEdit)
         {
