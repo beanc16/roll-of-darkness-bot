@@ -18,8 +18,14 @@ import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
     PtuStrategyMap,
+    PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
+import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
+import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -41,7 +47,7 @@ export class FakemonCreateStrategy
 {
     public static key = PtuFakemonSubcommand.Create;
 
-    private static basePokemon: FakemonState['pokemon'] = {
+    private static basePokemon: Omit<PtuFakemonToCreate, 'creationChannelId'> = {
         name: '',
         types: [],
         baseStats: {
@@ -108,6 +114,10 @@ export class FakemonCreateStrategy
         metadata: {
             source: 'Eden Dex',
         },
+        megaEvolutions: [],
+        editors: [DiscordUserId.Bean],
+        status: PtuFakemonStatus.DRAFT,
+        feedbacks: [],
     };
 
     public static async run(
@@ -122,17 +132,14 @@ export class FakemonCreateStrategy
             // baseAbilitiesOn,
             // image,
             // imageUrl,
-            // coEditor,
+            coEditor,
         } = this.getOptions(interaction);
         const message = await interaction.fetchReply();
-        const state = this.initializeState(message.id, {
-            ...this.basePokemon,
-            name: speciesName,
-            evolution: [{
-                level: 1,
-                name: speciesName,
-                stage: 1,
-            }],
+        const state = await this.initializeFakemon({
+            speciesName,
+            messageId: message.id,
+            creationChannelId: interaction.channelId,
+            coEditorUserId: coEditor?.id,
         });
 
         // Send response
@@ -227,9 +234,30 @@ export class FakemonCreateStrategy
         };
     }
 
-    private static initializeState(key: string, pokemon: FakemonState['pokemon']): FakemonState
+    private static async initializeFakemon({
+        speciesName,
+        messageId,
+        creationChannelId,
+        coEditorUserId,
+    }: {
+        speciesName: string;
+        messageId: string;
+        creationChannelId: string;
+        coEditorUserId?: string;
+    }): Promise<PtuFakemonCollection>
     {
-        fakemonStateSingleton.upsert(key, { pokemon });
-        return fakemonStateSingleton.get(key);
+        return await PtuFakemonPseudoCache.create(messageId, {
+            ...this.basePokemon,
+            name: speciesName,
+            evolution: [{
+                level: 1,
+                name: speciesName,
+                stage: 1,
+            }],
+            creationChannelId,
+            editors: coEditorUserId
+                ? [...new Set([...this.basePokemon.editors, coEditorUserId])]
+                : this.basePokemon.editors,
+        });
     }
 }

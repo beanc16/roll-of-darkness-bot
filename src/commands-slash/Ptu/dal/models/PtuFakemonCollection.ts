@@ -1,4 +1,5 @@
-import { PtuPokemon } from '../../types/pokemon.js';
+import type { ObjectId } from 'mongodb';
+import type { PtuPokemon } from '../../types/pokemon.js';
 import { PtuPokemonCollection } from './PtuPokemonCollection.js';
 
 export enum PtuFakemonStatus
@@ -39,5 +40,11 @@ export class PtuFakemonCollection extends PtuPokemonCollection
         this.status = args.status;
         this.creationChannelId = args.creationChannelId;
         this.feedbacks = args.feedbacks;
+    }
+
+    get id(): ObjectId
+    {
+        // eslint-disable-next-line no-underscore-dangle -- Use an underscore to properly interface with mongodb's default _id property
+        return this._id;
     }
 }
