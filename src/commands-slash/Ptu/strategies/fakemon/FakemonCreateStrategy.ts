@@ -7,8 +7,13 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { DiscordUserId } from '../../../../types/discord.js';
+import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
 import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
 import { FakemonTopLevelSelectorCustomIds } from '../../components/fakemon/types.js';
+import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
+import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
@@ -20,11 +25,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
-import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
-import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
-import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
-import { DiscordUserId } from '../../../../types/discord.js';
 
 interface FakemonCreateGetParameterResults
 {

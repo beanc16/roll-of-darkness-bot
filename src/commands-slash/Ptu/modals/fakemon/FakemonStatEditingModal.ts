@@ -6,8 +6,8 @@ import {
 
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
-import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 

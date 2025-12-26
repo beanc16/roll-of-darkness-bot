@@ -1,4 +1,5 @@
 import type { ObjectId } from 'mongodb';
+
 import type { PtuPokemon } from '../../types/pokemon.js';
 import { PtuPokemonCollection } from './PtuPokemonCollection.js';
 

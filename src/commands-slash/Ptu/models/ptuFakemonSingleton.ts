@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+
 import { RecordSingleton } from '../../../services/Singleton/RecordSingleton.js';
 import type { PtuFakemonCollection } from '../dal/models/PtuFakemonCollection.js';
 
