@@ -185,7 +185,7 @@ export const getLookupPokemonEmbedMessages = (
                 ]
                 : []
             ),
-            (megaEvolutions !== undefined && megaEvolutions.length > 0
+            (megaEvolutions && megaEvolutions.length > 0
                 ? `${Text.bold(`Mega Evolution${megaEvolutions.length > 1 ? 's' : ''}`)}\n`
                 + FakemonMegaFormEmbedMessage.constructDescriptionLines({ megaEvolutions }).join('\n')
                 : []
