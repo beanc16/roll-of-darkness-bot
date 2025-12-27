@@ -378,11 +378,11 @@ export class FakemonCreateStrategy
         {
             const {
                 _id,
-                id,
-                editors,
-                status,
-                creationChannelId,
-                feedbacks,
+                id: _1,
+                editors: _2,
+                status: _3,
+                creationChannelId: _4,
+                feedbacks: _5,
                 ...curPokemonWithoutFakemonData
             } = curPokemon as PtuFakemonCollection;
 

@@ -12,6 +12,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
+import { PtuFakemonPseudoCache } from '../dal/PtuFakemonPseudoCache.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
@@ -71,7 +72,6 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
-import { PtuFakemonPseudoCache } from '../dal/PtuFakemonPseudoCache.js';
 
 type AllPtuLookupModels = PtuAbility
     | PtuAura
