@@ -4,10 +4,11 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
 import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
+import { PokemonEggGroup } from '../../types/pokemon.js';
 
 interface EggGroupDetail
 {
-    name: string;
+    name: PokemonEggGroup;
     description: string;
 }
 
@@ -18,67 +19,67 @@ export class QrEggGroupsStrategy
 
     private static eggGroupDetails: EggGroupDetail[] = [
         {
-            name: 'Amorphous',
+            name: PokemonEggGroup.Amorphous,
             description: 'Pokémon in this group are amorphous, having no definite form.',
         },
         {
-            name: 'Bug',
+            name: PokemonEggGroup.Bug,
             description: 'Pokémon in this group are insectoid (bug-like) in appearance.',
         },
         {
-            name: 'Ditto',
+            name: PokemonEggGroup.Ditto,
             description: 'Ditto is the only Pokémon in this group, and is capable of breeding with all other Pokémon (regardless of gender) aside from those in the None, Indeterminate, and Ditto groups.',
         },
         {
-            name: 'Dragon',
+            name: PokemonEggGroup.Dragon,
             description: 'Pokémon in this group are reptilian or draconic in appearance.',
         },
         {
-            name: 'Fairy',
+            name: PokemonEggGroup.Fairy,
             description: 'Pokémon in this group are petite and considered very cute.',
         },
         {
-            name: 'Field / Ground',
+            name: PokemonEggGroup.FieldOrGround,
             description: 'The largest group, Pokémon here are terrestrial in nature.',
         },
         {
-            name: 'Flying',
+            name: PokemonEggGroup.Flying,
             description: 'Pokémon in this group are avian (birdlike) in appearance.',
         },
         {
-            name: 'Grass / Plant',
+            name: PokemonEggGroup.GrassOrPlant,
             description: 'Pokémon in this group are plantlike in appearance.',
         },
         {
-            name: 'Humanshape',
+            name: PokemonEggGroup.Humanshape,
             description: 'Pokémon in this group are fully bipedal humanoids.',
         },
         {
-            name: 'Indeterminate',
+            name: PokemonEggGroup.Indeterminate,
             description: 'Pokémon in this group are unable to breed.',
         },
         {
-            name: 'Mineral',
+            name: PokemonEggGroup.Mineral,
             description: 'Pokémon in this group are inorganic in nature.',
         },
         {
-            name: 'Monster',
+            name: PokemonEggGroup.Monster,
             description: 'Pokémon in this group are saurian/kaiju-like in appearance and nature.',
         },
         {
-            name: 'None',
+            name: PokemonEggGroup.None,
             description: 'Pokémon in this group are unable to breed.',
         },
         {
-            name: 'Water 1',
+            name: PokemonEggGroup.Water1,
             description: 'Pokémon in this group are amphibious in nature.',
         },
         {
-            name: 'Water 2',
+            name: PokemonEggGroup.Water2,
             description: 'Pokémon in this group are piscine (fishlike) in appearance.',
         },
         {
-            name: 'Water 3',
+            name: PokemonEggGroup.Water3,
             description: 'Pokémon in this group resemble aquatic invertebrates.',
         },
     ];

@@ -63,6 +63,26 @@ export enum FullPokemonStat
     Speed = 'Speed',
 }
 
+export enum PokemonEggGroup
+{
+    Amorphous = 'Amorphous',
+    Bug = 'Bug',
+    Ditto = 'Ditto',
+    Dragon = 'Dragon',
+    Fairy = 'Fairy',
+    FieldOrGround = 'Field / Ground',
+    Flying = 'Flying',
+    GrassOrPlant = 'Grass / Plant',
+    Humanshape = 'Humanshape',
+    Indeterminate = 'Indeterminate',
+    Mineral = 'Mineral',
+    Monster = 'Monster',
+    None = 'None',
+    Water1 = 'Water 1',
+    Water2 = 'Water 2',
+    Water3 = 'Water 3',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
