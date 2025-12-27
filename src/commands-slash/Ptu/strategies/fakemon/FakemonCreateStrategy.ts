@@ -8,7 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiscordUserId } from '../../../../types/discord.js';
-import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
+import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
 import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
 import { FakemonTopLevelSelectorCustomIds } from '../../components/fakemon/types.js';
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
@@ -222,7 +222,7 @@ export class FakemonCreateStrategy
             values: FakemonInteractionManagerPage[];
         } | {
             customId: FakemonTopLevelSelectorCustomIds.Stats;
-            values: FakemonStatsElementOptions[];
+            values: FakemonStatsStringSelectElementOptions[];
         };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -244,11 +244,11 @@ export class FakemonCreateStrategy
 
             // Stat selector
             case FakemonTopLevelSelectorCustomIds.Stats:
-                const statKey = FakemonStatEditingModal.getStatKey(value as FakemonStatsElementOptions);
+                const statKey = FakemonStatEditingModal.getStatKey(value as FakemonStatsStringSelectElementOptions);
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonStatEditingModal.showModal(interaction, {
                     messageId: message.id,
-                    statToEdit: value as FakemonStatsElementOptions,
+                    statToEdit: value as FakemonStatsStringSelectElementOptions,
                     // Add default value if stat is not 0
                     stat: fakemon.baseStats[statKey],
                 });

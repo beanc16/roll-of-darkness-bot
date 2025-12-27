@@ -1,10 +1,10 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
-import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
-import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
-import { FakemonTopLevelSelectorCustomIds } from '../types.js';
+import { PaginatedStringSelectMenu } from '../../../../../shared/components/PaginatedStringSelectMenu.js';
+import { PtuPokemonForLookupPokemon } from '../../../../embed-messages/lookup.js';
+import { FakemonTopLevelSelectorCustomIds } from '../../types.js';
 
-export enum FakemonStatsElementOptions
+export enum FakemonStatsStringSelectElementOptions
 {
     HP = 'HP',
     Attack = 'Attack',
@@ -14,7 +14,7 @@ export enum FakemonStatsElementOptions
     Speed = 'Speed',
 }
 
-export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
+export class FakemonStatsStringSelectActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
     constructor()
     {
@@ -23,7 +23,7 @@ export class FakemonStatsActionRowBuilder extends ActionRowBuilder<PaginatedStri
                 new StringSelectMenuBuilder({
                     customId: FakemonTopLevelSelectorCustomIds.Stats,
                     placeholder: 'Edit Stat',
-                    options: Object.values(FakemonStatsElementOptions)
+                    options: Object.values(FakemonStatsStringSelectElementOptions)
                         .map(option => ({ label: option, value: option })),
                 }),
             ],

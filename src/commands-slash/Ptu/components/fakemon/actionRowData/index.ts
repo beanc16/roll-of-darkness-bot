@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
-import { FakemonStatsActionRowBuilder } from '../actionRowBuilders/FakemonStatsActionRowBuilder.js';
+import { FakemonStatsStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
 import { FakemonBackToOverviewButton } from '../button/FakemonBackToOverviewButton.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
@@ -18,7 +18,7 @@ export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 export function getFakemonStatsComponents(): BaseMessageOptions['components']
 {
     return [
-        new FakemonStatsActionRowBuilder(),
+        new FakemonStatsStringSelectActionRowBuilder(),
         new ActionRowBuilder<ButtonBuilder>({
             components: [
                 new FakemonBackToOverviewButton(),

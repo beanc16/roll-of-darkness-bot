@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
-import { FakemonStatsElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonStatsActionRowBuilder.js';
+import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
@@ -64,7 +64,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         // Parse input
         const { messageId, statToEdit } = this.inputData as {
             messageId: string;
-            statToEdit: FakemonStatsElementOptions;
+            statToEdit: FakemonStatsStringSelectElementOptions;
         };
         const {
             [FakemonStatEditingCustomId.stat]: stat,
@@ -101,21 +101,21 @@ export class FakemonStatEditingModal extends BaseCustomModal
         });
     }
 
-    public static getStatKey(statToEdit: FakemonStatsElementOptions): keyof PtuFakemonCollection['baseStats']
+    public static getStatKey(statToEdit: FakemonStatsStringSelectElementOptions): keyof PtuFakemonCollection['baseStats']
     {
         switch (statToEdit)
         {
-            case FakemonStatsElementOptions.HP:
+            case FakemonStatsStringSelectElementOptions.HP:
                 return 'hp';
-            case FakemonStatsElementOptions.Attack:
+            case FakemonStatsStringSelectElementOptions.Attack:
                 return 'attack';
-            case FakemonStatsElementOptions.Defense:
+            case FakemonStatsStringSelectElementOptions.Defense:
                 return 'defense';
-            case FakemonStatsElementOptions.SpecialAttack:
+            case FakemonStatsStringSelectElementOptions.SpecialAttack:
                 return 'specialAttack';
-            case FakemonStatsElementOptions.SpecialDefense:
+            case FakemonStatsStringSelectElementOptions.SpecialDefense:
                 return 'specialDefense';
-            case FakemonStatsElementOptions.Speed:
+            case FakemonStatsStringSelectElementOptions.Speed:
                 return 'speed';
             default:
                 const typeCheck: never = statToEdit;
