@@ -168,6 +168,15 @@ export enum PokemonStatusType
     Other = 'Other',
 }
 
+export enum PtuHeight
+{
+    Small = 'Small',
+    Medium = 'Medium',
+    Large = 'Large',
+    Huge = 'Huge',
+    Gigantic = 'Gigantic',
+}
+
 // For pokemon data from google sheets
 export interface PtuPokemonMinimalData
 {

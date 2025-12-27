@@ -4,10 +4,11 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
 import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
+import { PtuHeight } from '../../types/pokemon.js';
 
 interface HeightChart
 {
-    name: string;
+    name: PtuHeight;
     size: number;
     min: {
         imperial: string;
@@ -40,7 +41,7 @@ export class QrSizeChartChartStrategy
 
     private static heightCharts: HeightChart[] = [
         {
-            name: 'Small',
+            name: PtuHeight.Small,
             size: 1,
             min: {
                 imperial: `0'1"`,
@@ -52,7 +53,7 @@ export class QrSizeChartChartStrategy
             },
         },
         {
-            name: 'Medium',
+            name: PtuHeight.Medium,
             size: 1,
             min: {
                 imperial: `3'3"`,
@@ -64,7 +65,7 @@ export class QrSizeChartChartStrategy
             },
         },
         {
-            name: 'Large',
+            name: PtuHeight.Large,
             size: 2,
             min: {
                 imperial: `6'0"`,
@@ -76,7 +77,7 @@ export class QrSizeChartChartStrategy
             },
         },
         {
-            name: 'Huge',
+            name: PtuHeight.Huge,
             size: 3,
             min: {
                 imperial: `9'0"`,
@@ -88,7 +89,7 @@ export class QrSizeChartChartStrategy
             },
         },
         {
-            name: 'Gigantic',
+            name: PtuHeight.Gigantic,
             size: 4,
             min: {
                 imperial: `14'0"+`,
