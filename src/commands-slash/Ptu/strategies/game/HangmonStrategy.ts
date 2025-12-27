@@ -201,7 +201,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         {
             // Get the correct pokemon's data with image url
             const [fullPokemonData] = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
-                name: state.correct.pokemon.name,
+                names: [state.correct.pokemon.name],
                 lookupType: RegexLookupType.ExactMatchCaseInsensitive,
             }) as PtuPokemonForLookupPokemon[];
 

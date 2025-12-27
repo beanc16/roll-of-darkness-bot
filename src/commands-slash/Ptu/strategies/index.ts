@@ -292,7 +292,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand: PtuLookupSubcommand.Pokemon,
                     options: {
-                        name: focusedValue.value,
+                        names: [focusedValue.value],
                     },
                 });
             },
@@ -303,7 +303,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand: PtuLookupSubcommand.Pokemon,
                     options: {
-                        name: focusedValue.value,
+                        names: [focusedValue.value],
                     },
                 });
             },
@@ -314,7 +314,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommandGroup: PtuSubcommandGroup.Lookup,
                     subcommand: PtuLookupSubcommand.Pokemon,
                     options: {
-                        name: focusedValue.value,
+                        names: [focusedValue.value],
                     },
                 });
             },
@@ -477,7 +477,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokemon,
                 options: {
-                    name: focusedValue.value,
+                    names: [focusedValue.value],
                 },
             }),
             [PtuAutocompleteParameterName.PokemonToEvolve]: async () =>

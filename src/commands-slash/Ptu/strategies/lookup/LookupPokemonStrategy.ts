@@ -42,7 +42,7 @@ import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/st
 
 interface GetOptionsResponse
 {
-    name?: string | null;
+    names?: GetLookupPokemonDataParameters['names'];
     moveName?: string | null;
     moveListType: PtuMoveListType;
     abilityName?: string | null;
@@ -55,7 +55,7 @@ interface GetOptionsResponse
 
 export interface GetLookupPokemonDataParameters
 {
-    name?: string | null;
+    names?: (string | null | undefined)[];
     lookupType?: RegexLookupType;
     moveName?: string | null;
     moveListType?: PtuMoveListType;
@@ -111,7 +111,7 @@ export class LookupPokemonStrategy
     {
         // Get parameter results
         const {
-            name,
+            names,
             moveName,
             moveListType,
             abilityName,
@@ -122,7 +122,7 @@ export class LookupPokemonStrategy
             includeContestInfo,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
-        const numOfTruthyValues = [name, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
+        const numOfTruthyValues = [names, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await PaginationStrategy.run({
@@ -146,7 +146,7 @@ export class LookupPokemonStrategy
         }
 
         const data = await this.getLookupData({
-            name,
+            names,
             lookupType: RegexLookupType.ExactMatchCaseInsensitive,
             moveName,
             moveListType,
@@ -158,7 +158,7 @@ export class LookupPokemonStrategy
         });
 
         const embedsInput = await this.getFirstEmbedsInput({
-            name,
+            names,
             moveName,
             moveListType,
             abilityName,
@@ -192,7 +192,7 @@ export class LookupPokemonStrategy
         {
             selectedValue = moveListType ?? PtuMoveListType.LevelUp;
         }
-        else if (name)
+        else if (names)
         {
             const [first] = data;
             selectedValue = first.versionName;
@@ -202,7 +202,7 @@ export class LookupPokemonStrategy
             originalInteraction: interaction,
             strategies,
             embeds,
-            name,
+            names,
             moveName,
             abilityName,
             capabilityName,
@@ -214,7 +214,7 @@ export class LookupPokemonStrategy
     }
 
     public static async getLookupData({
-        name,
+        names,
         lookupType = RegexLookupType.SubstringCaseInsensitive,
         moveName,
         moveListType = PtuMoveListType.All,
@@ -226,13 +226,13 @@ export class LookupPokemonStrategy
         getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!(name || moveName || abilityName || capabilityName || eggGroups || baseStatTotal || getAll))
+        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || eggGroups || baseStatTotal || getAll))
         {
             return [];
         }
 
         const searchParams = this.parseSearchParameters({
-            name,
+            names,
             moveName,
             moveListType,
             lookupType,
@@ -248,7 +248,7 @@ export class LookupPokemonStrategy
         const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
         const results = untypedResults as PtuPokemonCollection[];
 
-        const { names, edenNames } = results.reduce<{ names: string[]; edenNames: string[] }>((acc, { name: pokemonName, metadata: { source } }) =>
+        const { speciesNames, edenNames } = results.reduce<{ speciesNames: string[]; edenNames: string[] }>((acc, { name: pokemonName, metadata: { source } }) =>
         {
             if (source === 'Eden Dex')
             {
@@ -256,18 +256,18 @@ export class LookupPokemonStrategy
             }
             else
             {
-                acc.names.push(pokemonName);
+                acc.speciesNames.push(pokemonName);
             }
 
             return acc;
-        }, { names: [], edenNames: [] });
+        }, { speciesNames: [], edenNames: [] });
 
         // Don't include images for substring searches
-        const imageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
-            ? await PokeApi.getImageUrls(names)
+        const imageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
+            ? await PokeApi.getImageUrls(speciesNames)
             : undefined;
 
-        const edenImageUrlResults = (name && lookupType !== RegexLookupType.SubstringCaseInsensitive)
+        const edenImageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
             ? await HomebrewPokeApi.getImageUrls(edenNames)
             : undefined;
 
@@ -775,7 +775,7 @@ export class LookupPokemonStrategy
         originalInteraction,
         strategies,
         embeds,
-        name,
+        names,
         moveName,
         abilityName,
         capabilityName,
@@ -788,7 +788,7 @@ export class LookupPokemonStrategy
         originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
         strategies: PtuStrategyMap;
         embeds: EmbedBuilder[];
-        name?: string | null;
+        names?: (string | null | undefined)[];
         moveName?: string | null;
         abilityName?: string | null;
         capabilityName?: string | null;
@@ -803,7 +803,7 @@ export class LookupPokemonStrategy
         let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
         let buttonRow: LookupPokemonActionRowBuilder | undefined;
 
-        if (name)
+        if (names)
         {
             selectMenuRow = this.getLookupPokemonSelectMenu({
                 pokemon,
@@ -849,7 +849,7 @@ export class LookupPokemonStrategy
             onRowAbovePaginationButtonPress: async (receivedInteraction) =>
             {
                 // The only options with string select menus or buttons
-                if (!(name || moveName || abilityName || capabilityName))
+                if (!(names || moveName || abilityName || capabilityName))
                 {
                     return { embeds };
                 }
@@ -879,7 +879,7 @@ export class LookupPokemonStrategy
                     });
 
                     newEmbeds = this.getLookupPokemonEmbeds({
-                        name,
+                        names,
                         pokemon: [versionNameToPokemon[value]],
                     });
                     selectMenuRow = this.getLookupPokemonSelectMenu({
@@ -937,7 +937,7 @@ export class LookupPokemonStrategy
     }
 
     private static parseSearchParameters({
-        name,
+        names,
         moveName,
         moveListType = PtuMoveListType.All,
         lookupType = RegexLookupType.SubstringCaseInsensitive,
@@ -977,10 +977,10 @@ export class LookupPokemonStrategy
             };
         }
 
-        if (name)
+        if (names && names.length > 0)
         {
             output = {
-                name: parseRegexByType(name, lookupType),
+                $or: names.map(name => ({ name: parseRegexByType(name as string, lookupType) })),
             };
         }
 
@@ -1127,7 +1127,7 @@ export class LookupPokemonStrategy
     }
 
     private static getLookupPokemonEmbeds({
-        name,
+        names,
         moveName,
         moveListType = PtuMoveListType.All,
         abilityName,
@@ -1139,7 +1139,7 @@ export class LookupPokemonStrategy
         moveNameToMovesRecord,
     }: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
     {
-        if (name)
+        if (names && names.length > 0)
         {
             return getLookupPokemonEmbedMessages(pokemon, moveNameToMovesRecord ?? {});
         }
@@ -1368,6 +1368,7 @@ export class LookupPokemonStrategy
         {
             return {
                 ...options,
+                names: options?.names?.map(name => name) ?? undefined,
                 moveListType: options.moveListType ?? PtuMoveListType.All,
                 abilityListType: options.abilityListType ?? PtuAbilityListType.All,
             };
@@ -1387,7 +1388,7 @@ export class LookupPokemonStrategy
         const includeContestInfo = interaction.options.getBoolean('include_contest_info');
 
         return {
-            name,
+            names: name ? [name] : undefined,
             moveName,
             moveListType,
             abilityName,
