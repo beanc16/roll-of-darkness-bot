@@ -45,6 +45,7 @@
     },
     "devDependencies": {
         "@beanc16/utility-types": "^1.1.0",
+        "@faker-js/faker": "^9.9.0",
         "@swc/cli": "^0.7.9",
         "@swc/core": "^1.15.7",
         "@swc/jest": "^0.2.39",
