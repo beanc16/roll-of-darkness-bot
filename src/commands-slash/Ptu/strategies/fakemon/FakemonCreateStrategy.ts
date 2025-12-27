@@ -13,8 +13,11 @@ import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/bu
 import { FakemonTopLevelSelectorCustomIds } from '../../components/fakemon/types.js';
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
@@ -25,9 +28,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
-import { PtuSubcommandGroup } from '../../options/index.js';
-import { PtuLookupSubcommand } from '../../options/lookup.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -365,19 +365,19 @@ export class FakemonCreateStrategy
             names: [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean),
         }) as PtuPokemonForLookupPokemon[];
 
-        return pokemon.reduce<GetBasedOnPokemonSpeciesResponse>((acc, pokemon) =>
+        return pokemon.reduce<GetBasedOnPokemonSpeciesResponse>((acc, curPokemon) =>
         {
-            if (pokemon.name === baseSpeciesOn)
+            if (curPokemon.name === baseSpeciesOn)
             {
-                acc.species = pokemon;
+                acc.species = curPokemon;
             }
-            else if (pokemon.name === baseMovesOn)
+            else if (curPokemon.name === baseMovesOn)
             {
-                acc.moves = pokemon;
+                acc.moves = curPokemon;
             }
-            else if (pokemon.name === baseAbilitiesOn)
+            else if (curPokemon.name === baseAbilitiesOn)
             {
-                acc.abilities = pokemon;
+                acc.abilities = curPokemon;
             }
             return acc;
         }, {
