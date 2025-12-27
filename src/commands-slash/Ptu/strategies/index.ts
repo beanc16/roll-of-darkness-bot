@@ -71,6 +71,7 @@ import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
 import { TrainPokemonStrategy } from './train/TrainPokemonStrategy.js';
 import { TypeEffectivenessStrategy } from './typeEffectiveness/TypeEffectivenessStrategy.js';
+import { PtuFakemonPseudoCache } from '../dal/PtuFakemonPseudoCache.js';
 
 type AllPtuLookupModels = PtuAbility
     | PtuAura
@@ -249,7 +250,10 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return false;
     }
 
-    public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
+    public static async getAutocompleteChoices(
+        focusedValue: AutocompleteFocusedOption,
+        userId: string,
+    ): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
         const autocompleteName = focusedValue.name as PtuAutocompleteParameterName;
 
@@ -287,36 +291,57 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             }),
             [PtuAutocompleteParameterName.BaseAbilitiesOn]: async () =>
             {
-                // TODO: Make this combine with fakemon names later
-                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                    subcommandGroup: PtuSubcommandGroup.Lookup,
-                    subcommand: PtuLookupSubcommand.Pokemon,
-                    options: {
-                        names: [focusedValue.value],
-                    },
-                });
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
             },
             [PtuAutocompleteParameterName.BaseMovesOn]: async () =>
             {
-                // TODO: Make this combine with fakemon names later
-                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                    subcommandGroup: PtuSubcommandGroup.Lookup,
-                    subcommand: PtuLookupSubcommand.Pokemon,
-                    options: {
-                        names: [focusedValue.value],
-                    },
-                });
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
             },
             [PtuAutocompleteParameterName.BaseSpeciesOn]: async () =>
             {
-                // TODO: Make this combine with fakemon names later
-                return await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                    subcommandGroup: PtuSubcommandGroup.Lookup,
-                    subcommand: PtuLookupSubcommand.Pokemon,
-                    options: {
-                        names: [focusedValue.value],
-                    },
-                });
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
             },
             [PtuAutocompleteParameterName.BasedOnAbility]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,

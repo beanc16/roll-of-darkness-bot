@@ -66,7 +66,7 @@ export class Ptu extends BaseSlashCommand
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
 
-        const choices = await PtuStrategyExecutor.getAutocompleteChoices(focusedValue);
+        const choices = await PtuStrategyExecutor.getAutocompleteChoices(focusedValue, interaction.user.id);
 
         // More than 3 seconds has passed, so we can't respond to the interaction
         if (Date.now() - startTime >= 3000)

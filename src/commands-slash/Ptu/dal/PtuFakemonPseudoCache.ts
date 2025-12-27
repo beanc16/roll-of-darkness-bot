@@ -15,6 +15,49 @@ export type PtuFakemonToCreate = Omit<
 
 export class PtuFakemonPseudoCache
 {
+    private static allFakemon: PtuFakemonCollection[] = [];
+
+    public static async getAll(userId: string): Promise<PtuFakemonCollection[]>
+    {
+        if (this.allFakemon.length > 0)
+        {
+            return this.allFakemon;
+        }
+
+        const { results = [] } = await FakemonController.getAll({
+            // Filter by user id
+            editors: {
+                $in: [userId],
+            },
+        }) as {
+            results: PtuFakemonCollection[];
+        };
+
+        this.allFakemon = results;
+        return results;
+    }
+
+    public static async getByNames(names: string[], userId: string): Promise<PtuFakemonCollection[]>
+    {
+        if (names.length === 0)
+        {
+            return [];
+        }
+
+        const { results = [] } = await FakemonController.getAll({
+            // Filter by names
+            $or: names.map((name) => ({ name })),
+            // Filter by user id
+            editors: {
+                $in: [userId],
+            },
+        }) as {
+            results: PtuFakemonCollection[];
+        };
+
+        return results;
+    }
+
     public static getByMessageId(messageId: string): PtuFakemonCollection | undefined
     {
         return ptuFakemonSingleton.get(messageId);
@@ -36,6 +79,7 @@ export class PtuFakemonPseudoCache
         };
 
         ptuFakemonSingleton.upsert(messageId, fakemon);
+        this.allFakemon.push(fakemon);
         return fakemon;
     }
 
@@ -58,6 +102,13 @@ export class PtuFakemonPseudoCache
         };
 
         ptuFakemonSingleton.upsert(messageId, fakemon);
+
+        const index = this.allFakemon.findIndex((f) => f.id === id);
+        if (index !== -1)
+        {
+            this.allFakemon[index] = fakemon;
+        }
+
         return fakemon;
     }
 }

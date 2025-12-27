@@ -42,9 +42,9 @@ interface FakemonCreateGetParameterResults
 
 interface GetBasedOnPokemonSpeciesResponse
 {
-    species: PtuPokemonForLookupPokemon | null;
-    moves: PtuPokemonForLookupPokemon | null;
-    abilities: PtuPokemonForLookupPokemon | null;
+    species: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    moves: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    abilities: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
 }
 
 @staticImplements<
@@ -150,6 +150,7 @@ export class FakemonCreateStrategy
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
+            userId: interaction.user.id,
         });
 
         // Initialize initial fakemon data
@@ -354,30 +355,48 @@ export class FakemonCreateStrategy
         baseSpeciesOn,
         baseMovesOn,
         baseAbilitiesOn,
+        userId,
     }: {
         strategies: PtuStrategyMap;
         baseSpeciesOn: string | null;
         baseMovesOn: string | null;
         baseAbilitiesOn: string | null;
+        userId: string;
     }): Promise<GetBasedOnPokemonSpeciesResponse>
     {
-        const pokemon = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
-            names: [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean),
-        }) as PtuPokemonForLookupPokemon[];
+        const [pokemon, fakemon] = await Promise.all([
+            strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
+                names: [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean),
+            }) as Promise<PtuPokemonForLookupPokemon[]>,
+            PtuFakemonPseudoCache.getByNames(
+                [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(element => element !== null),
+                userId,
+            ),
+        ]);
 
-        return pokemon.reduce<GetBasedOnPokemonSpeciesResponse>((acc, curPokemon) =>
+        return [...pokemon, ...fakemon].reduce<GetBasedOnPokemonSpeciesResponse>((acc, curPokemon) =>
         {
+            const {
+                _id,
+                id,
+                editors,
+                status,
+                creationChannelId,
+                feedbacks,
+                ...curPokemonWithoutFakemonData
+            } = curPokemon as PtuFakemonCollection;
+
             if (curPokemon.name === baseSpeciesOn)
             {
-                acc.species = curPokemon;
+                acc.species = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
             else if (curPokemon.name === baseMovesOn)
             {
-                acc.moves = curPokemon;
+                acc.moves = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
             else if (curPokemon.name === baseAbilitiesOn)
             {
-                acc.abilities = curPokemon;
+                acc.abilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
             return acc;
         }, {
