@@ -25,6 +25,9 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -35,6 +38,13 @@ interface FakemonCreateGetParameterResults
     image: Attachment | null;
     imageUrl: string | null;
     coEditor: User | null;
+}
+
+interface GetBasedOnPokemonSpeciesResponse
+{
+    species: PtuPokemonForLookupPokemon | null;
+    moves: PtuPokemonForLookupPokemon | null;
+    abilities: PtuPokemonForLookupPokemon | null;
 }
 
 @staticImplements<
@@ -121,24 +131,35 @@ export class FakemonCreateStrategy
 
     public static async run(
         interaction: ChatInputCommandInteraction,
-        _strategies: PtuStrategyMap,
+        strategies: PtuStrategyMap,
     ): Promise<boolean>
     {
         const {
             speciesName,
-            // baseSpeciesOn,
-            // baseMovesOn,
-            // baseAbilitiesOn,
+            baseSpeciesOn,
+            baseMovesOn,
+            baseAbilitiesOn,
             // image,
             // imageUrl,
             coEditor,
         } = this.getOptions(interaction);
+
+        // Get pokemon to base this fakemon on
+        const pokemonToBaseOn = await this.getBasedOnPokemonSpecies({
+            strategies,
+            baseSpeciesOn,
+            baseMovesOn,
+            baseAbilitiesOn,
+        });
+
+        // Initialize initial fakemon data
         const message = await interaction.fetchReply();
         const state = await this.initializeFakemon({
             speciesName,
             messageId: message.id,
             creationChannelId: interaction.channelId,
             coEditorUserId: coEditor?.id,
+            pokemonToBaseOn,
         });
 
         // Send response
@@ -266,25 +287,103 @@ export class FakemonCreateStrategy
         messageId,
         creationChannelId,
         coEditorUserId,
+        pokemonToBaseOn,
     }: {
         speciesName: string;
         messageId: string;
         creationChannelId: string;
         coEditorUserId?: string;
+        pokemonToBaseOn: GetBasedOnPokemonSpeciesResponse;
     }): Promise<PtuFakemonCollection>
     {
         return await PtuFakemonPseudoCache.create(messageId, {
             ...this.basePokemon,
+            ...pokemonToBaseOn.species,
             name: speciesName,
-            evolution: [{
+            evolution: pokemonToBaseOn.species?.evolution || [{
                 level: 1,
                 name: speciesName,
                 stage: 1,
             }],
+            abilities: {
+                // Take abilities in priority order of:
+                // 1. pokemonToBaseOn.abilities
+                // 2. pokemonToBaseOn.species
+                // 3. this.basePokemon
+                basicAbilities: pokemonToBaseOn.abilities?.abilities.basicAbilities
+                    || pokemonToBaseOn.species?.abilities.basicAbilities
+                    || this.basePokemon.abilities.basicAbilities,
+                advancedAbilities: pokemonToBaseOn.abilities?.abilities.advancedAbilities
+                    || pokemonToBaseOn.species?.abilities.advancedAbilities
+                    || this.basePokemon.abilities.advancedAbilities,
+                highAbility: pokemonToBaseOn.abilities?.abilities.highAbility
+                    || pokemonToBaseOn.species?.abilities.highAbility
+                    || this.basePokemon.abilities.highAbility,
+            },
+            moveList: {
+                // Take moves in priority order of:
+                // 1. pokemonToBaseOn.moves
+                // 2. pokemonToBaseOn.species
+                // 3. this.basePokemon
+                eggMoves: pokemonToBaseOn.moves?.moveList.eggMoves
+                    || pokemonToBaseOn.species?.moveList.eggMoves
+                    || this.basePokemon.moveList.eggMoves,
+                levelUp: pokemonToBaseOn.moves?.moveList.levelUp
+                    || pokemonToBaseOn.species?.moveList.levelUp
+                    || this.basePokemon.moveList.levelUp,
+                tmHm: pokemonToBaseOn.moves?.moveList.tmHm
+                    || pokemonToBaseOn.species?.moveList.tmHm
+                    || this.basePokemon.moveList.tmHm,
+                tutorMoves: pokemonToBaseOn.moves?.moveList.tutorMoves
+                    || pokemonToBaseOn.species?.moveList.tutorMoves
+                    || this.basePokemon.moveList.tutorMoves,
+                zygardeCubeMoves: pokemonToBaseOn.moves?.moveList.zygardeCubeMoves
+                    || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
+                    || this.basePokemon.moveList.zygardeCubeMoves,
+            },
+            metadata: this.basePokemon.metadata,
             creationChannelId,
             editors: coEditorUserId
                 ? [...new Set([...this.basePokemon.editors, coEditorUserId])]
                 : this.basePokemon.editors,
+        });
+    }
+
+    private static async getBasedOnPokemonSpecies({
+        strategies,
+        baseSpeciesOn,
+        baseMovesOn,
+        baseAbilitiesOn,
+    }: {
+        strategies: PtuStrategyMap;
+        baseSpeciesOn: string | null;
+        baseMovesOn: string | null;
+        baseAbilitiesOn: string | null;
+    }): Promise<GetBasedOnPokemonSpeciesResponse>
+    {
+        const pokemon = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
+            names: [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean),
+        }) as PtuPokemonForLookupPokemon[];
+
+        return pokemon.reduce<GetBasedOnPokemonSpeciesResponse>((acc, pokemon) =>
+        {
+            if (pokemon.name === baseSpeciesOn)
+            {
+                acc.species = pokemon;
+            }
+            else if (pokemon.name === baseMovesOn)
+            {
+                acc.moves = pokemon;
+            }
+            else if (pokemon.name === baseAbilitiesOn)
+            {
+                acc.abilities = pokemon;
+            }
+            return acc;
+        }, {
+            species: null,
+            moves: null,
+            abilities: null,
         });
     }
 }
