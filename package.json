@@ -33,7 +33,7 @@
         "@langchain/core": "^1.0.1",
         "app-root-path": "^3.0.0",
         "dayjs": "^1.11.19",
-        "discord.js": "^14.7.1",
+        "discord.js": "14.9.0",
         "expr-eval-fork": "^3.0.1",
         "fuse.js": "^7.1.0",
         "instagram-url-direct": "^2.0.7",
