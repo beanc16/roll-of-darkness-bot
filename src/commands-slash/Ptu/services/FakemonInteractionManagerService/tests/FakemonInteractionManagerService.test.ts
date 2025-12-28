@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import {
     FakeChatInputCommandInteraction,
     FakeStringSelectMenuInteraction,
@@ -21,6 +24,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
         beforeEach(() =>
         {
             getInteractionOptionsResponse = { embeds: [], components: [] };
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Any typecast is needed due to this being a private method
             getInteractionOptionsSpy = jest.spyOn(FakemonInteractionManagerService as any, 'getInteractionOptions')
                 .mockReturnValue(getInteractionOptionsResponse);
             fakemon = createPtuFakemonCollectionData();
