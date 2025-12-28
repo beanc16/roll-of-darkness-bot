@@ -84,6 +84,7 @@ export type PtuStrategyMap = StrategyMap<
     PtuSubcommandGroup,
     PtuBreedSubcommand
     | PtuCalculateSubcommand
+    | PtuFakemonSubcommand
     | PtuGameSubcommand
     | PtuGenerateSubcommand
     | PtuMetadataSubcommand

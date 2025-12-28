@@ -57,3 +57,34 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
 
     return subcommand;
 };
+
+export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Edit);
+    subcommand.setDescription('Edit a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor_to_add');
+        return option.setDescription('A co-editor of the custom Pokémon to add.');
+    });
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor_to_remove');
+        return option.setDescription('A co-editor of the custom Pokémon to remove (will include users that are not editors).');
+    });
+
+    return subcommand;
+};

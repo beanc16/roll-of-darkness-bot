@@ -111,4 +111,16 @@ export class PtuFakemonPseudoCache
 
         return fakemon;
     }
+
+    public static addToCache(messageId: string, fakemon: PtuFakemonCollection): void
+    {
+        // Add to cache
+        ptuFakemonSingleton.upsert(messageId, fakemon);
+
+        // Add to allFakemon if not already there
+        if (!this.allFakemon.every(element => element.id !== fakemon.id))
+        {
+            this.allFakemon.push(fakemon);
+        }
+    }
 }

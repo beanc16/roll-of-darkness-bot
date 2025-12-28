@@ -52,6 +52,7 @@ export enum PtuAutocompleteParameterName
     EggGroup2 = 'egg_group_2',
     EquipmentName = 'equipment_name',
     EvolutionaryStone = 'evolutionary_stone_name',
+    FakemonSpeciesName = 'fakemon_species_name',
     FeatureName = 'feature_name',
     FemaleSpecies = 'female_species',
     GiftBlessingName = 'gift_blessing_name',

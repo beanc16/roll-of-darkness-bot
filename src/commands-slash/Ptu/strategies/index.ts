@@ -441,6 +441,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.EvolutionaryStone,
             }),
+            [PtuAutocompleteParameterName.FakemonSpeciesName]: () => PtuFakemonPseudoCache.getAll(userId),
             [PtuAutocompleteParameterName.FeatureName]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
