@@ -6,10 +6,10 @@ import {
 
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 
 enum FakemonStatEditingCustomId
 {
@@ -85,7 +85,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         await interaction.deferUpdate();
 
         // Update database
-        const statKey = this.getStatKey(statToEdit);
+        const statKey = FakemonStatManagerService.getStatKey(statToEdit);
         const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             baseStats: {
                 ...fakemon.baseStats,
@@ -99,27 +99,5 @@ export class FakemonStatEditingModal extends BaseCustomModal
             page: FakemonInteractionManagerPage.Stats,
             fakemon: updatedFakemon,
         });
-    }
-
-    public static getStatKey(statToEdit: FakemonStatsStringSelectElementOptions): keyof PtuFakemonCollection['baseStats']
-    {
-        switch (statToEdit)
-        {
-            case FakemonStatsStringSelectElementOptions.HP:
-                return 'hp';
-            case FakemonStatsStringSelectElementOptions.Attack:
-                return 'attack';
-            case FakemonStatsStringSelectElementOptions.Defense:
-                return 'defense';
-            case FakemonStatsStringSelectElementOptions.SpecialAttack:
-                return 'specialAttack';
-            case FakemonStatsStringSelectElementOptions.SpecialDefense:
-                return 'specialDefense';
-            case FakemonStatsStringSelectElementOptions.Speed:
-                return 'speed';
-            default:
-                const typeCheck: never = statToEdit;
-                throw new Error(`Unhandled statToEdit: ${typeCheck}`);
-        }
     }
 }
