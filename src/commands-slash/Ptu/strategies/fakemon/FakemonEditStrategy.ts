@@ -21,6 +21,8 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { DiscordUserId } from '../../../../types/discord.js';
+import { Text } from '@beanc16/discordjs-helpers';
 
 interface FakemonEditGetParameterResults
 {
@@ -52,6 +54,15 @@ export class FakemonEditStrategy
             coEditorToAdd,
             coEditorToRemove,
         } = this.getOptions(interaction);
+
+        // Prevent Bean from being removed
+        if (coEditorToRemove && coEditorToRemove.id === DiscordUserId.Bean)
+        {
+            await interaction.editReply({
+                content: `You cannot remove ${Text.Ping.user(DiscordUserId.Bean)} as a co-editor.`,
+            });
+            return true;
+        }
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -173,7 +184,7 @@ export class FakemonEditStrategy
         }
 
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
-            editors: [],
+            editors: newEditors,
         });
     }
 }
