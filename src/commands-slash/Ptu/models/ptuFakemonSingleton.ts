@@ -28,7 +28,24 @@ class PtuFakemonSingleton
 
     public upsert(messageId: string, fakemon: PtuFakemonCollection): PtuFakemonCollection
     {
-        return this.singleton.upsert(messageId, fakemon);
+        const output = this.singleton.upsert(messageId, fakemon);
+
+        Object.entries(this.getAll()).forEach(([key, value]) =>
+        {
+            // Skip the current message - it was already upserted
+            if (key === messageId)
+            {
+                return;
+            }
+
+            // Update the state of the same fakemon on other messages
+            if (value.id === fakemon.id)
+            {
+                this.singleton.upsert(key, fakemon);
+            }
+        });
+
+        return output;
     }
 
     public set(map: PtuFakemonSingletonMap = {}): void
