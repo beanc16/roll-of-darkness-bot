@@ -266,5 +266,15 @@ module.exports = {
                 'import/no-extraneous-dependencies': 'off',
             },
         },
+        {
+            // Rules for __mocks__ files
+            files: [
+                '**/__mocks__/*.js',
+                '**/__mocks__/*.ts',
+            ],
+            rules: {
+                'max-classes-per-file': 'off',
+            },
+        },
     ],
 };
