@@ -1,5 +1,5 @@
 export enum FakemonStatsStringSelectCustomIds
 {
-    EditStat = 'Edit Stat',
-    SwapStats = 'swap-stats-selector',
+    EditStat = '✏️ Edit Stat',
+    SwapStats = '🔁 Swap Stats',
 }

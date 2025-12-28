@@ -3,8 +3,10 @@ import { FakemonStatsStringSelectCustomIds } from './types.js';
 
 export enum FakemonStatsSwapStringSelectElementOptions
 {
-    SwapAttackStats = 'Attack Stats',
-    SwapDefenseStats = 'Defense Stats',
+    AttackStats = 'Attack & S.Attack',
+    DefenseStats = 'Defense & S.Defense',
+    PhysicalStats = 'Attack & Defense',
+    SpecialStats = 'S.Attack & S.Defense',
 }
 
 export class FakemonStatsSwapStringSelectActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
@@ -15,9 +17,9 @@ export class FakemonStatsSwapStringSelectActionRowBuilder extends ActionRowBuild
             components: [
                 new StringSelectMenuBuilder({
                     customId: FakemonStatsStringSelectCustomIds.SwapStats,
-                    placeholder: 'Swap Stats',
+                    placeholder: FakemonStatsStringSelectCustomIds.SwapStats,
                     options: Object.values(FakemonStatsSwapStringSelectElementOptions)
-                        .map(option => ({ label: option, value: option, emoji: '🔁' })),
+                        .map(option => ({ label: option, value: option })),
                 }),
             ],
         });

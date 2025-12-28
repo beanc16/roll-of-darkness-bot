@@ -300,15 +300,27 @@ export class FakemonCreateStrategy
                 let statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
                 switch (swapStatsValue)
                 {
-                    case FakemonStatsSwapStringSelectElementOptions.SwapAttackStats:
+                    case FakemonStatsSwapStringSelectElementOptions.AttackStats:
                         statsToSwap = [
                             FakemonStatsEditStringSelectElementOptions.Attack,
                             FakemonStatsEditStringSelectElementOptions.SpecialAttack,
                         ];
                         break;
-                    case FakemonStatsSwapStringSelectElementOptions.SwapDefenseStats:
+                    case FakemonStatsSwapStringSelectElementOptions.DefenseStats:
                         statsToSwap = [
                             FakemonStatsEditStringSelectElementOptions.Defense,
+                            FakemonStatsEditStringSelectElementOptions.SpecialDefense,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.PhysicalStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Attack,
+                            FakemonStatsEditStringSelectElementOptions.Defense,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.SpecialStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.SpecialAttack,
                             FakemonStatsEditStringSelectElementOptions.SpecialDefense,
                         ];
                         break;
