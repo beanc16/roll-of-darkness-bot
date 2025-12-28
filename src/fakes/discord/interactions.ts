@@ -4,6 +4,7 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     ComponentType,
+    ModalSubmitInteraction,
     StringSelectMenuInteraction,
 } from 'discord.js';
 
@@ -43,6 +44,36 @@ export const getFakeButtonInteraction = (
         update: jest.fn(),
         showModal: jest.fn(),
     } as unknown as ButtonInteraction;
+
+    return output;
+};
+
+export const getFakeModalSubmitInteraction = (
+    customId: string = 'fake-id',
+    options: Pick<ModalSubmitInteraction, 'replied'> = {
+        replied: false,
+    },
+    messageOptions: {
+        content?: string;
+    } = {},
+    userOptions: {
+        id?: string;
+    } = {},
+): ModalSubmitInteraction =>
+{
+    const output: ModalSubmitInteraction = {
+        customId,
+        ...options,
+        message: getFakeMessage(messageOptions?.content, userOptions),
+        user: new FakeUser(userOptions),
+        deferReply: jest.fn(),
+        deferUpdate: jest.fn(),
+        deleteReply: jest.fn(),
+        editReply: jest.fn(),
+        fetchReply: jest.fn(),
+        followUp: jest.fn(),
+        reply: jest.fn(),
+    } as unknown as ModalSubmitInteraction;
 
     return output;
 };
