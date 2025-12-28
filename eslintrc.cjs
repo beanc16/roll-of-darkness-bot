@@ -255,5 +255,16 @@ module.exports = {
                 '@typescript-eslint/dot-notation': 'off', // Allow for object['property'] notation for testing of protected/private classes
             },
         },
+        {
+            // Rules for fakes files
+            files: [
+                '**/*.fakes.js',
+                '**/*.fakes.ts',
+            ],
+            rules: {
+                // Allows for faker (a dev dependency) to be imported
+                'import/no-extraneous-dependencies': 'off',
+            },
+        },
     ],
 };
