@@ -52,7 +52,7 @@ export class FakemonInteractionManagerService
         }
     }
 
-    private static getInteractionOptions({ page, fakemon }: NavigateToOptions): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
+    private static getInteractionOptions({ page, fakemon }: Pick<NavigateToOptions, 'page' | 'fakemon'>): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
     {
         switch (page)
         {
