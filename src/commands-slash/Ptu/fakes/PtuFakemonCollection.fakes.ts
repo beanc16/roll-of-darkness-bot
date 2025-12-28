@@ -27,6 +27,7 @@ export const createPtuFakemonCollectionData = (): PtuFakemonCollection =>
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const pokemon = createPtuPokemonCollectionData();
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
         ...pokemon,
         _id: new ObjectId(faker.database.mongodbObjectId()),

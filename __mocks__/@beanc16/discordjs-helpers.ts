@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 class Code
 {
     public static oneLine = jest.fn().mockImplementation((input: unknown) => input);
