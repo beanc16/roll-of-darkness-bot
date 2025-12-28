@@ -1,12 +1,9 @@
-import {
-    ActionRowBuilder,
-    BaseMessageOptions,
-    ButtonBuilder,
-} from 'discord.js';
+import { BaseMessageOptions } from 'discord.js';
 
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
-import { FakemonStatsStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
-import { FakemonBackToOverviewButton } from '../button/FakemonBackToOverviewButton.js';
+import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
+import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -18,11 +15,8 @@ export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 export function getFakemonStatsComponents(): BaseMessageOptions['components']
 {
     return [
-        new FakemonStatsStringSelectActionRowBuilder(),
-        new ActionRowBuilder<ButtonBuilder>({
-            components: [
-                new FakemonBackToOverviewButton(),
-            ],
-        }),
+        new FakemonStatsEditStringSelectActionRowBuilder(),
+        new FakemonStatsSwapStringSelectActionRowBuilder(),
+        new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }

@@ -1,24 +1,24 @@
-import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
+import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 
 export class FakemonStatManagerService
 {
-    public static getStatKey(statToEdit: FakemonStatsStringSelectElementOptions): keyof PtuFakemonCollection['baseStats']
+    public static getStatKey(statToEdit: FakemonStatsEditStringSelectElementOptions): keyof PtuFakemonCollection['baseStats']
     {
         switch (statToEdit)
         {
-            case FakemonStatsStringSelectElementOptions.HP:
+            case FakemonStatsEditStringSelectElementOptions.HP:
                 return 'hp';
-            case FakemonStatsStringSelectElementOptions.Attack:
+            case FakemonStatsEditStringSelectElementOptions.Attack:
                 return 'attack';
-            case FakemonStatsStringSelectElementOptions.Defense:
+            case FakemonStatsEditStringSelectElementOptions.Defense:
                 return 'defense';
-            case FakemonStatsStringSelectElementOptions.SpecialAttack:
+            case FakemonStatsEditStringSelectElementOptions.SpecialAttack:
                 return 'specialAttack';
-            case FakemonStatsStringSelectElementOptions.SpecialDefense:
+            case FakemonStatsEditStringSelectElementOptions.SpecialDefense:
                 return 'specialDefense';
-            case FakemonStatsStringSelectElementOptions.Speed:
+            case FakemonStatsEditStringSelectElementOptions.Speed:
                 return 'speed';
             default:
                 const typeCheck: never = statToEdit;
@@ -34,7 +34,7 @@ export class FakemonStatManagerService
     }: {
         messageId: string;
         fakemon: PtuFakemonCollection;
-        statToEdit: FakemonStatsStringSelectElementOptions;
+        statToEdit: FakemonStatsEditStringSelectElementOptions;
         stat: number;
     }): Promise<PtuFakemonCollection>
     {
@@ -54,7 +54,7 @@ export class FakemonStatManagerService
     }: {
         messageId: string;
         fakemon: PtuFakemonCollection;
-        statsToSwap: [FakemonStatsStringSelectElementOptions, FakemonStatsStringSelectElementOptions];
+        statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
     }): Promise<PtuFakemonCollection>
     {
         if (statsToSwap.length !== 2)

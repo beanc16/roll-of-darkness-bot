@@ -8,9 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiscordUserId } from '../../../../types/discord.js';
-import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
-import { fakemonBackToOverviewButtonCustomId } from '../../components/fakemon/button/FakemonBackToOverviewButton.js';
-import { FakemonTopLevelSelectorCustomIds } from '../../components/fakemon/types.js';
+import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
@@ -28,6 +26,11 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
+import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
+import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
+import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
+import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -184,7 +187,7 @@ export class FakemonCreateStrategy
         await interaction.deferUpdate();
 
         const { customId } = interaction as {
-            customId: typeof fakemonBackToOverviewButtonCustomId;
+            customId: FakemonBackToOverviewButtonCustomIds;
         };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -195,13 +198,45 @@ export class FakemonCreateStrategy
         switch (customId)
         {
             // Back to overview
-            case fakemonBackToOverviewButtonCustomId:
+            case FakemonBackToOverviewButtonCustomIds.BackToOverview:
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Overview,
                     fakemon,
                 });
                 break;
+
+            // Swapping stats
+            // case FakemonStatsSwapStringSelectCustomIds.SwapAttackStats:
+            //     const atkSwappedFakemon = await FakemonStatManagerService.swapStats({
+            //         fakemon,
+            //         messageId: interaction.message.id,
+            //         statsToSwap: [
+            //             FakemonStatsEditStringSelectElementOptions.Attack,
+            //             FakemonStatsEditStringSelectElementOptions.SpecialAttack,
+            //         ],
+            //     });
+            //     await FakemonInteractionManagerService.navigateTo({
+            //         interaction,
+            //         page: FakemonInteractionManagerPage.Stats,
+            //         fakemon: atkSwappedFakemon,
+            //     });
+            //     break;
+            // case FakemonStatsSwapStringSelectCustomIds.SwapDefenseStats:
+            //     const defSwappedFakemon = await FakemonStatManagerService.swapStats({
+            //         fakemon,
+            //         messageId: interaction.message.id,
+            //         statsToSwap: [
+            //             FakemonStatsEditStringSelectElementOptions.Defense,
+            //             FakemonStatsEditStringSelectElementOptions.SpecialDefense,
+            //         ],
+            //     });
+            //     await FakemonInteractionManagerService.navigateTo({
+            //         interaction,
+            //         page: FakemonInteractionManagerPage.Stats,
+            //         fakemon: defSwappedFakemon,
+            //     });
+            //     break;
 
             default:
                 const typeGuard: never = customId;
@@ -218,11 +253,14 @@ export class FakemonCreateStrategy
     ): Promise<boolean>
     {
         const { customId, values: [value] = [] } = interaction as {
-            customId: FakemonTopLevelSelectorCustomIds.Overview;
+            customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
-            customId: FakemonTopLevelSelectorCustomIds.Stats;
-            values: FakemonStatsStringSelectElementOptions[];
+            customId: FakemonStatsStringSelectCustomIds.EditStat;
+            values: FakemonStatsEditStringSelectElementOptions[];
+        } | {
+            customId: FakemonStatsStringSelectCustomIds.SwapStats;
+            values: FakemonStatsSwapStringSelectElementOptions[];
         };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -233,7 +271,7 @@ export class FakemonCreateStrategy
         switch (customId)
         {
             // Navigation selector
-            case FakemonTopLevelSelectorCustomIds.Overview:
+            case FakemonOverviewStringSelectCustomIds.Navigation:
                 await interaction.deferUpdate(); // Defer for navigation
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
@@ -243,14 +281,52 @@ export class FakemonCreateStrategy
                 break;
 
             // Stat selector
-            case FakemonTopLevelSelectorCustomIds.Stats:
-                const statKey = FakemonStatEditingModal.getStatKey(value as FakemonStatsStringSelectElementOptions);
+            case FakemonStatsStringSelectCustomIds.EditStat:
+                const statKey = FakemonStatManagerService.getStatKey(value as FakemonStatsEditStringSelectElementOptions);
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonStatEditingModal.showModal(interaction, {
                     messageId: message.id,
-                    statToEdit: value as FakemonStatsStringSelectElementOptions,
+                    statToEdit: value as FakemonStatsEditStringSelectElementOptions,
                     // Add default value if stat is not 0
                     stat: fakemon.baseStats[statKey],
+                });
+                break;
+
+            // Swapping stats
+            case FakemonStatsStringSelectCustomIds.SwapStats:
+                await interaction.deferUpdate(); // Defer for database update
+                // Get input for stats to swap
+                const swapStatsValue = (value as FakemonStatsSwapStringSelectElementOptions);
+                let statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
+                switch (swapStatsValue)
+                {
+                    case FakemonStatsSwapStringSelectElementOptions.SwapAttackStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Attack,
+                            FakemonStatsEditStringSelectElementOptions.SpecialAttack,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.SwapDefenseStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Defense,
+                            FakemonStatsEditStringSelectElementOptions.SpecialDefense,
+                        ];
+                        break;
+                    default:
+                        const typeCheck: never = swapStatsValue;
+                        throw new Error(`Unhandled swapStatsValue: ${typeCheck}`);
+                }
+
+                // Swap stats & update message
+                const statSwappedFakemon = await FakemonStatManagerService.swapStats({
+                    fakemon,
+                    messageId: interaction.message.id,
+                    statsToSwap,
+                });
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Stats,
+                    fakemon: statSwappedFakemon,
                 });
                 break;
 

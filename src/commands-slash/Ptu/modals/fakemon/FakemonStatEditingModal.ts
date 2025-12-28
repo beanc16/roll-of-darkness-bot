@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
-import { FakemonStatsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder.js';
+import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
@@ -64,7 +64,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         // Parse input
         const { messageId, statToEdit } = this.inputData as {
             messageId: string;
-            statToEdit: FakemonStatsStringSelectElementOptions;
+            statToEdit: FakemonStatsEditStringSelectElementOptions;
         };
         const {
             [FakemonStatEditingCustomId.stat]: stat,
