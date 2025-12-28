@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { faker } from '@faker-js/faker';
-import { FakemonStatsStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsStringSelectActionRowBuilder';
+
+import { FakemonStatsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
-import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection';
+import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { FakemonStatManagerService } from '../FakemonStatManagerService';
 
 jest.mock('mongodb-controller');
@@ -25,12 +29,12 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
     describe(`method: ${FakemonStatManagerService.getStatKey.name}`, () =>
     {
         it.each([
-            ['hp', FakemonStatsStringSelectElementOptions.HP],
-            ['attack', FakemonStatsStringSelectElementOptions.Attack],
-            ['defense', FakemonStatsStringSelectElementOptions.Defense],
-            ['specialAttack', FakemonStatsStringSelectElementOptions.SpecialAttack],
-            ['specialDefense', FakemonStatsStringSelectElementOptions.SpecialDefense],
-            ['speed', FakemonStatsStringSelectElementOptions.Speed],
+            ['hp', FakemonStatsEditStringSelectElementOptions.HP],
+            ['attack', FakemonStatsEditStringSelectElementOptions.Attack],
+            ['defense', FakemonStatsEditStringSelectElementOptions.Defense],
+            ['specialAttack', FakemonStatsEditStringSelectElementOptions.SpecialAttack],
+            ['specialDefense', FakemonStatsEditStringSelectElementOptions.SpecialDefense],
+            ['speed', FakemonStatsEditStringSelectElementOptions.Speed],
         ])(`should return '%s' for '%s'`, (expectedStatKey, statToEdit) =>
         {
             // Act
@@ -40,11 +44,11 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
             expect(result).toEqual(expectedStatKey);
         });
 
-        it('should throw an error if statToEdit is not a valid FakemonStatsStringSelectElementOptions', () =>
+        it('should throw an error if statToEdit is not a valid FakemonStatsEditStringSelectElementOptions', () =>
         {
             // Act & Assert
             expect(() =>
-                FakemonStatManagerService.getStatKey('invalid' as FakemonStatsStringSelectElementOptions)
+                FakemonStatManagerService.getStatKey('invalid' as FakemonStatsEditStringSelectElementOptions),
             ).toThrow(`Unhandled statToEdit: invalid`);
         });
     });
@@ -52,7 +56,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
     describe(`method: ${FakemonStatManagerService.setStat.name}`, () =>
     {
         it.each(
-            Object.values(FakemonStatsStringSelectElementOptions),
+            Object.values(FakemonStatsEditStringSelectElementOptions),
         )(`should update the '%s' stat in the fakemon`, async (statToEdit) =>
         {
             // Arrange
@@ -86,7 +90,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
             );
         });
 
-        it('should throw an error if statToEdit is not FakemonStatsStringSelectElementOptions', async () =>
+        it('should throw an error if statToEdit is not FakemonStatsEditStringSelectElementOptions', async () =>
         {
             // Arrange
             const messageId = 'messageId';
@@ -98,9 +102,9 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                 FakemonStatManagerService.setStat({
                     messageId,
                     fakemon,
-                    statToEdit: 'INVALID' as FakemonStatsStringSelectElementOptions,
+                    statToEdit: 'INVALID' as FakemonStatsEditStringSelectElementOptions,
                     stat: 5,
-                }), 
+                }),
             ).rejects.toThrow('Unhandled statToEdit: INVALID');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -109,10 +113,10 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
     describe(`method: ${FakemonStatManagerService.swapStats.name}`, () =>
     {
         it.each([
-            [FakemonStatsStringSelectElementOptions.Attack, FakemonStatsStringSelectElementOptions.SpecialAttack],
-            [FakemonStatsStringSelectElementOptions.Defense, FakemonStatsStringSelectElementOptions.SpecialDefense],
-            [FakemonStatsStringSelectElementOptions.Attack, FakemonStatsStringSelectElementOptions.Defense],
-            [FakemonStatsStringSelectElementOptions.SpecialAttack, FakemonStatsStringSelectElementOptions.SpecialDefense],
+            [FakemonStatsEditStringSelectElementOptions.Attack, FakemonStatsEditStringSelectElementOptions.SpecialAttack],
+            [FakemonStatsEditStringSelectElementOptions.Defense, FakemonStatsEditStringSelectElementOptions.SpecialDefense],
+            [FakemonStatsEditStringSelectElementOptions.Attack, FakemonStatsEditStringSelectElementOptions.Defense],
+            [FakemonStatsEditStringSelectElementOptions.SpecialAttack, FakemonStatsEditStringSelectElementOptions.SpecialDefense],
         ])(`should swap '%s' with '%s'`, async (statToSwap1, statToSwap2) =>
         {
             // Arrange
@@ -146,7 +150,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
             );
         });
 
-        it.each([0, 1, 3, 4, 5])('should throw an error if statsToSwap is an array of %s FakemonStatsStringSelectElementOptions (AKA: not 2)', async (count) =>
+        it.each([0, 1, 3, 4, 5])('should throw an error if statsToSwap is an array of %s FakemonStatsEditStringSelectElementOptions (AKA: not 2)', async (count) =>
         {
             // Arrange
             const messageId = 'messageId';
@@ -159,17 +163,17 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     messageId,
                     fakemon,
                     statsToSwap: Array.from({ length: count }, () =>
-                        faker.helpers.arrayElement(Object.values(FakemonStatsStringSelectElementOptions)),
+                        faker.helpers.arrayElement(Object.values(FakemonStatsEditStringSelectElementOptions)),
                     ) as [
-                        FakemonStatsStringSelectElementOptions,
-                        FakemonStatsStringSelectElementOptions,
+                        FakemonStatsEditStringSelectElementOptions,
+                        FakemonStatsEditStringSelectElementOptions,
                     ],
                 }),
             ).rejects.toThrow('Exactly 2 stats must be swapped');
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
-        it(`should throw an error if statsToSwap contains an element that's not FakemonStatsStringSelectElementOptions`, async () =>
+        it(`should throw an error if statsToSwap contains an element that's not FakemonStatsEditStringSelectElementOptions`, async () =>
         {
             // Arrange
             const messageId = 'messageId';
@@ -182,8 +186,8 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     messageId,
                     fakemon,
                     statsToSwap: [
-                        FakemonStatsStringSelectElementOptions.Attack,
-                        'INVALID' as FakemonStatsStringSelectElementOptions
+                        FakemonStatsEditStringSelectElementOptions.Attack,
+                        'INVALID' as FakemonStatsEditStringSelectElementOptions,
                     ],
                 }),
             ).rejects.toThrow('Unhandled statToEdit: INVALID');

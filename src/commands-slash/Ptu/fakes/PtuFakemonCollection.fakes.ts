@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
+import { ObjectId } from 'mongodb';
 
 import { PtuFakemonCollection, PtuFakemonStatus } from '../dal/models/PtuFakemonCollection';
-import { createPtuPokemonCollectionData } from './PtuPokemonCollection';
-import { ObjectId } from 'mongodb';
 import { PtuPokemon } from '../types/pokemon';
+import { createPtuPokemonCollectionData } from './PtuPokemonCollection.fakes';
 
 const getFakeDiscordId = (): string =>
 {
@@ -24,6 +24,7 @@ const getFakeDiscordIds = (): string[] =>
 
 export const createPtuFakemonCollectionData = (): PtuFakemonCollection =>
 {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const pokemon = createPtuPokemonCollectionData();
 
     return {
@@ -34,9 +35,11 @@ export const createPtuFakemonCollectionData = (): PtuFakemonCollection =>
             getFakeDiscordIds(),
             { min: 1, max: 2 },
         ),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
         status: faker.helpers.arrayElement(Object.values(PtuFakemonStatus)),
         creationChannelId: getFakeDiscordId(),
         feedbacks: [],
-        toPtuPokemon: () => ({} as unknown as PtuPokemon),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        toPtuPokemon: () => ({} as PtuPokemon),
     };
 };

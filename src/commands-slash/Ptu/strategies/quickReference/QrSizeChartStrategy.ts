@@ -3,8 +3,8 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
-import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 import { PtuHeight } from '../../types/pokemon.js';
+import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 
 interface HeightChart
 {

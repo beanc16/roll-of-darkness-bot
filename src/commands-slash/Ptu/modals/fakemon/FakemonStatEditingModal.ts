@@ -7,9 +7,9 @@ import {
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
-import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 
 enum FakemonStatEditingCustomId
 {

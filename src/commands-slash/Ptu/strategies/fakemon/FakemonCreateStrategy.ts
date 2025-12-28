@@ -8,7 +8,11 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { DiscordUserId } from '../../../../types/discord.js';
+import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
+import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
@@ -16,6 +20,7 @@ import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditing
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
+import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
@@ -26,11 +31,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
-import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
-import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
-import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
-import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -206,38 +206,6 @@ export class FakemonCreateStrategy
                 });
                 break;
 
-            // Swapping stats
-            // case FakemonStatsSwapStringSelectCustomIds.SwapAttackStats:
-            //     const atkSwappedFakemon = await FakemonStatManagerService.swapStats({
-            //         fakemon,
-            //         messageId: interaction.message.id,
-            //         statsToSwap: [
-            //             FakemonStatsEditStringSelectElementOptions.Attack,
-            //             FakemonStatsEditStringSelectElementOptions.SpecialAttack,
-            //         ],
-            //     });
-            //     await FakemonInteractionManagerService.navigateTo({
-            //         interaction,
-            //         page: FakemonInteractionManagerPage.Stats,
-            //         fakemon: atkSwappedFakemon,
-            //     });
-            //     break;
-            // case FakemonStatsSwapStringSelectCustomIds.SwapDefenseStats:
-            //     const defSwappedFakemon = await FakemonStatManagerService.swapStats({
-            //         fakemon,
-            //         messageId: interaction.message.id,
-            //         statsToSwap: [
-            //             FakemonStatsEditStringSelectElementOptions.Defense,
-            //             FakemonStatsEditStringSelectElementOptions.SpecialDefense,
-            //         ],
-            //     });
-            //     await FakemonInteractionManagerService.navigateTo({
-            //         interaction,
-            //         page: FakemonInteractionManagerPage.Stats,
-            //         fakemon: defSwappedFakemon,
-            //     });
-            //     break;
-
             default:
                 const typeGuard: never = customId;
                 throw new Error(`Unhandled customId: ${typeGuard}`);
@@ -296,7 +264,7 @@ export class FakemonCreateStrategy
             case FakemonStatsStringSelectCustomIds.SwapStats:
                 await interaction.deferUpdate(); // Defer for database update
                 // Get input for stats to swap
-                const swapStatsValue = (value as FakemonStatsSwapStringSelectElementOptions);
+                const swapStatsValue = value as FakemonStatsSwapStringSelectElementOptions;
                 let statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
                 switch (swapStatsValue)
                 {

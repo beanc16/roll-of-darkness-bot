@@ -2,12 +2,14 @@ import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
 import { PtuPokemonCollection } from '../dal/models/PtuPokemonCollection.js';
-import { PokemonEggGroup, PokemonType, PtuHeight, PtuPokemon } from '../types/pokemon.js';
+import {
+    PokemonEggGroup,
+    PokemonType,
+    PtuHeight,
+    PtuPokemon,
+} from '../types/pokemon.js';
 
-const getArrayOfWords = ({
-    min,
-    max,
-}: {
+const getArrayOfWords = ({ min, max }: {
     min: number;
     max: number;
 } | {
@@ -27,7 +29,7 @@ const getRandomTypes = (numOfTypes: number): string[] =>
         Object.values(PokemonType),
         faker.number.int({ min: 1, max: numOfTypes }),
     );
-}
+};
 
 const getFakeSkill = (): string =>
 {
@@ -65,9 +67,15 @@ export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
             highAbility: faker.lorem.word(),
         },
         evolution: [
-            { name: speciesName, level: 1, stage: 1 },
-            { name: faker.person.firstName(), level: 20, stage: 2 },
-            { name: faker.person.firstName(), level: 40, stage: 3 },
+            {
+                name: speciesName, level: 1, stage: 1,
+            },
+            {
+                name: faker.person.firstName(), level: 20, stage: 2,
+            },
+            {
+                name: faker.person.firstName(), level: 40, stage: 3,
+            },
         ],
         capabilities: {
             overland: faker.number.int({ min: 1, max: 8 }),
@@ -83,12 +91,18 @@ export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
         sizeInformation: {
             height: {
                 freedom: `${faker.number.int({ min: 1, max: 8 })}'${faker.number.int({ min: 1, max: 8 })}"`,
-                metric: `${faker.number.float({ min: 1, max: 8, fractionDigits: 1 })}m`,
+                metric: `${faker.number.float({
+                    min: 1, max: 8, fractionDigits: 1,
+                })}m`,
                 ptu: faker.helpers.arrayElement(Object.values(PtuHeight)),
             },
             weight: {
-                freedom: `${faker.number.float({ min: 1, max: 8, fractionDigits: 1 })}lb`,
-                metric: `${faker.number.float({ min: 1, max: 8, fractionDigits: 1 })}kg`,
+                freedom: `${faker.number.float({
+                    min: 1, max: 8, fractionDigits: 1,
+                })}lb`,
+                metric: `${faker.number.float({
+                    min: 1, max: 8, fractionDigits: 1,
+                })}kg`,
                 ptu: faker.number.int({ min: 1, max: 6 }),
             },
         },
@@ -134,11 +148,21 @@ export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
             ability: faker.lorem.word(),
             stats: faker.helpers.arrayElement([
                 {},
-                { defense: '+2', specialAttack: '+4', speed: '+3' },
-                { attack: '+4', defense: '+3', specialAttack: '+4', specialDefense: '+2', speed: '-3' },
-                { attack: '+2', defense: '+4', specialDefense: '+3' },
-                { defense: '+4', specialAttack: '+3', specialDefense: '+1', speed: '+2' },
-                { attack: '+4', defense: '+3', specialDefense: '+3' },
+                {
+                    defense: '+2', specialAttack: '+4', speed: '+3',
+                },
+                {
+                    attack: '+4', defense: '+3', specialAttack: '+4', specialDefense: '+2', speed: '-3',
+                },
+                {
+                    attack: '+2', defense: '+4', specialDefense: '+3',
+                },
+                {
+                    defense: '+4', specialAttack: '+3', specialDefense: '+1', speed: '+2',
+                },
+                {
+                    attack: '+4', defense: '+3', specialDefense: '+3',
+                },
             ]),
         }]), { probability: 0.1 }),
         metadata: {
@@ -157,6 +181,6 @@ export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
                 tmHm: getArrayOfWords({ min: 0, max: 40 }),
             } as unknown as PtuPokemonCollection['moveList'],
         }])),
-        toPtuPokemon: () => ({} as unknown as PtuPokemon),
+        toPtuPokemon: () => ({} as PtuPokemon),
     };
 };

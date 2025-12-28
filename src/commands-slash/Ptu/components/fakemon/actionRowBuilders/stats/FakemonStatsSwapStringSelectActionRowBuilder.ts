@@ -1,4 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder } from 'discord.js';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    StringSelectMenuBuilder,
+} from 'discord.js';
+
 import { FakemonStatsStringSelectCustomIds } from './types.js';
 
 export enum FakemonStatsSwapStringSelectElementOptions

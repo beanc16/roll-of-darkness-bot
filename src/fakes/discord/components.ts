@@ -27,7 +27,7 @@ export class FakeUser extends User
 
 export const getFakeMessage = <T extends boolean = boolean>(
     content: string = 'fake-content',
-    userData: Partial<RawUserData> = {},
+    userData: ConstructorParameters<typeof FakeUser>[0] = {},
 ): Message<T> =>
 {
     const user = new FakeUser(userData);
