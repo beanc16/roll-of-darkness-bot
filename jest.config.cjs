@@ -57,6 +57,7 @@ module.exports = {
         '/.*/breedPokemonStateSingleton.ts',
         '/.*/PtuCacheInitializer.ts',
         '/.*/PtuDamageChartService.ts',
+        '/.*/ptuFakemonSingleton.ts',
 
         // NWOD
         '/.*/BaseRollStrategy.ts',
