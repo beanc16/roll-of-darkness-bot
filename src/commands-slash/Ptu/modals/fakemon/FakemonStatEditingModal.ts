@@ -86,7 +86,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
 
         // Update database
         const statKey = FakemonStatManagerService.getStatKey(statToEdit);
-        const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+        await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             baseStats: {
                 ...fakemon.baseStats,
                 [statKey]: stat,
@@ -97,7 +97,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         await FakemonInteractionManagerService.navigateTo({
             interaction,
             page: FakemonInteractionManagerPage.Stats,
-            fakemon: updatedFakemon,
+            messageId,
         });
     }
 }

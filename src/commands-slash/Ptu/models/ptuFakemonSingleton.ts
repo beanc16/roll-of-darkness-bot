@@ -39,7 +39,7 @@ class PtuFakemonSingleton
             }
 
             // Update the state of the same fakemon on other messages
-            if (value.id === fakemon.id)
+            if (value.id.equals(fakemon.id))
             {
                 this.singleton.upsert(key, fakemon);
             }

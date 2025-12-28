@@ -10,8 +10,9 @@ import {
 import { getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { FakemonInteractionManagerPage } from './types.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 
@@ -19,7 +20,7 @@ interface NavigateToOptions
 {
     interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
     page: FakemonInteractionManagerPage;
-    fakemon: PtuFakemonCollection;
+    messageId: string;
     interactionType?: FakemonInteractionManagerInteractionType;
 }
 
@@ -33,7 +34,13 @@ export class FakemonInteractionManagerService
 {
     public static async navigateTo(options: NavigateToOptions): Promise<void>
     {
-        const interactionOptions = this.getInteractionOptions(options);
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(options.messageId);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+
+        const interactionOptions = this.getInteractionOptions({ page: options.page, fakemon });
         const { interaction, interactionType = 'editReply' } = options;
 
         switch (interactionType)
@@ -52,7 +59,7 @@ export class FakemonInteractionManagerService
         }
     }
 
-    private static getInteractionOptions({ page, fakemon }: Pick<NavigateToOptions, 'page' | 'fakemon'>): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
+    private static getInteractionOptions({ page, fakemon }: Pick<NavigateToOptions, 'page'> & { fakemon: PtuFakemonCollection }): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
     {
         switch (page)
         {

@@ -158,7 +158,7 @@ export class FakemonCreateStrategy
 
         // Initialize initial fakemon data
         const message = await interaction.fetchReply();
-        const state = await this.initializeFakemon({
+        await this.initializeFakemon({
             speciesName,
             messageId: message.id,
             creationChannelId: interaction.channelId,
@@ -170,7 +170,7 @@ export class FakemonCreateStrategy
         await FakemonInteractionManagerService.navigateTo({
             interaction,
             page: FakemonInteractionManagerPage.Overview,
-            fakemon: state,
+            messageId: message.id,
             interactionType: 'editReply',
         });
 
@@ -180,7 +180,9 @@ export class FakemonCreateStrategy
     public static async runButton(
         interaction: ButtonInteraction,
         _strategies: PtuStrategyMap,
-        _metadata: PtuStrategyMetadata,
+        {
+            message,
+        }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
         // Defer update
@@ -202,7 +204,7 @@ export class FakemonCreateStrategy
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Overview,
-                    fakemon,
+                    messageId: message.id,
                 });
                 break;
 
@@ -244,7 +246,7 @@ export class FakemonCreateStrategy
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: value as FakemonInteractionManagerPage,
-                    fakemon,
+                    messageId: message.id,
                 });
                 break;
 
@@ -298,7 +300,7 @@ export class FakemonCreateStrategy
                 }
 
                 // Swap stats & update message
-                const statSwappedFakemon = await FakemonStatManagerService.swapStats({
+                await FakemonStatManagerService.swapStats({
                     fakemon,
                     messageId: interaction.message.id,
                     statsToSwap,
@@ -306,7 +308,7 @@ export class FakemonCreateStrategy
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Stats,
-                    fakemon: statSwappedFakemon,
+                    messageId: interaction.message.id,
                 });
                 break;
 

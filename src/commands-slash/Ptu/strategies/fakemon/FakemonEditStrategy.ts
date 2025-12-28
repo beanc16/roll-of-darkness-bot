@@ -76,7 +76,7 @@ export class FakemonEditStrategy
 
         // Initialize initial fakemon data
         const message = await interaction.fetchReply();
-        const updatedFakemon = await this.updateCoEditors({
+        await this.updateCoEditors({
             fakemon,
             messageId: message.id,
             coEditorToAdd,
@@ -87,7 +87,7 @@ export class FakemonEditStrategy
         await FakemonInteractionManagerService.navigateTo({
             interaction,
             page: FakemonInteractionManagerPage.Overview,
-            fakemon: updatedFakemon,
+            messageId: message.id,
             interactionType: 'editReply',
         });
 

@@ -7,6 +7,7 @@ import {
     getFakeButtonInteraction,
     getFakeModalSubmitInteraction,
 } from '../../../../../fakes/discord/interactions';
+import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { FakemonInteractionManagerInteractionType, FakemonInteractionManagerService } from '../FakemonInteractionManagerService';
 import { FakemonInteractionManagerPage } from '../types';
@@ -28,6 +29,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
             getInteractionOptionsSpy = jest.spyOn(FakemonInteractionManagerService as any, 'getInteractionOptions')
                 .mockReturnValue(getInteractionOptionsResponse);
             fakemon = createPtuFakemonCollectionData();
+            jest.spyOn(PtuFakemonPseudoCache, 'getByMessageId').mockReturnValue(fakemon);
         });
 
         afterEach(() =>
@@ -67,7 +69,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                         const args: Parameters<typeof FakemonInteractionManagerService.navigateTo>[0] = {
                             interaction,
                             interactionType,
-                            fakemon,
+                            messageId: 'messageId',
                             page,
                         };
 
@@ -76,7 +78,10 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
 
                         // Assert
                         expect(getInteractionOptionsSpy).toHaveBeenCalledTimes(1);
-                        expect(getInteractionOptionsSpy).toHaveBeenCalledWith(args);
+                        expect(getInteractionOptionsSpy).toHaveBeenCalledWith({
+                            page: args.page,
+                            fakemon,
+                        });
                         expect(interactionTypeSpy).toHaveBeenCalledTimes(1);
                         expect(interactionTypeSpy).toHaveBeenCalledWith(getInteractionOptionsResponse);
                     });
@@ -89,7 +94,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                 const editReplySpy = jest.spyOn(interaction, 'editReply');
                 const args: Parameters<typeof FakemonInteractionManagerService.navigateTo>[0] = {
                     interaction,
-                    fakemon,
+                    messageId: 'messageId',
                     page: FakemonInteractionManagerPage.Overview,
                 };
 
@@ -98,7 +103,10 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
 
                 // Assert
                 expect(getInteractionOptionsSpy).toHaveBeenCalledTimes(1);
-                expect(getInteractionOptionsSpy).toHaveBeenCalledWith(args);
+                expect(getInteractionOptionsSpy).toHaveBeenCalledWith({
+                    page: args.page,
+                    fakemon,
+                });
                 expect(editReplySpy).toHaveBeenCalledTimes(1);
                 expect(editReplySpy).toHaveBeenCalledWith(getInteractionOptionsResponse);
             });
@@ -110,7 +118,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                     FakemonInteractionManagerService.navigateTo({
                         interaction,
                         interactionType: 'INVALID' as FakemonInteractionManagerInteractionType,
-                        fakemon,
+                        messageId: 'messageId',
                         page: FakemonInteractionManagerPage.Overview,
                     }),
                 ).rejects.toThrow('Unhandled interactionType: INVALID');
@@ -129,7 +137,7 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                         FakemonInteractionManagerService.navigateTo({
                             interaction,
                             interactionType,
-                            fakemon,
+                            messageId: 'messageId',
                             page: FakemonInteractionManagerPage.Overview,
                         }),
                     ).rejects.toThrow();
