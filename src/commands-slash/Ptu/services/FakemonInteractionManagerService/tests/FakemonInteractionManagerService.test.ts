@@ -1,7 +1,12 @@
+import {
+    FakeChatInputCommandInteraction,
+    FakeStringSelectMenuInteraction,
+    getFakeButtonInteraction,
+    getFakeModalSubmitInteraction,
+} from '../../../../../fakes/discord/interactions';
+import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { FakemonInteractionManagerInteractionType, FakemonInteractionManagerService } from '../FakemonInteractionManagerService';
 import { FakemonInteractionManagerPage } from '../types';
-import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { FakeChatInputCommandInteraction, FakeStringSelectMenuInteraction, getFakeButtonInteraction, getFakeModalSubmitInteraction } from '../../../../../fakes/discord/interactions';
 
 describe(`class: ${FakemonInteractionManagerService.name}`, () =>
 {
@@ -163,6 +168,6 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                     fakemon,
                 }),
             ).toThrow('Unhandled page: invalid');
-        })
+        });
     });
 });
