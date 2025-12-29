@@ -31,6 +31,9 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
+import { PokemonType } from '../../types/pokemon.js';
+import { FakemonBasicInformationManagerService } from '../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -222,7 +225,7 @@ export class FakemonCreateStrategy
         { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId, values: [value] = [] } = interaction as {
+        const { customId, values: [value1, value2] = [] } = interaction as {
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
@@ -231,6 +234,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonStatsStringSelectCustomIds.SwapStats;
             values: FakemonStatsSwapStringSelectElementOptions[];
+        } | {
+            customId: FakemonBasicInformationStringSelectCustomIds.EditTypes;
+            values: PokemonType[];
         };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -245,18 +251,18 @@ export class FakemonCreateStrategy
                 await interaction.deferUpdate(); // Defer for navigation
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
-                    page: value as FakemonInteractionManagerPage,
+                    page: value1 as FakemonInteractionManagerPage,
                     messageId: message.id,
                 });
                 break;
 
             // Stat selector
             case FakemonStatsStringSelectCustomIds.EditStat:
-                const statKey = FakemonStatManagerService.getStatKey(value as FakemonStatsEditStringSelectElementOptions);
+                const statKey = FakemonStatManagerService.getStatKey(value1 as FakemonStatsEditStringSelectElementOptions);
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonStatEditingModal.showModal(interaction, {
                     messageId: message.id,
-                    statToEdit: value as FakemonStatsEditStringSelectElementOptions,
+                    statToEdit: value1 as FakemonStatsEditStringSelectElementOptions,
                     // Add default value if stat is not 0
                     stat: fakemon.baseStats[statKey],
                 });
@@ -266,7 +272,7 @@ export class FakemonCreateStrategy
             case FakemonStatsStringSelectCustomIds.SwapStats:
                 await interaction.deferUpdate(); // Defer for database update
                 // Get input for stats to swap
-                const swapStatsValue = value as FakemonStatsSwapStringSelectElementOptions;
+                const swapStatsValue = value1 as FakemonStatsSwapStringSelectElementOptions;
                 let statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
                 switch (swapStatsValue)
                 {
@@ -308,6 +314,21 @@ export class FakemonCreateStrategy
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Stats,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Types selector
+            case FakemonBasicInformationStringSelectCustomIds.EditTypes:
+                await interaction.deferUpdate(); // Defer for database update
+                await FakemonBasicInformationManagerService.setTypes({
+                    messageId: interaction.message.id,
+                    fakemon,
+                    types: [value1, value2] as PokemonType[],
+                });
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BasicInformation,
                     messageId: interaction.message.id,
                 });
                 break;

@@ -4,6 +4,7 @@ import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilder
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonBIEditTypesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditTypesStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -18,5 +19,14 @@ export function getFakemonStatsComponents(): BaseMessageOptions['components']
         new FakemonStatsEditStringSelectActionRowBuilder(),
         new FakemonStatsSwapStringSelectActionRowBuilder(),
         new FakemonBackToOverviewButtonActionRowBuilder(),
+    ];
+}
+
+export function getFakemonBasicInformationComponents(
+    args: ConstructorParameters<typeof FakemonBIEditTypesStringSelectActionRowBuilder>[0],
+): BaseMessageOptions['components']
+{
+    return [
+        new FakemonBIEditTypesStringSelectActionRowBuilder(args),
     ];
 }

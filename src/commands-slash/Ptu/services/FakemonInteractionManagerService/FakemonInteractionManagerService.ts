@@ -7,7 +7,8 @@ import {
     StringSelectMenuInteraction,
 } from 'discord.js';
 
-import { getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
+import { getFakemonBasicInformationComponents, getFakemonOverviewComponents, getFakemonStatsComponents } from '../../components/fakemon/actionRowData/index.js';
+import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
@@ -77,6 +78,14 @@ export class FakemonInteractionManagerService
                         new FakemonStatsEmbedMessage(fakemon),
                     ],
                     components: getFakemonStatsComponents(),
+                };
+
+            case FakemonInteractionManagerPage.BasicInformation:
+                return {
+                    embeds: [
+                        new FakemonBasicInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonBasicInformationComponents(fakemon),
                 };
 
             default:
