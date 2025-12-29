@@ -22,10 +22,10 @@ const getFakeDiscordIds = (): string[] =>
     );
 };
 
-export const createPtuFakemonCollectionData = (): PtuFakemonCollection =>
+export const createPtuFakemonCollectionData = (args: Parameters<typeof createPtuPokemonCollectionData>[0] = {}): PtuFakemonCollection =>
 {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-    const pokemon = createPtuPokemonCollectionData();
+    const pokemon = createPtuPokemonCollectionData(args);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {

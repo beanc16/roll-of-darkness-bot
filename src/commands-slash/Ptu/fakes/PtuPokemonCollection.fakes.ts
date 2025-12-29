@@ -17,7 +17,7 @@ const getArrayOfWords = ({ min, max }: {
     max: number;
 }): string[] =>
 {
-    const options = faker.lorem.words(faker.number.int({ min: 1, max: 10 })).split(' ');
+    const options = faker.lorem.words(faker.number.int({ min: max, max })).split(' ');
     const numOfElements = (min) ? faker.number.int({ min, max }) : max;
 
     return faker.helpers.arrayElements(options, numOfElements);
@@ -39,7 +39,15 @@ const getFakeSkill = (): string =>
     return `${dice}${sign}${modifier}`;
 };
 
-export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
+export const createPtuPokemonCollectionData = ({
+    capabilities: {
+        numOfOtherCapabilities,
+    } = {},
+}: {
+    capabilities?: {
+        numOfOtherCapabilities?: number;
+    };
+} = {}): PtuPokemonCollection =>
 {
     const id = new ObjectId(faker.database.mongodbObjectId());
     const speciesName = faker.person.firstName();
@@ -86,7 +94,9 @@ export const createPtuPokemonCollectionData = (): PtuPokemonCollection =>
             highJump: faker.number.int({ min: 1, max: 3 }),
             lowJump: faker.number.int({ min: 1, max: 3 }),
             power: faker.number.int({ min: 1, max: 8 }),
-            other: faker.helpers.maybe(() => getArrayOfWords({ min: 0, max: 9 })),
+            other: numOfOtherCapabilities === undefined
+                ? faker.helpers.maybe(() => getArrayOfWords({ min: 0, max: 9 }))
+                : getArrayOfWords({ min: numOfOtherCapabilities, max: numOfOtherCapabilities }),
         },
         sizeInformation: {
             height: {
