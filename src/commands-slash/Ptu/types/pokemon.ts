@@ -99,6 +99,33 @@ export enum PokemonDiet
     Terravore = 'Terravore',
 }
 
+export enum PokemonHabitat
+{
+    Arctic = 'Arctic',
+    Beach = 'Beach',
+    Cave = 'Cave',
+    Desert = 'Desert',
+    Forest = 'Forest',
+    Freshwater = 'Freshwater',
+    Grasslands = 'Grasslands',
+    Marsh = 'Marsh',
+    Mountain = 'Mountain',
+    NonSpace = 'Non-Space',
+    Oceans = 'Oceans',
+    Plains = 'Plains',
+    Rainforest = 'Rainforest',
+    River = 'River',
+    Ruins = 'Ruins',
+    Space = 'Space',
+    Taiga = 'Taiga',
+    Tundra = 'Tundra',
+    UltraSpace = 'Ultra Space',
+    Underground = 'Underground',
+    Urban = 'Urban',
+    Wetlands = 'Wetlands',
+    Unknown = '???',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
