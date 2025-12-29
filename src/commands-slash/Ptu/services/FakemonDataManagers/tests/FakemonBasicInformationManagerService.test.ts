@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // ^ the above are giving a lot of false negatives for some reason, temporarily disabling
 
-import { FakemonStatsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder';
+import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { PokemonType } from '../../../types/pokemon';
 import { FakemonBasicInformationManagerService } from '../FakemonBasicInformationManagerService';
-import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
 
 jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
@@ -115,7 +114,7 @@ describe(`class: ${FakemonBasicInformationManagerService.name}`, () =>
             const messageId = 'messageId';
             const fakemon = createPtuFakemonCollectionData();
             const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update');
-            const types = Array.from({ length: numOfTypes }, (_, index) => 'INVALID' as PokemonType);
+            const types = Array.from({ length: numOfTypes }, () => 'INVALID' as PokemonType);
 
             // Act & Assert
             await expect(

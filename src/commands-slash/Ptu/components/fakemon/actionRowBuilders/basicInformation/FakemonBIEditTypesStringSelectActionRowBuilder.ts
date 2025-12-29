@@ -1,7 +1,8 @@
 import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
+
+import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { PokemonType } from '../../../../types/pokemon.js';
 import { FakemonBasicInformationStringSelectCustomIds } from './types.js';
-import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 
 export class FakemonBIEditTypesStringSelectActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
