@@ -10,6 +10,7 @@ import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { Text } from '@beanc16/discordjs-helpers';
 
 enum FakemonStatEditingCustomId
 {
@@ -69,9 +70,7 @@ export class FakemonStatEditingModal extends BaseCustomModal
         const {
             [FakemonStatEditingCustomId.stat]: stat,
         } = this.parseInput<FakemonStatEditingCustomId>(interaction) as {
-            [FakemonStatEditingCustomId.stat]: {
-                [FakemonStatEditingCustomId.stat]: number;
-            };
+            [FakemonStatEditingCustomId.stat]: number;
         };
 
         // Get fakemon
@@ -85,13 +84,27 @@ export class FakemonStatEditingModal extends BaseCustomModal
         await interaction.deferUpdate();
 
         // Update database
-        const statKey = FakemonStatManagerService.getStatKey(statToEdit);
-        await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
-            baseStats: {
-                ...fakemon.baseStats,
-                [statKey]: stat,
-            },
-        });
+        try
+        {
+            await FakemonStatManagerService.setStat({
+                messageId,
+                fakemon,
+                stat,
+                statToEdit,
+            });
+        }
+        catch (error)
+        {
+            const errorMessage = (error as Error)?.message;
+            await interaction.followUp({
+                content: [
+                    `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                    ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                ].join('\n'),
+                ephemeral: true,
+            });
+            return;
+        }
 
         // Update message
         await FakemonInteractionManagerService.navigateTo({

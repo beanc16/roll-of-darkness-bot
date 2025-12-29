@@ -5,6 +5,7 @@ import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
 import { FakemonBasicInformationManagerService } from '../../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
 import { FakemonInteractionManagerService } from '../../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
+import { Text } from '@beanc16/discordjs-helpers';
 
 export enum FakemonAbilityEditingCustomId
 {
@@ -65,15 +66,31 @@ export abstract class FakemonAbilityEditingModalBase extends BaseCustomModal
         // Update database
         const basicAbilities = [basicAbility1, basicAbility2].filter(element => !!element) as string[];
         const advancedAbilities = [advancedAbility1, advancedAbility2, advancedAbility3].filter(element => !!element) as string[];
-        await FakemonBasicInformationManagerService.setAbilities({
-            messageId,
-            fakemon,
-            abilities: {
-                ...(basicAbilities.length > 0 && { basicAbilities }),
-                ...(advancedAbilities.length > 0 && { advancedAbilities }),
-                ...(highAbility && { highAbility }),
-            },
-        });
+
+        try
+        {
+            await FakemonBasicInformationManagerService.setAbilities({
+                messageId,
+                fakemon,
+                abilities: {
+                    ...(basicAbilities.length > 0 && { basicAbilities }),
+                    ...(advancedAbilities.length > 0 && { advancedAbilities }),
+                    ...(highAbility && { highAbility }),
+                },
+            });
+        }
+        catch (error)
+        {
+            const errorMessage = (error as Error)?.message;
+            await interaction.followUp({
+                content: [
+                    `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                    ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                ].join('\n'),
+                ephemeral: true,
+            });
+            return;
+        }
 
         // Update message
         await FakemonInteractionManagerService.navigateTo({

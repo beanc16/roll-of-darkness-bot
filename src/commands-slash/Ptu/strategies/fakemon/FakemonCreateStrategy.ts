@@ -38,6 +38,7 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { Text } from '@beanc16/discordjs-helpers';
 
 interface FakemonCreateGetParameterResults
 {
@@ -313,11 +314,26 @@ export class FakemonCreateStrategy
                 }
 
                 // Swap stats & update message
-                await FakemonStatManagerService.swapStats({
-                    fakemon,
-                    messageId: interaction.message.id,
-                    statsToSwap,
-                });
+                try
+                {
+                    await FakemonStatManagerService.swapStats({
+                        fakemon,
+                        messageId: interaction.message.id,
+                        statsToSwap,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.Stats,
@@ -328,11 +344,26 @@ export class FakemonCreateStrategy
             // Types selector
             case FakemonBasicInformationStringSelectCustomIds.EditTypes:
                 await interaction.deferUpdate(); // Defer for database update
-                await FakemonBasicInformationManagerService.setTypes({
-                    messageId: interaction.message.id,
-                    fakemon,
-                    types: [value1, value2] as PokemonType[],
-                });
+                try
+                {
+                    await FakemonBasicInformationManagerService.setTypes({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        types: [value1, value2] as PokemonType[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
                 await FakemonInteractionManagerService.navigateTo({
                     interaction,
                     page: FakemonInteractionManagerPage.BasicInformation,
