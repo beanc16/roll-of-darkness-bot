@@ -38,6 +38,11 @@ export class FakemonStatManagerService
         stat: number;
     }): Promise<PtuFakemonCollection>
     {
+        if (stat < 0)
+        {
+            throw new Error('Stat cannot be negative');
+        }
+
         const statKey = FakemonStatManagerService.getStatKey(statToEdit);
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             baseStats: {

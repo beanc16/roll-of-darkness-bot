@@ -90,6 +90,25 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
             );
         });
 
+        it('should throw an error if stat is negative', async () =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update');
+
+            // Act & Assert
+            await expect(
+                FakemonStatManagerService.setStat({
+                    messageId,
+                    fakemon,
+                    statToEdit: FakemonStatsEditStringSelectElementOptions.HP,
+                    stat: -1,
+                }),
+            ).rejects.toThrow('Stat cannot be negative');
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
         it('should throw an error if statToEdit is not FakemonStatsEditStringSelectElementOptions', async () =>
         {
             // Arrange
