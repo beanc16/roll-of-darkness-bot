@@ -28,5 +28,6 @@ export function getFakemonBasicInformationComponents(
 {
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
+        new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }
