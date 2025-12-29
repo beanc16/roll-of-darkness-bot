@@ -10,6 +10,7 @@ import {
 import {
     getFakemonBasicInformationComponents,
     getFakemonOverviewComponents,
+    getFakemonEnvironmentComponents,
     getFakemonStatsComponents,
 } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
@@ -18,6 +19,7 @@ import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/Fakemo
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerPage } from './types.js';
+import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 
@@ -90,6 +92,14 @@ export class FakemonInteractionManagerService
                         new FakemonBasicInformationEmbedMessage(fakemon),
                     ],
                     components: getFakemonBasicInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Environment:
+                return {
+                    embeds: [
+                        new FakemonEnvironmentEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEnvironmentComponents(fakemon),
                 };
 
             default:

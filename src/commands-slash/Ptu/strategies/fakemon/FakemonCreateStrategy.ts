@@ -31,7 +31,7 @@ import { FakemonStatManagerService } from '../../services/FakemonDataManagers/Fa
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
-import { PokemonType } from '../../types/pokemon.js';
+import { PokemonDiet, PokemonHabitat, PokemonType } from '../../types/pokemon.js';
 import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
@@ -39,6 +39,8 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
+import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -230,7 +232,7 @@ export class FakemonCreateStrategy
         { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId, values: [value1, value2] = [] } = interaction as {
+        const { customId, values = [] } = interaction as {
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
@@ -245,7 +247,14 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
             values: FakemonBIEditAbilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonEnvironmentStringSelectCustomIds.EditDiets;
+            values: PokemonDiet[];
+        } | {
+            customId: FakemonEnvironmentStringSelectCustomIds.EditHabitats;
+            values: PokemonHabitat[];
         };
+        const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
         {
@@ -395,6 +404,66 @@ export class FakemonCreateStrategy
 
                 await modalToShow.showModal(interaction, {
                     messageId: message.id,
+                });
+                break;
+
+            // Diets selector
+            case FakemonEnvironmentStringSelectCustomIds.EditDiets:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonEnvironmentManagerService.setDiets({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        diets: values as PokemonDiet[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Environment,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Habitats selector
+            case FakemonEnvironmentStringSelectCustomIds.EditHabitats:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonEnvironmentManagerService.setHabitats({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        habitats: values as PokemonHabitat[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Environment,
+                    messageId: interaction.message.id,
                 });
                 break;
 

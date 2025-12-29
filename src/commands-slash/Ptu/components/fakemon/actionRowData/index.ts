@@ -6,6 +6,8 @@ import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilder
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonEnvironmentEditDietsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditDietsStringSelectActionRowBuilder.js';
+import { FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -30,6 +32,18 @@ export function getFakemonBasicInformationComponents(
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
         new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
+        new FakemonBackToOverviewButtonActionRowBuilder(),
+    ];
+}
+
+export function getFakemonEnvironmentComponents(
+    args: ConstructorParameters<typeof FakemonEnvironmentEditDietsStringSelectActionRowBuilder>[0]
+        & ConstructorParameters<typeof FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder>[0],
+): BaseMessageOptions['components']
+{
+    return [
+        new FakemonEnvironmentEditDietsStringSelectActionRowBuilder(args),
+        new FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder(args),
         new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }
