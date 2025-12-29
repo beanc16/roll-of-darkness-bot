@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import {
     Attachment,
     ButtonInteraction,
@@ -38,7 +39,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 interface FakemonCreateGetParameterResults
 {

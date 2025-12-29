@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import {
     type ModalSubmitInteraction,
     TextInputBuilder,
@@ -10,7 +11,6 @@ import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 enum FakemonStatEditingCustomId
 {

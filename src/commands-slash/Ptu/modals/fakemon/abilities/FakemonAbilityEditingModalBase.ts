@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { type ModalSubmitInteraction } from 'discord.js';
 
 import { BaseCustomModal } from '../../../../../modals/BaseCustomModal.js';
@@ -5,7 +6,6 @@ import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
 import { FakemonBasicInformationManagerService } from '../../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
 import { FakemonInteractionManagerService } from '../../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
-import { Text } from '@beanc16/discordjs-helpers';
 
 export enum FakemonAbilityEditingCustomId
 {
