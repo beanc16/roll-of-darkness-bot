@@ -7,7 +7,9 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
 import { DiscordUserId } from '../../../../types/discord.js';
+import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
 import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
@@ -17,6 +19,8 @@ import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/acti
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
+import { FakemonAbilityEditingModal1 } from '../../modals/fakemon/abilities/FakemonAbilityEditingModal1.js';
+import { FakemonAbilityEditingModal2 } from '../../modals/fakemon/abilities/FakemonAbilityEditingModal2.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -237,6 +241,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonBasicInformationStringSelectCustomIds.EditTypes;
             values: PokemonType[];
+        } | {
+            customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
+            values: FakemonBIEditAbilitiesStringSelectElementOptions[];
         };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -330,6 +337,33 @@ export class FakemonCreateStrategy
                     interaction,
                     page: FakemonInteractionManagerPage.BasicInformation,
                     messageId: interaction.message.id,
+                });
+                break;
+
+            // Edit abilities model
+            case FakemonBasicInformationStringSelectCustomIds.EditAbilities:
+                // Don't defer before showing a modal, as that will throw an error
+                let modalToShow: typeof BaseCustomModal;
+
+                // Get which modal to show
+                const editAbilitiesValue = value1 as FakemonBIEditAbilitiesStringSelectElementOptions;
+                switch (editAbilitiesValue)
+                {
+                    case FakemonBIEditAbilitiesStringSelectElementOptions.TwoBasicTwoAdvancedOneHigh:
+                        modalToShow = FakemonAbilityEditingModal1;
+                        break;
+
+                    case FakemonBIEditAbilitiesStringSelectElementOptions.OneBasicThreeAdvancedOneHigh:
+                        modalToShow = FakemonAbilityEditingModal2;
+                        break;
+
+                    default:
+                        const typeCheck: never = editAbilitiesValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
                 });
                 break;
 

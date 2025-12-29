@@ -1,5 +1,6 @@
 import { BaseMessageOptions } from 'discord.js';
 
+import { FakemonBIEditAbilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBIEditTypesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditTypesStringSelectActionRowBuilder.js';
 import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
@@ -28,6 +29,7 @@ export function getFakemonBasicInformationComponents(
 {
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
+        new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
         new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }

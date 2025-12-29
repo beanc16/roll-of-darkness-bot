@@ -84,7 +84,8 @@ export class FakemonBasicInformationManagerService
         ) || (
             abilitiesToValidate.basicAbilities.length === 1
             && abilitiesToValidate.advancedAbilities.length === 3
-        ))) {
+        )))
+        {
             throw new Error('Fakemon must have 2 basic abilities and 2 advanced abilities OR 1 basic ability and 3 advanced abilities');
         }
 
