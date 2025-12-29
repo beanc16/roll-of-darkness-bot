@@ -83,6 +83,22 @@ export enum PokemonEggGroup
     Water3 = 'Water 3',
 }
 
+export enum PokemonDiet
+{
+    Candyvore = 'Candyvore',
+    Carnivore = 'Carnivore',
+    DietCanChangeWithForm = 'Diet can change with its form',
+    Ergovore = 'Ergovore',
+    FilterFeeder = 'Filter Feeder',
+    Herbivore = 'Herbivore',
+    Illumivore = 'Illumivore',
+    Insectivore = 'Insectivore',
+    Nullivore = 'Nullivore',
+    Omnivore = 'Omnivore',
+    Phototroph = 'Phototroph',
+    Terravore = 'Terravore',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
