@@ -126,6 +126,22 @@ export enum PokemonHabitat
     Unknown = '???',
 }
 
+export enum PtuNaturewalk
+{
+    Beach = PokemonHabitat.Beach,
+    Cave = PokemonHabitat.Cave,
+    Desert = PokemonHabitat.Desert,
+    Forest = PokemonHabitat.Forest,
+    Freshwater = PokemonHabitat.Freshwater,
+    Grasslands = PokemonHabitat.Grasslands,
+    Mountain = PokemonHabitat.Mountain,
+    Oceans = PokemonHabitat.Oceans,
+    Taiga = PokemonHabitat.Taiga,
+    Tundra = PokemonHabitat.Tundra,
+    Urban = PokemonHabitat.Urban,
+    Wetlands = PokemonHabitat.Wetlands,
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
