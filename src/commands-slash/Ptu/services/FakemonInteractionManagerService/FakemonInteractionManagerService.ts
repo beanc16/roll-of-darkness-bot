@@ -9,17 +9,17 @@ import {
 
 import {
     getFakemonBasicInformationComponents,
-    getFakemonOverviewComponents,
     getFakemonEnvironmentComponents,
+    getFakemonOverviewComponents,
     getFakemonStatsComponents,
 } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
+import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerPage } from './types.js';
-import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 

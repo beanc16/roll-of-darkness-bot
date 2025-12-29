@@ -12,6 +12,7 @@ import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
 import { DiscordUserId } from '../../../../types/discord.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
+import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
 import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
@@ -27,11 +28,16 @@ import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { FakemonBasicInformationManagerService } from '../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
+import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
-import { PokemonDiet, PokemonHabitat, PokemonType } from '../../types/pokemon.js';
+import {
+    PokemonDiet,
+    PokemonHabitat,
+    PokemonType,
+} from '../../types/pokemon.js';
 import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
@@ -39,8 +45,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
-import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 
 interface FakemonCreateGetParameterResults
 {
