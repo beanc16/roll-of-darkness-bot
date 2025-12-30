@@ -9,12 +9,14 @@ import {
 
 import {
     getFakemonBasicInformationComponents,
+    getFakemonBreedingInformationComponents,
     getFakemonCapabilitiesComponents,
     getFakemonEnvironmentComponents,
     getFakemonOverviewComponents,
     getFakemonStatsComponents,
 } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
+import { FakemonBreedingInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBreedingInformationEmbedMessage.js';
 import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
 import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
@@ -94,6 +96,14 @@ export class FakemonInteractionManagerService
                         new FakemonBasicInformationEmbedMessage(fakemon),
                     ],
                     components: getFakemonBasicInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.BreedingInformation:
+                return {
+                    embeds: [
+                        new FakemonBreedingInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonBreedingInformationComponents(fakemon),
                 };
 
             case FakemonInteractionManagerPage.Environment:

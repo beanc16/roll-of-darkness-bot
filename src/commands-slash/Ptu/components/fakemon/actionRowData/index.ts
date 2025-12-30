@@ -2,6 +2,8 @@ import { BaseMessageOptions } from 'discord.js';
 
 import { FakemonBIEditAbilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBIEditTypesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditTypesStringSelectActionRowBuilder.js';
+import { FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder.js';
+import { FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder.js';
@@ -35,6 +37,17 @@ export function getFakemonBasicInformationComponents(
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
         new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
+        new FakemonBackToOverviewButtonActionRowBuilder(),
+    ];
+}
+
+export function getFakemonBreedingInformationComponents(
+    args: ConstructorParameters<typeof FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder>[0],
+): BaseMessageOptions['components']
+{
+    return [
+        new FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder(),
+        new FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder(args),
         new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }

@@ -12,6 +12,7 @@ import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
 import { DiscordUserId } from '../../../../types/discord.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
+import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
 import { FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/capabilities/types.js';
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
@@ -33,6 +34,7 @@ import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { FakemonBasicInformationManagerService } from '../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
+import { FakemonBreedingInformationManagerService } from '../../services/FakemonDataManagers/FakemonBreedingInformationManagerService.js';
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
@@ -41,6 +43,8 @@ import { FakemonInteractionManagerPage } from '../../services/FakemonInteraction
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
     PokemonDiet,
+    PokemonEggGroup,
+    PokemonGenderRatio,
     PokemonHabitat,
     PokemonType,
     PtuNaturewalk,
@@ -132,7 +136,7 @@ export class FakemonCreateStrategy
         },
         breedingInformation: {
             genderRatio: { none: true },
-            eggGroups: [],
+            eggGroups: [PokemonEggGroup.None],
         },
         diets: ['PLACEHOLDER'],
         habitats: ['PLACEHOLDER'],
@@ -258,6 +262,12 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
             values: FakemonBIEditAbilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditGenderRatio;
+            values: PokemonGenderRatio[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditEggGroups;
+            values: PokemonEggGroup[];
         } | {
             customId: FakemonEnvironmentStringSelectCustomIds.EditDiets;
             values: PokemonDiet[];
@@ -426,6 +436,66 @@ export class FakemonCreateStrategy
 
                 await modalToShow.showModal(interaction, {
                     messageId: message.id,
+                });
+                break;
+
+            // Gender ratio selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditGenderRatio:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setGenderRatio({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        genderRatio: value1 as PokemonGenderRatio,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Egg groups selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditEggGroups:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setEggGroups({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        eggGroups: [value1, value2].filter(Boolean) as PokemonEggGroup[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
                 });
                 break;
 
