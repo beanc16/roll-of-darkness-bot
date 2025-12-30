@@ -90,11 +90,6 @@ export class FakemonCapabilityManagerService
         other: NonNullable<PtuFakemonCollection['capabilities']['other']>;
     }): Promise<PtuFakemonCollection>
     {
-        if (other.length === 0)
-        {
-            return fakemon;
-        }
-
         if (other.length > 9)
         {
             throw new Error('Cannot have more than 9 other capabilities');

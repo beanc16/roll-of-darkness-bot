@@ -314,7 +314,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 );
             });
 
-            it(`should exit early if zero other capabilities are provided`, async () =>
+            it(`should set other capablities to empty array if zero other capabilities are provided`, async () =>
             {
                 // Arrange
                 const messageId = 'messageId';
@@ -331,8 +331,17 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 });
 
                 // Assert
-                expect(result).toEqual(fakemon);
-                expect(updateSpy).not.toHaveBeenCalled();
+                expect(result).toEqual(expectedResult);
+                expect(updateSpy).toHaveBeenCalledWith(
+                    messageId,
+                    { id: fakemon.id },
+                    {
+                        capabilities: {
+                            ...fakemon.capabilities,
+                            other: [],
+                        },
+                    },
+                );
             });
 
             it.each([10, 11, 12])(`should throw an error if %s other capabilities are provided (AKA: greater than 9 total)`, async (numOfNewOtherCapabilities) =>
