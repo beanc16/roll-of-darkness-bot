@@ -551,8 +551,32 @@ export class FakemonCreateStrategy
 
             // Remove other capabilities selector
             case FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities:
-                // TODO
-                throw new Error('This is not implemented yet');
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonCapabilityManagerService.setOtherCapabilities({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        other: values,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Capabilities,
+                    messageId: interaction.message.id,
+                });
                 break;
 
             default:

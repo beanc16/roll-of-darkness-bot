@@ -10,6 +10,7 @@ import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilder
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -56,6 +57,7 @@ export function getFakemonCapabilitiesComponents(
 {
     return [
         new FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder(),
+        new FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder(args),
         new FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder(args),
         new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
