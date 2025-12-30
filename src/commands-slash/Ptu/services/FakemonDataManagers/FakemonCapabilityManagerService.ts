@@ -1,5 +1,6 @@
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuNaturewalk } from '../../types/pokemon.js';
 
 export class FakemonCapabilityManagerService
 {
@@ -105,5 +106,96 @@ export class FakemonCapabilityManagerService
                 other,
             },
         });
+    }
+
+    /**
+     * Sets the specified naturewalk values to the fakemon without
+     * overwriting the order of existing other capabilities.
+     */
+    public static async setNaturewalk({
+        messageId,
+        fakemon,
+        naturewalks,
+    }: {
+        messageId: string;
+        fakemon: PtuFakemonCollection;
+        naturewalks: PtuNaturewalk[];
+    }): Promise<PtuFakemonCollection>
+    {
+        if (naturewalks.length > 3)
+        {
+            throw new Error('Cannot have more than 3 naturewalk values');
+        }
+        else if (naturewalks.length !== new Set(naturewalks).size)
+        {
+            throw new Error('Cannot have duplicate naturewalk values');
+        }
+
+        const naturewalkCapility = this.formatNaturewalkValuesAsCapabilityName(naturewalks);
+        if (!naturewalkCapility)
+        {
+            return fakemon;
+        }
+
+        // Create a copy of the other capabilities so that splice
+        // doesn't mutate the original array
+        const other = [...(fakemon.capabilities?.other || [])];
+
+        // If the naturewalk capability already exists, replace it
+        // Otherwise, add it to the end of the list
+        const naturewalkIndex = other.findIndex(element => element.toLowerCase().includes('naturewalk'));
+        naturewalkIndex === -1
+            ? other.push(naturewalkCapility)
+            : other[naturewalkIndex] = naturewalkCapility;
+
+        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            capabilities: {
+                ...fakemon.capabilities,
+                other,
+            },
+        });
+    }
+
+    /**
+     * Finds the naturewalk values from the fakemon's capabilities
+     */
+    public static findNaturewalkValues({ capabilities }: Pick<PtuFakemonCollection, 'capabilities'>): PtuNaturewalk[]
+    {
+        const { other = [] } = capabilities;
+
+        const naturewalk = other.find(element => element.toLowerCase().includes('naturewalk'));
+
+        if (!naturewalk)
+        {
+            return [];
+        }
+
+        // Naturewalk capabilities are formatted as "Naturewalk (value1, value2, value3)"
+        // So, extract the values between the parenthesis
+        const [initialMatch = ''] = naturewalk.match(/\(([^)]*)\)/g) || [];
+
+        if (initialMatch.length === 0)
+        {
+            return [];
+        }
+
+        // Remove parenthesis and split the values by comma
+        const curNaturewalks = initialMatch.replaceAll(/[\(\)]/g, '')
+            .split(',')
+            .map(element => element.trim());
+        return curNaturewalks as PtuNaturewalk[];
+    }
+
+    /**
+     * Formats the naturewalk values into a human-readable string
+     */
+    public static formatNaturewalkValuesAsCapabilityName(naturewalks: PtuNaturewalk[]): string | undefined
+    {
+        if (naturewalks.length === 0)
+        {
+            return undefined;
+        }
+
+        return `Naturewalk (${naturewalks.join(', ')})`;
     }
 }
