@@ -145,6 +145,18 @@ export enum PtuNaturewalk
     Wetlands = PokemonHabitat.Wetlands,
 }
 
+export enum PokemonGenderRatio
+{
+    Male50Female50 = '50% M / 50% F',
+    NoGender = 'No Gender',
+    Male100Female0 = '100% M / 0% F',
+    Male0Female100 = '0% M / 100% F',
+    Male75Female25 = '75% M / 25% F',
+    Male25Female75 = '25% M / 75% F',
+    Male875Female125 = '87.5% M / 12.5% F',
+    Male125Female875 = '12.5% M / 87.5% F',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
