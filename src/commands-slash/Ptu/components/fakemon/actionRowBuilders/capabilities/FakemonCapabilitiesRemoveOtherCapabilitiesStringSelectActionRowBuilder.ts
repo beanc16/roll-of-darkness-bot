@@ -31,11 +31,11 @@ export class FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuil
                             // maxValues must be no more the array's length, and that should never exceed 9
                             maxValues: Math.min(other.length, 9),
                         }
-                    : {
+                        : {
                         // If there's nothing, then disable this with at least one value so Discord doesn't throw an error
-                        disabled: true,
-                        options: [{ label: 'No options available', value: 'None' }],
-                    }),
+                            disabled: true,
+                            options: [{ label: 'No options available', value: 'None' }],
+                        }),
 
                 }),
             ],
