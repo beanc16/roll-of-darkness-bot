@@ -160,7 +160,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const messageId = 'messageId';
                 const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
                 const expectedResult = createPtuFakemonCollectionData();
-                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const inputOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
                 const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                     .mockResolvedValue(expectedResult);
 
@@ -168,7 +168,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const result = await FakemonCapabilityManagerService.addOtherCapabilities({
                     messageId,
                     fakemon,
-                    other: expectedOtherCapabilities,
+                    other: inputOtherCapabilities,
                 });
 
                 // Assert
@@ -181,8 +181,8 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                             ...fakemon.capabilities,
                             other: [
                                 ...(fakemon.capabilities.other || []),
-                                ...expectedOtherCapabilities,
-                            ],
+                                ...inputOtherCapabilities,
+                            ].sort(),
                         },
                     },
                 );
@@ -244,7 +244,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const messageId = 'messageId';
                 const fakemon = createPtuFakemonCollectionData();
                 const expectedResult = createPtuFakemonCollectionData();
-                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const inputOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
                 const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                     .mockResolvedValue(expectedResult);
 
@@ -258,7 +258,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                             other: undefined,
                         },
                     } as typeof fakemon,
-                    other: expectedOtherCapabilities,
+                    other: inputOtherCapabilities,
                 });
 
                 // Assert
@@ -269,7 +269,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                     {
                         capabilities: {
                             ...fakemon.capabilities,
-                            other: expectedOtherCapabilities,
+                            other: inputOtherCapabilities.sort(),
                         },
                     },
                 );
@@ -289,7 +289,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const messageId = 'messageId';
                 const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
                 const expectedResult = createPtuFakemonCollectionData();
-                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const inputOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
                 const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                     .mockResolvedValue(expectedResult);
 
@@ -297,7 +297,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const result = await FakemonCapabilityManagerService.setOtherCapabilities({
                     messageId,
                     fakemon,
-                    other: expectedOtherCapabilities,
+                    other: inputOtherCapabilities,
                 });
 
                 // Assert
@@ -308,7 +308,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                     {
                         capabilities: {
                             ...fakemon.capabilities,
-                            other: expectedOtherCapabilities,
+                            other: inputOtherCapabilities.sort(),
                         },
                     },
                 );
@@ -365,7 +365,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 const messageId = 'messageId';
                 const fakemon = createPtuFakemonCollectionData();
                 const expectedResult = createPtuFakemonCollectionData();
-                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const inputOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
                 const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                     .mockResolvedValue(expectedResult);
 
@@ -379,7 +379,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                             other: undefined,
                         },
                     } as typeof fakemon,
-                    other: expectedOtherCapabilities,
+                    other: inputOtherCapabilities,
                 });
 
                 // Assert
@@ -390,7 +390,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                     {
                         capabilities: {
                             ...fakemon.capabilities,
-                            other: expectedOtherCapabilities,
+                            other: inputOtherCapabilities.sort(),
                         },
                     },
                 );
@@ -413,7 +413,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 {
                     describe(`${curNaturewalkChunk.join(', ')}`, () =>
                     {
-                        it(`should successfully add the naturewalk capability to the end of the other capabilities if it doesn't already have naturewalk`, async () =>
+                        it(`should successfully add the naturewalk capability if it doesn't already have naturewalk`, async () =>
                         {
                             // Arrange
                             const messageId = 'messageId';
@@ -444,7 +444,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                                         other: [
                                             ...fakemon.capabilities.other!,
                                             `Naturewalk (${curNaturewalkChunk.join(', ')})`,
-                                        ],
+                                        ].sort(),
                                     },
                                 },
                             );
@@ -502,6 +502,11 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                             const expectedResult = createPtuFakemonCollectionData();
                             const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                                 .mockResolvedValue(expectedResult);
+                            const inputOtherCapabilities = [
+                                fakemon.capabilities.other![0],
+                                `Naturewalk (${curNaturewalkChunk.join(', ')})`,
+                                ...fakemon.capabilities.other!.slice(1),
+                            ].sort();
 
                             // Act
                             const result = await FakemonCapabilityManagerService.setNaturewalk({
@@ -510,11 +515,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                                     ...fakemon,
                                     capabilities: {
                                         ...fakemon.capabilities,
-                                        other: [
-                                            fakemon.capabilities.other![0],
-                                            `Naturewalk (${curNaturewalkChunk.join(', ')})`,
-                                            ...fakemon.capabilities.other!.slice(1),
-                                        ],
+                                        other: inputOtherCapabilities,
                                     },
                                 } as typeof fakemon,
                                 naturewalks: curNaturewalkChunk,
@@ -528,11 +529,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                                 {
                                     capabilities: {
                                         ...fakemon.capabilities,
-                                        other: [
-                                            fakemon.capabilities.other![0],
-                                            `Naturewalk (${curNaturewalkChunk.join(', ')})`,
-                                            ...fakemon.capabilities.other!.slice(1),
-                                        ],
+                                        other: inputOtherCapabilities,
                                     },
                                 },
                             );

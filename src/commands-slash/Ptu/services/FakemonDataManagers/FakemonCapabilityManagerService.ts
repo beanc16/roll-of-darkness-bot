@@ -71,7 +71,7 @@ export class FakemonCapabilityManagerService
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             capabilities: {
                 ...fakemon.capabilities,
-                other: newOther,
+                other: newOther.sort(),
             },
         });
     }
@@ -103,7 +103,7 @@ export class FakemonCapabilityManagerService
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             capabilities: {
                 ...fakemon.capabilities,
-                other,
+                other: [...other].sort(),
             },
         });
     }
@@ -151,7 +151,7 @@ export class FakemonCapabilityManagerService
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             capabilities: {
                 ...fakemon.capabilities,
-                other,
+                other: other.sort(),
             },
         });
     }
