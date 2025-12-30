@@ -7,9 +7,9 @@ import {
 
 import { BaseCustomModal, type InputValuesMap } from '../../../../../modals/BaseCustomModal.js';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
+import { FakemonCapabilityManagerService } from '../../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonInteractionManagerService } from '../../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
-import { FakemonCapabilityManagerService } from '../../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 
 enum FakemonOtherCapabilityAddingCustomId
 {
@@ -142,11 +142,11 @@ export class FakemonOtherCapabilityAddingModal extends BaseCustomModal
             messageId: string;
         };
         const {
-        [FakemonOtherCapabilityAddingCustomId.Capability1]: capability1,
-        [FakemonOtherCapabilityAddingCustomId.Capability2]: capability2,
-        [FakemonOtherCapabilityAddingCustomId.Capability3]: capability3,
-        [FakemonOtherCapabilityAddingCustomId.Capability4]: capability4,
-        [FakemonOtherCapabilityAddingCustomId.Capability5]: capability5,
+            [FakemonOtherCapabilityAddingCustomId.Capability1]: capability1,
+            [FakemonOtherCapabilityAddingCustomId.Capability2]: capability2,
+            [FakemonOtherCapabilityAddingCustomId.Capability3]: capability3,
+            [FakemonOtherCapabilityAddingCustomId.Capability4]: capability4,
+            [FakemonOtherCapabilityAddingCustomId.Capability5]: capability5,
         } = this.parseInput<FakemonOtherCapabilityAddingCustomId>(interaction) as {
             [FakemonOtherCapabilityAddingCustomId.Capability1]: string;
             [FakemonOtherCapabilityAddingCustomId.Capability2]: string;

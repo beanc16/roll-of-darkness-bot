@@ -3,11 +3,11 @@
 
 import { faker } from '@faker-js/faker';
 
+import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 import { PtuNaturewalk } from '../../../types/pokemon';
-import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
+import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 
 jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
@@ -908,7 +908,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 {
                     describe(`${curNaturewalkChunk.join(', ')}`, () =>
                     {
-                        it('should return the formatted naturewalk capability', async () =>
+                        it('should return the formatted naturewalk capability', () =>
                         {
                             // Act
                             const result = FakemonCapabilityManagerService.formatNaturewalkValuesAsCapabilityName(curNaturewalkChunk);

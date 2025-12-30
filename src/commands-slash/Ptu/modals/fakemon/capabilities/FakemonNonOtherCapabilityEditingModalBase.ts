@@ -3,9 +3,9 @@ import { type ModalSubmitInteraction } from 'discord.js';
 
 import { BaseCustomModal } from '../../../../../modals/BaseCustomModal.js';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
+import { FakemonCapabilityManagerService } from '../../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonInteractionManagerService } from '../../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
-import { FakemonCapabilityManagerService } from '../../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 
 export enum FakemonNonOtherCapabilityEditingCustomId
 {

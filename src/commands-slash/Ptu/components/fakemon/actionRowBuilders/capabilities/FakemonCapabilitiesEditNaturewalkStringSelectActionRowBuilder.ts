@@ -5,8 +5,8 @@ import {
 } from 'discord.js';
 
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
-import { PtuNaturewalk } from '../../../../types/pokemon.js';
 import { FakemonCapabilityManagerService } from '../../../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
+import { PtuNaturewalk } from '../../../../types/pokemon.js';
 import { FakemonCapabilitiesStringSelectCustomIds } from './types.js';
 
 export class FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder extends ActionRowBuilder<ButtonBuilder>

@@ -126,7 +126,7 @@ export class FakemonCapabilityManagerService
             throw new Error('Cannot have duplicate naturewalk values');
         }
 
-        const naturewalkCapility = this.formatNaturewalkValuesAsCapabilityName(naturewalks);
+        const naturewalkCapability = this.formatNaturewalkValuesAsCapabilityName(naturewalks);
 
         // Create a copy of the other capabilities so that splice
         // doesn't mutate the original array
@@ -137,19 +137,24 @@ export class FakemonCapabilityManagerService
         const naturewalkIndex = other.findIndex(element => element.toLowerCase().includes('naturewalk'));
 
         // Add the naturewalk capability
-        if (naturewalkCapility)
+        if (naturewalkCapability)
         {
-            naturewalkIndex === -1
-                ? other.push(naturewalkCapility)
-                : other[naturewalkIndex] = naturewalkCapility;
+            if (naturewalkIndex === -1)
+            {
+                other.push(naturewalkCapability);
+            }
+            else
+            {
+                other[naturewalkIndex] = naturewalkCapability;
+            }
         }
         // Remove the naturewalk capability if it exists and there's not a new one to add/update
-        else if (!naturewalkCapility && naturewalkIndex !== -1)
+        else if (!naturewalkCapability && naturewalkIndex !== -1)
         {
             other.splice(naturewalkIndex, 1);
         }
         // Naturewalk didn't exist before and doesn't exist now, so do nothing
-        else if (!naturewalkCapility && naturewalkIndex === -1)
+        else if (!naturewalkCapability && naturewalkIndex === -1)
         {
             return fakemon;
         }
@@ -183,6 +188,7 @@ export class FakemonCapabilityManagerService
 
         // Naturewalk capabilities are formatted as "Naturewalk (value1, value2, value3)"
         // So, extract the values between the parenthesis
+        // eslint-disable-next-line no-useless-escape -- The escapes are necessary
         const [initialMatch = ''] = naturewalk.match(/\(([^)]*)\)/g) || [];
 
         if (initialMatch.length === 0)
