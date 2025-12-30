@@ -111,6 +111,22 @@ describe(`class: ${FakemonInteractionManagerService.name}`, () =>
                 expect(editReplySpy).toHaveBeenCalledWith(getInteractionOptionsResponse);
             });
 
+            it('should throw error if fakemon is not found', async () =>
+            {
+                // Arrange
+                jest.spyOn(PtuFakemonPseudoCache, 'getByMessageId').mockReturnValue(undefined);
+
+                // Act & Assert
+                await expect(
+                    FakemonInteractionManagerService.navigateTo({
+                        interaction,
+                        interactionType: 'editReply',
+                        messageId: 'messageId',
+                        page: FakemonInteractionManagerPage.Overview,
+                    }),
+                ).rejects.toThrow('Fakemon not found');
+            });
+
             it('should throw error for invalid interactionType', async () =>
             {
                 // Act & Assert
