@@ -154,6 +154,11 @@ export class FakemonCapabilityManagerService
             return fakemon;
         }
 
+        if (other.length > 9)
+        {
+            throw new Error('Cannot have more than 9 other capabilities');
+        }
+
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             capabilities: {
                 ...fakemon.capabilities,

@@ -672,6 +672,30 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
+        it('should throw an error if more than 9 other capabilities will exist when adding naturewalk', async () =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 9,
+                },
+            });
+            const expectedResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            // Act & Assert
+            await expect(
+                FakemonCapabilityManagerService.setNaturewalk({
+                    messageId,
+                    fakemon,
+                    naturewalks: [PtuNaturewalk.Beach],
+                }),
+            ).rejects.toThrow(`Cannot have more than 9 other capabilities`);
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
         it('should throw an error if duplicate naturewalk values are provided', async () =>
         {
             // Arrange
