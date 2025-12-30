@@ -33,7 +33,7 @@ export class FakemonCapabilitiesEmbedMessage extends FakemonEmbedMessage
             ...(burrow !== undefined ? [`Burrow: ${burrow}`] : []),
             `Jump: ${highJump}/${lowJump}`,
             `Power: ${power}`,
-            ...(other ?? []),
+            (other ?? []).join(', '),
         ];
     }
 }
