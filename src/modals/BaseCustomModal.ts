@@ -50,7 +50,9 @@ export abstract class BaseCustomModal
     {
         if (defaultInputValue.typeOfValue === 'integer')
         {
-            return parseInt(value, 10);
+            return value.trim() === ''
+                ? 0
+                : parseInt(value, 10);
         }
 
         if (defaultInputValue.typeOfValue === 'boolean')
