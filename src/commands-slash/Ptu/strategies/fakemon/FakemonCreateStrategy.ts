@@ -37,6 +37,7 @@ import {
     PokemonDiet,
     PokemonHabitat,
     PokemonType,
+    PtuNaturewalk,
 } from '../../types/pokemon.js';
 import type {
     PtuButtonIteractionStrategy,
@@ -45,6 +46,12 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/capabilities/types.js';
+import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
+import { FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
+import { FakemonNonOtherCapabilityEditingModal1 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
+import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
+import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -257,6 +264,15 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonEnvironmentStringSelectCustomIds.EditHabitats;
             values: PokemonHabitat[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.EditCapabilities;
+            values: FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.EditNaturewalk;
+            values: PtuNaturewalk[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities;
+            values: string[]; // TODO: Type this once this is implemented
         };
         const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
@@ -264,6 +280,9 @@ export class FakemonCreateStrategy
         {
             throw new Error('Fakemon not found');
         }
+
+        // Used by some cases to determine which modal to show
+        let modalToShow: typeof BaseCustomModal;
 
         switch (customId)
         {
@@ -387,7 +406,6 @@ export class FakemonCreateStrategy
             // Edit abilities model
             case FakemonBasicInformationStringSelectCustomIds.EditAbilities:
                 // Don't defer before showing a modal, as that will throw an error
-                let modalToShow: typeof BaseCustomModal;
 
                 // Get which modal to show
                 const editAbilitiesValue = value1 as FakemonBIEditAbilitiesStringSelectElementOptions;
@@ -469,6 +487,72 @@ export class FakemonCreateStrategy
                     page: FakemonInteractionManagerPage.Environment,
                     messageId: interaction.message.id,
                 });
+                break;
+
+            // Capability-editing modals
+            case FakemonCapabilitiesStringSelectCustomIds.EditCapabilities:
+                // Don't defer before showing a modal, as that will throw an error
+
+                // // Get which modal to show
+                const editCapabilitiesValue = value1 as FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions;
+                switch (editCapabilitiesValue)
+                {
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.MovementCapabilities:
+                        modalToShow = FakemonNonOtherCapabilityEditingModal1;
+                        break;
+
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.NonMovementCapabilities:
+                        modalToShow = FakemonNonOtherCapabilityEditingModal2;
+                        break;
+
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.AddOtherCapabilities:
+                        modalToShow = FakemonOtherCapabilityAddingModal;
+                        break;
+
+                    default:
+                        const typeCheck: never = editCapabilitiesValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                });
+                break;
+
+            // Naturewalk selector
+            case FakemonCapabilitiesStringSelectCustomIds.EditNaturewalk:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonCapabilityManagerService.setNaturewalk({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        naturewalks: values as PtuNaturewalk[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Capabilities,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove other capabilities selector
+            case FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities:
+                // TODO
+                throw new Error('This is not implemented yet');
                 break;
 
             default:

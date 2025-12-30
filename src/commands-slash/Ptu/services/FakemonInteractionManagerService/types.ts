@@ -4,4 +4,5 @@ export enum FakemonInteractionManagerPage
     Stats = 'Stats',
     BasicInformation = 'Basic Information',
     Environment = 'Environment',
+    Capabilities = 'Capabilities',
 }
