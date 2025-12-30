@@ -188,7 +188,6 @@ export class FakemonCapabilityManagerService
 
         // Naturewalk capabilities are formatted as "Naturewalk (value1, value2, value3)"
         // So, extract the values between the parenthesis
-        // eslint-disable-next-line no-useless-escape -- The escapes are necessary
         const [initialMatch = ''] = naturewalk.match(/\(([^)]*)\)/g) || [];
 
         if (initialMatch.length === 0)
@@ -197,7 +196,7 @@ export class FakemonCapabilityManagerService
         }
 
         // Remove parenthesis and split the values by comma
-        const curNaturewalks = initialMatch.replaceAll(/[\(\)]/g, '')
+        const curNaturewalks = initialMatch.replaceAll(/[()]/g, '')
             .split(',')
             .map(element => element.trim());
         return curNaturewalks as PtuNaturewalk[];
