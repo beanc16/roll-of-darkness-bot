@@ -214,7 +214,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 oneTooManyOtherCapabilities,
                 oneTooManyOtherCapabilities + 1,
                 oneTooManyOtherCapabilities + 2,
-            ])(`should throw an error if %s other capabilities are provided (AKA: greater than 9 total)`, async (numOfNewOtherCapabilities) =>
+            ])(`should throw an error if %s other capabilities are provided when naturewalk does not exist (AKA: greater than 9 total)`, async (numOfNewOtherCapabilities) =>
             {
                 // Arrange
                 const messageId = 'messageId';
@@ -231,7 +231,38 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                         fakemon,
                         other: expectedOtherCapabilities,
                     }),
-                ).rejects.toThrow('Cannot have more than 9 other capabilities');
+                ).rejects.toThrow('Cannot have more than 9 other capabilities + naturewalk');
+                expect(updateSpy).not.toHaveBeenCalled();
+            });
+
+            it.each([
+                oneTooManyOtherCapabilities,
+                oneTooManyOtherCapabilities + 1,
+                oneTooManyOtherCapabilities + 2,
+            ])(`should throw an error if %s other capabilities are provided when naturewalk exists (AKA: greater than 10 total)`, async (numOfNewOtherCapabilities) =>
+            {
+                // Arrange
+                const messageId = 'messageId';
+                const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
+                const expectedResult = createPtuFakemonCollectionData();
+                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                    .mockResolvedValue(expectedResult);
+
+                // Act & Assert
+                await expect(
+                    FakemonCapabilityManagerService.addOtherCapabilities({
+                        messageId,
+                        fakemon: {
+                            ...fakemon,
+                            capabilities: {
+                                ...fakemon.capabilities,
+                                other: [...fakemon.capabilities.other!, `Naturewalk (${PtuNaturewalk.Beach})`],
+                            },
+                        } as typeof fakemon,
+                        other: expectedOtherCapabilities,
+                    }),
+                ).rejects.toThrow('Cannot have more than 9 other capabilities + naturewalk');
                 expect(updateSpy).not.toHaveBeenCalled();
             });
         });
@@ -344,7 +375,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                 );
             });
 
-            it.each([10, 11, 12])(`should throw an error if %s other capabilities are provided (AKA: greater than 9 total)`, async (numOfNewOtherCapabilities) =>
+            it.each([10, 11, 12])(`should throw an error if %s other capabilities are provided when naturewalk doesn't exist (AKA: greater than 9 total)`, async (numOfNewOtherCapabilities) =>
             {
                 // Arrange
                 const messageId = 'messageId';
@@ -360,6 +391,27 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                         messageId,
                         fakemon,
                         other: expectedOtherCapabilities,
+                    }),
+                ).rejects.toThrow('Cannot have more than 9 other capabilities');
+                expect(updateSpy).not.toHaveBeenCalled();
+            });
+
+            it.each([10, 11, 12])(`should throw an error if %s other capabilities are provided when naturewalk does exist (AKA: greater than 10 total)`, async (numOfNewOtherCapabilities) =>
+            {
+                // Arrange
+                const messageId = 'messageId';
+                const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
+                const expectedResult = createPtuFakemonCollectionData();
+                const expectedOtherCapabilities = createOtherCapabilities(numOfNewOtherCapabilities);
+                const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                    .mockResolvedValue(expectedResult);
+
+                // Act & Assert
+                await expect(
+                    FakemonCapabilityManagerService.setOtherCapabilities({
+                        messageId,
+                        fakemon,
+                        other: [...expectedOtherCapabilities, `Naturewalk (${PtuNaturewalk.Beach})`],
                     }),
                 ).rejects.toThrow('Cannot have more than 9 other capabilities');
                 expect(updateSpy).not.toHaveBeenCalled();
@@ -580,6 +632,43 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             });
         });
 
+        it.each(Array.from({ length: 9 }, (_, i) => (i + 1)))(`should successfully add the naturewalk capability if the fakemon already has %s other capabilities`, async (numOfOtherCapabilities) =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities,
+                },
+            });
+            const expectedResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonCapabilityManagerService.setNaturewalk({
+                messageId,
+                fakemon,
+                naturewalks: [PtuNaturewalk.Beach],
+            });
+
+            // Act & Assert
+            expect(result).toEqual(expectedResult);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                {
+                    capabilities: {
+                        ...fakemon.capabilities,
+                        other: [
+                            ...fakemon.capabilities.other!,
+                            `Naturewalk (${PtuNaturewalk.Beach})`,
+                        ].sort(),
+                    },
+                },
+            );
+        });
+
         it('should exit early if no naturewalk values are provided and none existed previously', async () =>
         {
             // Arrange
@@ -672,13 +761,13 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
-        it('should throw an error if more than 9 other capabilities will exist when adding naturewalk', async () =>
+        it('should throw an error if more than 10 other capabilities will exist when adding naturewalk', async () =>
         {
             // Arrange
             const messageId = 'messageId';
             const fakemon = createPtuFakemonCollectionData({
                 capabilities: {
-                    numOfOtherCapabilities: 9,
+                    numOfOtherCapabilities: 10,
                 },
             });
             const expectedResult = createPtuFakemonCollectionData();
@@ -692,7 +781,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                     fakemon,
                     naturewalks: [PtuNaturewalk.Beach],
                 }),
-            ).rejects.toThrow(`Cannot have more than 9 other capabilities`);
+            ).rejects.toThrow(`Cannot have more than 9 other capabilities in addition to naturewalk`);
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
@@ -919,6 +1008,86 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
                     });
                 });
             });
+        });
+    });
+
+    describe(`method: ${FakemonCapabilityManagerService['hasTooManyOtherCapabilities'].name}`, () =>
+    {
+        describe.each([
+            ['is', (numOfOtherCapabilities: number) => [...createOtherCapabilities(numOfOtherCapabilities), `Naturewalk (${PtuNaturewalk.Beach})`]],
+            [`isn't`, (numOfOtherCapabilities: number) => createOtherCapabilities(numOfOtherCapabilities)],
+        ])('when naturewalk %s present', (_, createOtherCapabilities) =>
+        {
+            it.each(
+                Array.from({ length: 9 }, (_, index) => index + 1),
+            )(`should return false if other has %s other capabilities (AKA: less than or equal to 9)`, (numOfOtherCapabilities) =>
+            {
+                // Arrange
+                const other = createOtherCapabilities(numOfOtherCapabilities);
+
+                // Act
+                const result = FakemonCapabilityManagerService['hasTooManyOtherCapabilities'](other);
+
+                // Assert
+                expect(result).toBe(false);
+            });
+
+            it.each([10, 11, 12])(`should return true if other has %s other capabilities (AKA: greater than 9)`, (numOfOtherCapabilities) =>
+            {
+                // Arrange
+                const other = createOtherCapabilities(numOfOtherCapabilities);
+
+                // Act
+                const result = FakemonCapabilityManagerService['hasTooManyOtherCapabilities'](other);
+
+                // Assert
+                expect(result).toBe(true);
+            });
+        });
+
+        it('should return false if other is undefined', () =>
+        {
+            // Act
+            const result = FakemonCapabilityManagerService['hasTooManyOtherCapabilities'](undefined);
+
+            // Assert
+            expect(result).toBe(false);
+        });
+    });
+
+    describe(`method: ${FakemonCapabilityManagerService['hasNaturewalk'].name}`, () =>
+    {
+        it('should return true if other does have naturewalk', () =>
+        {
+            // Arrange
+            const other = [...createOtherCapabilities(3), `Naturewalk (${PtuNaturewalk.Beach})`];
+
+            // Act
+            const result = FakemonCapabilityManagerService['hasNaturewalk'](other);
+
+            // Assert
+            expect(result).toBe(true);
+        });
+
+        it('should return false if other does not have naturewalk', () =>
+        {
+            // Arrange
+            const other = createOtherCapabilities(3);
+
+            // Act
+            const result = FakemonCapabilityManagerService['hasNaturewalk'](other);
+
+            // Assert
+            expect(result).toBe(false);
+        });
+
+        it('should return false if other is undefined', () =>
+        {
+            // Act
+            const result = FakemonCapabilityManagerService['hasNaturewalk'](undefined);
+
+            // Assert
+            expect(result).toBe(false);
         });
     });
 });

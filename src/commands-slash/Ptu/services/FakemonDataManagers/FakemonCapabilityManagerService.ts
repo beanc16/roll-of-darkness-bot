@@ -63,9 +63,9 @@ export class FakemonCapabilityManagerService
             ...other,
         ];
 
-        if (newOther.length > 9)
+        if (this.hasTooManyOtherCapabilities(newOther))
         {
-            throw new Error('Cannot have more than 9 other capabilities');
+            throw new Error('Cannot have more than 9 other capabilities + naturewalk');
         }
 
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
@@ -90,7 +90,7 @@ export class FakemonCapabilityManagerService
         other: NonNullable<PtuFakemonCollection['capabilities']['other']>;
     }): Promise<PtuFakemonCollection>
     {
-        if (other.length > 9)
+        if (this.hasTooManyOtherCapabilities(other))
         {
             throw new Error('Cannot have more than 9 other capabilities');
         }
@@ -159,9 +159,9 @@ export class FakemonCapabilityManagerService
             return fakemon;
         }
 
-        if (other.length > 9)
+        if (this.hasTooManyOtherCapabilities(other))
         {
-            throw new Error('Cannot have more than 9 other capabilities');
+            throw new Error('Cannot have more than 9 other capabilities in addition to naturewalk');
         }
 
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
@@ -213,5 +213,29 @@ export class FakemonCapabilityManagerService
         }
 
         return `Naturewalk (${naturewalks.join(', ')})`;
+    }
+
+    private static hasTooManyOtherCapabilities(other: PtuFakemonCollection['capabilities']['other']): boolean
+    {
+        if (!other)
+        {
+            return false;
+        }
+
+        const maxNumOfCapabilities = this.hasNaturewalk(other)
+            ? 10
+            : 9;
+
+        return other.length > maxNumOfCapabilities;
+    }
+
+    private static hasNaturewalk(other: PtuFakemonCollection['capabilities']['other']): boolean
+    {
+        if (!other)
+        {
+            return false;
+        }
+
+        return other.some(element => element.toLowerCase().includes('naturewalk'));
     }
 }
