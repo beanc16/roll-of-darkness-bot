@@ -9,7 +9,8 @@ import type { PtuChatIteractionStrategy } from '../../types/strategies.js';
 interface EggGroupDetail
 {
     name: PokemonEggGroup;
-    description: string;
+    shortDescription: string;
+    longDescription: string;
 }
 
 @staticImplements<PtuChatIteractionStrategy>()
@@ -17,70 +18,81 @@ export class QrEggGroupsStrategy
 {
     public static key: PtuQuickReferenceInfo.EggGroups = PtuQuickReferenceInfo.EggGroups;
 
-    private static eggGroupDetails: EggGroupDetail[] = [
+    public static eggGroupDetails: EggGroupDetail[] = [
         {
             name: PokemonEggGroup.Amorphous,
-            description: 'Pokémon in this group are amorphous, having no definite form.',
+            shortDescription: 'No definite form',
+            longDescription: 'Pokémon in this group are amorphous, having no definite form (this was once known as the Indeterminate group).',
         },
         {
             name: PokemonEggGroup.Bug,
-            description: 'Pokémon in this group are insectoid (bug-like) in appearance.',
+            shortDescription: 'Insectoid (bug-like) in appearance',
+            longDescription: 'Pokémon in this group are insectoid (bug-like) in appearance.',
         },
         {
             name: PokemonEggGroup.Ditto,
-            description: 'Ditto is the only Pokémon in this group, and is capable of breeding with all other Pokémon (regardless of gender) aside from those in the None, Indeterminate, and Ditto groups.',
+            shortDescription: 'The Ditto species',
+            longDescription: 'Ditto is the only Pokémon in this group, and is capable of breeding with all other Pokémon (regardless of gender) aside from those in the None, Indeterminate, and Ditto groups.',
         },
         {
             name: PokemonEggGroup.Dragon,
-            description: 'Pokémon in this group are reptilian or draconic in appearance.',
+            shortDescription: 'Reptilian or draconic in appearance',
+            longDescription: 'Pokémon in this group are reptilian or draconic in appearance.',
         },
         {
             name: PokemonEggGroup.Fairy,
-            description: 'Pokémon in this group are petite and considered very cute.',
+            shortDescription: 'Petite and considered very cute',
+            longDescription: 'Pokémon in this group are petite and considered very cute.',
         },
         {
-            name: PokemonEggGroup.FieldOrGround,
-            description: 'The largest group, Pokémon here are terrestrial in nature.',
+            name: PokemonEggGroup.Field,
+            shortDescription: 'Terrestrial in nature',
+            longDescription: 'The largest group, Pokémon here are terrestrial in nature (this was once known as the Ground group).',
         },
         {
             name: PokemonEggGroup.Flying,
-            description: 'Pokémon in this group are avian (birdlike) in appearance.',
+            shortDescription: 'Avian (birdlike) in appearance',
+            longDescription: 'Pokémon in this group are avian (birdlike) in appearance.',
         },
         {
-            name: PokemonEggGroup.GrassOrPlant,
-            description: 'Pokémon in this group are plantlike in appearance.',
+            name: PokemonEggGroup.Grass,
+            shortDescription: 'Plantlike in appearance',
+            longDescription: 'Pokémon in this group are plantlike in appearance (this was once known as the Plant group).',
         },
         {
             name: PokemonEggGroup.Humanshape,
-            description: 'Pokémon in this group are fully bipedal humanoids.',
-        },
-        {
-            name: PokemonEggGroup.Indeterminate,
-            description: 'Pokémon in this group are unable to breed.',
+            shortDescription: 'Fully bipedal humanoid',
+            longDescription: 'Pokémon in this group are fully bipedal humanoids (this is also known as the Human-Like group).',
         },
         {
             name: PokemonEggGroup.Mineral,
-            description: 'Pokémon in this group are inorganic in nature.',
+            shortDescription: 'Inorganic in nature',
+            longDescription: 'Pokémon in this group are inorganic in nature.',
         },
         {
             name: PokemonEggGroup.Monster,
-            description: 'Pokémon in this group are saurian/kaiju-like in appearance and nature.',
+            shortDescription: 'Saurian/kaiju-like in appearance and nature',
+            longDescription: 'Pokémon in this group are saurian/kaiju-like in appearance and nature.',
         },
         {
             name: PokemonEggGroup.None,
-            description: 'Pokémon in this group are unable to breed.',
+            shortDescription: 'Unable to breed',
+            longDescription: 'Pokémon in this group are unable to breed.',
         },
         {
             name: PokemonEggGroup.Water1,
-            description: 'Pokémon in this group are amphibious in nature.',
+            shortDescription: 'Amphibious in nature',
+            longDescription: 'Pokémon in this group are amphibious in nature.',
         },
         {
             name: PokemonEggGroup.Water2,
-            description: 'Pokémon in this group are piscine (fishlike) in appearance.',
+            shortDescription: 'Piscine (fishlike) in appearance',
+            longDescription: 'Pokémon in this group are piscine (fishlike) in appearance.',
         },
         {
             name: PokemonEggGroup.Water3,
-            description: 'Pokémon in this group resemble aquatic invertebrates.',
+            shortDescription: 'Resembles an aquatic invertebrate',
+            longDescription: 'Pokémon in this group resemble aquatic invertebrates.',
         },
     ];
 
@@ -99,7 +111,7 @@ export class QrEggGroupsStrategy
     {
         const color = 0xCDCDCD;
 
-        const embedDescription = this.eggGroupDetails.reduce((acc, { name, description }) =>
+        const embedDescription = this.eggGroupDetails.reduce((acc, { name, longDescription: description }) =>
         {
             return acc + `${Text.bold(name)}: ${description}\n`;
         }, '');

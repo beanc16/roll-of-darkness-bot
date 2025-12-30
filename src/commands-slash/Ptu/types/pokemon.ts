@@ -65,16 +65,19 @@ export enum FullPokemonStat
 
 export enum PokemonEggGroup
 {
+    /** Once known as Indeterminate */
     Amorphous = 'Amorphous',
     Bug = 'Bug',
     Ditto = 'Ditto',
     Dragon = 'Dragon',
     Fairy = 'Fairy',
-    FieldOrGround = 'Field / Ground',
+    /** Once known as Ground */
+    Field = 'Field',
     Flying = 'Flying',
-    GrassOrPlant = 'Grass / Plant',
+    /** Once known as Plant */
+    Grass = 'Grass',
+    /** Also known as Human-Like */
     Humanshape = 'Humanshape',
-    Indeterminate = 'Indeterminate',
     Mineral = 'Mineral',
     Monster = 'Monster',
     None = 'None',
