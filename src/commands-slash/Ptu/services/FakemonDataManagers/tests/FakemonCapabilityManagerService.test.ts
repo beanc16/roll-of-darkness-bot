@@ -1016,14 +1016,14 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
         describe.each([
             ['is', (numOfOtherCapabilities: number) => [...createOtherCapabilities(numOfOtherCapabilities), `Naturewalk (${PtuNaturewalk.Beach})`]],
             [`isn't`, (numOfOtherCapabilities: number) => createOtherCapabilities(numOfOtherCapabilities)],
-        ])('when naturewalk %s present', (_, createOtherCapabilities) =>
+        ])('when naturewalk %s present', (_, createOtherCapabilitiesWithOrWithoutNaturewalk) =>
         {
             it.each(
-                Array.from({ length: 9 }, (_, index) => index + 1),
+                Array.from({ length: 9 }, (_2, index) => index + 1),
             )(`should return false if other has %s other capabilities (AKA: less than or equal to 9)`, (numOfOtherCapabilities) =>
             {
                 // Arrange
-                const other = createOtherCapabilities(numOfOtherCapabilities);
+                const other = createOtherCapabilitiesWithOrWithoutNaturewalk(numOfOtherCapabilities);
 
                 // Act
                 const result = FakemonCapabilityManagerService['hasTooManyOtherCapabilities'](other);
@@ -1035,7 +1035,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             it.each([10, 11, 12])(`should return true if other has %s other capabilities (AKA: greater than 9)`, (numOfOtherCapabilities) =>
             {
                 // Arrange
-                const other = createOtherCapabilities(numOfOtherCapabilities);
+                const other = createOtherCapabilitiesWithOrWithoutNaturewalk(numOfOtherCapabilities);
 
                 // Act
                 const result = FakemonCapabilityManagerService['hasTooManyOtherCapabilities'](other);
