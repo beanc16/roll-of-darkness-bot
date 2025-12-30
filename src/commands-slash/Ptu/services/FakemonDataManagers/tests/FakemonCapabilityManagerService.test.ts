@@ -580,7 +580,7 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             });
         });
 
-        it('should exit early if no naturewalk values are provided', async () =>
+        it('should exit early if no naturewalk values are provided and none existed previously', async () =>
         {
             // Arrange
             const messageId = 'messageId';
@@ -603,6 +603,49 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
             // Act & Assert
             expect(result).toEqual(fakemon);
             expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('should remove naturewalk if no naturewalk values are provided and one existed previously', async () =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 3,
+                },
+            });
+            const expectedResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonCapabilityManagerService.setNaturewalk({
+                messageId,
+                fakemon: {
+                    ...fakemon,
+                    capabilities: {
+                        ...fakemon.capabilities,
+                        other: [
+                            ...fakemon.capabilities.other!,
+                            `Naturewalk (${PtuNaturewalk.Beach})`,
+                        ],
+                    },
+                } as typeof fakemon,
+                naturewalks: [],
+            });
+
+            // Act & Assert
+            expect(result).toEqual(expectedResult);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                {
+                    capabilities: {
+                        ...fakemon.capabilities,
+                        other: fakemon.capabilities.other!.sort(), // No naturewalk, just the original other capabilities
+                    },
+                },
+            );
         });
 
         it('should throw an error if more than 3 naturewalk values are provided', async () =>

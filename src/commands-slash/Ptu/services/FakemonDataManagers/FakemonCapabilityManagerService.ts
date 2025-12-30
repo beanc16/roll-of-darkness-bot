@@ -127,10 +127,6 @@ export class FakemonCapabilityManagerService
         }
 
         const naturewalkCapility = this.formatNaturewalkValuesAsCapabilityName(naturewalks);
-        if (!naturewalkCapility)
-        {
-            return fakemon;
-        }
 
         // Create a copy of the other capabilities so that splice
         // doesn't mutate the original array
@@ -139,9 +135,24 @@ export class FakemonCapabilityManagerService
         // If the naturewalk capability already exists, replace it
         // Otherwise, add it to the end of the list
         const naturewalkIndex = other.findIndex(element => element.toLowerCase().includes('naturewalk'));
-        naturewalkIndex === -1
-            ? other.push(naturewalkCapility)
-            : other[naturewalkIndex] = naturewalkCapility;
+
+        // Add the naturewalk capability
+        if (naturewalkCapility)
+        {
+            naturewalkIndex === -1
+                ? other.push(naturewalkCapility)
+                : other[naturewalkIndex] = naturewalkCapility;
+        }
+        // Remove the naturewalk capability if it exists and there's not a new one to add/update
+        else if (!naturewalkCapility && naturewalkIndex !== -1)
+        {
+            other.splice(naturewalkIndex, 1);
+        }
+        // Naturewalk didn't exist before and doesn't exist now, so do nothing
+        else if (!naturewalkCapility && naturewalkIndex === -1)
+        {
+            return fakemon;
+        }
 
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             capabilities: {
