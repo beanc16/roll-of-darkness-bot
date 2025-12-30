@@ -14,7 +14,7 @@ import { FakemonInteractionManagerPage } from '../../services/FakemonInteraction
 
 enum FakemonStatEditingCustomId
 {
-    stat = 'fakemon-stat-editing-text-input',
+    Stat = 'fakemon-stat-editing-text-input',
 }
 
 enum FakemonStatEditingLabel
@@ -27,9 +27,9 @@ export class FakemonStatEditingModal extends BaseCustomModal
     public static id = 'fakemon-edit-stat-modal';
     public static title = 'Edit Stat';
     protected static inputValuesMap: InputValuesMap = {
-        [FakemonStatEditingCustomId.stat]: [
+        [FakemonStatEditingCustomId.Stat]: [
             {
-                key: FakemonStatEditingCustomId.stat,
+                key: FakemonStatEditingCustomId.Stat,
                 label: FakemonStatEditingLabel.Stat,
                 value: '',
                 typeOfValue: 'integer',
@@ -38,15 +38,15 @@ export class FakemonStatEditingModal extends BaseCustomModal
     };
 
     protected static styleMap = {
-        [FakemonStatEditingCustomId.stat]: TextInputStyle.Short,
+        [FakemonStatEditingCustomId.Stat]: TextInputStyle.Short,
     };
 
     public static getTextInputs(): TextInputBuilder[]
     {
         const promptInput = new TextInputBuilder()
-            .setCustomId(FakemonStatEditingCustomId.stat)
+            .setCustomId(FakemonStatEditingCustomId.Stat)
             .setLabel(FakemonStatEditingLabel.Stat)
-            .setStyle(this.styleMap[FakemonStatEditingCustomId.stat])
+            .setStyle(this.styleMap[FakemonStatEditingCustomId.Stat])
             .setMinLength(1)
             .setMaxLength(2)
             .setRequired(true);
@@ -68,9 +68,9 @@ export class FakemonStatEditingModal extends BaseCustomModal
             statToEdit: FakemonStatsEditStringSelectElementOptions;
         };
         const {
-            [FakemonStatEditingCustomId.stat]: stat,
+            [FakemonStatEditingCustomId.Stat]: stat,
         } = this.parseInput<FakemonStatEditingCustomId>(interaction) as {
-            [FakemonStatEditingCustomId.stat]: number;
+            [FakemonStatEditingCustomId.Stat]: number;
         };
 
         // Get fakemon
