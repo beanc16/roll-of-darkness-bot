@@ -1,13 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // ^ the above are giving a lot of false negatives for some reason, temporarily disabling
 
+import { logger } from '@beanc16/logger';
 import { faker } from '@faker-js/faker';
 
 import { FakemonStatsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { FakemonStatManagerService } from '../FakemonStatManagerService';
+import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 
+jest.mock('@beanc16/logger');
 jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
@@ -15,6 +18,15 @@ jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
     return {
         PtuFakemonPseudoCache: {
             update: jest.fn(),
+        },
+    };
+});
+jest.mock('../FakemonCapabilityManagerService', () =>
+{
+    return {
+        FakemonCapabilityManagerService: {
+            addOtherCapabilities: jest.fn(),
+            removeOtherCapabilities: jest.fn(),
         },
     };
 });
@@ -66,6 +78,10 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
             const expectedStat = faker.number.int({ min: 1, max: 15 });
             const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                 .mockResolvedValue(expectedResult);
+            jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
 
             // Act
             const result = await FakemonStatManagerService.setStat({
@@ -88,6 +104,339 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     },
                 },
             );
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`should update the '%s' stat and add the Underdog capability to fakemon <= 45 BST`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 45 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] - 1; // Always lower the stat to keep the bst below 45
+            const expectedUpdateResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+            const expectedResult = {
+                ...expectedUpdateResult,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: [
+                        ...(fakemon.capabilities.other || []),
+                        'Underdog',
+                    ].sort(),
+                },
+            } as typeof fakemon;
+
+            // Arrange - Mocks
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedUpdateResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonStatManagerService.setStat({
+                messageId,
+                fakemon,
+                statToEdit,
+                stat: expectedStat,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(addOtherCapabilitiesSpy).toHaveBeenCalledWith({
+                messageId,
+                fakemon: expectedUpdateResult,
+                other: ['Underdog'],
+            });
+            expect(removeOtherCapabilitiesSpy).not.toHaveBeenCalled();
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`should update the '%s' stat and should not add the Underdog capability to fakemon <= 45 BST if they already have Underdog`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const initialFakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 45 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const fakemon = {
+                ...initialFakemon,
+                capabilities: {
+                    ...initialFakemon.capabilities,
+                    other: ['Underdog'], // Include Underdog
+                },
+            } as typeof initialFakemon;
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] - 1; // Always lower the stat to keep the bst below 45
+            const expectedResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+
+            // Arrange - Mocks
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonStatManagerService.setStat({
+                messageId,
+                fakemon,
+                statToEdit,
+                stat: expectedStat,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(addOtherCapabilitiesSpy).not.toHaveBeenCalled();
+            expect(removeOtherCapabilitiesSpy).not.toHaveBeenCalled();
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`sshould log & rethrow error if updating the '%s' stat succeeds but adding the Underdog capability to fakemon <= 45 BST fails`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 45 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] - 1; // Always lower the stat to keep the bst below 45
+            const expectedUpdateResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+            const expectedResult = {
+                ...expectedUpdateResult,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: [
+                        ...(fakemon.capabilities.other || []),
+                        'Underdog',
+                    ].sort(),
+                },
+            } as typeof fakemon;
+            const errorMessage = 'Successfully updated stats, but failed to add underdog capability';
+
+            // Arrange - Mocks
+            const loggerWarnSpy = jest.spyOn(logger, 'warn');
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedUpdateResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockRejectedValue(new Error('Fake error'));
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+
+            // Act & Assert
+            await expect(
+                FakemonStatManagerService.setStat({
+                    messageId,
+                    fakemon,
+                    statToEdit,
+                    stat: expectedStat,
+                }),
+            ).rejects.toThrow(errorMessage);
+            expect(updateSpy).toHaveBeenCalled();
+            expect(updateSpy).not.toThrow();
+            expect(addOtherCapabilitiesSpy).toHaveBeenCalled();
+            await expect(addOtherCapabilitiesSpy).rejects.toThrow('Fake error');
+            expect(removeOtherCapabilitiesSpy).not.toHaveBeenCalled();
+            expect(removeOtherCapabilitiesSpy).not.toThrow();
+            expect(loggerWarnSpy).toHaveBeenCalledWith(errorMessage, new Error('Fake error'));
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`should update the '%s' stat and remove the Underdog capability from fakemon > 45 BST`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const initialFakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 46 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const fakemon = {
+                ...initialFakemon,
+                capabilities: {
+                    ...initialFakemon.capabilities,
+                    other: ['Underdog'], // Include Underdog
+                },
+            } as typeof initialFakemon;
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] + 1; // Always raise the stat to keep the bst above 45
+            const expectedUpdateResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+            const expectedResult = {
+                ...expectedUpdateResult,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: [
+                        ...(fakemon.capabilities.other || []),
+                        'Underdog',
+                    ].sort(),
+                },
+            } as typeof fakemon;
+
+            // Arrange - Mocks
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedUpdateResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonStatManagerService.setStat({
+                messageId,
+                fakemon,
+                statToEdit,
+                stat: expectedStat,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(addOtherCapabilitiesSpy).not.toHaveBeenCalled();
+            expect(removeOtherCapabilitiesSpy).toHaveBeenCalledWith({
+                messageId,
+                fakemon: expectedUpdateResult,
+                other: ['Underdog'],
+            });
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`should update the '%s' stat and should not remove the Underdog capability from fakemon > 45 BST if they do not have Underdog already`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 46 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] + 1; // Always raise the stat to keep the bst above 45
+            const expectedResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+
+            // Arrange - Mocks
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+
+            // Act
+            const result = await FakemonStatManagerService.setStat({
+                messageId,
+                fakemon,
+                statToEdit,
+                stat: expectedStat,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(addOtherCapabilitiesSpy).not.toHaveBeenCalled();
+            expect(removeOtherCapabilitiesSpy).not.toHaveBeenCalled();
+        });
+
+        it.each(
+            Object.values(FakemonStatsEditStringSelectElementOptions),
+        )(`should log & rethrow error if updating the '%s' stat succeeds but removing the Underdog capability from fakemon > 45 BST fails`, async (statToEdit) =>
+        {
+            // Arrange - Data
+            const messageId = 'messageId';
+            const initialFakemon = createPtuFakemonCollectionData({
+                baseStats: { bst: 46 },
+                capabilities: { numOfOtherCapabilities: 0 },
+            });
+            const fakemon = {
+                ...initialFakemon,
+                capabilities: {
+                    ...initialFakemon.capabilities,
+                    other: ['Underdog'], // Include Underdog
+                },
+            } as typeof initialFakemon;
+            const expectedStatKey = FakemonStatManagerService.getStatKey(statToEdit);
+            const expectedStat = fakemon.baseStats[expectedStatKey] + 1; // Always raise the stat to keep the bst above 45
+            const expectedUpdateResult = {
+                ...fakemon,
+                baseStats: {
+                    ...fakemon.baseStats,
+                    [expectedStatKey]: expectedStat,
+                },
+            } as typeof fakemon;
+            const expectedResult = {
+                ...expectedUpdateResult,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: [
+                        ...(fakemon.capabilities.other || []),
+                        'Underdog',
+                    ].sort(),
+                },
+            } as typeof fakemon;
+            const errorMessage = 'Successfully updated stats, but failed to remove Underdog capability';
+
+            // Arrange - Mocks
+            const loggerWarnSpy = jest.spyOn(logger, 'warn');
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedUpdateResult);
+            const addOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'addOtherCapabilities')
+                .mockResolvedValue(expectedResult);
+            const removeOtherCapabilitiesSpy = jest.spyOn(FakemonCapabilityManagerService, 'removeOtherCapabilities')
+                .mockRejectedValue(new Error('Fake error'));
+
+            // Act & Assert
+            await expect(
+                FakemonStatManagerService.setStat({
+                    messageId,
+                    fakemon,
+                    statToEdit,
+                    stat: expectedStat,
+                }),
+            ).rejects.toThrow(errorMessage);
+            expect(updateSpy).toHaveBeenCalled();
+            expect(updateSpy).not.toThrow();
+            expect(addOtherCapabilitiesSpy).not.toHaveBeenCalled();
+            expect(addOtherCapabilitiesSpy).not.toThrow();
+            expect(removeOtherCapabilitiesSpy).toHaveBeenCalled();
+            await expect(removeOtherCapabilitiesSpy).rejects.toThrow('Fake error');
+            expect(loggerWarnSpy).toHaveBeenCalledWith(errorMessage, new Error('Fake error'));
         });
 
         it('should throw an error if stat is negative', async () =>
@@ -211,6 +560,28 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                 }),
             ).rejects.toThrow('Unhandled statToEdit: INVALID');
             expect(updateSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe(`method: ${FakemonStatManagerService['getBst'].name}`, () =>
+    {
+        it('should calculate the base stat total of a fakemon', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData();
+
+            // Act
+            const result = FakemonStatManagerService['getBst'](fakemon);
+
+            // Arrange
+            expect(result).toEqual(
+                fakemon.baseStats.hp
+                + fakemon.baseStats.attack
+                + fakemon.baseStats.defense
+                + fakemon.baseStats.specialAttack
+                + fakemon.baseStats.specialDefense
+                + fakemon.baseStats.speed,
+            );
         });
     });
 });
