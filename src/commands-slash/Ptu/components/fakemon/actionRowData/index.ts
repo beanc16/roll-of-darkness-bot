@@ -1,5 +1,6 @@
 import { BaseMessageOptions } from 'discord.js';
 
+import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
 import { FakemonBIEditAbilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBIEditTypesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditTypesStringSelectActionRowBuilder.js';
 import { FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder.js';
@@ -9,7 +10,6 @@ import { FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder } from '.
 import { FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonEnvironmentEditDietsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditDietsStringSelectActionRowBuilder.js';
 import { FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder.js';
-import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
@@ -18,7 +18,7 @@ import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilde
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
     return [
-        new FakemonOverviewActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Overview),
     ];
 }
 
@@ -27,7 +27,7 @@ export function getFakemonStatsComponents(): BaseMessageOptions['components']
     return [
         new FakemonStatsEditStringSelectActionRowBuilder(),
         new FakemonStatsSwapStringSelectActionRowBuilder(),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Stats),
     ];
 }
 
@@ -38,7 +38,7 @@ export function getFakemonBasicInformationComponents(
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
         new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.BasicInformation),
     ];
 }
 
@@ -46,7 +46,7 @@ export function getFakemonSizeInformationComponents(): BaseMessageOptions['compo
 {
     return [
         new FakemonSIEditSizeStringSelectActionRowBuilder(),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.SizeInformation),
     ];
 }
 
@@ -57,7 +57,7 @@ export function getFakemonBreedingInformationComponents(
     return [
         new FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder(),
         new FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder(args),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.BreedingInformation),
     ];
 }
 
@@ -69,7 +69,7 @@ export function getFakemonEnvironmentComponents(
     return [
         new FakemonEnvironmentEditDietsStringSelectActionRowBuilder(args),
         new FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder(args),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Environment),
     ];
 }
 
@@ -81,6 +81,6 @@ export function getFakemonCapabilitiesComponents(
         new FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder(),
         new FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder(args),
         new FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder(args),
-        new FakemonBackToOverviewButtonActionRowBuilder(),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Capabilities),
     ];
 }

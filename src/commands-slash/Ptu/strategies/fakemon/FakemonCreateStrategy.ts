@@ -16,7 +16,6 @@ import { FakemonBreedingInformationStringSelectCustomIds } from '../../component
 import { FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/capabilities/types.js';
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
-import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
@@ -205,41 +204,29 @@ export class FakemonCreateStrategy
         return true;
     }
 
+    // TODO: Re-implement or remove once done if buttons are still needed or not
     public static async runButton(
         interaction: ButtonInteraction,
         _strategies: PtuStrategyMap,
-        {
-            message,
-        }: PtuStrategyMetadata,
+        _metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
         // Defer update
         await interaction.deferUpdate();
 
-        const { customId } = interaction as {
-            customId: FakemonBackToOverviewButtonCustomIds;
-        };
+        // const { customId } = interaction;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
         {
             throw new Error('Fakemon not found');
         }
 
-        switch (customId)
-        {
-            // Back to overview
-            case FakemonBackToOverviewButtonCustomIds.BackToOverview:
-                await FakemonInteractionManagerService.navigateTo({
-                    interaction,
-                    page: FakemonInteractionManagerPage.Overview,
-                    messageId: message.id,
-                });
-                break;
-
-            default:
-                const typeGuard: never = customId;
-                throw new Error(`Unhandled customId: ${typeGuard}`);
-        }
+        // switch (customId)
+        // {
+        //     default:
+        //         const typeGuard: never = customId;
+        //         throw new Error(`Unhandled customId: ${typeGuard}`);
+        // }
 
         return true;
     }

@@ -15,15 +15,15 @@ export enum FakemonOverviewStringSelectCustomIds
 
 export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
 {
-    constructor()
+    constructor(curPage: FakemonInteractionManagerPage)
     {
         const stringSelectMenu = new StringSelectMenuBuilder({
             customId: FakemonOverviewStringSelectCustomIds.Navigation,
-            placeholder: 'Edit...',
+            placeholder: 'Navigate to...',
             options: Object.values(FakemonInteractionManagerPage)
                 .reduce<APISelectMenuOption[]>((acc, cur) =>
                 {
-                    if (cur !== FakemonInteractionManagerPage.Overview)
+                    if (cur !== curPage)
                     {
                         acc.push({ label: cur, value: cur });
                     }
