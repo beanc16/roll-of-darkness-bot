@@ -13,7 +13,7 @@ interface InputValue
     key: string;
     label?: string;
     value: string | number;
-    typeOfValue: 'string' | 'integer' | 'boolean';
+    typeOfValue: 'string' | 'integer' | 'float' | 'boolean';
 }
 
 export type InputValuesMap = Record<string, InputValue[]>;
@@ -53,6 +53,13 @@ export abstract class BaseCustomModal
             return value.trim() === ''
                 ? 0
                 : parseInt(value, 10);
+        }
+
+        if (defaultInputValue.typeOfValue === 'float')
+        {
+            return value.trim() === ''
+                ? 0
+                : parseFloat(value);
         }
 
         if (defaultInputValue.typeOfValue === 'boolean')
