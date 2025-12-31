@@ -1,4 +1,5 @@
 import { logger } from '@beanc16/logger';
+
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
@@ -62,7 +63,7 @@ export class FakemonStatManagerService
         if (
             bst <= 45
             && !updatedFakemon.capabilities.other?.some(element =>
-                element.trim().toLowerCase() === 'underdog'
+                element.trim().toLowerCase() === 'underdog',
             )
         )
         {
@@ -86,7 +87,7 @@ export class FakemonStatManagerService
         else if (
             bst > 45
             && updatedFakemon.capabilities.other?.some(element =>
-                element.trim().toLowerCase() === 'underdog'
+                element.trim().toLowerCase() === 'underdog',
             )
         )
         {

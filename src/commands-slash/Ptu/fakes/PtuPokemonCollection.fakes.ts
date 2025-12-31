@@ -49,7 +49,7 @@ export const createPtuPokemonCollectionData = ({
 }: {
     baseStats?: {
         bst?: number;
-    },
+    };
     capabilities?: {
         numOfOtherCapabilities?: number;
     };

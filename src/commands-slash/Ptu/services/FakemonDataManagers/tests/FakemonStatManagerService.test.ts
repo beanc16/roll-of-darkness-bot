@@ -7,8 +7,8 @@ import { faker } from '@faker-js/faker';
 import { FakemonStatsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { FakemonStatManagerService } from '../FakemonStatManagerService';
 import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
+import { FakemonStatManagerService } from '../FakemonStatManagerService';
 
 jest.mock('@beanc16/logger');
 jest.mock('mongodb-controller');
