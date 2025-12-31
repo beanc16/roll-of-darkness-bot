@@ -459,6 +459,73 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
         });
     });
 
+    describe(`method: ${FakemonCapabilityManagerService.removeOtherCapabilities.name}`, () =>
+    {
+        const oneThroughNine = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        describe.each(oneThroughNine)('%s existing capabilities', (numOfExistingOtherCapabilities) =>
+        {
+            it.each(oneThroughNine)(`should remove %s other capabilities successfully on the fakemon`, async (numOfNewOtherCapabilities) =>
+            {
+                // Arrange
+                const messageId = 'messageId';
+                const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
+                const expectedResult = createPtuFakemonCollectionData();
+                const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                    .mockResolvedValue(expectedResult);
+
+                // Act
+                const result = await FakemonCapabilityManagerService.removeOtherCapabilities({
+                    messageId,
+                    fakemon,
+                    other: [fakemon.capabilities.other![0]],
+                });
+
+                // Assert
+                expect(result).toEqual(expectedResult);
+                expect(updateSpy).toHaveBeenCalledWith(
+                    messageId,
+                    { id: fakemon.id },
+                    {
+                        capabilities: {
+                            ...fakemon.capabilities,
+                            other: fakemon.capabilities.other!.slice(1).sort(),
+                        },
+                    },
+                );
+            });
+
+            it.each([
+                ['zero', []],
+                ['undefined', undefined],
+            ])(`should exit early if %s other capabilities are provided`, async (_, fakemonOther) =>
+            {
+                // Arrange
+                const messageId = 'messageId';
+                const fakemon = createPtuFakemonCollectionData({ capabilities: { numOfOtherCapabilities: numOfExistingOtherCapabilities } });
+                const expectedResult = createPtuFakemonCollectionData();
+                const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                    .mockResolvedValue(expectedResult);
+
+                // Act
+                const result = await FakemonCapabilityManagerService.removeOtherCapabilities({
+                    messageId,
+                    fakemon: {
+                        ...fakemon,
+                        capabilities: {
+                            ...fakemon.capabilities,
+                            other: fakemonOther,
+                        },
+                    } as typeof fakemon,
+                    other: ['Underdog'],
+                });
+
+                // Assert
+                expect(result).toEqual(result);
+                expect(updateSpy).not.toHaveBeenCalled();
+            });
+        });
+    });
+
     describe(`method: ${FakemonCapabilityManagerService.setNaturewalk.name}`, () =>
     {
         [

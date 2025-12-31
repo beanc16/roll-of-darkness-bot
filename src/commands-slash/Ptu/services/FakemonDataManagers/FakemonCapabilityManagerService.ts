@@ -104,6 +104,41 @@ export class FakemonCapabilityManagerService
     }
 
     /**
+     * Removes the specified other capabilities from the fakemon
+     * without overwriting any existing other capabilities.
+     */
+    public static async removeOtherCapabilities({
+        messageId,
+        fakemon,
+        other,
+    }: {
+        messageId: string;
+        fakemon: PtuFakemonCollection;
+        other: NonNullable<PtuFakemonCollection['capabilities']['other']>;
+    }): Promise<PtuFakemonCollection>
+    {
+        if (
+            other.length === 0
+            || !fakemon.capabilities.other
+            || fakemon.capabilities.other.length === 0
+        )
+        {
+            return fakemon;
+        }
+
+        const newOther = fakemon.capabilities.other.filter(element =>
+            !other.includes(element),
+        );
+
+        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            capabilities: {
+                ...fakemon.capabilities,
+                other: newOther.sort(),
+            },
+        });
+    }
+
+    /**
      * Sets the specified naturewalk values to the fakemon without
      * overwriting the order of existing other capabilities.
      */
