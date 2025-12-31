@@ -213,7 +213,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
 
         it.each(
             Object.values(FakemonStatsEditStringSelectElementOptions),
-        )(`sshould log & rethrow error if updating the '%s' stat succeeds but adding the Underdog capability to fakemon <= 45 BST fails`, async (statToEdit) =>
+        )(`should log & rethrow error if updating the '%s' stat succeeds but adding the Underdog capability to fakemon <= 45 BST fails`, async (statToEdit) =>
         {
             // Arrange - Data
             const messageId = 'messageId';
