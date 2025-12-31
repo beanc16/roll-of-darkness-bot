@@ -52,6 +52,11 @@ class PtuFakemonSingleton
     {
         this.singleton.set(map);
     }
+
+    public remove(key: string): void
+    {
+        this.singleton.remove(key);
+    }
 }
 
 export default new PtuFakemonSingleton();

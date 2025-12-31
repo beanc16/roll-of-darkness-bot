@@ -32,6 +32,8 @@ export class PtuFakemonCollection extends PtuPokemonCollection
     public status: PtuFakemonStatus;
     public creationChannelId: string;
     public feedbacks?: PtuFakemonFeedback[];
+    public isDeleted?: boolean = false;
+    public deletedAt?: Date;
 
     constructor(args: PtuFakemonCollectionConstructorArgs)
     {

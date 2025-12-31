@@ -11,6 +11,7 @@ export type PtuFakemonToCreate = Omit<
     | 'extras'
     | 'toPtuPokemon'
     | 'edits'
+    | 'isDeleted'
 >;
 
 export class PtuFakemonPseudoCache
@@ -19,16 +20,12 @@ export class PtuFakemonPseudoCache
 
     public static async getAll(userId: string): Promise<PtuFakemonCollection[]>
     {
-        if (this.allFakemon.length > 0)
-        {
-            return this.allFakemon;
-        }
-
         const { results = [] } = await FakemonController.getAll({
             // Filter by user id
             editors: {
                 $in: [userId],
             },
+            $nor: [{ isDeleted: true }],
         }) as {
             results: PtuFakemonCollection[];
         };
@@ -51,6 +48,7 @@ export class PtuFakemonPseudoCache
             editors: {
                 $in: [userId],
             },
+            $nor: [{ isDeleted: true }],
         }) as {
             results: PtuFakemonCollection[];
         };
@@ -112,6 +110,30 @@ export class PtuFakemonPseudoCache
         return fakemon;
     }
 
+    public static async softDelete(
+        messageId: string,
+        { id }: Pick<PtuFakemonCollection, 'id'>,
+    ): Promise<void>
+    {
+        // Update deleted flags
+        await FakemonController.findOneAndUpdate({
+            _id: id,
+        }, {
+            isDeleted: true,
+            deletedAt: new Date(),
+        }) as {
+            results: {
+                new: PtuFakemonCollection;
+            };
+        };
+
+        // Remove from cache
+        ptuFakemonSingleton.remove(messageId);
+
+        // Remove from allFakemon
+        this.allFakemon = this.allFakemon.filter((f) => f.id !== id);
+    }
+
     public static addToCache(messageId: string, fakemon: PtuFakemonCollection): void
     {
         // Add to cache
@@ -122,5 +144,11 @@ export class PtuFakemonPseudoCache
         {
             this.allFakemon.push(fakemon);
         }
+    }
+
+    public static removeFromCache(messageId: string): void
+    {
+        // Remove from cache
+        ptuFakemonSingleton.remove(messageId);
     }
 }

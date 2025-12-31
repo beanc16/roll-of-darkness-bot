@@ -58,6 +58,22 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     return subcommand;
 };
 
+export const deleteFakemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Delete);
+    subcommand.setDescription('Delete a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};
+
 export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuFakemonSubcommand.Edit);
