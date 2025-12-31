@@ -40,10 +40,16 @@ const getFakeSkill = (): string =>
 };
 
 export const createPtuPokemonCollectionData = ({
+    baseStats: {
+        bst,
+    } = {},
     capabilities: {
         numOfOtherCapabilities,
     } = {},
 }: {
+    baseStats?: {
+        bst?: number;
+    },
     capabilities?: {
         numOfOtherCapabilities?: number;
     };
@@ -57,18 +63,31 @@ export const createPtuPokemonCollectionData = ({
         { basicAbilities: 1, advancedAbilities: 3 },
     ]);
 
-    return {
-        _id: id,
-        name: speciesName,
-        types: getRandomTypes(2),
-        baseStats: {
+    const nonSpeedStat = bst !== undefined ? Math.round(bst / 6) : undefined;
+    const speed = bst !== undefined ? bst - (nonSpeedStat! * 5) : undefined;
+    const baseStats = bst === undefined
+        ? {
             hp: faker.number.int({ min: 1, max: 15 }),
             attack: faker.number.int({ min: 1, max: 15 }),
             defense: faker.number.int({ min: 1, max: 15 }),
             specialAttack: faker.number.int({ min: 1, max: 15 }),
             specialDefense: faker.number.int({ min: 1, max: 15 }),
             speed: faker.number.int({ min: 1, max: 15 }),
-        },
+        }
+        : {
+            hp: nonSpeedStat!,
+            attack: nonSpeedStat!,
+            defense: nonSpeedStat!,
+            specialAttack: nonSpeedStat!,
+            specialDefense: nonSpeedStat!,
+            speed: speed!,
+        };
+
+    return {
+        _id: id,
+        name: speciesName,
+        types: getRandomTypes(2),
+        baseStats,
         abilities: {
             basicAbilities: getArrayOfWords({ max: numOf.basicAbilities }),
             advancedAbilities: getArrayOfWords({ max: numOf.advancedAbilities }),
