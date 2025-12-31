@@ -13,6 +13,7 @@ import {
     getFakemonCapabilitiesComponents,
     getFakemonEnvironmentComponents,
     getFakemonOverviewComponents,
+    getFakemonSizeInformationComponents,
     getFakemonStatsComponents,
 } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
@@ -20,6 +21,7 @@ import { FakemonBreedingInformationEmbedMessage } from '../../components/fakemon
 import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
 import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
+import { FakemonSizeInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
@@ -96,6 +98,14 @@ export class FakemonInteractionManagerService
                         new FakemonBasicInformationEmbedMessage(fakemon),
                     ],
                     components: getFakemonBasicInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.SizeInformation:
+                return {
+                    embeds: [
+                        new FakemonSizeInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonSizeInformationComponents(),
                 };
 
             case FakemonInteractionManagerPage.BreedingInformation:

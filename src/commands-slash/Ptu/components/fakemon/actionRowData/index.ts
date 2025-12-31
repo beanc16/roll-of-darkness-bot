@@ -11,6 +11,7 @@ import { FakemonEnvironmentEditDietsStringSelectActionRowBuilder } from '../acti
 import { FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder.js';
 import { FakemonBackToOverviewButtonActionRowBuilder } from '../actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
+import { FakemonSIEditSizeStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 
@@ -37,6 +38,14 @@ export function getFakemonBasicInformationComponents(
     return [
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
         new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
+        new FakemonBackToOverviewButtonActionRowBuilder(),
+    ];
+}
+
+export function getFakemonSizeInformationComponents(): BaseMessageOptions['components']
+{
+    return [
+        new FakemonSIEditSizeStringSelectActionRowBuilder(),
         new FakemonBackToOverviewButtonActionRowBuilder(),
     ];
 }

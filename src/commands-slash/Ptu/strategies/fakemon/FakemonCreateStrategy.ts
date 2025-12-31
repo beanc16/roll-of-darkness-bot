@@ -18,6 +18,7 @@ import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakem
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
 import { FakemonBackToOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonBackToOverviewButtonActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
+import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
@@ -30,6 +31,8 @@ import { FakemonNonOtherCapabilityEditingModal1 } from '../../modals/fakemon/cap
 import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
 import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
+import { FakemonSIHeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
+import { FakemonSIWeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
@@ -263,6 +266,9 @@ export class FakemonCreateStrategy
             customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
             values: FakemonBIEditAbilitiesStringSelectElementOptions[];
         } | {
+            customId: FakemonSizeInformationStringSelectCustomIds.EditHeightOrWeight;
+            values: FakemonSIEditSizeStringSelectElementOptions[];
+        } | {
             customId: FakemonBreedingInformationStringSelectCustomIds.EditGenderRatio;
             values: PokemonGenderRatio[];
         } | {
@@ -282,7 +288,7 @@ export class FakemonCreateStrategy
             values: PtuNaturewalk[];
         } | {
             customId: FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities;
-            values: string[]; // TODO: Type this once this is implemented
+            values: string[];
         };
         const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
@@ -431,6 +437,32 @@ export class FakemonCreateStrategy
 
                     default:
                         const typeCheck: never = editAbilitiesValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                });
+                break;
+
+            // Edit size modals
+            case FakemonSizeInformationStringSelectCustomIds.EditHeightOrWeight:
+                // Don't defer before showing a modal, as that will throw an error
+
+                // Get which modal to show
+                const editSizeValue = value1 as FakemonSIEditSizeStringSelectElementOptions;
+                switch (editSizeValue)
+                {
+                    case FakemonSIEditSizeStringSelectElementOptions.Height:
+                        modalToShow = FakemonSIHeightEditingModal;
+                        break;
+
+                    case FakemonSIEditSizeStringSelectElementOptions.Weight:
+                        modalToShow = FakemonSIWeightEditingModal;
+                        break;
+
+                    default:
+                        const typeCheck: never = editSizeValue;
                         throw new Error(`Unhandled value: ${typeCheck}`);
                 }
 
