@@ -310,6 +310,26 @@ describe(`class ${PtuSizeAdapterService.name}`, () =>
             });
         });
 
+        it.each([
+            [3, 0, `3'0"`],
+            [3, 6, `3'6"`],
+            [3, 11, `3'11"`],
+            [3, 13, `4'1"`],
+            [3, 23, `4'11"`],
+            [3, 24, `5'0"`],
+            [3, 25, `5'1"`],
+        ])(`should convert %s'%s" to %s`, (feet, inches, expectedResult) =>
+        {
+            // Act
+            const result = PtuSizeAdapterService.adaptHeight(
+                feet,
+                inches,
+            );
+
+            // Assert
+            expect(result.freedom).toEqual(expectedResult);
+        });
+
         it('should throw an error if feet is a decimal', () =>
         {
             // Arrange
@@ -400,6 +420,26 @@ describe(`class ${PtuSizeAdapterService.name}`, () =>
 
             // Assert
             expect(result).toBe(expectedInches);
+        });
+    });
+
+    describe(`method: ${PtuSizeAdapterService['overflowInchesIntoFeet'].name}`, () =>
+    {
+        it.each([
+            [3, 0, { ft: 3, inches: 0 }],
+            [3, 6, { ft: 3, inches: 6 }],
+            [3, 11, { ft: 3, inches: 11 }],
+            [3, 13, { ft: 4, inches: 1 }],
+            [3, 23, { ft: 4, inches: 11 }],
+            [3, 24, { ft: 5, inches: 0 }],
+            [3, 25, { ft: 5, inches: 1 }],
+        ])(`should convert %s'%s" to %s`, (feet, inches, expectedResult) =>
+        {
+            // Act
+            const result = PtuSizeAdapterService['overflowInchesIntoFeet'](feet, inches);
+
+            // Assert
+            expect(result).toEqual(expectedResult);
         });
     });
 

@@ -104,7 +104,11 @@ export class PtuSizeAdapterService
             decimals: 1,
         });
 
-        return this.formatHeight(ft, inches, heightInInches, metersConverted);
+        // Overflow in case more than 12 inches were given
+        const overflow = this.overflowInchesIntoFeet(ft, inches);
+
+        // Format
+        return this.formatHeight(overflow.ft, overflow.inches, heightInInches, metersConverted);
     }
 
     private static formatHeight(
@@ -180,6 +184,27 @@ export class PtuSizeAdapterService
         });
 
         return ftAsInches + inches;
+    }
+
+    private static overflowInchesIntoFeet(ft: number, inches: number): { ft: number; inches: number }
+    {
+        const inchesAsFeetWithDecimal = this.convert({
+            value: inches,
+            from: 'in',
+            to: 'feet',
+            decimals: 1,
+        });
+        const inchesAsFeet = Math.floor(inchesAsFeetWithDecimal);
+        const inchesToRemove = this.convert({
+            value: inchesAsFeet,
+            from: 'feet',
+            to: 'in',
+        });
+
+        return {
+            ft: ft + inchesAsFeet,
+            inches: inches - inchesToRemove,
+        };
     }
 
     private static convert({
