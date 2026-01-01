@@ -58,6 +58,9 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
+import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
+import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -276,6 +279,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities;
             values: string[];
+        } | {
+            customId: FakemonSkillsStringSelectCustomIds.EditSkill;
+            values: FakemonSkillsEditStringSelectElementOptions[];
         };
         const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
@@ -665,6 +671,22 @@ export class FakemonCreateStrategy
                     interaction,
                     page: FakemonInteractionManagerPage.Capabilities,
                     messageId: interaction.message.id,
+                });
+                break;
+
+            // Stat selector
+            case FakemonSkillsStringSelectCustomIds.EditSkill:
+                const { skillDice, skillModifier } = FakemonSkillManagerService.getSkillDiceAndModifier(
+                    message.id,
+                    value1 as FakemonSkillsEditStringSelectElementOptions,
+                );
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSkillEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    skillToEdit: value1 as FakemonStatsEditStringSelectElementOptions,
+                    // Add default values
+                    skillDice,
+                    skillModifier,
                 });
                 break;
 

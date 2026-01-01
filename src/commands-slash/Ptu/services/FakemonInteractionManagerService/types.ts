@@ -8,7 +8,7 @@ export enum FakemonInteractionManagerPage
     BreedingInformation = '⚧️ Breeding Information',
     Environment = '🌳 Environment',
     Capabilities = '💪 Capabilities',
-    // Skills = '🎲 Skills',
+    Skills = '🎲 Skills',
     // LevelUpMoves = '🎚️ Level Up Moves',
     // EggMoves = '🐣 Egg Moves',
     // TmHmMoves = '💿 TM/HM Moves',

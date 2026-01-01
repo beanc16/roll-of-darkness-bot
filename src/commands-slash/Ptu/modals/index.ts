@@ -7,6 +7,7 @@ import { FakemonAbilityEditingModal2 } from './fakemon/abilities/FakemonAbilityE
 import { FakemonNonOtherCapabilityEditingModal1 } from './fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
 import { FakemonNonOtherCapabilityEditingModal2 } from './fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
 import { FakemonOtherCapabilityAddingModal } from './fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
+import { FakemonSkillEditingModal } from './fakemon/FakemonSkillEditingModal.js';
 import { FakemonStatEditingModal } from './fakemon/FakemonStatEditingModal.js';
 import { FakemonSIHeightEditingModal } from './fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
 import { FakemonSIWeightEditingModal } from './fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
@@ -27,6 +28,7 @@ export const ptuModals = [
     FakemonOtherCapabilityAddingModal,
     FakemonSIHeightEditingModal,
     FakemonSIWeightEditingModal,
+    FakemonSkillEditingModal,
     FakemonStatEditingModal,
 
     // Generate

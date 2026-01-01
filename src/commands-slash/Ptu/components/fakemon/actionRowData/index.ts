@@ -14,6 +14,7 @@ import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOve
 import { FakemonSIEditSizeStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonSkillsEditStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -81,6 +82,14 @@ export function getFakemonCapabilitiesComponents(
         new FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder(),
         new FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder(args),
         new FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder(args),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Capabilities),
+    ];
+}
+
+export function getFakemonSkillsComponents(): BaseMessageOptions['components']
+{
+    return [
+        new FakemonSkillsEditStringSelectActionRowBuilder(),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Capabilities),
     ];
 }
