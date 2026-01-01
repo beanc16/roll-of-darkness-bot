@@ -26,6 +26,23 @@ export class FakemonSkillManagerService
         }
     }
 
+    public static getSkillDiceAndModifier(
+        messageId: string,
+        skillToEdit: FakemonSkillsEditStringSelectElementOptions,
+    ): { skillDice: number; skillModifier: number }
+    {
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(messageId);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+
+        const skill = this.getSkillKey(skillToEdit);
+        const skillString = fakemon.skills[skill];
+
+        return this.deconstructSkillString(skillString);
+    }
+
     public static async setSkill({
         messageId,
         fakemon,
@@ -71,5 +88,20 @@ export class FakemonSkillManagerService
     {
         const sign = skillModifier >= 0 ? '+' : '';
         return `${skillDice}d6${sign}${skillModifier}`;
+    }
+
+    private static deconstructSkillString(skill: string): { skillDice: number; skillModifier: number }
+    {
+        const match = skill.match(/(\d+)d6(\+|-)(\d+)/);
+        if (!match)
+        {
+            throw new Error('Invalid skill string');
+        }
+
+        const [_1, skillDiceStr, sign, skillModifierStr] = match;
+
+        const skillDice = parseInt(skillDiceStr, 10);
+        const skillModifier = parseInt(skillModifierStr, 10) * (sign === '+' ? 1 : -1);
+        return { skillDice, skillModifier };
     }
 }

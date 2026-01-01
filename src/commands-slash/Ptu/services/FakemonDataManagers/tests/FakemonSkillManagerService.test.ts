@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // ^ the above are giving a lot of false negatives for some reason, temporarily disabling
 
-import { logger } from '@beanc16/logger';
 import { faker } from '@faker-js/faker';
 
 import { FakemonSkillsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 import { FakemonSkillManagerService } from '../FakemonSkillManagerService';
 
 jest.mock('mongodb-controller');
@@ -16,6 +14,7 @@ jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {
     return {
         PtuFakemonPseudoCache: {
+            getByMessageId: jest.fn(),
             update: jest.fn(),
         },
     };
@@ -52,6 +51,53 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(() =>
                 FakemonSkillManagerService.getSkillKey('invalid' as FakemonSkillsEditStringSelectElementOptions),
             ).toThrow(`Unhandled skillToEdit: invalid`);
+        });
+    });
+
+    describe(`method: ${FakemonSkillManagerService.getSkillDiceAndModifier.name}`, () =>
+    {
+        it.each(
+            Object.values(FakemonSkillsEditStringSelectElementOptions),
+        )(`should return the skill dice and modifier for '%s'`, (skillToEdit) =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const expectedSkillKey = FakemonSkillManagerService.getSkillKey(skillToEdit);
+            const expectedSkillDice = 1;
+            const expectedSkillModifier = 1;
+            const fakemon = createPtuFakemonCollectionData();
+            const getByMessageIdSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByMessageId')
+                .mockReturnValue({
+                    ...fakemon,
+                    skills: {
+                        ...fakemon.skills,
+                        [expectedSkillKey]: `${expectedSkillDice}d6+${expectedSkillModifier}`,
+                    },
+                } as typeof fakemon);
+
+            // Act
+            const result = FakemonSkillManagerService.getSkillDiceAndModifier(messageId, skillToEdit);
+
+            // Assert
+            expect(result).toEqual({
+                skillDice: expectedSkillDice,
+                skillModifier: expectedSkillModifier,
+            });
+            expect(getByMessageIdSpy).toHaveBeenCalledWith(messageId);
+        });
+
+        it('should throw an error if fakemon is not found', () =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const getByMessageIdSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByMessageId')
+                .mockReturnValue(undefined);
+
+            // Assert
+            expect(() =>
+                FakemonSkillManagerService.getSkillDiceAndModifier(messageId, FakemonSkillsEditStringSelectElementOptions.Acrobatics),
+            ).toThrow('Fakemon not found');
+            expect(getByMessageIdSpy).toHaveBeenCalledWith(messageId);
         });
     });
 
@@ -320,6 +366,73 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
 
             // Assert
             expect(formattedSkill).toBe(`${skillDice}d6+${skillModifier}`);
+        });
+    });
+
+    describe(`method: ${FakemonSkillManagerService['deconstructSkillString'].name}`, () =>
+    {
+        it.each([
+            ['positive', 1],
+            ['zero', 0],
+        ])('should return skill dice and %s modifier', async (_, skillModifier) =>
+        {
+            // Arrange
+            const skillDice = 1;
+
+            // Act
+            const formattedSkill = FakemonSkillManagerService['deconstructSkillString'](`${skillDice}d6+${skillModifier}`);
+
+            // Assert
+            expect(formattedSkill).toEqual({ skillDice, skillModifier });
+        });
+
+        it('should return skill dice and negative modifier', async () =>
+        {
+            // Arrange
+            const skillDice = 1;
+            const skillModifier = -1;
+
+            // Act
+            const formattedSkill = FakemonSkillManagerService['deconstructSkillString'](`${skillDice}d6${skillModifier}`);
+
+            // Assert
+            expect(formattedSkill).toEqual({ skillDice, skillModifier });
+        });
+
+        it('should throw error for invalid skill string', async () =>
+        {
+            // Arrange
+            const skillDice = 'a';
+            const skillModifier = 'b';
+
+            // Act & Assert
+            expect(() =>
+                FakemonSkillManagerService['deconstructSkillString'](`${skillDice}d6${skillModifier}`),
+            ).toThrow('Invalid skill string');
+        });
+
+        it('should throw error if skill dice is a decimal', async () =>
+        {
+            // Arrange
+            const skillDice = 1.5;
+            const skillModifier = 1;
+
+            // Act & Assert
+            expect(() =>
+                FakemonSkillManagerService['deconstructSkillString'](`${skillDice}d6${skillModifier}`),
+            ).toThrow('Invalid skill string');
+        });
+
+        it('should throw error if skill modifier is a decimal', async () =>
+        {
+            // Arrange
+            const skillDice = 1;
+            const skillModifier = 1.5;
+
+            // Act & Assert
+            expect(() =>
+                FakemonSkillManagerService['deconstructSkillString'](`${skillDice}d6${skillModifier}`),
+            ).toThrow('Invalid skill string');
         });
     });
 });
