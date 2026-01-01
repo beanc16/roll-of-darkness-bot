@@ -7,12 +7,12 @@ export enum FakemonSkillsStringSelectCustomIds
 
 export enum FakemonSkillsEditStringSelectElementOptions
 {
-    Athletics = 'Athletics',
     Acrobatics = 'Acrobatics',
+    Athletics = 'Athletics',
     Combat = 'Combat',
-    Stealth = 'Stealth',
-    Perception = 'Perception',
     Focus = 'Focus',
+    Perception = 'Perception',
+    Stealth = 'Stealth',
 }
 
 export class FakemonSkillsEditStringSelectActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
