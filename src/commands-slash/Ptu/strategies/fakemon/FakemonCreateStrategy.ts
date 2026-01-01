@@ -18,6 +18,7 @@ import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakem
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
+import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
@@ -29,6 +30,7 @@ import { FakemonAbilityEditingModal2 } from '../../modals/fakemon/abilities/Fake
 import { FakemonNonOtherCapabilityEditingModal1 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
 import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
 import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
+import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { FakemonSIHeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
 import { FakemonSIWeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
@@ -39,6 +41,7 @@ import { FakemonBasicInformationManagerService } from '../../services/FakemonDat
 import { FakemonBreedingInformationManagerService } from '../../services/FakemonDataManagers/FakemonBreedingInformationManagerService.js';
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
+import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
@@ -58,9 +61,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
-import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
-import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -674,7 +674,7 @@ export class FakemonCreateStrategy
                 });
                 break;
 
-            // Stat selector
+            // Skill selector
             case FakemonSkillsStringSelectCustomIds.EditSkill:
                 const { skillDice, skillModifier } = FakemonSkillManagerService.getSkillDiceAndModifier(
                     message.id,

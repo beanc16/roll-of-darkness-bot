@@ -8,9 +8,9 @@ import {
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 import { FakemonSkillsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
-import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 
 enum FakemonSkillEditingCustomId
 {
@@ -90,10 +90,7 @@ export class FakemonSkillEditingModal extends BaseCustomModal
             messageId: string;
             skillToEdit: FakemonSkillsEditStringSelectElementOptions;
         };
-        const {
-            [FakemonSkillEditingCustomId.SkillDice]: skillDice,
-            [FakemonSkillEditingCustomId.SkillModifier]: skillModifier,
-        } = this.parseInput<FakemonSkillEditingCustomId>(interaction) as {
+        const { [FakemonSkillEditingCustomId.SkillDice]: skillDice, [FakemonSkillEditingCustomId.SkillModifier]: skillModifier } = this.parseInput<FakemonSkillEditingCustomId>(interaction) as {
             [FakemonSkillEditingCustomId.SkillDice]: number;
             [FakemonSkillEditingCustomId.SkillModifier]: number;
         };

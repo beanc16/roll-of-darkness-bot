@@ -23,11 +23,11 @@ import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds
 import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonSizeInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
+import { FakemonSkillsEmbedMessage } from '../../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerPage } from './types.js';
-import { FakemonSkillsEmbedMessage } from '../../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 

@@ -12,9 +12,9 @@ import { FakemonEnvironmentEditDietsStringSelectActionRowBuilder } from '../acti
 import { FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder.js';
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
+import { FakemonSkillsEditStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
-import { FakemonSkillsEditStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {

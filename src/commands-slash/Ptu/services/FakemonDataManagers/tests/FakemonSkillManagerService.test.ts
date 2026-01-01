@@ -320,7 +320,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
 
     describe(`method: ${FakemonSkillManagerService['formatSkill'].name}`, () =>
     {
-        it('should format skill with positive modifier', async () =>
+        it('should format skill with positive modifier', () =>
         {
             // Arrange
             const skillDice = 1;
@@ -336,7 +336,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(formattedSkill).toBe(`${skillDice}d6+${skillModifier}`);
         });
 
-        it('should format skill with negative modifier', async () =>
+        it('should format skill with negative modifier', () =>
         {
             // Arrange
             const skillDice = 1;
@@ -352,7 +352,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(formattedSkill).toBe(`${skillDice}d6${skillModifier}`);
         });
 
-        it('should format skill with a 0 modifier as a positive modifier', async () =>
+        it('should format skill with a 0 modifier as a positive modifier', () =>
         {
             // Arrange
             const skillDice = 1;
@@ -374,7 +374,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
         it.each([
             ['positive', 1],
             ['zero', 0],
-        ])('should return skill dice and %s modifier', async (_, skillModifier) =>
+        ])('should return skill dice and %s modifier', (_, skillModifier) =>
         {
             // Arrange
             const skillDice = 1;
@@ -386,7 +386,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(formattedSkill).toEqual({ skillDice, skillModifier });
         });
 
-        it('should return skill dice and negative modifier', async () =>
+        it('should return skill dice and negative modifier', () =>
         {
             // Arrange
             const skillDice = 1;
@@ -399,7 +399,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(formattedSkill).toEqual({ skillDice, skillModifier });
         });
 
-        it('should throw error for invalid skill string', async () =>
+        it('should throw error for invalid skill string', () =>
         {
             // Arrange
             const skillDice = 'a';
@@ -411,7 +411,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             ).toThrow('Invalid skill string');
         });
 
-        it('should throw error if skill dice is a decimal', async () =>
+        it('should throw error if skill dice is a decimal', () =>
         {
             // Arrange
             const skillDice = 1.5;
@@ -423,7 +423,7 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             ).toThrow('Invalid skill string');
         });
 
-        it('should throw error if skill modifier is a decimal', async () =>
+        it('should throw error if skill modifier is a decimal', () =>
         {
             // Arrange
             const skillDice = 1;
