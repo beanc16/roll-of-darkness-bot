@@ -246,7 +246,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand,
             });
         }
-        else if (Strategy && !Strategy.runButton)
+        if (Strategy && !Strategy.runButton)
         {
             // Treat this as that strategy not having runButton implemented
             // due to in-line event handling
