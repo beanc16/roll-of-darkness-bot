@@ -12,7 +12,8 @@ export class FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuil
     constructor(fakemon: Pick<PtuFakemonCollection, 'capabilities'>)
     {
         const other = fakemon.capabilities.other || [];
-        const maxValues = Math.min(other.length, 9);
+        // maxValues must be no more the array's length, and that should never exceed 10
+        const maxValues = Math.min(other.length, 10);
 
         super({
             components: [
@@ -28,15 +29,13 @@ export class FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuil
                                 default: true,
                             })),
                             minValues: 0,
-                            // maxValues must be no more the array's length, and that should never exceed 9
-                            maxValues: Math.min(other.length, 10),
+                            maxValues,
                         }
                         : {
-                        // If there's nothing, then disable this with at least one value so Discord doesn't throw an error
+                            // If there's nothing, then disable this with at least one value so Discord doesn't throw an error
                             disabled: true,
                             options: [{ label: 'No options available', value: 'None' }],
                         }),
-
                 }),
             ],
         });
