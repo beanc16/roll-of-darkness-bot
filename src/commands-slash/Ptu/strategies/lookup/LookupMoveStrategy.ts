@@ -171,32 +171,7 @@ export class LookupMoveStrategy
                 ];
             }
 
-            output.sort((a, b) =>
-            {
-                if (parsedInput.sortBy === 'name')
-                {
-                    return a.name.localeCompare(b.name);
-                }
-
-                if (parsedInput.sortBy === 'type')
-                {
-                    const result = a.type?.localeCompare(b.type ?? '');
-
-                    if (result)
-                    {
-                        return result;
-                    }
-                }
-
-                /*
-                * Sort by:
-                * 1) Type
-                * 2) Name
-                */
-                return a.type?.localeCompare(b.type ?? '')
-                    || a.name.localeCompare(b.name);
-            });
-            return output;
+            return this.sortMoves(output, parsedInput);
         }
 
         catch (error)
@@ -204,6 +179,35 @@ export class LookupMoveStrategy
             logger.error('Failed to retrieve ptu moves', error);
             return [];
         }
+    }
+
+    public static sortMoves(moves: PtuMove[], { sortBy }: Pick<GetLookupMoveDataParameters, 'sortBy'> = {}): PtuMove[]
+    {
+        return moves.sort((a, b) =>
+        {
+            if (sortBy === 'name')
+            {
+                return a.name.localeCompare(b.name);
+            }
+
+            if (sortBy === 'type')
+            {
+                const result = a.type?.localeCompare(b.type ?? '');
+
+                if (result)
+                {
+                    return result;
+                }
+            }
+
+            /*
+            * Sort by:
+            * 1) Type
+            * 2) Name
+            */
+            return a.type?.localeCompare(b.type ?? '')
+                || a.name.localeCompare(b.name);
+        });
     }
 
     private static async handleButtons(
