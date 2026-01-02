@@ -120,7 +120,13 @@ async function handler(
             || SlashCommandsContainer.getGuildCommand(commandName);
         if (!slashCommand)
         {
-            logger.error(`No command named ${commandName} was found.`);
+            // Only certain subcommand groups and subcommands support this style
+            // right now. Thus, we should only log errors for the supported interactions.
+            const substringsToTestFor = ['fakemon'];
+            if (substringsToTestFor.some((substring) => commandName.includes(substring)))
+            {
+                logger.error(`No command named ${commandName} was found.`);
+            }
             return;
         }
 
@@ -154,7 +160,13 @@ async function handler(
             || SlashCommandsContainer.getGuildCommand(commandName);
         if (!slashCommand)
         {
-            logger.error(`No command named ${commandName} was found.`);
+            // Only certain subcommand groups and subcommands support this style
+            // right now. Thus, we should only log errors for the supported interactions.
+            const substringsToTestFor = ['fakemon'];
+            if (substringsToTestFor.some((substring) => commandName.includes(substring)))
+            {
+                logger.error(`No command named ${commandName} was found.`);
+            }
             return;
         }
 
