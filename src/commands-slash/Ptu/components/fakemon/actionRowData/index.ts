@@ -10,6 +10,8 @@ import { FakemonCapabilitiesEditNaturewalkStringSelectActionRowBuilder } from '.
 import { FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesRemoveOtherCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonEnvironmentEditDietsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditDietsStringSelectActionRowBuilder.js';
 import { FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder } from '../actionRowBuilders/environment/FakemonEnvironmentEditHabitatsStringSelectActionRowBuilder.js';
+import { FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder } from '../actionRowBuilders/evolutions/FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder.js';
+import { FakemonEvolutionsRemoveEvolutionStringSelectActionRowBuilder } from '../actionRowBuilders/evolutions/FakemonEvolutionsRemoveEvolutionStringSelectActionRowBuilder.js';
 import { FakemonOverviewActionRowBuilder } from '../actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonSkillsEditStringSelectActionRowBuilder } from '../actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
@@ -40,6 +42,17 @@ export function getFakemonBasicInformationComponents(
         new FakemonBIEditTypesStringSelectActionRowBuilder(args),
         new FakemonBIEditAbilitiesStringSelectActionRowBuilder(),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.BasicInformation),
+    ];
+}
+
+export function getFakemonEvolutionsComponents(
+    args: ConstructorParameters<typeof FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder>[0],
+): BaseMessageOptions['components']
+{
+    return [
+        new FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder(args),
+        new FakemonEvolutionsRemoveEvolutionStringSelectActionRowBuilder(args),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Evolutions),
     ];
 }
 

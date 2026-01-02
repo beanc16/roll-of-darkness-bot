@@ -3,7 +3,7 @@ export enum FakemonInteractionManagerPage
     Overview = '🔍 Overview',
     Stats = '🔢 Stats',
     BasicInformation = '📙 Basic Information',
-    // Evolutions = '🧬 Evolutions',
+    Evolutions = '🧬 Evolutions',
     SizeInformation = '📏 Size Information',
     BreedingInformation = '⚧️ Breeding Information',
     Environment = '🌳 Environment',

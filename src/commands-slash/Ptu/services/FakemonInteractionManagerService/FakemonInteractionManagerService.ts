@@ -12,6 +12,7 @@ import {
     getFakemonBreedingInformationComponents,
     getFakemonCapabilitiesComponents,
     getFakemonEnvironmentComponents,
+    getFakemonEvolutionsComponents,
     getFakemonOverviewComponents,
     getFakemonSizeInformationComponents,
     getFakemonSkillsComponents,
@@ -21,6 +22,7 @@ import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/em
 import { FakemonBreedingInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBreedingInformationEmbedMessage.js';
 import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
 import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
+import { FakemonEvolutionsEmbedMessage } from '../../components/fakemon/embeds/FakemonEvolutionsEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonSizeInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
 import { FakemonSkillsEmbedMessage } from '../../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
@@ -100,6 +102,14 @@ export class FakemonInteractionManagerService
                         new FakemonBasicInformationEmbedMessage(fakemon),
                     ],
                     components: getFakemonBasicInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Evolutions:
+                return {
+                    embeds: [
+                        new FakemonEvolutionsEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEvolutionsComponents(fakemon),
                 };
 
             case FakemonInteractionManagerPage.SizeInformation:

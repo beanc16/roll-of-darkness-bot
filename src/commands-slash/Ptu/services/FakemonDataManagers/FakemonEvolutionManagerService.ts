@@ -68,7 +68,12 @@ export class FakemonEvolutionManagerService
         messageId,
         fakemon,
         previousName,
-        new: { name, level, stage, evolutionCondition },
+        new: {
+            name,
+            level,
+            stage,
+            evolutionCondition,
+        },
     }: {
         messageId: string;
         fakemon: PtuFakemonCollection;
@@ -120,14 +125,15 @@ export class FakemonEvolutionManagerService
         }
 
         // Update evolution
-        fakemon.evolution[index] = {
+        const fakemonClone = { ...fakemon } as typeof fakemon; // Don't mutate the original
+        fakemonClone.evolution[index] = {
             name: `${name}${evolutionCondition ? ` ${evolutionCondition}` : ''}`,
             level,
             stage,
         };
 
         // Sort evolutions
-        const sortedEvolution = this.sortEvolutions(fakemon.evolution);
+        const sortedEvolution = this.sortEvolutions(fakemonClone.evolution);
         if (sortedEvolution.length >= 10)
         {
             throw new Error('Fakemon cannot have more than 10 evolutions');
@@ -149,8 +155,9 @@ export class FakemonEvolutionManagerService
         names: string[];
     }): Promise<PtuFakemonCollection>
     {
-        const { removed, updatedEvolution } = fakemon.evolution.reduce<{ removed: PtuFakemonCollection['evolution'], updatedEvolution: PtuFakemonCollection['evolution'] }>(
-            (acc, cur) => {
+        const { removed, updatedEvolution } = fakemon.evolution.reduce<{ removed: PtuFakemonCollection['evolution']; updatedEvolution: PtuFakemonCollection['evolution'] }>(
+            (acc, cur) =>
+            {
                 if (names.includes(cur.name))
                 {
                     acc.removed.push(cur);

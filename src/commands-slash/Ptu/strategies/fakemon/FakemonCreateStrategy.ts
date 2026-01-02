@@ -16,6 +16,8 @@ import { FakemonBreedingInformationStringSelectCustomIds } from '../../component
 import { FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/capabilities/types.js';
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
+import { FakemonEvolutionsEditEvolutionStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/evolutions/FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder.js';
+import { FakemonEvolutionsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/evolutions/types.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
@@ -30,6 +32,8 @@ import { FakemonAbilityEditingModal2 } from '../../modals/fakemon/abilities/Fake
 import { FakemonNonOtherCapabilityEditingModal1 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
 import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
 import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
+import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionAddingModal.js';
+import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
 import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { FakemonSIHeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
@@ -41,6 +45,7 @@ import { FakemonBasicInformationManagerService } from '../../services/FakemonDat
 import { FakemonBreedingInformationManagerService } from '../../services/FakemonDataManagers/FakemonBreedingInformationManagerService.js';
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
+import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
@@ -461,6 +466,67 @@ export class FakemonCreateStrategy
 
                 await modalToShow.showModal(interaction, {
                     messageId: message.id,
+                });
+                break;
+
+            // Edit evolution stage modal
+            case FakemonEvolutionsStringSelectCustomIds.EditEvolution:
+                // Don't defer before showing a modal, as that will throw an error
+
+                let isEdit = true;
+                switch (value1)
+                {
+                    case FakemonEvolutionsEditEvolutionStringSelectElementOptions.AddEvolution.toString():
+                        modalToShow = FakemonEvolutionAddingModal;
+                        isEdit = false;
+                        break;
+
+                    default:
+                        modalToShow = FakemonEvolutionEditingModal;
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                    ...(isEdit && { previousName: value1 }),
+                });
+                break;
+
+            // Remove evolution stage selector
+            case FakemonEvolutionsStringSelectCustomIds.RemoveEvolution:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.evolution.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur.name))
+                        {
+                            acc.push(cur.name);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonEvolutionManagerService.removeEvolutionStage({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        names: namesToRemove,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Evolutions,
+                    messageId: interaction.message.id,
                 });
                 break;
 
