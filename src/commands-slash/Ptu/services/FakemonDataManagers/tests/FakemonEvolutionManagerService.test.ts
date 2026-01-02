@@ -153,18 +153,18 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.addEvolutionStage({
+            await FakemonEvolutionManagerService.addEvolutionStage({
                 ...defaultArgs,
-                    name: expectedEvolution[1].name,
-                    level: expectedEvolution[1].level,
-                    stage: expectedEvolution[1].stage,
-                    fakemon: {
-                        ...defaultArgs.fakemon,
-                        evolution: [
-                            expectedEvolution[2],
-                            expectedEvolution[0],
-                        ],
-                    } as typeof defaultArgs.fakemon,
+                name: expectedEvolution[1].name,
+                level: expectedEvolution[1].level,
+                stage: expectedEvolution[1].stage,
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: [
+                        expectedEvolution[2],
+                        expectedEvolution[0],
+                    ],
+                } as typeof defaultArgs.fakemon,
             });
 
             // Assert
@@ -185,7 +185,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.addEvolutionStage({
                     ...defaultArgs,
                     name: '',
-                })
+                }),
             ).rejects.toThrow('Name cannot be empty');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -200,7 +200,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.addEvolutionStage({
                     ...defaultArgs,
                     level: -1,
-                })
+                }),
             ).rejects.toThrow('Level cannot be negative');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -215,7 +215,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.addEvolutionStage({
                     ...defaultArgs,
                     level: 101,
-                })
+                }),
             ).rejects.toThrow('Level cannot be greater than 100');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -230,7 +230,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.addEvolutionStage({
                     ...defaultArgs,
                     stage: -1,
-                })
+                }),
             ).rejects.toThrow('Stage cannot be negative');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -245,7 +245,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.addEvolutionStage({
                     ...defaultArgs,
                     stage: 4,
-                })
+                }),
             ).rejects.toThrow('Stage cannot be greater than 3');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -271,7 +271,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                             },
                         ],
                     } as typeof defaultArgs.fakemon,
-                })
+                }),
             ).rejects.toThrow(`Fakemon already has an evolution named ${name}`);
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -343,7 +343,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                             },
                         ],
                     } as typeof defaultArgs.fakemon,
-                })
+                }),
             ).rejects.toThrow('Fakemon cannot have more than 10 evolutions');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -530,7 +530,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     previousName: '',
-                })
+                }),
             ).rejects.toThrow('Previous name cannot be empty');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -545,7 +545,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     new: { ...defaultArgs.new, name: '' },
-                })
+                }),
             ).rejects.toThrow('New name cannot be empty');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -560,7 +560,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     new: { ...defaultArgs.new, level: -1 },
-                })
+                }),
             ).rejects.toThrow('Level cannot be negative');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -575,7 +575,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     new: { ...defaultArgs.new, level: 101 },
-                })
+                }),
             ).rejects.toThrow('Level cannot be greater than 100');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -590,7 +590,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     new: { ...defaultArgs.new, stage: -1 },
-                })
+                }),
             ).rejects.toThrow('Stage cannot be negative');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -605,7 +605,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     new: { ...defaultArgs.new, stage: 4 },
-                })
+                }),
             ).rejects.toThrow('Stage cannot be greater than 3');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -620,7 +620,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.editEvolutionStage({
                     ...defaultArgs,
                     previousName: 'INVALID',
-                })
+                }),
             ).rejects.toThrow(`Fakemon does not have an evolution named INVALID`);
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -654,7 +654,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                             },
                         ],
                     } as typeof defaultArgs.fakemon,
-                })
+                }),
             ).rejects.toThrow(`Fakemon already has an evolution named ${name}`);
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -734,7 +734,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                             },
                         ],
                     } as typeof defaultArgs.fakemon,
-                })
+                }),
             ).rejects.toThrow('Fakemon cannot have more than 10 evolutions');
             expect(updateSpy).not.toHaveBeenCalled();
         });
@@ -804,7 +804,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 FakemonEvolutionManagerService.removeEvolutionStage({
                     ...defaultArgs,
                     names: invalidNames,
-                })
+                }),
             ).rejects.toThrow(`Fakemon does not have evolutions named ${invalidNames.join(', ')}`);
         });
     });
@@ -941,7 +941,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             [2, 3, 1],
             [3, 1, 2],
             [3, 2, 1],
-        ]])(`should sort evolution stages: '%s' by stage first: ${[1, 2, 3]}`, (stages) =>
+        ]])(`should sort evolution stages: '%s' by stage first: ${[1, 2, 3].toString()}`, (stages) =>
         {
             // Arrange
             const evolution: PtuFakemonCollection['evolution'] = stages.map(stage => ({
@@ -976,7 +976,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             [2, 3, 1],
             [3, 1, 2],
             [3, 2, 1],
-        ]])(`should sort evolution stages: '%s' by level second: ${[1, 2, 3]}`, (levels) =>
+        ]])(`should sort evolution stages: '%s' by level second: ${[1, 2, 3].toString()}`, (levels) =>
         {
             // Arrange
             const evolution: PtuFakemonCollection['evolution'] = levels.map(level => ({
@@ -1011,7 +1011,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ['b', 'c', 'a'],
             ['c', 'a', 'b'],
             ['c', 'b', 'a'],
-        ]])(`should sort evolution stages: '%s' by name third: ${[1, 2, 3]}`, (names) =>
+        ]])(`should sort evolution stages: '%s' by name third: ${['a', 'b', 'c'].toString()}`, (names) =>
         {
             // Arrange
             const evolution: PtuFakemonCollection['evolution'] = names.map(name => ({
