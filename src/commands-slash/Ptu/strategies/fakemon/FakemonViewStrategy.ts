@@ -52,11 +52,11 @@ export class FakemonViewStrategy
         }
 
         // Add to cache for later button interaction handling
-        const message = await interaction.fetchReply();
+        const message = 'message' in interaction ? interaction.message : await interaction.fetchReply();
         PtuFakemonPseudoCache.addToCache(message.id, fakemon);
 
         // Send response
-        await interaction.followUp({
+        await interaction.editReply({
             embeds: [
                 new FakemonOverviewEmbedMessage(fakemon),
             ],
@@ -74,9 +74,6 @@ export class FakemonViewStrategy
         metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        // Defer update
-        await interaction.deferUpdate();
-
         const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -88,6 +85,7 @@ export class FakemonViewStrategy
         {
             case FakemonViewModeButtonCustomIds.EditMode:
                 // Run edit subcommand
+                await interaction.deferUpdate();
                 const Strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Edit] as typeof FakemonEditStrategy;
                 await Strategy.run(
                     interaction,
@@ -115,7 +113,7 @@ export class FakemonViewStrategy
         metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Create] as unknown as PtuStringSelectMenuIteractionStrategy;
+        const strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Edit] as unknown as PtuStringSelectMenuIteractionStrategy;
         return await strategy?.runStringSelect(
             interaction,
             strategies,
