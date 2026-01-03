@@ -11,6 +11,9 @@ import { FakemonEvolutionAddingModal } from './fakemon/evolutions/FakemonEvoluti
 import { FakemonEvolutionEditingModal } from './fakemon/evolutions/FakemonEvolutionEditingModal.js';
 import { FakemonSkillEditingModal } from './fakemon/FakemonSkillEditingModal.js';
 import { FakemonStatEditingModal } from './fakemon/FakemonStatEditingModal.js';
+import { FakemonMoveLevelUpAddingModal } from './fakemon/moves/FakemonMoveLevelUpAddingModal.js';
+import { FakemonMoveLevelUpEditingModal } from './fakemon/moves/FakemonMoveLevelUpEditingModal.js';
+import { FakemonMoveNonLevelUpAddingModal } from './fakemon/moves/FakemonMoveNonLevelUpAddingModal.js';
 import { FakemonSIHeightEditingModal } from './fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
 import { FakemonSIWeightEditingModal } from './fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
 import { GenerateSkillBackgroundModal } from './generate/GenerateSkillBackgroundModal.js';
@@ -27,6 +30,9 @@ export const ptuModals = [
     FakemonAbilityEditingModal2,
     FakemonEvolutionAddingModal,
     FakemonEvolutionEditingModal,
+    FakemonMoveLevelUpAddingModal,
+    FakemonMoveLevelUpEditingModal,
+    FakemonMoveNonLevelUpAddingModal,
     FakemonNonOtherCapabilityEditingModal1,
     FakemonNonOtherCapabilityEditingModal2,
     FakemonOtherCapabilityAddingModal,

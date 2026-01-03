@@ -9,9 +9,9 @@ export enum FakemonInteractionManagerPage
     Environment = '🌳 Environment',
     Capabilities = '💪 Capabilities',
     Skills = '🎲 Skills',
-    // LevelUpMoves = '🎚️ Level Up Moves',
-    // EggMoves = '🐣 Egg Moves',
-    // TmHmMoves = '💿 TM/HM Moves',
-    // TutorMoves = '📚 Tutor Moves',
+    LevelUpMoves = '🎚️ Level Up Moves',
+    EggMoves = '🐣 Egg Moves',
+    TmHmMoves = '💿 TM/HM Moves',
+    TutorMoves = '📚 Tutor Moves',
     // MegaForm = '🧬 Mega Form',
 }

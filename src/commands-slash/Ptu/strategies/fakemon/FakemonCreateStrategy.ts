@@ -21,6 +21,7 @@ import { FakemonEvolutionsStringSelectCustomIds } from '../../components/fakemon
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
+import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
@@ -36,6 +37,9 @@ import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/Fak
 import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
 import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
+import { FakemonMoveLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpAddingModal.js';
+import { FakemonMoveLevelUpEditingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpEditingModal.js';
+import { FakemonMoveNonLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveNonLevelUpAddingModal.js';
 import { FakemonSIHeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
 import { FakemonSIWeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
@@ -46,6 +50,7 @@ import { FakemonBreedingInformationManagerService } from '../../services/Fakemon
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
+import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
@@ -212,36 +217,64 @@ export class FakemonCreateStrategy
         return true;
     }
 
-    // TODO: Re-implement or remove once done if buttons are still needed or not
     public static async runButton(
         interaction: ButtonInteraction,
-        _strategies: PtuStrategyMap,
-        _metadata: PtuStrategyMetadata,
+        strategies: PtuStrategyMap,
+        { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        // Defer update
-        await interaction.deferUpdate();
+        const { customId } = interaction as {
+            customId: FakemonMovesButtonCustomIds;
+        };
 
-        // const { customId } = interaction;
-        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        if (!fakemon)
+        switch (customId)
         {
-            throw new Error('Fakemon not found');
-        }
+            case FakemonMovesButtonCustomIds.AddLevelUpMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    strategies,
+                });
+                break;
 
-        // switch (customId)
-        // {
-        //     default:
-        //         const typeGuard: never = customId;
-        //         throw new Error(`Unhandled customId: ${typeGuard}`);
-        // }
+            case FakemonMovesButtonCustomIds.AddEggMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'eggMoves',
+                    strategies,
+                });
+                break;
+
+            case FakemonMovesButtonCustomIds.AddTmHmMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'tmHm',
+                    strategies,
+                });
+                break;
+
+            case FakemonMovesButtonCustomIds.AddTutorMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'tutorMoves',
+                    strategies,
+                });
+                break;
+
+            default:
+                const typeGuard: never = customId;
+                throw new Error(`Unhandled customId: ${typeGuard}`);
+        }
 
         return true;
     }
 
     public static async runStringSelect(
         interaction: StringSelectMenuInteraction,
-        _strategies: PtuStrategyMap,
+        strategies: PtuStrategyMap,
         { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
@@ -260,6 +293,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
             values: FakemonBIEditAbilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonEvolutionsStringSelectCustomIds;
+            values: string[];
         } | {
             customId: FakemonSizeInformationStringSelectCustomIds.EditHeightOrWeight;
             values: FakemonSIEditSizeStringSelectElementOptions[];
@@ -287,6 +323,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonSkillsStringSelectCustomIds.EditSkill;
             values: FakemonSkillsEditStringSelectElementOptions[];
+        } | {
+            customId: FakemonMovesStringSelectCustomIds;
+            values: string[];
         };
         const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
@@ -374,7 +413,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -404,7 +443,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -517,7 +556,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -547,7 +586,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -577,7 +616,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -607,7 +646,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -637,7 +676,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -697,7 +736,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -727,7 +766,7 @@ export class FakemonCreateStrategy
                     await interaction.followUp({
                         content: [
                             `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                            ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,
                     });
@@ -753,6 +792,178 @@ export class FakemonCreateStrategy
                     // Add default values
                     skillDice,
                     skillModifier,
+                });
+                break;
+
+            // Edit level up move modal
+            case FakemonMovesStringSelectCustomIds.EditLevelUpMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                const oldMove = fakemon.moveList.levelUp.find((move) => move.move === value1);
+                await FakemonMoveLevelUpEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    previousName: value1,
+                    oldMove,
+                    strategies,
+                });
+                break;
+
+            // Remove level up moves selector
+            case FakemonMovesStringSelectCustomIds.RemoveLevelUpMoves:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.moveList.levelUp.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur.move))
+                        {
+                            acc.push(cur.move);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'levelUp',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.LevelUpMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove egg moves selector
+            case FakemonMovesStringSelectCustomIds.RemoveEggMoves:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.moveList.eggMoves.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur))
+                        {
+                            acc.push(cur);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'eggMoves',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.EggMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove tm/hm moves selector
+            case FakemonMovesStringSelectCustomIds.RemoveTmHmMoves:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.moveList.tmHm.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur))
+                        {
+                            acc.push(cur);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'tmHm',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.TmHmMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove tutor moves selector
+            case FakemonMovesStringSelectCustomIds.RemoveTutorMoves:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.moveList.tutorMoves.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur))
+                        {
+                            acc.push(cur);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'tutorMoves',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.TutorMoves,
+                    messageId: interaction.message.id,
                 });
                 break;
 

@@ -11,22 +11,30 @@ import {
     getFakemonBasicInformationComponents,
     getFakemonBreedingInformationComponents,
     getFakemonCapabilitiesComponents,
+    getFakemonEggMovesComponents,
     getFakemonEnvironmentComponents,
     getFakemonEvolutionsComponents,
+    getFakemonLevelUpMovesComponents,
     getFakemonOverviewComponents,
     getFakemonSizeInformationComponents,
     getFakemonSkillsComponents,
     getFakemonStatsComponents,
+    getFakemonTmHmMovesComponents,
+    getFakemonTutorMovesComponents,
 } from '../../components/fakemon/actionRowData/index.js';
 import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
 import { FakemonBreedingInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBreedingInformationEmbedMessage.js';
 import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
+import { FakemonEggMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonEggMovesEmbedMessage.js';
 import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
 import { FakemonEvolutionsEmbedMessage } from '../../components/fakemon/embeds/FakemonEvolutionsEmbedMessage.js';
+import { FakemonLevelUpMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonLevelUpMovesEmbedMessage.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { FakemonSizeInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
 import { FakemonSkillsEmbedMessage } from '../../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
 import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
+import { FakemonTmHmMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonTmHmMovesEmbedMessage.js';
+import { FakemonTutorMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonTutorMovesEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonInteractionManagerPage } from './types.js';
@@ -150,6 +158,38 @@ export class FakemonInteractionManagerService
                         new FakemonSkillsEmbedMessage(fakemon),
                     ],
                     components: getFakemonSkillsComponents(),
+                };
+
+            case FakemonInteractionManagerPage.LevelUpMoves:
+                return {
+                    embeds: [
+                        new FakemonLevelUpMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonLevelUpMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.EggMoves:
+                return {
+                    embeds: [
+                        new FakemonEggMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEggMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.TmHmMoves:
+                return {
+                    embeds: [
+                        new FakemonTmHmMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonTmHmMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.TutorMoves:
+                return {
+                    embeds: [
+                        new FakemonTutorMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonTutorMovesComponents(fakemon),
                 };
 
             default:
