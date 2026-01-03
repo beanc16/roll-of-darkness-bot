@@ -12,7 +12,7 @@ import type {
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
-import { FakemonViewModeOverviewActionRowBuilder, FakemonViewModeOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewModeOverviewActionRowBuilder.js';
+import { FakemonViewModeActionRowBuilder, FakemonViewModeButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewModeActionRowBuilder.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import type { FakemonEditStrategy } from './FakemonEditStrategy.js';
 
@@ -52,7 +52,7 @@ export class FakemonViewStrategy
                 new FakemonOverviewEmbedMessage(fakemon),
             ],
             components: [
-                new FakemonViewModeOverviewActionRowBuilder(),
+                new FakemonViewModeActionRowBuilder(),
             ],
         });
 
@@ -68,7 +68,7 @@ export class FakemonViewStrategy
         // Defer update
         await interaction.deferUpdate();
 
-        const { customId } = interaction as { customId: FakemonViewModeOverviewButtonCustomIds };
+        const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
         {
@@ -77,7 +77,7 @@ export class FakemonViewStrategy
 
         switch (customId)
         {
-            case FakemonViewModeOverviewButtonCustomIds.EditMode:
+            case FakemonViewModeButtonCustomIds.EditMode:
                 // Run edit subcommand
                 const Strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Edit] as typeof FakemonEditStrategy;
                 await Strategy.run(

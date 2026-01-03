@@ -4,19 +4,19 @@ import {
     ButtonStyle,
 } from 'discord.js';
 
-export enum FakemonViewModeOverviewButtonCustomIds
+export enum FakemonViewModeButtonCustomIds
 {
     EditMode = 'fakemon-view-mode-overview-go-to-edit-mode',
 }
 
-export class FakemonViewModeOverviewActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
+export class FakemonViewModeActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
 {
     constructor()
     {
         super({
             components: [
                 new ButtonBuilder({
-                    customId: FakemonViewModeOverviewButtonCustomIds.EditMode,
+                    customId: FakemonViewModeButtonCustomIds.EditMode,
                     emoji: '✏️',
                     label: 'Go to Edit Mode',
                     style: ButtonStyle.Secondary,
