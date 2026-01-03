@@ -1,7 +1,7 @@
-import { Ptu } from '../Ptu.js';
-import { fakemon } from '../Ptu/options/index.js';
+import { Ptu } from './Ptu.js';
+import { fakemon } from './Ptu/options/index.js';
 
-class Ptu_Util_Dev extends Ptu
+class Ptu_Admin extends Ptu
 {
     constructor()
     {
@@ -14,8 +14,8 @@ class Ptu_Util_Dev extends Ptu
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     get description(): string
     {
-        return `Run utility commands for Pokemon Tabletop United.`;
+        return `Run commands that involve admin permissions for Pokemon Tabletop United.`;
     }
 }
 
-export default new Ptu_Util_Dev();
+export default new Ptu_Admin();
