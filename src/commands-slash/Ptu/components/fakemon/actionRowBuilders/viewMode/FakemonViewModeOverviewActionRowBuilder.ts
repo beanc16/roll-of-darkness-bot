@@ -13,16 +13,14 @@ export class FakemonViewModeOverviewActionRowBuilder extends ActionRowBuilder<Bu
 {
     constructor()
     {
-        const stringSelectMenu = new ButtonBuilder({
-            customId: FakemonViewModeOverviewButtonCustomIds.EditMode,
-            emoji: '✏️',
-            label: 'Go to Edit Mode',
-            style: ButtonStyle.Secondary,
-        });
-
         super({
             components: [
-                stringSelectMenu,
+                new ButtonBuilder({
+                    customId: FakemonViewModeOverviewButtonCustomIds.EditMode,
+                    emoji: '✏️',
+                    label: 'Go to Edit Mode',
+                    style: ButtonStyle.Secondary,
+                }),
             ],
         });
     }
