@@ -7,6 +7,7 @@ import { faker } from '@faker-js/faker';
 import { FakemonStatsEditStringSelectElementOptions } from '../../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
+import { FailedToAddUnderdogCapabilityError, FailedToRemoveUnderdogCapabilityError } from '../errors/statErrors';
 import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 import { FakemonStatManagerService } from '../FakemonStatManagerService';
 
@@ -240,7 +241,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     ].sort(),
                 },
             } as typeof fakemon;
-            const errorMessage = 'Successfully updated stats, but failed to add underdog capability';
+            const errorMessage = 'Successfully updated stats, but failed to add Underdog capability';
 
             // Arrange - Mocks
             const loggerWarnSpy = jest.spyOn(logger, 'warn');
@@ -259,7 +260,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     statToEdit,
                     stat: expectedStat,
                 }),
-            ).rejects.toThrow(errorMessage);
+            ).rejects.toThrow(new FailedToAddUnderdogCapabilityError(new Error('Fake error')));
             expect(updateSpy).toHaveBeenCalled();
             expect(updateSpy).not.toThrow();
             expect(addOtherCapabilitiesSpy).toHaveBeenCalled();
@@ -429,7 +430,7 @@ describe(`class: ${FakemonStatManagerService.name}`, () =>
                     statToEdit,
                     stat: expectedStat,
                 }),
-            ).rejects.toThrow(errorMessage);
+            ).rejects.toThrow(new FailedToRemoveUnderdogCapabilityError(new Error('Fake error')));
             expect(updateSpy).toHaveBeenCalled();
             expect(updateSpy).not.toThrow();
             expect(addOtherCapabilitiesSpy).not.toHaveBeenCalled();

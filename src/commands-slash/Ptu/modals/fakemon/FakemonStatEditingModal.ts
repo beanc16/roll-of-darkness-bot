@@ -8,6 +8,7 @@ import {
 import { BaseCustomModal, type InputValuesMap } from '../../../../modals/BaseCustomModal.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { FailedToAddUnderdogCapabilityError, FailedToRemoveUnderdogCapabilityError } from '../../services/FakemonDataManagers/errors/statErrors.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
@@ -96,14 +97,27 @@ export class FakemonStatEditingModal extends BaseCustomModal
         catch (error)
         {
             const errorMessage = (error as Error)?.message;
-            await interaction.followUp({
-                content: [
-                    `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                    ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
-                ].join('\n'),
-                ephemeral: true,
-            });
-            return;
+
+            if (error instanceof FailedToAddUnderdogCapabilityError || error instanceof FailedToRemoveUnderdogCapabilityError)
+            {
+                await interaction.followUp({
+                    content: Text.Code.multiLine(errorMessage),
+                    ephemeral: true,
+                });
+                // Don't return, we want to refresh state
+            }
+
+            else
+            {
+                await interaction.followUp({
+                    content: [
+                        `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                        ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                    ].join('\n'),
+                    ephemeral: true,
+                });
+                return;
+            }
         }
 
         // Update message

@@ -3,6 +3,7 @@ import { logger } from '@beanc16/logger';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { FailedToAddUnderdogCapabilityError, FailedToRemoveUnderdogCapabilityError } from './errors/statErrors.js';
 import { FakemonCapabilityManagerService } from './FakemonCapabilityManagerService.js';
 
 export class FakemonStatManagerService
@@ -77,8 +78,8 @@ export class FakemonStatManagerService
             }
             catch (error)
             {
-                logger.warn('Successfully updated stats, but failed to add underdog capability', error);
-                throw new Error('Successfully updated stats, but failed to add underdog capability');
+                logger.warn('Successfully updated stats, but failed to add Underdog capability', error);
+                throw new FailedToAddUnderdogCapabilityError(error);
             }
         }
 
@@ -102,7 +103,7 @@ export class FakemonStatManagerService
             catch (error)
             {
                 logger.warn('Successfully updated stats, but failed to remove Underdog capability', error);
-                throw new Error('Successfully updated stats, but failed to remove Underdog capability');
+                throw new FailedToRemoveUnderdogCapabilityError(error);
             }
         }
 
