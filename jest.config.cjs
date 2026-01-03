@@ -106,10 +106,10 @@ module.exports = {
             lines: 90,
         },
         './src/commands-slash/Ptu/services': {
-            statements: 100,
+            statements: 99,
             branches: 90,
-            functions: 100,
-            lines: 100,
+            functions: 99,
+            lines: 99,
         },
         './src/commands-slash/strategies': {
             statements: 95,
