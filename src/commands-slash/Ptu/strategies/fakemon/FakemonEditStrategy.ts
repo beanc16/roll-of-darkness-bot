@@ -42,9 +42,12 @@ export class FakemonEditStrategy
 {
     public static key = PtuFakemonSubcommand.Edit;
 
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonEditGetParameterResults>): Promise<boolean>;
     public static async run(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
         _strategies: PtuStrategyMap,
+        options?: Partial<FakemonEditGetParameterResults>,
     ): Promise<boolean>
     {
         const {
@@ -53,7 +56,7 @@ export class FakemonEditStrategy
             // imageUrl,
             coEditorToAdd,
             coEditorToRemove,
-        } = this.getOptions(interaction);
+        } = this.getOptions(interaction as ButtonInteraction, options);
 
         // Prevent Bean from being removed
         if (coEditorToRemove && coEditorToRemove.id === DiscordUserId.Bean.toString())
@@ -122,8 +125,20 @@ export class FakemonEditStrategy
         );
     }
 
-    private static getOptions(interaction: ChatInputCommandInteraction): FakemonEditGetParameterResults
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): FakemonEditGetParameterResults;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<FakemonEditGetParameterResults>): FakemonEditGetParameterResults;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction,
+        options?: FakemonEditGetParameterResults,
+    ): FakemonEditGetParameterResults
     {
+        if (options)
+        {
+            return options;
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
