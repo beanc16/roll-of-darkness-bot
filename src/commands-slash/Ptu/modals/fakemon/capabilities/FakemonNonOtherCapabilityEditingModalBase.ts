@@ -96,7 +96,7 @@ export abstract class FakemonNonOtherCapabilityEditingModalBase extends BaseCust
             await interaction.followUp({
                 content: [
                     `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                    ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                    ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                 ].join('\n'),
                 ephemeral: true,
             });
