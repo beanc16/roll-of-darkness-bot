@@ -262,7 +262,7 @@ export class FakemonMoveNonLevelUpAddingModal extends BaseCustomModal
             [FakemonMoveNonLevelUpAddingCustomId.Move4]: undefined,
             [FakemonMoveNonLevelUpAddingCustomId.Move5]: undefined,
         };
-        let searchMoves: PtuMove[] = [];
+        let indexToSearchMoves: Record<number, PtuMove[]> = {};
         let lookupError: unknown;
         try
         {
@@ -337,32 +337,41 @@ export class FakemonMoveNonLevelUpAddingModal extends BaseCustomModal
 
             // Set searches
             const searchMoveNames = new Set<string>();
-            searchMoves = MoveStrategy.sortMoves(
-                moveSearches.reduce<PtuMove[]>((acc, cur, index) =>
+            indexToSearchMoves = moveSearches.reduce<Record<number, PtuMove[]>>((acc, cur, index) =>
+            {
+                // Only add moves that don't have an exact match
+                if (!indexToHasExactMoveMatch[index])
                 {
-                    // Only add moves that don't have an exact match
-                    if (!indexToHasExactMoveMatch[index])
+                    cur.forEach((move) =>
                     {
-                        cur.forEach((move) =>
+                        if (searchMoveNames.has(move.name))
                         {
-                            if (searchMoveNames.has(move.name))
-                            {
-                                return;
-                            }
-                            searchMoveNames.add(move.name);
-                            acc.push(move);
-                        });
-                    }
-                    return acc;
-                }, []),
-            );
+                            return;
+                        }
+                        searchMoveNames.add(move.name);
+                        acc[index].push(move);
+                    });
+                }
+                return acc;
+            }, { 0: [], 1: [], 2: [], 3: [], 4: [] });
         }
         catch (error)
         {
             lookupError = error;
         }
 
-        const undefinedMoves = Object.entries(exactMatchMoveMap).filter(([_, move], index) => !move && indexToSubmittedMove[index]);
+        let searchMoves: PtuMove[] = [];
+        const undefinedMoves = Object.entries(exactMatchMoveMap).filter(([_, move], index) =>
+        {
+            if (!move && indexToSubmittedMove[index])
+            {
+                searchMoves.push(...indexToSearchMoves[index]);
+                return true;
+            }
+
+            return false;
+        });
+        searchMoves = MoveStrategy.sortMoves(searchMoves);
         if (lookupError || undefinedMoves.length > 0)
         {
             const searchMoveEmbeds = getLookupMovesEmbedMessages(searchMoves || []);
