@@ -111,7 +111,7 @@ export function getFakemonSkillsComponents(): BaseMessageOptions['components']
 {
     return [
         new FakemonSkillsEditStringSelectActionRowBuilder(),
-        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Capabilities),
+        new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.Skills),
     ];
 }
 
