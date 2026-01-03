@@ -212,6 +212,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand,
             });
         }
+        if (Strategy && !Strategy.runStringSelect)
+        {
+            // Treat this as that strategy not having runStringSelect implemented
+            // due to in-line event handling
+            return true;
+        }
 
         return false;
     }
