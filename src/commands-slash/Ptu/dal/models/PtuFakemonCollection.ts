@@ -34,6 +34,11 @@ export class PtuFakemonCollection extends PtuPokemonCollection
     public feedbacks?: PtuFakemonFeedback[];
     public isDeleted?: boolean = false;
     public deletedAt?: Date;
+    public transferredTo: {
+        googleSheets: boolean;
+        ptuDatabase: boolean;
+        imageStorage: boolean;
+    };
 
     constructor(args: PtuFakemonCollectionConstructorArgs)
     {
@@ -43,6 +48,11 @@ export class PtuFakemonCollection extends PtuPokemonCollection
         this.status = args.status;
         this.creationChannelId = args.creationChannelId;
         this.feedbacks = args.feedbacks;
+        this.transferredTo = {
+            googleSheets: false,
+            ptuDatabase: false,
+            imageStorage: false,
+        };
     }
 
     get id(): ObjectId

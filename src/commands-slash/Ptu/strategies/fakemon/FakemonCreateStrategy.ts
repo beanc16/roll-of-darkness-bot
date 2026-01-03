@@ -170,6 +170,11 @@ export class FakemonCreateStrategy
         editors: [DiscordUserId.Bean],
         status: PtuFakemonStatus.DRAFT,
         feedbacks: [],
+        transferredTo: {
+            googleSheets: false,
+            ptuDatabase: false,
+            imageStorage: false,
+        },
     };
 
     public static async run(
