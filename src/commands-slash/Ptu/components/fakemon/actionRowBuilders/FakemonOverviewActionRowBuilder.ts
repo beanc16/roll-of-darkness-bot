@@ -4,8 +4,6 @@ import {
     StringSelectMenuBuilder,
 } from 'discord.js';
 
-import { PaginatedStringSelectMenu } from '../../../../shared/components/PaginatedStringSelectMenu.js';
-import { PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup.js';
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
 
 export enum FakemonOverviewStringSelectCustomIds
@@ -13,7 +11,7 @@ export enum FakemonOverviewStringSelectCustomIds
     Navigation = 'fakemon-overview-navigation-selector',
 }
 
-export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<PaginatedStringSelectMenu<PtuPokemonForLookupPokemon>>
+export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
     constructor(curPage: FakemonInteractionManagerPage)
     {
