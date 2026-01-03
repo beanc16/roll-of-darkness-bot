@@ -5,6 +5,7 @@ import { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { FakemonEvolutionManagerService } from '../FakemonEvolutionManagerService';
+import { shuffleArrayTimes } from './util';
 
 jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
@@ -927,13 +928,6 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             stage: 1,
         };
 
-        const shuffleArrayTimes = <Element>(array: Element[], numOfTimesToShuffle: number): Element[][] =>
-        {
-            return Array.from({ length: numOfTimesToShuffle }, () =>
-                [...array].sort(() => Math.random() - 0.5),
-            );
-        };
-
         it.each([[
             [1, 2, 3],
             [1, 3, 2],
@@ -1077,7 +1071,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
         });
 
-        it('should provide empty array if empty array is provided', () =>
+        it('should return empty array if empty array is provided', () =>
         {
             // Act
             const result = FakemonEvolutionManagerService['sortEvolutions']([]);
