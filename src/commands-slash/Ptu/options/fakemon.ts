@@ -106,6 +106,14 @@ export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     return subcommand;
 };
 
+export const viewAll = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.ViewAll);
+    subcommand.setDescription('View all custom pokemon.');
+
+    return subcommand;
+};
+
 export const view = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuFakemonSubcommand.View);

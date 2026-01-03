@@ -16,6 +16,11 @@ import { FakemonViewModeActionRowBuilder, FakemonViewModeButtonCustomIds } from 
 import { PtuSubcommandGroup } from '../../options/index.js';
 import type { FakemonEditStrategy } from './FakemonEditStrategy.js';
 
+interface FakemonViewGetParameterResults
+{
+    speciesName: string;
+}
+
 @staticImplements<
     PtuChatIteractionStrategy
     & PtuButtonIteractionStrategy
@@ -25,12 +30,16 @@ export class FakemonViewStrategy
 {
     public static key = PtuFakemonSubcommand.View;
 
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonViewGetParameterResults>): Promise<boolean>;
+    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonViewGetParameterResults>): Promise<boolean>;
     public static async run(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
         _strategies: PtuStrategyMap,
+        options?: Partial<FakemonViewGetParameterResults>,
     ): Promise<boolean>
     {
-        const { speciesName } = this.getOptions(interaction);
+        const { speciesName } = this.getOptions(interaction as ButtonInteraction, options);
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -114,8 +123,21 @@ export class FakemonViewStrategy
         );
     }
 
-    private static getOptions(interaction: ChatInputCommandInteraction): { speciesName: string }
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): FakemonViewGetParameterResults;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<FakemonViewGetParameterResults>): FakemonViewGetParameterResults;
+    private static getOptions(interaction: StringSelectMenuInteraction, options?: Partial<FakemonViewGetParameterResults>): FakemonViewGetParameterResults;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
+        options?: FakemonViewGetParameterResults,
+    ): FakemonViewGetParameterResults
     {
+        if (options)
+        {
+            return options;
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
 
         return { speciesName };

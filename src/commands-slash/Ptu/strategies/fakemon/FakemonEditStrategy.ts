@@ -44,8 +44,9 @@ export class FakemonEditStrategy
 
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonEditGetParameterResults>): Promise<boolean>;
+    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonEditGetParameterResults>): Promise<boolean>;
     public static async run(
-        interaction: ChatInputCommandInteraction | ButtonInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
         _strategies: PtuStrategyMap,
         options?: Partial<FakemonEditGetParameterResults>,
     ): Promise<boolean>
@@ -127,8 +128,9 @@ export class FakemonEditStrategy
 
     private static getOptions(interaction: ChatInputCommandInteraction, options?: never): FakemonEditGetParameterResults;
     private static getOptions(interaction: ButtonInteraction, options?: Partial<FakemonEditGetParameterResults>): FakemonEditGetParameterResults;
+    private static getOptions(interaction: StringSelectMenuInteraction, options?: Partial<FakemonEditGetParameterResults>): FakemonEditGetParameterResults;
     private static getOptions(
-        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction,
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
         options?: FakemonEditGetParameterResults,
     ): FakemonEditGetParameterResults
     {
