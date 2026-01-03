@@ -13,7 +13,6 @@ import { FakemonInteractionManagerPage } from '../../../services/FakemonInteract
 
 enum FakemonEvolutionEditingCustomId
 {
-    PreviousName = 'fakemon-evolution-editing-previous-name',
     Name = 'fakemon-evolution-editing-name',
     Level = 'fakemon-evolution-editing-level',
     Stage = 'fakemon-evolution-editing-stage',
@@ -22,7 +21,6 @@ enum FakemonEvolutionEditingCustomId
 
 enum FakemonEvolutionEditingLabel
 {
-    PreviousName = 'Previous Evolution Name',
     Name = 'New Evolution Name',
     Level = 'New Level',
     Stage = 'New Stage',
@@ -34,14 +32,6 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
     public static id = 'fakemon-edit-evolution-modal';
     public static title = 'Edit Evolution Stage';
     protected static inputValuesMap: InputValuesMap = {
-        [FakemonEvolutionEditingCustomId.PreviousName]: [
-            {
-                key: FakemonEvolutionEditingCustomId.PreviousName,
-                label: FakemonEvolutionEditingLabel.PreviousName,
-                value: '',
-                typeOfValue: 'string',
-            },
-        ],
         [FakemonEvolutionEditingCustomId.Name]: [
             {
                 key: FakemonEvolutionEditingCustomId.Name,
@@ -77,7 +67,6 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
     };
 
     protected static styleMap = {
-        [FakemonEvolutionEditingCustomId.PreviousName]: TextInputStyle.Short,
         [FakemonEvolutionEditingCustomId.Name]: TextInputStyle.Short,
         [FakemonEvolutionEditingCustomId.Level]: TextInputStyle.Short,
         [FakemonEvolutionEditingCustomId.Stage]: TextInputStyle.Short,
@@ -86,14 +75,6 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
 
     public static getTextInputs(): TextInputBuilder[]
     {
-        const previousNameInput = new TextInputBuilder()
-            .setCustomId(FakemonEvolutionEditingCustomId.PreviousName)
-            .setLabel(FakemonEvolutionEditingLabel.PreviousName)
-            .setStyle(this.styleMap[FakemonEvolutionEditingCustomId.PreviousName])
-            .setMinLength(0)
-            .setMaxLength(50)
-            .setRequired(true);
-
         const nameInput = new TextInputBuilder()
             .setCustomId(FakemonEvolutionEditingCustomId.Name)
             .setLabel(FakemonEvolutionEditingLabel.Name)
@@ -153,14 +134,12 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
         );
 
         // Set default values
-        previousNameInput.setValue(evolutionStage.name);
         nameInput.setValue(evolutionStage.name);
         levelInput.setValue(evolutionStage.level.toString());
         stageInput.setValue(evolutionStage.stage.toString());
         evolutionConditionInput.setValue(evolutionCondition || '');
 
         return [
-            previousNameInput,
             nameInput,
             levelInput,
             stageInput,
@@ -171,17 +150,16 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
     public static async run(interaction: ModalSubmitInteraction): Promise<void>
     {
         // Parse input
-        const { messageId } = this.inputData as {
+        const { messageId, previousName } = this.inputData as {
             messageId: string;
+            previousName: string;
         };
         const {
-            [FakemonEvolutionEditingCustomId.PreviousName]: previousName,
             [FakemonEvolutionEditingCustomId.Name]: name,
             [FakemonEvolutionEditingCustomId.Level]: level,
             [FakemonEvolutionEditingCustomId.Stage]: stage,
             [FakemonEvolutionEditingCustomId.EvolutionCondition]: evolutionCondition,
         } = this.parseInput<FakemonEvolutionEditingCustomId>(interaction) as {
-            [FakemonEvolutionEditingCustomId.PreviousName]: string;
             [FakemonEvolutionEditingCustomId.Name]: string;
             [FakemonEvolutionEditingCustomId.Level]: number;
             [FakemonEvolutionEditingCustomId.Stage]: number;
@@ -219,7 +197,7 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
             await interaction.followUp({
                 content: [
                     `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
-                    ...(errorMessage && [Text.Code.multiLine(errorMessage)]),
+                    ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                 ].join('\n'),
                 ephemeral: true,
             });
