@@ -1005,13 +1005,18 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                 { ...movesMap.tackle, level: 'A' },
                 { ...movesMap.quickAttack, level: 1 },
                 { ...movesMap.return, level: 'B' },
+                {
+                    move: 'Mega Punch',
+                    type: PokemonType.Normal,
+                    level: 'Evo',
+                },
             ];
 
             // Act
             const result = FakemonMoveManagerService['sortLevelUpMoves'](moves);
 
             // Assert
-            expect(result).toEqual([moves[1], moves[2], moves[0]]);
+            expect(result).toEqual([moves[3], moves[2], moves[0], moves[1]]);
         });
 
         it('should successfully sort level up moves with all non-integer levels and one different type', () =>

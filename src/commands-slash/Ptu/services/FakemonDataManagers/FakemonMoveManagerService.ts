@@ -309,11 +309,11 @@ export class FakemonMoveManagerService
             // If one is an integer, put it second
             if (!isAInteger && isBInteger)
             {
-                return 1;
+                return -1;
             }
             if (isAInteger && !isBInteger)
             {
-                return -1;
+                return 1;
             }
 
             // If both are not integers, sort by type, then by move name
