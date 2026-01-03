@@ -1,8 +1,15 @@
-import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { FakemonViewModeActionRowBuilder, FakemonViewModeButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewModeActionRowBuilder.js';
+import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
     PtuButtonIteractionStrategy,
@@ -11,9 +18,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
-import { FakemonViewModeActionRowBuilder, FakemonViewModeButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewModeActionRowBuilder.js';
-import { PtuSubcommandGroup } from '../../options/index.js';
 import type { FakemonEditStrategy } from './FakemonEditStrategy.js';
 
 interface FakemonViewGetParameterResults

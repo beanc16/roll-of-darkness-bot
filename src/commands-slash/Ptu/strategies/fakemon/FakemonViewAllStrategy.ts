@@ -1,8 +1,17 @@
-import { ButtonInteraction, ChatInputCommandInteraction, EmbedBuilder, StringSelectMenuInteraction } from 'discord.js';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
+import { FakemonViewAllActionRowBuilder, FakemonViewAllButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewAllActionRowBuilder.js';
+import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
@@ -10,10 +19,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { PtuSubcommandGroup } from '../../options/index.js';
-import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
-import { FakemonViewAllActionRowBuilder, FakemonViewAllButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewAllActionRowBuilder.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
