@@ -435,4 +435,25 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             ).toThrow('Invalid skill string');
         });
     });
+
+    describe(`method: ${FakemonSkillManagerService.addSignToSkillModifier.name}`, () =>
+    {
+        it.each([0, 1, 2, 3, 4, 5, 6])('should add a plus sign for %s (AKA: positive or zero modifier)', (skillModifier) =>
+        {
+            // Act
+            const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier);
+
+            // Assert
+            expect(result).toBe(`+${skillModifier}`);
+        });
+
+        it.each([-6, -5, -4, -3, -2, -1])('should not add a sign for %s (AKA: negative modifier that already has a negative sign)', (skillModifier) =>
+        {
+            // Act
+            const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier);
+
+            // Assert
+            expect(result).toBe(`${skillModifier}`);
+        });
+    });
 });

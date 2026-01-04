@@ -86,11 +86,11 @@ export class FakemonSkillManagerService
 
     private static formatSkill({ skillDice, skillModifier }: { skillDice: number; skillModifier: number }): string
     {
-        const sign = skillModifier >= 0 ? '+' : '';
-        return `${skillDice}d6${sign}${skillModifier}`;
+        const skillModifierWithSign = this.addSignToSkillModifier(skillModifier);
+        return `${skillDice}d6${skillModifierWithSign}`;
     }
 
-    private static deconstructSkillString(skill: string): { skillDice: number; skillModifier: number }
+    public static deconstructSkillString(skill: string): { skillDice: number; skillModifier: number }
     {
         const match = skill.match(/(\d+)d6(\+|-)(\d+)/);
         if (!match)
@@ -103,5 +103,11 @@ export class FakemonSkillManagerService
         const skillDice = parseInt(skillDiceStr, 10);
         const skillModifier = parseInt(skillModifierStr, 10) * (sign === '+' ? 1 : -1);
         return { skillDice, skillModifier };
+    }
+
+    public static addSignToSkillModifier(skillModifier: number): string
+    {
+        const sign = skillModifier >= 0 ? '+' : '';
+        return `${sign}${skillModifier}`;
     }
 }
