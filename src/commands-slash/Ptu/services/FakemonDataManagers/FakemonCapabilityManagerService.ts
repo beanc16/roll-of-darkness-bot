@@ -238,6 +238,29 @@ export class FakemonCapabilityManagerService
     }
 
     /**
+     * Finds the non-naturewalk values from the fakemon's capabilities
+     */
+    public static findNonNaturewalkCapabilities({ capabilities }: Pick<PtuFakemonCollection, 'capabilities'>): string[]
+    {
+        // Create a copy of the other capabilities so that splice
+        // doesn't mutate the original array
+        const other = [...(capabilities?.other || [])];
+
+        const naturewalkIndex = other.findIndex(element =>
+            element.toLowerCase().includes('naturewalk'),
+        );
+
+        // If naturewalk exists, remove it from the list
+        if (naturewalkIndex !== -1)
+        {
+            // Remove naturewalk
+            other.splice(naturewalkIndex, 1);
+        }
+
+        return other;
+    }
+
+    /**
      * Formats the naturewalk values into a human-readable string
      */
     public static formatNaturewalkValuesAsCapabilityName(naturewalks: PtuNaturewalk[]): string | undefined

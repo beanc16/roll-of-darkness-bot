@@ -1040,6 +1040,116 @@ describe(`class: ${FakemonCapabilityManagerService.name}`, () =>
         });
     });
 
+    describe(`method: ${FakemonCapabilityManagerService.findNonNaturewalkCapabilities.name}`, () =>
+    {
+        it('should return all other capabilities if naturewalk does not exist', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 3,
+                },
+            });
+
+            // Act
+            const result = FakemonCapabilityManagerService.findNonNaturewalkCapabilities(fakemon);
+
+            // Assert
+            expect(result).toEqual(fakemon.capabilities.other);
+        });
+
+        it('should return all other capabilities except naturewalk if naturewalk exists', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 3,
+                },
+            });
+            const otherCapabilities = [
+                ...fakemon.capabilities.other!,
+                `Naturewalk (${PtuNaturewalk.Beach})`,
+            ];
+
+            // Act
+            const result = FakemonCapabilityManagerService.findNonNaturewalkCapabilities({
+                ...fakemon,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: otherCapabilities,
+                },
+            } as typeof fakemon);
+
+            // Assert
+            expect(result).toEqual(fakemon.capabilities.other);
+        });
+
+        it('should return an empty array if other capabilities is an empty array', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 0,
+                },
+            });
+
+            // Act
+            const result = FakemonCapabilityManagerService.findNonNaturewalkCapabilities(fakemon);
+
+            // Assert
+            expect(result).toEqual([]);
+        });
+
+        it('should return an empty array if other capabilities is undefined', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 0,
+                },
+            });
+
+            // Act
+            const result = FakemonCapabilityManagerService.findNonNaturewalkCapabilities({
+                ...fakemon,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: undefined,
+                },
+            } as typeof fakemon);
+
+            // Assert
+            expect(result).toEqual([]);
+        });
+
+        it('should not mutate the original other capabilities array', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({
+                capabilities: {
+                    numOfOtherCapabilities: 3,
+                },
+            });
+            const originalOtherCapabilities = [
+                ...fakemon.capabilities.other!,
+                `Naturewalk (${PtuNaturewalk.Beach})`,
+            ];
+            const otherCapabilitiesCopy = [...originalOtherCapabilities];
+
+            // Act
+            FakemonCapabilityManagerService.findNonNaturewalkCapabilities({
+                ...fakemon,
+                capabilities: {
+                    ...fakemon.capabilities,
+                    other: originalOtherCapabilities,
+                },
+            } as typeof fakemon);
+
+            // Assert
+            expect(originalOtherCapabilities).toEqual(otherCapabilitiesCopy);
+        });
+    });
+
     describe(`method: ${FakemonCapabilityManagerService.formatNaturewalkValuesAsCapabilityName.name}`, () =>
     {
         it('should return undefined if no naturewalk values are provided', () =>
