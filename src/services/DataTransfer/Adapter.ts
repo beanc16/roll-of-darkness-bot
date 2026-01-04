@@ -4,8 +4,14 @@ export abstract class Adapter<Input, Output>
 
     public async transformBulk(inputs: Input[]): Promise<Output[]>
     {
-        return await Promise.all(
-            inputs.map((input, index) => this.transform(input, index)),
-        );
+        const results: Output[] = [];
+
+        for (let index = 0; index < inputs.length; index += 1)
+        {
+            const result = await this.transform(inputs[index], index);
+            results.push(result);
+        }
+
+        return results;
     }
 }
