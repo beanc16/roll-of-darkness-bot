@@ -3,7 +3,7 @@ export abstract class DataTransferDestination<Input, Source>
     /**
      * Creates the initial data at the transfer destination
      */
-    abstract create(input: Input, source: Source): Promise<void>;
+    abstract create(input: Input, source: Source): void | Promise<void>;
 
     /**
      * Bulk creates the initial data at the transfer destination
