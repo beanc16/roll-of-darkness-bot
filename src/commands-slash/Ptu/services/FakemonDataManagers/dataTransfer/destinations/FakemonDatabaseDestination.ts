@@ -23,6 +23,12 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
 
     public async create(input: PtuPokemonCollection, source: PtuFakemonCollection): Promise<void>
     {
+        // Do not continue if the fakemon has already been transferred
+        if (await this.wasTransferred(input, source))
+        {
+            return;
+        }
+
         this.validateInput(input);
 
         // Insert only if another pokemon with id and this name does not exist already

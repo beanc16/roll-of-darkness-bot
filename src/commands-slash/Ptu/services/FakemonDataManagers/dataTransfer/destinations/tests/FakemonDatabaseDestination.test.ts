@@ -61,6 +61,8 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             // Arrange
             const input = createPtuPokemonCollectionData();
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput')
                 .mockReturnValue(true);
             const insertOneIfNotExistsSpy = jest.spyOn(PokemonController, 'insertOneIfNotExists');
@@ -70,6 +72,8 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             await destination.create(input, source);
 
             // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
+            expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
             expect(validateInputSpy).toHaveBeenCalledTimes(1);
             expect(validateInputSpy).toHaveBeenCalledWith(input);
             expect(insertOneIfNotExistsSpy).toHaveBeenCalledTimes(1);
@@ -95,6 +99,8 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             const input = createPtuPokemonCollectionData();
             input.name = '';
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput');
             const insertOneIfNotExistsSpy = jest.spyOn(PokemonController, 'insertOneIfNotExists');
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
@@ -103,7 +109,32 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             await expect(
                 destination.create(input, source),
             ).rejects.toThrow('Pokemon name must not be empty');
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
+            expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
             expect(validateInputSpy).toHaveBeenCalled();
+            expect(insertOneIfNotExistsSpy).not.toHaveBeenCalled();
+            expect(updateTransferredToSpy).not.toHaveBeenCalled();
+        });
+
+        it('should not validate input, insert pokemon, or update transfer status if fakemon was already transferred', async () =>
+        {
+            // Arrange
+            const input = createPtuPokemonCollectionData();
+            const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(true);
+            const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput')
+                .mockReturnValue(true);
+            const insertOneIfNotExistsSpy = jest.spyOn(PokemonController, 'insertOneIfNotExists');
+            const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
+
+            // Act
+            await destination.create(input, source);
+
+            // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
+            expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
+            expect(validateInputSpy).not.toHaveBeenCalled();
             expect(insertOneIfNotExistsSpy).not.toHaveBeenCalled();
             expect(updateTransferredToSpy).not.toHaveBeenCalled();
         });

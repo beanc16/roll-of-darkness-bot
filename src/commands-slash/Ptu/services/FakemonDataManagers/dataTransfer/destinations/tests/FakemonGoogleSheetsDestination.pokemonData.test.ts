@@ -115,6 +115,8 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
                 pokemonSkills: Array(34).fill('1'),
             };
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const appendSpy = jest.spyOn(CachedGoogleSheetsApiService, 'append')
                 .mockResolvedValue({ errorType: undefined });
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
@@ -123,6 +125,8 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             await destination.create(input, source);
 
             // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
+            expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
             expect(appendSpy).toHaveBeenCalledTimes(2);
             expect(appendSpy).toHaveBeenNthCalledWith(1, {
                 spreadsheetId: expect.any(String),
@@ -136,26 +140,19 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
                 values: [input.pokemonSkills],
                 shouldNotCache: true,
             });
-            expect(updateTransferredToSpy).toHaveBeenCalledTimes(2);
-            expect(updateTransferredToSpy).toHaveBeenNthCalledWith(1, {
+            expect(updateTransferredToSpy).toHaveBeenCalledTimes(1);
+            expect(updateTransferredToSpy).toHaveBeenCalledWith({
                 fakemon: source,
                 transferredTo: {
                     googleSheets: {
                         pokemonData: true,
-                    },
-                },
-            });
-            expect(updateTransferredToSpy).toHaveBeenNthCalledWith(2, {
-                fakemon: source,
-                transferredTo: {
-                    googleSheets: {
                         pokemonSkills: true,
                     },
                 },
             });
         });
 
-        it('should not update transfer status if pokemon data append fails with errorType', async () =>
+        it('should update transfer status to false if pokemon data and pokemon skills appends fail with errorType', async () =>
         {
             // Arrange
             const input: FakemonGoogleSheetsData = {
@@ -163,6 +160,8 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
                 pokemonSkills: Array(34).fill('1'),
             };
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const appendSpy = jest.spyOn(CachedGoogleSheetsApiService, 'append')
                 .mockResolvedValue({ errorType: GoogleSheetsApiErrorType.UnknownError });
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
@@ -171,8 +170,44 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             await destination.create(input, source);
 
             // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(appendSpy).toHaveBeenCalledTimes(2);
+            expect(updateTransferredToSpy).toHaveBeenCalledTimes(1);
+            expect(updateTransferredToSpy).toHaveBeenCalledWith({
+                fakemon: source,
+                transferredTo: {
+                    googleSheets: {
+                        pokemonData: false,
+                        pokemonSkills: false,
+                    },
+                },
+            });
+        });
+
+        it('should not append pokemon data and skills if fakemon was already transferred', async () =>
+        {
+            // Arrange
+            const input: FakemonGoogleSheetsData = {
+                pokemonData: createValidPokemonData(),
+                pokemonSkills: Array(34).fill('1'),
+            };
+            const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(true);
+            const appendSpy = jest.spyOn(CachedGoogleSheetsApiService, 'append')
+                .mockResolvedValue({ errorType: undefined });
+            const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
+            const loggerErrorSpy = jest.spyOn(logger, 'error');
+
+            // Act
+            await destination.create(input, source);
+
+            // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
+            expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
+            expect(appendSpy).not.toHaveBeenCalled();
             expect(updateTransferredToSpy).not.toHaveBeenCalled();
+            expect(loggerErrorSpy).not.toHaveBeenCalled();
         });
 
         it('should log error and append pokemon skills if pokemon data append throws', async () =>
@@ -184,6 +219,8 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             };
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const error = new Error('Append failed');
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const appendSpy = jest.spyOn(CachedGoogleSheetsApiService, 'append')
                 .mockRejectedValueOnce(error)
                 .mockResolvedValueOnce({ errorType: undefined });
@@ -194,6 +231,7 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             await destination.create(input, source);
 
             // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(appendSpy).toHaveBeenCalledTimes(2);
             expect(loggerErrorSpy).toHaveBeenCalledWith('Failed to transfer pokemon data to Google Sheets', error);
             expect(updateTransferredToSpy).toHaveBeenCalledTimes(1);
@@ -201,6 +239,7 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
                 fakemon: source,
                 transferredTo: {
                     googleSheets: {
+                        pokemonData: false,
                         pokemonSkills: true,
                     },
                 },
@@ -216,6 +255,8 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             };
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const error = new Error('Append failed');
+            const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
+                .mockReturnValue(false);
             const appendSpy = jest.spyOn(CachedGoogleSheetsApiService, 'append')
                 .mockResolvedValueOnce({ errorType: undefined })
                 .mockRejectedValueOnce(error);
@@ -226,6 +267,7 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
             await destination.create(input, source);
 
             // Assert
+            expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(appendSpy).toHaveBeenCalledTimes(2);
             expect(loggerErrorSpy).toHaveBeenCalledWith('Failed to transfer pokemon skills to Google Sheets', error);
             expect(updateTransferredToSpy).toHaveBeenCalledTimes(1);
@@ -234,6 +276,7 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonData`, () =>
                 transferredTo: {
                     googleSheets: {
                         pokemonData: true,
+                        pokemonSkills: false,
                     },
                 },
             });

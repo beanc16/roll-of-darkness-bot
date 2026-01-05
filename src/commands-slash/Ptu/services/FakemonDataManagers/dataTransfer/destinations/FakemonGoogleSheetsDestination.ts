@@ -23,6 +23,12 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
 
     public async create(input: FakemonGoogleSheetsData, source: PtuFakemonCollection): Promise<void>
     {
+        // Do not continue if the fakemon has already been transferred
+        if (await this.wasTransferred(input, source))
+        {
+            return;
+        }
+
         const transferredToGoogleSheets = {
             pokemonData: false,
             pokemonSkills: false,
@@ -40,15 +46,6 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
 
             if (!errorType)
             {
-                // Say that the fakemon has been transferred
-                await FakemonGeneralInformationManagerService.updateTransferredTo({
-                    fakemon: source,
-                    transferredTo: {
-                        googleSheets: {
-                            pokemonData: true,
-                        },
-                    },
-                });
                 transferredToGoogleSheets.pokemonData = true;
             }
         }
@@ -69,15 +66,6 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
 
             if (!errorType)
             {
-                // Say that the fakemon has been transferred
-                await FakemonGeneralInformationManagerService.updateTransferredTo({
-                    fakemon: source,
-                    transferredTo: {
-                        googleSheets: {
-                            pokemonSkills: true,
-                        },
-                    },
-                });
                 transferredToGoogleSheets.pokemonSkills = true;
             }
         }
@@ -85,6 +73,14 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             logger.error('Failed to transfer pokemon skills to Google Sheets', error);
         }
+
+        // Say that the fakemon has been transferred or not
+        await FakemonGeneralInformationManagerService.updateTransferredTo({
+            fakemon: source,
+            transferredTo: {
+                googleSheets: transferredToGoogleSheets,
+            },
+        });
     }
 
     protected validateInput(input: FakemonGoogleSheetsData): asserts input is FakemonGoogleSheetsData
