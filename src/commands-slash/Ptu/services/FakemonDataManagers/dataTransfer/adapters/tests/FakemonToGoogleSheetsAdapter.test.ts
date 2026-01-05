@@ -54,40 +54,41 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
 
     // pokemonSkills indices
     const POKEMON_SKILLS_INDEX = {
-        ACROBATICS_DICE: 0,
-        ACROBATICS_MODIFIER: 1,
-        ATHLETICS_DICE: 2,
-        ATHLETICS_MODIFIER: 3,
-        CHARM_DICE: 4,
-        CHARM_MODIFIER: 5,
-        COMBAT_DICE: 6,
-        COMBAT_MODIFIER: 7,
-        COMMAND_DICE: 8,
-        COMMAND_MODIFIER: 9,
-        GENERAL_EDUCATION_DICE: 10,
-        GENERAL_EDUCATION_MODIFIER: 11,
-        MEDICAL_EDUCATION_DICE: 12,
-        MEDICAL_EDUCATION_MODIFIER: 13,
-        OCCULT_EDUCATION_DICE: 14,
-        OCCULT_EDUCATION_MODIFIER: 15,
-        POKEMON_EDUCATION_DICE: 16,
-        POKEMON_EDUCATION_MODIFIER: 17,
-        TECHNOLOGY_EDUCATION_DICE: 18,
-        TECHNOLOGY_EDUCATION_MODIFIER: 19,
-        FOCUS_DICE: 20,
-        FOCUS_MODIFIER: 21,
-        GUILE_DICE: 22,
-        GUILE_MODIFIER: 23,
-        INTIMIDATE_DICE: 24,
-        INTIMIDATE_MODIFIER: 25,
-        INTUITION_DICE: 26,
-        INTUITION_MODIFIER: 27,
-        PERCEPTION_DICE: 28,
-        PERCEPTION_MODIFIER: 29,
-        STEALTH_DICE: 30,
-        STEALTH_MODIFIER: 31,
-        SURVIVAL_DICE: 32,
-        SURVIVAL_MODIFIER: 33,
+        POKEMON_NAME: 0,
+        ACROBATICS_DICE: 1,
+        ACROBATICS_MODIFIER: 2,
+        ATHLETICS_DICE: 3,
+        ATHLETICS_MODIFIER: 4,
+        CHARM_DICE: 5,
+        CHARM_MODIFIER: 6,
+        COMBAT_DICE: 7,
+        COMBAT_MODIFIER: 8,
+        COMMAND_DICE: 9,
+        COMMAND_MODIFIER: 10,
+        GENERAL_EDUCATION_DICE: 11,
+        GENERAL_EDUCATION_MODIFIER: 12,
+        MEDICAL_EDUCATION_DICE: 13,
+        MEDICAL_EDUCATION_MODIFIER: 14,
+        OCCULT_EDUCATION_DICE: 15,
+        OCCULT_EDUCATION_MODIFIER: 16,
+        POKEMON_EDUCATION_DICE: 17,
+        POKEMON_EDUCATION_MODIFIER: 18,
+        TECHNOLOGY_EDUCATION_DICE: 19,
+        TECHNOLOGY_EDUCATION_MODIFIER: 20,
+        FOCUS_DICE: 21,
+        FOCUS_MODIFIER: 22,
+        GUILE_DICE: 23,
+        GUILE_MODIFIER: 24,
+        INTIMIDATE_DICE: 25,
+        INTIMIDATE_MODIFIER: 26,
+        INTUITION_DICE: 27,
+        INTUITION_MODIFIER: 28,
+        PERCEPTION_DICE: 29,
+        PERCEPTION_MODIFIER: 30,
+        STEALTH_DICE: 31,
+        STEALTH_MODIFIER: 32,
+        SURVIVAL_DICE: 33,
+        SURVIVAL_MODIFIER: 34,
     };
 
     beforeEach(() =>
@@ -954,6 +955,8 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
 
                 // Assert
                 expect(result.pokemonSkills).toEqual([
+                    // Name
+                    fakemon.name,
                     // Acrobatics
                     '1',
                     '+1',
@@ -1006,6 +1009,20 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                     '2',
                     '+0',
                 ]);
+            });
+
+            it('should transform fakemon name correctly', () =>
+            {
+                // Arrange
+                const fakemon = createPtuFakemonCollectionData({
+                    dexType: PtuFakemonDexType.Eden,
+                });
+
+                // Act
+                const result = adapter.transform(fakemon);
+
+                // Assert
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.POKEMON_NAME]).toBe(fakemon.name);
             });
 
             it('should transform acrobatics dice correctly', () =>

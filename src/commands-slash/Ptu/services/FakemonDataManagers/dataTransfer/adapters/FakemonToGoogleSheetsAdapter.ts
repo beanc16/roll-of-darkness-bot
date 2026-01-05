@@ -91,7 +91,7 @@ export class FakemonToGoogleSheetsAdapter extends Adapter<PtuFakemonCollection, 
         ].map((value) => value.trim());
     }
 
-    private transformPokemonSkills({ skills }: Pick<PtuFakemonCollection, 'skills'>): FakemonGoogleSheetsData['pokemonSkills']
+    private transformPokemonSkills({ name, skills }: Pick<PtuFakemonCollection, 'name' | 'skills'>): FakemonGoogleSheetsData['pokemonSkills']
     {
         const acrobatics = FakemonSkillManagerService.deconstructSkillString(skills.acrobatics);
         const athletics = FakemonSkillManagerService.deconstructSkillString(skills.athletics);
@@ -101,6 +101,7 @@ export class FakemonToGoogleSheetsAdapter extends Adapter<PtuFakemonCollection, 
         const stealth = FakemonSkillManagerService.deconstructSkillString(skills.stealth);
 
         return [
+            name,
             // Acrobatics
             acrobatics.skillDice.toString(),
             FakemonSkillManagerService.addSignToSkillModifier(acrobatics.skillModifier),
