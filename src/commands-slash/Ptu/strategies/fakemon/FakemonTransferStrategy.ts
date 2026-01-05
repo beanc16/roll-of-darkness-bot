@@ -1,0 +1,161 @@
+import { Text } from '@beanc16/discordjs-helpers';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
+
+import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { FakemonDataTransferService } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
+import type {
+    PtuButtonIteractionStrategy,
+    PtuChatIteractionStrategy,
+    PtuStrategyMap,
+    PtuStrategyMetadata,
+} from '../../types/strategies.js';
+
+interface FakemonTransferGetParameterResults
+{
+    speciesName: string;
+}
+
+@staticImplements<
+    PtuChatIteractionStrategy
+    & PtuButtonIteractionStrategy
+>()
+export class FakemonTransferStrategy
+{
+    public static key = PtuFakemonSubcommand.Transfer;
+
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonTransferGetParameterResults>): Promise<boolean>;
+    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonTransferGetParameterResults>): Promise<boolean>;
+    public static async run(
+        interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
+        _strategies: PtuStrategyMap,
+        options?: Partial<FakemonTransferGetParameterResults>,
+    ): Promise<boolean>
+    {
+        const { speciesName } = this.getOptions(interaction as ButtonInteraction, options);
+
+        // Get fakemon
+        const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
+        if (!fakemon)
+        {
+            await interaction.editReply({
+                content: `Fakemon titled \`${speciesName}\` does not exist or you are not an editor of it.`,
+            });
+            return true;
+        }
+
+        // Send transfer confirmation message
+        const message = await interaction.fetchReply();
+        await interaction.followUp({
+            content: `Are you sure that you want to transfer ${Text.Code.oneLine(speciesName)}?`,
+            components: [
+                new ConfirmDenyButtonActionRowBuilder(),
+            ],
+        });
+
+        // Add to cache
+        PtuFakemonPseudoCache.addToCache(message.id, fakemon);
+
+        return true;
+    }
+
+    public static async runButton(
+        interaction: ButtonInteraction,
+        _strategies: PtuStrategyMap,
+        _metadata: PtuStrategyMetadata,
+    ): Promise<boolean>
+    {
+        // Defer update
+        await interaction.deferUpdate();
+
+        const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+
+        switch (customId)
+        {
+            case ConfirmDenyButtonCustomIds.Confirm:
+                try
+                {
+                    // Send first response
+                    await interaction.followUp({
+                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)}. Please be patient, this may take a few seconds...`,
+                    });
+
+                    // Transfer fakemon
+                    const service = new FakemonDataTransferService();
+                    await service.transfer(fakemon);
+
+                    // Get updated fakemon
+                    const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
+
+                    // Send response
+                    await interaction.followUp({
+                        content: [
+                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred to the following locations:`,
+                            Text.Code.multiLine(
+                                JSON.stringify(updatedFakemon.transferredTo, null, 2),
+                            ),
+                        ].join('\n'),
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to transfer fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case ConfirmDenyButtonCustomIds.Deny:
+                // Send response
+                await interaction.editReply({
+                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)}.`,
+                    components: [],
+                });
+                break;
+
+            default:
+                const typeCheck: never = customId;
+                throw new Error(`Unknown customId: ${typeCheck}`);
+        }
+
+        return true;
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction, options?: never): FakemonTransferGetParameterResults;
+    private static getOptions(interaction: ButtonInteraction, options?: Partial<FakemonTransferGetParameterResults>): FakemonTransferGetParameterResults;
+    private static getOptions(interaction: StringSelectMenuInteraction, options?: Partial<FakemonTransferGetParameterResults>): FakemonTransferGetParameterResults;
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
+        options?: FakemonTransferGetParameterResults,
+    ): FakemonTransferGetParameterResults
+    {
+        if (options)
+        {
+            return options;
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
+        const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
+
+        return { speciesName };
+    }
+}

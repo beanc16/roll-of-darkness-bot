@@ -8,7 +8,7 @@ export enum PtuFakemonSubcommand
     Delete = 'delete',
     Edit = 'edit',
     // Review = 'review',
-    // Transfer = 'transfer',
+    Transfer = 'transfer',
     ViewAll = 'view_all',
     View = 'view',
 }
@@ -102,6 +102,22 @@ export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     {
         option.setName('co_editor_to_remove');
         return option.setDescription('A co-editor of the custom Pokémon to remove (will include users that are not editors).');
+    });
+
+    return subcommand;
+};
+
+export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Transfer);
+    subcommand.setDescription('Transfer a custom pokemon to databases.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
     });
 
     return subcommand;
