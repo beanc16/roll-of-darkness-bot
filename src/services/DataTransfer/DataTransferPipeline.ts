@@ -17,7 +17,9 @@ export class DataTransferPipeline<Input, Output>
 
     public async transferBulk(input: Input[]): Promise<void>
     {
-        const promises = input.map((curInput) => this.transfer(curInput));
-        await Promise.all(promises);
+        for (const curInput of input)
+        {
+            await this.transfer(curInput);
+        }
     }
 }

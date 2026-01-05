@@ -7,13 +7,17 @@ export abstract class DataTransferService<Input, Output>
 
     public async transfer(input: Input): Promise<void>
     {
-        const promises = this.pipelines.map((pipeline) => pipeline.transfer(input));
-        await Promise.all(promises);
+        for (const pipeline of this.pipelines)
+        {
+            await pipeline.transfer(input);
+        }
     }
 
     public async transferBulk(input: Input[]): Promise<void>
     {
-        const promises = this.pipelines.map((pipeline) => pipeline.transferBulk(input));
-        await Promise.all(promises);
+        for (const pipeline of this.pipelines)
+        {
+            await pipeline.transferBulk(input);
+        }
     }
 }
