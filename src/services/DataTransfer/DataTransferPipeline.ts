@@ -17,9 +17,10 @@ export class DataTransferPipeline<Input, Output>
 
     public async transferBulk(input: Input[]): Promise<void>
     {
-        for (const curInput of input)
+        for (let index = 0; index < input.length; index += 1)
         {
-            await this.transfer(curInput);
+            // eslint-disable-next-line no-await-in-loop -- We're intentionally awaiting sequentially
+            await this.transfer(input[index]);
         }
     }
 }

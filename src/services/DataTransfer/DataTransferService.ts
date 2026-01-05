@@ -7,17 +7,19 @@ export abstract class DataTransferService<Input, Output>
 
     public async transfer(input: Input): Promise<void>
     {
-        for (const pipeline of this.pipelines)
+        for (let index = 0; index < this.pipelines.length; index += 1)
         {
-            await pipeline.transfer(input);
+            // eslint-disable-next-line no-await-in-loop -- We're intentionally awaiting sequentially
+            await this.pipelines[index].transfer(input);
         }
     }
 
     public async transferBulk(input: Input[]): Promise<void>
     {
-        for (const pipeline of this.pipelines)
+        for (let index = 0; index < this.pipelines.length; index += 1)
         {
-            await pipeline.transferBulk(input);
+            // eslint-disable-next-line no-await-in-loop -- We're intentionally awaiting sequentially
+            await this.pipelines[index].transferBulk(input);
         }
     }
 }
