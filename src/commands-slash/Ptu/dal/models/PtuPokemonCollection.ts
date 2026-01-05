@@ -45,8 +45,8 @@ export class PtuPokemonCollection
         megaEvolutions,
         metadata,
         extras,
-        edits,
-    }: PtuPokemon & { _id: ObjectId; edits: PtuPokemonEdit[] })
+        edits = [],
+    }: PtuPokemon & { _id: ObjectId; edits?: PtuPokemonEdit[] })
     {
         if (_id)
         {
@@ -70,11 +70,29 @@ export class PtuPokemonCollection
         this.habitats = habitats;
         this.capabilities = capabilities;
         this.skills = skills;
-        this.moveList = moveList;
+        this.moveList = {
+            levelUp: moveList?.levelUp,
+            tmHm: moveList?.tmHm,
+            eggMoves: moveList?.eggMoves,
+            tutorMoves: moveList?.tutorMoves,
+        };
         this.megaEvolutions = megaEvolutions;
         this.metadata = metadata;
-        this.extras = extras;
-        this.edits = edits;
+
+        if (moveList?.zygardeCubeMoves && moveList.zygardeCubeMoves.length > 0)
+        {
+            this.moveList.zygardeCubeMoves = moveList.zygardeCubeMoves;
+        }
+
+        if (extras && extras.length > 0)
+        {
+            this.extras = extras;
+        }
+
+        if (edits && edits.length > 0)
+        {
+            this.edits = edits;
+        }
     }
 
     public toPtuPokemon(): PtuPokemon
