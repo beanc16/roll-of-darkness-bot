@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
-import { PtuFakemonCollection, PtuFakemonStatus } from '../dal/models/PtuFakemonCollection';
+import { PtuFakemonCollection, PtuFakemonDexType, PtuFakemonStatus } from '../dal/models/PtuFakemonCollection';
 import { PtuPokemon } from '../types/pokemon';
 import { createPtuPokemonCollectionData } from './PtuPokemonCollection.fakes';
 
@@ -22,7 +22,11 @@ const getFakeDiscordIds = (): string[] =>
     );
 };
 
-export const createPtuFakemonCollectionData = (args: Parameters<typeof createPtuPokemonCollectionData>[0] = {}): PtuFakemonCollection =>
+export const createPtuFakemonCollectionData = (
+    args: Parameters<typeof createPtuPokemonCollectionData>[0] & {
+        dexType?: PtuFakemonDexType;
+    } = {},
+): PtuFakemonCollection =>
 {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const pokemon = createPtuPokemonCollectionData(args);
@@ -38,8 +42,18 @@ export const createPtuFakemonCollectionData = (args: Parameters<typeof createPtu
         ),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
         status: faker.helpers.arrayElement(Object.values(PtuFakemonStatus)),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+        dexType: args.dexType ?? faker.helpers.arrayElement(Object.values(PtuFakemonDexType)),
         creationChannelId: getFakeDiscordId(),
         feedbacks: [],
+        transferredTo: {
+            googleSheets: {
+                pokemonData: false,
+                pokemonSkills: false,
+            },
+            ptuDatabase: false,
+            imageStorage: false,
+        },
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         toPtuPokemon: () => ({} as PtuPokemon),
     };

@@ -3,7 +3,9 @@ import { ObjectId } from 'mongodb';
 
 import { PtuPokemonCollection } from '../dal/models/PtuPokemonCollection.js';
 import {
+    PokemonDiet,
     PokemonEggGroup,
+    PokemonHabitat,
     PokemonType,
     PtuHeight,
     PtuPokemon,
@@ -36,7 +38,7 @@ const getFakeSkill = (): string =>
     const dice = faker.number.int({ min: 1, max: 6 });
     const modifier = faker.number.int({ min: -3, max: 6 });
     const sign = (modifier >= 0) ? '+' : '';
-    return `${dice}${sign}${modifier}`;
+    return `${dice}d6${sign}${modifier}`;
 };
 
 export const createPtuPokemonCollectionData = ({
@@ -150,8 +152,14 @@ export const createPtuPokemonCollectionData = ({
             ),
             averageHatchRate: `${faker.number.int({ min: 1, max: 75 })} Days`,
         },
-        diets: getArrayOfWords({ min: 1, max: 3 }),
-        habitats: getArrayOfWords({ min: 1, max: 4 }),
+        diets: faker.helpers.arrayElements(
+            Object.values(PokemonDiet),
+            faker.number.int({ min: 1, max: 2 }),
+        ),
+        habitats: faker.helpers.arrayElements(
+            Object.values(PokemonHabitat),
+            faker.number.int({ min: 1, max: 5 }),
+        ),
         skills: {
             athletics: getFakeSkill(),
             acrobatics: getFakeSkill(),
