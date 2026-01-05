@@ -103,22 +103,32 @@ export class FakemonGeneralInformationManagerService
         >;
     }): Promise<PtuFakemonCollection>
     {
+        const updateData: Record<string, boolean> = {};
+
+        if (transferredTo.ptuDatabase !== undefined)
+        {
+            updateData['transferredTo.ptuDatabase'] = transferredTo.ptuDatabase;
+        }
+        if (transferredTo.imageStorage !== undefined)
+        {
+            updateData['transferredTo.imageStorage'] = transferredTo.imageStorage;
+        }
+        if (transferredTo.googleSheets?.pokemonData !== undefined)
+        {
+            updateData['transferredTo.googleSheets.pokemonData'] = transferredTo.googleSheets.pokemonData;
+        }
+        if (transferredTo.googleSheets?.pokemonSkills !== undefined)
+        {
+            updateData['transferredTo.googleSheets.pokemonSkills'] = transferredTo.googleSheets.pokemonSkills;
+        }
+
         const {
             results: {
                 new: output,
             },
         } = await FakemonController.findOneAndUpdate({
             _id: fakemon.id,
-        }, {
-            transferredTo: {
-                ...fakemon.transferredTo,
-                ...transferredTo,
-                googleSheets: {
-                    ...fakemon.transferredTo.googleSheets,
-                    ...transferredTo.googleSheets,
-                },
-            },
-        }) as {
+        }, updateData) as {
             results: {
                 new: PtuFakemonCollection;
             };

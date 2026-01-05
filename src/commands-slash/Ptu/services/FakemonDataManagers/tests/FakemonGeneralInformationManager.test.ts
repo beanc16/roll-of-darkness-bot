@@ -244,10 +244,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ...fakemon.transferredTo,
-                        ptuDatabase: true,
-                    },
+                    'transferredTo.ptuDatabase': true,
                 },
             );
         });
@@ -277,10 +274,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ...fakemon.transferredTo,
-                        imageStorage: true,
-                    },
+                    'transferredTo.imageStorage': true,
                 },
             );
         });
@@ -310,13 +304,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ...fakemon.transferredTo,
-                        googleSheets: {
-                            ...fakemon.transferredTo.googleSheets,
-                            pokemonData: true,
-                        },
-                    },
+                    'transferredTo.googleSheets.pokemonData': true,
                 },
             );
         });
@@ -346,13 +334,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ...fakemon.transferredTo,
-                        googleSheets: {
-                            ...fakemon.transferredTo.googleSheets,
-                            pokemonSkills: true,
-                        },
-                    },
+                    'transferredTo.googleSheets.pokemonSkills': true,
                 },
             );
         });
@@ -389,14 +371,10 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ptuDatabase: true,
-                        imageStorage: true,
-                        googleSheets: {
-                            pokemonData: true,
-                            pokemonSkills: true,
-                        },
-                    },
+                    'transferredTo.ptuDatabase': true,
+                    'transferredTo.imageStorage': true,
+                    'transferredTo.googleSheets.pokemonData': true,
+                    'transferredTo.googleSheets.pokemonSkills': true,
                 },
             );
         });
@@ -434,14 +412,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
                 { _id: fakemon.id },
                 {
-                    transferredTo: {
-                        ptuDatabase: true,
-                        imageStorage: true,
-                        googleSheets: {
-                            pokemonData: true,
-                            pokemonSkills: false,
-                        },
-                    },
+                    'transferredTo.imageStorage': true,
                 },
             );
         });
