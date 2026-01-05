@@ -1,11 +1,22 @@
-import { FakemonDatabaseDestination } from '../FakemonDatabaseDestination.js';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
+import { MongoDbResults } from 'mongodb-controller';
+
 import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
 import { PokemonController } from '../../../../../dal/PtuController.js';
-import { FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
 import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
 import { createPtuPokemonCollectionData as createPtuPokemonCollectionDataOriginal } from '../../../../../fakes/PtuPokemonCollection.fakes.js';
-import { PokemonType, PokemonEggGroup, PokemonDiet, PokemonHabitat, PtuHeight, PtuNaturewalk } from '../../../../../types/pokemon.js';
-import { MongoDbResults } from 'mongodb-controller';
+import {
+    PokemonDiet,
+    PokemonEggGroup,
+    PokemonHabitat,
+    PokemonType,
+    PtuHeight,
+    PtuNaturewalk,
+} from '../../../../../types/pokemon.js';
+import { FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
+import { FakemonDatabaseDestination } from '../FakemonDatabaseDestination.js';
 
 jest.mock('../../../../../dal/PtuController', () =>
 {
@@ -26,7 +37,7 @@ jest.mock('../../../FakemonGeneralInformationManagerService', () =>
     };
 });
 
-const createPtuPokemonCollectionData = () =>
+const createPtuPokemonCollectionData = (): ReturnType<typeof createPtuPokemonCollectionDataOriginal> =>
 {
     const result = createPtuPokemonCollectionDataOriginal();
     result.metadata.dexNumber = '#001'; // Prevent undefined error
@@ -64,6 +75,7 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             expect(insertOneIfNotExistsSpy).toHaveBeenCalledTimes(1);
             expect(insertOneIfNotExistsSpy).toHaveBeenCalledWith(
                 {
+                    // eslint-disable-next-line no-underscore-dangle
                     $or: [{ _id: input._id }, { name: input.name }],
                 },
                 input,
@@ -83,7 +95,7 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             const input = createPtuPokemonCollectionData();
             input.name = '';
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput')
+            const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput');
             const insertOneIfNotExistsSpy = jest.spyOn(PokemonController, 'insertOneIfNotExists');
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
 
@@ -389,7 +401,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: '', level: 1, stage: 1 },
+                    {
+                        name: '', level: 1, stage: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -401,7 +415,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: '   ', level: 1, stage: 1 },
+                    {
+                        name: '   ', level: 1, stage: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -413,7 +429,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: 'Pikachu', level: 1, stage: 0 },
+                    {
+                        name: 'Pikachu', level: 1, stage: 0,
+                    },
                 ];
 
                 // Act & Assert
@@ -425,7 +443,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: 'Pikachu', level: 1, stage: 4 },
+                    {
+                        name: 'Pikachu', level: 1, stage: 4,
+                    },
                 ];
 
                 // Act & Assert
@@ -437,7 +457,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: 'Pikachu', level: 0, stage: 1 },
+                    {
+                        name: 'Pikachu', level: 0, stage: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -449,7 +471,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: 'Pikachu', level: 101, stage: 1 },
+                    {
+                        name: 'Pikachu', level: 101, stage: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -461,9 +485,15 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.evolution = [
-                    { name: 'Squirtle', level: 1, stage: 1 },
-                    { name: 'Wartortle', level: 15, stage: 2 },
-                    { name: 'Blastoise', level: 30, stage: 3 },
+                    {
+                        name: 'Squirtle', level: 1, stage: 1,
+                    },
+                    {
+                        name: 'Wartortle', level: 15, stage: 2,
+                    },
+                    {
+                        name: 'Blastoise', level: 30, stage: 3,
+                    },
                 ];
 
                 // Act & Assert
@@ -1225,7 +1255,7 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 input.moveList.levelUp = Array.from(({ length: 51 }), (_, index) => ({
                     level: index,
                     move: `move-${index}`,
-                    type: PokemonType.Fire
+                    type: PokemonType.Fire,
                 }));
 
                 // Act & Assert
@@ -1237,7 +1267,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: '', type: PokemonType.Fire, level: 1 },
+                    {
+                        move: '', type: PokemonType.Fire, level: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1249,7 +1281,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: '   ', type: PokemonType.Fire, level: 1 },
+                    {
+                        move: '   ', type: PokemonType.Fire, level: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1261,7 +1295,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: '', level: 1 },
+                    {
+                        move: 'Tackle', type: '', level: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1273,7 +1309,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: '   ', level: 1 },
+                    {
+                        move: 'Tackle', type: '   ', level: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1285,7 +1323,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: 'InvalidType', level: 1 },
+                    {
+                        move: 'Tackle', type: 'InvalidType', level: 1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1297,7 +1337,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: PokemonType.Normal, level: -1 },
+                    {
+                        move: 'Tackle', type: PokemonType.Normal, level: -1,
+                    },
                 ];
 
                 // Act & Assert
@@ -1309,7 +1351,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: PokemonType.Normal, level: 101 },
+                    {
+                        move: 'Tackle', type: PokemonType.Normal, level: 101,
+                    },
                 ];
 
                 // Act & Assert
@@ -1321,7 +1365,9 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
                 // Arrange
                 const input = createPtuPokemonCollectionData();
                 input.moveList.levelUp = [
-                    { move: 'Tackle', type: PokemonType.Normal, level: 'Evo' },
+                    {
+                        move: 'Tackle', type: PokemonType.Normal, level: 'Evo',
+                    },
                 ];
 
                 // Act & Assert
@@ -1819,6 +1865,7 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             // Assert
             expect(getAllSpy).toHaveBeenCalledTimes(1);
             expect(getAllSpy).toHaveBeenCalledWith({
+                // eslint-disable-next-line no-underscore-dangle
                 $or: [{ _id: input._id }, { name: input.name }],
             });
             expect(result).toBe(true);

@@ -1,8 +1,16 @@
+/* eslint-disable class-methods-use-this */
+
+import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';
-import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
 import { PokemonController } from '../../../../dal/PtuController.js';
-import { PokemonDiet, PokemonEggGroup, PokemonHabitat, PokemonType, PtuHeight } from '../../../../types/pokemon.js';
+import {
+    PokemonDiet,
+    PokemonEggGroup,
+    PokemonHabitat,
+    PokemonType,
+    PtuHeight,
+} from '../../../../types/pokemon.js';
 import { FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
 
 export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokemonCollection, PtuFakemonCollection>
@@ -13,12 +21,13 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
     private readonly allDiets = new Set(Object.values(PokemonDiet));
     private readonly allHabitats = new Set(Object.values(PokemonHabitat));
 
-    async create(input: PtuPokemonCollection, source: PtuFakemonCollection): Promise<void>
+    public async create(input: PtuPokemonCollection, source: PtuFakemonCollection): Promise<void>
     {
         this.validateInput(input);
 
         // Insert only if another pokemon with id and this name does not exist already
         await PokemonController.insertOneIfNotExists({
+            // eslint-disable-next-line no-underscore-dangle
             $or: [{ _id: input._id }, { name: input.name }],
         }, input);
 
@@ -102,7 +111,7 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         if (!input?.evolution?.every((stage) =>
             stage?.name?.trim().length > 0
             && stage?.stage >= 1 && stage?.stage <= 3
-            && stage?.level > 0 && stage?.level <= 100
+            && stage?.level > 0 && stage?.level <= 100,
         ))
         {
             throw new Error('Invalid pokemon evolution');
@@ -151,7 +160,7 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         }
         if (!breedingInformation?.eggGroups?.every((eggGroup) =>
             eggGroup.trim().length > 0
-            && this.allEggGroups.has(eggGroup as PokemonEggGroup)
+            && this.allEggGroups.has(eggGroup as PokemonEggGroup),
         ))
         {
             throw new Error('Invalid pokemon egg groups');
@@ -180,7 +189,7 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         }
         if (!input.diets?.every((diet) =>
             diet?.trim().length > 0
-            && this.allDiets.has(diet as PokemonDiet)
+            && this.allDiets.has(diet as PokemonDiet),
         ))
         {
             throw new Error('Invalid pokemon diets');
@@ -193,7 +202,7 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         }
         if (!input.habitats?.every((habitat) =>
             habitat?.trim().length > 0
-            && this.allHabitats.has(habitat as PokemonHabitat)
+            && this.allHabitats.has(habitat as PokemonHabitat),
         ))
         {
             throw new Error('Invalid pokemon habitats');
@@ -318,7 +327,7 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
                     && move?.level >= 0
                     && move?.level <= 100
                 )
-            )
+            ),
         ))
         {
             throw new Error('Invalid level up moves');
@@ -365,7 +374,8 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         {
             throw new Error('Mega evolutions must be an array or undefined');
         }
-        if (megaEvolutions !== undefined && !megaEvolutions?.every((megaEvolution) => {
+        if (megaEvolutions !== undefined && !megaEvolutions?.every((megaEvolution) =>
+        {
             if (!megaEvolution?.stats)
             {
                 return false;
@@ -393,9 +403,10 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
         }
     }
 
-    async wasTransferred(input: PtuPokemonCollection, source: PtuFakemonCollection): Promise<boolean>
+    public async wasTransferred(input: PtuPokemonCollection, source: PtuFakemonCollection): Promise<boolean>
     {
         const { results = [] } = await PokemonController.getAll({
+            // eslint-disable-next-line no-underscore-dangle
             $or: [{ _id: input._id }, { name: input.name }],
         }) as { results: PtuPokemonCollection[] };
 

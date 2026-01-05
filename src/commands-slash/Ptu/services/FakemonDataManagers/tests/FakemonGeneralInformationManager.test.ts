@@ -1,10 +1,14 @@
-import { FakemonGeneralInformationManagerService, FakemonDexNumberPrefix } from '../FakemonGeneralInformationManagerService.js';
-import { PtuFakemonStatus, PtuFakemonDexType } from '../../../dal/models/PtuFakemonCollection.js';
-import { PokemonController } from '../../../dal/PtuController.js';
-import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
-import { FakemonController } from '../../../dal/PtuFakemonController.js';
-import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes.js';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { MongoDbResults } from 'mongodb-controller';
+
+import { PtuFakemonDexType, PtuFakemonStatus } from '../../../dal/models/PtuFakemonCollection.js';
+import { PokemonController } from '../../../dal/PtuController.js';
+import { FakemonController } from '../../../dal/PtuFakemonController.js';
+import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache.js';
+import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes.js';
+import { FakemonDexNumberPrefix, FakemonGeneralInformationManagerService } from '../FakemonGeneralInformationManagerService.js';
 
 jest.mock('../../../dal/PtuController', () =>
 {
@@ -163,7 +167,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 { status },
             );
             expect(updateSpy).not.toHaveBeenCalled();
@@ -238,7 +242,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ...fakemon.transferredTo,
@@ -271,7 +275,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ...fakemon.transferredTo,
@@ -304,7 +308,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ...fakemon.transferredTo,
@@ -340,7 +344,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ...fakemon.transferredTo,
@@ -383,7 +387,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ptuDatabase: true,
@@ -408,7 +412,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
                     pokemonData: true,
                     pokemonSkills: false,
                 },
-            }
+            };
             const transferredTo = { imageStorage: true };
             const expectedResult = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const findOneAndUpdateSpy = jest.spyOn(FakemonController, 'findOneAndUpdate')
@@ -428,7 +432,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon._id },
+                { _id: fakemon.id },
                 {
                     transferredTo: {
                         ptuDatabase: true,

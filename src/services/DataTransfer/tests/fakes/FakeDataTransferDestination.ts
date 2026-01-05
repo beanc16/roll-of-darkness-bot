@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+
 import { DataTransferDestination } from '../../DataTransferDestination.js';
 
 export class FakeDataTransferDestination extends DataTransferDestination<string, number>

@@ -1,7 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
-import { PtuFakemonCollection, PtuFakemonDexType, PtuFakemonStatus } from '../dal/models/PtuFakemonCollection';
+import {
+    PtuFakemonCollection,
+    PtuFakemonDexType,
+    PtuFakemonStatus,
+} from '../dal/models/PtuFakemonCollection';
 import { PtuPokemon } from '../types/pokemon';
 import { createPtuPokemonCollectionData } from './PtuPokemonCollection.fakes';
 
@@ -23,6 +27,7 @@ const getFakeDiscordIds = (): string[] =>
 };
 
 export const createPtuFakemonCollectionData = (
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- This is incorrectly believing this is of type any
     args: Parameters<typeof createPtuPokemonCollectionData>[0] & {
         dexType?: PtuFakemonDexType;
     } = {},
@@ -42,8 +47,8 @@ export const createPtuFakemonCollectionData = (
         ),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
         status: faker.helpers.arrayElement(Object.values(PtuFakemonStatus)),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-        dexType: args.dexType ?? faker.helpers.arrayElement(Object.values(PtuFakemonDexType)),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+        dexType: args?.dexType ?? faker.helpers.arrayElement(Object.values(PtuFakemonDexType)),
         creationChannelId: getFakeDiscordId(),
         feedbacks: [],
         transferredTo: {

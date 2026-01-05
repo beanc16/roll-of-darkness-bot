@@ -1,20 +1,27 @@
-import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
-import { FakemonGoogleSheetsData } from '../adapters/types.js';
-import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
-import { CachedGoogleSheetsApiService } from '../../../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { rollOfDarknessPtuSpreadsheetId } from '../../../../constants.js';
+/* eslint-disable class-methods-use-this */
+
 import { logger } from '@beanc16/logger';
-import { PokemonEggGroup, PokemonType, PtuHeight } from '../../../../types/pokemon.js';
+
+import { CachedGoogleSheetsApiService } from '../../../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
+import { rollOfDarknessPtuSpreadsheetId } from '../../../../constants.js';
+import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
+import {
+    PokemonEggGroup,
+    PokemonType,
+    PtuHeight,
+} from '../../../../types/pokemon.js';
 import { FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
+import { FakemonGoogleSheetsData } from '../adapters/types.js';
 
 export class FakemonGoogleSheetsDestination extends DataTransferDestination<FakemonGoogleSheetsData, PtuFakemonCollection>
 {
     private readonly validTypes = new Set([...Object.values(PokemonType), 'None']);
     private readonly validEggGroups = new Set([...Object.values(PokemonEggGroup), '-']);
     private readonly validSizes = new Set(Object.values(PtuHeight));
-    private readonly validWeight = new Set([1, 2, 3, 4, 5, 6, 7])
+    private readonly validWeight = new Set([1, 2, 3, 4, 5, 6, 7]);
 
-    async create(input: FakemonGoogleSheetsData, source: PtuFakemonCollection): Promise<void>
+    public async create(input: FakemonGoogleSheetsData, source: PtuFakemonCollection): Promise<void>
     {
         const transferredToGoogleSheets = {
             pokemonData: false,
@@ -161,27 +168,27 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             throw new Error('Speed cannot be empty');
         }
-        if (isNaN(hpInt))
+        if (Number.isNaN(hpInt))
         {
             throw new Error(`HP is not a number: ${hp}`);
         }
-        if (isNaN(attackInt))
+        if (Number.isNaN(attackInt))
         {
             throw new Error(`Attack is not a number: ${attack}`);
         }
-        if (isNaN(defenseInt))
+        if (Number.isNaN(defenseInt))
         {
             throw new Error(`Defense is not a number: ${defense}`);
         }
-        if (isNaN(specialAttackInt))
+        if (Number.isNaN(specialAttackInt))
         {
             throw new Error(`Special attack is not a number: ${specialAttack}`);
         }
-        if (isNaN(specialDefenseInt))
+        if (Number.isNaN(specialDefenseInt))
         {
             throw new Error(`Special defense is not a number: ${specialDefense}`);
         }
-        if (isNaN(speedInt))
+        if (Number.isNaN(speedInt))
         {
             throw new Error(`Speed is not a number: ${speed}`);
         }
@@ -227,7 +234,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             throw new Error('Overland cannot be empty');
         }
-        if (isNaN(overlandInt))
+        if (Number.isNaN(overlandInt))
         {
             throw new Error(`Overland is not a number: ${overland}`);
         }
@@ -267,7 +274,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             throw new Error(`Burrow cannot be negative: ${burrow}`);
         }
-        if (isNaN(highJumpInt))
+        if (Number.isNaN(highJumpInt))
         {
             throw new Error(`High jump is not a number: ${highJump}`);
         }
@@ -275,7 +282,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             throw new Error(`High jump cannot be negative: ${highJump}`);
         }
-        if (isNaN(lowJumpInt))
+        if (Number.isNaN(lowJumpInt))
         {
             throw new Error(`Low jump is not a number: ${lowJump}`);
         }
@@ -283,7 +290,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         {
             throw new Error(`Low jump cannot be negative: ${lowJump}`);
         }
-        if (isNaN(powerInt))
+        if (Number.isNaN(powerInt))
         {
             throw new Error(`Power is not a number: ${power}`);
         }
@@ -481,7 +488,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
         return regex.test(skillModifier);
     }
 
-    async wasTransferred(input: FakemonGoogleSheetsData, source: PtuFakemonCollection): Promise<boolean>
+    public async wasTransferred(input: FakemonGoogleSheetsData, source: PtuFakemonCollection): Promise<boolean>
     {
         const { data = [], errorType } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
@@ -499,7 +506,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
 
         // Loop through the pokemon data backwards (more efficient since we
         // append to the bottom) & check if the name is in the pokemon data
-        for (let i = data.length - 1; i >= 0; i--)
+        for (let i = data.length - 1; i >= 0; i -= 1)
         {
             const [curPokemonName] = data[i];
             if (curPokemonName === input.pokemonData[0])

@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+
 import { Adapter } from '../../../../../../services/DataTransfer/Adapter.js';
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { FakemonCapabilityManagerService } from '../../FakemonCapabilityManagerService.js';
@@ -29,7 +31,7 @@ export class FakemonToGoogleSheetsAdapter extends Adapter<PtuFakemonCollection, 
             | 'capabilities'
             | 'sizeInformation'
             | 'types'
-        >
+        >,
     ): FakemonGoogleSheetsData['pokemonData']
     {
         const {

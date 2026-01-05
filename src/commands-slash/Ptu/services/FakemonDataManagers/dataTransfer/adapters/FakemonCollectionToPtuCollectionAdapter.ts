@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+
 import { Adapter } from '../../../../../../services/DataTransfer/Adapter.js';
 import { PtuFakemonCollection, PtuFakemonDexType } from '../../../../dal/models/PtuFakemonCollection.js';
 import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';

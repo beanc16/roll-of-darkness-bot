@@ -1,3 +1,5 @@
+import { DataTransferPipeline } from '../../../../../../services/DataTransfer/DataTransferPipeline.js';
+import { DataTransferService } from '../../../../../../services/DataTransfer/DataTransferService.js';
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';
 import { FakemonCollectionToPtuCollectionAdapter } from '../adapters/FakemonCollectionToPtuCollectionAdapter.js';
@@ -5,8 +7,6 @@ import { FakemonToGoogleSheetsAdapter } from '../adapters/FakemonToGoogleSheetsA
 import { FakemonGoogleSheetsData } from '../adapters/types.js';
 import { FakemonDatabaseDestination } from '../destinations/FakemonDatabaseDestination.js';
 import { FakemonGoogleSheetsDestination } from '../destinations/FakemonGoogleSheetsDestination.js';
-import { DataTransferPipeline } from '../../../../../../services/DataTransfer/DataTransferPipeline.js';
-import { DataTransferService } from '../../../../../../services/DataTransfer/DataTransferService.js';
 
 export class FakemonDataTransferService extends DataTransferService<PtuFakemonCollection, PtuPokemonCollection | FakemonGoogleSheetsData>
 {

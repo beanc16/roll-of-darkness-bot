@@ -1,5 +1,8 @@
-import { FakemonGoogleSheetsDestination } from '../FakemonGoogleSheetsDestination.js';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { FakemonGoogleSheetsData } from '../../adapters/types.js';
+import { FakemonGoogleSheetsDestination } from '../FakemonGoogleSheetsDestination.js';
 
 // This mock is necessary to prevent an ESM export error with @swc/jest
 jest.mock('@beanc16/microservices-abstraction', () =>
@@ -85,18 +88,18 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
             });
 
             it.each([
-                [ true, '1' ],
-                [ true, '2' ],
-                [ true, '3' ],
-                [ true, '4' ],
-                [ true, '5' ],
-                [ true, '6' ],
-                [ false, '0' ],
-                [ false, '7' ],
-                [ false, '10' ],
-                [ false, 'abc' ],
-                [ false, '' ],
-                [ false, '-1' ],
+                [true, '1'],
+                [true, '2'],
+                [true, '3'],
+                [true, '4'],
+                [true, '5'],
+                [true, '6'],
+                [false, '0'],
+                [false, '7'],
+                [false, '10'],
+                [false, 'abc'],
+                [false, ''],
+                [false, '-1'],
             ])('should throw an error? "%s" - if skill dice is "%s"', (shouldPass, skillDice) =>
             {
                 // Arrange
@@ -106,10 +109,12 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
                 // Act & Assert
                 if (shouldPass)
                 {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(() => destination['validatePokemonSkills'](pokemonSkills)).not.toThrow();
                 }
                 else
                 {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(() => destination['validatePokemonSkills'](pokemonSkills)).toThrow(`Invalid skill dice: ${skillDice}`);
                 }
             });
@@ -146,30 +151,30 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
             });
 
             it.each([
-                [ true, '+0' ],
-                [ true, '+1' ],
-                [ true, '+2' ],
-                [ true, '+3' ],
-                [ true, '+4' ],
-                [ true, '+5' ],
-                [ true, '+6' ],
-                [ true, '-0' ],
-                [ true, '-1' ],
-                [ true, '-2' ],
-                [ true, '-3' ],
-                [ true, '-4' ],
-                [ true, '-5' ],
-                [ true, '-6' ],
-                [ false, '0' ],
-                [ false, '1' ],
-                [ false, '+7' ],
-                [ false, '-7' ],
-                [ false, '+10' ],
-                [ false, '-10' ],
-                [ false, 'abc' ],
-                [ false, '' ],
-                [ false, '++1' ],
-                [ false, '--1' ],
+                [true, '+0'],
+                [true, '+1'],
+                [true, '+2'],
+                [true, '+3'],
+                [true, '+4'],
+                [true, '+5'],
+                [true, '+6'],
+                [true, '-0'],
+                [true, '-1'],
+                [true, '-2'],
+                [true, '-3'],
+                [true, '-4'],
+                [true, '-5'],
+                [true, '-6'],
+                [false, '0'],
+                [false, '1'],
+                [false, '+7'],
+                [false, '-7'],
+                [false, '+10'],
+                [false, '-10'],
+                [false, 'abc'],
+                [false, ''],
+                [false, '++1'],
+                [false, '--1'],
             ])('should throw an error? "%s" - if skill modifier is "%s"', (shouldPass, skillModifier) =>
             {
                 // Arrange
@@ -179,10 +184,12 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
                 // Act & Assert
                 if (shouldPass)
                 {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(() => destination['validatePokemonSkills'](pokemonSkills)).not.toThrow();
                 }
                 else
                 {
+                    // eslint-disable-next-line jest/no-conditional-expect
                     expect(() => destination['validatePokemonSkills'](pokemonSkills)).toThrow(`Invalid skill modifier: ${skillModifier}`);
                 }
             });
@@ -192,19 +199,19 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
     describe(`method: ${FakemonGoogleSheetsDestination.prototype['isValidSkillDice'].name}`, () =>
     {
         it.each([
-            [ true, '1' ],
-            [ true, '2' ],
-            [ true, '3' ],
-            [ true, '4' ],
-            [ true, '5' ],
-            [ true, '6' ],
-            [ false, '0' ],
-            [ false, '7' ],
-            [ false, '10' ],
-            [ false, 'abc' ],
-            [ false, '' ],
-            [ false, '-1' ],
-            [ false, '1.5' ],
+            [true, '1'],
+            [true, '2'],
+            [true, '3'],
+            [true, '4'],
+            [true, '5'],
+            [true, '6'],
+            [false, '0'],
+            [false, '7'],
+            [false, '10'],
+            [false, 'abc'],
+            [false, ''],
+            [false, '-1'],
+            [false, '1.5'],
         ])('should return %s for skill dice "%s"', (expected, skillDice) =>
         {
             // Act
@@ -218,32 +225,32 @@ describe(`class: ${FakemonGoogleSheetsDestination.name} - pokemonSkills`, () =>
     describe(`method: ${FakemonGoogleSheetsDestination.prototype['isValidSkillModifier'].name}`, () =>
     {
         it.each([
-            [ true, '+0' ],
-            [ true, '+1' ],
-            [ true, '+2' ],
-            [ true, '+3' ],
-            [ true, '+4' ],
-            [ true, '+5' ],
-            [ true, '+6' ],
-            [ true, '-0' ],
-            [ true, '-1' ],
-            [ true, '-2' ],
-            [ true, '-3' ],
-            [ true, '-4' ],
-            [ true, '-5' ],
-            [ true, '-6' ],
-            [ false, '0' ],
-            [ false, '1' ],
-            [ false, '+7' ],
-            [ false, '-7' ],
-            [ false, '+10' ],
-            [ false, '-10' ],
-            [ false, 'abc' ],
-            [ false, '' ],
-            [ false, '++1' ],
-            [ false, '--1' ],
-            [ false, '+1.5' ],
-            [ false, '-1.5' ],
+            [true, '+0'],
+            [true, '+1'],
+            [true, '+2'],
+            [true, '+3'],
+            [true, '+4'],
+            [true, '+5'],
+            [true, '+6'],
+            [true, '-0'],
+            [true, '-1'],
+            [true, '-2'],
+            [true, '-3'],
+            [true, '-4'],
+            [true, '-5'],
+            [true, '-6'],
+            [false, '0'],
+            [false, '1'],
+            [false, '+7'],
+            [false, '-7'],
+            [false, '+10'],
+            [false, '-10'],
+            [false, 'abc'],
+            [false, ''],
+            [false, '++1'],
+            [false, '--1'],
+            [false, '+1.5'],
+            [false, '-1.5'],
         ])('should return %s for skill modifier %s', (expected, skillModifier) =>
         {
             // Act

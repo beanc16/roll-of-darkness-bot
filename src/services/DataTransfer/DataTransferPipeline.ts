@@ -5,8 +5,9 @@ export class DataTransferPipeline<Input, Output>
 {
     constructor(
         private readonly adapter: Adapter<Input, Output>,
-        private readonly destination: DataTransferDestination<Output, Input>
-    ) {}
+        private readonly destination: DataTransferDestination<Output, Input>,
+    )
+    {}
 
     public async transfer(input: Input): Promise<void>
     {

@@ -1,8 +1,11 @@
-import { AtLeastOne } from '@beanc16/utility-types';
+/* eslint-disable max-classes-per-file */
+
+import type { AtLeastOne } from '@beanc16/utility-types';
+
 import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
-import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonController } from '../../dal/PtuFakemonController.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 
 export enum FakemonDexNumberPrefix
 {
@@ -82,7 +85,7 @@ export class FakemonGeneralInformationManagerService
                 new: output,
             },
         } = await FakemonController.findOneAndUpdate({
-            _id: fakemon._id,
+            _id: fakemon.id,
         }, { status }) as {
             results: {
                 new: PtuFakemonCollection;
@@ -92,10 +95,7 @@ export class FakemonGeneralInformationManagerService
         return output;
     }
 
-    public static async updateTransferredTo({
-        fakemon,
-        transferredTo,
-    }: {
+    public static async updateTransferredTo({ fakemon, transferredTo }: {
         fakemon: PtuFakemonCollection;
         transferredTo: AtLeastOne<
             Omit<PtuFakemonCollection['transferredTo'], 'googleSheets'>
@@ -108,7 +108,7 @@ export class FakemonGeneralInformationManagerService
                 new: output,
             },
         } = await FakemonController.findOneAndUpdate({
-            _id: fakemon._id,
+            _id: fakemon.id,
         }, {
             transferredTo: {
                 ...fakemon.transferredTo,

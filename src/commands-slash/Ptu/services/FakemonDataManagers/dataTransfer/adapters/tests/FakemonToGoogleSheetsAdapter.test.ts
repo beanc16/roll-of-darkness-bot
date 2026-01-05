@@ -1,7 +1,15 @@
-import { FakemonToGoogleSheetsAdapter } from '../FakemonToGoogleSheetsAdapter.js';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
-import { PokemonEggGroup, PokemonType, PtuHeight, PtuNaturewalk } from '../../../../../types/pokemon.js';
 import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
+import {
+    PokemonEggGroup,
+    PokemonType,
+    PtuHeight,
+    PtuNaturewalk,
+} from '../../../../../types/pokemon.js';
+import { FakemonToGoogleSheetsAdapter } from '../FakemonToGoogleSheetsAdapter.js';
 
 describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
 {

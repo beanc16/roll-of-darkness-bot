@@ -8,6 +8,7 @@ export abstract class Adapter<Input, Output>
 
         for (let index = 0; index < inputs.length; index += 1)
         {
+            // eslint-disable-next-line no-await-in-loop -- We want the indices to truly be sequential
             const result = await this.transform(inputs[index], index);
             results.push(result);
         }

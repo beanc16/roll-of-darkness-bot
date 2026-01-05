@@ -1,18 +1,26 @@
-import { FakemonGoogleSheetsDestination } from '../FakemonGoogleSheetsDestination.js';
-import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
-import { CachedGoogleSheetsApiService } from '../../../../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
-import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
-import { PokemonType, PokemonEggGroup, PtuHeight } from '../../../../../types/pokemon.js';
-import { FakemonGoogleSheetsData } from '../../adapters/types.js';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { logger } from '@beanc16/logger';
+
+import { CachedGoogleSheetsApiService } from '../../../../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { GoogleSheetsApiErrorType } from '../../../../../../../services/CachedGoogleSheetsApiService/types.js';
+import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
+import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
+import {
+    PokemonEggGroup,
+    PokemonType,
+    PtuHeight,
+} from '../../../../../types/pokemon.js';
+import { FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
+import { FakemonGoogleSheetsData } from '../../adapters/types.js';
+import { FakemonGoogleSheetsDestination } from '../FakemonGoogleSheetsDestination.js';
 
 jest.mock('../../../../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService', () =>
 {
-    const { GoogleSheetsApiErrorType } = jest.requireActual('../../../FakemonGeneralInformationManagerService');
+    const actual = jest.requireActual('../../../FakemonGeneralInformationManagerService');
     return {
-        GoogleSheetsApiErrorType,
+        GoogleSheetsApiErrorType: actual.GoogleSheetsApiErrorType,
         CachedGoogleSheetsApiService: {
             append: jest.fn(),
             getRange: jest.fn(),

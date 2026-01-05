@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+// ^ the above are giving a lot of false negatives for some reason, temporarily disabling
+
 import { FakemonCollectionToPtuCollectionAdapter } from '../../adapters/FakemonCollectionToPtuCollectionAdapter.js';
 import { FakemonToGoogleSheetsAdapter } from '../../adapters/FakemonToGoogleSheetsAdapter.js';
 import { FakemonDatabaseDestination } from '../../destinations/FakemonDatabaseDestination';
@@ -42,8 +45,8 @@ describe(`class: ${FakemonDataTransferService.name}`, () =>
         {
             // Arrange
             const hasDatabasePipeline = service['pipelines'].some(pipeline =>
-                pipeline['adapter'] instanceof FakemonCollectionToPtuCollectionAdapter &&
-                pipeline['destination'] instanceof FakemonDatabaseDestination,
+                pipeline['adapter'] instanceof FakemonCollectionToPtuCollectionAdapter
+                && pipeline['destination'] instanceof FakemonDatabaseDestination,
             );
 
             // Assert
@@ -54,8 +57,8 @@ describe(`class: ${FakemonDataTransferService.name}`, () =>
         {
             // Arrange
             const hasGoogleSheetsPipeline = service['pipelines'].some(pipeline =>
-                pipeline['adapter'] instanceof FakemonToGoogleSheetsAdapter &&
-                pipeline['destination'] instanceof FakemonGoogleSheetsDestination,
+                pipeline['adapter'] instanceof FakemonToGoogleSheetsAdapter
+                && pipeline['destination'] instanceof FakemonGoogleSheetsDestination,
             );
 
             // Assert
