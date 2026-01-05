@@ -71,8 +71,9 @@ export class FakemonDeleteStrategy
                 await PtuFakemonPseudoCache.softDelete(interaction.message.id, fakemon);
 
                 // Send response
-                await interaction.followUp({
+                await interaction.editReply({
                     content: `Fakemon ${Text.Code.oneLine(fakemon.name)} deleted.`,
+                    components: [],
                 });
                 break;
 
@@ -81,8 +82,9 @@ export class FakemonDeleteStrategy
                 PtuFakemonPseudoCache.removeFromCache(interaction.message.id);
 
                 // Send response
-                await interaction.followUp({
+                await interaction.editReply({
                     content: `Canceled deleting ${Text.Code.oneLine(fakemon.name)}.`,
+                    components: [],
                 });
                 break;
 
@@ -90,9 +92,6 @@ export class FakemonDeleteStrategy
                 const typeGuard: never = customId;
                 throw new Error(`Unhandled customId: ${typeGuard}`);
         }
-
-        // Delete confirm/deny message
-        await interaction.message.delete();
 
         return true;
     }

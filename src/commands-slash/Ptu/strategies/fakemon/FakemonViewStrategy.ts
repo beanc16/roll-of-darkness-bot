@@ -34,7 +34,7 @@ export class FakemonViewStrategy
 {
     public static key = PtuFakemonSubcommand.View;
 
-    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonViewGetParameterResults>): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonViewGetParameterResults>): Promise<boolean>;
     public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonViewGetParameterResults>): Promise<boolean>;
     public static async run(

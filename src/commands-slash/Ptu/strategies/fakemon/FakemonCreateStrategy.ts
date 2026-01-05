@@ -25,7 +25,11 @@ import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
-import { PtuFakemonCollection, PtuFakemonStatus } from '../../dal/models/PtuFakemonCollection.js';
+import {
+    PtuFakemonCollection,
+    PtuFakemonDexType,
+    PtuFakemonStatus,
+} from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { FakemonAbilityEditingModal1 } from '../../modals/fakemon/abilities/FakemonAbilityEditingModal1.js';
@@ -169,9 +173,13 @@ export class FakemonCreateStrategy
         megaEvolutions: [],
         editors: [DiscordUserId.Bean],
         status: PtuFakemonStatus.DRAFT,
+        dexType: PtuFakemonDexType.Eden,
         feedbacks: [],
         transferredTo: {
-            googleSheets: false,
+            googleSheets: {
+                pokemonData: false,
+                pokemonSkills: false,
+            },
             ptuDatabase: false,
             imageStorage: false,
         },
