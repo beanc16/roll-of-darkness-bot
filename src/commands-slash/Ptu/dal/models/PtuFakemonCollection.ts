@@ -33,6 +33,14 @@ type PtuFakemonCollectionConstructorArgs = ConstructorParameters<typeof PtuPokem
     /** Discord Text Channel ID that the command to create this fakemon was initially executed in */
     creationChannelId: string;
     feedbacks?: PtuFakemonFeedback[];
+    transferredTo?: {
+        googleSheets: {
+            pokemonData: boolean;
+            pokemonSkills: boolean;
+        };
+        ptuDatabase: boolean;
+        imageStorage: boolean;
+    };
 };
 
 export class PtuFakemonCollection extends PtuPokemonCollection
@@ -62,7 +70,7 @@ export class PtuFakemonCollection extends PtuPokemonCollection
         this.dexType = args.dexType || PtuFakemonDexType.Eden;
         this.creationChannelId = args.creationChannelId;
         this.feedbacks = args.feedbacks;
-        this.transferredTo = {
+        this.transferredTo = args.transferredTo || {
             googleSheets: {
                 pokemonData: false,
                 pokemonSkills: false,
