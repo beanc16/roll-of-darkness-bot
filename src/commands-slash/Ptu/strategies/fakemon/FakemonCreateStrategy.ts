@@ -75,6 +75,8 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
+import { PtuSizeAdapterService } from '../../services/PtuSizeAdapterService/PtuSizeAdapterService.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -1026,6 +1028,28 @@ export class FakemonCreateStrategy
         pokemonToBaseOn: GetBasedOnPokemonSpeciesResponse;
     }): Promise<PtuFakemonCollection>
     {
+        // Format skills to standardize the removal of special characters
+        const skills = Object.entries({
+            ...this.basePokemon.skills,
+            ...(pokemonToBaseOn.species?.skills || {}),
+        }).reduce((acc, cur) =>
+        {
+            const [key, value] = cur as [keyof PtuFakemonCollection['skills'], string];
+            const { skillDice, skillModifier } = FakemonSkillManagerService.deconstructSkillString(value);
+            acc[key] = FakemonSkillManagerService.formatSkill({ skillDice, skillModifier });
+            return acc;
+        }, {} as PtuFakemonCollection['skills']);
+
+        // Format height to standardize the removal of special characters
+        const originalHeight = pokemonToBaseOn.species?.sizeInformation?.height
+            || this.basePokemon.sizeInformation.height;
+        const { feet, inches } = FakemonSizeManagerService.getHeightFromString(
+            pokemonToBaseOn.species?.sizeInformation?.height?.freedom || this.basePokemon.sizeInformation.height.freedom,
+        );
+        const adaptedHeight = feet !== undefined && inches !== undefined
+            ? PtuSizeAdapterService.adaptHeight(feet, inches)
+            : originalHeight;
+
         return await PtuFakemonPseudoCache.create(messageId, {
             ...this.basePokemon,
             ...pokemonToBaseOn.species,
@@ -1071,6 +1095,14 @@ export class FakemonCreateStrategy
                     || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
                     || this.basePokemon.moveList.zygardeCubeMoves,
             },
+            sizeInformation: {
+                ...this.basePokemon.sizeInformation,
+                ...(pokemonToBaseOn.species?.sizeInformation || {}),
+                height: {
+                    ...adaptedHeight,
+                },
+            },
+            skills,
             metadata: this.basePokemon.metadata,
             creationChannelId,
             editors: coEditorUserId
