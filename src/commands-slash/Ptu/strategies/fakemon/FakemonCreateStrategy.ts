@@ -294,7 +294,7 @@ export class FakemonCreateStrategy
         { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId, values = [] } = interaction as {
+        const { customId } = interaction as {
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
@@ -343,6 +343,7 @@ export class FakemonCreateStrategy
             customId: FakemonMovesStringSelectCustomIds;
             values: string[];
         };
+        const values = (interaction.values || []).filter(Boolean);
         const [value1, value2] = values;
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
@@ -450,7 +451,7 @@ export class FakemonCreateStrategy
                     await FakemonBasicInformationManagerService.setTypes({
                         messageId: interaction.message.id,
                         fakemon,
-                        types: [value1, value2] as PokemonType[],
+                        types: [value1, value2].filter(Boolean) as PokemonType[],
                     });
                 }
                 catch (error)
