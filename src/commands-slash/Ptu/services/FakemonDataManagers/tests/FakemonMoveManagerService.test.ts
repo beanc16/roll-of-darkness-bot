@@ -245,7 +245,9 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                         ...defaultArgs.fakemon,
                         moveList: {
                             ...defaultArgs.fakemon.moveList,
-                            levelUp: [{ ...defaultArgs.move, level: 100, type: PokemonType.Ghost }],
+                            levelUp: [{
+                                ...defaultArgs.move, level: 100, type: PokemonType.Ghost,
+                            }],
                         },
                     } as typeof defaultArgs.fakemon,
                 }),

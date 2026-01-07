@@ -100,7 +100,7 @@ export class FakemonMoveManagerService
         // Check for duplicate moves
         const duplicateMoves = moveList.filter((move, index) =>
             move.move.trim() === newMove.move.trim()
-            && index !== oldIndex
+            && index !== oldIndex,
         );
         if (duplicateMoves.length > 0)
         {

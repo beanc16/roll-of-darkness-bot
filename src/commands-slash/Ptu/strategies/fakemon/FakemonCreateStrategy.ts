@@ -55,10 +55,12 @@ import { FakemonCapabilityManagerService } from '../../services/FakemonDataManag
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
 import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
+import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { PtuSizeAdapterService } from '../../services/PtuSizeAdapterService/PtuSizeAdapterService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
     PokemonDiet,
@@ -75,8 +77,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
-import { PtuSizeAdapterService } from '../../services/PtuSizeAdapterService/PtuSizeAdapterService.js';
 
 interface FakemonCreateGetParameterResults
 {
