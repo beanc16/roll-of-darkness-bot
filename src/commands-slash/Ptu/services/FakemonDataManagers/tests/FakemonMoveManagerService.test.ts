@@ -218,7 +218,7 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
             ).rejects.toThrow(`Fakemon cannot have more than ${FakemonMoveManagerService.MAX_LEVEL_UP_MOVES} moves`);
         });
 
-        it(`should throw error if there's duplicate moves`, async () =>
+        it(`should throw error if there's exact duplicate moves`, async () =>
         {
             // Act & Assert
             await expect(
@@ -229,6 +229,23 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                         moveList: {
                             ...defaultArgs.fakemon.moveList,
                             levelUp: [defaultArgs.move],
+                        },
+                    } as typeof defaultArgs.fakemon,
+                }),
+            ).rejects.toThrow(`Fakemon cannot have duplicate moves: ${defaultArgs.move.move}`);
+        });
+
+        it(`should throw error if there's a duplicate move name`, async () =>
+        {
+            // Act & Assert
+            await expect(
+                FakemonMoveManagerService['addLevelUpMove']({
+                    ...defaultArgs,
+                    fakemon: {
+                        ...defaultArgs.fakemon,
+                        moveList: {
+                            ...defaultArgs.fakemon.moveList,
+                            levelUp: [{ ...defaultArgs.move, level: 100, type: PokemonType.Ghost }],
                         },
                     } as typeof defaultArgs.fakemon,
                 }),
@@ -426,6 +443,24 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                     newMove: { ...defaultArgs.newMove, move: 'a'.repeat(101) },
                 }),
             ).rejects.toThrow('Invalid new move: Move name cannot be longer than 100 characters');
+        });
+
+        it(`should throw error if new move name is a duplicate of an existing move name that isn't old move`, async () =>
+        {
+            // Act & Assert
+            await expect(
+                FakemonMoveManagerService['editLevelUpMove']({
+                    ...defaultArgs,
+                    fakemon: {
+                        ...defaultArgs.fakemon,
+                        moveList: {
+                            ...defaultArgs.fakemon.moveList,
+                            levelUp: [defaultArgs.oldMove, movesMap.ember],
+                        },
+                    } as typeof defaultArgs.fakemon,
+                    newMove: { ...movesMap.ember, level: 100 },
+                }),
+            ).rejects.toThrow(`Fakemon cannot have duplicate moves: ${movesMap.ember.move}`);
         });
     });
 

@@ -38,12 +38,7 @@ export class FakemonMoveManagerService
             const existingMove = nameToMove[curMove.move];
 
             // Move is a duplicate
-            if (
-                existingMove
-                && curMove.move.trim() === existingMove.move.trim()
-                && curMove.level === existingMove.level
-                && curMove.type.trim() === existingMove.type.trim()
-            )
+            if (existingMove && curMove.move.trim() === existingMove.move.trim())
             {
                 return true;
             }
@@ -98,9 +93,21 @@ export class FakemonMoveManagerService
             throw new Error(`Invalid new move: ${(error as Error).message}`);
         }
 
-        // Replace old move with new move
+        // Get old move index
         const moveList = [...fakemon.moveList.levelUp]; // Create a copy so we don't mutate the original
         const oldIndex = moveList.findIndex((move) => move.move === oldMove.move && move.level === oldMove.level);
+
+        // Check for duplicate moves
+        const duplicateMoves = moveList.filter((move, index) =>
+            move.move.trim() === newMove.move.trim()
+            && index !== oldIndex
+        );
+        if (duplicateMoves.length > 0)
+        {
+            throw new Error(`Fakemon cannot have duplicate moves: ${duplicateMoves.map((move) => move.move).join(', ')}`);
+        }
+
+        // Replace old move with new move
         moveList[oldIndex] = newMove;
 
         // Update fakemon
