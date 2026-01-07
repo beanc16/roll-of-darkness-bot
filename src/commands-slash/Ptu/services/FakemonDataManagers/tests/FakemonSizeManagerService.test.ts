@@ -119,10 +119,19 @@ describe(`class: ${FakemonSizeManagerService.name}`, () =>
 
     describe(`method: ${FakemonSizeManagerService.getHeightFromString.name}`, () =>
     {
-        it('should return feet and inches for integers', () =>
+        it(`should return feet and inches for integers with standard apostrophe and quote ('")`, () =>
         {
             // Act
             const result = FakemonSizeManagerService.getHeightFromString(`3'11"`);
+
+            // Assert
+            expect(result).toEqual({ feet: 3, inches: 11 });
+        });
+
+        it('should return feet and inches for integers with alternate apostrophe and quote: (’”)', () =>
+        {
+            // Act
+            const result = FakemonSizeManagerService.getHeightFromString(`3’11”`);
 
             // Assert
             expect(result).toEqual({ feet: 3, inches: 11 });

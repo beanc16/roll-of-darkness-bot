@@ -48,7 +48,7 @@ export class FakemonSizeManagerService
 
     public static getHeightFromString(height: string): { feet?: number; inches?: number }
     {
-        const match = height.trim().match(/^(\d+)'(\d+)"$/);
+        const match = height.trim().match(/^(\d+)['’‘`´](\d+)["“”]$/);
 
         if (!match)
         {
