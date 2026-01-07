@@ -1107,7 +1107,7 @@ export class FakemonCreateStrategy
             creationChannelId,
             editors: coEditorUserId
                 ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
-                : [...this.basePokemon.editors, userId],
+                : [...new Set([...this.basePokemon.editors, userId])],
         });
     }
 
