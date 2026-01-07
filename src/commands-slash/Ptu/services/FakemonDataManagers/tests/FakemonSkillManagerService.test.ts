@@ -86,6 +86,36 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
             expect(getByMessageIdSpy).toHaveBeenCalledWith(messageId);
         });
 
+        it.each(
+            Object.values(FakemonSkillsEditStringSelectElementOptions),
+        )(`should return the skill dice and modifier for '%s' with no dice modifier`, (skillToEdit) =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const expectedSkillKey = FakemonSkillManagerService.getSkillKey(skillToEdit);
+            const expectedSkillDice = 1;
+            const expectedSkillModifier = 0;
+            const fakemon = createPtuFakemonCollectionData();
+            const getByMessageIdSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByMessageId')
+                .mockReturnValue({
+                    ...fakemon,
+                    skills: {
+                        ...fakemon.skills,
+                        [expectedSkillKey]: `${expectedSkillDice}d6`,
+                    },
+                } as typeof fakemon);
+
+            // Act
+            const result = FakemonSkillManagerService.getSkillDiceAndModifier(messageId, skillToEdit);
+
+            // Assert
+            expect(result).toEqual({
+                skillDice: expectedSkillDice,
+                skillModifier: expectedSkillModifier,
+            });
+            expect(getByMessageIdSpy).toHaveBeenCalledWith(messageId);
+        });
+
         it('should throw an error if fakemon is not found', () =>
         {
             // Arrange

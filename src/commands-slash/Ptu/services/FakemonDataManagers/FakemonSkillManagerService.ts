@@ -84,7 +84,7 @@ export class FakemonSkillManagerService
         });
     }
 
-    private static formatSkill({ skillDice, skillModifier }: { skillDice: number; skillModifier: number }): string
+    public static formatSkill({ skillDice, skillModifier }: { skillDice: number; skillModifier: number }): string
     {
         const skillModifierWithSign = this.addSignToSkillModifier(skillModifier);
         return `${skillDice}d6${skillModifierWithSign}`;
@@ -92,13 +92,13 @@ export class FakemonSkillManagerService
 
     public static deconstructSkillString(skill: string): { skillDice: number; skillModifier: number }
     {
-        const match = skill.match(/(\d+)d6(\+|-)(\d+)/);
+        const match = skill.match(/^(\d+)d6(\+|-)?(\d+)?$/);
         if (!match)
         {
             throw new Error('Invalid skill string');
         }
 
-        const [_1, skillDiceStr, sign, skillModifierStr] = match;
+        const [_1, skillDiceStr, sign = '+', skillModifierStr = '0'] = match;
 
         const skillDice = parseInt(skillDiceStr, 10);
         const skillModifier = parseInt(skillModifierStr, 10) * (sign === '+' ? 1 : -1);
