@@ -215,6 +215,7 @@ export class FakemonCreateStrategy
             speciesName,
             messageId: message.id,
             creationChannelId: interaction.channelId,
+            userId: interaction.user.id,
             coEditorUserId: coEditor?.id,
             pokemonToBaseOn,
         });
@@ -1013,12 +1014,14 @@ export class FakemonCreateStrategy
         speciesName,
         messageId,
         creationChannelId,
+        userId,
         coEditorUserId,
         pokemonToBaseOn,
     }: {
         speciesName: string;
         messageId: string;
         creationChannelId: string;
+        userId: string;
         coEditorUserId?: string;
         pokemonToBaseOn: GetBasedOnPokemonSpeciesResponse;
     }): Promise<PtuFakemonCollection>
@@ -1071,8 +1074,8 @@ export class FakemonCreateStrategy
             metadata: this.basePokemon.metadata,
             creationChannelId,
             editors: coEditorUserId
-                ? [...new Set([...this.basePokemon.editors, coEditorUserId])]
-                : this.basePokemon.editors,
+                ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
+                : [...this.basePokemon.editors, userId],
         });
     }
 
