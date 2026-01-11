@@ -1,4 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
+import { logger } from '@beanc16/logger';
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
@@ -17,7 +18,6 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
-import { logger } from '@beanc16/logger';
 
 interface FakemonTransferGetParameterResults
 {
