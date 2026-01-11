@@ -154,10 +154,11 @@ export function getFakemonEggMovesComponents(args: Pick<PtuFakemonCollection, 'm
     {
         throw new Error('Egg moves cannot have more than 3 pages');
     }
-    const removeStringSelects = pages.map(page =>
+    const removeStringSelects = pages.map((page, customId) =>
         new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
             FakemonMovesStringSelectCustomIds.RemoveEggMoves,
             page,
+            customId,
         ),
     );
 
@@ -170,6 +171,7 @@ export function getFakemonEggMovesComponents(args: Pick<PtuFakemonCollection, 'm
                 new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
                     FakemonMovesStringSelectCustomIds.RemoveEggMoves,
                     [],
+                    0,
                 ),
             ]),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.EggMoves),
@@ -186,10 +188,11 @@ export function getFakemonTmHmMovesComponents(args: Pick<PtuFakemonCollection, '
     {
         throw new Error('Egg moves cannot have more than 3 pages');
     }
-    const removeStringSelects = pages.map(page =>
+    const removeStringSelects = pages.map((page, customId) =>
         new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
             FakemonMovesStringSelectCustomIds.RemoveTmHmMoves,
             page,
+            customId,
         ),
     );
 
@@ -202,6 +205,7 @@ export function getFakemonTmHmMovesComponents(args: Pick<PtuFakemonCollection, '
                 new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
                     FakemonMovesStringSelectCustomIds.RemoveTmHmMoves,
                     [],
+                    0,
                 ),
             ]),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.TmHmMoves),
@@ -218,10 +222,11 @@ export function getFakemonTutorMovesComponents(args: Pick<PtuFakemonCollection, 
     {
         throw new Error('Egg moves cannot have more than 3 pages');
     }
-    const removeStringSelects = pages.map(page =>
+    const removeStringSelects = pages.map((page, customId) =>
         new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
             FakemonMovesStringSelectCustomIds.RemoveTutorMoves,
             page,
+            customId,
         ),
     );
 
@@ -234,6 +239,7 @@ export function getFakemonTutorMovesComponents(args: Pick<PtuFakemonCollection, 
                 new FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder(
                     FakemonMovesStringSelectCustomIds.RemoveTutorMoves,
                     [],
+                    0,
                 ),
             ]),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.TutorMoves),

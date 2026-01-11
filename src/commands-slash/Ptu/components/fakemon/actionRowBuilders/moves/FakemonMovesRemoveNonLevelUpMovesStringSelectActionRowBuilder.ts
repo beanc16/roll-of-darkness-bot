@@ -11,6 +11,7 @@ export class FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder exten
             | FakemonMovesStringSelectCustomIds.RemoveTmHmMoves
             | FakemonMovesStringSelectCustomIds.RemoveTutorMoves,
         moves: string[],
+        index: number,
     )
     {
         const maxValues = Math.min(
@@ -23,7 +24,7 @@ export class FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder exten
         super({
             components: [
                 new StringSelectMenuBuilder({
-                    customId,
+                    customId: `${customId}${index}`,
                     placeholder: customId,
                     ...(maxValues > 0
                         ? {

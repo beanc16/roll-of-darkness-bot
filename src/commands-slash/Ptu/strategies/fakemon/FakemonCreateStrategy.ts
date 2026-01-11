@@ -340,7 +340,12 @@ export class FakemonCreateStrategy
             customId: FakemonSkillsStringSelectCustomIds.EditSkill;
             values: FakemonSkillsEditStringSelectElementOptions[];
         } | {
-            customId: FakemonMovesStringSelectCustomIds;
+            customId: FakemonMovesStringSelectCustomIds.EditLevelUpMoves | FakemonMovesStringSelectCustomIds.RemoveLevelUpMoves;
+            values: string[];
+        } | {
+            customId: `${FakemonMovesStringSelectCustomIds.RemoveEggMoves
+            | FakemonMovesStringSelectCustomIds.RemoveTmHmMoves
+            | FakemonMovesStringSelectCustomIds.RemoveTutorMoves}${0 | 1 | 2}`;
             values: string[];
         };
         const values = (interaction.values || []).filter(Boolean);
@@ -865,19 +870,18 @@ export class FakemonCreateStrategy
                 break;
 
             // Remove egg moves selector
-            case FakemonMovesStringSelectCustomIds.RemoveEggMoves:
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}2`:
                 await interaction.deferUpdate(); // Defer for database update
                 try
                 {
                     // The names not in the selector are the ones to remove
-                    const namesToRemove = fakemon.moveList.eggMoves.reduce<string[]>((acc, cur) =>
-                    {
-                        if (!values.includes(cur))
-                        {
-                            acc.push(cur);
-                        }
-                        return acc;
-                    }, []);
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
                     await FakemonMoveManagerService.removeMoves({
                         messageId: message.id,
                         fakemon,
@@ -905,19 +909,18 @@ export class FakemonCreateStrategy
                 break;
 
             // Remove tm/hm moves selector
-            case FakemonMovesStringSelectCustomIds.RemoveTmHmMoves:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}2`:
                 await interaction.deferUpdate(); // Defer for database update
                 try
                 {
-                    // The names not in the selector are the ones to remove
-                    const namesToRemove = fakemon.moveList.tmHm.reduce<string[]>((acc, cur) =>
-                    {
-                        if (!values.includes(cur))
-                        {
-                            acc.push(cur);
-                        }
-                        return acc;
-                    }, []);
+                    // The names not in the current selector are the ones to remove
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
                     await FakemonMoveManagerService.removeMoves({
                         messageId: message.id,
                         fakemon,
@@ -945,19 +948,18 @@ export class FakemonCreateStrategy
                 break;
 
             // Remove tutor moves selector
-            case FakemonMovesStringSelectCustomIds.RemoveTutorMoves:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}2`:
                 await interaction.deferUpdate(); // Defer for database update
                 try
                 {
                     // The names not in the selector are the ones to remove
-                    const namesToRemove = fakemon.moveList.tutorMoves.reduce<string[]>((acc, cur) =>
-                    {
-                        if (!values.includes(cur))
-                        {
-                            acc.push(cur);
-                        }
-                        return acc;
-                    }, []);
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
                     await FakemonMoveManagerService.removeMoves({
                         messageId: message.id,
                         fakemon,
