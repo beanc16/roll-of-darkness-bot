@@ -77,7 +77,9 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
         setMaxValues: jest.fn(),
         setPlaceholder: jest.fn(),
         spliceOptions: jest.fn(),
-        toJSON: jest.fn(function() {
+        /* eslint-disable */
+        toJSON: jest.fn(function ()
+        {
             return {
                 type: this.type,
                 custom_id: this.customId,
@@ -85,6 +87,7 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
                 options: this.options,
             };
         }),
+        /* eslint-enable */
     } as StringSelectMenuBuilder;
 
     const row = new ActionRowBuilder<StringSelectMenuBuilder>({

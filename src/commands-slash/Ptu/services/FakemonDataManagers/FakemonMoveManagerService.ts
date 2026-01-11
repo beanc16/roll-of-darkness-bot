@@ -1,4 +1,5 @@
 import { ComponentType, type StringSelectMenuInteraction } from 'discord.js';
+
 import { FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
@@ -266,7 +267,7 @@ export class FakemonMoveManagerService
         /** The values to keep from the CURRENT string select menu */
         values: string[];
         customId: string;
-    })
+    }): string[]
     {
         const valuesSet = new Set(values);
 

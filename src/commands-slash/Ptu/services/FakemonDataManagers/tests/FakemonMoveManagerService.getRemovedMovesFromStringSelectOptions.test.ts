@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // ^ the above are giving a lot of false negatives for some reason, temporarily disabling
 
+import { ComponentType, StringSelectMenuComponent } from 'discord.js';
+
+import { getArrayOfWords } from '../../../../../fakes/arrays';
+import { getFakeButtonActionRowBuilder, getFakeStringSelectMenuActionRowBuilder } from '../../../../../fakes/discord/builders';
+import { FakeStringSelectMenuInteraction } from '../../../../../fakes/discord/interactions';
 import { FakemonMovesStringSelectCustomIds } from '../../../components/fakemon/actionRowBuilders/moves/types';
 import { FakemonMoveManagerService } from '../FakemonMoveManagerService';
-import { FakeStringSelectMenuInteraction, getFakeButtonInteraction } from '../../../../../fakes/discord/interactions';
-import { getFakeButtonActionRowBuilder, getFakeStringSelectMenuActionRowBuilder } from '../../../../../fakes/discord/builders';
-import { getArrayOfWords } from '../../../../../fakes/arrays';
-import { ComponentType, StringSelectMenuComponent } from 'discord.js';
 
 jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
@@ -19,6 +20,90 @@ jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
     };
 });
 
+const generateCustomIdVariants = (customId: FakemonMovesStringSelectCustomIds): string[] => Array.from({ length: 3 }, (_, index) =>
+    `${customId}${index}`,
+);
+
+// Production code will make it so this will never be more than 3
+const removeEggMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveEggMoves);
+const removeTmHmMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveTmHmMoves);
+const removeTutorMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveTutorMoves);
+const oneTo25 = Array.from({ length: 25 }, (_, index) => index + 1);
+
+const customIdToVariants: Record<string, string[]> = {
+    [FakemonMovesStringSelectCustomIds.RemoveEggMoves]: removeEggMovesCustomIds,
+    [FakemonMovesStringSelectCustomIds.RemoveTmHmMoves]: removeTmHmMovesCustomIds,
+    [FakemonMovesStringSelectCustomIds.RemoveTutorMoves]: removeTutorMovesCustomIds,
+};
+
+const getStringInteractionForRemovingMoves = (baseCustomId: FakemonMovesStringSelectCustomIds, options: {
+    numOfRemoveDropdowns: 1 | 2 | 3;
+    numOfMovesPerDropdown: Parameters<typeof getArrayOfWords>[0];
+} = {
+    numOfRemoveDropdowns: 1,
+    numOfMovesPerDropdown: { min: 1, max: 25 },
+}): { interaction: FakeStringSelectMenuInteraction; allMoveNames: string[] } =>
+{
+    const interaction = new FakeStringSelectMenuInteraction();
+    const allMoveNames: string[] = [];
+
+    const removeDropdowns = Array.from({ length: options.numOfRemoveDropdowns }, (_, index) =>
+    {
+        // Action row builder
+        const actionRowBuilder = getFakeStringSelectMenuActionRowBuilder({
+            customId: customIdToVariants[baseCustomId][index],
+        });
+        // Set move names in the dropdown
+        const moveNames = getArrayOfWords(options.numOfMovesPerDropdown);
+        (actionRowBuilder.components[0] as unknown as { options: object[] }).options = moveNames.map(move => ({
+            label: move,
+            value: move,
+            default: true,
+        }));
+        allMoveNames.push(...moveNames);
+        return actionRowBuilder;
+    });
+
+    interaction.message.components = [
+        getFakeButtonActionRowBuilder(),
+        ...removeDropdowns,
+        getFakeButtonActionRowBuilder(),
+    ] as unknown as typeof interaction.message.components;
+
+    return { interaction, allMoveNames };
+};
+
+const getCurrentComponent = (interaction: FakeStringSelectMenuInteraction, customId: string): StringSelectMenuComponent | undefined =>
+{
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { components } of interaction.message.components)
+    {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const component of components)
+        {
+            if (component.type === ComponentType.StringSelect && component.customId === customId)
+            {
+                return component;
+            }
+        }
+    }
+
+    return undefined;
+};
+
+const getExpectedRemovedOptions = (component: ReturnType<typeof getCurrentComponent>, values: string[]): string[] =>
+{
+    return component!.options.reduce<string[]>((acc, { value }) =>
+    {
+        if (!values.includes(value))
+        {
+            acc.push(value);
+        }
+
+        return acc;
+    }, []);
+};
+
 describe(`class: ${FakemonMoveManagerService.name}`, () =>
 {
     beforeEach(() =>
@@ -28,85 +113,6 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
 
     describe(`method: ${FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions.name}`, () =>
     {
-        // Production code will make it so this will never be more than 3
-        const generateCustomIdVariants = (customId: FakemonMovesStringSelectCustomIds) => Array.from({ length: 3 }, (_, index) =>
-            `${customId}${index}`,
-        );
-        const removeEggMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveEggMoves);
-        const removeTmHmMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveTmHmMoves);
-        const removeTutorMovesCustomIds = generateCustomIdVariants(FakemonMovesStringSelectCustomIds.RemoveTutorMoves);
-        const oneTo25 = Array.from({ length: 25 }, (_, index) => index + 1);
-
-        const customIdToVariants: Record<string, string[]> = {
-            [FakemonMovesStringSelectCustomIds.RemoveEggMoves]: removeEggMovesCustomIds,
-            [FakemonMovesStringSelectCustomIds.RemoveTmHmMoves]: removeTmHmMovesCustomIds,
-            [FakemonMovesStringSelectCustomIds.RemoveTutorMoves]: removeTutorMovesCustomIds,
-        };
-
-        const getStringInteractionForRemovingMoves = (baseCustomId: FakemonMovesStringSelectCustomIds, options: {
-            numOfRemoveDropdowns: 1 | 2 | 3;
-            numOfMovesPerDropdown: Parameters<typeof getArrayOfWords>[0];
-        } = {
-            numOfRemoveDropdowns: 1,
-            numOfMovesPerDropdown: { min: 1, max: 25 },
-        }): { interaction: FakeStringSelectMenuInteraction; allMoveNames: string[] } =>
-        {
-            const interaction = new FakeStringSelectMenuInteraction();
-            const allMoveNames: string[] = [];
-
-            const removeDropdowns = Array.from({ length: options.numOfRemoveDropdowns }, (_, index) =>
-            {
-                // Action row builder
-                const actionRowBuilder = getFakeStringSelectMenuActionRowBuilder({
-                    customId: customIdToVariants[baseCustomId][index],
-                });
-                // Set move names in the dropdown
-                const moveNames = getArrayOfWords(options.numOfMovesPerDropdown);
-                (actionRowBuilder.components[0] as unknown as { options: object[] }).options = moveNames.map(move => ({
-                    label: move,
-                    value: move,
-                    default: true,
-                }));
-                allMoveNames.push(...moveNames);
-                return actionRowBuilder;
-            });
-
-            interaction.message.components = [
-                getFakeButtonActionRowBuilder(),
-                ...removeDropdowns,
-                getFakeButtonActionRowBuilder(),
-            ] as unknown as typeof interaction.message.components;
-
-            return { interaction, allMoveNames };
-        };
-
-        const getCurrentComponent = (interaction: FakeStringSelectMenuInteraction, customId: string): StringSelectMenuComponent | undefined =>
-        {
-            for (const { components } of interaction.message.components)
-            {
-                for (const component of components)
-                {
-                    if (component.type === ComponentType.StringSelect && component.customId === customId)
-                    {
-                        return component;
-                    }
-                }
-            }
-        }
-
-        const getExpectedRemovedOptions = (component: ReturnType<typeof getCurrentComponent>, values: string[]) =>
-        {
-            return component!.options.reduce<string[]>((acc, { value }) =>
-            {
-                if (!values.includes(value))
-                {
-                    acc.push(value);
-                }
-
-                return acc;
-            }, []);
-        };
-
         describe.each([
             [removeEggMovesCustomIds[0], FakemonMovesStringSelectCustomIds.RemoveEggMoves, [1, 2, 3]],
             [removeEggMovesCustomIds[1], FakemonMovesStringSelectCustomIds.RemoveEggMoves, [2, 3]],

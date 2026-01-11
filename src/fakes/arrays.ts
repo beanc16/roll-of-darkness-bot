@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { faker } from '@faker-js/faker';
 
 export function getFakeArray<Element>(value: Element, length: number): Element[]

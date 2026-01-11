@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
+import { getArrayOfWords } from '../../../fakes/arrays.js';
 import { PtuPokemonCollection } from '../dal/models/PtuPokemonCollection.js';
 import {
     PokemonDiet,
@@ -10,7 +11,6 @@ import {
     PtuHeight,
     PtuPokemon,
 } from '../types/pokemon.js';
-import { getArrayOfWords } from '../../../fakes/arrays.js';
 
 const getRandomTypes = (numOfTypes: number): string[] =>
 {
