@@ -1,3 +1,4 @@
+import { ComponentType, type StringSelectMenuInteraction } from 'discord.js';
 import { FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
@@ -250,6 +251,46 @@ export class FakemonMoveManagerService
                 [moveListToRemoveFrom]: updatedMoveList,
             },
         });
+    }
+
+    /**
+     * @returns All moves in the original string select menu
+     * options that are no longer in the values
+     */
+    public static getRemovedMovesFromStringSelectOptions({
+        interaction,
+        values,
+        customId,
+    }: {
+        interaction: StringSelectMenuInteraction;
+        /** The values to keep from the CURRENT string select menu */
+        values: string[];
+        customId: string;
+    })
+    {
+        const valuesSet = new Set(values);
+
+        return interaction.message.components.reduce<string[]>((acc, { components }) =>
+        {
+            components.forEach((component) =>
+            {
+                if (component.type === ComponentType.StringSelect && component.customId === customId)
+                {
+                    component.options.forEach(({ value }) =>
+                    {
+                        if (!valuesSet.has(value))
+                        {
+                            acc.push(value);
+                        }
+                    });
+                }
+                else if (component.type !== ComponentType.StringSelect && component.customId === customId)
+                {
+                    throw new Error('Component is not a string select menu');
+                }
+            });
+            return acc;
+        }, []);
     }
 
     private static validateLevelUpMove(move: PtuFakemonCollection['moveList']['levelUp'][number]): void
