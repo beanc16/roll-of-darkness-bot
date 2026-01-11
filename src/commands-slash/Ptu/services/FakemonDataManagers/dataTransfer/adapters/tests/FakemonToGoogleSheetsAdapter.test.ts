@@ -959,55 +959,55 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                     fakemon.name,
                     // Acrobatics
                     '1',
-                    '+1',
+                    `'+1`,
                     // Athletics
                     '1',
-                    '+1',
+                    `'+1`,
                     // Charm
                     '2',
-                    '+0',
+                    `'+0`,
                     // Combat
                     '1',
-                    '+1',
+                    `'+1`,
                     // Command
                     '2',
-                    '+0',
+                    `'+0`,
                     // General Education
                     '2',
-                    '+0',
+                    `'+0`,
                     // Medical Education
                     '2',
-                    '+0',
+                    `'+0`,
                     // Occult Education
                     '2',
-                    '+0',
+                    `'+0`,
                     // Pokemon Education
                     '2',
-                    '+0',
+                    `'+0`,
                     // Technology Education
                     '2',
-                    '+0',
+                    `'+0`,
                     // Focus
                     '1',
-                    '+1',
+                    `'+1`,
                     // Guile
                     '2',
-                    '+0',
+                    `'+0`,
                     // Intimidate
                     '2',
-                    '+0',
+                    `'+0`,
                     // Intuition
                     '2',
-                    '+0',
+                    `'+0`,
                     // Perception
                     '1',
-                    '+1',
+                    `'+1`,
                     // Stealth
                     '1',
-                    '+1',
+                    `'+1`,
                     // Survival
                     '2',
-                    '+0',
+                    `'+0`,
                 ]);
             });
 
@@ -1052,7 +1052,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe('+3');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe(`'+3`);
             });
 
             it('should transform acrobatics modifier correctly with negative value', () =>
@@ -1067,7 +1067,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe('-2');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe(`'-2`);
             });
 
             it('should transform acrobatics modifier correctly with zero value', () =>
@@ -1082,7 +1082,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe('+0');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ACROBATICS_MODIFIER]).toBe(`'+0`);
             });
 
             it('should transform athletics dice correctly', () =>
@@ -1112,7 +1112,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ATHLETICS_MODIFIER]).toBe('+4');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ATHLETICS_MODIFIER]).toBe(`'+4`);
             });
 
             it('should transform athletics modifier correctly with negative value', () =>
@@ -1127,7 +1127,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ATHLETICS_MODIFIER]).toBe('-1');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.ATHLETICS_MODIFIER]).toBe(`'-1`);
             });
 
             it('should transform combat dice correctly', () =>
@@ -1157,7 +1157,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe('+5');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe(`'+5`);
             });
 
             it('should transform combat modifier correctly with negative value', () =>
@@ -1172,7 +1172,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe('-3');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe(`'-3`);
             });
 
             it('should transform focus dice correctly', () =>
@@ -1202,7 +1202,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.FOCUS_MODIFIER]).toBe('+2');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.FOCUS_MODIFIER]).toBe(`'+2`);
             });
 
             it('should transform focus modifier correctly with negative value', () =>
@@ -1217,7 +1217,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.FOCUS_MODIFIER]).toBe('-1');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.FOCUS_MODIFIER]).toBe(`'-1`);
             });
 
             it('should transform perception dice correctly', () =>
@@ -1247,7 +1247,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.PERCEPTION_MODIFIER]).toBe('+6');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.PERCEPTION_MODIFIER]).toBe(`'+6`);
             });
 
             it('should transform perception modifier correctly with negative value', () =>
@@ -1262,7 +1262,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.PERCEPTION_MODIFIER]).toBe('-4');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.PERCEPTION_MODIFIER]).toBe(`'-4`);
             });
 
             it('should transform stealth dice correctly', () =>
@@ -1292,7 +1292,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.STEALTH_MODIFIER]).toBe('+4');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.STEALTH_MODIFIER]).toBe(`'+4`);
             });
 
             it('should transform stealth modifier correctly with negative value', () =>
@@ -1307,7 +1307,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.STEALTH_MODIFIER]).toBe('-5');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.STEALTH_MODIFIER]).toBe(`'-5`);
             });
 
             it.each([
@@ -1359,7 +1359,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[index]).toBe('+0');
+                expect(result.pokemonSkills[index]).toBe(`'+0`);
             });
 
             it('should handle maximum dice value (6d6)', () =>
@@ -1389,7 +1389,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe('+6');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe(`'+6`);
             });
 
             it('should handle minimum negative modifier (-6)', () =>
@@ -1404,7 +1404,7 @@ describe(`class: ${FakemonToGoogleSheetsAdapter.name}`, () =>
                 const result = adapter.transform(fakemon);
 
                 // Assert
-                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe('-6');
+                expect(result.pokemonSkills[POKEMON_SKILLS_INDEX.COMBAT_MODIFIER]).toBe(`'-6`);
             });
         });
     });

@@ -104,55 +104,55 @@ export class FakemonToGoogleSheetsAdapter extends Adapter<PtuFakemonCollection, 
             name,
             // Acrobatics
             acrobatics.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(acrobatics.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(acrobatics.skillModifier, { formatForGoogleSheets: true }),
             // Athletics
             athletics.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(athletics.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(athletics.skillModifier, { formatForGoogleSheets: true }),
             // Charm
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Combat
             combat.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(combat.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(combat.skillModifier, { formatForGoogleSheets: true }),
             // Command
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // General Education
             this.DEFAULT_EDUCATION_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Medical Education
             this.DEFAULT_EDUCATION_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Occult Education
             this.DEFAULT_EDUCATION_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Pokemon Education
             this.DEFAULT_EDUCATION_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Technology Education
             this.DEFAULT_EDUCATION_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Focus
             focus.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(focus.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(focus.skillModifier, { formatForGoogleSheets: true }),
             // Guile
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Intimidate
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Intuition
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
             // Perception
             perception.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(perception.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(perception.skillModifier, { formatForGoogleSheets: true }),
             // Stealth
             stealth.skillDice.toString(),
-            FakemonSkillManagerService.addSignToSkillModifier(stealth.skillModifier),
+            FakemonSkillManagerService.addSignToSkillModifier(stealth.skillModifier, { formatForGoogleSheets: true }),
             // Survival
             this.DEFAULT_DICE,
-            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER),
+            FakemonSkillManagerService.addSignToSkillModifier(this.DEFAULT_MODIFIER, { formatForGoogleSheets: true }),
         ];
     }
 }
