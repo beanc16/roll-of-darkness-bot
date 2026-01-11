@@ -55,8 +55,9 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
     emoji?: string;
 } = {}): ActionRowBuilder<StringSelectMenuBuilder> =>
 {
-    const stringSelectMenu = new StringSelectMenuBuilder({
+    const stringSelectMenu = {
         customId,
+        data: {},
         disabled: isDisabled,
         options: [
             {
@@ -65,8 +66,24 @@ export const getFakeStringSelectMenuActionRowBuilder = ({
                 value,
                 emoji,
             },
-        ],
-    });
+        ] as unknown as StringSelectMenuBuilder['options'],
+        addOptions: jest.fn(),
+        setCustomId: jest.fn(),
+        setDisabled: jest.fn(),
+        setOptions: jest.fn(),
+        setMinValues: jest.fn(),
+        setMaxValues: jest.fn(),
+        setPlaceholder: jest.fn(),
+        spliceOptions: jest.fn(),
+        toJSON: jest.fn(function() {
+            return {
+                type: this.type,
+                custom_id: this.customId,
+                disabled: this.disabled,
+                options: this.options,
+            };
+        }),
+    } as StringSelectMenuBuilder;
 
     const row = new ActionRowBuilder<StringSelectMenuBuilder>({
         components: [stringSelectMenu],
