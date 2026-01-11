@@ -94,6 +94,7 @@ export class FakeStringSelectMenuInteraction extends StringSelectMenuInteraction
     {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- Allow for testing purposes
         super({} as any, {} as any);
+        this.message = getFakeMessage();
         this.user = new FakeUser();
     }
 }
