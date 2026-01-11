@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
+import { Timer } from '../../../../../../services/Timer/Timer.js';
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../../../dal/PtuController.js';
@@ -36,6 +37,9 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
             // eslint-disable-next-line no-underscore-dangle
             $or: [{ _id: input._id }, { name: input.name }],
         }, input);
+
+        // Wait briefly to avoid database error from re-querying to quickly (bug with mongodb-controller connection handling)
+        await Timer.wait({ seconds: 0.15 });
 
         // Say that the fakemon has been transferred
         await FakemonGeneralInformationManagerService.updateTransferredTo({
