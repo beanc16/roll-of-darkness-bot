@@ -105,9 +105,14 @@ export class FakemonSkillManagerService
         return { skillDice, skillModifier };
     }
 
-    public static addSignToSkillModifier(skillModifier: number): string
+    public static addSignToSkillModifier(skillModifier: number, {
+        formatForGoogleSheets = false,
+    }: {
+        formatForGoogleSheets?: boolean;
+    } = {}): string
     {
+        const apostrophe = formatForGoogleSheets ? `'` : '';
         const sign = skillModifier >= 0 ? '+' : '';
-        return `${sign}${skillModifier}`;
+        return `${apostrophe}${sign}${skillModifier}`;
     }
 }

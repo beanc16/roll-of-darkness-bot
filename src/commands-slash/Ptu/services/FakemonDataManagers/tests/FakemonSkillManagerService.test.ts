@@ -468,22 +468,39 @@ describe(`class: ${FakemonSkillManagerService.name}`, () =>
 
     describe(`method: ${FakemonSkillManagerService.addSignToSkillModifier.name}`, () =>
     {
-        it.each([0, 1, 2, 3, 4, 5, 6])('should add a plus sign for %s (AKA: positive or zero modifier)', (skillModifier) =>
+        describe.each([true, false])('formatForGoogleSheets: %s', (formatForGoogleSheets) =>
         {
-            // Act
-            const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier);
+            // An apostrophe is included as the first character
+            // only for Google Sheets to tell it that this should
+            // be parsed as a string rather than a number. It will
+            // still interpret it as a number without the apostrophe
+            // even if it has a plus or negative sign, and we need
+            // to always show the plus/negative sign in the character
+            // sheet. Thus, it must be told to parse as a string with
+            // the apostrophe.
+            const prefix = formatForGoogleSheets ? `'` : '';
 
-            // Assert
-            expect(result).toBe(`+${skillModifier}`);
-        });
+            it.each([0, 1, 2, 3, 4, 5, 6])('should add a plus sign for %s (AKA: positive or zero modifier)', (skillModifier) =>
+            {
+                // Act
+                const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier, {
+                    formatForGoogleSheets,
+                });
 
-        it.each([-6, -5, -4, -3, -2, -1])('should not add a sign for %s (AKA: negative modifier that already has a negative sign)', (skillModifier) =>
-        {
-            // Act
-            const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier);
+                // Assert
+                expect(result).toBe(`${prefix}+${skillModifier}`);
+            });
 
-            // Assert
-            expect(result).toBe(`${skillModifier}`);
+            it.each([-6, -5, -4, -3, -2, -1])('should not add a sign for %s (AKA: negative modifier that already has a negative sign)', (skillModifier) =>
+            {
+                // Act
+                const result = FakemonSkillManagerService.addSignToSkillModifier(skillModifier, {
+                    formatForGoogleSheets,
+                });
+
+                // Assert
+                expect(result).toBe(`${prefix}${skillModifier}`);
+            });
         });
     });
 });
