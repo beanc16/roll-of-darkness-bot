@@ -84,6 +84,10 @@ export class FakemonViewStrategy
         {
             throw new Error('Fakemon not found');
         }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
+        }
 
         switch (customId)
         {

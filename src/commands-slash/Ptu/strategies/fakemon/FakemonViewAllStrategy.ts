@@ -82,6 +82,16 @@ export class FakemonViewAllStrategy
             values: string[];
         };
 
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
+        }
+
         let strategy: PtuChatIteractionStrategy;
         switch (customId)
         {

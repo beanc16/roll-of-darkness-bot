@@ -243,6 +243,16 @@ export class FakemonCreateStrategy
             customId: FakemonMovesButtonCustomIds;
         };
 
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
+        }
+
         switch (customId)
         {
             case FakemonMovesButtonCustomIds.AddLevelUpMoves:
@@ -354,6 +364,10 @@ export class FakemonCreateStrategy
         if (!fakemon)
         {
             throw new Error('Fakemon not found');
+        }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
         }
 
         // Used by some cases to determine which modal to show
