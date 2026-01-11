@@ -133,39 +133,62 @@ export class GenerateSkillBackgroundStrategy extends BaseGenerateStrategy
 
         // Convert skills to arrays
         const raisedSkills = [
-            ...(raisedSkill1 ? [raisedSkill1] : []),
-            ...(raisedSkill2 ? [raisedSkill2] : []),
-            ...(raisedSkill3 ? [raisedSkill3] : []),
+            ...new Set([
+                ...(raisedSkill1 ? [raisedSkill1] : []),
+                ...(raisedSkill2 ? [raisedSkill2] : []),
+                ...(raisedSkill3 ? [raisedSkill3] : []),
+            ]),
         ];
         const loweredSkills = [
-            ...(loweredSkill1 ? [loweredSkill1] : []),
-            ...(loweredSkill2 ? [loweredSkill2] : []),
-            ...(loweredSkill3 ? [loweredSkill3] : []),
+            ...new Set([
+                ...(loweredSkill1 ? [loweredSkill1] : []),
+                ...(loweredSkill2 ? [loweredSkill2] : []),
+                ...(loweredSkill3 ? [loweredSkill3] : []),
+            ]),
         ];
 
         // Ensure that there's alway at least 2 raised and lowered skills
         // based on input or randomly generated.
-        const numOfRandomRaisedSkills = Math.max(2 - raisedSkills.length, 0);
-        const numOfRandomLoweredSkills = Math.max(2 - loweredSkills.length, 0);
+        const numOfRandomRaisedSkills = loweredSkills.length === 3
+            ? loweredSkills.length - raisedSkills.length
+            : Math.max(
+                // Get up to 2 raised skills
+                2 - raisedSkills.length,
+                // Never have zero raised skills
+                0,
+            );
+        const numOfRandomLoweredSkills = raisedSkills.length === 3
+            ? raisedSkills.length - loweredSkills.length
+            : Math.max(
+                // Get up to 2 lowered skills
+                2 - loweredSkills.length,
+                // Never have zero lowered skills
+                0,
+            );
 
+        const validSkills = [...this.validSkills].filter((skill) =>
+            !raisedSkills.includes(skill) && !loweredSkills.includes(skill),
+        );
         for (let index = 0; index < numOfRandomRaisedSkills; index += 1)
         {
             const [rollResult] = new DiceLiteService({
                 count: 1,
-                sides: this.validSkills.length,
+                sides: validSkills.length,
             }).roll();
 
-            raisedSkills.push(this.validSkills[rollResult - 1]);
+            const [pickedSkill] = validSkills.splice(rollResult - 1, 1);
+            raisedSkills.push(pickedSkill);
         }
 
         for (let index = 0; index < numOfRandomLoweredSkills; index += 1)
         {
             const [rollResult] = new DiceLiteService({
                 count: 1,
-                sides: this.validSkills.length,
+                sides: validSkills.length,
             }).roll();
 
-            loweredSkills.push(this.validSkills[rollResult - 1]);
+            const [pickedSkill] = validSkills.splice(rollResult - 1, 1);
+            loweredSkills.push(pickedSkill);
         }
 
         return { raisedSkills, loweredSkills };
