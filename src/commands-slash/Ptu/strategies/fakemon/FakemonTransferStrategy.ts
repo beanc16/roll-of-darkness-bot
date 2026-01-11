@@ -17,6 +17,7 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
+import { logger } from '@beanc16/logger';
 
 interface FakemonTransferGetParameterResults
 {
@@ -113,9 +114,14 @@ export class FakemonTransferStrategy
                             ),
                         ].join('\n'),
                     });
+                    await interaction.message.edit({
+                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)}.`,
+                        components: [], // Remove buttons so transfer doesn't occur again
+                    });
                 }
                 catch (error)
                 {
+                    logger.error('Failed to transfer fakemon', error);
                     const errorMessage = (error as Error)?.message;
                     await interaction.followUp({
                         content: [
