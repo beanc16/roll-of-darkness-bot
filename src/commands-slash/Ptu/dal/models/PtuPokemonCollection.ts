@@ -76,7 +76,6 @@ export class PtuPokemonCollection
             eggMoves: moveList?.eggMoves,
             tutorMoves: moveList?.tutorMoves,
         };
-        this.megaEvolutions = megaEvolutions;
         this.metadata = metadata;
 
         if (moveList?.zygardeCubeMoves && moveList.zygardeCubeMoves.length > 0)
@@ -92,6 +91,11 @@ export class PtuPokemonCollection
         if (edits && edits.length > 0)
         {
             this.edits = edits;
+        }
+
+        if (megaEvolutions && megaEvolutions.length > 0)
+        {
+            this.megaEvolutions = megaEvolutions;
         }
     }
 
