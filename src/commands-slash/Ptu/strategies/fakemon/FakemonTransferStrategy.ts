@@ -7,7 +7,9 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { RecordSingleton } from '../../../../services/Singleton/RecordSingleton.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
+import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { FakemonDataTransferService } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
@@ -22,6 +24,7 @@ import type {
 interface FakemonTransferGetParameterResults
 {
     speciesName: string;
+    destinations: string[];
 }
 
 @staticImplements<
@@ -31,6 +34,7 @@ interface FakemonTransferGetParameterResults
 export class FakemonTransferStrategy
 {
     public static key = PtuFakemonSubcommand.Transfer;
+    public static destinationCache = new RecordSingleton<string, string[]>();
 
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonTransferGetParameterResults>): Promise<boolean>;
@@ -41,7 +45,7 @@ export class FakemonTransferStrategy
         options?: Partial<FakemonTransferGetParameterResults>,
     ): Promise<boolean>
     {
-        const { speciesName } = this.getOptions(interaction as ButtonInteraction, options);
+        const { speciesName, destinations } = this.getOptions(interaction as ButtonInteraction, options);
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -56,7 +60,12 @@ export class FakemonTransferStrategy
         // Send transfer confirmation message
         const message = await interaction.fetchReply();
         await interaction.followUp({
-            content: `Are you sure that you want to transfer ${Text.Code.oneLine(speciesName)}?`,
+            content: [
+                `Are you sure that you want to transfer ${Text.Code.oneLine(speciesName)}${
+                    destinations.length > 0 ? ` to ${Text.Code.oneLine(destinations.join(', '))}` : ''
+                }?`,
+                this.convertTransferredToForDisplay(fakemon),
+            ].join('\n'),
             components: [
                 new ConfirmDenyButtonActionRowBuilder(),
             ],
@@ -64,6 +73,7 @@ export class FakemonTransferStrategy
 
         // Add to cache
         PtuFakemonPseudoCache.addToCache(message.id, fakemon);
+        this.destinationCache.upsert(message.id, destinations);
 
         return true;
     }
@@ -98,9 +108,16 @@ export class FakemonTransferStrategy
                         content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)}. Please be patient, this may take a few seconds...`,
                     });
 
+                    // Get destinations
+                    const destinations = this.destinationCache.get(interaction.message.id);
+                    if (!destinations)
+                    {
+                        throw new Error('Destinations not found');
+                    }
+
                     // Transfer fakemon
                     const service = new FakemonDataTransferService();
-                    await service.transfer(fakemon);
+                    await service.transfer(fakemon, destinations);
 
                     // Get updated fakemon
                     const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
@@ -109,9 +126,7 @@ export class FakemonTransferStrategy
                     await interaction.followUp({
                         content: [
                             `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred to the following locations:`,
-                            Text.Code.multiLine(
-                                JSON.stringify(updatedFakemon.transferredTo, null, 2),
-                            ),
+                            this.convertTransferredToForDisplay(updatedFakemon),
                         ].join('\n'),
                     });
                     await interaction.message.edit({
@@ -165,7 +180,31 @@ export class FakemonTransferStrategy
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
+        const destination1 = interaction.options.getString('destination_1');
+        const destination2 = interaction.options.getString('destination_2');
+        const destination3 = interaction.options.getString('destination_3');
 
-        return { speciesName };
+        // Set unique destinations
+        const destinationsSet = new Set<string>();
+        [
+            destination1,
+            destination2,
+            destination3,
+        ].forEach(element =>
+        {
+            if (element && !destinationsSet.has(element))
+            {
+                destinationsSet.add(element);
+            }
+        });
+
+        return { speciesName, destinations: [...destinationsSet] };
+    }
+
+    private static convertTransferredToForDisplay(fakemon: Pick<PtuFakemonCollection, 'transferredTo'>): string
+    {
+        return Text.Code.multiLine(
+            JSON.stringify(fakemon.transferredTo, null, 2),
+        );
     }
 }

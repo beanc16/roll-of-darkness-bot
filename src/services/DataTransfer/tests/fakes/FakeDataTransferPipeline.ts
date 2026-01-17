@@ -6,6 +6,6 @@ export class FakeDataTransferPipeline extends DataTransferPipeline<number, strin
 {
     constructor()
     {
-        super(new FakeAdapter(), new FakeDataTransferDestination());
+        super('fake-destination', new FakeAdapter(), new FakeDataTransferDestination());
     }
 }

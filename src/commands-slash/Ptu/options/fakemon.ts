@@ -1,5 +1,6 @@
-import { SlashCommandSubcommandBuilder } from 'discord.js';
+import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 
 export enum PtuFakemonSubcommand
@@ -118,6 +119,41 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         option.setDescription(`The name of the custom Pokémon species.`);
         option.setAutocomplete(true);
         return option.setRequired(true);
+    });
+
+    // Destination
+    const destinationChoices = Object.values(FakemonDataTransferPipelineKey).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_1');
+        option.setDescription(`The first destination to transfer to (default: All).`);
+        return option.setChoices(
+            ...destinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_2');
+        option.setDescription(`The second destination to transfer to.`);
+        return option.setChoices(
+            ...destinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_3');
+        option.setDescription(`The third destination to transfer to.`);
+        return option.setChoices(
+            ...destinationChoices,
+        );
     });
 
     return subcommand;

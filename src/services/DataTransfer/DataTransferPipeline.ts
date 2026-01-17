@@ -3,11 +3,21 @@ import { DataTransferDestination } from './DataTransferDestination.js';
 
 export class DataTransferPipeline<Input, Output>
 {
+    private readonly internalKey: string;
+
     constructor(
+        key: string,
         private readonly adapter: Adapter<Input, Output>,
         private readonly destination: DataTransferDestination<Output, Input>,
     )
-    {}
+    {
+        this.internalKey = key;
+    }
+
+    get key(): string
+    {
+        return this.internalKey;
+    }
 
     public async transfer(input: Input): Promise<void>
     {
