@@ -19,6 +19,7 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { FakemonDataTransferPipelineKey } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
@@ -34,6 +35,9 @@ export class FakemonViewAllStrategy
         _strategies: PtuStrategyMap,
     ): Promise<boolean>
     {
+        // Get options
+        const notTransferredTo = interaction.options.getString('not_transferred_to') as FakemonDataTransferPipelineKey | null;
+
         // Get fakemon
         const fakemon = await PtuFakemonPseudoCache.getAll(interaction.user.id);
         if (fakemon.length === 0)
@@ -44,13 +48,16 @@ export class FakemonViewAllStrategy
             return true;
         }
 
+        // Filter
+        const filteredFakemon = this.filterFakemonNotTransferredTo(fakemon, notTransferredTo);
+
         // Send response
-        const embeds = this.getEmbeds(fakemon);
+        const embeds = this.getEmbeds(filteredFakemon);
         await interaction.followUp({
             embeds,
             components: [
-                new FakemonViewAllActionRowBuilder(fakemon, 'view'),
-                new FakemonViewAllActionRowBuilder(fakemon, 'edit'),
+                new FakemonViewAllActionRowBuilder(filteredFakemon, 'view'),
+                new FakemonViewAllActionRowBuilder(filteredFakemon, 'edit'),
             ],
         });
 
@@ -129,6 +136,33 @@ export class FakemonViewAllStrategy
             parseElementToLines: element => [
                 `- ${element.name} (${element.status})`,
             ],
+        });
+    }
+
+    private static filterFakemonNotTransferredTo(fakemon: PtuFakemonCollection[], notTransferredTo: FakemonDataTransferPipelineKey | null): PtuFakemonCollection[]
+    {
+        if (!notTransferredTo)
+        {
+            return fakemon;
+        }
+
+        return fakemon.filter(fakemon =>
+        {
+            switch (notTransferredTo)
+            {
+                case FakemonDataTransferPipelineKey.Database:
+                    return !fakemon.transferredTo.ptuDatabase;
+
+                case FakemonDataTransferPipelineKey.GoogleSheets:
+                    return !(
+                        fakemon.transferredTo.googleSheets.pokemonData
+                        && fakemon.transferredTo.googleSheets.pokemonSkills
+                    );
+
+                default:
+                    const typeCheck: never = notTransferredTo;
+                    throw new Error(`Invalid notTransferredTo: ${typeCheck}`);
+            }
         });
     }
 }

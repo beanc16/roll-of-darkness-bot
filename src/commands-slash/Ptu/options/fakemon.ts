@@ -14,6 +14,16 @@ export enum PtuFakemonSubcommand
     View = 'view',
 }
 
+const reportingDestinationChoices = Object.values(FakemonDataTransferPipelineKey).map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
 export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuFakemonSubcommand.Create);
@@ -122,21 +132,12 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
     });
 
     // Destination
-    const destinationChoices = Object.values(FakemonDataTransferPipelineKey).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
         option.setName('destination_1');
         option.setDescription(`The first destination to transfer to (default: All).`);
         return option.setChoices(
-            ...destinationChoices,
+            ...reportingDestinationChoices,
         );
     });
     subcommand.addStringOption((option) =>
@@ -144,7 +145,7 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         option.setName('destination_2');
         option.setDescription(`The second destination to transfer to.`);
         return option.setChoices(
-            ...destinationChoices,
+            ...reportingDestinationChoices,
         );
     });
     subcommand.addStringOption((option) =>
@@ -152,7 +153,7 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         option.setName('destination_3');
         option.setDescription(`The third destination to transfer to.`);
         return option.setChoices(
-            ...destinationChoices,
+            ...reportingDestinationChoices,
         );
     });
 
@@ -163,6 +164,16 @@ export const viewAll = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
 {
     subcommand.setName(PtuFakemonSubcommand.ViewAll);
     subcommand.setDescription('View all custom pokemon.');
+
+    // Not Transferred To
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('not_transferred_to');
+        option.setDescription(`The destination that fakemon have not been transferred to yet.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
 
     return subcommand;
 };
