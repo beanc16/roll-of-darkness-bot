@@ -1,5 +1,5 @@
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
+import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 
 interface HomebrewGetImageUrlResponse
 {
@@ -10,6 +10,79 @@ interface HomebrewGetImageUrlResponse
 export class HomebrewPokeApi
 {
     private static unknownImageUrl: string | undefined = undefined;
+    private static pokemonNestedFolders = 'ptu-pokedex/eden-dex';
+    private static fakemonNestedFolders = 'fakemon-commands';
+
+    /* istanbul ignore next */
+    private static async getPokemonUrl(speciesName: string): Promise<string>
+    {
+        const { data } = await FileStorageMicroservice.v1.get({
+            appId: process.env.APP_ID as string,
+            fileName: speciesName,
+            nestedFolders: this.pokemonNestedFolders,
+        });
+
+        return data.url;
+    }
+
+    /* istanbul ignore next */
+    public static async getFakemonUrl(speciesName: string): Promise<string>
+    {
+        const { data } = await FileStorageMicroservice.v1.get({
+            appId: process.env.APP_ID as string,
+            fileName: speciesName,
+            nestedFolders: this.fakemonNestedFolders,
+        });
+
+        return data.url;
+    }
+
+    /* istanbul ignore next */
+    public static async uploadFakemonImage(speciesName: string, imageUrl: string): Promise<string>
+    {
+        const {
+            data: {
+                url: newUrl,
+            },
+        } = await FileStorageMicroservice.v1.upload({
+            app: {
+                id: process.env.APP_ID as string,
+            },
+            file: {
+                fileName: speciesName,
+                url: imageUrl,
+            },
+            nestedFolders: this.fakemonNestedFolders,
+            resourceType: FileStorageMicroserviceResourceType.Image,
+        });
+
+        return newUrl;
+    }
+
+    /* istanbul ignore next */
+    public static async transferFakemonImageToPokemon(speciesName: string): Promise<string>
+    {
+        const {
+            data: {
+                url: newUrl,
+            },
+        } = await FileStorageMicroservice.v1.rename({
+            app: {
+                id: process.env.APP_ID as string,
+            },
+            old: {
+                fileName: speciesName,
+                nestedFolders: this.fakemonNestedFolders,
+            },
+            new: {
+                fileName: speciesName,
+                nestedFolders: this.pokemonNestedFolders,
+            },
+            resourceType: FileStorageMicroserviceResourceType.Image,
+        });
+
+        return newUrl;
+    }
 
     /* istanbul ignore next */
     public static async initialize(): Promise<void>
@@ -37,11 +110,7 @@ export class HomebrewPokeApi
             return undefined;
         }
 
-        const promises = names.map(name => FileStorageMicroservice.v1.get({
-            appId: process.env.APP_ID as string,
-            fileName: name,
-            nestedFolders: 'ptu-pokedex/eden-dex',
-        }));
+        const promises = names.map(name => this.getPokemonUrl(name));
 
         const results = await Promise.allSettled(promises);
 
@@ -55,13 +124,9 @@ export class HomebrewPokeApi
             }
 
             // Image could be found
-            if (cur.status === 'fulfilled' && cur.value.data)
+            if (cur.status === 'fulfilled' && cur.value)
             {
-                const {
-                    value: {
-                        data: { url },
-                    },
-                } = cur;
+                const { value: url } = cur;
                 const urlWithoutSpecialCharacters = url.replaceAll(/%20/g, ' ').replaceAll(/%28/g, '(').replaceAll(/%29/g, ')');
                 const pokemonName = names.find(name => urlWithoutSpecialCharacters.toLowerCase().includes(name.toLowerCase()));
 

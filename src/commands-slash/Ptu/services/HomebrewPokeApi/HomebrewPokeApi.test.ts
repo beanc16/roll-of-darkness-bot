@@ -11,12 +11,14 @@ jest.mock('@beanc16/microservices-abstraction', () =>
         FileStorageMicroservice: {
             v1: {
                 get: jest.fn(),
+                upload: jest.fn(),
+                rename: jest.fn(),
             },
         },
     };
 });
 
-describe('class: PokeApi', () =>
+describe('class: HomebrewPokeApi', () =>
 {
     beforeEach(() =>
     {
