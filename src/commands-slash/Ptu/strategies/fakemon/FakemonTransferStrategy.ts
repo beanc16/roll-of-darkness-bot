@@ -12,6 +12,8 @@ import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '.
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { FakemonDataTransferService } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
@@ -20,8 +22,6 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
-import { PtuSubcommandGroup } from '../../options/index.js';
-import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 
 interface FakemonTransferGetParameterResults

@@ -12,6 +12,7 @@ import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
+import { FakemonDataTransferPipelineKey } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
@@ -19,7 +20,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { FakemonDataTransferPipelineKey } from '../../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
@@ -146,17 +146,17 @@ export class FakemonViewAllStrategy
             return fakemon;
         }
 
-        return fakemon.filter(fakemon =>
+        return fakemon.filter(curFakemon =>
         {
             switch (notTransferredTo)
             {
                 case FakemonDataTransferPipelineKey.Database:
-                    return !fakemon.transferredTo.ptuDatabase;
+                    return !curFakemon.transferredTo.ptuDatabase;
 
                 case FakemonDataTransferPipelineKey.GoogleSheets:
                     return !(
-                        fakemon.transferredTo.googleSheets.pokemonData
-                        && fakemon.transferredTo.googleSheets.pokemonSkills
+                        curFakemon.transferredTo.googleSheets.pokemonData
+                        && curFakemon.transferredTo.googleSheets.pokemonSkills
                     );
 
                 default:
