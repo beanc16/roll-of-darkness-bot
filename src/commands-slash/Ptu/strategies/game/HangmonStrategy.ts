@@ -263,7 +263,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                             commandName,
                         }),
                         [HangmonGameOverCustomIds.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(newReceivedInteraction as ButtonInteraction, strategies, {
-                            name: state.correct.pokemon.name,
+                            names: [state.correct.pokemon.name],
                         }),
                         [HangmonGameOverCustomIds.GuessHistory]: async () => await this.sendGuessHistory({
                             receivedInteraction: newReceivedInteraction as ButtonInteraction,
