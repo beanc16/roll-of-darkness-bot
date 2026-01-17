@@ -20,6 +20,9 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
+import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 
 interface FakemonTransferGetParameterResults
 {
@@ -80,7 +83,7 @@ export class FakemonTransferStrategy
 
     public static async runButton(
         interaction: ButtonInteraction,
-        _strategies: PtuStrategyMap,
+        strategies: PtuStrategyMap,
         _metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
@@ -123,6 +126,10 @@ export class FakemonTransferStrategy
                     const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
 
                     // Send response
+                    await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.run(interaction, strategies, {
+                        names: [updatedFakemon.name],
+                        interactionType: 'followUp',
+                    });
                     await interaction.followUp({
                         content: [
                             `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred to the following locations:`,
