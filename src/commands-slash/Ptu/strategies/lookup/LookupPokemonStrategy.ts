@@ -51,6 +51,7 @@ interface GetOptionsResponse
     baseStatTotal?: number | null;
     eggGroups?: string[];
     includeContestInfo?: boolean | null;
+    interactionType?: PaginationInteractionType;
 }
 
 export interface GetLookupPokemonDataParameters
@@ -120,6 +121,7 @@ export class LookupPokemonStrategy
             eggGroups,
             baseStatTotal,
             includeContestInfo,
+            interactionType,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
         const numOfTruthyValues = [names, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
@@ -130,6 +132,7 @@ export class LookupPokemonStrategy
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
                 content: 'Cannot look up a Pokémon without a name, move, ability, capability, egg groups, or base stat total.',
                 includeDeleteButton: true,
+                interactionType,
             });
             return true;
         }
@@ -141,6 +144,7 @@ export class LookupPokemonStrategy
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
                 content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, egg groups, or base stat total at the same time.',
                 includeDeleteButton: true,
+                interactionType,
             });
             return true;
         }
@@ -181,6 +185,7 @@ export class LookupPokemonStrategy
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
                 content: 'No Pokémon were found.',
                 includeDeleteButton: true,
+                interactionType,
             });
             return true;
         }
@@ -208,6 +213,7 @@ export class LookupPokemonStrategy
             capabilityName,
             pokemon: data,
             selectedValue,
+            interactionType,
         });
 
         return true;
