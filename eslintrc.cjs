@@ -122,6 +122,7 @@ module.exports = {
         'arrow-body-style': 'off',              // Do not require braces around arrow function bodies
         'file-progress/activate': 1,            // Show progress in console while linting
         'no-case-declarations': 'off',          // Allow variable declarations in "case" statements in switch statements
+        'no-continue': 'off',                   // Allow continue statements
         'no-control-regex': 'off',              // Allow control characters in regular expressions
     },
     overrides: [
