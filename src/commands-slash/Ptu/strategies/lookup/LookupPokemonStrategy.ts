@@ -274,7 +274,7 @@ export class LookupPokemonStrategy
             : undefined;
 
         const edenImageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
-            ? await HomebrewPokeApi.getImageUrls(edenNames)
+            ? await HomebrewPokeApi.getPokemonImageUrls(edenNames)
             : undefined;
 
         // Try to add imageUrl to pokemon result

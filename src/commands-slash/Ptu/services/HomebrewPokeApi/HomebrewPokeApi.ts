@@ -30,7 +30,7 @@ export class HomebrewPokeApi
         }
     }
 
-    public static async getImageUrls(names?: string[]): Promise<HomebrewGetImageUrlResponse[] | undefined>
+    public static async getPokemonImageUrls(names?: string[]): Promise<HomebrewGetImageUrlResponse[] | undefined>
     {
         if (names === undefined || names.length === 0)
         {

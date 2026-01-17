@@ -23,17 +23,17 @@ describe('class: PokeApi', () =>
         jest.clearAllMocks();
     });
 
-    describe('method: getImageUrls', () =>
+    describe('method: getPokemonImageUrls', () =>
     {
         it('should return undefined if names is undefined', async () =>
         {
-            const result = await HomebrewPokeApi.getImageUrls(undefined);
+            const result = await HomebrewPokeApi.getPokemonImageUrls(undefined);
             expect(result).toBeUndefined();
         });
 
         it('should return undefined if names is empty', async () =>
         {
-            const result = await HomebrewPokeApi.getImageUrls([]);
+            const result = await HomebrewPokeApi.getPokemonImageUrls([]);
             expect(result).toBeUndefined();
         });
 
@@ -45,7 +45,7 @@ describe('class: PokeApi', () =>
             });
 
             const names = ['Pikachu'];
-            const result = await HomebrewPokeApi.getImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
             expect(result).toEqual([]);
         });
 
@@ -60,7 +60,7 @@ describe('class: PokeApi', () =>
             });
 
             const names = ['Pikachu', 'Charizard'];
-            const result = await HomebrewPokeApi.getImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
 
             expect(result).toEqual([
                 {
@@ -82,7 +82,7 @@ describe('class: PokeApi', () =>
 
             HomebrewPokeApi['unknownImageUrl'] = 'https://example.com/unknown.png';
             const names = ['Pikachu', 'Charizard'];
-            const result = await HomebrewPokeApi.getImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
 
             expect(result).toEqual([
                 {
