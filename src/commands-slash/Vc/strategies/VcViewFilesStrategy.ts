@@ -1,8 +1,4 @@
-import {
-    FileStorageMicroservice,
-    FileStorageMicroserviceGetFilesResponseV1,
-    FileStorageMicroserviceResourceType,
-} from '@beanc16/microservices-abstraction';
+import { FileStorageService, FileStorageResourceType, FileStorageGetFilesInFolderResponse } from '@beanc16/file-storage';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -32,16 +28,12 @@ export class VcViewFilesStrategy
         return true;
     }
 
-    private static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageMicroserviceGetFilesResponseV1['data']['files']>
+    private static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageGetFilesInFolderResponse>
     {
-        const {
-            data: {
-                files,
-            },
-        } = await FileStorageMicroservice.v1.getFiles({
+        const files = await FileStorageService.getFilesInFolder({
             appId: process.env.APP_ID as string,
             nestedFolders: getVcCommandNestedFolderName(interaction.user.id),
-            resourceType: FileStorageMicroserviceResourceType.Audio,
+            resourceType: FileStorageResourceType.Audio,
         });
 
         return files;

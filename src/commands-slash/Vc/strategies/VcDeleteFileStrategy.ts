@@ -1,5 +1,4 @@
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -8,6 +7,7 @@ import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStr
 import { removeAudioBufferFromCache } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcDeleteFileStrategy
@@ -44,13 +44,11 @@ export class VcDeleteFileStrategy
     {
         try
         {
-            await FileStorageMicroservice.v1.delete({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            await FileStorageService.delete({
+                appId: process.env.APP_ID as string,
                 fileName,
                 nestedFolders: `vc-commands/${interaction.user.id}`,
-                resourceType: FileStorageMicroserviceResourceType.Audio,
+                resourceType: FileStorageResourceType.Audio,
             });
             removeAudioBufferFromCache(interaction.user.id, fileName);
             return true;

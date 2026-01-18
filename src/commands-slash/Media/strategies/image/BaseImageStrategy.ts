@@ -1,14 +1,14 @@
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceImageOptionsV1 } from '@beanc16/microservices-abstraction';
 import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import type { CommandName } from '../../../../types/discord.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
+import { FileStorageOptions, FileStorageService } from '@beanc16/file-storage';
 
 export class BaseImageStrategy
 {
-    public static async run(interaction: ChatInputCommandInteraction, commandName: CommandName, imageOptions: FileStorageMicroserviceImageOptionsV1): Promise<boolean>
+    public static async run(interaction: ChatInputCommandInteraction, commandName: CommandName, imageOptions: FileStorageOptions): Promise<boolean>
     {
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
@@ -25,20 +25,14 @@ export class BaseImageStrategy
         try
         {
             // Upload the image with the corresponding effects
-            const {
-                data: {
-                    url: newUrl,
-                },
-            } = await FileStorageMicroservice.v1.upload({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            const { url: newUrl } = await FileStorageService.upload({
+                appId: process.env.APP_ID as string,
                 file: {
                     fileName: fileName ?? randomUUID(),
                     url: processedImageUrl,
                 },
                 nestedFolders: 'image-commands',
-                imageOptions,
+                options: imageOptions,
             });
 
             // Send the new image
@@ -57,7 +51,7 @@ export class BaseImageStrategy
         catch (err: any)
         {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
-            logger.warn('An unknown error occurred while upscaling an image', err?.response?.data ?? err, {
+            logger.warn('An unknown error occurred while running an image command', err?.response?.data ?? err, {
                 imageUrl: processedImageUrl,
             });
 

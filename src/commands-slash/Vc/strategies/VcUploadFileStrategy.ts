@@ -1,11 +1,11 @@
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { isValidAudioUrl } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcUploadFileStrategy
@@ -66,20 +66,14 @@ export class VcUploadFileStrategy
     {
         try
         {
-            const {
-                data: {
-                    url: newUrl,
-                },
-            } = await FileStorageMicroservice.v1.upload({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            const { url: newUrl } = await FileStorageService.upload({
+                appId: process.env.APP_ID as string,
                 file: {
                     fileName,
                     url: fileUrl,
                 },
                 nestedFolders: `vc-commands/${interaction.user.id}`,
-                resourceType: FileStorageMicroserviceResourceType.Audio,
+                resourceType: FileStorageResourceType.Audio,
             });
 
             return newUrl;

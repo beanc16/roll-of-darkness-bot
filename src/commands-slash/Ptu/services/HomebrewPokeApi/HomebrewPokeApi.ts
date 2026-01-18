@@ -1,5 +1,5 @@
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 
 interface HomebrewGetImageUrlResponse
 {
@@ -19,28 +19,38 @@ export class HomebrewPokeApi
         return this.unknownImageUrl;
     }
 
-    /* istanbul ignore next */
     private static async getPokemonUrl(speciesName: string): Promise<string>
     {
-        const { data } = await FileStorageMicroservice.v1.get({
+        const file = await FileStorageService.get({
             appId: process.env.APP_ID as string,
             fileName: speciesName,
             nestedFolders: this.pokemonNestedFolders,
+            resourceType: FileStorageResourceType.Image,
         });
 
-        return data.url;
+        if (!file)
+        {
+            throw new Error('File not found');
+        }
+
+        return file.url;
     }
 
-    /* istanbul ignore next */
     public static async getFakemonUrl(speciesName: string): Promise<string>
     {
-        const { data } = await FileStorageMicroservice.v1.get({
+        const file = await FileStorageService.get({
             appId: process.env.APP_ID as string,
             fileName: speciesName,
             nestedFolders: this.fakemonNestedFolders,
+            resourceType: FileStorageResourceType.Image,
         });
 
-        return data.url;
+        if (!file)
+        {
+            throw new Error('File not found');
+        }
+
+        return file.url;
     }
 
     public static async uploadFakemonImage({
@@ -59,13 +69,11 @@ export class HomebrewPokeApi
         {
             try
             {
-                await FileStorageMicroservice.v1.delete({
-                    app: {
-                        id: process.env.APP_ID as string,
-                    },
+                await FileStorageService.delete({
+                    appId: process.env.APP_ID as string,
                     fileName: speciesName,
                     nestedFolders: this.fakemonNestedFolders,
-                    resourceType: FileStorageMicroserviceResourceType.Image,
+                    resourceType: FileStorageResourceType.Image,
                 });
             }
             catch (error)
@@ -75,20 +83,14 @@ export class HomebrewPokeApi
         }
 
         try {
-            const {
-                data: {
-                    url: newUrl,
-                },
-            } = await FileStorageMicroservice.v1.upload({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            const { url: newUrl } = await FileStorageService.upload({
+                appId: process.env.APP_ID as string,
                 file: {
                     fileName: speciesName,
                     url: imageUrl,
                 },
                 nestedFolders: this.fakemonNestedFolders,
-                resourceType: FileStorageMicroserviceResourceType.Image,
+                resourceType: FileStorageResourceType.Image,
             });
 
             return newUrl;
@@ -101,14 +103,8 @@ export class HomebrewPokeApi
     /* istanbul ignore next */
     public static async transferFakemonImageToPokemon(speciesName: string): Promise<string>
     {
-        const {
-            data: {
-                url: newUrl,
-            },
-        } = await FileStorageMicroservice.v1.rename({
-            app: {
-                id: process.env.APP_ID as string,
-            },
+        const response = await FileStorageService.rename({
+            appId: process.env.APP_ID as string,
             old: {
                 fileName: speciesName,
                 nestedFolders: this.fakemonNestedFolders,
@@ -117,10 +113,15 @@ export class HomebrewPokeApi
                 fileName: speciesName,
                 nestedFolders: this.pokemonNestedFolders,
             },
-            resourceType: FileStorageMicroserviceResourceType.Image,
+            resourceType: FileStorageResourceType.Image,
         });
 
-        return newUrl;
+        if (!response)
+        {
+            throw new Error('Failed to transfer fakemon image to pokemon');
+        }
+
+        return response.url;
     }
 
     /* istanbul ignore next */
@@ -128,13 +129,19 @@ export class HomebrewPokeApi
     {
         try
         {
-            const { data } = await FileStorageMicroservice.v1.get({
+            const file = await FileStorageService.get({
                 appId: process.env.APP_ID as string,
                 fileName: 'Unknown',
                 nestedFolders: 'ptu-pokedex/eden-dex',
+                resourceType: FileStorageResourceType.Image,
             });
 
-            this.unknownImageUrl = data.url;
+            if (!file)
+            {
+                throw new Error('File not found');
+            }
+
+            this.unknownImageUrl = file.url;
         }
         catch (error)
         {

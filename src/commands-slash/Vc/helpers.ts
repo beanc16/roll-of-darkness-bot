@@ -1,7 +1,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
-import { FileStorageMicroservice, type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
+import { type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
 import {
     type AudioResource,
     createAudioPlayer,
@@ -20,6 +20,7 @@ import {
 import { CompositeKeyRecord } from '../../services/CompositeKeyRecord/CompositeKeyRecord.js';
 import { LoopableAudioStream } from './services/LoopableAudioStream/LoopableAudioStream.js';
 import type { AudioPlayerEmitter } from './types.js';
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 /* istanbul ignore next */
 export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;
@@ -115,18 +116,21 @@ export const getAudioResourceReadable = async ({
             }
 
             // Otherwise, create audio resource from a fresh url if it exists
-            const {
-                data: {
-                    url: fileUrl,
-                },
-            } = await FileStorageMicroservice.v1.get({
+            const file = await FileStorageService.get({
                 appId: process.env.APP_ID as string,
                 fileName,
                 nestedFolders: getVcCommandNestedFolderName(discordUserId),
+                resourceType: FileStorageResourceType.Audio,
             });
 
+            if (!file)
+            {
+                resolve(undefined);
+                return;
+            }
+
             // Convert file url to readable
-            const buffer = await convertRemoteFileToBuffer(fileUrl);
+            const buffer = await convertRemoteFileToBuffer(file.url);
             const readable = new LoopableAudioStream(buffer, shouldLoop);
 
             // Cache buffer in-memory
@@ -136,6 +140,7 @@ export const getAudioResourceReadable = async ({
 
         catch (error)
         {
+            // TODO: Figure out what this actually is later
             const {
                 response: {
                     data: { statusCode, message },

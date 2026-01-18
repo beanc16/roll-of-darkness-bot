@@ -1,5 +1,4 @@
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
@@ -7,6 +6,7 @@ import { PaginationStrategy } from '../../strategies/PaginationStrategy/Paginati
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcRenameFileStrategy
@@ -51,10 +51,8 @@ export class VcRenameFileStrategy
         try
         {
             const nestedFolders = `vc-commands/${interaction.user.id}`;
-            await FileStorageMicroservice.v1.rename({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            await FileStorageService.rename({
+                appId: process.env.APP_ID as string,
                 old: {
                     fileName: oldFileName,
                     nestedFolders,
@@ -63,7 +61,7 @@ export class VcRenameFileStrategy
                     fileName: newFileName,
                     nestedFolders,
                 },
-                resourceType: FileStorageMicroserviceResourceType.Audio,
+                resourceType: FileStorageResourceType.Audio,
             });
             return true;
         }
