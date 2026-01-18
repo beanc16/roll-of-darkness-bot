@@ -48,7 +48,7 @@ describe('class: HomebrewPokeApi', () =>
                 .mockResolvedValueOnce(undefined);
 
             await expect(
-                HomebrewPokeApi['getPokemonUrl']('Pikachu')
+                HomebrewPokeApi['getPokemonUrl']('Pikachu'),
             ).rejects.toThrow('File not found');
         });
     });
@@ -72,7 +72,7 @@ describe('class: HomebrewPokeApi', () =>
                 .mockResolvedValueOnce(undefined);
 
             await expect(
-                HomebrewPokeApi.getFakemonUrl('Pikachu')
+                HomebrewPokeApi.getFakemonUrl('Pikachu'),
             ).rejects.toThrow('File not found');
         });
     });
@@ -80,7 +80,7 @@ describe('class: HomebrewPokeApi', () =>
     describe('method: uploadFakemonImage', () =>
     {
         const mockAppId = 'test-app-id';
-        
+
         beforeEach(() =>
         {
             process.env.APP_ID = mockAppId;

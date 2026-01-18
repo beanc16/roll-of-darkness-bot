@@ -1,8 +1,8 @@
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { capitalizeFirstLetter } from '../../../../services/stringHelpers/stringHelpers.js';
 import { PtuQuickReferenceInfo } from '../../options/index.js';
-import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 export class BaseQuickReferenceStrategy
 {

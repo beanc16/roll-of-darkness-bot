@@ -1,4 +1,8 @@
-import { FileStorageService, FileStorageResourceType, FileStorageGetFilesInFolderResponse } from '@beanc16/file-storage';
+import {
+    FileStorageGetFilesInFolderResponse,
+    FileStorageResourceType,
+    FileStorageService,
+} from '@beanc16/file-storage';
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';

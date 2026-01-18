@@ -1,10 +1,10 @@
+import { FileStorageOptions, FileStorageService } from '@beanc16/file-storage';
 import { logger } from '@beanc16/logger';
 import { randomUUID } from 'crypto';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import type { CommandName } from '../../../../types/discord.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
-import { FileStorageOptions, FileStorageService } from '@beanc16/file-storage';
 
 export class BaseImageStrategy
 {

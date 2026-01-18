@@ -1,8 +1,8 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { imageOption, imageUrlOption } from '../../shared/options/image.js';
 import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
-import { imageOption, imageUrlOption } from '../../shared/options/image.js';
 
 export enum PtuFakemonSubcommand
 {

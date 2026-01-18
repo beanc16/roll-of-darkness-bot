@@ -1,3 +1,4 @@
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { logger } from '@beanc16/logger';
 import { ChatInputCommandInteraction } from 'discord.js';
 
@@ -7,7 +8,6 @@ import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStr
 import { removeAudioBufferFromCache } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
-import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcDeleteFileStrategy

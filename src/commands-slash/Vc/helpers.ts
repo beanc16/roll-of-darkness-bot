@@ -1,6 +1,7 @@
 import http from 'node:http';
 import https from 'node:https';
 
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { type FileStorageMicroserviceBaseResponseV1 } from '@beanc16/microservices-abstraction';
 import {
     type AudioResource,
@@ -20,7 +21,6 @@ import {
 import { CompositeKeyRecord } from '../../services/CompositeKeyRecord/CompositeKeyRecord.js';
 import { LoopableAudioStream } from './services/LoopableAudioStream/LoopableAudioStream.js';
 import type { AudioPlayerEmitter } from './types.js';
-import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 /* istanbul ignore next */
 export const getVcCommandNestedFolderName = (discordUserId: string): string => `vc-commands/${discordUserId}`;

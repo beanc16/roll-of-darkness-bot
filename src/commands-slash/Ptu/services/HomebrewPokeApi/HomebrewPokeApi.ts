@@ -82,7 +82,8 @@ export class HomebrewPokeApi
             }
         }
 
-        try {
+        try
+        {
             const { url: newUrl } = await FileStorageService.upload({
                 appId: process.env.APP_ID as string,
                 file: {
@@ -94,7 +95,9 @@ export class HomebrewPokeApi
             });
 
             return newUrl;
-        } catch (error) {
+        }
+        catch (error)
+        {
             logger.error(error);
             return undefined;
         }
