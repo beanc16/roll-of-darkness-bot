@@ -1,6 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import {
-    Attachment,
     ButtonInteraction,
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
@@ -15,6 +14,7 @@ import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
     PtuButtonIteractionStrategy,
@@ -27,8 +27,7 @@ import type {
 interface FakemonEditGetParameterResults
 {
     speciesName: string;
-    image: Attachment | null;
-    imageUrl: string | null;
+    processedImageUrl: string | null;
     coEditorToAdd: User | null;
     coEditorToRemove: User | null;
 }
@@ -53,8 +52,7 @@ export class FakemonEditStrategy
     {
         const {
             speciesName,
-            // image,
-            // imageUrl,
+            processedImageUrl,
             coEditorToAdd,
             coEditorToRemove,
         } = this.getOptions(interaction as ButtonInteraction, options);
@@ -80,11 +78,13 @@ export class FakemonEditStrategy
 
         // Initialize initial fakemon data
         const message = await interaction.fetchReply();
-        await this.updateCoEditors({
+        const updatedImageUrl = await this.updateUploadedFakemonImage(speciesName, processedImageUrl);
+        await this.updateCoEditorsAndImageUrl({
             fakemon,
             messageId: message.id,
             coEditorToAdd,
             coEditorToRemove,
+            updatedImageUrl,
         });
 
         // Send response
@@ -94,6 +94,15 @@ export class FakemonEditStrategy
             messageId: message.id,
             interactionType: 'editReply',
         });
+
+        // If there was an error uploading the image, send a follow up
+        if (processedImageUrl && !updatedImageUrl)
+        {
+            await interaction.followUp({
+                content: 'An error occurred while uploading the image. Please try again with the edit command.',
+                ephemeral: true,
+            });
+        }
 
         return true;
     }
@@ -147,28 +156,31 @@ export class FakemonEditStrategy
         const coEditorToAdd = interaction.options.getUser('co_editor_to_add');
         const coEditorToRemove = interaction.options.getUser('co_editor_to_remove');
 
+        const processedImageUrl = image?.url ?? imageUrl;
+
         return {
             speciesName,
-            image,
-            imageUrl,
+            processedImageUrl,
             coEditorToAdd,
             coEditorToRemove,
         };
     }
 
-    private static async updateCoEditors({
+    private static async updateCoEditorsAndImageUrl({
         fakemon,
         messageId,
         coEditorToAdd,
         coEditorToRemove,
+        updatedImageUrl,
     }: {
         fakemon: PtuFakemonCollection;
         messageId: string;
         coEditorToAdd: User | null;
         coEditorToRemove: User | null;
+        updatedImageUrl?: string;
     }): Promise<PtuFakemonCollection>
     {
-        if (!(coEditorToAdd || coEditorToRemove))
+        if (!(coEditorToAdd || coEditorToRemove || updatedImageUrl))
         {
             PtuFakemonPseudoCache.addToCache(messageId, fakemon);
             return fakemon;
@@ -188,12 +200,13 @@ export class FakemonEditStrategy
             ),
         ];
 
-        // Editors array did not change
+        // Editors array did not change and image did not change
         if (
             fakemon.editors.length === newEditors.length
             && fakemon.editors.every((element, index) =>
                 element === newEditors[index],
             )
+            && !updatedImageUrl
         )
         {
             PtuFakemonPseudoCache.addToCache(messageId, fakemon);
@@ -202,6 +215,24 @@ export class FakemonEditStrategy
 
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             editors: newEditors,
+            metadata: {
+                ...fakemon.metadata,
+                imageUrl: updatedImageUrl,
+            },
+        });
+    }
+
+    private static async updateUploadedFakemonImage(speciesName: string, imageUrl: string | null): Promise<string | undefined>
+    {
+        if (!imageUrl)
+        {
+            return undefined;
+        }
+
+        return await HomebrewPokeApi.uploadFakemonImage({
+            speciesName,
+            imageUrl,
+            isCreate: false,
         });
     }
 }

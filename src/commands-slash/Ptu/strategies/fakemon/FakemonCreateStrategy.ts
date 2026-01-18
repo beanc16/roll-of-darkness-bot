@@ -1,6 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
 import {
-    Attachment,
     ButtonInteraction,
     ChatInputCommandInteraction,
     StringSelectMenuInteraction,
@@ -60,6 +59,7 @@ import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/F
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { PtuSizeAdapterService } from '../../services/PtuSizeAdapterService/PtuSizeAdapterService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import {
@@ -84,8 +84,7 @@ interface FakemonCreateGetParameterResults
     baseSpeciesOn: string | null;
     baseMovesOn: string | null;
     baseAbilitiesOn: string | null;
-    image: Attachment | null;
-    imageUrl: string | null;
+    processedImageUrl: string | null;
     coEditor: User | null;
 }
 
@@ -171,6 +170,7 @@ export class FakemonCreateStrategy
         },
         metadata: {
             source: 'Eden Dex',
+            imageUrl: HomebrewPokeApi.unknownPokemonUrl,
         },
         megaEvolutions: [],
         editors: [DiscordUserId.Bean],
@@ -197,8 +197,7 @@ export class FakemonCreateStrategy
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
-            // image,
-            // imageUrl,
+            processedImageUrl,
             coEditor,
         } = this.getOptions(interaction);
 
@@ -213,6 +212,7 @@ export class FakemonCreateStrategy
 
         // Initialize initial fakemon data
         const message = await interaction.fetchReply();
+        const uploadedImageUrl = await this.initializeFakemonImage(speciesName, processedImageUrl);
         await this.initializeFakemon({
             speciesName,
             messageId: message.id,
@@ -220,6 +220,7 @@ export class FakemonCreateStrategy
             userId: interaction.user.id,
             coEditorUserId: coEditor?.id,
             pokemonToBaseOn,
+            uploadedImageUrl,
         });
 
         // Send response
@@ -229,6 +230,15 @@ export class FakemonCreateStrategy
             messageId: message.id,
             interactionType: 'editReply',
         });
+
+        // If there was an error uploading the image, send a follow up
+        if (processedImageUrl && !uploadedImageUrl)
+        {
+            await interaction.followUp({
+                content: 'An error occurred while uploading the image. Please try again with the edit command.',
+                ephemeral: true,
+            });
+        }
 
         return true;
     }
@@ -1018,13 +1028,14 @@ export class FakemonCreateStrategy
         const imageUrl = interaction.options.getString('image_url');
         const coEditor = interaction.options.getUser('co_editor');
 
+        const processedImageUrl = image?.url ?? imageUrl;
+
         return {
             speciesName,
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
-            image,
-            imageUrl,
+            processedImageUrl,
             coEditor,
         };
     }
@@ -1036,6 +1047,7 @@ export class FakemonCreateStrategy
         userId,
         coEditorUserId,
         pokemonToBaseOn,
+        uploadedImageUrl,
     }: {
         speciesName: string;
         messageId: string;
@@ -1043,6 +1055,7 @@ export class FakemonCreateStrategy
         userId: string;
         coEditorUserId?: string;
         pokemonToBaseOn: GetBasedOnPokemonSpeciesResponse;
+        uploadedImageUrl?: string;
     }): Promise<PtuFakemonCollection>
     {
         // Format skills to standardize the removal of special characters
@@ -1120,11 +1133,28 @@ export class FakemonCreateStrategy
                 },
             },
             skills,
-            metadata: this.basePokemon.metadata,
+            metadata: {
+                ...this.basePokemon.metadata,
+                ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
+            },
             creationChannelId,
             editors: coEditorUserId
                 ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
                 : [...new Set([...this.basePokemon.editors, userId])],
+        });
+    }
+
+    private static async initializeFakemonImage(speciesName: string, imageUrl: string | null): Promise<string | undefined>
+    {
+        if (!imageUrl)
+        {
+            return undefined;
+        }
+
+        return await HomebrewPokeApi.uploadFakemonImage({
+            speciesName,
+            imageUrl,
+            isCreate: true,
         });
     }
 

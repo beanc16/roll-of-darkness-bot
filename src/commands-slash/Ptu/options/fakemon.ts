@@ -2,6 +2,7 @@ import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from
 
 import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+import { imageOption, imageUrlOption } from '../../shared/options/image.js';
 
 export enum PtuFakemonSubcommand
 {
@@ -57,9 +58,8 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         return option.setAutocomplete(true);
     });
 
-    // TODO: Add support for images later
-    // subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
-    // subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
 
     subcommand.addUserOption((option) =>
     {
@@ -99,9 +99,8 @@ export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return option.setRequired(true);
     });
 
-    // TODO: Add support for images later
-    // subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
-    // subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
 
     subcommand.addUserOption((option) =>
     {

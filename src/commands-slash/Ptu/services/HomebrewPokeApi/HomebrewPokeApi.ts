@@ -14,6 +14,12 @@ export class HomebrewPokeApi
     private static fakemonNestedFolders = 'fakemon-commands';
 
     /* istanbul ignore next */
+    static get unknownPokemonUrl(): string | undefined
+    {
+        return this.unknownImageUrl;
+    }
+
+    /* istanbul ignore next */
     private static async getPokemonUrl(speciesName: string): Promise<string>
     {
         const { data } = await FileStorageMicroservice.v1.get({
@@ -37,26 +43,59 @@ export class HomebrewPokeApi
         return data.url;
     }
 
-    /* istanbul ignore next */
-    public static async uploadFakemonImage(speciesName: string, imageUrl: string): Promise<string>
+    public static async uploadFakemonImage({
+        speciesName,
+        imageUrl,
+        isCreate,
+    }: {
+        speciesName: string;
+        imageUrl: string;
+        isCreate: boolean;
+    }): Promise<string | undefined>
     {
-        const {
-            data: {
-                url: newUrl,
-            },
-        } = await FileStorageMicroservice.v1.upload({
-            app: {
-                id: process.env.APP_ID as string,
-            },
-            file: {
-                fileName: speciesName,
-                url: imageUrl,
-            },
-            nestedFolders: this.fakemonNestedFolders,
-            resourceType: FileStorageMicroserviceResourceType.Image,
-        });
+        // If we're editing the image, try to rename the old one
+        // first, which may fail if it doesn't exist yet
+        if (!isCreate)
+        {
+            try
+            {
+                await FileStorageMicroservice.v1.delete({
+                    app: {
+                        id: process.env.APP_ID as string,
+                    },
+                    fileName: speciesName,
+                    nestedFolders: this.fakemonNestedFolders,
+                    resourceType: FileStorageMicroserviceResourceType.Image,
+                });
+            }
+            catch (error)
+            {
+                logger.warn('Failed to delete fakemon image', error);
+            }
+        }
 
-        return newUrl;
+        try {
+            const {
+                data: {
+                    url: newUrl,
+                },
+            } = await FileStorageMicroservice.v1.upload({
+                app: {
+                    id: process.env.APP_ID as string,
+                },
+                file: {
+                    fileName: speciesName,
+                    url: imageUrl,
+                },
+                nestedFolders: this.fakemonNestedFolders,
+                resourceType: FileStorageMicroserviceResourceType.Image,
+            });
+
+            return newUrl;
+        } catch (error) {
+            logger.error(error);
+            return undefined;
+        }
     }
 
     /* istanbul ignore next */
