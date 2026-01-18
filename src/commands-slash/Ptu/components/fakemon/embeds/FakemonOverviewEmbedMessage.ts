@@ -2,12 +2,19 @@ import { EmbedBuilder } from 'discord.js';
 
 import { getLookupPokemonEmbedMessages } from '../../../embed-messages/lookup.js';
 import { PtuPokemon } from '../../../types/pokemon.js';
+import { HomebrewPokeApi } from '../../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 
 export class FakemonOverviewEmbedMessage extends EmbedBuilder
 {
     constructor(pokemon: Omit<PtuPokemon, 'versionName' | 'olderVersions'>)
     {
-        const [embed] = getLookupPokemonEmbedMessages([pokemon], {});
+        const [embed] = getLookupPokemonEmbedMessages([{
+            ...pokemon,
+            metadata: {
+                imageUrl: HomebrewPokeApi.unknownPokemonUrl,
+                ...pokemon.metadata,
+            },
+        }], {});
         super(embed.data);
     }
 }
