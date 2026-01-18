@@ -12,6 +12,12 @@ import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollect
 import { FakemonInteractionManagerInteractionType, FakemonInteractionManagerService } from '../FakemonInteractionManagerService';
 import { FakemonInteractionManagerPage } from '../types';
 
+// This mock is necessary to prevent an ESM export error with @swc/jest
+jest.mock('@beanc16/microservices-abstraction', () =>
+{
+    return {};
+});
+
 describe(`class: ${FakemonInteractionManagerService.name}`, () =>
 {
     describe(`method: ${FakemonInteractionManagerService.navigateTo.name}`, () =>
