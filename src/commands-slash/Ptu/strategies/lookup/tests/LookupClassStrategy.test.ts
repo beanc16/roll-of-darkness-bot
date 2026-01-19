@@ -13,29 +13,6 @@ import { LookupClassStrategy, PtuClassName } from '../LookupClassStrategy';
 jest.mock('@beanc16/logger');
 
 // This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/microservices-abstraction', () =>
-{
-    return {
-        GoogleSheetsMicroservice: jest.fn(),
-        GoogleSheetsMicroserviceFilterType: {
-            CaseInsensitiveExcludes: 'case_insensitive_excludes',
-        },
-        UserMicroservice: {
-            v1: {
-                getServiceToServiceAuthToken: jest.fn().mockImplementation(() =>
-                {
-                    return {
-                        data: {
-                            token: 'token',
-                        },
-                    };
-                }),
-            },
-        },
-    };
-});
-
-// This mock is necessary to prevent an ESM export error with @swc/jest
 jest.mock('@beanc16/discordjs-helpers');
 
 jest.mock('../../../../strategies/PaginationStrategy/PaginationStrategy.js', () =>

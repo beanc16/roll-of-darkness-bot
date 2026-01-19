@@ -8,12 +8,6 @@ import { DiceLiteService } from '../../../../../services/Dice/DiceLiteService';
 import { PtuSkill } from '../../../types/pokemonTrainers';
 import { GenerateSkillBackgroundStrategy } from '../GenerateSkillBackgroundStrategy';
 
-// This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/microservices-abstraction', () =>
-{
-    return {};
-});
-
 jest.mock('../../../../../services/Dice/DiceLiteService', () =>
 {
     return {

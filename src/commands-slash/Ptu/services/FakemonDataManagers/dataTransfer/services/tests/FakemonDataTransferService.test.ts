@@ -7,29 +7,6 @@ import { FakemonDatabaseDestination } from '../../destinations/FakemonDatabaseDe
 import { FakemonGoogleSheetsDestination } from '../../destinations/FakemonGoogleSheetsDestination.js';
 import { FakemonDataTransferService } from '../FakemonDataTransferService.js';
 
-// This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/microservices-abstraction', () =>
-{
-    return {
-        GoogleSheetsMicroservice: jest.fn(),
-        GoogleSheetsMicroserviceFilterType: {
-            CaseInsensitiveExcludes: 'case_insensitive_excludes',
-        },
-        UserMicroservice: {
-            v1: {
-                getServiceToServiceAuthToken: jest.fn().mockImplementation(() =>
-                {
-                    return {
-                        data: {
-                            token: 'token',
-                        },
-                    };
-                }),
-            },
-        },
-    };
-});
-
 describe(`class: ${FakemonDataTransferService.name}`, () =>
 {
     describe('constructor', () =>

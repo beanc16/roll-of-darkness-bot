@@ -15,17 +15,6 @@ import {
     GetSpreadsheetValuesResponse,
 } from './CharacterSheetStrategy.js';
 
-// This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/microservices-abstraction', () =>
-{
-    return {
-        GoogleSheetsMicroservice: jest.fn(),
-        GoogleSheetsMicroserviceFilterType: {
-            CaseInsensitiveExcludes: 'case_insensitive_excludes',
-        },
-    };
-});
-
 const mockedCachedGoogleSheetsApiService = jest.mock('../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js');
 
 describe('class: CharacterSheetStrategy', () =>

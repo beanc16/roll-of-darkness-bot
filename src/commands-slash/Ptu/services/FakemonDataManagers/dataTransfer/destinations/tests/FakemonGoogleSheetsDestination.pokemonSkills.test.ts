@@ -4,29 +4,6 @@
 import { FakemonGoogleSheetsData } from '../../adapters/types.js';
 import { FakemonGoogleSheetsDestination } from '../FakemonGoogleSheetsDestination.js';
 
-// This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/microservices-abstraction', () =>
-{
-    return {
-        GoogleSheetsMicroservice: jest.fn(),
-        GoogleSheetsMicroserviceFilterType: {
-            CaseInsensitiveExcludes: 'case_insensitive_excludes',
-        },
-        UserMicroservice: {
-            v1: {
-                getServiceToServiceAuthToken: jest.fn().mockImplementation(() =>
-                {
-                    return {
-                        data: {
-                            token: 'token',
-                        },
-                    };
-                }),
-            },
-        },
-    };
-});
-
 const createValidPokemonSkills = (): FakemonGoogleSheetsData['pokemonSkills'] =>
 {
     return Array(17).fill(['1', '+1']).reduce((acc, cur) =>
