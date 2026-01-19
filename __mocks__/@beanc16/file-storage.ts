@@ -1,14 +1,15 @@
 export class FileStorageService
 {
-    static get = jest.fn();
-    static upload = jest.fn();
-    static rename = jest.fn();
-    static delete = jest.fn();
+    public static get = jest.fn();
+    public static upload = jest.fn();
+    public static rename = jest.fn();
+    public static delete = jest.fn();
 }
 
 export enum FileStorageResourceType
 {
     Audio = 'video',
     Image = 'image',
+    // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
     Video = 'video',
 }

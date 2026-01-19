@@ -3,9 +3,7 @@
 
 import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
 import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
-import { FakemonDexNumberPrefix, FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
 import { FakemonToImageStorageAdapter } from '../FakemonToImageStorageAdapter.js';
-
 
 describe(`class: ${FakemonToImageStorageAdapter.name}`, () =>
 {
@@ -19,7 +17,7 @@ describe(`class: ${FakemonToImageStorageAdapter.name}`, () =>
 
     describe(`method: ${FakemonToImageStorageAdapter.prototype.transform.name}`, () =>
     {
-        it(`should return the pokemon's image URL`, async () =>
+        it(`should return the pokemon's image URL`, () =>
         {
             // Arrange
             const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });

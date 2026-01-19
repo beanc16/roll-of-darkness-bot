@@ -3,9 +3,9 @@
 
 import { PtuFakemonDexType } from '../../../../../dal/models/PtuFakemonCollection.js';
 import { createPtuFakemonCollectionData } from '../../../../../fakes/PtuFakemonCollection.fakes.js';
+import { HomebrewPokeApi } from '../../../../HomebrewPokeApi/HomebrewPokeApi.js';
 import { FakemonGeneralInformationManagerService } from '../../../FakemonGeneralInformationManagerService.js';
 import { FakemonImageStorageDestination } from '../FakemonImageStorageDestination.js';
-import { HomebrewPokeApi } from '../../../../HomebrewPokeApi/HomebrewPokeApi.js';
 
 jest.mock('../../../../HomebrewPokeApi/HomebrewPokeApi', () =>
 {
@@ -156,7 +156,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
                 .mockReturnValue(true);
             const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput');
             const getFakemonUrlSpy = jest.spyOn(HomebrewPokeApi, 'getFakemonUrl');
-            const transferFakemonImageToPokemonSpy = jest.spyOn(HomebrewPokeApi, 'transferFakemonImageToPokemon')
+            const transferFakemonImageToPokemonSpy = jest.spyOn(HomebrewPokeApi, 'transferFakemonImageToPokemon');
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
 
             // Act & Assert

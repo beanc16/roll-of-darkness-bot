@@ -20,7 +20,10 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
         const prefixToMaxDexNumber = await FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers();
         const dexPrefix = this.dexTypeToPrefix[input.dexType];
         const maxDexNumber = prefixToMaxDexNumber[dexPrefix];
-        const { imageUrl, ...metadata } = input.metadata;
+        const {
+            imageUrl: _,
+            ...metadata
+        } = input.metadata;
 
         return new PtuPokemonCollection({
             _id: input.id,
