@@ -126,10 +126,13 @@ export class FakemonTransferStrategy
                     const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
 
                     // Send response
-                    await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.run(interaction, strategies, {
-                        names: [updatedFakemon.name],
-                        interactionType: 'followUp',
-                    });
+                    if (updatedFakemon.transferredTo.ptuDatabase)
+                    {
+                        await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.run(interaction, strategies, {
+                            names: [updatedFakemon.name],
+                            interactionType: 'followUp',
+                        });
+                    }
                     await interaction.followUp({
                         content: [
                             `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred to the following locations:`,
