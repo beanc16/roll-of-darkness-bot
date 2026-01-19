@@ -20,6 +20,7 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
         const prefixToMaxDexNumber = await FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers();
         const dexPrefix = this.dexTypeToPrefix[input.dexType];
         const maxDexNumber = prefixToMaxDexNumber[dexPrefix];
+        const { imageUrl, ...metadata } = input.metadata;
 
         return new PtuPokemonCollection({
             _id: input.id,
@@ -37,7 +38,7 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
             moveList: input.moveList,
             megaEvolutions: input.megaEvolutions,
             metadata: {
-                ...input.metadata,
+                ...metadata,
                 // Set the dex number as the same category, but 1 more than the current highest
                 // Reference the index as well in case this is a bulk transform where writes will be happening concurrently
                 dexNumber: `${dexPrefix}${maxDexNumber + index + 1}`,
