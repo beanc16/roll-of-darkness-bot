@@ -2,8 +2,8 @@
 
 import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
 import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
-import { FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
 import { HomebrewPokeApi } from '../../../HomebrewPokeApi/HomebrewPokeApi.js';
+import { FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
 
 export class FakemonImageStorageDestination extends DataTransferDestination<string | undefined, PtuFakemonCollection>
 {

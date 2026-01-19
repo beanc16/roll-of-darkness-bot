@@ -5,13 +5,13 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
     PtuStrategyMap,
 } from '../../types/strategies.js';
-import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
