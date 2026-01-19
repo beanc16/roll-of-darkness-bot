@@ -5,23 +5,6 @@ import { HomebrewPokeApi } from './HomebrewPokeApi.js';
 // We don't want to log anything during these tests that would normally log
 jest.mock('@beanc16/logger');
 
-jest.mock('@beanc16/file-storage', () =>
-{
-    return {
-        FileStorageService: {
-            get: jest.fn(),
-            upload: jest.fn(),
-            rename: jest.fn(),
-            delete: jest.fn(),
-        },
-        FileStorageResourceType: {
-            Audio: 'video',
-            Image: 'image',
-            Video: 'video',
-        },
-    };
-});
-
 describe('class: HomebrewPokeApi', () =>
 {
     beforeEach(() =>
