@@ -74,8 +74,9 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
                     // zygardeCubeMoves should not be set at all
                 },
                 metadata: {
-                    ...fakemon.metadata,
                     dexNumber: `${expectedPrefix}${maxDexNumber + 1}`,
+                    source: fakemon.metadata.source,
+                    page: fakemon.metadata.page,
                 },
                 megaEvolutions: fakemon.megaEvolutions,
                 extras: fakemon.extras,
