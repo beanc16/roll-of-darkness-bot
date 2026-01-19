@@ -8,9 +8,6 @@ import {
 } from '../../types/pokemon.js';
 import { PtuMove, type PtuMoveIsValidBasedOnInputParameters } from '../PtuMove.js';
 
-// We don't want to log anything during these tests that would normally log
-jest.mock('@beanc16/logger');
-
 describe('class: PtuMove', () =>
 {
     let defaultMove: PtuMove;

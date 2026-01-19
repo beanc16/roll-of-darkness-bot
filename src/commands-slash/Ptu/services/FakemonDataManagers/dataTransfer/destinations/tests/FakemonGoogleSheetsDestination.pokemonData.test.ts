@@ -37,16 +37,6 @@ jest.mock('../../../FakemonGeneralInformationManagerService', () =>
     };
 });
 
-jest.mock('@beanc16/logger', () =>
-{
-    return {
-        logger: {
-            error: jest.fn(),
-            warn: jest.fn(),
-        },
-    };
-});
-
 const createValidPokemonData = (): FakemonGoogleSheetsData['pokemonData'] =>
 {
     return [

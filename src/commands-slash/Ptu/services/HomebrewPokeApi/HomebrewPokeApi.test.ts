@@ -2,9 +2,6 @@ import { FileStorageResourceType, FileStorageService } from '@beanc16/file-stora
 
 import { HomebrewPokeApi } from './HomebrewPokeApi.js';
 
-// We don't want to log anything during these tests that would normally log
-jest.mock('@beanc16/logger');
-
 describe('class: HomebrewPokeApi', () =>
 {
     beforeEach(() =>

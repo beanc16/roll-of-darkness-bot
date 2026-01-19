@@ -9,12 +9,6 @@ import { PtuSubcommandGroup } from '../../../options';
 import { PtuLookupSubcommand } from '../../../options/lookup';
 import { LookupClassStrategy, PtuClassName } from '../LookupClassStrategy';
 
-// We don't want to log anything during these tests that would normally log
-jest.mock('@beanc16/logger');
-
-// This mock is necessary to prevent an ESM export error with @swc/jest
-jest.mock('@beanc16/discordjs-helpers');
-
 jest.mock('../../../../strategies/PaginationStrategy/PaginationStrategy.js', () =>
 {
     return {

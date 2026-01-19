@@ -9,7 +9,6 @@ import { FakeStringSelectMenuInteraction } from '../../../../../fakes/discord/in
 import { FakemonMovesStringSelectCustomIds } from '../../../components/fakemon/actionRowBuilders/moves/types';
 import { FakemonMoveManagerService } from '../FakemonMoveManagerService';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

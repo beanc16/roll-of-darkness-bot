@@ -11,8 +11,6 @@ import { FailedToAddUnderdogCapabilityError, FailedToRemoveUnderdogCapabilityErr
 import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 import { FakemonStatManagerService } from '../FakemonStatManagerService';
 
-jest.mock('@beanc16/logger');
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

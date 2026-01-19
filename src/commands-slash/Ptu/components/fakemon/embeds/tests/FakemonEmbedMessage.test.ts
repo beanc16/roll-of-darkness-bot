@@ -6,8 +6,6 @@ import { EmbedBuilder } from 'discord.js';
 import { PtuContestStatEffect, PtuContestStatType } from '../../../../types/pokemon';
 import { FakemonEmbedMessage, FakemonMoveEmbedMessage } from '../FakemonEmbedMessage';
 
-jest.mock('discord.js');
-
 describe.each([
     ['FakemonEmbedMessage', FakemonEmbedMessage],
     ['FakemonMoveEmbedMessage', FakemonMoveEmbedMessage],

@@ -10,7 +10,6 @@ import { FakemonInteractionManagerPage } from '../../FakemonInteractionManagerSe
 import { FakemonMoveManagerService } from '../FakemonMoveManagerService';
 import { shuffleArrayTimes } from './util';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

@@ -7,7 +7,6 @@ import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollect
 import { FakemonEvolutionManagerService } from '../FakemonEvolutionManagerService';
 import { shuffleArrayTimes } from './util';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

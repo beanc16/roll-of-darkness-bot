@@ -8,7 +8,6 @@ import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollect
 import { PokemonEggGroup, PokemonGenderRatio } from '../../../types/pokemon';
 import { FakemonBreedingInformationManagerService } from '../FakemonBreedingInformationManagerService';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

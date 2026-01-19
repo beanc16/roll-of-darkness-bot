@@ -9,7 +9,6 @@ import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollect
 import { PtuNaturewalk } from '../../../types/pokemon';
 import { FakemonCapabilityManagerService } from '../FakemonCapabilityManagerService';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {

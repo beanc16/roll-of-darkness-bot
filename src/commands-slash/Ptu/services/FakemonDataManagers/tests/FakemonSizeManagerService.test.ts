@@ -7,7 +7,6 @@ import { PtuHeight } from '../../../types/pokemon';
 import { PtuSizeAdapterService } from '../../PtuSizeAdapterService/PtuSizeAdapterService';
 import { FakemonSizeManagerService } from '../FakemonSizeManagerService';
 
-jest.mock('mongodb-controller');
 jest.mock('../../../dal/PtuFakemonController');
 jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {
