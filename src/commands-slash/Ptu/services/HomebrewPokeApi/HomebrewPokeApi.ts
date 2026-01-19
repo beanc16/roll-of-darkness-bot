@@ -19,7 +19,7 @@ export class HomebrewPokeApi
         return this.unknownImageUrl;
     }
 
-    private static async getPokemonUrl(speciesName: string): Promise<string>
+    public static async getPokemonUrl(speciesName: string): Promise<string>
     {
         const file = await FileStorageService.get({
             appId: process.env.APP_ID as string,
@@ -30,7 +30,7 @@ export class HomebrewPokeApi
 
         if (!file)
         {
-            throw new Error('File not found');
+            throw new Error('Pokemon image not found');
         }
 
         return file.url;
@@ -47,7 +47,7 @@ export class HomebrewPokeApi
 
         if (!file)
         {
-            throw new Error('File not found');
+            throw new Error('Fakemon image not found');
         }
 
         return file.url;

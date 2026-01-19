@@ -4,22 +4,23 @@ import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollectio
 import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';
 import { FakemonCollectionToPtuCollectionAdapter } from '../adapters/FakemonCollectionToPtuCollectionAdapter.js';
 import { FakemonToGoogleSheetsAdapter } from '../adapters/FakemonToGoogleSheetsAdapter.js';
+import { FakemonToImageStorageAdapter } from '../adapters/FakemonToImageStorageAdapter.js';
 import { FakemonGoogleSheetsData } from '../adapters/types.js';
 import { FakemonDatabaseDestination } from '../destinations/FakemonDatabaseDestination.js';
 import { FakemonGoogleSheetsDestination } from '../destinations/FakemonGoogleSheetsDestination.js';
+import { FakemonImageStorageDestination } from '../destinations/FakemonImageStorageDestination.js';
 
 export enum FakemonDataTransferPipelineKey
 {
     Database = 'Database',
     GoogleSheets = 'Google Sheets',
-    // TODO: Image
+    Image = 'Image',
 }
 
-export class FakemonDataTransferService extends DataTransferService<PtuFakemonCollection, PtuPokemonCollection | FakemonGoogleSheetsData>
+export class FakemonDataTransferService extends DataTransferService<PtuFakemonCollection, PtuPokemonCollection | FakemonGoogleSheetsData | string | undefined>
 {
     constructor()
     {
-        // TODO: Add image transfer pipeline too
         super([
             new DataTransferPipeline(
                 FakemonDataTransferPipelineKey.Database,
@@ -30,6 +31,11 @@ export class FakemonDataTransferService extends DataTransferService<PtuFakemonCo
                 FakemonDataTransferPipelineKey.GoogleSheets,
                 new FakemonToGoogleSheetsAdapter(),
                 new FakemonGoogleSheetsDestination(),
+            ),
+            new DataTransferPipeline(
+                FakemonDataTransferPipelineKey.Image,
+                new FakemonToImageStorageAdapter(),
+                new FakemonImageStorageDestination(),
             ),
         ]);
     }

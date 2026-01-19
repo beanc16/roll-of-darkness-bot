@@ -159,6 +159,9 @@ export class FakemonViewAllStrategy
                         && curFakemon.transferredTo.googleSheets.pokemonSkills
                     );
 
+                case FakemonDataTransferPipelineKey.Image:
+                    return !curFakemon.transferredTo.imageStorage;
+
                 default:
                     const typeCheck: never = notTransferredTo;
                     throw new Error(`Invalid notTransferredTo: ${typeCheck}`);

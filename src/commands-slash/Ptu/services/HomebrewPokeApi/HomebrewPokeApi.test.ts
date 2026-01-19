@@ -38,7 +38,7 @@ describe('class: HomebrewPokeApi', () =>
                 // @ts-expect-error -- Only include the necessary data for testing
                 .mockResolvedValueOnce({ url });
 
-            const result = await HomebrewPokeApi['getPokemonUrl']('Pikachu');
+            const result = await HomebrewPokeApi.getPokemonUrl('Pikachu');
             expect(result).toEqual(url);
         });
 
@@ -48,8 +48,8 @@ describe('class: HomebrewPokeApi', () =>
                 .mockResolvedValueOnce(undefined);
 
             await expect(
-                HomebrewPokeApi['getPokemonUrl']('Pikachu'),
-            ).rejects.toThrow('File not found');
+                HomebrewPokeApi.getPokemonUrl('Pikachu'),
+            ).rejects.toThrow('Pokemon image not found');
         });
     });
 
@@ -73,7 +73,7 @@ describe('class: HomebrewPokeApi', () =>
 
             await expect(
                 HomebrewPokeApi.getFakemonUrl('Pikachu'),
-            ).rejects.toThrow('File not found');
+            ).rejects.toThrow('Fakemon image not found');
         });
     });
 
