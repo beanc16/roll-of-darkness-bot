@@ -128,6 +128,17 @@ export class HomebrewPokeApi
     }
 
     /* istanbul ignore next */
+    public static async deleteFakemonImage(speciesName: string): Promise<void>
+    {
+        await FileStorageService.delete({
+            appId: process.env.APP_ID as string,
+            fileName: speciesName,
+            nestedFolders: this.fakemonNestedFolders,
+            resourceType: FileStorageResourceType.Image,
+        });
+    }
+
+    /* istanbul ignore next */
     public static async initialize(): Promise<void>
     {
         try

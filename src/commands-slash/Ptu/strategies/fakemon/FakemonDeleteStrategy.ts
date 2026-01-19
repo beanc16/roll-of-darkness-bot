@@ -11,6 +11,7 @@ import type {
     PtuChatIteractionStrategy,
     PtuStrategyMap,
 } from '../../types/strategies.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
@@ -73,6 +74,9 @@ export class FakemonDeleteStrategy
             case ConfirmDenyButtonCustomIds.Confirm:
                 // Delete fakemon
                 await PtuFakemonPseudoCache.softDelete(interaction.message.id, fakemon);
+
+                // Delete image
+                await HomebrewPokeApi.deleteFakemonImage(fakemon.name);
 
                 // Send response
                 await interaction.editReply({
