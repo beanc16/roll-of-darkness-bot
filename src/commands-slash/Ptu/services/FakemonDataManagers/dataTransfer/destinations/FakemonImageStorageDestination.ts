@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 import { DataTransferDestination } from '../../../../../../services/DataTransfer/DataTransferDestination.js';
-import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
+import type { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
 import { HomebrewPokeApi } from '../../../HomebrewPokeApi/HomebrewPokeApi.js';
 import { FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
 
@@ -38,11 +38,6 @@ export class FakemonImageStorageDestination extends DataTransferDestination<stri
         {
             throw new Error('Url must be truthy');
         }
-
-        if (input.length === 0)
-        {
-            throw new Error('Url must not be empty');
-        }
     }
 
     public async wasTransferred(input: string | undefined, source: PtuFakemonCollection): Promise<boolean>
@@ -55,7 +50,7 @@ export class FakemonImageStorageDestination extends DataTransferDestination<stri
         let url: string;
         try
         {
-            url = await HomebrewPokeApi.getPokemonUrl(input);
+            url = await HomebrewPokeApi.getPokemonUrl(source.name);
         }
         catch
         {
