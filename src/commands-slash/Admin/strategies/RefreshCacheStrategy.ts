@@ -40,7 +40,9 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.AuraUserName
     | PtuAutocompleteParameterName.BaseAbilitiesOn
+    | PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn
     | PtuAutocompleteParameterName.BaseMovesOn
+    | PtuAutocompleteParameterName.BaseOtherCapabilitiesOn
     | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove

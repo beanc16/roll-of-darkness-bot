@@ -319,6 +319,42 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     ...fakemon,
                 ];
             },
+            [PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
+            [PtuAutocompleteParameterName.BaseOtherCapabilitiesOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
             [PtuAutocompleteParameterName.BaseMovesOn]: async () =>
             {
                 const [pokemon, fakemon] = await Promise.all([

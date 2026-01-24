@@ -85,6 +85,8 @@ interface FakemonCreateGetParameterResults
     baseSpeciesOn: string | null;
     baseMovesOn: string | null;
     baseAbilitiesOn: string | null;
+    baseOtherCapabilitiesOn: string | null;
+    baseEvolutionAndEnvironmentOn: string | null;
     processedImageUrl: string | null;
     coEditor: User | null;
 }
@@ -94,6 +96,8 @@ interface GetBasedOnPokemonSpeciesResponse
     species: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
     moves: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
     abilities: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    otherCapabilities: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    evolutionAndEnvironment: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
 }
 
 @staticImplements<
@@ -199,6 +203,8 @@ export class FakemonCreateStrategy
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
             processedImageUrl,
             coEditor,
         } = this.getOptions(interaction);
@@ -209,6 +215,8 @@ export class FakemonCreateStrategy
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
             userId: interaction.user.id,
         });
 
@@ -1059,6 +1067,8 @@ export class FakemonCreateStrategy
         const baseSpeciesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseSpeciesOn);
         const baseMovesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseMovesOn);
         const baseAbilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseAbilitiesOn);
+        const baseOtherCapabilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseOtherCapabilitiesOn);
+        const baseEvolutionAndEnvironmentOn = interaction.options.getString(PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn);
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
         const coEditor = interaction.options.getUser('co_editor');
@@ -1070,6 +1080,8 @@ export class FakemonCreateStrategy
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
             processedImageUrl,
             coEditor,
         };
@@ -1119,11 +1131,13 @@ export class FakemonCreateStrategy
             ...this.basePokemon,
             ...pokemonToBaseOn.species,
             name: speciesName,
-            evolution: pokemonToBaseOn.species?.evolution || [{
-                level: 1,
-                name: speciesName,
-                stage: 1,
-            }],
+            evolution: pokemonToBaseOn.evolutionAndEnvironment?.evolution
+                || pokemonToBaseOn.species?.evolution
+                || [{
+                    level: 1,
+                    name: speciesName,
+                    stage: 1,
+                }],
             abilities: {
                 // Take abilities in priority order of:
                 // 1. pokemonToBaseOn.abilities
@@ -1160,6 +1174,19 @@ export class FakemonCreateStrategy
                     || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
                     || this.basePokemon.moveList.zygardeCubeMoves,
             },
+            capabilities: {
+                ...this.basePokemon.capabilities,
+                ...(pokemonToBaseOn.species?.capabilities || {}),
+                other: pokemonToBaseOn.otherCapabilities?.capabilities.other
+                    || pokemonToBaseOn.species?.capabilities.other
+                    || this.basePokemon.capabilities.other,
+            },
+            diets: pokemonToBaseOn.evolutionAndEnvironment?.diets
+                || pokemonToBaseOn.species?.diets
+                || this.basePokemon.diets,
+            habitats: pokemonToBaseOn.evolutionAndEnvironment?.habitats
+                || pokemonToBaseOn.species?.habitats
+                || this.basePokemon.habitats,
             sizeInformation: {
                 ...this.basePokemon.sizeInformation,
                 ...(pokemonToBaseOn.species?.sizeInformation || {}),
@@ -1198,18 +1225,29 @@ export class FakemonCreateStrategy
         baseSpeciesOn,
         baseMovesOn,
         baseAbilitiesOn,
+        baseOtherCapabilitiesOn,
+        baseEvolutionAndEnvironmentOn,
         userId,
     }: {
         strategies: PtuStrategyMap;
         baseSpeciesOn: string | null;
         baseMovesOn: string | null;
         baseAbilitiesOn: string | null;
+        baseOtherCapabilitiesOn: string | null;
+        baseEvolutionAndEnvironmentOn: string | null;
         userId: string;
     }): Promise<GetBasedOnPokemonSpeciesResponse>
     {
         const namesToSearch = [
-            ...new Set([baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean)),
+            ...new Set([
+                baseSpeciesOn,
+                baseMovesOn,
+                baseAbilitiesOn,
+                baseOtherCapabilitiesOn,
+                baseEvolutionAndEnvironmentOn,
+            ].filter(Boolean)),
         ] as string[];
+
         const [pokemon, fakemon] = await Promise.all([
             strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
                 names: namesToSearch,
@@ -1241,11 +1279,21 @@ export class FakemonCreateStrategy
             {
                 acc.abilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
+            if (curPokemon.name === baseOtherCapabilitiesOn)
+            {
+                acc.otherCapabilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            if (curPokemon.name === baseEvolutionAndEnvironmentOn)
+            {
+                acc.evolutionAndEnvironment = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
             return acc;
         }, {
             species: null,
             moves: null,
             abilities: null,
+            otherCapabilities: null,
+            evolutionAndEnvironment: null,
         });
     }
 }

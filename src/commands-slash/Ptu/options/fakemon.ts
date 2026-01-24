@@ -58,6 +58,20 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         return option.setAutocomplete(true);
     });
 
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseOtherCapabilitiesOn);
+        option.setDescription(`The species to base the custom Pokémon's other capabilities on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn);
+        option.setDescription(`The species to base the custom Pokémon's evolution & environment on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
     subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
     subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
 
