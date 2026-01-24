@@ -25,6 +25,7 @@ import { FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder } from '.
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../actionRowBuilders/moves/types.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {
@@ -79,6 +80,7 @@ export function getFakemonBreedingInformationComponents(
     return [
         new FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder(),
         new FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder(args),
+        new FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder(),
         new FakemonOverviewActionRowBuilder(FakemonInteractionManagerPage.BreedingInformation),
     ];
 }

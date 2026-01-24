@@ -68,6 +68,7 @@ import {
     PokemonGenderRatio,
     PokemonHabitat,
     PokemonType,
+    PtuAverageHatchRate,
     PtuNaturewalk,
 } from '../../types/pokemon.js';
 import type {
@@ -157,6 +158,7 @@ export class FakemonCreateStrategy
         breedingInformation: {
             genderRatio: { none: true },
             eggGroups: [PokemonEggGroup.None],
+            averageHatchRate: PtuAverageHatchRate.SevenDays,
         },
         diets: ['PLACEHOLDER'],
         habitats: ['PLACEHOLDER'],
@@ -341,6 +343,9 @@ export class FakemonCreateStrategy
         } | {
             customId: FakemonBreedingInformationStringSelectCustomIds.EditEggGroups;
             values: PokemonEggGroup[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditAverageHatchRate;
+            values: PtuAverageHatchRate[];
         } | {
             customId: FakemonEnvironmentStringSelectCustomIds.EditDiets;
             values: PokemonDiet[];
@@ -654,6 +659,36 @@ export class FakemonCreateStrategy
                         messageId: interaction.message.id,
                         fakemon,
                         eggGroups: [value1, value2].filter(Boolean) as PokemonEggGroup[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Gender ratio selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditAverageHatchRate:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setAverageHatchHate({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        averageHatchRate: value1 as PtuAverageHatchRate,
                     });
                 }
                 catch (error)
