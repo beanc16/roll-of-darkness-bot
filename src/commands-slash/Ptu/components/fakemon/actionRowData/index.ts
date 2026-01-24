@@ -5,6 +5,7 @@ import { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection.j
 import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
 import { FakemonBIEditAbilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBIEditTypesStringSelectActionRowBuilder } from '../actionRowBuilders/basicInformation/FakemonBIEditTypesStringSelectActionRowBuilder.js';
+import { FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder.js';
 import { FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditEggGroupsStringSelectActionRowBuilder.js';
 import { FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditGenderRatioStringSelectActionRowBuilder.js';
 import { FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder } from '../actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
@@ -25,7 +26,6 @@ import { FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder } from '.
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../actionRowBuilders/moves/types.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
-import { FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder } from '../actionRowBuilders/breedingInformation/FakemonBreedingInformationEditAverageHatchRateStringSelectActionRowBuilder.js';
 
 export function getFakemonOverviewComponents(): BaseMessageOptions['components']
 {

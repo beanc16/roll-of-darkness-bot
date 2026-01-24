@@ -5,7 +5,11 @@ import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
 import { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { PokemonEggGroup, PokemonGenderRatio, PtuAverageHatchRate } from '../../../types/pokemon';
+import {
+    PokemonEggGroup,
+    PokemonGenderRatio,
+    PtuAverageHatchRate,
+} from '../../../types/pokemon';
 import { FakemonBreedingInformationManagerService } from '../FakemonBreedingInformationManagerService';
 
 jest.mock('../../../dal/PtuFakemonController');

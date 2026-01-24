@@ -1,6 +1,10 @@
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
-import { PokemonEggGroup, PokemonGenderRatio, PtuAverageHatchRate } from '../../types/pokemon.js';
+import {
+    PokemonEggGroup,
+    PokemonGenderRatio,
+    PtuAverageHatchRate,
+} from '../../types/pokemon.js';
 
 export class FakemonBreedingInformationManagerService
 {
