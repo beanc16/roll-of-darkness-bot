@@ -1172,14 +1172,14 @@ export class FakemonCreateStrategy
         userId: string;
     }): Promise<GetBasedOnPokemonSpeciesResponse>
     {
+        const namesToSearch = [
+            ...new Set([baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean)),
+        ] as string[];
         const [pokemon, fakemon] = await Promise.all([
             strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
-                names: [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(Boolean),
+                names: namesToSearch,
             }) as Promise<PtuPokemonForLookupPokemon[]>,
-            PtuFakemonPseudoCache.getByNames(
-                [baseSpeciesOn, baseMovesOn, baseAbilitiesOn].filter(element => element !== null),
-                userId,
-            ),
+            PtuFakemonPseudoCache.getByNames(namesToSearch, userId),
         ]);
 
         return [...pokemon, ...fakemon].reduce<GetBasedOnPokemonSpeciesResponse>((acc, curPokemon) =>
@@ -1198,11 +1198,11 @@ export class FakemonCreateStrategy
             {
                 acc.species = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
-            else if (curPokemon.name === baseMovesOn)
+            if (curPokemon.name === baseMovesOn)
             {
                 acc.moves = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
-            else if (curPokemon.name === baseAbilitiesOn)
+            if (curPokemon.name === baseAbilitiesOn)
             {
                 acc.abilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
             }
