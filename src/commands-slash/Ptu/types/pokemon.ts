@@ -157,6 +157,22 @@ export enum PokemonGenderRatio
     Male125Female875 = '12.5% M / 87.5% F',
 }
 
+export enum PtuAverageHatchRate
+{
+    TwoDays = '2 Days',
+    FourDays = '4 Days',
+    SevenDays = '7 Days',
+    TenDays = '10 Days',
+    ThirteenDays = '13 Days',
+    SixteenDays = '16 Days',
+    TwentyDays = '20 Days',
+    TwentyFiveDays = '25 Days',
+    ThirtyDays = '30 Days',
+    FourtyDays = '40 Days',
+    SeventyFiveDays = '75 Days',
+    None = 'None',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',

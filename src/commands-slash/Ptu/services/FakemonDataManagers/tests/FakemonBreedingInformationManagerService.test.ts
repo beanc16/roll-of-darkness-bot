@@ -5,7 +5,7 @@ import { chunkArray } from '../../../../../services/chunkArray/chunkArray';
 import { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
-import { PokemonEggGroup, PokemonGenderRatio } from '../../../types/pokemon';
+import { PokemonEggGroup, PokemonGenderRatio, PtuAverageHatchRate } from '../../../types/pokemon';
 import { FakemonBreedingInformationManagerService } from '../FakemonBreedingInformationManagerService';
 
 jest.mock('../../../dal/PtuFakemonController');
@@ -21,6 +21,7 @@ jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 describe(`class: ${FakemonBreedingInformationManagerService.name}`, () =>
 {
     let allEggGroups: PokemonEggGroup[];
+    const allAverageHatchRates = Object.values(PtuAverageHatchRate);
 
     const genderRatioAndExpectedResultTuple = [
         [PokemonGenderRatio.Male50Female50, { male: 50, female: 50 }],
@@ -262,6 +263,57 @@ describe(`class: ${FakemonBreedingInformationManagerService.name}`, () =>
                     genderRatio: 'INVALID' as PokemonGenderRatio,
                 }),
             ).rejects.toThrow(`Invalid gender ratio: INVALID`);
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+    });
+
+    describe(`method: ${FakemonBreedingInformationManagerService.setAverageHatchHate.name}`, () =>
+    {
+        it.each(allAverageHatchRates)(`should update the fakemon's average hatch rate to be '%s'`, async (averageHatchRate) =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData();
+            const expectedFakemonResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedFakemonResult);
+
+            // Act
+            const result = await FakemonBreedingInformationManagerService.setAverageHatchHate({
+                messageId,
+                fakemon,
+                averageHatchRate,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedFakemonResult);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                {
+                    breedingInformation: {
+                        ...fakemon.breedingInformation,
+                        averageHatchRate,
+                    },
+                },
+            );
+        });
+
+        it('should throw an error if provided an invalid average hatch rate', async () =>
+        {
+            // Arrange
+            const messageId = 'messageId';
+            const fakemon = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update');
+
+            // Act & Assert
+            await expect(
+                FakemonBreedingInformationManagerService.setAverageHatchHate({
+                    messageId,
+                    fakemon,
+                    averageHatchRate: 'INVALID' as PtuAverageHatchRate,
+                }),
+            ).rejects.toThrow(`Invalid average hatch rate: INVALID`);
             expect(updateSpy).not.toHaveBeenCalled();
         });
     });

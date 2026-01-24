@@ -1,11 +1,12 @@
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
-import { PokemonEggGroup, PokemonGenderRatio } from '../../types/pokemon.js';
+import { PokemonEggGroup, PokemonGenderRatio, PtuAverageHatchRate } from '../../types/pokemon.js';
 
 export class FakemonBreedingInformationManagerService
 {
     private static allEggGroups = new Set(Object.values(PokemonEggGroup));
     private static allGenderRatios = new Set(Object.values(PokemonGenderRatio));
+    private static allHatchRates = new Set(Object.values(PtuAverageHatchRate));
 
     public static async setEggGroups({
         messageId,
@@ -66,6 +67,29 @@ export class FakemonBreedingInformationManagerService
             breedingInformation: {
                 ...fakemon.breedingInformation,
                 genderRatio: this.adaptGenderRatio(genderRatio),
+            },
+        });
+    }
+
+    public static async setAverageHatchHate({
+        messageId,
+        fakemon,
+        averageHatchRate,
+    }: {
+        messageId: string;
+        fakemon: PtuFakemonCollection;
+        averageHatchRate: PtuAverageHatchRate;
+    }): Promise<PtuFakemonCollection>
+    {
+        if (!this.allHatchRates.has(averageHatchRate))
+        {
+            throw new Error(`Invalid average hatch rate: ${averageHatchRate}`);
+        }
+
+        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            breedingInformation: {
+                ...fakemon.breedingInformation,
+                averageHatchRate,
             },
         });
     }
