@@ -39,6 +39,7 @@ export class LookupKeywordStrategy
             title: 'Keywords',
             parseElementToLines: element => [
                 Text.bold(element.name),
+                ...(element.type !== undefined ? [`Type: ${element.type}`] : []),
                 ...(element.description !== undefined && element.description !== '--'
                     ? [
                         `Description:\n\`\`\`\n${element.description}\`\`\``,
