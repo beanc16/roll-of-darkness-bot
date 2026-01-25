@@ -217,7 +217,7 @@ export class FakemonEditStrategy
             editors: newEditors,
             metadata: {
                 ...fakemon.metadata,
-                imageUrl: updatedImageUrl,
+                imageUrl: updatedImageUrl || fakemon.metadata.imageUrl,
             },
         });
     }
