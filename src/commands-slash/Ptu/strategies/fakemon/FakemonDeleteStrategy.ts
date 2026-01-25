@@ -1,5 +1,5 @@
 import { Text } from '@beanc16/discordjs-helpers';
-import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
+import { ButtonInteraction, ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
@@ -13,6 +13,11 @@ import type {
     PtuStrategyMap,
 } from '../../types/strategies.js';
 
+interface FakemonDeleteGetParameterResults
+{
+    speciesName: string;
+}
+
 @staticImplements<
     PtuChatIteractionStrategy
     & PtuButtonIteractionStrategy
@@ -21,12 +26,16 @@ export class FakemonDeleteStrategy
 {
     public static key = PtuFakemonSubcommand.Delete;
 
+    public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonDeleteGetParameterResults>): Promise<boolean>;
+    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonDeleteGetParameterResults>): Promise<boolean>;
     public static async run(
-        interaction: ChatInputCommandInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
         _strategies: PtuStrategyMap,
+        options?: Partial<FakemonDeleteGetParameterResults>,
     ): Promise<boolean>
     {
-        const { speciesName } = this.getOptions(interaction);
+        const { speciesName } = this.getOptions(interaction, options);
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -104,8 +113,18 @@ export class FakemonDeleteStrategy
         return true;
     }
 
-    private static getOptions(interaction: ChatInputCommandInteraction): { speciesName: string }
+    private static getOptions(
+        untypedInteraction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
+        options?: Partial<FakemonDeleteGetParameterResults>,
+    ): FakemonDeleteGetParameterResults
     {
+        if (options?.speciesName)
+        {
+            return options as FakemonDeleteGetParameterResults;
+        }
+
+        const interaction = untypedInteraction as ChatInputCommandInteraction;
+
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
 
         return { speciesName };

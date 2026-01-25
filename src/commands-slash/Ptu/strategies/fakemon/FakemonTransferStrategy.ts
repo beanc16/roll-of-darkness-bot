@@ -23,6 +23,7 @@ import type {
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
+import type { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 
 interface FakemonTransferGetParameterResults
 {
@@ -143,6 +144,19 @@ export class FakemonTransferStrategy
                         content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)}.`,
                         components: [], // Remove buttons so transfer doesn't occur again
                     });
+
+                    // Delete the fakemon if it's transferred to all locations
+                    if (
+                        updatedFakemon.transferredTo.ptuDatabase
+                        && updatedFakemon.transferredTo.googleSheets.pokemonData
+                        && updatedFakemon.transferredTo.googleSheets.pokemonSkills
+                        && updatedFakemon.transferredTo.imageStorage
+                    )
+                    {
+                        await (strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Delete] as typeof FakemonDeleteStrategy)?.run(interaction, strategies, {
+                            speciesName: updatedFakemon.name,
+                        });
+                    }
                 }
                 catch (error)
                 {
