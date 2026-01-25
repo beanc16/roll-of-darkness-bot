@@ -1,5 +1,6 @@
-import { logger } from "@beanc16/logger";
-import { EnumParserService } from "../../../services/EnumParserService/EnumParserService.js";
+import { logger } from '@beanc16/logger';
+
+import { EnumParserService } from '../../../services/EnumParserService/EnumParserService.js';
 
 export enum PtuKeywordType
 {
