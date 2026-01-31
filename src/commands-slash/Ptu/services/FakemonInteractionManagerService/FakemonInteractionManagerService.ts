@@ -1,12 +1,7 @@
-import {
-    ButtonInteraction,
-    ChatInputCommandInteraction,
-    InteractionEditReplyOptions,
-    InteractionUpdateOptions,
-    ModalSubmitInteraction,
-    StringSelectMenuInteraction,
-} from 'discord.js';
+import { InteractionEditReplyOptions, InteractionUpdateOptions } from 'discord.js';
 
+import { InteractionManager, InteractionManagerNavigateToOptions } from '../../../../services/InteractionManager/InteractionManager.js';
+import { InteractionManagerPage } from '../../../../services/InteractionManager/InteractionManagerPage.js';
 import {
     getFakemonBasicInformationComponents,
     getFakemonBreedingInformationComponents,
@@ -41,13 +36,9 @@ import { FakemonInteractionManagerPage } from './types.js';
 
 export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
 
-interface NavigateToOptions
-{
-    interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
-    page: FakemonInteractionManagerPage;
+type FakemonInteractionManagerNavigateToOptions = InteractionManagerNavigateToOptions<FakemonInteractionManagerPage, {
     messageId: string;
-    interactionType?: FakemonInteractionManagerInteractionType;
-}
+}>;
 
 /**
  * Service for handling interaction updates for the fakemon
@@ -55,9 +46,9 @@ interface NavigateToOptions
  * so that the embeds and components for each possible
  * navigation action remain consistent.
  */
-export class FakemonInteractionManagerService
+export class FakemonInteractionManagerService extends InteractionManager
 {
-    public static async navigateTo(options: NavigateToOptions): Promise<void>
+    public static async navigateTo(options: FakemonInteractionManagerNavigateToOptions): Promise<void>
     {
         const fakemon = PtuFakemonPseudoCache.getByMessageId(options.messageId);
         if (!fakemon)
@@ -66,25 +57,13 @@ export class FakemonInteractionManagerService
         }
 
         const interactionOptions = this.getInteractionOptions({ page: options.page, fakemon });
-        const { interaction, interactionType = 'editReply' } = options;
-
-        switch (interactionType)
-        {
-            case 'editReply':
-                await interaction.editReply(interactionOptions);
-                break;
-
-            case 'update':
-                await (interaction as StringSelectMenuInteraction).update(interactionOptions);
-                break;
-
-            default:
-                const typeGuard: never = interactionType;
-                throw new Error(`Unhandled interactionType: ${typeGuard}`);
-        }
+        await this.sendMessage<
+            FakemonInteractionManagerPage,
+            { messageId: string }
+        >(options, new InteractionManagerPage(interactionOptions));
     }
 
-    private static getInteractionOptions({ page, fakemon }: Pick<NavigateToOptions, 'page'> & { fakemon: PtuFakemonCollection }): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
+    private static getInteractionOptions({ page, fakemon }: Pick<FakemonInteractionManagerNavigateToOptions, 'page'> & { fakemon: PtuFakemonCollection }): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
     {
         switch (page)
         {

@@ -17,7 +17,7 @@ export enum PtuOracleCardAction
     Questioned = 'Questioned',
 }
 
-export type PtuOracleCardDraw = { cardNumber: number; prophecy: string; } & ({
+export type PtuOracleCardDraw = { cardNumber: number; prophecy: string } & ({
     action: Omit<PtuOracleCardAction, PtuOracleCardAction.Questioned>;
     playerQuestion?: never;
 } | {

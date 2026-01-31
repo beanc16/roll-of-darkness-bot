@@ -654,7 +654,7 @@ export class LookupClassStrategy
     }).reduce((acc, element) =>
     {
         const [key, value] = element;
-        const [convertedKey] = LookupClassStrategy['convertFeatureNames']([key]);
+        const [convertedKey] = LookupClassStrategy.convertFeatureNames([key]);
         acc[convertedKey as PtuClassName] = value;
         return acc;
     }, {} as Record<PtuClassName, Partial<Record<PtuClassRole, number>>>);

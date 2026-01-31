@@ -1,4 +1,5 @@
 import type { ObjectId } from 'mongodb';
+
 import { RecordSingleton } from '../../../services/Singleton/RecordSingleton.js';
 import { PtuOracleCardCollection } from './models/PtuOracleCardCollection.js';
 import { PtuOracleGameCollection } from './models/PtuOracleGameCollection.js';
@@ -48,8 +49,8 @@ export class PtuOraclePseudoCache
         if (this.allCards.length > 0)
         {
             return this.allCards.filter((card) =>
-                including.includes(card.cardNumber) &&
-                !excluding.includes(card.cardNumber),
+                including.includes(card.cardNumber)
+                && !excluding.includes(card.cardNumber),
             );
         }
 
@@ -64,8 +65,8 @@ export class PtuOraclePseudoCache
         });
 
         return results.filter((card) =>
-            including.includes(card.cardNumber) &&
-            !excluding.includes(card.cardNumber),
+            including.includes(card.cardNumber)
+            && !excluding.includes(card.cardNumber),
         );
     }
 
@@ -80,7 +81,7 @@ export class PtuOraclePseudoCache
         const { results } = await OracleCardController.getMostRecent({ cardNumber }) as {
             results: PtuOracleCardCollection | undefined;
         };
-        
+
         if (!results)
         {
             throw new Error(`Could not find card with card number ${cardNumber}`);
@@ -94,7 +95,7 @@ export class PtuOraclePseudoCache
         const { results } = await OracleGameController.getMostRecent({ _id: id }) as {
             results: PtuOracleGameCollection | undefined;
         };
-        
+
         if (!results)
         {
             throw new Error(`Could not find game with id ${id.toString()}`);
@@ -108,7 +109,7 @@ export class PtuOraclePseudoCache
         const { results } = await OracleGameController.getMostRecent({ name }) as {
             results: PtuOracleGameCollection | undefined;
         };
-        
+
         if (!results)
         {
             throw new Error(`Could not find game with name ${name}`);
