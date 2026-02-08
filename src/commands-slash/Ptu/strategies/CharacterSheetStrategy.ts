@@ -313,6 +313,7 @@ export class CharacterSheetStrategy
                         'Calculations',
                         'Poke Edges',
                         'Poké Edges',
+                        ' Aura',
                     ],
                 },
             ],
