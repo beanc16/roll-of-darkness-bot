@@ -8,7 +8,6 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
-import { DiscordUserId } from '../../../../types/discord.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
 import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
@@ -179,7 +178,7 @@ export class FakemonCreateStrategy
             imageUrl: HomebrewPokeApi.unknownPokemonUrl,
         },
         megaEvolutions: [],
-        editors: [DiscordUserId.Bean],
+        editors: [],
         status: PtuFakemonStatus.DRAFT,
         dexType: PtuFakemonDexType.Eden,
         feedbacks: [],

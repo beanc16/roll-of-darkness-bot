@@ -1,4 +1,3 @@
-import { Text } from '@beanc16/discordjs-helpers';
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
@@ -7,7 +6,6 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { DiscordUserId } from '../../../../types/discord.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
@@ -56,15 +54,6 @@ export class FakemonEditStrategy
             coEditorToAdd,
             coEditorToRemove,
         } = this.getOptions(interaction as ButtonInteraction, options);
-
-        // Prevent Bean from being removed
-        if (coEditorToRemove && coEditorToRemove.id === DiscordUserId.Bean.toString())
-        {
-            await interaction.editReply({
-                content: `You cannot remove ${Text.Ping.user(DiscordUserId.Bean)} as a co-editor.`,
-            });
-            return true;
-        }
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
