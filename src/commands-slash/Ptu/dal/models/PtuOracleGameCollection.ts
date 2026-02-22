@@ -1,5 +1,14 @@
 import { ObjectId } from 'mongodb';
 
+import { PtuOracleCardCollection, PtuOracleCardProphecyFace } from './PtuOracleCardCollection.js';
+
+export enum PtuOracleGameTime
+{
+    Past = 'past',
+    Present = 'present',
+    Future = 'future',
+}
+
 export enum PtuOracleGameStatus
 {
     Active = 'Active',
@@ -13,11 +22,15 @@ export enum PtuOracleCardAction
     /** When the card is drawn and revealed, but not accepted/rejected/questioned */
     FaceUp = 'Face Up',
     Accepted = 'Accepted',
-    Rejected = 'Rejected',
+    Denied = 'Denied',
     Questioned = 'Questioned',
 }
 
-export type PtuOracleCardDraw = { cardNumber: number; prophecy: string } & ({
+export type PtuOracleCardDraw = {
+    cardNumber: number;
+    prophecy: string;
+    face: PtuOracleCardProphecyFace;
+} & ({
     action: Omit<PtuOracleCardAction, PtuOracleCardAction.Questioned>;
     playerQuestion?: never;
 } | {
@@ -25,20 +38,24 @@ export type PtuOracleCardDraw = { cardNumber: number; prophecy: string } & ({
     playerQuestion: string;
 });
 
+export type PtuOracleCardDrawDetailed = PtuOracleCardDraw & {
+    card: PtuOracleCardCollection;
+};
+
 export interface PtuOraclePlayerHand
 {
     playerDiscordUserId: string;
-    past: PtuOracleCardDraw[];
-    present: PtuOracleCardDraw[];
-    future: PtuOracleCardDraw[];
+    [PtuOracleGameTime.Past]: PtuOracleCardDraw[];
+    [PtuOracleGameTime.Present]: PtuOracleCardDraw[];
+    [PtuOracleGameTime.Future]: PtuOracleCardDraw[];
     isCompleted: boolean;
 }
 
-export interface PtuOracleRound
+export interface PtuOraclePlayerHandDetailed extends Omit<PtuOraclePlayerHand, PtuOracleGameTime>
 {
-    roundNumber: number;
-    /** Assume the latest hand in the array is the current hand */
-    hands: PtuOraclePlayerHand[];
+    [PtuOracleGameTime.Past]: PtuOracleCardDrawDetailed[];
+    [PtuOracleGameTime.Present]: PtuOracleCardDrawDetailed[];
+    [PtuOracleGameTime.Future]: PtuOracleCardDrawDetailed[];
 }
 
 export class PtuOracleGameCollection
@@ -50,8 +67,8 @@ export class PtuOracleGameCollection
     public playerDiscordUserIds: string[];
     public deckCardNumbers: number[];
     public discardCardNumbers: number[];
-    /** Assume the latest round in the array is the current round */
-    public rounds: PtuOracleRound[];
+    /** Assume the latest hand in the array is the current hand */
+    public hands: PtuOraclePlayerHand[];
     public createdAt: Date;
     public completedAt?: Date;
 
@@ -63,7 +80,7 @@ export class PtuOracleGameCollection
         playerDiscordUserIds = [],
         deckCardNumbers,
         discardCardNumbers = [],
-        rounds = [],
+        hands = [],
         createdAt = new Date(),
         completedAt,
     }: {
@@ -74,7 +91,7 @@ export class PtuOracleGameCollection
         playerDiscordUserIds?: string[];
         deckCardNumbers: number[];
         discardCardNumbers?: number[];
-        rounds?: PtuOracleRound[];
+        hands?: PtuOraclePlayerHand[];
         createdAt?: Date;
         completedAt?: Date;
     })
@@ -96,8 +113,14 @@ export class PtuOracleGameCollection
         this.playerDiscordUserIds = playerDiscordUserIds;
         this.deckCardNumbers = deckCardNumbers;
         this.discardCardNumbers = discardCardNumbers;
-        this.rounds = rounds;
+        this.hands = hands;
         this.createdAt = createdAt;
         this.completedAt = completedAt;
+    }
+
+    get id(): string
+    {
+        // eslint-disable-next-line no-underscore-dangle -- Use an underscore to properly interface with mongodb's default _id property
+        return this._id.toString();
     }
 }

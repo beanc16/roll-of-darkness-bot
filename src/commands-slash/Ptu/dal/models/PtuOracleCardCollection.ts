@@ -3,7 +3,28 @@ import { ObjectId } from 'mongodb';
 export enum PtuOracleCardCategory
 {
     ThePrimordialOne = 'The Primordial One',
-    // TODO: Add other categories
+    TheCreationTrio = 'The Creation Trio',
+    TheWeatherTrio = 'The Weather Trio',
+    TheProtagonists = 'The Protagonists',
+    TheSacredDefenders = 'The Sacred Defenders',
+    TheMortalityTrio = 'The Mortality Trio',
+    TheWeapons = 'The Weapons',
+    TheTaoTrio = 'The Tao Trio',
+    TheAfterlifeTrio = 'The Afterlife Trio',
+    TheLegendaryIdols = 'The Legendary Idols',
+    TheLone = 'The Lone',
+    TheLegendarySteeds = 'The Legendary Steeds',
+    TheLegendarySpirits = 'The Legendary Spirits',
+    TheForsaken = 'The Forsaken',
+    TheTowerDuo = 'The Tower Duo',
+    TheEdenianBeasts = 'The Edenian Beasts',
+    TheUltraBeastSummoners = 'The Ultra Beast Summoners',
+}
+
+export enum PtuOracleCardProphecyFace
+{
+    Normal = 'Normal',
+    Reverse = 'Reverse',
 }
 
 export class PtuOracleCardCollection
@@ -14,6 +35,7 @@ export class PtuOracleCardCollection
     public descriptor: string;
     public category: string;
     public defaultProphecy: string;
+    public defaultReverseProphecy: string;
 
     constructor({
         _id,
@@ -22,6 +44,7 @@ export class PtuOracleCardCollection
         descriptor,
         category,
         defaultProphecy,
+        defaultReverseProphecy,
     }: {
         _id?: ObjectId;
         cardNumber: number;
@@ -29,6 +52,7 @@ export class PtuOracleCardCollection
         descriptor: string;
         category: string;
         defaultProphecy: string;
+        defaultReverseProphecy: string;
     })
     {
         if (_id)
@@ -47,5 +71,6 @@ export class PtuOracleCardCollection
         this.descriptor = descriptor;
         this.category = category;
         this.defaultProphecy = defaultProphecy;
+        this.defaultReverseProphecy = defaultReverseProphecy;
     }
 }

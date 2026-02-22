@@ -5,6 +5,7 @@ import {
     Client,
     CommandInteraction,
     Events,
+    MessageInteraction,
     ModalSubmitInteraction,
     StringSelectMenuInteraction,
 } from 'discord.js';
@@ -110,14 +111,27 @@ async function handler(
     }
     else if (interaction.isStringSelectMenu())
     {
+        let commandInteraction: MessageInteraction | null = null;
+
+        if (interaction.message.interaction)
+        {
+            commandInteraction = interaction.message.interaction;
+        }
+        else if (interaction.message.reference?.messageId)
+        {
+            const referencedMessage = await interaction.message.channel.messages.fetch(interaction.message.reference.messageId);
+            commandInteraction = referencedMessage.interaction;
+        }
+
         const [
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = interaction.message.interaction?.commandName?.split(' ') ?? [];
+        ] = commandInteraction?.commandName?.split(' ') ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);
+
         if (!slashCommand)
         {
             // Only certain subcommand groups and subcommands support this style
@@ -150,11 +164,23 @@ async function handler(
     }
     else if (interaction.isButton())
     {
+        let commandInteraction: MessageInteraction | null = null;
+
+        if (interaction.message.interaction)
+        {
+            commandInteraction = interaction.message.interaction;
+        }
+        else if (interaction.message.reference?.messageId)
+        {
+            const referencedMessage = await interaction.message.channel.messages.fetch(interaction.message.reference.messageId);
+            commandInteraction = referencedMessage.interaction;
+        }
+
         const [
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = interaction.message.interaction?.commandName?.split(' ') ?? [];
+        ] = commandInteraction?.commandName?.split(' ') ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);

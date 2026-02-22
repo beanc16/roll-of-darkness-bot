@@ -7,9 +7,9 @@ import {
 
 import { InteractionManagerPage } from './InteractionManagerPage.js';
 
-export type InteractionManagerInteractionType = 'editReply' | 'update';
+export type InteractionManagerInteractionType = 'editReply' | 'update' | 'followUp';
 
-export type InteractionManagerNavigateToOptions<InteractionManagerPageEnum, AdditionalData extends Record<string, string>> = {
+export type InteractionManagerNavigateToOptions<InteractionManagerPageEnum, AdditionalData extends Record<string, string | object | undefined>> = {
     interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction | ModalSubmitInteraction;
     page: InteractionManagerPageEnum;
     interactionType?: InteractionManagerInteractionType;
@@ -19,7 +19,7 @@ export abstract class InteractionManager
 {
     protected static async sendMessage<
         InteractionManagerPageEnum extends string,
-        AdditionalData extends Record<string, string>,
+        AdditionalData extends Record<string, string | object>,
     >(
         options: InteractionManagerNavigateToOptions<InteractionManagerPageEnum, AdditionalData>,
         page: InteractionManagerPage,
@@ -35,6 +35,10 @@ export abstract class InteractionManager
 
             case 'update':
                 await (interaction as StringSelectMenuInteraction).update(page);
+                break;
+
+            case 'followUp':
+                await interaction.followUp(page);
                 break;
 
             default:

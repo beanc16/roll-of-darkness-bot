@@ -1,5 +1,3 @@
-import type { ObjectId } from 'mongodb';
-
 import { RecordSingleton } from '../../../services/Singleton/RecordSingleton.js';
 import { PtuOracleCardCollection } from './models/PtuOracleCardCollection.js';
 import { PtuOracleGameCollection } from './models/PtuOracleGameCollection.js';
@@ -9,10 +7,11 @@ import { OracleGameController } from './PtuOracleGameController.js';
 export type PtuOracleGameToCreate = Omit<
     PtuOracleGameCollection,
     | '_id'
+    | 'id'
     | 'createdAt'
     | 'completedAt'
     | 'discardCardNumbers'
-    | 'rounds'
+    | 'hands'
     | 'status'
 >;
 
@@ -78,44 +77,26 @@ export class PtuOraclePseudoCache
             return cachedCard;
         }
 
-        const { results } = await OracleCardController.getMostRecent({ cardNumber }) as {
-            results: PtuOracleCardCollection | undefined;
-        };
+        const result = await OracleCardController.getMostRecent({ cardNumber }) as PtuOracleCardCollection | undefined;
 
-        if (!results)
+        if (!result)
         {
             throw new Error(`Could not find card with card number ${cardNumber}`);
         }
 
-        return results;
+        return result;
     }
 
-    public static async getGameById(id: ObjectId): Promise<PtuOracleGameCollection>
+    public static async getGameById(id: string): Promise<PtuOracleGameCollection>
     {
-        const { results } = await OracleGameController.getMostRecent({ _id: id }) as {
-            results: PtuOracleGameCollection | undefined;
-        };
+        const result = await OracleGameController.getMostRecent({ _id: id }) as PtuOracleGameCollection | undefined;
 
-        if (!results)
+        if (!result)
         {
-            throw new Error(`Could not find game with id ${id.toString()}`);
+            throw new Error(`Could not find oracle game with id ${id.toString()}`);
         }
 
-        return results;
-    }
-
-    public static async getGameByName(name: string): Promise<PtuOracleGameCollection>
-    {
-        const { results } = await OracleGameController.getMostRecent({ name }) as {
-            results: PtuOracleGameCollection | undefined;
-        };
-
-        if (!results)
-        {
-            throw new Error(`Could not find game with name ${name}`);
-        }
-
-        return results;
+        return result;
     }
 
     public static async createGame(input: PtuOracleGameToCreate): Promise<PtuOracleGameCollection>

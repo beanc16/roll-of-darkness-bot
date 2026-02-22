@@ -1,18 +1,28 @@
-import { InteractionEditReplyOptions, InteractionUpdateOptions } from 'discord.js';
+import {
+    InteractionEditReplyOptions,
+    InteractionReplyOptions,
+    InteractionUpdateOptions,
+} from 'discord.js';
 
 type InteractionEmbedsAndComponents = Pick<
-    InteractionEditReplyOptions | InteractionUpdateOptions,
+    InteractionEditReplyOptions | InteractionUpdateOptions | InteractionReplyOptions,
     'embeds' | 'components'
->;
+> & Pick<InteractionReplyOptions, 'ephemeral'>;
 
 export class InteractionManagerPage implements InteractionEmbedsAndComponents
 {
     public components: InteractionEmbedsAndComponents['components'];
     public embeds: InteractionEmbedsAndComponents['embeds'];
+    public ephemeral?: boolean;
 
-    constructor({ components, embeds }: InteractionEmbedsAndComponents = {})
+    constructor({
+        components,
+        embeds,
+        ephemeral,
+    }: InteractionEmbedsAndComponents = {})
     {
         this.components = components;
         this.embeds = embeds;
+        this.ephemeral = ephemeral;
     }
 }
