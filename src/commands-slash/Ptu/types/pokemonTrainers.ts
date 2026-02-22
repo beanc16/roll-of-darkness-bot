@@ -27,3 +27,14 @@ export enum PtuClassRole
     TrainerCombat = 'Trainer Combat',
     Crafting = 'Crafting',
 }
+
+export enum PtuClassCategory
+{
+    Introductory = 'Introductory',
+    BattlingStyle = 'Battling Style',
+    SpecialistTeam = 'Specialist Team',
+    Professional = 'Professional',
+    Fighter = 'Fighter',
+    Supernatural = 'Supernatural',
+    Mythological = 'Mythological',
+}

@@ -10,7 +10,7 @@ import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import { PokemonType } from '../../types/pokemon.js';
-import { PtuClassRole } from '../../types/pokemonTrainers.js';
+import { PtuClassCategory, PtuClassRole } from '../../types/pokemonTrainers.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
@@ -655,6 +655,200 @@ export class LookupClassStrategy
         }
         return acc;
     }, {} as Record<PtuClassName, Partial<Record<PtuClassRole, number>>>);
+
+    private static ptuClassNameToMetadata = Object.values(PtuClassName).reduce((acc, cur) =>
+    {
+        let category: PtuClassCategory;
+        let source: string;
+
+        switch (cur)
+        {
+            case PtuClassName.AceTrainer:
+            case PtuClassName.CaptureSpecialist:
+            case PtuClassName.Commander:
+            case PtuClassName.Coordinator:
+            case PtuClassName.Hobbyist:
+            case PtuClassName.Mentor:
+                category = PtuClassCategory.Introductory;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Cheerleader:
+            case PtuClassName.Duelist:
+            case PtuClassName.EnduringSoul:
+            case PtuClassName.Juggler:
+            case PtuClassName.Rider:
+            case PtuClassName.Taskmaster:
+            case PtuClassName.Trickster:
+            case PtuClassName.CheerleaderPlaytest:
+                category = PtuClassCategory.BattlingStyle;
+                source = 'Core Rulebook';
+                if (cur === PtuClassName.CheerleaderPlaytest) source = 'September 2015 Playtest';
+                break;
+            case PtuClassName.StatAce:
+            case PtuClassName.AttackAce:
+            case PtuClassName.DefenseAce:
+            case PtuClassName.SpecialAttackAce:
+            case PtuClassName.SpecialDefenseAce:
+            case PtuClassName.SpeedAce:
+            case PtuClassName.StyleExpert:
+            case PtuClassName.BeautyExpert:
+            case PtuClassName.CoolExpert:
+            case PtuClassName.CuteExpert:
+            case PtuClassName.SmartExpert:
+            case PtuClassName.ToughExpert:
+            case PtuClassName.TypeAce:
+            case PtuClassName.BugAce:
+            case PtuClassName.DarkAce:
+            case PtuClassName.DragonAce:
+            case PtuClassName.ElectricAce:
+            case PtuClassName.FairyAce:
+            case PtuClassName.FightingAce:
+            case PtuClassName.FireAce:
+            case PtuClassName.FlyingAce:
+            case PtuClassName.GhostAce:
+            case PtuClassName.GrassAce:
+            case PtuClassName.GroundAce:
+            case PtuClassName.IceAce:
+            case PtuClassName.NormalAce:
+            case PtuClassName.PoisonAce:
+            case PtuClassName.PsychicAce:
+            case PtuClassName.RockAce:
+            case PtuClassName.SteelAce:
+            case PtuClassName.WaterAce:
+                category = PtuClassCategory.SpecialistTeam;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Chef:
+            case PtuClassName.Chronicler:
+            case PtuClassName.Fashionista:
+            case PtuClassName.Researcher:
+            case PtuClassName.GeneralResearcher:
+            case PtuClassName.ApothecaryResearcher:
+            case PtuClassName.ArtificerResearcher:
+            case PtuClassName.BotanyResearcher:
+            case PtuClassName.ChemistryResearcher:
+            case PtuClassName.ClimatologyResearcher:
+            case PtuClassName.OccultismResearcher:
+            case PtuClassName.PaleontologyResearcher:
+            case PtuClassName.PokemonCaretakingResearcher:
+            case PtuClassName.Survivalist:
+            case PtuClassName.EngineerResearcher:
+            case PtuClassName.JailbreakerResearcher:
+            case PtuClassName.UpgraderResearcher:
+            case PtuClassName.Backpacker:
+            case PtuClassName.GadgeteerResearcher:
+            case PtuClassName.GeneralResearcherPlaytest:
+            case PtuClassName.Medic:
+                category = PtuClassCategory.Professional;
+                source = 'Core Rulebook';
+                if (
+                    cur === PtuClassName.EngineerResearcher
+                    || cur === PtuClassName.JailbreakerResearcher
+                    || cur === PtuClassName.UpgraderResearcher
+                ) source = 'Do Porygon Dream of Mareep';
+                if (
+                    cur === PtuClassName.Backpacker
+                    || cur === PtuClassName.GadgeteerResearcher
+                    || cur === PtuClassName.GeneralResearcherPlaytest
+                ) source = 'May 2015 Playtest';
+                if (cur === PtuClassName.Medic) source = 'September 2015 Playtest';
+                break;
+            case PtuClassName.Athlete:
+            case PtuClassName.Dancer:
+            case PtuClassName.Hunter:
+            case PtuClassName.MartialArtist:
+            case PtuClassName.Musician:
+            case PtuClassName.Provocateur:
+            case PtuClassName.Rogue:
+            case PtuClassName.Roughneck:
+            case PtuClassName.Tumbler:
+                category = PtuClassCategory.Fighter;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.AuraGuardian:
+            case PtuClassName.Channeler:
+            case PtuClassName.HexManiac:
+            case PtuClassName.Ninja:
+            case PtuClassName.Oracle:
+            case PtuClassName.Sage:
+            case PtuClassName.Telekinetic:
+            case PtuClassName.Telepath:
+            case PtuClassName.Warper:
+                category = PtuClassCategory.Supernatural;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Berserker:
+            case PtuClassName.RuneMaster:
+            case PtuClassName.Arcanist:
+            case PtuClassName.Fortress:
+            case PtuClassName.Marksman:
+            case PtuClassName.Skirmisher:
+            case PtuClassName.BugElementalist:
+            case PtuClassName.DarkElementalist:
+            case PtuClassName.DragonElementalist:
+            case PtuClassName.ElectricElementalist:
+            case PtuClassName.FairyElementalist:
+            case PtuClassName.FireElementalist:
+            case PtuClassName.FlyingElementalist:
+            case PtuClassName.GhostElementalist:
+            case PtuClassName.GrassElementalist:
+            case PtuClassName.GroundElementalist:
+            case PtuClassName.IceElementalist:
+            case PtuClassName.NormalElementalist:
+            case PtuClassName.PoisonElementalist:
+            case PtuClassName.RockElementalist:
+            case PtuClassName.SteelElementalist:
+            case PtuClassName.WaterElementalist:
+            case PtuClassName.Glitchbender:
+                category = PtuClassCategory.Fighter;
+                source = 'Game of Throhs';
+                if (cur === PtuClassName.Glitchbender) source = 'Do Porygon Dream of Mareep';
+                break;
+            case PtuClassName.Signer:
+            case PtuClassName.Messiah:
+            case PtuClassName.Branded:
+            case PtuClassName.Usurper:
+            case PtuClassName.Inquisitor:
+            case PtuClassName.Scion:
+            case PtuClassName.Cultist:
+            case PtuClassName.Scorned:
+            case PtuClassName.Disciple:
+                category = PtuClassCategory.Mythological;
+                source = 'Blessed and the Damned';
+                if (
+                    cur === PtuClassName.Inquisitor
+                    || cur === PtuClassName.Scion
+                    || cur === PtuClassName.Cultist
+                    || cur === PtuClassName.Scorned
+                    || cur === PtuClassName.Disciple
+                ) source = 'Homebrew';
+                break;
+            default:
+                const typeCheck: never = cur;
+                throw new Error(`Unknown class: ${typeCheck}`);
+        }
+
+        const isHomebrew = new Set<PtuClassName>([
+            PtuClassName.Inquisitor,
+            PtuClassName.Scion,
+            PtuClassName.Cultist,
+            PtuClassName.Scorned,
+            PtuClassName.Disciple,
+        ]).has(cur);
+
+        const [convertedKey] = LookupClassStrategy.convertFeatureNames([cur]);
+        acc[convertedKey as PtuClassName] = {
+            category,
+            source,
+            isHomebrew,
+        };
+        acc[cur] = {
+            category,
+            source,
+            isHomebrew,
+        };
+        return acc;
+    }, {} as Record<PtuClassName, { category: string; source: string; isHomebrew: boolean }>);
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -1996,7 +2190,13 @@ export class LookupClassStrategy
                 },
             });
 
-            return embeds;
+            return embeds.map(embed =>
+            {
+                const feature = curData[0];
+                const { category, source } = this.ptuClassNameToMetadata[feature.name as PtuClassName];
+                embed.setFooter({ text: `Category: ${category} | Source: ${source}` });
+                return embed;
+            });
         });
     }
 
@@ -2006,7 +2206,7 @@ export class LookupClassStrategy
             input: classNames,
             title: 'Classes',
             parseElementToLines: (element) => [
-                Text.bold(element),
+                Text.bold(`${element}${this.ptuClassNameToMetadata[element].isHomebrew ? ' [Homebrew]' : ''}`),
                 this.formatClassRoleMetadata(this.ptuClassNameToClassRole[element]),
                 '',
             ],
