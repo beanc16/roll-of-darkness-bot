@@ -802,6 +802,7 @@ export class LookupClassStrategy
             case PtuClassName.Glitchbender:
                 category = PtuClassCategory.Fighter;
                 source = 'Game of Throhs';
+                if (cur === PtuClassName.RuneMaster) category = PtuClassCategory.Supernatural;
                 if (cur === PtuClassName.Glitchbender) source = 'Do Porygon Dream of Mareep';
                 break;
             case PtuClassName.Signer:
