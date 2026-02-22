@@ -32,6 +32,7 @@ export enum PtuClassName
 
     // Battling Style Classes
     Cheerleader = 'Cheerleader',
+    CheerleaderPlaytest = 'Cheerleader [Playtest]', // September 2015 Playtest Class
     Duelist = 'Duelist',
     EnduringSoul = 'Enduring Soul',
     Juggler = 'Juggler',
@@ -78,6 +79,7 @@ export enum PtuClassName
     Fashionista = 'Fashionista',
     Researcher = 'Researcher',
     GeneralResearcher = 'General Researcher',
+    GeneralResearcherPlaytest = 'General Researcher [Playtest]', // May 2015 Playtest Class
     ApothecaryResearcher = 'Apothecary Researcher',
     ArtificerResearcher = 'Artificer Researcher',
     BotanyResearcher = 'Botany Researcher',
@@ -86,6 +88,10 @@ export enum PtuClassName
     OccultismResearcher = 'Occultism Researcher',
     PaleontologyResearcher = 'Paleontology Researcher',
     PokemonCaretakingResearcher = 'Pokemon Caretaking Researcher',
+    GadgeteerResearcher = 'Gadgeteer Researcher', // May 2015 Playtest Class
+    EngineerResearcher = 'Engineer Researcher', // Do Porygon Dream of Mareep Class
+    JailbreakerResearcher = 'Jailbreaker Researcher', // Do Porygon Dream of Mareep Class
+    UpgraderResearcher = 'Upgrader Researcher', // Do Porygon Dream of Mareep Class
     Survivalist = 'Survivalist',
 
     // Fighter Classes
@@ -135,19 +141,13 @@ export enum PtuClassName
     WaterElementalist = 'Water Elementalist: Maelstrom',
 
     // Do Porygon Dream of Mareep Classes
-    EngineerResearcher = 'Engineer Researcher',
-    JailbreakerResearcher = 'Jailbreaker Researcher',
-    UpgraderResearcher = 'Upgrader Researcher',
     Glitchbender = 'Glitch Bender',
 
     // September 2015 Playtest Classes
-    CheerleaderPlaytest = 'Cheerleader [Playtest]',
     Medic = 'Medic',
 
     // May 2015 Playtest Classes
     Backpacker = 'Backpacker',
-    GadgeteerResearcher = 'Gadgeteer Researcher',
-    GeneralResearcherPlaytest = 'General Researcher [Playtest]',
 
     // Homebrew Book of Divines & Divine Homebrew
     Signer = 'Signer',
