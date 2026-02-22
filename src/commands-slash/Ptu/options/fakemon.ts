@@ -203,6 +203,16 @@ export const viewAll = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     subcommand.setName(PtuFakemonSubcommand.ViewAll);
     subcommand.setDescription('View all custom pokemon.');
 
+    // Region
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
+
     // Not Transferred To
     subcommand.addStringOption((option) =>
     {

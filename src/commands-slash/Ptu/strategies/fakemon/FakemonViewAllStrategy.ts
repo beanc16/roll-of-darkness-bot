@@ -8,7 +8,7 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { FakemonViewAllActionRowBuilder, FakemonViewAllButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewAllActionRowBuilder.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -20,6 +20,7 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
+import { chunkArray } from '../../../../services/chunkArray/chunkArray.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
@@ -36,6 +37,7 @@ export class FakemonViewAllStrategy
     ): Promise<boolean>
     {
         // Get options
+        const region = interaction.options.getString('region') as PtuFakemonDexType | null;
         const notTransferredTo = interaction.options.getString('not_transferred_to') as FakemonDataTransferPipelineKey | null;
 
         // Get fakemon
@@ -48,17 +50,33 @@ export class FakemonViewAllStrategy
             return true;
         }
 
-        // Filter
-        const filteredFakemon = this.filterFakemonNotTransferredTo(fakemon, notTransferredTo);
+        // Filter and chunk
+        const filteredFakemon = this.filterFakemonBasedOnParameters(
+            fakemon,
+            region,
+            notTransferredTo,
+        );
+        const chunkedFakemon = chunkArray({
+            array: filteredFakemon,
+            shouldMoveToNextChunk: (_item, _index, curChunk) => curChunk.length >= 25,
+        });
+
+        // If no fakemon, send error message
+        if (filteredFakemon.length === 0)
+        {
+            await interaction.editReply({
+                content: `Could not find any fakemon with the provided parameters.`,
+            });
+            return true;
+        }
 
         // Send response
         const embeds = this.getEmbeds(filteredFakemon);
         await interaction.followUp({
             embeds,
-            components: [
-                new FakemonViewAllActionRowBuilder(filteredFakemon, 'view'),
-                new FakemonViewAllActionRowBuilder(filteredFakemon, 'edit'),
-            ],
+            components: chunkedFakemon.map((chunk, index) =>
+                new FakemonViewAllActionRowBuilder(chunk, index),
+            ),
         });
 
         return true;
@@ -81,44 +99,14 @@ export class FakemonViewAllStrategy
     public static async runStringSelect(
         interaction: StringSelectMenuInteraction,
         strategies: PtuStrategyMap,
-        metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId, values: [value1] = [] } = interaction as {
+        const { values: [value1] = [] } = interaction as {
             customId: FakemonViewAllButtonCustomIds;
             values: string[];
         };
 
-        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        if (!fakemon)
-        {
-            throw new Error('Fakemon not found');
-        }
-        if (!fakemon.editors.includes(interaction.user.id))
-        {
-            throw new Error('You do not have permission to edit this fakemon');
-        }
-
-        let strategy: PtuChatIteractionStrategy;
-        switch (customId)
-        {
-            case FakemonViewAllButtonCustomIds.FakemonView:
-                strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.View] as unknown as PtuChatIteractionStrategy;
-                break;
-
-            case FakemonViewAllButtonCustomIds.FakemonEdit:
-                strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Edit] as unknown as PtuChatIteractionStrategy;
-                break;
-
-            default:
-                // Run edit subcommand
-                const buttonStrategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.View] as unknown as PtuStringSelectMenuIteractionStrategy;
-                return await buttonStrategy?.runStringSelect(
-                    interaction,
-                    strategies,
-                    metadata,
-                );
-        }
+        const strategy = strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.View] as unknown as PtuChatIteractionStrategy;
 
         await interaction.deferUpdate();
         return await strategy?.run(
@@ -139,14 +127,27 @@ export class FakemonViewAllStrategy
         });
     }
 
-    private static filterFakemonNotTransferredTo(fakemon: PtuFakemonCollection[], notTransferredTo: FakemonDataTransferPipelineKey | null): PtuFakemonCollection[]
+    private static filterFakemonBasedOnParameters(
+        fakemon: PtuFakemonCollection[],
+        region: PtuFakemonDexType | null,
+        notTransferredTo: FakemonDataTransferPipelineKey | null,
+    ): PtuFakemonCollection[]
     {
-        if (!notTransferredTo)
+        if (!region && !notTransferredTo)
         {
             return fakemon;
         }
 
-        return fakemon.filter(curFakemon =>
+        const fakemonFilteredByRegion = !!region
+            ? fakemon.filter(fakemon => fakemon.dexType === region)
+            : fakemon;
+
+        if (!notTransferredTo)
+        {
+            return fakemonFilteredByRegion;
+        }
+
+        return fakemonFilteredByRegion.filter(curFakemon =>
         {
             switch (notTransferredTo)
             {
