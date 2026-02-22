@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { chunkArray } from '../../../../services/chunkArray/chunkArray.js';
 import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { FakemonViewAllActionRowBuilder, FakemonViewAllButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewAllActionRowBuilder.js';
 import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
@@ -20,7 +21,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { chunkArray } from '../../../../services/chunkArray/chunkArray.js';
 
 @staticImplements<
     PtuChatIteractionStrategy
@@ -138,8 +138,8 @@ export class FakemonViewAllStrategy
             return fakemon;
         }
 
-        const fakemonFilteredByRegion = !!region
-            ? fakemon.filter(fakemon => fakemon.dexType === region)
+        const fakemonFilteredByRegion = region
+            ? fakemon.filter(curFakemon => curFakemon.dexType === region)
             : fakemon;
 
         if (!notTransferredTo)

@@ -242,6 +242,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.ptuDatabase': true,
@@ -272,6 +273,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.imageStorage': true,
@@ -302,6 +304,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.googleSheets.pokemonData': true,
@@ -332,6 +335,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.googleSheets.pokemonSkills': true,
@@ -369,6 +373,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.ptuDatabase': true,
@@ -410,6 +415,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
+                // eslint-disable-next-line no-underscore-dangle
                 { _id: fakemon._id },
                 {
                     'transferredTo.imageStorage': true,

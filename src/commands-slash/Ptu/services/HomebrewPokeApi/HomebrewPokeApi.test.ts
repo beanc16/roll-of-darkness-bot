@@ -1,7 +1,7 @@
 import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
-import { HomebrewPokeApi } from './HomebrewPokeApi.js';
 import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
+import { HomebrewPokeApi } from './HomebrewPokeApi.js';
 
 describe('class: HomebrewPokeApi', () =>
 {

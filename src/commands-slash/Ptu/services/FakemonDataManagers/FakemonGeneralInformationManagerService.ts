@@ -139,6 +139,7 @@ export class FakemonGeneralInformationManagerService
                 new: output,
             },
         } = await FakemonController.findOneAndUpdate({
+            // eslint-disable-next-line no-underscore-dangle
             _id: fakemon._id,
         }, updateData) as {
             results: {

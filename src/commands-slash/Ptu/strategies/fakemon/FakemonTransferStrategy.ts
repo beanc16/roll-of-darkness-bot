@@ -241,7 +241,11 @@ export class FakemonTransferStrategy
             }
         });
 
-        return { speciesName, dexType, destinations: [...destinationsSet] };
+        return {
+            speciesName,
+            dexType,
+            destinations: [...destinationsSet],
+        };
     }
 
     private static convertTransferredToForDisplay(fakemon: Pick<PtuFakemonCollection, 'transferredTo'>): string

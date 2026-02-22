@@ -15,6 +15,7 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
 import { PaginationInteractionType, PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { LookupPokemonActionRowBuilder, LookupPokemonCustomId } from '../../components/lookup/LookupPokemonActionRowBuilder.js';
+import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuPokemonCollection } from '../../dal/models/PtuPokemonCollection.js';
 import { PokemonController } from '../../dal/PtuController.js';
 import {
@@ -39,7 +40,6 @@ import {
     PtuPokemon,
 } from '../../types/pokemon.js';
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
-import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 
 interface GetOptionsResponse
 {
@@ -285,7 +285,12 @@ export class LookupPokemonStrategy
             }
 
             return acc;
-        }, { speciesNames: [], edenNames: [], meridiaNames: [], magalamNames: [] });
+        }, {
+            speciesNames: [],
+            edenNames: [],
+            meridiaNames: [],
+            magalamNames: [],
+        });
 
         // Don't include images for substring searches
         const imageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
