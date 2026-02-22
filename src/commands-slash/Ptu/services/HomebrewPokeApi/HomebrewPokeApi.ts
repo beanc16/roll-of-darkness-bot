@@ -1,5 +1,6 @@
 import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { logger } from '@beanc16/logger';
+import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 
 interface HomebrewGetImageUrlResponse
 {
@@ -10,7 +11,6 @@ interface HomebrewGetImageUrlResponse
 export class HomebrewPokeApi
 {
     private static unknownImageUrl: string | undefined = undefined;
-    private static pokemonNestedFolders = 'ptu-pokedex/eden-dex';
     private static fakemonNestedFolders = 'fakemon-commands';
 
     /* istanbul ignore next */
@@ -19,12 +19,34 @@ export class HomebrewPokeApi
         return this.unknownImageUrl;
     }
 
-    public static async getPokemonUrl(speciesName: string): Promise<string>
+    private static getNestedFolders(dexType: PtuFakemonDexType): string
+    {
+        let suffix = '';
+
+        switch (dexType)
+        {
+            case PtuFakemonDexType.Eden:
+                suffix = 'eden-dex';
+                break;
+            case PtuFakemonDexType.Meridia:
+                suffix = 'meridia-dex';
+                break;
+            case PtuFakemonDexType.Magalam:
+                suffix = 'magalam-dex';
+                break;
+            default:
+                throw new Error(`Unsupported dex type for fetching images: ${dexType}`);
+        }
+
+        return `ptu-pokedex/${suffix}`;
+    }
+
+    public static async getPokemonUrl(speciesName: string, dexType: PtuFakemonDexType): Promise<string>
     {
         const file = await FileStorageService.get({
             appId: process.env.APP_ID as string,
             fileName: speciesName,
-            nestedFolders: this.pokemonNestedFolders,
+            nestedFolders: this.getNestedFolders(dexType),
             resourceType: FileStorageResourceType.Image,
         });
 
@@ -146,7 +168,7 @@ export class HomebrewPokeApi
             const file = await FileStorageService.get({
                 appId: process.env.APP_ID as string,
                 fileName: 'Unknown',
-                nestedFolders: 'ptu-pokedex/eden-dex',
+                nestedFolders: this.getNestedFolders(PtuFakemonDexType.Eden),
                 resourceType: FileStorageResourceType.Image,
             });
 
@@ -163,15 +185,46 @@ export class HomebrewPokeApi
         }
     }
 
-    public static async getPokemonImageUrls(names?: string[]): Promise<HomebrewGetImageUrlResponse[] | undefined>
+    public static async getPokemonImageUrls(input: {
+        edenNames?: string[];
+        meridiaNames?: string[];
+        magalamNames?: string[];
+    }): Promise<HomebrewGetImageUrlResponse[] | undefined>
     {
-        if (names === undefined || names.length === 0)
+        // Flatten all arrays into one
+        const allNames = Object.values(input).reduce<string[]>((acc, cur) =>
+        {
+            cur?.forEach(name => acc.push(name));
+            return acc;
+        }, []);
+
+        // If no names are provided, return undefined
+        if (allNames.length === 0)
         {
             return undefined;
         }
 
-        const promises = names.map(name => this.getPokemonUrl(name));
+        const {
+            edenNames,
+            meridiaNames,
+            magalamNames,
+        } = input;
 
+        // Construct array of promises
+        const promises: (Promise<string>)[] = [];
+
+        // TODO: Add bulk get method to FileStorageService so we don't have to make multiple requests
+        edenNames?.forEach(name =>
+            promises.push(this.getPokemonUrl(name, PtuFakemonDexType.Eden)),
+        );
+        meridiaNames?.forEach(name =>
+            promises.push(this.getPokemonUrl(name, PtuFakemonDexType.Meridia)),
+        );
+        magalamNames?.forEach(name =>
+            promises.push(this.getPokemonUrl(name, PtuFakemonDexType.Magalam)),
+        );
+
+        // Get all urls
         const results = await Promise.allSettled(promises);
 
         const output = results.reduce<HomebrewGetImageUrlResponse[]>((acc, cur, index) =>
@@ -179,7 +232,7 @@ export class HomebrewPokeApi
             // Image could not be found, therefore use unknown image url
             if (cur.status === 'rejected' && this.unknownImageUrl !== undefined)
             {
-                acc.push({ name: names[index], imageUrl: this.unknownImageUrl });
+                acc.push({ name: allNames[index], imageUrl: this.unknownImageUrl });
                 return acc;
             }
 
@@ -188,7 +241,7 @@ export class HomebrewPokeApi
             {
                 const { value: url } = cur;
                 const urlWithoutSpecialCharacters = url.replaceAll(/%20/g, ' ').replaceAll(/%28/g, '(').replaceAll(/%29/g, ')');
-                const pokemonName = names.find(name => urlWithoutSpecialCharacters.toLowerCase().includes(name.toLowerCase()));
+                const pokemonName = allNames.find(name => urlWithoutSpecialCharacters.toLowerCase().includes(name.toLowerCase()));
 
                 if (pokemonName)
                 {

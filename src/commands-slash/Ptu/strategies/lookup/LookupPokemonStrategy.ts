@@ -39,6 +39,7 @@ import {
     PtuPokemon,
 } from '../../types/pokemon.js';
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
+import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 
 interface GetOptionsResponse
 {
@@ -254,11 +255,29 @@ export class LookupPokemonStrategy
         const { results: untypedResults = [] } = await PokemonController.getAll(searchParams);
         const results = untypedResults as PtuPokemonCollection[];
 
-        const { speciesNames, edenNames } = results.reduce<{ speciesNames: string[]; edenNames: string[] }>((acc, { name: pokemonName, metadata: { source } }) =>
+        const {
+            speciesNames,
+            edenNames,
+            meridiaNames,
+            magalamNames,
+        } = results.reduce<{
+            speciesNames: string[];
+            edenNames: string[];
+            meridiaNames: string[];
+            magalamNames: string[];
+        }>((acc, { name: pokemonName, metadata: { source } }) =>
         {
-            if (source === 'Eden Dex')
+            if (source === `${PtuFakemonDexType.Eden} Dex`)
             {
                 acc.edenNames.push(pokemonName);
+            }
+            else if (source === `${PtuFakemonDexType.Meridia} Dex`)
+            {
+                acc.meridiaNames.push(pokemonName);
+            }
+            else if (source === `${PtuFakemonDexType.Magalam} Dex`)
+            {
+                acc.magalamNames.push(pokemonName);
             }
             else
             {
@@ -266,15 +285,19 @@ export class LookupPokemonStrategy
             }
 
             return acc;
-        }, { speciesNames: [], edenNames: [] });
+        }, { speciesNames: [], edenNames: [], meridiaNames: [], magalamNames: [] });
 
         // Don't include images for substring searches
         const imageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
             ? await PokeApi.getImageUrls(speciesNames)
             : undefined;
 
-        const edenImageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
-            ? await HomebrewPokeApi.getPokemonImageUrls(edenNames)
+        const homebrewPokemonImageUrlResults = (names && names.length > 0 && lookupType !== RegexLookupType.SubstringCaseInsensitive)
+            ? await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames,
+                meridiaNames,
+                magalamNames,
+            })
             : undefined;
 
         // Try to add imageUrl to pokemon result
@@ -283,7 +306,7 @@ export class LookupPokemonStrategy
             const result = collection.toPtuPokemon();
             const { imageUrl } = imageUrlResults?.find(curImageResult =>
                 curImageResult.name === PokeApi.parseName(result.name),
-            ) ?? edenImageUrlResults?.find(curImageResult =>
+            ) ?? homebrewPokemonImageUrlResults?.find(curImageResult =>
                 curImageResult.name === result.name,
             ) ?? {};
 
