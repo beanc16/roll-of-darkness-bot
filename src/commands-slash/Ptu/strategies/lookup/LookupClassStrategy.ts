@@ -848,7 +848,7 @@ export class LookupClassStrategy
             isHomebrew,
         };
         return acc;
-    }, {} as Record<PtuClassName, { category: string; source: string; isHomebrew: boolean }>);
+    }, {} as Record<PtuClassName, { category: PtuClassCategory; source: string; isHomebrew: boolean }>);
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
@@ -858,12 +858,21 @@ export class LookupClassStrategy
         const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
         const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
         const names = [name1, name2, name3, name4].filter(element => element !== null);
+        const category = interaction.options.getString('category') as PtuClassCategory | null;
         const sortByClassRole = interaction.options.getString('sort_by_class_role') as PtuClassRole | null;
 
         // Return list of all classes if no name is given
         if (names.length === 0)
         {
-            const classNames = Object.values(PtuClassName);
+            let classNames = Object.values(PtuClassName);
+
+            // Filter if category is given
+            if (category)
+            {
+                classNames = classNames.filter(element =>
+                    this.ptuClassNameToMetadata[element].category === category,
+                );
+            }
 
             // Sort if class role is given
             if (sortByClassRole)
