@@ -3,6 +3,7 @@ import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from
 import { imageOption, imageUrlOption } from '../../shared/options/image.js';
 import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+import { PtuFakemonDexType } from '../dal/models/PtuFakemonCollection.js';
 
 export enum PtuFakemonSubcommand
 {
@@ -16,6 +17,30 @@ export enum PtuFakemonSubcommand
 }
 
 const reportingDestinationChoices = Object.values(FakemonDataTransferPipelineKey).map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+const regionChoices = [
+    PtuFakemonDexType.Eden,
+    PtuFakemonDexType.Meridia,
+    PtuFakemonDexType.Magalam,
+].map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+const dexTypeChoices = Object.values(PtuFakemonDexType).map<APIApplicationCommandOptionChoice<string>>(
     (value) =>
     {
         return {
