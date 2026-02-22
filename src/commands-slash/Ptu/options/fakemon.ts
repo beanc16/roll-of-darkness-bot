@@ -1,6 +1,7 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
 import { imageOption, imageUrlOption } from '../../shared/options/image.js';
+import { PtuFakemonDexType } from '../dal/models/PtuFakemonCollection.js';
 import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 
@@ -25,6 +26,30 @@ const reportingDestinationChoices = Object.values(FakemonDataTransferPipelineKey
     },
 );
 
+const regionChoices = [
+    PtuFakemonDexType.Eden,
+    PtuFakemonDexType.Meridia,
+    PtuFakemonDexType.Magalam,
+].map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+const dexTypeChoices = Object.values(PtuFakemonDexType).map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
 export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuFakemonSubcommand.Create);
@@ -34,6 +59,16 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     {
         option.setName('species_name');
         option.setDescription(`The name of the custom Pokémon species.`);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        option.setChoices(
+            ...regionChoices,
+        );
         return option.setRequired(true);
     });
 
@@ -113,6 +148,15 @@ export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return option.setRequired(true);
     });
 
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
+
     subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
     subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
 
@@ -141,6 +185,16 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
         option.setDescription(`The name of the custom Pokémon species.`);
         option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon species.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
         return option.setRequired(true);
     });
 
@@ -177,6 +231,16 @@ export const viewAll = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
 {
     subcommand.setName(PtuFakemonSubcommand.ViewAll);
     subcommand.setDescription('View all custom pokemon.');
+
+    // Region
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
 
     // Not Transferred To
     subcommand.addStringOption((option) =>

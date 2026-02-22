@@ -12,6 +12,7 @@ import {
     PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
+import { PtuClassCategory, PtuClassRole } from '../types/pokemonTrainers.js';
 import { BerryTier } from '../types/PtuBerry.js';
 import { PtuEquipmentSlot } from '../types/PtuEquipment.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
@@ -190,6 +191,40 @@ export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCo
             option.setDescription(`The class' name.`);
             return option.setAutocomplete(true);
         });
+    });
+
+    // Class Role
+    const roleChoices = Object.values(PtuClassRole).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('sort_by_class_role');
+        option.setDescription(`Show all classes, but with the given class role sorted highest in the list.`);
+        return option.addChoices(...roleChoices);
+    });
+
+    // Class Category
+    const categoryChoices = Object.values(PtuClassCategory).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
+        {
+            return {
+                name: value,
+                value,
+            };
+        },
+    );
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('category');
+        option.setDescription(`The category of classes to look up.`);
+        return option.addChoices(...categoryChoices);
     });
 
     return subcommand;

@@ -8,10 +8,21 @@ import { FakemonDexNumberPrefix, FakemonGeneralInformationManagerService } from 
 export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonCollection, PtuPokemonCollection>
 {
     private readonly dexTypeToPrefix: Record<PtuFakemonDexType, FakemonDexNumberPrefix> = {
+        // Eden
         [PtuFakemonDexType.Eden]: FakemonDexNumberPrefix.Eden,
         [PtuFakemonDexType.EdenParadox]: FakemonDexNumberPrefix.EdenParadox,
         [PtuFakemonDexType.EdenDrained]: FakemonDexNumberPrefix.EdenDrained,
         [PtuFakemonDexType.EdenLegendary]: FakemonDexNumberPrefix.EdenLegendary,
+
+        // Meridia
+        [PtuFakemonDexType.Meridia]: FakemonDexNumberPrefix.Meridia,
+        [PtuFakemonDexType.MeridiaParadox]: FakemonDexNumberPrefix.MeridiaParadox,
+        [PtuFakemonDexType.MeridiaLegendary]: FakemonDexNumberPrefix.MeridiaLegendary,
+
+        // Magalam
+        [PtuFakemonDexType.Magalam]: FakemonDexNumberPrefix.Magalam,
+        [PtuFakemonDexType.MagalamParadox]: FakemonDexNumberPrefix.MagalamParadox,
+        [PtuFakemonDexType.MagalamLegendary]: FakemonDexNumberPrefix.MagalamLegendary,
     };
 
     public async transform(input: PtuFakemonCollection, index = 0): Promise<PtuPokemonCollection>

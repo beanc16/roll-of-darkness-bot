@@ -20,11 +20,19 @@ jest.mock('../../../FakemonGeneralInformationManagerService', () =>
 describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
 {
     let adapter: FakemonCollectionToPtuCollectionAdapter;
+    let maxDexNumber: number;
+    let defaultMaxDexNumbersMap: Record<FakemonDexNumberPrefix, number>;
 
     beforeEach(() =>
     {
         jest.clearAllMocks();
         adapter = new FakemonCollectionToPtuCollectionAdapter();
+        maxDexNumber = 100;
+        defaultMaxDexNumbersMap = Object.values(FakemonDexNumberPrefix).reduce((acc, cur) =>
+        {
+            acc[cur] = maxDexNumber;
+            return acc;
+        }, {} as Record<FakemonDexNumberPrefix, number>);
     });
 
     describe(`method: ${FakemonCollectionToPtuCollectionAdapter.prototype.transform.name}`, () =>
@@ -39,14 +47,8 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
             // Arrange
             const fakemon = createPtuFakemonCollectionData({ dexType });
             fakemon.moveList.zygardeCubeMoves = undefined;
-            const maxDexNumber = 100;
             const getCurrentMaxDexNumbersSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
-                .mockResolvedValue({
-                    [FakemonDexNumberPrefix.Eden]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenParadox]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenDrained]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenLegendary]: maxDexNumber,
-                });
+                .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
             const result = await adapter.transform(fakemon);
@@ -88,15 +90,9 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         {
             // Arrange
             const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const maxDexNumber = 100;
             const index = 5;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
-                .mockResolvedValue({
-                    [FakemonDexNumberPrefix.Eden]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenParadox]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenDrained]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenLegendary]: maxDexNumber,
-                });
+                .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
             const result = await adapter.transform(fakemon, index);
@@ -109,14 +105,8 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         {
             // Arrange
             const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const maxDexNumber = 100;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
-                .mockResolvedValue({
-                    [FakemonDexNumberPrefix.Eden]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenParadox]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenDrained]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenLegendary]: maxDexNumber,
-                });
+                .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
             const result = await adapter.transform(fakemon);
@@ -131,12 +121,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
             const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             fakemon.edits = undefined;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
-                .mockResolvedValue({
-                    [FakemonDexNumberPrefix.Eden]: 100,
-                    [FakemonDexNumberPrefix.EdenParadox]: 100,
-                    [FakemonDexNumberPrefix.EdenDrained]: 100,
-                    [FakemonDexNumberPrefix.EdenLegendary]: 100,
-                });
+                .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
             const result = await adapter.transform(fakemon);
@@ -157,14 +142,8 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
             const fakemon1 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const fakemon2 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const fakemon3 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const maxDexNumber = 100;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
-                .mockResolvedValue({
-                    [FakemonDexNumberPrefix.Eden]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenParadox]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenDrained]: maxDexNumber,
-                    [FakemonDexNumberPrefix.EdenLegendary]: maxDexNumber,
-                });
+                .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
             const results = await adapter.transformBulk([fakemon1, fakemon2, fakemon3]);

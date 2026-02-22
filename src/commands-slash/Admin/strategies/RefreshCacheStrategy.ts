@@ -399,6 +399,7 @@ export class RefreshCacheStrategy
             ],
             [RefreshCacheCommand.Ptu]: [
                 DiscordUserId.Bean,
+                DiscordUserId.Avery,
                 DiscordUserId.Josh,
             ],
         };

@@ -8,7 +8,6 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
-import { DiscordUserId } from '../../../../types/discord.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
 import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
@@ -82,6 +81,7 @@ import type {
 interface FakemonCreateGetParameterResults
 {
     speciesName: string;
+    region: PtuFakemonDexType;
     baseSpeciesOn: string | null;
     baseMovesOn: string | null;
     baseAbilitiesOn: string | null;
@@ -179,7 +179,7 @@ export class FakemonCreateStrategy
             imageUrl: HomebrewPokeApi.unknownPokemonUrl,
         },
         megaEvolutions: [],
-        editors: [DiscordUserId.Bean],
+        editors: [],
         status: PtuFakemonStatus.DRAFT,
         dexType: PtuFakemonDexType.Eden,
         feedbacks: [],
@@ -200,6 +200,7 @@ export class FakemonCreateStrategy
     {
         const {
             speciesName,
+            region,
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
@@ -225,6 +226,7 @@ export class FakemonCreateStrategy
         const uploadedImageUrl = await this.initializeFakemonImage(speciesName, processedImageUrl);
         await this.initializeFakemon({
             speciesName,
+            region,
             messageId: message.id,
             creationChannelId: interaction.channelId,
             userId: interaction.user.id,
@@ -1064,6 +1066,7 @@ export class FakemonCreateStrategy
     private static getOptions(interaction: ChatInputCommandInteraction): FakemonCreateGetParameterResults
     {
         const speciesName = interaction.options.getString('species_name', true);
+        const region = interaction.options.getString('region', true) as PtuFakemonDexType;
         const baseSpeciesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseSpeciesOn);
         const baseMovesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseMovesOn);
         const baseAbilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseAbilitiesOn);
@@ -1077,6 +1080,7 @@ export class FakemonCreateStrategy
 
         return {
             speciesName,
+            region,
             baseSpeciesOn,
             baseMovesOn,
             baseAbilitiesOn,
@@ -1089,6 +1093,7 @@ export class FakemonCreateStrategy
 
     private static async initializeFakemon({
         speciesName,
+        region,
         messageId,
         creationChannelId,
         userId,
@@ -1097,6 +1102,7 @@ export class FakemonCreateStrategy
         uploadedImageUrl,
     }: {
         speciesName: string;
+        region: PtuFakemonDexType;
         messageId: string;
         creationChannelId: string;
         userId: string;
@@ -1195,8 +1201,10 @@ export class FakemonCreateStrategy
                 },
             },
             skills,
+            dexType: region,
             metadata: {
                 ...this.basePokemon.metadata,
+                source: `${region} Dex`,
                 ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
             },
             creationChannelId,

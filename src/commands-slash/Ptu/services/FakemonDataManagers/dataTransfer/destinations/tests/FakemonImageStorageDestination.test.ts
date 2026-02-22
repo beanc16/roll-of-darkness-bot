@@ -63,7 +63,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
             expect(getFakemonUrlSpy).toHaveBeenCalledTimes(1);
             expect(getFakemonUrlSpy).toHaveBeenCalledWith(source.name);
             expect(transferFakemonImageToPokemonSpy).toHaveBeenCalledTimes(1);
-            expect(transferFakemonImageToPokemonSpy).toHaveBeenCalledWith(source.name);
+            expect(transferFakemonImageToPokemonSpy).toHaveBeenCalledWith(source.name, source.dexType);
             expect(updateTransferredToSpy).toHaveBeenCalledTimes(1);
             expect(updateTransferredToSpy).toHaveBeenCalledWith({
                 fakemon: source,
@@ -209,7 +209,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
 
             // Assert
             expect(getPokemonUrlSpy).toHaveBeenCalledTimes(1);
-            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name);
+            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name, source.dexType);
             expect(result).toBe(true);
         });
 
@@ -242,7 +242,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
 
             // Assert
             expect(getPokemonUrlSpy).toHaveBeenCalledTimes(1);
-            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name);
+            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name, source.dexType);
             expect(result).toBe(false);
         });
 
@@ -259,7 +259,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
 
             // Assert
             expect(getPokemonUrlSpy).toHaveBeenCalledTimes(1);
-            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name);
+            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name, source.dexType);
             expect(result).toBe(false);
         });
 
@@ -277,7 +277,7 @@ describe(`class: ${FakemonImageStorageDestination.name}`, () =>
 
             // Assert
             expect(getPokemonUrlSpy).toHaveBeenCalledTimes(1);
-            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name);
+            expect(getPokemonUrlSpy).toHaveBeenCalledWith(source.name, source.dexType);
             expect(result).toBe(false);
         });
     });

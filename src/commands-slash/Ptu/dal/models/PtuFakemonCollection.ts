@@ -14,10 +14,21 @@ export enum PtuFakemonStatus
 
 export enum PtuFakemonDexType
 {
+    // Eden
     Eden = 'Eden',
     EdenParadox = 'Eden Paradox',
     EdenDrained = 'Eden Drained',
     EdenLegendary = 'Eden Legendary',
+
+    // Meridia
+    Meridia = 'Meridia',
+    MeridiaParadox = 'Meridia Paradox',
+    MeridiaLegendary = 'Meridia Legendary',
+
+    // Magalam
+    Magalam = 'Magalam',
+    MagalamParadox = 'Magalam Paradox',
+    MagalamLegendary = 'Magalam Legendary',
 }
 
 interface PtuFakemonFeedback extends Partial<Omit<PtuPokemon, 'name' | 'olderVersions'>>
