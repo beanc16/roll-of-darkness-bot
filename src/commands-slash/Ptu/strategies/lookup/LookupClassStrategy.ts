@@ -10,6 +10,7 @@ import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import { PokemonType } from '../../types/pokemon.js';
+import { PtuClassRole } from '../../types/pokemonTrainers.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
@@ -158,15 +159,6 @@ export enum PtuClassName
     Cultist = 'Cultist',
     Scorned = 'Scorned',
     Disciple = 'Disciple',
-}
-
-enum PtuClassRole
-{
-    PassivePokemonSupport = 'Passive Pokemon Support',
-    ActivePokemonSupport = 'Active Pokemon Support',
-    TravelAndInvestigation = 'Travel and Investigation',
-    TrainerCombat = 'Trainer Combat',
-    Crafting = 'Crafting',
 }
 
 @staticImplements<PtuLookupIteractionStrategy>()
@@ -672,12 +664,30 @@ export class LookupClassStrategy
         const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
         const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
         const names = [name1, name2, name3, name4].filter(element => element !== null);
+        const sortByClassRole = interaction.options.getString('sort_by_class_role') as PtuClassRole | null;
 
         // Return list of all classes if no name is given
         if (names.length === 0)
         {
-            const embeds = this.getClassListEmbedMessages();
+            const classNames = Object.values(PtuClassName);
 
+            // Sort if class role is given
+            if (sortByClassRole)
+            {
+                classNames.sort((a, b) =>
+                {
+                    const aRoleMap = this.ptuClassNameToClassRole[a];
+                    const bRoleMap = this.ptuClassNameToClassRole[b];
+
+                    const aRoleValue = aRoleMap[sortByClassRole] || 0;
+                    const bRoleValue = bRoleMap[sortByClassRole] || 0;
+
+                    return bRoleValue - aRoleValue;
+                });
+            }
+
+            // Send message
+            const embeds = this.getClassListEmbedMessages(classNames);
             return await LookupStrategy.run(interaction, embeds, {
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
                 noEmbedsErrorMessage: 'No classes were found.',
@@ -1990,10 +2000,8 @@ export class LookupClassStrategy
         });
     }
 
-    public static getClassListEmbedMessages(): EmbedBuilder[]
+    public static getClassListEmbedMessages(classNames: PtuClassName[]): EmbedBuilder[]
     {
-        const classNames = Object.values(PtuClassName);
-
         const embeds = getPagedEmbedMessages({
             input: classNames,
             title: 'Classes',
