@@ -148,6 +148,15 @@ export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return option.setRequired(true);
     });
 
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
+
     subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
     subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
 

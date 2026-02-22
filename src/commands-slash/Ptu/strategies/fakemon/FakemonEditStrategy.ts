@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -25,6 +25,7 @@ import type {
 interface FakemonEditGetParameterResults
 {
     speciesName: string;
+    region: PtuFakemonDexType | null;
     processedImageUrl: string | null;
     coEditorToAdd: User | null;
     coEditorToRemove: User | null;
@@ -50,6 +51,7 @@ export class FakemonEditStrategy
     {
         const {
             speciesName,
+            region,
             processedImageUrl,
             coEditorToAdd,
             coEditorToRemove,
@@ -65,12 +67,13 @@ export class FakemonEditStrategy
             return true;
         }
 
-        // Initialize initial fakemon data
+        // Update fakemon data
         const message = await interaction.fetchReply();
         const updatedImageUrl = await this.updateUploadedFakemonImage(speciesName, processedImageUrl);
-        await this.updateCoEditorsAndImageUrl({
+        await this.updateFakemon({
             fakemon,
             messageId: message.id,
+            region,
             coEditorToAdd,
             coEditorToRemove,
             updatedImageUrl,
@@ -140,6 +143,7 @@ export class FakemonEditStrategy
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
+        const region = interaction.options.getString('region') as PtuFakemonDexType | null;
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
         const coEditorToAdd = interaction.options.getUser('co_editor_to_add');
@@ -149,31 +153,37 @@ export class FakemonEditStrategy
 
         return {
             speciesName,
+            region,
             processedImageUrl,
             coEditorToAdd,
             coEditorToRemove,
         };
     }
 
-    private static async updateCoEditorsAndImageUrl({
+    private static async updateFakemon({
         fakemon,
         messageId,
+        region,
         coEditorToAdd,
         coEditorToRemove,
         updatedImageUrl,
     }: {
         fakemon: PtuFakemonCollection;
         messageId: string;
+        region: PtuFakemonDexType | null;
         coEditorToAdd: User | null;
         coEditorToRemove: User | null;
         updatedImageUrl?: string;
     }): Promise<PtuFakemonCollection>
     {
-        if (!(coEditorToAdd || coEditorToRemove || updatedImageUrl))
+        if (!(region || coEditorToAdd || coEditorToRemove || updatedImageUrl))
         {
             PtuFakemonPseudoCache.addToCache(messageId, fakemon);
             return fakemon;
         }
+
+        const shouldUpdateDexType = !!region && region !== fakemon.dexType;
+        const newRegionName = region || fakemon.dexType;
 
         const newEditors = [
             // Only keep unique editors
@@ -189,26 +199,31 @@ export class FakemonEditStrategy
             ),
         ];
 
-        // Editors array did not change and image did not change
+        // None of the input values changed
         if (
             fakemon.editors.length === newEditors.length
             && fakemon.editors.every((element, index) =>
                 element === newEditors[index],
             )
             && !updatedImageUrl
+            && !shouldUpdateDexType
         )
         {
             PtuFakemonPseudoCache.addToCache(messageId, fakemon);
             return fakemon;
         }
 
-        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+        const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            ...(shouldUpdateDexType && { dexType: region }),
             editors: newEditors,
             metadata: {
                 ...fakemon.metadata,
+                ...(shouldUpdateDexType && { source: `${newRegionName} Dex` }),
                 imageUrl: updatedImageUrl || fakemon.metadata.imageUrl,
             },
         });
+        PtuFakemonPseudoCache.addToCache(messageId, updatedFakemon);
+        return updatedFakemon;
     }
 
     private static async updateUploadedFakemonImage(speciesName: string, imageUrl: string | null): Promise<string | undefined>
