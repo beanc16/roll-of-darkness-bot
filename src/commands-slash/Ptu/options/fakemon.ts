@@ -64,6 +64,16 @@ export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
 
     subcommand.addStringOption((option) =>
     {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        option.setChoices(
+            ...regionChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
         option.setName(PtuAutocompleteParameterName.BaseSpeciesOn);
         option.setDescription(`The species to base the custom Pokémon on.`);
         return option.setAutocomplete(true);
