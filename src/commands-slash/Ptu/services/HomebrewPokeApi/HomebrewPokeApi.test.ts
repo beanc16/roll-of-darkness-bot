@@ -1,12 +1,14 @@
 import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 
 import { HomebrewPokeApi } from './HomebrewPokeApi.js';
+import { PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 
 describe('class: HomebrewPokeApi', () =>
 {
     beforeEach(() =>
     {
         jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     describe('method: getPokemonUrl', () =>
@@ -18,8 +20,18 @@ describe('class: HomebrewPokeApi', () =>
                 // @ts-expect-error -- Only include the necessary data for testing
                 .mockResolvedValueOnce({ url });
 
-            const result = await HomebrewPokeApi.getPokemonUrl('Pikachu');
+            const result = await HomebrewPokeApi.getPokemonUrl('Pikachu', PtuFakemonDexType.Eden);
             expect(result).toEqual(url);
+        });
+
+        it('should throw an error if dex type does not map to a dex', async () =>
+        {
+            jest.spyOn(FileStorageService, 'get')
+                .mockResolvedValueOnce(undefined);
+
+            await expect(
+                HomebrewPokeApi.getPokemonUrl('Pikachu', PtuFakemonDexType.EdenLegendary),
+            ).rejects.toThrow(`Unsupported dex type for fetching images: ${PtuFakemonDexType.EdenLegendary}`);
         });
 
         it('should throw an error if file storage service returns undefined', async () =>
@@ -28,7 +40,7 @@ describe('class: HomebrewPokeApi', () =>
                 .mockResolvedValueOnce(undefined);
 
             await expect(
-                HomebrewPokeApi.getPokemonUrl('Pikachu'),
+                HomebrewPokeApi.getPokemonUrl('Pikachu', PtuFakemonDexType.Eden),
             ).rejects.toThrow('Pokemon image not found');
         });
     });
@@ -180,15 +192,27 @@ describe('class: HomebrewPokeApi', () =>
 
     describe('method: getPokemonImageUrls', () =>
     {
-        it('should return undefined if names is undefined', async () =>
+        it('should return undefined if all parameters are undefined', async () =>
         {
-            const result = await HomebrewPokeApi.getPokemonImageUrls(undefined);
+            const result = await HomebrewPokeApi.getPokemonImageUrls({});
             expect(result).toBeUndefined();
         });
 
-        it('should return undefined if names is empty', async () =>
+        it('should return undefined if some names are empty and others are undefined', async () =>
         {
-            const result = await HomebrewPokeApi.getPokemonImageUrls([]);
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: [],
+            });
+            expect(result).toBeUndefined();
+        });
+
+        it('should return undefined if all names are empty', async () =>
+        {
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: [],
+                meridiaNames: [],
+                magalamNames: [],
+            });
             expect(result).toBeUndefined();
         });
 
@@ -200,7 +224,9 @@ describe('class: HomebrewPokeApi', () =>
             });
 
             const names = ['Pikachu'];
-            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: names,
+            });
             expect(result).toEqual([]);
         });
 
@@ -213,7 +239,9 @@ describe('class: HomebrewPokeApi', () =>
                 .mockResolvedValueOnce({ url: 'https://example.com/charizard.png' });
 
             const names = ['Pikachu', 'Charizard'];
-            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: names,
+            });
 
             expect(result).toEqual([
                 {
@@ -227,6 +255,38 @@ describe('class: HomebrewPokeApi', () =>
             ]);
         });
 
+        it('should call getByNames and return image urls with all name arrays', async () =>
+        {
+            jest.spyOn(FileStorageService, 'get')
+                // @ts-expect-error -- Only include the necessary data for testing
+                .mockResolvedValueOnce({ url: 'https://example.com/pikachu.png' })
+                // @ts-expect-error -- Only include the necessary data for testing
+                .mockResolvedValueOnce({ url: 'https://example.com/charizard.png' })
+                // @ts-expect-error -- Only include the necessary data for testing
+                .mockResolvedValueOnce({ url: 'https://example.com/blastoise.png' });
+
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: ['Pikachu'],
+                meridiaNames: ['Charizard'],
+                magalamNames: ['Blastoise'],
+            });
+
+            expect(result).toEqual([
+                {
+                    name: 'Pikachu',
+                    imageUrl: 'https://example.com/pikachu.png',
+                },
+                {
+                    name: 'Charizard',
+                    imageUrl: 'https://example.com/charizard.png',
+                },
+                {
+                    name: 'Blastoise',
+                    imageUrl: 'https://example.com/blastoise.png',
+                },
+            ]);
+        });
+
         it('should use unknown image url when promise is rejected', async () =>
         {
             jest.spyOn(FileStorageService, 'get')
@@ -235,7 +295,9 @@ describe('class: HomebrewPokeApi', () =>
 
             HomebrewPokeApi['unknownImageUrl'] = 'https://example.com/unknown.png';
             const names = ['Pikachu', 'Charizard'];
-            const result = await HomebrewPokeApi.getPokemonImageUrls(names);
+            const result = await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: names,
+            });
 
             expect(result).toEqual([
                 {

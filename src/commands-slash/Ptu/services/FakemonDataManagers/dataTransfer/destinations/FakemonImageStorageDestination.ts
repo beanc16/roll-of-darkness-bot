@@ -21,7 +21,7 @@ export class FakemonImageStorageDestination extends DataTransferDestination<stri
         await HomebrewPokeApi.getFakemonUrl(source.name);
 
         // Move image from fakemon folder to pokedex folder
-        await HomebrewPokeApi.transferFakemonImageToPokemon(source.name);
+        await HomebrewPokeApi.transferFakemonImageToPokemon(source.name, source.dexType);
 
         // Say that the image has been transferred
         await FakemonGeneralInformationManagerService.updateTransferredTo({
@@ -50,7 +50,7 @@ export class FakemonImageStorageDestination extends DataTransferDestination<stri
         let url: string;
         try
         {
-            url = await HomebrewPokeApi.getPokemonUrl(source.name);
+            url = await HomebrewPokeApi.getPokemonUrl(source.name, source.dexType);
         }
         catch
         {

@@ -188,6 +188,16 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         return option.setRequired(true);
     });
 
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon species.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
+        return option.setRequired(true);
+    });
+
     // Destination
     subcommand.addStringOption((option) =>
     {

@@ -126,8 +126,18 @@ export class HomebrewPokeApi
     }
 
     /* istanbul ignore next */
-    public static async transferFakemonImageToPokemon(speciesName: string): Promise<string>
+    public static async transferFakemonImageToPokemon(speciesName: string, dexType: PtuFakemonDexType): Promise<string>
     {
+        try
+        {
+            // Exit early if the image has already been transferred
+            return await this.getPokemonUrl(speciesName, dexType);
+        }
+        catch
+        {
+            // No-op, image still needs transferred
+        }
+
         const response = await FileStorageService.rename({
             appId: process.env.APP_ID as string,
             old: {
@@ -136,7 +146,7 @@ export class HomebrewPokeApi
             },
             new: {
                 fileName: speciesName,
-                nestedFolders: this.pokemonNestedFolders,
+                nestedFolders: this.getNestedFolders(dexType),
             },
             resourceType: FileStorageResourceType.Image,
         });

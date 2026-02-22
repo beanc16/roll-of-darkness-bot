@@ -242,7 +242,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.ptuDatabase': true,
                 },
@@ -272,7 +272,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.imageStorage': true,
                 },
@@ -302,7 +302,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.googleSheets.pokemonData': true,
                 },
@@ -332,7 +332,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.googleSheets.pokemonSkills': true,
                 },
@@ -369,7 +369,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.ptuDatabase': true,
                     'transferredTo.imageStorage': true,
@@ -410,7 +410,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             expect(result).toEqual(expectedResult);
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
             expect(findOneAndUpdateSpy).toHaveBeenCalledWith(
-                { _id: fakemon.id },
+                { _id: fakemon._id },
                 {
                     'transferredTo.imageStorage': true,
                 },
@@ -420,6 +420,17 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
 
     describe(`method: ${FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers.name}`, () =>
     {
+        let defaultMaxDexNumbersMap: Record<FakemonDexNumberPrefix, number>;
+
+        beforeEach(() =>
+        {
+            defaultMaxDexNumbersMap = Object.values(FakemonDexNumberPrefix).reduce((acc, cur) =>
+            {
+                acc[cur] = 0;
+                return acc;
+            }, {} as Record<FakemonDexNumberPrefix, number>);
+        });
+
         it('should return max dex numbers for all prefixes', async () =>
         {
             // Arrange
@@ -439,6 +450,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             // Assert
             expect(aggregateSpy).toHaveBeenCalledTimes(1);
             expect(result).toEqual({
+                ...defaultMaxDexNumbersMap,
                 [FakemonDexNumberPrefix.Eden]: 100,
                 [FakemonDexNumberPrefix.EdenParadox]: 50,
                 [FakemonDexNumberPrefix.EdenDrained]: 25,
@@ -446,7 +458,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             });
         });
 
-        it('should return empty object if no results', async () =>
+        it('should return object with all prefixes set to 0 if no results', async () =>
         {
             // Arrange
             const aggregateSpy = jest.spyOn(PokemonController, 'aggregate')
@@ -459,10 +471,10 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
 
             // Assert
             expect(aggregateSpy).toHaveBeenCalledTimes(1);
-            expect(result).toEqual({});
+            expect(result).toEqual(defaultMaxDexNumbersMap);
         });
 
-        it('should return empty object if results is undefined', async () =>
+        it('should return object with all prefixes set to 0 if results is undefined', async () =>
         {
             // Arrange
             const aggregateSpy = jest.spyOn(PokemonController, 'aggregate')
@@ -475,7 +487,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
 
             // Assert
             expect(aggregateSpy).toHaveBeenCalledTimes(1);
-            expect(result).toEqual({});
+            expect(result).toEqual(defaultMaxDexNumbersMap);
         });
 
         it('should handle partial results with only some prefixes', async () =>
@@ -495,6 +507,7 @@ describe(`class: ${FakemonGeneralInformationManagerService.name}`, () =>
             // Assert
             expect(aggregateSpy).toHaveBeenCalledTimes(1);
             expect(result).toEqual({
+                ...defaultMaxDexNumbersMap,
                 [FakemonDexNumberPrefix.Eden]: 100,
                 [FakemonDexNumberPrefix.EdenParadox]: 50,
             });

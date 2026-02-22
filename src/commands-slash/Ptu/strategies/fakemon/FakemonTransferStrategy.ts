@@ -9,7 +9,7 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { RecordSingleton } from '../../../../services/Singleton/RecordSingleton.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -28,6 +28,7 @@ import type { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 interface FakemonTransferGetParameterResults
 {
     speciesName: string;
+    dexType: PtuFakemonDexType;
     destinations: string[];
 }
 
@@ -38,7 +39,10 @@ interface FakemonTransferGetParameterResults
 export class FakemonTransferStrategy
 {
     public static key = PtuFakemonSubcommand.Transfer;
-    public static destinationCache = new RecordSingleton<string, string[]>();
+    public static destinationCache = new RecordSingleton<string, {
+        dexType: PtuFakemonDexType;
+        destinations: string[];
+    }>();
 
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
     public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonTransferGetParameterResults>): Promise<boolean>;
@@ -49,7 +53,11 @@ export class FakemonTransferStrategy
         options?: Partial<FakemonTransferGetParameterResults>,
     ): Promise<boolean>
     {
-        const { speciesName, destinations } = this.getOptions(interaction as ButtonInteraction, options);
+        const {
+            speciesName,
+            dexType,
+            destinations,
+        } = this.getOptions(interaction as ButtonInteraction, options);
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -77,7 +85,10 @@ export class FakemonTransferStrategy
 
         // Add to cache
         PtuFakemonPseudoCache.addToCache(message.id, fakemon);
-        this.destinationCache.upsert(message.id, destinations);
+        this.destinationCache.upsert(message.id, {
+            dexType,
+            destinations,
+        });
 
         return true;
     }
@@ -113,7 +124,11 @@ export class FakemonTransferStrategy
                     });
 
                     // Get destinations
-                    const destinations = this.destinationCache.get(interaction.message.id);
+                    const { dexType, destinations } = this.destinationCache.get(interaction.message.id);
+                    if (!dexType)
+                    {
+                        throw new Error('Dex type not found');
+                    }
                     if (!destinations)
                     {
                         throw new Error('Destinations not found');
@@ -121,7 +136,10 @@ export class FakemonTransferStrategy
 
                     // Transfer fakemon
                     const service = new FakemonDataTransferService();
-                    await service.transfer(fakemon, destinations);
+                    await service.transfer({
+                        ...fakemon,
+                        dexType,
+                    } as typeof fakemon, destinations);
 
                     // Get updated fakemon
                     const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
@@ -204,6 +222,7 @@ export class FakemonTransferStrategy
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
+        const dexType = interaction.options.getString('dex_type', true) as PtuFakemonDexType;
         const destination1 = interaction.options.getString('destination_1');
         const destination2 = interaction.options.getString('destination_2');
         const destination3 = interaction.options.getString('destination_3');
@@ -222,7 +241,7 @@ export class FakemonTransferStrategy
             }
         });
 
-        return { speciesName, destinations: [...destinationsSet] };
+        return { speciesName, dexType, destinations: [...destinationsSet] };
     }
 
     private static convertTransferredToForDisplay(fakemon: Pick<PtuFakemonCollection, 'transferredTo'>): string

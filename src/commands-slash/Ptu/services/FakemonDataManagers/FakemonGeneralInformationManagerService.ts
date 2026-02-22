@@ -19,6 +19,18 @@ export enum FakemonDexNumberPrefix
     EdenDrained = '#ED',
     /** Eden legendary pokedex */
     EdenLegendary = '#EL',
+    /** Meridia homebrew pokedex */
+    Meridia = '#MD',
+    /** Meridia paradox pokedex */
+    MeridiaParadox = '#MDP',
+    /** Meridia legendary pokedex */
+    MeridiaLegendary = '#MDL',
+    /** Magalam homebrew pokedex */
+    Magalam = '#MG',
+    /** Magalam paradox pokedex */
+    MagalamParadox = '#MGP',
+    /** Magalam legendary pokedex */
+    MagalamLegendary = '#MGL',
 }
 
 /* istanbul ignore next */
@@ -127,7 +139,7 @@ export class FakemonGeneralInformationManagerService
                 new: output,
             },
         } = await FakemonController.findOneAndUpdate({
-            _id: fakemon.id,
+            _id: fakemon._id,
         }, updateData) as {
             results: {
                 new: PtuFakemonCollection;
@@ -204,10 +216,16 @@ export class FakemonGeneralInformationManagerService
             results: MaxDexNumberAggregateResult[];
         };
 
+        const defaultsMaxDexNumbers = Object.values(FakemonDexNumberPrefix).reduce((acc, cur) =>
+        {
+            acc[cur] = 0;
+            return acc;
+        }, {} as Record<FakemonDexNumberPrefix, number>);
+
         return results.reduce((acc, { prefix, maxNumber }) =>
         {
             acc[prefix as FakemonDexNumberPrefix] = maxNumber;
             return acc;
-        }, {} as Record<FakemonDexNumberPrefix, number>);
+        }, defaultsMaxDexNumbers);
     }
 }
