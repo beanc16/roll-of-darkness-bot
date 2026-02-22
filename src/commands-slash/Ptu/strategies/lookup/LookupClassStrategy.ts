@@ -656,6 +656,11 @@ export class LookupClassStrategy
         const [key, value] = element;
         const [convertedKey] = LookupClassStrategy.convertFeatureNames([key]);
         acc[convertedKey as PtuClassName] = value;
+        if (convertedKey !== key)
+        {
+            // Use the original class name too so raw feature name -> value works too
+            acc[key as PtuClassName] = value;
+        }
         return acc;
     }, {} as Record<PtuClassName, Partial<Record<PtuClassRole, number>>>);
 
