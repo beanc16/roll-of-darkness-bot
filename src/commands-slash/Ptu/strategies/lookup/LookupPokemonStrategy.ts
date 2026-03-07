@@ -1057,73 +1057,7 @@ export class LookupPokemonStrategy
 
         if (moveName)
         {
-            let key: string;
-            // eslint-disable-next-line default-case
-            switch (moveListType)
-            {
-                case PtuMoveListType.EggMoves:
-                case PtuMoveListType.TutorMoves:
-                case PtuMoveListType.ZygardeCubeMoves:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: moveName,
-                    };
-                    break;
-                case PtuMoveListType.TmHm:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    };
-                    break;
-                case PtuMoveListType.LevelUp:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    };
-                    break;
-                case PtuMoveListType.All:
-                    // eslint-disable-next-line no-case-declarations
-                    const searchParams: object[] = [
-                        PtuMoveListType.EggMoves,
-                        PtuMoveListType.TutorMoves,
-                        PtuMoveListType.ZygardeCubeMoves,
-                    ].map((listType) =>
-                    {
-                        key = `moveList.${listType}`;
-                        return {
-                            [key]: moveName,
-                        };
-                    });
-
-                    key = `moveList.${PtuMoveListType.TmHm}`;
-                    searchParams.push({
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    });
-
-                    key = `moveList.${PtuMoveListType.LevelUp}`;
-                    searchParams.push({
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    });
-
-                    output = {
-                        $or: searchParams,
-                    };
-                    break;
-            }
+            output = PokemonController.getMoveListTypeSearchParams([moveName], moveListType);
         }
 
         if (abilityName)
