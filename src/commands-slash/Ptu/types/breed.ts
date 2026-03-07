@@ -13,7 +13,7 @@ export interface RollSpeciesResult
 }
 
 export type GetGenderResult = {
-    gender: PokemonGender;
+    gender: string;
     buttonInteraction?: ButtonInteraction;
 } | {
     roll: number;
