@@ -1,13 +1,17 @@
+/* eslint-disable max-classes-per-file */ // Necessary for in-line aggregate class
+
 import { logger } from '@beanc16/logger';
 import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
+import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
 import { EqualityOption } from '../../../shared/options/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import type { OnRowAbovePaginationButtonPressResponse } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { LookupMoveActionRowBuilder, LookupMoveCustomId } from '../../components/lookup/LookupMoveActionRowBuilder.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PokemonController } from '../../dal/PtuController.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -21,6 +25,7 @@ import {
     PtuContestStatEffect,
     PtuContestStatType,
     PtuMoveFrequency,
+    PtuMoveListType,
 } from '../../types/pokemon.js';
 import { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
@@ -171,6 +176,48 @@ export class LookupMoveStrategy
                 ];
             }
 
+            // Filter out those not in the given movelist
+            if (input.moveListType)
+            {
+                // Get query params
+                const moveNames = output.map(({ name }) => name);
+                const moveFindParams = PokemonController.getMoveListTypeSearchParams(moveNames, input.moveListType);
+                const {
+                    unwindPath,
+                    matchStage,
+                    groupField,
+                } = this.getMoveListTypeAggregationConfig(moveNames, input.moveListType);
+
+                // Get moves that are in the given movelist type
+                const { results: [{ matchedMoves = [] }] = [{}] } = await PokemonController.aggregate([
+                    // 1. Only look at pokemon that have at least one of the target moves
+                    { $match: moveFindParams },
+                    // 2. Flatten the array so each move becomes its own document
+                    { $unwind: unwindPath },
+                    // 3. Keep only the moves that are in the original input list
+                    { $match: matchStage },
+                    // 4. Collect the distinct matched move names
+                    { $group: { _id: null, matchedMoves: { $addToSet: groupField } } },
+                    // 5. (Optional) Remove null _id from the output
+                    { $project: { _id: 0, matchedMoves: 1 } },
+                ], {
+                    // Custom mapping class for the aggregation
+                    // (without this, it will attempt to map to PokemonController's default Model class)
+                    Model: class
+                    {
+                        public matchedMoves: number;
+                        constructor(params: { matchedMoves: number })
+                        {
+                            this.matchedMoves = params.matchedMoves;
+                        }
+                    },
+                }) as { results: [{ matchedMoves: string[] }] };
+                const matchedMovesSet = new Set(matchedMoves); // Set.has is faster than Array.includes
+
+                // Only keep moves that are in the given movelist type
+                output = output.filter((move) => matchedMovesSet.has(move.name));
+            }
+
             return this.sortMoves(output, parsedInput);
         }
 
@@ -252,6 +299,7 @@ export class LookupMoveStrategy
         const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
         const ac = interaction.options.getInteger('ac');
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+        const moveListType = interaction.options.getString('move_list_type') as PtuMoveListType | null;
         const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
         const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
         const includeContestStats = interaction.options.getBoolean('include_contest_stats');
@@ -269,6 +317,7 @@ export class LookupMoveStrategy
             frequency,
             ac,
             acEquality,
+            moveListType,
             contestStatType,
             contestStatEffect,
             includeContestStats,
@@ -277,5 +326,48 @@ export class LookupMoveStrategy
             rangeSearch,
             effectSearch,
         };
+    }
+
+    public static getMoveListTypeAggregationConfig(moveNames: string[], moveListType: PtuMoveListType): {
+        unwindPath: string;
+        matchStage: Record<string, unknown>;
+        groupField: string;
+    }
+    {
+        const key = `moveList.${moveListType}`;
+        let output: {
+            unwindPath: string;
+            matchStage: Record<string, unknown>;
+            groupField: string;
+        } = {
+            unwindPath: `$${key}`,
+            matchStage: {},
+            groupField: `$${key}`,
+        };
+
+        switch (moveListType)
+        {
+            case PtuMoveListType.EggMoves:
+            case PtuMoveListType.TutorMoves:
+            case PtuMoveListType.ZygardeCubeMoves:
+                output.matchStage = { [key]: { $in: moveNames } };
+                break;
+            case PtuMoveListType.TmHm:
+                output.matchStage = {
+                    [key]: parseRegexByType(moveNames, RegexLookupType.SubstringCaseInsensitive),
+                };
+                break;
+            case PtuMoveListType.LevelUp:
+                output = {
+                    ...output,
+                    matchStage: { [`${key}.move`]: { $in: moveNames } },
+                    groupField: `$${key}.move`,
+                };
+                break;
+            default:
+                throw new Error(`Unknown move list type: ${moveListType}`);
+        }
+
+        return output;
     }
 }
