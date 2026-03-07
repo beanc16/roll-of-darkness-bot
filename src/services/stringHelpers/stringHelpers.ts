@@ -7,23 +7,28 @@ export enum RegexLookupType
 
 const escapeRegex = (string: string): string => string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
 
-export function parseRegexByType(string: string, lookupType: RegexLookupType): string | RegExp | undefined
+export function parseRegexByType(input: string, lookupType: RegexLookupType): string | RegExp | undefined;
+export function parseRegexByType(input: string[], lookupType: RegexLookupType): RegExp | undefined;
+export function parseRegexByType(input: string | string[], lookupType: RegexLookupType): string | RegExp | undefined
 {
-    const escapedRegex = escapeRegex(string);
+    const isArray = Array.isArray(input);
+    const inputAsArray = isArray ? input : [input];
+    const joined = inputAsArray.map(escapeRegex).join('|');
+    const pattern = inputAsArray.length > 1 ? `(${joined})` : joined;
 
     if (lookupType === RegexLookupType.SubstringCaseInsensitive)
     {
-        return new RegExp(escapedRegex, 'i');
+        return new RegExp(pattern, 'i');
     }
 
     if (lookupType === RegexLookupType.ExactMatchCaseInsensitive)
     {
-        return new RegExp(`^${escapedRegex}$`, 'i');
+        return new RegExp(`^${pattern}$`, 'i');
     }
 
     if (lookupType === RegexLookupType.ExactMatch)
     {
-        return string;
+        return isArray ? new RegExp(`^${pattern}$`) : input;
     }
 
     return undefined;
