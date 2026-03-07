@@ -1172,7 +1172,7 @@ export class LookupPokemonStrategy
         if (habitatName || dietName)
         {
             output = {
-                ...(!!habitatName
+                ...(habitatName
                     ? {
                         habitats: {
                             $in: [
@@ -1182,7 +1182,7 @@ export class LookupPokemonStrategy
                     }
                     : {}
                 ),
-                ...(!!dietName
+                ...(dietName
                     ? {
                         diets: {
                             $in: [

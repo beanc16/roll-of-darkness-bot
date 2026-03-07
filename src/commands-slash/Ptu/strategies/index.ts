@@ -25,7 +25,11 @@ import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
-import { PokemonDiet, PokemonHabitat, PtuPokemon } from '../types/pokemon.js';
+import {
+    PokemonDiet,
+    PokemonHabitat,
+    PtuPokemon,
+} from '../types/pokemon.js';
 import { PtuBerry } from '../types/PtuBerry.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
