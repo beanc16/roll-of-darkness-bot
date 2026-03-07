@@ -23,6 +23,7 @@ import {
     getLookupPokemonByBstEmbedMessages,
     getLookupPokemonByCapabilityEmbedMessages,
     getLookupPokemonByEggGroupsEmbedMessages,
+    getLookupPokemonByHabitatsAndOrDietsEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
     PtuPokemonForLookupPokemon,
@@ -49,6 +50,8 @@ interface GetOptionsResponse
     abilityName?: string | null;
     abilityListType: PtuAbilityListType;
     capabilityName?: string | null;
+    habitatName?: string | null;
+    dietName?: string | null;
     baseStatTotal?: number | null;
     eggGroups?: string[];
     includeContestInfo?: boolean | null;
@@ -64,6 +67,8 @@ export interface GetLookupPokemonDataParameters
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
     capabilityName?: string | null;
+    habitatName?: string | null;
+    dietName?: string | null;
     eggGroups?: string[];
     baseStatTotal?: number | null;
     getAll?: boolean;
@@ -119,13 +124,15 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             includeContestInfo,
             interactionType,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
-        const numOfTruthyValues = [names, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
+        const numOfTruthyValues = [names, moveName, abilityName, capabilityName, habitatName, dietName, eggGroups, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await PaginationStrategy.run({
@@ -138,12 +145,17 @@ export class LookupPokemonStrategy
             return true;
         }
 
-        if (numOfTruthyValues > 1)
+        if (
+            // Can only have 1 value if not habitat or diet
+            (numOfTruthyValues > 1 && !(habitatName || dietName))
+            // Can have have habitat and/or diet at the same time
+            || (numOfTruthyValues > 2 && (habitatName || dietName))
+        )
         {
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, egg groups, or base stat total at the same time.',
+                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, habitat, diet, egg groups, or base stat total at the same time. (Though habitat and diet can be used at the same time.)',
                 includeDeleteButton: true,
                 interactionType,
             });
@@ -158,6 +170,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
         });
@@ -169,6 +183,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             pokemon: data,
@@ -212,6 +228,8 @@ export class LookupPokemonStrategy
             moveName,
             abilityName,
             capabilityName,
+            habitatName,
+            dietName,
             pokemon: data,
             selectedValue,
             interactionType,
@@ -228,12 +246,14 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || eggGroups || baseStatTotal || getAll))
+        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || habitatName || dietName || eggGroups || baseStatTotal || getAll))
         {
             return [];
         }
@@ -246,6 +266,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             getAll,
@@ -826,6 +848,8 @@ export class LookupPokemonStrategy
         moveName?: string | null;
         abilityName?: string | null;
         capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
         eggGroups?: string[];
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
@@ -978,6 +1002,8 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         getAll,
@@ -1143,6 +1169,32 @@ export class LookupPokemonStrategy
             };
         }
 
+        if (habitatName || dietName)
+        {
+            output = {
+                ...(!!habitatName
+                    ? {
+                        habitats: {
+                            $in: [
+                                parseRegexByType(habitatName, lookupType),
+                            ],
+                        },
+                    }
+                    : {}
+                ),
+                ...(!!dietName
+                    ? {
+                        diets: {
+                            $in: [
+                                parseRegexByType(dietName, lookupType),
+                            ],
+                        },
+                    }
+                    : {}
+                ),
+            };
+        }
+
         // Add the same searches for edits
         output = {
             $or: [
@@ -1167,6 +1219,8 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         pokemon,
@@ -1198,6 +1252,14 @@ export class LookupPokemonStrategy
         {
             return getLookupPokemonByCapabilityEmbedMessages(pokemon, {
                 capabilityName,
+            });
+        }
+
+        if (habitatName || dietName)
+        {
+            return getLookupPokemonByHabitatsAndOrDietsEmbedMessages(pokemon, {
+                habitatName,
+                dietName,
             });
         }
 
@@ -1416,6 +1478,8 @@ export class LookupPokemonStrategy
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
         const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const habitatName = interaction.options.getString('habitat_name');
+        const dietName = interaction.options.getString('diet_name');
         const eggGroup1 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup1);
         const eggGroup2 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup2);
         const baseStatTotal = interaction.options.getInteger('base_stat_total');
@@ -1432,6 +1496,8 @@ export class LookupPokemonStrategy
                 ? { eggGroups: [eggGroup1, eggGroup2].filter(eg => eg !== null) }
                 : { eggGroups: undefined }
             ),
+            habitatName,
+            dietName,
             baseStatTotal,
             includeContestInfo,
         };

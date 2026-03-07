@@ -799,6 +799,22 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         return option.setAutocomplete(true);
     });
 
+    // Habitat
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.HabitatName);
+        option.setDescription('The habitat of the Pokémon to search.');
+        return option.setAutocomplete(true);
+    });
+
+    // Diet
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.DietName);
+        option.setDescription('The diet of the Pokémon to search.');
+        return option.setAutocomplete(true);
+    });
+
     // Egg Groups
     subcommand.addStringOption((option) =>
     {

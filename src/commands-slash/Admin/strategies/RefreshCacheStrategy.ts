@@ -49,9 +49,11 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.ClassName2
     | PtuAutocompleteParameterName.ClassName3
     | PtuAutocompleteParameterName.ClassName4
+    | PtuAutocompleteParameterName.DietName
     | PtuAutocompleteParameterName.EggGroup1
     | PtuAutocompleteParameterName.EggGroup2
     | PtuAutocompleteParameterName.FakemonSpeciesName
+    | PtuAutocompleteParameterName.HabitatName
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
 >;
