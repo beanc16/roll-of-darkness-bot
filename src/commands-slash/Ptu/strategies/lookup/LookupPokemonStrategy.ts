@@ -194,19 +194,6 @@ export class LookupPokemonStrategy
         // Get message
         const embeds = this.getFirstEmbeds(embedsInput);
 
-        // Send no results found
-        if (embeds.length === 0)
-        {
-            await PaginationStrategy.run({
-                originalInteraction: interaction,
-                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'No Pokémon were found.',
-                includeDeleteButton: true,
-                interactionType,
-            });
-            return true;
-        }
-
         // Get selected value (in string select menu, if there is one)
         let selectedValue: string | undefined;
 
@@ -218,6 +205,26 @@ export class LookupPokemonStrategy
         {
             const [first] = data;
             selectedValue = first.versionName;
+        }
+
+        // Send no results found
+        if (embeds.length === 0)
+        {
+            await this.sendNoPokemonFoundMessage({
+                originalInteraction: interaction,
+                strategies,
+                embeds,
+                names,
+                moveName,
+                abilityName,
+                capabilityName,
+                habitatName,
+                dietName,
+                pokemon: data,
+                selectedValue,
+                interactionType,
+            });
+            return true;
         }
 
         await this.sendMessage({
@@ -827,23 +834,16 @@ export class LookupPokemonStrategy
         return this.getLookupPokemonEmbeds(options);
     }
 
-    private static async sendMessage({
-        originalInteraction,
-        strategies,
-        embeds,
+    private static getRowsAbovePagination({
         names,
         moveName,
         abilityName,
         capabilityName,
         eggGroups,
         pokemon,
-        interactionType,
         selectedValue,
         isDisabled = false,
     }: {
-        originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
-        strategies: PtuStrategyMap;
-        embeds: EmbedBuilder[];
         names?: (string | null | undefined)[];
         moveName?: string | null;
         abilityName?: string | null;
@@ -852,11 +852,15 @@ export class LookupPokemonStrategy
         dietName?: string | null;
         eggGroups?: string[];
         pokemon: PtuPokemon[];
-        interactionType?: PaginationInteractionType;
         selectedValue?: PtuMoveListType | string;
         isDisabled?: boolean;
-    }): Promise<void>
-    {
+    }): {
+        rowsAbovePagination: [
+            ActionRowBuilder<StringSelectMenuBuilder>?,
+            ActionRowBuilder<ButtonBuilder>?,
+        ];
+        selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+    } {
         // Get the select menu based on how the lookup is happening
         let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
         let buttonRow: LookupPokemonActionRowBuilder | undefined;
@@ -896,6 +900,188 @@ export class LookupPokemonStrategy
             ActionRowBuilder<StringSelectMenuBuilder>?,
             ActionRowBuilder<ButtonBuilder>?,
         ] = [selectMenuRow, buttonRow];
+
+        return { rowsAbovePagination, selectMenuRow };
+    }
+
+    private static async sendNoPokemonFoundMessage({
+        originalInteraction,
+        strategies,
+        embeds,
+        names,
+        moveName,
+        abilityName,
+        capabilityName,
+        eggGroups,
+        pokemon,
+        interactionType,
+        selectedValue,
+        isDisabled = false,
+    }: {
+        originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
+        strategies: PtuStrategyMap;
+        embeds: EmbedBuilder[];
+        names?: (string | null | undefined)[];
+        moveName?: string | null;
+        abilityName?: string | null;
+        capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
+        eggGroups?: string[];
+        pokemon: PtuPokemon[];
+        interactionType?: PaginationInteractionType;
+        selectedValue?: PtuMoveListType | string;
+        isDisabled?: boolean;
+    }): Promise<void>
+    {
+        let { rowsAbovePagination, selectMenuRow } = this.getRowsAbovePagination({
+            names,
+            moveName,
+            abilityName,
+            capabilityName,
+            eggGroups,
+            pokemon,
+            selectedValue,
+            isDisabled,
+        });
+
+        // Send messages with pagination
+        await PaginationStrategy.run({
+            originalInteraction,
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+            content: 'No Pokémon were found.',
+            interactionType,
+            rowsAbovePagination,
+            onRowAbovePaginationButtonPress: async (receivedInteraction) =>
+            {
+                // The only options with string select menus or buttons
+                if (!(names || moveName || abilityName || capabilityName))
+                {
+                    return { embeds };
+                }
+
+                const { customId, values = [] } = receivedInteraction as StringSelectMenuInteraction;
+                const [value] = values;
+
+                let newEmbeds: EmbedBuilder[] = [];
+
+                if (customId.includes(this.selectMenuCustomIds.PokemonViewSelect))
+                {
+                    // Create a map of version name to pokemon
+                    const [onlyPokemon] = pokemon;
+                    const { olderVersions = [] } = onlyPokemon;
+                    const versionNameToPokemon: Record<string, PtuPokemon> = {
+                        [onlyPokemon.versionName]: onlyPokemon,
+                    };
+
+                    olderVersions.forEach((curPokemon) =>
+                    {
+                        const { versionName } = curPokemon;
+
+                        versionNameToPokemon[versionName] = {
+                            name: onlyPokemon.name,
+                            ...curPokemon,
+                        };
+                    });
+
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        names,
+                        pokemon: [versionNameToPokemon[value]],
+                    });
+                    selectMenuRow = this.getLookupPokemonSelectMenu({
+                        pokemon,
+                        isDisabled,
+                        selectedValue: value,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
+                }
+                else if (customId === this.selectMenuCustomIds.MoveViewSelect)
+                {
+                    const moveListType = value as PtuMoveListType;
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        moveName,
+                        moveListType,
+                        pokemon,
+                    });
+                    selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
+                        defaultMoveListType: moveListType,
+                        moveName: moveName as string,
+                        pokemon,
+                        isDisabled,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
+                }
+                else if (customId === LookupPokemonCustomId.LookupMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        names: [moveName],
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupAbility.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: abilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupCapability.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Capability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: capabilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+
+                return { embeds: newEmbeds, rowsAbovePagination };
+            },
+            includeDeleteButton: true,
+        });
+    }
+
+    private static async sendMessage({
+        originalInteraction,
+        strategies,
+        embeds,
+        names,
+        moveName,
+        abilityName,
+        capabilityName,
+        eggGroups,
+        pokemon,
+        interactionType,
+        selectedValue,
+        isDisabled = false,
+    }: {
+        originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
+        strategies: PtuStrategyMap;
+        embeds: EmbedBuilder[];
+        names?: (string | null | undefined)[];
+        moveName?: string | null;
+        abilityName?: string | null;
+        capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
+        eggGroups?: string[];
+        pokemon: PtuPokemon[];
+        interactionType?: PaginationInteractionType;
+        selectedValue?: PtuMoveListType | string;
+        isDisabled?: boolean;
+    }): Promise<void>
+    {
+        let { rowsAbovePagination, selectMenuRow } = this.getRowsAbovePagination({
+            names,
+            moveName,
+            abilityName,
+            capabilityName,
+            eggGroups,
+            pokemon,
+            selectedValue,
+            isDisabled,
+        });
 
         // Send messages with pagination
         await PaginationStrategy.run({

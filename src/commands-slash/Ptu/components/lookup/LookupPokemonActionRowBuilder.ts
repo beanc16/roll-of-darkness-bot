@@ -28,56 +28,56 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
 
         const labelAndId = LookupPokemonActionRowBuilder.getLabelAndId(options);
 
-        if (labelAndId)
+        if (labelAndId.length > 0)
         {
-            this.setComponents([
-                new ButtonBuilder({
-                    customId: labelAndId.customId,
-                    label: labelAndId.label,
+            this.setComponents(
+                labelAndId.map(({ customId, label }) => new ButtonBuilder({
+                    customId,
+                    label,
                     emoji: '🔎',
                     style: ButtonStyle.Secondary,
-                }),
-            ]);
+                })),
+            );
         }
     }
 
-    private static getLabelAndId(options: LookupPokemonActionRowBuilderOptions = {}): undefined | {
+    private static getLabelAndId(options: LookupPokemonActionRowBuilderOptions = {}): {
         customId: LookupPokemonCustomId;
         label: string;
-    }
+    }[]
     {
         if (options.abilityName)
         {
-            return {
+            return [{
                 customId: LookupPokemonCustomId.LookupAbility,
                 label: LookupPokemonCustomId.LookupAbility,
-            };
+            }];
         }
 
         if (options.capabilityName)
         {
-            return {
+            return [{
                 customId: LookupPokemonCustomId.LookupCapability,
                 label: LookupPokemonCustomId.LookupCapability,
-            };
+            }];
         }
 
         if (options.eggGroups)
         {
-            return {
+            return [{
                 customId: LookupPokemonCustomId.LookupEggGroups,
                 label: LookupPokemonCustomId.LookupEggGroups,
-            };
+            }];
         }
 
         if (options.moveName)
         {
-            return {
+            return [{
                 customId: LookupPokemonCustomId.LookupMove,
                 label: LookupPokemonCustomId.LookupMove,
-            };
+            }];
         }
 
-        return undefined;
+        return [];
     }
 }
