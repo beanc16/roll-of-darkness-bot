@@ -11,6 +11,7 @@ export enum LookupPokemonCustomId
     LookupEggGroups = 'Lookup Egg Groups',
     LookupMove = 'Lookup Move',
     LookupBasedOnMove = 'Lookup "Based On" Move',
+    LookupPokemonByBasedOnMove = 'Lookup Pokemon by "Based On" Move',
 }
 
 interface LookupPokemonActionRowBuilderOptions
@@ -83,6 +84,9 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
                     ? [{
                         customId: LookupPokemonCustomId.LookupBasedOnMove,
                         label: LookupPokemonCustomId.LookupBasedOnMove,
+                    }, {
+                        customId: LookupPokemonCustomId.LookupPokemonByBasedOnMove,
+                        label: LookupPokemonCustomId.LookupPokemonByBasedOnMove,
                     }]
                     : []
                 ),

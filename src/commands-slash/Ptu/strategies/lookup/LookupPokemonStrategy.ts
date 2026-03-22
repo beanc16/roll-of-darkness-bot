@@ -1040,6 +1040,14 @@ export class LookupPokemonStrategy
                     });
                     return { shouldUpdateMessage: false };
                 }
+                else if (customId === LookupPokemonCustomId.LookupPokemonByBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await this.run(receivedInteraction as ButtonInteraction, strategies, {
+                        moveName: basedOnMoveName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
                 else if (customId === LookupPokemonCustomId.LookupAbility.toString())
                 {
                     await receivedInteraction.deferReply({ fetchReply: true });
@@ -1184,6 +1192,14 @@ export class LookupPokemonStrategy
                     await receivedInteraction.deferReply({ fetchReply: true });
                     await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
                         names: [basedOnMoveName],
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupPokemonByBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await this.run(receivedInteraction as ButtonInteraction, strategies, {
+                        moveName: basedOnMoveName,
                     });
                     return { shouldUpdateMessage: false };
                 }
