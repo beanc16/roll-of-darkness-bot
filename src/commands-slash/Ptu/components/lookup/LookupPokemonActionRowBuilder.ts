@@ -10,6 +10,7 @@ export enum LookupPokemonCustomId
     LookupCapability = 'Lookup Capability',
     LookupEggGroups = 'Lookup Egg Groups',
     LookupMove = 'Lookup Move',
+    LookupBasedOnMove = 'Lookup "Based On" Move',
 }
 
 interface LookupPokemonActionRowBuilderOptions
@@ -18,6 +19,7 @@ interface LookupPokemonActionRowBuilderOptions
     capabilityName?: string;
     eggGroups?: string[];
     moveName?: string;
+    basedOnMoveName?: string;
 }
 
 export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
@@ -72,10 +74,19 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
 
         if (options.moveName)
         {
-            return [{
-                customId: LookupPokemonCustomId.LookupMove,
-                label: LookupPokemonCustomId.LookupMove,
-            }];
+            return [
+                {
+                    customId: LookupPokemonCustomId.LookupMove,
+                    label: LookupPokemonCustomId.LookupMove,
+                },
+                ...(options.basedOnMoveName
+                    ? [{
+                        customId: LookupPokemonCustomId.LookupBasedOnMove,
+                        label: LookupPokemonCustomId.LookupBasedOnMove,
+                    }]
+                    : []
+                ),
+            ];
         }
 
         return [];
