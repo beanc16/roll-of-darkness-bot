@@ -7,6 +7,8 @@ import {
 export enum LookupPokemonCustomId
 {
     LookupAbility = 'Lookup Ability',
+    LookupBasedOnAbility = 'Lookup "Based On" Ability',
+    LookupPokemonByBasedOnAbility = 'Lookup Pokemon by "Based On" Ability',
     LookupCapability = 'Lookup Capability',
     LookupEggGroups = 'Lookup Egg Groups',
     LookupMove = 'Lookup Move',
@@ -17,6 +19,7 @@ export enum LookupPokemonCustomId
 interface LookupPokemonActionRowBuilderOptions
 {
     abilityName?: string;
+    basedOnAbilityName?: string;
     capabilityName?: string;
     eggGroups?: string[];
     moveName?: string;
@@ -51,10 +54,22 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
     {
         if (options.abilityName)
         {
-            return [{
-                customId: LookupPokemonCustomId.LookupAbility,
-                label: LookupPokemonCustomId.LookupAbility,
-            }];
+            return [
+                {
+                    customId: LookupPokemonCustomId.LookupAbility,
+                    label: LookupPokemonCustomId.LookupAbility,
+                },
+                ...(options.basedOnAbilityName
+                    ? [{
+                        customId: LookupPokemonCustomId.LookupBasedOnAbility,
+                        label: LookupPokemonCustomId.LookupBasedOnAbility,
+                    }, {
+                        customId: LookupPokemonCustomId.LookupPokemonByBasedOnAbility,
+                        label: LookupPokemonCustomId.LookupPokemonByBasedOnAbility,
+                    }]
+                    : []
+                ),
+            ];
         }
 
         if (options.capabilityName)
