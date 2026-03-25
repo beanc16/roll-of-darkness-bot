@@ -29,9 +29,11 @@ describe('class: HomebrewPokeApi', () =>
             jest.spyOn(FileStorageService, 'get')
                 .mockResolvedValueOnce(undefined);
 
+            const invalidDexType = 'INVALID' as PtuFakemonDexType;
+
             await expect(
-                HomebrewPokeApi.getPokemonUrl('Pikachu', PtuFakemonDexType.EdenLegendary),
-            ).rejects.toThrow(`Unsupported dex type for fetching images: ${PtuFakemonDexType.EdenLegendary}`);
+                HomebrewPokeApi.getPokemonUrl('Pikachu', invalidDexType),
+            ).rejects.toThrow(`Unsupported dex type for fetching images: ${invalidDexType}`);
         });
 
         it('should throw an error if file storage service returns undefined', async () =>
