@@ -27,16 +27,24 @@ export class HomebrewPokeApi
         switch (dexType)
         {
             case PtuFakemonDexType.Eden:
+            case PtuFakemonDexType.EdenParadox:
+            case PtuFakemonDexType.EdenDrained:
+            case PtuFakemonDexType.EdenLegendary:
                 suffix = 'eden-dex';
                 break;
             case PtuFakemonDexType.Meridia:
+            case PtuFakemonDexType.MeridiaParadox:
+            case PtuFakemonDexType.MeridiaLegendary:
                 suffix = 'meridia-dex';
                 break;
             case PtuFakemonDexType.Magalam:
+            case PtuFakemonDexType.MagalamParadox:
+            case PtuFakemonDexType.MagalamLegendary:
                 suffix = 'magalam-dex';
                 break;
             default:
-                throw new Error(`Unsupported dex type for fetching images: ${dexType}`);
+                const typeGuard: never = dexType;
+                throw new Error(`Unsupported dex type for fetching images: ${typeGuard}`);
         }
 
         return `ptu-pokedex/${suffix}`;
