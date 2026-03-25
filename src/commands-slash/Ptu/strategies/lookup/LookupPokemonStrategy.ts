@@ -41,8 +41,8 @@ import {
     PtuPokemon,
 } from '../../types/pokemon.js';
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
-import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
 import type { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
+import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
 
 interface GetOptionsResponse
 {
@@ -859,14 +859,15 @@ export class LookupPokemonStrategy
         selectedValue?: PtuMoveListType | string;
         isDisabled?: boolean;
     }): Promise<{
-        rowsAbovePagination: [
+            rowsAbovePagination: [
             ActionRowBuilder<StringSelectMenuBuilder>?,
             ActionRowBuilder<ButtonBuilder>?,
-        ];
-        selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
-        basedOnMoveName: string | undefined;
-        basedOnAbilityName: string | undefined;
-    }> {
+            ];
+            selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+            basedOnMoveName: string | undefined;
+            basedOnAbilityName: string | undefined;
+        }>
+    {
         // Get the select menu based on how the lookup is happening
         let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
         let buttonRow: LookupPokemonActionRowBuilder | undefined;
@@ -885,7 +886,7 @@ export class LookupPokemonStrategy
         {
             // Get the move that this move is based on (if any) for looking up
             // the move that its based on, if it exists
-            const [move] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy)?.getLookupData({
+            const [move] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy).getLookupData({
                 names: [moveName],
             });
             basedOnMoveName = move.basedOn;
@@ -902,7 +903,7 @@ export class LookupPokemonStrategy
         {
             // Get the ability that this ability is based on (if any) for looking up
             // the ability that its based on, if it exists
-            const [ability] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability] as typeof LookupAbilityStrategy)?.getLookupData({
+            const [ability] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability] as typeof LookupAbilityStrategy).getLookupData({
                 name: abilityName,
             });
             basedOnAbilityName = ability.basedOn;
@@ -923,7 +924,12 @@ export class LookupPokemonStrategy
             ActionRowBuilder<ButtonBuilder>?,
         ] = [selectMenuRow, buttonRow];
 
-        return { rowsAbovePagination, selectMenuRow, basedOnMoveName, basedOnAbilityName };
+        return {
+            rowsAbovePagination,
+            selectMenuRow,
+            basedOnMoveName,
+            basedOnAbilityName,
+        };
     }
 
     private static async sendNoPokemonFoundMessage({
@@ -956,7 +962,7 @@ export class LookupPokemonStrategy
         isDisabled?: boolean;
     }): Promise<void>
     {
-        let { rowsAbovePagination, selectMenuRow, basedOnMoveName, basedOnAbilityName } = await this.getRowsAbovePagination({
+        const getRowsAbovePagination = await this.getRowsAbovePagination({
             strategies,
             names,
             moveName,
@@ -967,6 +973,12 @@ export class LookupPokemonStrategy
             selectedValue,
             isDisabled,
         });
+        let { selectMenuRow } = getRowsAbovePagination;
+        const {
+            rowsAbovePagination,
+            basedOnMoveName,
+            basedOnAbilityName,
+        } = getRowsAbovePagination;
 
         // Send messages with pagination
         await PaginationStrategy.run({
@@ -1127,7 +1139,7 @@ export class LookupPokemonStrategy
         isDisabled?: boolean;
     }): Promise<void>
     {
-        let { rowsAbovePagination, selectMenuRow, basedOnMoveName } = await this.getRowsAbovePagination({
+        const getRowsAbovePagination = await this.getRowsAbovePagination({
             strategies,
             names,
             moveName,
@@ -1138,6 +1150,8 @@ export class LookupPokemonStrategy
             selectedValue,
             isDisabled,
         });
+        let { selectMenuRow } = getRowsAbovePagination;
+        const { rowsAbovePagination, basedOnMoveName } = getRowsAbovePagination;
 
         // Send messages with pagination
         await PaginationStrategy.run({
