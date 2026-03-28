@@ -94,7 +94,11 @@ describe(`class: ${FakemonDatabaseDestination.name}`, () =>
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
             const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
                 .mockReturnValue(false);
-            const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput');
+            const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput')
+                .mockImplementation(() =>
+                {
+                    throw new Error('Pokemon name must not be empty');
+                });
             const insertOneIfNotExistsSpy = jest.spyOn(PokemonController, 'insertOneIfNotExists');
             const updateTransferredToSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'updateTransferredTo');
 
