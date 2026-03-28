@@ -144,4 +144,5 @@ module.exports = {
     moduleNameMapper: {
         '^discord\\.js$': '<rootDir>/__mocks__/discord.js.ts',
     },
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };
