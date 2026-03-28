@@ -16,10 +16,11 @@ import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakem
 import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
 import { FakemonEvolutionsEditEvolutionStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/evolutions/FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder.js';
 import { FakemonEvolutionsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/evolutions/types.js';
-import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonOverviewActionRowBuilder.js';
 import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
+import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
@@ -262,7 +263,7 @@ export class FakemonCreateStrategy
     ): Promise<boolean>
     {
         const { customId } = interaction as {
-            customId: FakemonMovesButtonCustomIds;
+            customId: FakemonOverviewButtonCustomIds | FakemonMovesButtonCustomIds;
         };
 
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
@@ -277,6 +278,30 @@ export class FakemonCreateStrategy
 
         switch (customId)
         {
+            case FakemonOverviewButtonCustomIds.Validate:
+                try
+                {
+                    PtuFakemonCollection.validate(fakemon, { skipDexNumberError: true });
+                    await interaction.reply({
+                        content: [
+                            'Validation succeeded!',
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
             case FakemonMovesButtonCustomIds.AddLevelUpMoves:
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonMoveLevelUpAddingModal.showModal(interaction, {
