@@ -291,10 +291,28 @@ export class FakemonCreateStrategy
                 }
                 catch (error)
                 {
-                    const errorMessage = (error as Error)?.message;
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
                     await interaction.reply({
                         content: [
-                            `Validation failed${errorMessage ? ' with error:' : ''}`,
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
                             ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
                         ].join('\n'),
                         ephemeral: true,

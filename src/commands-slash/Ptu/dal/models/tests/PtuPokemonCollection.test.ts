@@ -1,3 +1,5 @@
+/// <reference types="../../../../../../jest.d.ts" />
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
 // ^ the above are giving a lot of false negatives for some reason, temporarily disabling
 
@@ -36,7 +38,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 const input = null as unknown as Parameters<typeof PtuPokemonCollection.validate>[0];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must be truthy');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must be truthy');
             });
 
             it('should not throw an error if pokemon is truthy', () =>
@@ -58,7 +60,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.name = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon name must not be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon name must not be empty');
             });
 
             it('should throw an error if pokemon name is only whitespace', () =>
@@ -68,7 +70,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.name = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon name must not be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon name must not be empty');
             });
 
             it('should not throw an error if pokemon name is valid', () =>
@@ -91,7 +93,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.types = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 types');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 types');
             });
 
             it('should throw an error if pokemon has 3 types', () =>
@@ -101,7 +103,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.types = [PokemonType.Fire, PokemonType.Flying, PokemonType.Water];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 types');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 types');
             });
 
             it(`should throw an error if one of a pokemon's types are invalid`, () =>
@@ -111,7 +113,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.types = [PokemonType.Fire, 'InvalidType'] as unknown as PokemonType[];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon types');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon types');
             });
 
             it('should not throw an error if pokemon has one valid type', () =>
@@ -151,7 +153,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 } as typeof input['baseStats'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 6 base stats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 6 base stats');
             });
 
             it('should throw an error if any base stat is negative', () =>
@@ -161,7 +163,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.baseStats.hp = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('All pokemon stats must be positive');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('All pokemon stats must be positive');
             });
 
             it('should not throw an error if all base stats are zero or positive', () =>
@@ -191,7 +193,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.basicAbilities = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 basic abilities');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 basic abilities');
             });
 
             it('should throw an error if pokemon has more than 2 basic abilities', () =>
@@ -201,7 +203,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.basicAbilities = ['Ability1', 'Ability2', 'Ability3'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 basic abilities');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 basic abilities');
             });
 
             it('should throw an error if pokemon has less than 2 advanced abilities', () =>
@@ -211,7 +213,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.advancedAbilities = ['Ability1'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 2-3 advanced abilities');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 2-3 advanced abilities');
             });
 
             it('should throw an error if pokemon has more than 3 advanced abilities', () =>
@@ -221,7 +223,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.advancedAbilities = ['Ability1', 'Ability2', 'Ability3', 'Ability4'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 2-3 advanced abilities');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 2-3 advanced abilities');
             });
 
             it('should throw an error if high ability is empty', () =>
@@ -231,7 +233,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.highAbility = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1 high ability');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1 high ability');
             });
 
             it('should throw an error if high ability is only whitespace', () =>
@@ -241,7 +243,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.abilities.highAbility = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1 high ability');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1 high ability');
             });
 
             it('should throw an error if pokemon has 1 basic abilities, 2 advanced abilities and 1 high ability', () =>
@@ -255,7 +257,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 };
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1 basic ability, 3 advanced abilities and 1 high ability OR 2 basic abilities, 2 advanced abilities and 1 high ability');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1 basic ability, 3 advanced abilities and 1 high ability OR 2 basic abilities, 2 advanced abilities and 1 high ability');
             });
 
             it('should throw an error if pokemon has 2 basic abilities, 3 advanced abilities and 1 high ability', () =>
@@ -269,7 +271,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 };
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1 basic ability, 3 advanced abilities and 1 high ability OR 2 basic abilities, 2 advanced abilities and 1 high ability');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1 basic ability, 3 advanced abilities and 1 high ability OR 2 basic abilities, 2 advanced abilities and 1 high ability');
             });
 
             it('should not throw an error if pokemon has 1 basic ability, 3 advanced abilities and 1 high ability', () =>
@@ -310,7 +312,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.evolution = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have at least one evolution stage');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have at least one evolution stage');
             });
 
             it('should throw an error if evolution stage has empty name', () =>
@@ -324,7 +326,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should throw an error if evolution stage has only whitespace name', () =>
@@ -338,7 +340,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should throw an error if evolution stage is less than 1', () =>
@@ -352,7 +354,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should throw an error if evolution stage is greater than 3', () =>
@@ -366,7 +368,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should throw an error if evolution level is 0', () =>
@@ -380,7 +382,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should throw an error if evolution level is greater than 100', () =>
@@ -394,7 +396,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon evolution');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon evolution');
             });
 
             it('should not throw an error if evolutions are valid', () =>
@@ -427,7 +429,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.freedom = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in imperial units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in imperial units');
             });
 
             it('should throw an error if height freedom is only whitespace', () =>
@@ -437,7 +439,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.freedom = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in imperial units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in imperial units');
             });
 
             it('should throw an error if height metric is empty', () =>
@@ -447,7 +449,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.metric = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in metric units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in metric units');
             });
 
             it('should throw an error if height metric is only whitespace', () =>
@@ -457,7 +459,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.metric = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in metric units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in metric units');
             });
 
             it('should throw an error if height ptu is empty', () =>
@@ -467,7 +469,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.ptu = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in ptu units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in ptu units');
             });
 
             it('should throw an error if height ptu is only whitespace', () =>
@@ -477,7 +479,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.ptu = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a height in ptu units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a height in ptu units');
             });
 
             it('should throw an error if height ptu is invalid', () =>
@@ -487,7 +489,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.height.ptu = 'invalid' as PtuHeight;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon height');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon height');
             });
 
             it('should throw an error if weight freedom is empty', () =>
@@ -497,7 +499,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.freedom = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in imperial units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in imperial units');
             });
 
             it('should throw an error if weight freedom is only whitespace', () =>
@@ -507,7 +509,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.freedom = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in imperial units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in imperial units');
             });
 
             it('should throw an error if weight metric is empty', () =>
@@ -517,7 +519,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.metric = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in metric units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in metric units');
             });
 
             it('should throw an error if weight metric is only whitespace', () =>
@@ -527,7 +529,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.metric = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in metric units');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in metric units');
             });
 
             it('should throw an error if weight ptu is 0', () =>
@@ -537,7 +539,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.ptu = 0;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in ptu units between 1-7');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in ptu units between 1-7');
             });
 
             it('should throw an error if weight ptu is greater than 7', () =>
@@ -547,7 +549,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.sizeInformation.weight.ptu = 8;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a weight in ptu units between 1-7');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a weight in ptu units between 1-7');
             });
 
             it('should not throw an error if size information is valid', () =>
@@ -569,7 +571,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.averageHatchRate = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an average hatch rate');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an average hatch rate');
             });
 
             it('should throw an error if average hatch rate is only whitespace', () =>
@@ -579,7 +581,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.averageHatchRate = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an average hatch rate');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an average hatch rate');
             });
 
             it('should throw an error if pokemon has less than 1 egg group', () =>
@@ -589,7 +591,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.eggGroups = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 egg groups');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 egg groups');
             });
 
             it('should throw an error if pokemon has more than 3 egg groups', () =>
@@ -603,7 +605,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 egg groups');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 egg groups');
             });
 
             it('should throw an error if egg group is empty', () =>
@@ -613,7 +615,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.eggGroups = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon egg groups');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon egg groups');
             });
 
             it('should throw an error if egg group is only whitespace', () =>
@@ -623,7 +625,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.eggGroups = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon egg groups');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon egg groups');
             });
 
             it('should throw an error if egg group is invalid', () =>
@@ -633,7 +635,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.eggGroups = ['InvalidEggGroup'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon egg groups');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon egg groups');
             });
 
             it('should throw an error if gender ratio male and female do not sum to 100', () =>
@@ -643,7 +645,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.genderRatio = { male: 60, female: 50 };
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Male and female gender ratios must add up to 100');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Male and female gender ratios must add up to 100');
             });
 
             it('should throw an error if gender ratio has male, female, and none undefined', () =>
@@ -653,7 +655,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.breedingInformation.genderRatio = { none: undefined };
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('None gender ratio must be true when male and female are undefined');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('None gender ratio must be true when male and female are undefined');
             });
 
             it('should not throw an error if gender ratio is valid with male and female', () =>
@@ -700,7 +702,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.diets = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 diets');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 diets');
             });
 
             it('should throw an error if pokemon has more than 2 diets', () =>
@@ -714,7 +716,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-2 diets');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-2 diets');
             });
 
             it('should throw an error if diet is empty', () =>
@@ -724,7 +726,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.diets = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon diets');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon diets');
             });
 
             it('should throw an error if diet is only whitespace', () =>
@@ -734,7 +736,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.diets = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon diets');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon diets');
             });
 
             it('should throw an error if diet is invalid', () =>
@@ -744,7 +746,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.diets = ['InvalidDiet'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon diets');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon diets');
             });
 
             it('should not throw an error if diets are valid', () =>
@@ -767,7 +769,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.habitats = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-5 habitats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-5 habitats');
             });
 
             it('should throw an error if pokemon has more than 5 habitats', () =>
@@ -784,7 +786,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have 1-5 habitats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have 1-5 habitats');
             });
 
             it('should throw an error if habitat is empty', () =>
@@ -794,7 +796,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.habitats = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon habitats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon habitats');
             });
 
             it('should throw an error if habitat is only whitespace', () =>
@@ -804,7 +806,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.habitats = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon habitats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon habitats');
             });
 
             it('should throw an error if habitat is invalid', () =>
@@ -814,7 +816,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.habitats = ['InvalidHabitat'];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid pokemon habitats');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid pokemon habitats');
             });
 
             it('should not throw an error if habitats are valid', () =>
@@ -837,7 +839,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.overland = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Overland capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Overland capability cannot be negative');
             });
 
             it('should throw an error if swim capability is negative', () =>
@@ -847,7 +849,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.swim = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Swim capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Swim capability cannot be negative');
             });
 
             it('should throw an error if sky capability is negative', () =>
@@ -857,7 +859,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.sky = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Sky capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Sky capability cannot be negative');
             });
 
             it('should throw an error if levitate capability is negative', () =>
@@ -867,7 +869,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.levitate = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Levitate capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Levitate capability cannot be negative');
             });
 
             it('should throw an error if burrow capability is negative', () =>
@@ -877,7 +879,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.burrow = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Burrow capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Burrow capability cannot be negative');
             });
 
             it('should throw an error if high jump capability is negative', () =>
@@ -887,7 +889,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.highJump = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('High jump capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('High jump capability cannot be negative');
             });
 
             it('should throw an error if low jump capability is negative', () =>
@@ -897,7 +899,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.lowJump = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Low jump capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Low jump capability cannot be negative');
             });
 
             it('should throw an error if power capability is negative', () =>
@@ -907,7 +909,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.power = -1;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Power capability cannot be negative');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Power capability cannot be negative');
             });
 
             it('should throw an error if other capabilities is not an array', () =>
@@ -917,7 +919,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.capabilities.other = 'invalid' as unknown as typeof input.capabilities.other;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Other capabilities must be an array or undefined');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Other capabilities must be an array or undefined');
             });
 
             it('should not throw an error if other capabilities is undefined', () =>
@@ -970,7 +972,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.acrobatics = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an acrobatics skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an acrobatics skill');
             });
 
             it('should throw an error if acrobatics skill is only whitespace', () =>
@@ -980,7 +982,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.acrobatics = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an acrobatics skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an acrobatics skill');
             });
 
             it('should throw an error if athletics skill is empty', () =>
@@ -990,7 +992,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.athletics = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an athletics skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an athletics skill');
             });
 
             it('should throw an error if athletics skill is only whitespace', () =>
@@ -1000,7 +1002,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.athletics = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an athletics skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an athletics skill');
             });
 
             it('should throw an error if combat skill is empty', () =>
@@ -1010,7 +1012,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.combat = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a combat skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a combat skill');
             });
 
             it('should throw an error if combat skill is only whitespace', () =>
@@ -1020,7 +1022,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.combat = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a combat skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a combat skill');
             });
 
             it('should throw an error if focus skill is empty', () =>
@@ -1030,7 +1032,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.focus = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an focus skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an focus skill');
             });
 
             it('should throw an error if focus skill is only whitespace', () =>
@@ -1040,7 +1042,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.focus = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an focus skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an focus skill');
             });
 
             it('should throw an error if perception skill is empty', () =>
@@ -1050,7 +1052,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.perception = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a perception skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a perception skill');
             });
 
             it('should throw an error if perception skill is only whitespace', () =>
@@ -1060,7 +1062,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.perception = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a perception skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a perception skill');
             });
 
             it('should throw an error if stealth skill is empty', () =>
@@ -1070,7 +1072,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.stealth = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a stealth skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a stealth skill');
             });
 
             it('should throw an error if stealth skill is only whitespace', () =>
@@ -1080,7 +1082,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.skills.stealth = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a stealth skill');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a stealth skill');
             });
 
             it('should not throw an error if skills are valid', () =>
@@ -1102,7 +1104,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList = null as unknown as typeof input.moveList;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a move list');
             });
 
             it('should throw an error if pokemon does not have a level up move list', () =>
@@ -1112,7 +1114,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.levelUp = null as unknown as typeof input.moveList.levelUp;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a level up move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a level up move list');
             });
 
             it('should throw an error if pokemon does not have an egg move list', () =>
@@ -1122,7 +1124,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.eggMoves = null as unknown as typeof input.moveList.eggMoves;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an egg move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an egg move list');
             });
 
             it('should throw an error if pokemon does not have a tm/hm move list', () =>
@@ -1132,7 +1134,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tmHm = null as unknown as typeof input.moveList.tmHm;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a tm/hm move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a tm/hm move list');
             });
 
             it('should throw an error if pokemon does not have a tutor move list', () =>
@@ -1142,7 +1144,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tutorMoves = null as unknown as typeof input.moveList.tutorMoves;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a tutor move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a tutor move list');
             });
 
             it('should throw an error if zygarde cube moves is not undefined or array', () =>
@@ -1152,7 +1154,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.zygardeCubeMoves = 'invalid' as unknown as typeof input.moveList.zygardeCubeMoves;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have an undefined or array zygarde cube move list');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have an undefined or array zygarde cube move list');
             });
 
             it('should throw an error if level up move list is empty', () =>
@@ -1162,7 +1164,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.levelUp = [];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have at least one level up move');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have at least one level up move');
             });
 
             it('should throw an error if level up move list more than 50 moves', () =>
@@ -1176,7 +1178,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 }));
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have less than 50 level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have less than 50 level up moves');
             });
 
             it('should throw an error if level up move has empty move name', () =>
@@ -1190,7 +1192,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has only whitespace move name', () =>
@@ -1204,7 +1206,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has empty type', () =>
@@ -1218,7 +1220,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has only whitespace type', () =>
@@ -1232,7 +1234,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has invalid type', () =>
@@ -1246,7 +1248,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has negative level', () =>
@@ -1260,7 +1262,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should throw an error if level up move has level greater than 100', () =>
@@ -1274,7 +1276,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid level up moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid level up moves');
             });
 
             it('should not throw an error if level up move has string level', () =>
@@ -1298,7 +1300,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.eggMoves = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid egg moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid egg moves');
             });
 
             it('should throw an error if egg move is only whitespace', () =>
@@ -1308,7 +1310,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.eggMoves = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid egg moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid egg moves');
             });
 
             it('should throw an error if tm/hm move is empty', () =>
@@ -1318,7 +1320,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tmHm = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid tm/hm moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid tm/hm moves');
             });
 
             it('should throw an error if tm/hm move is only whitespace', () =>
@@ -1328,7 +1330,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tmHm = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid tm/hm moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid tm/hm moves');
             });
 
             it('should throw an error if tutor move is empty', () =>
@@ -1338,7 +1340,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tutorMoves = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid tutor moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid tutor moves');
             });
 
             it('should throw an error if tutor move is only whitespace', () =>
@@ -1348,7 +1350,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.tutorMoves = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid tutor moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid tutor moves');
             });
 
             it('should throw an error if zygarde cube move is empty', () =>
@@ -1358,7 +1360,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.zygardeCubeMoves = [''];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid zygarde cube moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid zygarde cube moves');
             });
 
             it('should throw an error if zygarde cube move is only whitespace', () =>
@@ -1368,7 +1370,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.moveList.zygardeCubeMoves = ['   '];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid zygarde cube moves');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid zygarde cube moves');
             });
 
             it('should not throw an error if move list is valid', () =>
@@ -1390,7 +1392,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.dexNumber = undefined;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon must have a dex number');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon must have a dex number');
             });
 
             it('should throw an error if dex number is empty', () =>
@@ -1400,7 +1402,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.dexNumber = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon dex number cannot be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon dex number cannot be empty');
             });
 
             it('should throw an error if dex number is only whitespace', () =>
@@ -1410,7 +1412,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.dexNumber = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon dex number cannot be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon dex number cannot be empty');
             });
 
             it('should throw an error if source is empty', () =>
@@ -1420,7 +1422,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.source = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon source cannot be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon source cannot be empty');
             });
 
             it('should throw an error if source is only whitespace', () =>
@@ -1430,7 +1432,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.source = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon source cannot be empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon source cannot be empty');
             });
 
             it('should throw an error if image url is defined but empty', () =>
@@ -1440,7 +1442,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.imageUrl = '';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon image url must be undefined or not empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon image url must be undefined or not empty');
             });
 
             it('should throw an error if image url is defined but only whitespace', () =>
@@ -1450,7 +1452,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.metadata.imageUrl = '   ';
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Pokemon image url must be undefined or not empty');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Pokemon image url must be undefined or not empty');
             });
 
             it('should not throw an error if image url is undefined', () =>
@@ -1488,7 +1490,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 input.megaEvolutions = 'invalid' as unknown as typeof input.megaEvolutions;
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Mega evolutions must be an array or undefined');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Mega evolutions must be an array or undefined');
             });
 
             it('should throw an error if mega evolution has empty name', () =>
@@ -1505,7 +1507,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has only whitespace name', () =>
@@ -1522,7 +1524,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has invalid type', () =>
@@ -1539,7 +1541,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has empty ability', () =>
@@ -1556,7 +1558,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has only whitespace ability', () =>
@@ -1573,7 +1575,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has defined but empty ability shift', () =>
@@ -1591,7 +1593,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has defined but only whitespace ability shift', () =>
@@ -1609,7 +1611,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution capabilities is not undefined or array', () =>
@@ -1627,7 +1629,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has stat with empty value', () =>
@@ -1644,7 +1646,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has undefined stats', () =>
@@ -1661,7 +1663,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should throw an error if mega evolution has stat with only whitespace value', () =>
@@ -1678,7 +1680,7 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 ];
 
                 // Act & Assert
-                expect(() => PtuPokemonCollection.validate(input)).toThrow('Invalid mega evolution(s)');
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
             it('should not throw an error if mega evolutions is undefined', () =>
