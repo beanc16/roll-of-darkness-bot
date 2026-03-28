@@ -68,10 +68,10 @@ export class LookupMoveStrategy
             ...(data.length === 1
                 ? {
                     rowsAbovePagination: [
-                        new LookupMoveActionRowBuilder(),
+                        new LookupMoveActionRowBuilder({ basedOn: data[0].basedOn }),
                     ],
                     onRowAbovePaginationButtonPress: async (buttonInteraction) =>
-                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name),
+                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name, data[0].basedOn),
                 }
                 : {}
             ),
@@ -261,11 +261,15 @@ export class LookupMoveStrategy
         buttonInteraction: ButtonInteraction,
         strategies: PtuStrategyMap,
         moveName: string,
+        basedOnMoveName: string | undefined,
     ): Promise<Pick<OnRowAbovePaginationButtonPressResponse, 'shouldUpdateMessage'>>
     {
         const handlerMap: Record<LookupMoveCustomId, () => Promise<boolean | undefined>> = {
             [LookupMoveCustomId.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(buttonInteraction, strategies, {
                 moveName,
+            }),
+            [LookupMoveCustomId.LookupBasedOnMove]: async () => await this.run(buttonInteraction, strategies, {
+                names: [...(basedOnMoveName ? [basedOnMoveName] : [])],
             }),
         };
 
