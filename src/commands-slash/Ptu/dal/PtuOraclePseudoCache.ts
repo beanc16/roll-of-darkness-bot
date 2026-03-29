@@ -99,6 +99,32 @@ export class PtuOraclePseudoCache
         return result;
     }
 
+    public static async getGameByName(name: string): Promise<PtuOracleGameCollection>
+    {
+        const result = await OracleGameController.getMostRecent({ name }) as PtuOracleGameCollection | undefined;
+
+        if (!result)
+        {
+            throw new Error(`Could not find oracle game with name ${name.toString()}`);
+        }
+
+        return result;
+    }
+
+    public static async getGamesByDiscordUserId(discordUserId: string): Promise<PtuOracleGameCollection[]>
+    {
+        const { results = [] } = await OracleGameController.getAll({
+            $or: [
+                { dealerDiscordUserId: discordUserId },
+                { playerDiscordUserIds: { $in: [discordUserId] } },
+            ],
+        }) as {
+            results: PtuOracleGameCollection[];
+        };
+
+        return results;
+    }
+
     public static async createGame(input: PtuOracleGameToCreate): Promise<PtuOracleGameCollection>
     {
         const {

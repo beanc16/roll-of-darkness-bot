@@ -69,6 +69,7 @@ export enum PtuAutocompleteParameterName
     MaleSpecies = 'male_species',
     MoveName = 'move_name',
     NatureName = 'nature_name',
+    OracleGameName = 'oracle_game_name',
     PokeballName = 'pokeball_name',
     PokemonName = 'pokemon_name',
     PokemonToEvolve = 'pokemon_to_evolve',

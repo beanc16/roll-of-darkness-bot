@@ -13,6 +13,7 @@ import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/Base
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
 import { PtuFakemonPseudoCache } from '../dal/PtuFakemonPseudoCache.js';
+import { PtuOraclePseudoCache } from '../dal/PtuOraclePseudoCache.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
@@ -553,6 +554,26 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
             }),
+            [PtuAutocompleteParameterName.OracleGameName]: async () =>
+            {
+                const games = await PtuOraclePseudoCache.getGamesByDiscordUserId(userId);
+
+                // Set the unique names of the pokemon that can evolve
+                const set = games.reduce<Set<string>>((
+                    acc,
+                    { name },
+                ) =>
+                {
+                    acc.add(name);
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(pokemonName => output.push({ name: pokemonName }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [PtuAutocompleteParameterName.PokeballName]: () => PtuStrategyExecutor.getLookupData<PtuPokeball>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokeball,

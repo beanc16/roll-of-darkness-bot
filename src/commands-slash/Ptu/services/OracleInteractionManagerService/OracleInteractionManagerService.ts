@@ -45,7 +45,7 @@ export class OracleInteractionManagerService extends InteractionManager
         },
     ): Promise<InteractionManagerPage>
     {
-        const currentHand = await OracleHandManagerService.getCurrentHand(game);
+        const currentHand = await OracleHandManagerService.getCurrentHandDetailed(game);
 
         switch (page)
         {

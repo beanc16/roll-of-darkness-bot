@@ -1,9 +1,12 @@
 import type { SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+
 export enum PtuGameSubcommand
 {
     Hangmon = 'hangmon',
     Oracle_Create = 'oracle_create',
+    Oracle_Continue = 'oracle_continue',
     // Oracle_View = 'oracle_view',
     // Oracle_View_All = 'oracle_view_all',
 }
@@ -53,6 +56,22 @@ export const oracleCreate = (subcommand: SlashCommandSubcommandBuilder): SlashCo
             return option;
         });
     }
+
+    return subcommand;
+};
+
+export const oracleContinue = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuGameSubcommand.Oracle_Continue);
+    subcommand.setDescription('Oracle deck minigame where you gain insight on the past, present, and future based on Pokemon gods.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.OracleGameName);
+        option.setDescription('The name of the game.');
+        option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
 
     return subcommand;
 };

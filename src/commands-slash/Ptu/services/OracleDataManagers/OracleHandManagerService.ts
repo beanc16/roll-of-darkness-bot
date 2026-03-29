@@ -443,7 +443,13 @@ export class OracleHandManagerService
         });
     }
 
-    public static async getCurrentHand({ hands }: Pick<PtuOracleGameCollection, 'hands'>): Promise<PtuOraclePlayerHandDetailed | undefined>
+    public static getCurrentHand({ hands }: Pick<PtuOracleGameCollection, 'hands'>): PtuOraclePlayerHand | undefined
+    {
+        const { current: currentHand } = this.getCurrentAndPriorElementsFromArray(hands);
+        return currentHand;
+    }
+
+    public static async getCurrentHandDetailed({ hands }: Pick<PtuOracleGameCollection, 'hands'>): Promise<PtuOraclePlayerHandDetailed | undefined>
     {
         const { current: currentHand } = this.getCurrentAndPriorElementsFromArray(hands);
 
