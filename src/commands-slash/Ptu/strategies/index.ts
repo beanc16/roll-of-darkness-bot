@@ -25,7 +25,11 @@ import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
-import { PtuPokemon } from '../types/pokemon.js';
+import {
+    PokemonDiet,
+    PokemonHabitat,
+    PtuPokemon,
+} from '../types/pokemon.js';
 import { PtuBerry } from '../types/PtuBerry.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
@@ -461,6 +465,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     return acc;
                 }, []);
             },
+            [PtuAutocompleteParameterName.DietName]: () => Promise.resolve(
+                Object.values(PokemonDiet).map(habitat => ({ name: habitat })),
+            ),
             [PtuAutocompleteParameterName.EdgeName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
@@ -510,6 +517,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommand: PtuLookupSubcommand.GiftBlessing,
                 });
             },
+            [PtuAutocompleteParameterName.HabitatName]: () => Promise.resolve(
+                Object.values(PokemonHabitat).map(habitat => ({ name: habitat })),
+            ),
             [PtuAutocompleteParameterName.HazardName]: () => PtuStrategyExecutor.getLookupData<PtuHazard>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Hazard,
@@ -647,7 +657,15 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             }
 
             // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
-            acc.add(element[propertyToExtract] ?? element.name);
+            const value = element[propertyToExtract] ?? element.name;
+
+            // Skip empty strings
+            if (value === '')
+            {
+                return acc;
+            }
+
+            acc.add(value);
             return acc;
 
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */

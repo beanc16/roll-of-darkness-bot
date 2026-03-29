@@ -8,20 +8,7 @@ import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomMo
 import { getPokemonBreedingEmbedMessage } from '../../embed-messages/breed.js';
 import breedPokemonStateSingleton, { BreedPokemonShouldPickKey } from '../../models/breedPokemonStateSingleton.js';
 import { getBreedPokemonUpdatablesButtonRowComponent } from '../../services/breedPokemonHelpers.js';
-import { PokemonGender } from '../../types/breed.js';
 import { BreedPokemonCustomIds, BreedPokemonModalLabel } from './types.js';
-
-enum GenderInput
-{
-    Male = PokemonGender.Male,
-    Female = PokemonGender.Female,
-    Boy = PokemonGender.Male,
-    Girl = PokemonGender.Female,
-    M = PokemonGender.Male,
-    F = PokemonGender.Female,
-    B = PokemonGender.Male,
-    G = PokemonGender.Female,
-}
 
 export class BreedPokemonUpdateGenderModal extends BaseCustomModal
 {
@@ -62,28 +49,12 @@ export class BreedPokemonUpdateGenderModal extends BaseCustomModal
             input: string;
         };
 
-        // Parse input to enum
-        const gender = Object.entries(GenderInput).find(([key, _value]) =>
-            key.toString().toLowerCase() === input.toLowerCase(),
-        )?.[1];
-
-        // Exit early if input is invalid
-        if (gender === undefined)
-        {
-            const possibleGenders = `\`\`\`\n- ${Object.values(GenderInput).join('\n- ')}\n\`\`\``;
-            await interaction.reply({
-                content: `Input is invalid. Gender must be one of the following:\n${possibleGenders}`,
-                ephemeral: true,
-            });
-            return;
-        }
-
         // Update state
         const stateKey = interaction.message?.id as string;
         const previousState = breedPokemonStateSingleton.get(stateKey);
         const newState = breedPokemonStateSingleton.upsert(stateKey, {
             ...previousState,
-            genderResult: { gender: gender.toString() as PokemonGender },
+            genderResult: { gender: input },
             userShouldPick: {
                 ...previousState.userShouldPick,
                 [BreedPokemonShouldPickKey.Gender]: false,

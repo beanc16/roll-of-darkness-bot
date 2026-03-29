@@ -23,6 +23,7 @@ import {
     getLookupPokemonByBstEmbedMessages,
     getLookupPokemonByCapabilityEmbedMessages,
     getLookupPokemonByEggGroupsEmbedMessages,
+    getLookupPokemonByHabitatsAndOrDietsEmbedMessages,
     getLookupPokemonByMoveEmbedMessages,
     getLookupPokemonEmbedMessages,
     PtuPokemonForLookupPokemon,
@@ -40,6 +41,8 @@ import {
     PtuPokemon,
 } from '../../types/pokemon.js';
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
+import type { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
+import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
 
 interface GetOptionsResponse
 {
@@ -49,6 +52,8 @@ interface GetOptionsResponse
     abilityName?: string | null;
     abilityListType: PtuAbilityListType;
     capabilityName?: string | null;
+    habitatName?: string | null;
+    dietName?: string | null;
     baseStatTotal?: number | null;
     eggGroups?: string[];
     includeContestInfo?: boolean | null;
@@ -64,6 +69,8 @@ export interface GetLookupPokemonDataParameters
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
     capabilityName?: string | null;
+    habitatName?: string | null;
+    dietName?: string | null;
     eggGroups?: string[];
     baseStatTotal?: number | null;
     getAll?: boolean;
@@ -119,13 +126,15 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             includeContestInfo,
             interactionType,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
-        const numOfTruthyValues = [names, moveName, abilityName, capabilityName, eggGroups, baseStatTotal].filter(Boolean).length;
+        const numOfTruthyValues = [names, moveName, abilityName, capabilityName, habitatName, dietName, eggGroups, baseStatTotal].filter(Boolean).length;
         if (numOfTruthyValues === 0)
         {
             await PaginationStrategy.run({
@@ -138,12 +147,17 @@ export class LookupPokemonStrategy
             return true;
         }
 
-        if (numOfTruthyValues > 1)
+        if (
+            // Can only have 1 value if not habitat or diet
+            (numOfTruthyValues > 1 && !(habitatName || dietName))
+            // Can have have habitat and/or diet at the same time
+            || (numOfTruthyValues > 2 && (habitatName || dietName))
+        )
         {
             await PaginationStrategy.run({
                 originalInteraction: interaction,
                 commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, egg groups, or base stat total at the same time.',
+                content: 'Cannot look up a Pokémon by more than just one of name, move, ability, capability, habitat, diet, egg groups, or base stat total at the same time. (Though habitat and diet can be used at the same time.)',
                 includeDeleteButton: true,
                 interactionType,
             });
@@ -158,6 +172,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
         });
@@ -169,6 +185,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             pokemon: data,
@@ -177,19 +195,6 @@ export class LookupPokemonStrategy
 
         // Get message
         const embeds = this.getFirstEmbeds(embedsInput);
-
-        // Send no results found
-        if (embeds.length === 0)
-        {
-            await PaginationStrategy.run({
-                originalInteraction: interaction,
-                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
-                content: 'No Pokémon were found.',
-                includeDeleteButton: true,
-                interactionType,
-            });
-            return true;
-        }
 
         // Get selected value (in string select menu, if there is one)
         let selectedValue: string | undefined;
@@ -204,6 +209,26 @@ export class LookupPokemonStrategy
             selectedValue = first.versionName;
         }
 
+        // Send no results found
+        if (embeds.length === 0)
+        {
+            await this.sendNoPokemonFoundMessage({
+                originalInteraction: interaction,
+                strategies,
+                embeds,
+                names,
+                moveName,
+                abilityName,
+                capabilityName,
+                habitatName,
+                dietName,
+                pokemon: data,
+                selectedValue,
+                interactionType,
+            });
+            return true;
+        }
+
         await this.sendMessage({
             originalInteraction: interaction,
             strategies,
@@ -212,6 +237,8 @@ export class LookupPokemonStrategy
             moveName,
             abilityName,
             capabilityName,
+            habitatName,
+            dietName,
             pokemon: data,
             selectedValue,
             interactionType,
@@ -228,12 +255,14 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || eggGroups || baseStatTotal || getAll))
+        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || habitatName || dietName || eggGroups || baseStatTotal || getAll))
         {
             return [];
         }
@@ -246,6 +275,8 @@ export class LookupPokemonStrategy
             abilityName,
             abilityListType,
             capabilityName,
+            habitatName,
+            dietName,
             eggGroups,
             baseStatTotal,
             getAll,
@@ -805,6 +836,279 @@ export class LookupPokemonStrategy
         return this.getLookupPokemonEmbeds(options);
     }
 
+    private static async getRowsAbovePagination({
+        strategies,
+        names,
+        moveName,
+        abilityName,
+        capabilityName,
+        eggGroups,
+        pokemon,
+        selectedValue,
+        isDisabled = false,
+    }: {
+        strategies: PtuStrategyMap;
+        names?: (string | null | undefined)[];
+        moveName?: string | null;
+        abilityName?: string | null;
+        capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
+        eggGroups?: string[];
+        pokemon: PtuPokemon[];
+        selectedValue?: PtuMoveListType | string;
+        isDisabled?: boolean;
+    }): Promise<{
+            rowsAbovePagination: [
+            ActionRowBuilder<StringSelectMenuBuilder>?,
+            ActionRowBuilder<ButtonBuilder>?,
+            ];
+            selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+            basedOnMoveName: string | undefined;
+            basedOnAbilityName: string | undefined;
+        }>
+    {
+        // Get the select menu based on how the lookup is happening
+        let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
+        let buttonRow: LookupPokemonActionRowBuilder | undefined;
+        let basedOnMoveName: string | undefined;
+        let basedOnAbilityName: string | undefined;
+
+        if (names)
+        {
+            selectMenuRow = this.getLookupPokemonSelectMenu({
+                pokemon,
+                isDisabled,
+                selectedValue,
+            });
+        }
+        else if (moveName)
+        {
+            // Get the move that this move is based on (if any) for looking up
+            // the move that its based on, if it exists
+            const [move] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy).getLookupData({
+                names: [moveName],
+            });
+            basedOnMoveName = move.basedOn;
+
+            selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
+                defaultMoveListType: selectedValue as PtuMoveListType,
+                moveName,
+                pokemon,
+                isDisabled,
+            });
+            buttonRow = new LookupPokemonActionRowBuilder({ moveName, basedOnMoveName });
+        }
+        else if (abilityName)
+        {
+            // Get the ability that this ability is based on (if any) for looking up
+            // the ability that its based on, if it exists
+            const [ability] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability] as typeof LookupAbilityStrategy).getLookupData({
+                name: abilityName,
+            });
+            basedOnAbilityName = ability.basedOn;
+
+            buttonRow = new LookupPokemonActionRowBuilder({ abilityName, basedOnAbilityName });
+        }
+        else if (capabilityName)
+        {
+            buttonRow = new LookupPokemonActionRowBuilder({ capabilityName });
+        }
+        else if (eggGroups)
+        {
+            buttonRow = new LookupPokemonActionRowBuilder({ eggGroups });
+        }
+
+        const rowsAbovePagination: [
+            ActionRowBuilder<StringSelectMenuBuilder>?,
+            ActionRowBuilder<ButtonBuilder>?,
+        ] = [selectMenuRow, buttonRow];
+
+        return {
+            rowsAbovePagination,
+            selectMenuRow,
+            basedOnMoveName,
+            basedOnAbilityName,
+        };
+    }
+
+    private static async sendNoPokemonFoundMessage({
+        originalInteraction,
+        strategies,
+        embeds,
+        names,
+        moveName,
+        abilityName,
+        capabilityName,
+        eggGroups,
+        pokemon,
+        interactionType,
+        selectedValue,
+        isDisabled = false,
+    }: {
+        originalInteraction: ChatInputCommandInteraction | ButtonInteraction;
+        strategies: PtuStrategyMap;
+        embeds: EmbedBuilder[];
+        names?: (string | null | undefined)[];
+        moveName?: string | null;
+        abilityName?: string | null;
+        capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
+        eggGroups?: string[];
+        pokemon: PtuPokemon[];
+        interactionType?: PaginationInteractionType;
+        selectedValue?: PtuMoveListType | string;
+        isDisabled?: boolean;
+    }): Promise<void>
+    {
+        const getRowsAbovePagination = await this.getRowsAbovePagination({
+            strategies,
+            names,
+            moveName,
+            abilityName,
+            capabilityName,
+            eggGroups,
+            pokemon,
+            selectedValue,
+            isDisabled,
+        });
+        let { selectMenuRow } = getRowsAbovePagination;
+        const {
+            rowsAbovePagination,
+            basedOnMoveName,
+            basedOnAbilityName,
+        } = getRowsAbovePagination;
+
+        // Send messages with pagination
+        await PaginationStrategy.run({
+            originalInteraction,
+            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Pokemon}`,
+            content: 'No Pokémon were found.',
+            interactionType,
+            rowsAbovePagination,
+            onRowAbovePaginationButtonPress: async (receivedInteraction) =>
+            {
+                // The only options with string select menus or buttons
+                if (!(names || moveName || abilityName || capabilityName))
+                {
+                    return { embeds };
+                }
+
+                const { customId, values = [] } = receivedInteraction as StringSelectMenuInteraction;
+                const [value] = values;
+
+                let newEmbeds: EmbedBuilder[] = [];
+
+                if (customId.includes(this.selectMenuCustomIds.PokemonViewSelect))
+                {
+                    // Create a map of version name to pokemon
+                    const [onlyPokemon] = pokemon;
+                    const { olderVersions = [] } = onlyPokemon;
+                    const versionNameToPokemon: Record<string, PtuPokemon> = {
+                        [onlyPokemon.versionName]: onlyPokemon,
+                    };
+
+                    olderVersions.forEach((curPokemon) =>
+                    {
+                        const { versionName } = curPokemon;
+
+                        versionNameToPokemon[versionName] = {
+                            name: onlyPokemon.name,
+                            ...curPokemon,
+                        };
+                    });
+
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        names,
+                        pokemon: [versionNameToPokemon[value]],
+                    });
+                    selectMenuRow = this.getLookupPokemonSelectMenu({
+                        pokemon,
+                        isDisabled,
+                        selectedValue: value,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
+                }
+                else if (customId === this.selectMenuCustomIds.MoveViewSelect)
+                {
+                    const moveListType = value as PtuMoveListType;
+                    newEmbeds = this.getLookupPokemonEmbeds({
+                        moveName,
+                        moveListType,
+                        pokemon,
+                    });
+                    selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
+                        defaultMoveListType: moveListType,
+                        moveName: moveName as string,
+                        pokemon,
+                        isDisabled,
+                    });
+                    rowsAbovePagination[0] = selectMenuRow;
+                }
+                else if (customId === LookupPokemonCustomId.LookupMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        names: [moveName],
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        names: [basedOnMoveName],
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupPokemonByBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await this.run(receivedInteraction as ButtonInteraction, strategies, {
+                        moveName: basedOnMoveName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupAbility.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: abilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupBasedOnAbility.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: basedOnAbilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupPokemonByBasedOnAbility.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await this.run(receivedInteraction as ButtonInteraction, strategies, {
+                        abilityName: basedOnAbilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupCapability.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Capability]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        name: capabilityName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+
+                return { embeds: newEmbeds, rowsAbovePagination };
+            },
+            includeDeleteButton: true,
+        });
+    }
+
     private static async sendMessage({
         originalInteraction,
         strategies,
@@ -826,6 +1130,8 @@ export class LookupPokemonStrategy
         moveName?: string | null;
         abilityName?: string | null;
         capabilityName?: string | null;
+        habitatName?: string | null;
+        dietName?: string | null;
         eggGroups?: string[];
         pokemon: PtuPokemon[];
         interactionType?: PaginationInteractionType;
@@ -833,45 +1139,19 @@ export class LookupPokemonStrategy
         isDisabled?: boolean;
     }): Promise<void>
     {
-        // Get the select menu based on how the lookup is happening
-        let selectMenuRow: ActionRowBuilder<StringSelectMenuBuilder> | undefined;
-        let buttonRow: LookupPokemonActionRowBuilder | undefined;
-
-        if (names)
-        {
-            selectMenuRow = this.getLookupPokemonSelectMenu({
-                pokemon,
-                isDisabled,
-                selectedValue,
-            });
-        }
-        else if (moveName)
-        {
-            selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
-                defaultMoveListType: selectedValue as PtuMoveListType,
-                moveName,
-                pokemon,
-                isDisabled,
-            });
-            buttonRow = new LookupPokemonActionRowBuilder({ moveName });
-        }
-        else if (abilityName)
-        {
-            buttonRow = new LookupPokemonActionRowBuilder({ abilityName });
-        }
-        else if (capabilityName)
-        {
-            buttonRow = new LookupPokemonActionRowBuilder({ capabilityName });
-        }
-        else if (eggGroups)
-        {
-            buttonRow = new LookupPokemonActionRowBuilder({ eggGroups });
-        }
-
-        const rowsAbovePagination: [
-            ActionRowBuilder<StringSelectMenuBuilder>?,
-            ActionRowBuilder<ButtonBuilder>?,
-        ] = [selectMenuRow, buttonRow];
+        const getRowsAbovePagination = await this.getRowsAbovePagination({
+            strategies,
+            names,
+            moveName,
+            abilityName,
+            capabilityName,
+            eggGroups,
+            pokemon,
+            selectedValue,
+            isDisabled,
+        });
+        let { selectMenuRow } = getRowsAbovePagination;
+        const { rowsAbovePagination, basedOnMoveName } = getRowsAbovePagination;
 
         // Send messages with pagination
         await PaginationStrategy.run({
@@ -947,6 +1227,22 @@ export class LookupPokemonStrategy
                     });
                     return { shouldUpdateMessage: false };
                 }
+                else if (customId === LookupPokemonCustomId.LookupBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move]?.run(receivedInteraction as ButtonInteraction, strategies, {
+                        names: [basedOnMoveName],
+                    });
+                    return { shouldUpdateMessage: false };
+                }
+                else if (customId === LookupPokemonCustomId.LookupPokemonByBasedOnMove.toString())
+                {
+                    await receivedInteraction.deferReply({ fetchReply: true });
+                    await this.run(receivedInteraction as ButtonInteraction, strategies, {
+                        moveName: basedOnMoveName,
+                    });
+                    return { shouldUpdateMessage: false };
+                }
                 else if (customId === LookupPokemonCustomId.LookupAbility.toString())
                 {
                     await receivedInteraction.deferReply({ fetchReply: true });
@@ -978,6 +1274,8 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         getAll,
@@ -1031,73 +1329,7 @@ export class LookupPokemonStrategy
 
         if (moveName)
         {
-            let key: string;
-            // eslint-disable-next-line default-case
-            switch (moveListType)
-            {
-                case PtuMoveListType.EggMoves:
-                case PtuMoveListType.TutorMoves:
-                case PtuMoveListType.ZygardeCubeMoves:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: moveName,
-                    };
-                    break;
-                case PtuMoveListType.TmHm:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    };
-                    break;
-                case PtuMoveListType.LevelUp:
-                    key = `moveList.${moveListType}`;
-                    output = {
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    };
-                    break;
-                case PtuMoveListType.All:
-                    // eslint-disable-next-line no-case-declarations
-                    const searchParams: object[] = [
-                        PtuMoveListType.EggMoves,
-                        PtuMoveListType.TutorMoves,
-                        PtuMoveListType.ZygardeCubeMoves,
-                    ].map((listType) =>
-                    {
-                        key = `moveList.${listType}`;
-                        return {
-                            [key]: moveName,
-                        };
-                    });
-
-                    key = `moveList.${PtuMoveListType.TmHm}`;
-                    searchParams.push({
-                        [key]: parseRegexByType(
-                            moveName,
-                            RegexLookupType.SubstringCaseInsensitive,
-                        ),
-                    });
-
-                    key = `moveList.${PtuMoveListType.LevelUp}`;
-                    searchParams.push({
-                        [key]: {
-                            $elemMatch: {
-                                move: moveName,
-                            },
-                        },
-                    });
-
-                    output = {
-                        $or: searchParams,
-                    };
-                    break;
-            }
+            output = PokemonController.getMoveListTypeSearchParams([moveName], moveListType);
         }
 
         if (abilityName)
@@ -1143,6 +1375,32 @@ export class LookupPokemonStrategy
             };
         }
 
+        if (habitatName || dietName)
+        {
+            output = {
+                ...(habitatName
+                    ? {
+                        habitats: {
+                            $in: [
+                                parseRegexByType(habitatName, lookupType),
+                            ],
+                        },
+                    }
+                    : {}
+                ),
+                ...(dietName
+                    ? {
+                        diets: {
+                            $in: [
+                                parseRegexByType(dietName, lookupType),
+                            ],
+                        },
+                    }
+                    : {}
+                ),
+            };
+        }
+
         // Add the same searches for edits
         output = {
             $or: [
@@ -1167,6 +1425,8 @@ export class LookupPokemonStrategy
         abilityName,
         abilityListType = PtuAbilityListType.All,
         capabilityName,
+        habitatName,
+        dietName,
         eggGroups,
         baseStatTotal,
         pokemon,
@@ -1198,6 +1458,14 @@ export class LookupPokemonStrategy
         {
             return getLookupPokemonByCapabilityEmbedMessages(pokemon, {
                 capabilityName,
+            });
+        }
+
+        if (habitatName || dietName)
+        {
+            return getLookupPokemonByHabitatsAndOrDietsEmbedMessages(pokemon, {
+                habitatName,
+                dietName,
             });
         }
 
@@ -1416,6 +1684,8 @@ export class LookupPokemonStrategy
         const abilityName = interaction.options.getString(PtuAutocompleteParameterName.AbilityName);
         const abilityListType = (interaction.options.getString('ability_list_type') ?? PtuAbilityListType.All) as PtuAbilityListType;
         const capabilityName = interaction.options.getString(PtuAutocompleteParameterName.CapabilityName);
+        const habitatName = interaction.options.getString('habitat_name');
+        const dietName = interaction.options.getString('diet_name');
         const eggGroup1 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup1);
         const eggGroup2 = interaction.options.getString(PtuAutocompleteParameterName.EggGroup2);
         const baseStatTotal = interaction.options.getInteger('base_stat_total');
@@ -1432,6 +1702,8 @@ export class LookupPokemonStrategy
                 ? { eggGroups: [eggGroup1, eggGroup2].filter(eg => eg !== null) }
                 : { eggGroups: undefined }
             ),
+            habitatName,
+            dietName,
             baseStatTotal,
             includeContestInfo,
         };

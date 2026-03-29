@@ -4,14 +4,14 @@ import {
     StringSelectMenuBuilder,
 } from 'discord.js';
 
-import { FakemonInteractionManagerPage } from '../../../services/FakemonInteractionManagerService/types.js';
+import { FakemonInteractionManagerPage } from '../../../../services/FakemonInteractionManagerService/types.js';
 
 export enum FakemonOverviewStringSelectCustomIds
 {
     Navigation = 'fakemon-overview-navigation-selector',
 }
 
-export class FakemonOverviewActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
+export class FakemonOverviewNavigationActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
     constructor(curPage: FakemonInteractionManagerPage)
     {

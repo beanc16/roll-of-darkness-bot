@@ -11,6 +11,7 @@ import {
 } from 'discord.js';
 
 import { modalMap } from '../modals/index.js';
+import commandMetadataSingleton from '../models/commandMetadataSingleton.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 
 async function handler(
@@ -127,7 +128,9 @@ async function handler(
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = commandInteraction?.commandName?.split(' ') ?? [];
+        ] = commandInteraction?.commandName?.split(' ')
+            ?? commandMetadataSingleton.get(interaction.message.id)
+            ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);
@@ -180,7 +183,9 @@ async function handler(
             commandName = '',
             subcommandGroup = '',
             subcommand = '',
-        ] = commandInteraction?.commandName?.split(' ') ?? [];
+        ] = commandInteraction?.commandName?.split(' ')
+            ?? commandMetadataSingleton.get(interaction.message.id)
+            ?? [];
 
         const slashCommand = SlashCommandsContainer.getCommand(commandName)
             || SlashCommandsContainer.getGuildCommand(commandName);

@@ -6,9 +6,11 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import commandMetadataSingleton from '../../../../models/commandMetadataSingleton.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
 import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
@@ -53,15 +55,27 @@ export class FakemonDeleteStrategy
 
         // Send response
         const message = await interaction.fetchReply();
-        await interaction.followUp({
+        const newMessage = await interaction.followUp({
             content: `Are you sure that you want to delete ${Text.Code.oneLine(speciesName)}?`,
             components: [
                 new ConfirmDenyButtonActionRowBuilder(),
             ],
         });
 
+        // Update command metadata - this is necessary for button interactions
+        // to work after transfer calls this command
+        commandMetadataSingleton.upsert(newMessage.id, [
+            'ptu_admin',
+            PtuSubcommandGroup.Fakemon,
+            FakemonDeleteStrategy.key,
+        ]);
+
         // Add to cache
         PtuFakemonPseudoCache.addToCache(message.id, fakemon);
+        if (newMessage.id !== message.id)
+        {
+            PtuFakemonPseudoCache.addToCache(newMessage.id, fakemon);
+        }
 
         return true;
     }

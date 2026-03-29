@@ -4,6 +4,8 @@
         "src/**/*.test.ts",
         "src/**/fakes",
         "__mocks__/**/*.ts",
+        "jest.setup.ts",
+        "jest.d.ts",
     ],
     "compilerOptions": {
         "noEmit": true,
