@@ -657,7 +657,15 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             }
 
             // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
-            acc.add(element[propertyToExtract] ?? element.name);
+            const value = element[propertyToExtract] ?? element.name;
+
+            // Skip empty strings
+            if (value === '')
+            {
+                return acc;
+            }
+
+            acc.add(value);
             return acc;
 
             /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
