@@ -19,6 +19,7 @@ import { OracleInteractionManagerService } from '../../services/OracleInteractio
 import { OracleInteractionManagerPage } from '../../services/OracleInteractionManagerService/types.js';
 import type { PtuChatIteractionStrategy, PtuStringSelectMenuIteractionStrategy } from '../../types/strategies.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
+import { Timer } from '../../../../services/Timer/Timer.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -86,6 +87,9 @@ export class OracleCreateStrategy
         {
             // Validates that game exists
             game = await PtuOraclePseudoCache.getGameById(oracleGameId);
+
+            // Add small delay to minimize database errors
+            await Timer.wait({ seconds: 0.2 });
 
             switch (componentCustomId)
             {
@@ -161,7 +165,7 @@ export class OracleCreateStrategy
                     }
                     break;
 
-                case OracleStringSelectCustomId.SecretRerollCard:
+                case OracleStringSelectCustomId.SecretlyRerollCard:
                     const [time] = values as PtuOracleGameTime[];
                     hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
 
