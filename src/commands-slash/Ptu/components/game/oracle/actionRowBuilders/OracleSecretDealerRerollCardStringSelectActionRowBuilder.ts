@@ -17,8 +17,8 @@ export class OracleSecretDealerRerollCardStringSelectActionRowBuilder extends Ac
         super({
             components: [
                 new StringSelectMenuBuilder({
-                    customId: constructOracleGameCustomId(oracleGameId, OracleStringSelectCustomId.SecretRerollCard),
-                    placeholder: OracleStringSelectCustomId.SecretRerollCard,
+                    customId: constructOracleGameCustomId(oracleGameId, OracleStringSelectCustomId.SecretlyRerollCard),
+                    placeholder: OracleStringSelectCustomId.SecretlyRerollCard,
                     disabled: options.length === 0,
                     options: options.length === 0
                         ? [{ label: 'No options available', value: 'None' }]
