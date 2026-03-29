@@ -443,6 +443,74 @@ export class OracleHandManagerService
         });
     }
 
+    public static async editCurrentHandsProphecies(
+        { id, hands }: Pick<PtuOracleGameCollection, 'id' | 'hands'>,
+        prophecies: {
+            past: string;
+            present: string;
+            future: string;
+            questioned: string | undefined;
+            denied: string | undefined;
+        },
+    ): Promise<PtuOracleGameCollection>
+    {
+        // Get data
+        const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
+
+        if (!currentHand)
+        {
+            throw new Error('Current hand not found');
+        }
+
+        const {
+            past,
+            present,
+            future,
+        } = currentHand;
+
+        const setNewProphecy = (
+            card: PtuOracleCardDraw,
+            key: 'past' | 'present' | 'future',
+        ): PtuOracleCardDraw =>
+        {
+            let newProphecy = prophecies[key];
+
+            if (card.action === PtuOracleCardAction.Denied && prophecies.denied)
+            {
+                newProphecy = prophecies.denied;
+            }
+            else if (card.action === PtuOracleCardAction.Questioned && prophecies.questioned)
+            {
+                newProphecy = prophecies.questioned;
+            }
+
+            return {
+                ...card,
+                prophecy: newProphecy,
+            };
+        };
+
+        // Set current hand values with new prophecies
+        const updatedPast = past.map(card => setNewProphecy(card, 'past'));
+        const updatedPresent = present.map(card => setNewProphecy(card, 'present'));
+        const updatedFuture = future.map(card => setNewProphecy(card, 'future'));
+
+        // Update
+        return await PtuOraclePseudoCache.updateGame(id.toString(), {
+            // Keep prior hands and edit the current hand to have the
+            // current past/present/future card be face up
+            hands: [
+                ...priorHands,
+                {
+                    ...currentHand,
+                    past: updatedPast,
+                    present: updatedPresent,
+                    future: updatedFuture,
+                },
+            ],
+        });
+    }
+
     public static getCurrentHand({ hands }: Pick<PtuOracleGameCollection, 'hands'>): PtuOraclePlayerHand | undefined
     {
         const { current: currentHand } = this.getCurrentAndPriorElementsFromArray(hands);

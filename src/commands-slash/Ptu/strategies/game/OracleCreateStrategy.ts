@@ -7,19 +7,20 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
+import { Timer } from '../../../../services/Timer/Timer.js';
 import { OracleDealerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OracleDealerStringSelectActionRowBuilder.js';
 import { OraclePlayerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OraclePlayerStringSelectActionRowBuilder.js';
 import { OracleStringSelectCustomId } from '../../components/game/oracle/actionRowBuilders/types.js';
 import { deconstructOracleGameCustomId, OracleGameCustomId } from '../../components/game/oracle/utils/oracleCustomIdUtils.js';
 import { PtuOracleGameCollection, PtuOracleGameTime } from '../../dal/models/PtuOracleGameCollection.js';
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
+import { OracleEditNotesModal } from '../../modals/oracle/OracleEditNotesModal.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { OracleHandManagerService } from '../../services/OracleDataManagers/OracleHandManagerService.js';
 import { OracleInteractionManagerService } from '../../services/OracleInteractionManagerService/OracleInteractionManagerService.js';
 import { OracleInteractionManagerPage } from '../../services/OracleInteractionManagerService/types.js';
 import type { PtuChatIteractionStrategy, PtuStringSelectMenuIteractionStrategy } from '../../types/strategies.js';
-import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
-import { Timer } from '../../../../services/Timer/Timer.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -63,9 +64,6 @@ export class OracleCreateStrategy
         // { message }: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        // Defer for database update
-        await interaction.deferUpdate();
-
         const { customId, values } = interaction as {
             customId: OracleGameCustomId;
             values: OraclePlayerStringSelectElementOption[]
@@ -131,6 +129,9 @@ export class OracleCreateStrategy
                             updateGameCallback = () => OracleHandManagerService.dealCardsForCurrentHand(game!);
                             break;
                         case OracleDealerStringSelectElementOption.PeakAtCards:
+                            // Defer for database update
+                            await interaction.deferUpdate();
+
                             // Show cards only to dealer
                             await OracleInteractionManagerService.navigateTo({
                                 interaction,
@@ -153,7 +154,7 @@ export class OracleCreateStrategy
                             updateGameCallback = () => OracleHandManagerService.revealNextCard(game!);
                             break;
                         case OracleDealerStringSelectElementOption.EditNotes:
-                            throw new Error('Not implemented');
+                            modalToShow = OracleEditNotesModal;
                             break;
                         case OracleDealerStringSelectElementOption.RevealFullProphecy:
                             updateGameCallback = () => OracleHandManagerService.revealFullProphecy(game!);
@@ -168,6 +169,9 @@ export class OracleCreateStrategy
                 case OracleStringSelectCustomId.SecretlyRerollCard:
                     const [time] = values as PtuOracleGameTime[];
                     hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
+
+                    // Defer for database update
+                    await interaction.deferUpdate();
 
                     // Check permission and safety rails
                     if (!hasPermissionToRun)
@@ -203,6 +207,9 @@ export class OracleCreateStrategy
         }
         catch (error)
         {
+            // Defer for database update
+            await interaction.deferUpdate();
+
             logger.error('Failed to run ptu oracle string select action', error);
             const errorMessage = (error as Error)?.message;
             await interaction.followUp({
@@ -216,6 +223,9 @@ export class OracleCreateStrategy
 
         if (!hasPermissionToRun)
         {
+            // Defer for database update
+            await interaction.deferUpdate();
+
             await interaction.followUp({
                 content: 'You do not have permission to run that action',
                 ephemeral: true,
@@ -227,6 +237,9 @@ export class OracleCreateStrategy
         {
             if (updateGameCallback)
             {
+                // Defer for database update
+                await interaction.deferUpdate();
+
                 const updatedGame = await updateGameCallback();
                 await OracleInteractionManagerService.navigateTo({
                     interaction,
@@ -237,6 +250,7 @@ export class OracleCreateStrategy
             }
             else if (modalToShow)
             {
+                // Don't defer before showing a modal, as that will throw an error
                 await modalToShow.showModal(interaction, {
                     game,
                 });
@@ -244,6 +258,9 @@ export class OracleCreateStrategy
         }
         catch (error)
         {
+            // Defer for database update
+            await interaction.deferUpdate();
+
             const mongoError = 'error' in (error as Record<string, unknown>)
                 ? (error as Record<string, unknown>).error
                 : error;
