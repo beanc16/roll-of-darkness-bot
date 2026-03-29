@@ -6,13 +6,13 @@ import { PtuGameSubcommand } from '../../options/game.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { OracleInteractionManagerService } from '../../services/OracleInteractionManagerService/OracleInteractionManagerService.js';
 import { OracleInteractionManagerPage } from '../../services/OracleInteractionManagerService/types.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
     PtuChatIteractionStrategy,
     PtuStrategyMap,
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 
 interface FakemonContinueGetParameterResults
 {
