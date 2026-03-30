@@ -257,7 +257,7 @@ export class OracleHandManagerService
         id,
         deckCardNumbers,
         hands,
-    }: Pick<PtuOracleGameCollection, 'id' | 'deckCardNumbers' | 'hands'>): Promise<PtuOracleGameCollection>
+    }: Pick<PtuOracleGameCollection, 'id' | 'deckCardNumbers' | 'hands'>, question: string): Promise<PtuOracleGameCollection>
     {
         // Get data
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
@@ -299,6 +299,7 @@ export class OracleHandManagerService
                             action: card.action === PtuOracleCardAction.FaceUp
                                 ? PtuOracleCardAction.Questioned
                                 : card.action,
+                            playerQuestion: question,
                         })),
                         {
                             action: PtuOracleCardAction.FaceDown,

@@ -18,6 +18,7 @@ import { FakemonSIHeightEditingModal } from './fakemon/sizeInformation/FakemonSI
 import { FakemonSIWeightEditingModal } from './fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
 import { GenerateSkillBackgroundModal } from './generate/GenerateSkillBackgroundModal.js';
 import { OracleEditNotesModal } from './oracle/OracleEditNotesModal.js';
+import { OracleQuestionFateModal } from './oracle/OracleQuestionFateModal.js';
 
 export const ptuModals = [
     // Breed
@@ -47,4 +48,5 @@ export const ptuModals = [
 
     // Oracle
     OracleEditNotesModal,
+    OracleQuestionFateModal,
 ];

@@ -28,7 +28,7 @@ enum OracleEditNotesCustomId
 export class OracleEditNotesModal extends BaseCustomModal
 {
     public static id = 'oracle-edit-notes-modal';
-    public static title = 'Edit Oracle Notes';
+    public static title = 'Oracle - Edit Notes';
     protected static inputValuesMap: InputValuesMap = {
         [OracleEditNotesCustomId.Past]: [
             {

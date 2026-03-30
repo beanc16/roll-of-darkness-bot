@@ -20,6 +20,7 @@ import {
 } from '../../dal/models/PtuOracleGameCollection.js';
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
 import { OracleEditNotesModal } from '../../modals/oracle/OracleEditNotesModal.js';
+import { OracleQuestionFateModal } from '../../modals/oracle/OracleQuestionFateModal.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { OracleHandManagerService } from '../../services/OracleDataManagers/OracleHandManagerService.js';
 import { OracleInteractionManagerService } from '../../services/OracleInteractionManagerService/OracleInteractionManagerService.js';
@@ -110,7 +111,7 @@ export class OracleCreateStrategy
                             break;
                         case OraclePlayerStringSelectElementOption.QuestionFate:
                             hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId || game.playerDiscordUserIds.includes(interaction.user.id);
-                            updateGameCallback = () => OracleHandManagerService.questionFate(game!);
+                            modalToShow = OracleQuestionFateModal;
                             break;
                         case OraclePlayerStringSelectElementOption.PlayNextRound:
                             hasPermissionToRun = true;
