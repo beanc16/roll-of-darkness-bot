@@ -63,6 +63,7 @@ export class PtuOracleGameCollection
     public _id: ObjectId;
     public name: string;
     public status: PtuOracleGameStatus;
+    public topic?: string;
     public dealerDiscordUserId: string;
     public playerDiscordUserIds: string[];
     public deckCardNumbers: number[];
@@ -76,6 +77,7 @@ export class PtuOracleGameCollection
         _id,
         name,
         status = PtuOracleGameStatus.Active,
+        topic,
         dealerDiscordUserId,
         playerDiscordUserIds = [],
         deckCardNumbers,
@@ -87,6 +89,7 @@ export class PtuOracleGameCollection
         _id?: ObjectId;
         name: string;
         status?: PtuOracleGameStatus;
+        topic?: string;
         dealerDiscordUserId: string;
         playerDiscordUserIds?: string[];
         deckCardNumbers: number[];
@@ -109,6 +112,7 @@ export class PtuOracleGameCollection
 
         this.name = name;
         this.status = status;
+        this.topic = topic;
         this.dealerDiscordUserId = dealerDiscordUserId;
         this.playerDiscordUserIds = playerDiscordUserIds;
         this.deckCardNumbers = deckCardNumbers;

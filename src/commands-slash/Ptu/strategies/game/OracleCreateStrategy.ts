@@ -21,6 +21,7 @@ import {
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
 import { OracleEditNotesModal } from '../../modals/oracle/OracleEditNotesModal.js';
 import { OracleQuestionFateModal } from '../../modals/oracle/OracleQuestionFateModal.js';
+import { OracleSetTopicModal } from '../../modals/oracle/OracleSetTopicModal.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { OracleHandManagerService } from '../../services/OracleDataManagers/OracleHandManagerService.js';
 import { OracleInteractionManagerService } from '../../services/OracleInteractionManagerService/OracleInteractionManagerService.js';
@@ -115,7 +116,7 @@ export class OracleCreateStrategy
                             break;
                         case OraclePlayerStringSelectElementOption.PlayNextRound:
                             hasPermissionToRun = true;
-                            updateGameCallback = () => OracleHandManagerService.createNewHand(game!, interaction.user.id);
+                            modalToShow = OracleSetTopicModal;
                             break;
 
                         default:
@@ -276,6 +277,7 @@ export class OracleCreateStrategy
                 ? (error as Record<string, unknown>).error
                 : error;
             const errorMessage = (mongoError as Error)?.message;
+            logger.error('Failed to update game', error);
             await interaction.followUp({
                 content: [
                     `Failed to update game${errorMessage ? ' with error:' : ''}`,

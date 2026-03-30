@@ -48,21 +48,21 @@ export abstract class BaseCustomModal
 
     protected static parseInputValue(defaultInputValue: InputValue, value: string): number | boolean | string
     {
-        if (defaultInputValue.typeOfValue === 'integer')
+        if (defaultInputValue?.typeOfValue === 'integer')
         {
             return value.trim() === ''
                 ? 0
                 : parseInt(value, 10);
         }
 
-        if (defaultInputValue.typeOfValue === 'float')
+        if (defaultInputValue?.typeOfValue === 'float')
         {
             return value.trim() === ''
                 ? 0
                 : parseFloat(value);
         }
 
-        if (defaultInputValue.typeOfValue === 'boolean')
+        if (defaultInputValue?.typeOfValue === 'boolean')
         {
             const booleanMap = {
                 yes: true,
@@ -87,9 +87,9 @@ export abstract class BaseCustomModal
             const defaultInputValue = defaultInputValues[index];
 
             // Remove the label so all that remains is the value
-            const value = cur.trim().replace(defaultInputValue.label || '', '');
+            const value = cur.trim().replace(defaultInputValue?.label || '', '');
 
-            acc[defaultInputValue.key as KeyType] = this.parseInputValue(
+            acc[defaultInputValue?.key as KeyType] = this.parseInputValue(
                 defaultInputValue,
                 value,
             );

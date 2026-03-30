@@ -17,9 +17,10 @@ export class OracleHandManagerService
         {
             id,
             hands,
+            topic,
             playerDiscordUserIds,
             discardCardNumbers,
-        }: Pick<PtuOracleGameCollection, 'id' | 'hands' | 'playerDiscordUserIds' | 'discardCardNumbers'>,
+        }: Pick<PtuOracleGameCollection, 'id' | 'hands' | 'topic' | 'playerDiscordUserIds' | 'discardCardNumbers'>,
         playerDiscordUserId: string,
     ): Promise<PtuOracleGameCollection>
     {
@@ -46,6 +47,8 @@ export class OracleHandManagerService
 
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
+            // Set topic
+            topic,
             // Update player ids and discard card numbers
             playerDiscordUserIds: [...updatedPlayerDiscordUserIdsSet],
             discardCardNumbers: [...updatedDiscardCardNumbersSet],
