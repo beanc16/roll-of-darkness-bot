@@ -93,7 +93,7 @@ export class OracleCreateStrategy
             game = await PtuOraclePseudoCache.getGameById(oracleGameId);
 
             // Add small delay to minimize database errors
-            await Timer.wait({ seconds: 0.2 });
+            await Timer.wait({ seconds: 0.3 });
 
             switch (componentCustomId)
             {
