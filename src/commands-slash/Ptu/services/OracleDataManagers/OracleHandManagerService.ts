@@ -555,6 +555,32 @@ export class OracleHandManagerService
         };
     }
 
+    public static async getHandsDetailed({ hands }: Pick<PtuOracleGameCollection, 'hands'>): Promise<PtuOraclePlayerHandDetailed[]>
+    {
+        const cards = await PtuOraclePseudoCache.getAllCards();
+        const cardNumberToCard = cards.reduce<Record<number, PtuOracleCardCollection>>((acc, cur) =>
+        {
+            acc[cur.cardNumber] = cur;
+            return acc;
+        }, {});
+
+        return hands.map(hand => ({
+            ...hand,
+            [PtuOracleGameTime.Past]: hand?.[PtuOracleGameTime.Past].map(card => ({
+                ...card,
+                card: cardNumberToCard[card.cardNumber],
+            })),
+            [PtuOracleGameTime.Present]: hand?.[PtuOracleGameTime.Present].map(card => ({
+                ...card,
+                card: cardNumberToCard[card.cardNumber],
+            })),
+            [PtuOracleGameTime.Future]: hand?.[PtuOracleGameTime.Future].map(card => ({
+                ...card,
+                card: cardNumberToCard[card.cardNumber],
+            })),
+        }));
+    }
+
     private static drawCards(cards: PtuOracleCardCollection[], numOfCards: number): {
         card: PtuOracleCardCollection;
         face: PtuOracleCardProphecyFace;
