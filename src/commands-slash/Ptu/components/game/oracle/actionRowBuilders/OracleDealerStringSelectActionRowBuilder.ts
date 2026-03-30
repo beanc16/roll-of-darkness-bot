@@ -2,6 +2,7 @@ import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 import {
     PtuOracleCardAction,
+    PtuOracleGameStatus,
     PtuOracleGameTime,
     PtuOraclePlayerHandDetailed,
 } from '../../../../dal/models/PtuOracleGameCollection.js';
@@ -15,13 +16,19 @@ export enum OracleDealerStringSelectElementOption
     RevealNextCard = 'Reveal Next Card',
     EditNotes = 'Edit Notes (optional)',
     RevealFullProphecy = 'Reveal Full Prophecy',
+    CompleteGame = 'Complete Game',
+    ResumeGame = 'Resume Game',
 }
 
 export class OracleDealerStringSelectActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
-    constructor(oracleGameId: string, currentHand: PtuOraclePlayerHandDetailed | undefined)
+    constructor(
+        oracleGameId: string,
+        currentHand: PtuOraclePlayerHandDetailed | undefined,
+        status: PtuOracleGameStatus,
+    )
     {
-        const options = OracleDealerStringSelectActionRowBuilder.getOptions(currentHand);
+        const options = OracleDealerStringSelectActionRowBuilder.getOptions(currentHand, status);
 
         super({
             components: [
@@ -37,11 +44,19 @@ export class OracleDealerStringSelectActionRowBuilder extends ActionRowBuilder<S
         });
     }
 
-    private static getOptions(currentHand: PtuOraclePlayerHandDetailed | undefined): OracleDealerStringSelectElementOption[]
+    private static getOptions(
+        currentHand: PtuOraclePlayerHandDetailed | undefined,
+        status: PtuOracleGameStatus,
+    ): OracleDealerStringSelectElementOption[]
     {
         if (!currentHand)
         {
             return [];
+        }
+
+        if (status === PtuOracleGameStatus.Complete)
+        {
+            return [OracleDealerStringSelectElementOption.ResumeGame];
         }
 
         // Hand is not yet dealt
@@ -56,7 +71,10 @@ export class OracleDealerStringSelectActionRowBuilder extends ActionRowBuilder<S
 
         if (currentHand.isCompleted)
         {
-            return [OracleDealerStringSelectElementOption.EditNotes];
+            return [
+                OracleDealerStringSelectElementOption.EditNotes,
+                OracleDealerStringSelectElementOption.CompleteGame,
+            ];
         }
 
         const {

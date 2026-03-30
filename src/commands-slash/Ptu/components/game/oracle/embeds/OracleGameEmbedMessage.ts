@@ -4,6 +4,7 @@ import {
     PtuOracleCardAction,
     PtuOracleCardDrawDetailed,
     PtuOracleGameCollection,
+    PtuOracleGameStatus,
     PtuOracleGameTime,
     PtuOraclePlayerHandDetailed,
 } from '../../../../dal/models/PtuOracleGameCollection.js';
@@ -38,10 +39,12 @@ export class OracleGameEmbedMessage extends OracleEmbedMessage
                 options,
             ),
             footer: {
-                text: [
-                    `Deck: ${deckCardNumbers.length}`,
-                    `Discard: ${discardCardNumbers.length}`,
-                ].join(' | '),
+                text: args.status === PtuOracleGameStatus.Complete
+                    ? `Status: ${args.status}`
+                    : [
+                        `Deck: ${deckCardNumbers.length}`,
+                        `Discard: ${discardCardNumbers.length}`,
+                    ].join(' | '),
             },
         });
     }

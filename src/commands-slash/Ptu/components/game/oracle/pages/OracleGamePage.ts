@@ -24,8 +24,8 @@ export class OracleGamePage extends InteractionManagerPage
                 ]
                 : [
                     // Visible components for all
-                    new OraclePlayerStringSelectActionRowBuilder(args.id, currentHand),
-                    new OracleDealerStringSelectActionRowBuilder(args.id, currentHand),
+                    new OraclePlayerStringSelectActionRowBuilder(args.id, currentHand, args.status),
+                    new OracleDealerStringSelectActionRowBuilder(args.id, currentHand, args.status),
                 ],
             embeds: [
                 new OracleGameEmbedMessage(args, currentHand, options),

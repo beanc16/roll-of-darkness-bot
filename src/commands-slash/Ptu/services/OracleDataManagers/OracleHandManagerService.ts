@@ -4,6 +4,7 @@ import {
     PtuOracleCardAction,
     PtuOracleCardDraw,
     PtuOracleGameCollection,
+    PtuOracleGameStatus,
     PtuOracleGameTime,
     PtuOraclePlayerHand,
     PtuOraclePlayerHandDetailed,
@@ -579,6 +580,17 @@ export class OracleHandManagerService
                 card: cardNumberToCard[card.cardNumber],
             })),
         }));
+    }
+
+    public static async updateGameStatus(
+        { id }: Pick<PtuOracleGameCollection, 'id'>,
+        status: PtuOracleGameStatus,
+    ): Promise<PtuOracleGameCollection>
+    {
+        // Update
+        return await PtuOraclePseudoCache.updateGame(id.toString(), {
+            status,
+        });
     }
 
     private static drawCards(cards: PtuOracleCardCollection[], numOfCards: number): {

@@ -13,7 +13,11 @@ import { OracleDealerStringSelectElementOption } from '../../components/game/ora
 import { OraclePlayerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OraclePlayerStringSelectActionRowBuilder.js';
 import { OracleStringSelectCustomId } from '../../components/game/oracle/actionRowBuilders/types.js';
 import { deconstructOracleGameCustomId, OracleGameCustomId } from '../../components/game/oracle/utils/oracleCustomIdUtils.js';
-import { PtuOracleGameCollection, PtuOracleGameTime } from '../../dal/models/PtuOracleGameCollection.js';
+import {
+    PtuOracleGameCollection,
+    PtuOracleGameStatus,
+    PtuOracleGameTime,
+} from '../../dal/models/PtuOracleGameCollection.js';
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
 import { OracleEditNotesModal } from '../../modals/oracle/OracleEditNotesModal.js';
 import { PtuGameSubcommand } from '../../options/game.js';
@@ -158,6 +162,12 @@ export class OracleCreateStrategy
                             break;
                         case OracleDealerStringSelectElementOption.RevealFullProphecy:
                             updateGameCallback = () => OracleHandManagerService.revealFullProphecy(game!);
+                            break;
+                        case OracleDealerStringSelectElementOption.CompleteGame:
+                            updateGameCallback = () => OracleHandManagerService.updateGameStatus(game!, PtuOracleGameStatus.Complete);
+                            break;
+                        case OracleDealerStringSelectElementOption.ResumeGame:
+                            updateGameCallback = () => OracleHandManagerService.updateGameStatus(game!, PtuOracleGameStatus.Active);
                             break;
 
                         default:

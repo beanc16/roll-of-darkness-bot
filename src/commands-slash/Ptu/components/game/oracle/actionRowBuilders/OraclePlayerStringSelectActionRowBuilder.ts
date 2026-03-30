@@ -2,6 +2,7 @@ import { ActionRowBuilder, StringSelectMenuBuilder } from 'discord.js';
 
 import {
     PtuOracleCardAction,
+    PtuOracleGameStatus,
     PtuOracleGameTime,
     PtuOraclePlayerHandDetailed,
 } from '../../../../dal/models/PtuOracleGameCollection.js';
@@ -18,9 +19,15 @@ export enum OraclePlayerStringSelectElementOption
 
 export class OraclePlayerStringSelectActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
-    constructor(oracleGameId: string, currentHand: PtuOraclePlayerHandDetailed | undefined)
+    constructor(
+        oracleGameId: string,
+        currentHand: PtuOraclePlayerHandDetailed | undefined,
+        status: PtuOracleGameStatus,
+    )
     {
-        const options = OraclePlayerStringSelectActionRowBuilder.getOptions(currentHand);
+        const options = status === PtuOracleGameStatus.Complete
+            ? []
+            : OraclePlayerStringSelectActionRowBuilder.getOptions(currentHand);
 
         super({
             components: [
