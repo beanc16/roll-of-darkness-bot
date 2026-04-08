@@ -17,6 +17,7 @@ import {
     type GoogleSheetsGetPageTitlesBatchResponse,
     type GoogleSheetsGetRangesResponse,
 } from './types.js';
+import { chunkArray } from '../chunkArray/chunkArray.js';
 
 export interface RetryOptions
 {
@@ -216,99 +217,126 @@ export class CachedGoogleSheetsApiService
             ...parameters
         } = initialParameters;
 
-        for (let i = 0; i <= numOfRetries; i += 1)
+        const RANGE_CHUNK_SIZE = 250;
+        const rangeChunks = parameters.ranges
+            ? chunkArray({
+                array: parameters.ranges,
+                shouldMoveToNextChunk: (_, index) => index > 0 && index % RANGE_CHUNK_SIZE === 0,
+            })
+            : [[]];
+
+        const allData: GoogleSheetsGetRangesResponse['data'] = [];
+        for (let outerIndex = 0; outerIndex < rangeChunks.length; outerIndex += 1)
         {
-            const authToken = await CachedAuthTokenService.getAuthToken();
+            const chunkParameters = { ...parameters, ranges: rangeChunks[outerIndex] };
 
-            try
+            for (let i = 0; i <= numOfRetries; i += 1)
             {
-                const {
-                    statusCode = 200,
-                    data = [],
-                    error,
-                } = await GoogleSheetsMicroservice.v1.getRanges(authToken, parameters);
+                const authToken = await CachedAuthTokenService.getAuthToken();
 
-                const spreadsheetIdToRanges = parameters.ranges?.reduce<Record<string, string[]>>((acc, { range, spreadsheetId }) =>
+                try
                 {
-                    if (spreadsheetId && !acc[spreadsheetId])
-                    {
-                        acc[spreadsheetId] = [];
-                    }
-                    if (spreadsheetId && range)
-                    {
-                        acc[spreadsheetId].push(range);
-                    }
-                    return acc;
-                }, {}) ?? {};
+                    const {
+                        statusCode = 200,
+                        data = [],
+                        error,
+                    } = await GoogleSheetsMicroservice.v1.getRanges(authToken, chunkParameters);
 
-                if (statusCode === 200)
-                {
-                    // Save to cache by spreadsheet / spreadsheetId
-                    if (!shouldNotCache)
+                    const spreadsheetIdToRanges = chunkParameters.ranges?.reduce<Record<string, string[]>>((acc, { range, spreadsheetId }) =>
                     {
-                        data.forEach(({ spreadsheetId, valueRanges }) =>
+                        if (spreadsheetId && !acc[spreadsheetId])
                         {
-                            valueRanges.forEach(({ values }, index) =>
+                            acc[spreadsheetId] = [];
+                        }
+                        if (spreadsheetId && range)
+                        {
+                            acc[spreadsheetId].push(range);
+                        }
+                        return acc;
+                    }, {}) ?? {};
+
+                    if (statusCode === 200)
+                    {
+                        // Save to cache by spreadsheet / spreadsheetId
+                        if (!shouldNotCache)
+                        {
+                            data.forEach(({ spreadsheetId, valueRanges }) =>
                             {
-                                // Use input range, as it will differ from the range the response returns
-                                const rangeKey = spreadsheetIdToRanges[spreadsheetId]?.[index];
-                                this.cache.Upsert([spreadsheetId, rangeKey], values);
+                                valueRanges.forEach(({ values }, index) =>
+                                {
+                                    // Use input range, as it will differ from the range the response returns
+                                    const rangeKey = spreadsheetIdToRanges[spreadsheetId]?.[index];
+                                    this.cache.Upsert([spreadsheetId, rangeKey], values);
+                                });
                             });
-                        });
+                        }
+
+                        if (allData[0] === undefined)
+                        {
+                            allData.push(...data);
+                        }
+                        else
+                        {
+                            allData[0].valueRanges.push(...data[0].valueRanges);
+                        }
+                        break;
                     }
 
-                    return { data };
-                }
+                    if (statusCode === 401)
+                    {
+                        logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
+                        await CachedAuthTokenService.resetAuthToken();
+                    }
 
-                if (statusCode === 401)
-                {
-                    logger.info('A 401 error occurred on GoogleSheetsMicroservice.v1.getRanges. Retrieving new auth token.');
-                    await CachedAuthTokenService.resetAuthToken();
+                    else
+                    {
+                        // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
+                        throw error;
+                    }
                 }
-
-                else
+                catch (error)
                 {
-                    // eslint-disable-next-line @typescript-eslint/no-throw-literal -- TODO: Fix this later
-                    throw error;
-                }
-            }
-            catch (error)
-            {
-                // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
-                if ((error as any)?.response?.data?.statusCode === 403)
-                {
-                    logger.warn('The automated user is not added to the queried sheet. Please add them.', {
-                        ...(parameters?.ranges && {
-                            ranges: parameters?.ranges,
-                        }),
-                    });
-                    return {
-                        errorType: GoogleSheetsApiErrorType.UserNotAddedToSheet,
-                    };
-                }
-
-                if (
+                    // Forbidden error (occurs when the robot user for google sheets isn't added or doesn't have perms on the sheet)
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
-                    (error as any)?.response?.data?.statusCode === 400
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
-                    // && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
-                    // ^ this won't be present if the range is valid but fails to parse due to merging or some similar issue
-                )
-                {
-                    return {
-                        errorType: GoogleSheetsApiErrorType.UnableToParseRange,
-                    };
+                    if ((error as any)?.response?.data?.statusCode === 403)
+                    {
+                        logger.warn('The automated user is not added to the queried sheet. Please add them.', {
+                            ...(chunkParameters?.ranges && {
+                                ranges: chunkParameters?.ranges,
+                            }),
+                        });
+                        return {
+                            errorType: GoogleSheetsApiErrorType.UserNotAddedToSheet,
+                        };
+                    }
+
+                    if (
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
+                        (error as any)?.response?.data?.statusCode === 400
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
+                        // && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
+                        // ^ this won't be present if the range is valid but fails to parse due to merging or some similar issue
+                    )
+                    {
+                        return {
+                            errorType: GoogleSheetsApiErrorType.UnableToParseRange,
+                        };
+                    }
+
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
+                    logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
                 }
 
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
-                logger.error('An error occurred on GoogleSheetsMicroservice.v1.getRanges', (error as any)?.response?.data || error);
+                // Wait half a second between retries
+                await Timer.wait({
+                    seconds: secondsBetweenRetries,
+                });
             }
+        }
 
-            // Wait half a second between retries
-            await Timer.wait({
-                seconds: secondsBetweenRetries,
-            });
+        if (allData.length > 0)
+        {
+            return { data: allData };
         }
 
         return {
