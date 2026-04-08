@@ -292,7 +292,8 @@ export class CachedGoogleSheetsApiService
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any -- Fix this later if necessary
                     (error as any)?.response?.data?.statusCode === 400
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call -- Fix this later if necessary
-                    && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
+                    // && (error as any)?.response?.data?.error?.message?.includes('Unable to parse range')
+                    // ^ this won't be present if the range is valid but fails to parse due to merging or some similar issue
                 )
                 {
                     return {
