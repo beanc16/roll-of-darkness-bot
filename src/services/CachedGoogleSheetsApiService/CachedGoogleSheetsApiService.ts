@@ -10,6 +10,7 @@ import type {
 import { GoogleSheetsMicroservice } from '@beanc16/microservices-abstraction';
 
 import { CachedAuthTokenService } from '../CachedAuthTokenService.js';
+import { chunkArray } from '../chunkArray/chunkArray.js';
 import { CompositeKeyRecord } from '../CompositeKeyRecord/CompositeKeyRecord.js';
 import { Timer } from '../Timer/Timer.js';
 import {
@@ -17,7 +18,6 @@ import {
     type GoogleSheetsGetPageTitlesBatchResponse,
     type GoogleSheetsGetRangesResponse,
 } from './types.js';
-import { chunkArray } from '../chunkArray/chunkArray.js';
 
 export interface RetryOptions
 {
