@@ -36,7 +36,7 @@ export class MetadataPokemonStrategy extends CharacterSheetStrategy
             await interaction.editReply(
                 `Failed to retrieve data. Please contact this bot's owner for help fixing the issue.`,
             );
-            logger.warn('Failed to retrieve data for training a pokemon', {
+            logger.warn('Failed to retrieve data for metadata', {
                 characterName,
                 spreadsheetId,
             });
