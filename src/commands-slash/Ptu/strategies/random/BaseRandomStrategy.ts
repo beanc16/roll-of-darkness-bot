@@ -206,7 +206,7 @@ export class BaseRandomStrategy
         // Parse data
         return data.reduce<RandomResult[]>((acc, [name, cost, description, excludeFromRandomRolls]) =>
         {
-            if (excludeFromRandomRolls !== 'TRUE')
+            if (excludeFromRandomRolls !== 'TRUE' && name?.trim())
             {
                 acc.push({
                     name,
