@@ -19,6 +19,17 @@ import { RandomVitaminStrategy } from './RandomVitaminStrategy.js';
 import { RandomXItemStrategy } from './RandomXItemStrategy.js';
 import { PtuRandomPickupSubcommandResponse } from './types.js';
 
+interface RandomPickupGetParameterResults
+{
+    numberOfDice: number;
+}
+
+interface PickupSubcommandResponse
+{
+    options: PtuRandomPickupSubcommandResponse['options'];
+    commandName?: string;
+}
+
 @staticImplements<PtuChatIteractionStrategy>()
 export class RandomPickupStrategy
 {
@@ -32,10 +43,58 @@ export class RandomPickupStrategy
         },
     ): Promise<boolean>
     {
-        let subcommandResponse: {
-            options: PtuRandomPickupSubcommandResponse['options'];
-            commandName?: string;
+        const { numberOfDice } = this.getOptions(interaction);
+
+        const cumulativeResponse: {
+            subcommandResponse: PickupSubcommandResponse;
+            subcommandStrs: string[];
         } = {
+            subcommandResponse: {
+                options: {
+                    embeds: [],
+                },
+            },
+            subcommandStrs: [],
+        };
+
+        // Roll the dice the given number of times and collect the results
+        for (let index = 0; index < numberOfDice; index += 1)
+        {
+            const result = await this.rollPickup(
+                interaction,
+                strategies,
+            );
+
+            cumulativeResponse.subcommandResponse.options.embeds.push(
+                ...result.subcommandResponse.options.embeds,
+            );
+            cumulativeResponse.subcommandStrs.push(result.subcommandStr);
+        }
+
+        await RerollStrategy.run({
+            interaction,
+            options: cumulativeResponse.subcommandResponse.options,
+            rerollCallbackOptions,
+            onRerollCallback: newRerollCallbackOptions => this.run(
+                interaction,
+                strategies,
+                newRerollCallbackOptions,
+            ),
+            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key} | ${cumulativeResponse.subcommandStrs.join(' | ')}`,
+        });
+
+        return true;
+    }
+
+    private static async rollPickup(
+        interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
+    ): Promise<{
+        subcommandResponse: PickupSubcommandResponse;
+        subcommandStr: string;
+    }>
+    {
+        let subcommandResponse: PickupSubcommandResponse = {
             options: {
                 embeds: [],
             },
@@ -114,23 +173,16 @@ export class RandomPickupStrategy
             subcommandResponse = await RandomTmStrategy.run(interaction, strategies, true) as PtuRandomPickupSubcommandResponse;
         }
 
-        // Send response with reroll button
-        const subcommandStr = (subcommandResponse.commandName)
-            ? ` | ${subcommandResponse.commandName}`
-            : '';
+        // Set subcommand name
+        const subcommandStr = subcommandResponse.commandName || '';
 
-        await RerollStrategy.run({
-            interaction,
-            options: subcommandResponse.options,
-            rerollCallbackOptions,
-            onRerollCallback: newRerollCallbackOptions => this.run(
-                interaction,
-                strategies,
-                newRerollCallbackOptions,
-            ),
-            commandName: `/ptu ${PtuSubcommandGroup.Random} ${this.key}${subcommandStr}`,
-        });
+        return { subcommandResponse, subcommandStr };
+    }
 
-        return true;
+    private static getOptions(interaction: ChatInputCommandInteraction): RandomPickupGetParameterResults
+    {
+        const numberOfDice = interaction.options.getInteger('number_of_pickups') ?? 1;
+
+        return { numberOfDice };
     }
 }
