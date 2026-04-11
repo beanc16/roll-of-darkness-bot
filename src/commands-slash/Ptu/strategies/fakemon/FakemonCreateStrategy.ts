@@ -20,6 +20,7 @@ import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStri
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewEditStatusStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
@@ -53,6 +54,7 @@ import { FakemonBreedingInformationManagerService } from '../../services/Fakemon
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
+import { FakemonGeneralInformationManagerService } from '../../services/FakemonDataManagers/FakemonGeneralInformationManagerService.js';
 import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
 import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
@@ -373,6 +375,9 @@ export class FakemonCreateStrategy
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
+            customId: FakemonOverviewEditStatusStringSelectCustomIds;
+            values: PtuFakemonStatus[];
+        } | {
             customId: FakemonStatsStringSelectCustomIds.EditStat;
             values: FakemonStatsEditStringSelectElementOptions[];
         } | {
@@ -450,6 +455,36 @@ export class FakemonCreateStrategy
                     interaction,
                     page: value1 as FakemonInteractionManagerPage,
                     messageId: message.id,
+                });
+                break;
+
+            // Status selector
+            case FakemonOverviewEditStatusStringSelectCustomIds.EditStatus:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonGeneralInformationManagerService.updateStatus({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        status: value1 as PtuFakemonStatus,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Overview,
+                    messageId: interaction.message.id,
                 });
                 break;
 
