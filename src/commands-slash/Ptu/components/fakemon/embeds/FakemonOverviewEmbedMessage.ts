@@ -1,8 +1,8 @@
 import { EmbedBuilder } from 'discord.js';
 
+import type { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection.js';
 import { getLookupPokemonEmbedMessages } from '../../../embed-messages/lookup.js';
 import { HomebrewPokeApi } from '../../../services/HomebrewPokeApi/HomebrewPokeApi.js';
-import type { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection.js';
 
 export class FakemonOverviewEmbedMessage extends EmbedBuilder
 {
