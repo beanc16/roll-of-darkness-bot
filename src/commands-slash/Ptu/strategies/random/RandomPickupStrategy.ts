@@ -60,6 +60,7 @@ export class RandomPickupStrategy
         // Roll the dice the given number of times and collect the results
         for (let index = 0; index < numberOfDice; index += 1)
         {
+            // eslint-disable-next-line no-await-in-loop
             const result = await this.rollPickup(
                 interaction,
                 strategies,
@@ -90,9 +91,9 @@ export class RandomPickupStrategy
         interaction: ChatInputCommandInteraction,
         strategies: PtuStrategyMap,
     ): Promise<{
-        subcommandResponse: PickupSubcommandResponse;
-        subcommandStr: string;
-    }>
+            subcommandResponse: PickupSubcommandResponse;
+            subcommandStr: string;
+        }>
     {
         let subcommandResponse: PickupSubcommandResponse = {
             options: {
