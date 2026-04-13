@@ -30,6 +30,7 @@ import {
     PokemonHabitat,
     PtuPokemon,
 } from '../types/pokemon.js';
+import { PtuClassCategory, PtuClassRole } from '../types/pokemonTrainers.js';
 import { PtuBerry } from '../types/PtuBerry.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
@@ -51,6 +52,7 @@ import {
     PtuStrategyMap,
     PtuStringSelectMenuIteractionStrategy,
 } from '../types/strategies.js';
+import { PtuFeatureTag } from '../types/types.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
 import fakemonStrategies from './fakemon/index.js';
@@ -413,6 +415,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             }),
+            [PtuAutocompleteParameterName.ClassCategory]: () => Promise.resolve(
+                Object.values(PtuClassCategory).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.ClassName1]: async () =>
             {
                 const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
@@ -465,8 +470,11 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     return acc;
                 }, []);
             },
+            [PtuAutocompleteParameterName.ClassRole]: () => Promise.resolve(
+                Object.values(PtuClassRole).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.DietName]: () => Promise.resolve(
-                Object.values(PokemonDiet).map(habitat => ({ name: habitat })),
+                Object.values(PokemonDiet).map(element => ({ name: element })),
             ),
             [PtuAutocompleteParameterName.EdgeName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
@@ -501,6 +509,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             }),
+            [PtuAutocompleteParameterName.FeatureTag]: () => Promise.resolve(
+                Object.values(PtuFeatureTag).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData({
                 subcommandGroup: PtuSubcommandGroup.Breed,
                 subcommand: PtuBreedSubcommand.Breed,
@@ -518,7 +529,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 });
             },
             [PtuAutocompleteParameterName.HabitatName]: () => Promise.resolve(
-                Object.values(PokemonHabitat).map(habitat => ({ name: habitat })),
+                Object.values(PokemonHabitat).map(element => ({ name: element })),
             ),
             [PtuAutocompleteParameterName.HazardName]: () => PtuStrategyExecutor.getLookupData<PtuHazard>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,

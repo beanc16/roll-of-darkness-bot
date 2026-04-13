@@ -12,7 +12,6 @@ import {
     PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
-import { PtuClassCategory, PtuClassRole } from '../types/pokemonTrainers.js';
 import { BerryTier } from '../types/PtuBerry.js';
 import { PtuEquipmentSlot } from '../types/PtuEquipment.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
@@ -204,37 +203,27 @@ export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     });
 
     // Class Role
-    const roleChoices = Object.values(PtuClassRole).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('sort_by_class_role');
+        option.setName(PtuAutocompleteParameterName.ClassRole);
         option.setDescription(`Show all classes, but with the given class role sorted highest in the list.`);
-        return option.addChoices(...roleChoices);
+        return option.setAutocomplete(true);
     });
 
     // Class Category
-    const categoryChoices = Object.values(PtuClassCategory).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('category');
+        option.setName(PtuAutocompleteParameterName.ClassCategory);
         option.setDescription(`The category of classes to look up.`);
-        return option.addChoices(...categoryChoices);
+        return option.setAutocomplete(true);
+    });
+
+    // Tags
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FeatureTag);
+        option.setDescription(`The tag of classes to look up.`);
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
