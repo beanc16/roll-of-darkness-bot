@@ -571,6 +571,14 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return newOption;
     });
 
+    // Keyword Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.KeywordName);
+        option.setDescription(`The keyword of moves to look up.`);
+        return option.setAutocomplete(true);
+    });
+
     // Move list type
     subcommand.addStringOption((option) =>
     {
