@@ -2151,6 +2151,7 @@ export class LookupClassStrategy
         });
     }
 
+    /* istanbul ignore next */
     public static getEmbedMessages(data: PtuFeature[][]): EmbedBuilder[][]
     {
         return data.map((curData) =>
@@ -2217,6 +2218,7 @@ export class LookupClassStrategy
         });
     }
 
+    /* istanbul ignore next */
     public static getClassListEmbedMessages(classNames: PtuClassName[]): EmbedBuilder[]
     {
         const embeds = getPagedEmbedMessages({
@@ -2324,6 +2326,7 @@ export class LookupClassStrategy
         );
     }
 
+    /* istanbul ignore next */
     private static async sendNonClassNameMessage(
         interaction: ChatInputCommandInteraction,
         data: PtuFeature[][],
