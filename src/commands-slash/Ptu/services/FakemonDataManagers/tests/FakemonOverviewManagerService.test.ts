@@ -107,6 +107,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                     // Assert
                     expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                         expect.objectContaining({
                             [bucket]: expect.arrayContaining([
                                 expect.objectContaining({
@@ -138,6 +139,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({
                         outliers: expect.arrayContaining([
                             expect.objectContaining({ moveName, level: 0 }),
@@ -174,6 +176,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert: diff = +6 → greaterThanOrEqual6; basedOn metadata populated
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({
                         greaterThanOrEqual6: expect.arrayContaining([
                             expect.objectContaining({
@@ -209,6 +212,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({
                         outliers: expect.arrayContaining([
                             expect.objectContaining({ moveName }),
@@ -252,6 +256,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({ avgDeviation: 3 }),
                 );
             });
@@ -275,6 +280,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert — currently returns NaN; should return 0
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({ avgDeviation: 0 }),
                 );
             });
@@ -304,6 +310,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                 // Assert
                 expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    fakemon.name,
                     expect.objectContaining({ avgDeviationBasedOn: 6 }),
                 );
             });
