@@ -29,6 +29,12 @@ export class FakemonViewModeActionRowBuilder extends ActionRowBuilder<ButtonBuil
                     emoji: '🔎',
                     style: ButtonStyle.Secondary,
                 }),
+                new ButtonBuilder({
+                    customId: FakemonOverviewButtonCustomIds.CheckMoveProgression,
+                    label: FakemonOverviewButtonCustomIds.CheckMoveProgression,
+                    emoji: '🔎',
+                    style: ButtonStyle.Secondary,
+                }),
             ],
         });
     }

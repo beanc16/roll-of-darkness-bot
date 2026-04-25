@@ -56,13 +56,13 @@ function formatCategory(category: LevelUpMoveDistributionCategory): string[]
 
 export class FakemonLevelUpMoveDistributionEmbedMessage extends FakemonEmbedMessage
 {
-    constructor(distribution: LevelUpMoveDistribution)
+    constructor(fakemonName: string, distribution: LevelUpMoveDistribution)
     {
         const avgDeviationSign = distribution.avgDeviation > 0 ? '+' : '';
         const avgDeviationBasedOnSign = distribution.avgDeviationBasedOn > 0 ? '+' : '';
 
         super({
-            title: 'Level Up Move Distribution',
+            title: `${fakemonName} - Level Up Move Distribution`,
             descriptionLines: [
                 '### Average Deviations',
                 `Avg Deviation: ${avgDeviationSign}${distribution.avgDeviation.toFixed(1)}`,

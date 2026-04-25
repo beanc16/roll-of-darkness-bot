@@ -81,7 +81,7 @@ export class FakemonViewStrategy
         metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds | FakemonOverviewButtonCustomIds.CheckMoveLevels };
+        const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds | FakemonOverviewButtonCustomIds.CheckMoveLevels | FakemonOverviewButtonCustomIds.CheckMoveProgression };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
         {
@@ -112,6 +112,57 @@ export class FakemonViewStrategy
                         fakemon,
                         strategies,
                     });
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveProgression:
+                try
+                {
+                    const embed = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
 
                     if (!embed)
                     {

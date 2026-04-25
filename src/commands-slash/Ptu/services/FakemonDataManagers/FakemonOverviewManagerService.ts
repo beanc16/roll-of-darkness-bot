@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 
 import { FakemonLevelUpMoveDistributionEmbedMessage, LevelUpMoveDistribution } from '../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage.js';
+import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { getPokemonWithMove, PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
@@ -74,7 +75,7 @@ export class FakemonOverviewManagerService
             moveNameToBasedOnMove,
         });
 
-        return new FakemonLevelUpMoveDistributionEmbedMessage(distribution);
+        return new FakemonLevelUpMoveDistributionEmbedMessage(fakemon.name, distribution);
     }
 
     private static calculateDistribution({
@@ -242,5 +243,43 @@ export class FakemonOverviewManagerService
         }
 
         return totalDifference / levelDifferences.length;
+    }
+
+    public static getLevelUpMoveProgressionEmbed(fakemon: PtuFakemonCollection): EmbedBuilder | undefined
+    {
+        const { types, moveList: { levelUp = [] } = {} } = fakemon;
+
+        if (levelUp.length === 0)
+        {
+            return undefined;
+        }
+
+        const initialTypeMap = types.reduce<Record<string, typeof levelUp>>((acc, curType) =>
+        {
+            acc[curType] = [];
+            return acc;
+        }, {});
+
+        // Set moves by type (and non-main types)
+        const typeToLevelUpMoves = levelUp.reduce<Record<string, typeof levelUp>>((acc, cur) =>
+        {
+            const curType = types.find(type => type === cur.type);
+
+            if (curType)
+            {
+                acc[curType].push(cur);
+            }
+            else
+            {
+                acc.Other.push(cur);
+            }
+
+            return acc;
+        }, {
+            ...initialTypeMap,
+            Other: [],
+        });
+
+        return new FakemonLevelUpMoveProgressionEmbedMessage(fakemon, typeToLevelUpMoves);
     }
 }
