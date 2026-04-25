@@ -4,6 +4,8 @@ import {
     ButtonStyle,
 } from 'discord.js';
 
+import { FakemonOverviewButtonCustomIds } from '../overview/FakemonOverviewButtonActionRowBuilder.js';
+
 export enum FakemonViewModeButtonCustomIds
 {
     EditMode = 'fakemon-view-mode-overview-go-to-edit-mode',
@@ -19,6 +21,12 @@ export class FakemonViewModeActionRowBuilder extends ActionRowBuilder<ButtonBuil
                     customId: FakemonViewModeButtonCustomIds.EditMode,
                     emoji: '✏️',
                     label: 'Go to Edit Mode',
+                    style: ButtonStyle.Secondary,
+                }),
+                new ButtonBuilder({
+                    customId: FakemonOverviewButtonCustomIds.CheckMoveLevels,
+                    label: FakemonOverviewButtonCustomIds.CheckMoveLevels,
+                    emoji: '🔎',
                     style: ButtonStyle.Secondary,
                 }),
             ],

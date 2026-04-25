@@ -1,3 +1,4 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import {
     ButtonInteraction,
     ChatInputCommandInteraction,
@@ -5,11 +6,13 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
 import { FakemonViewModeActionRowBuilder, FakemonViewModeButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewModeActionRowBuilder.js';
 import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
+import { FakemonOverviewManagerService } from '../../services/FakemonDataManagers/FakemonOverviewManagerService.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type {
     PtuButtonIteractionStrategy,
@@ -78,7 +81,7 @@ export class FakemonViewStrategy
         metadata: PtuStrategyMetadata,
     ): Promise<boolean>
     {
-        const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds };
+        const { customId } = interaction as { customId: FakemonViewModeButtonCustomIds | FakemonOverviewButtonCustomIds.CheckMoveLevels };
         const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
         if (!fakemon)
         {
@@ -100,6 +103,60 @@ export class FakemonViewStrategy
                     strategies,
                     { speciesName: fakemon.name },
                 );
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveLevels:
+                try
+                {
+                    const embed = await FakemonOverviewManagerService.getLevelUpMoveDistributionEmbed({
+                        fakemon,
+                        strategies,
+                    });
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
                 break;
 
             default:
