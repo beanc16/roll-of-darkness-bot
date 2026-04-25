@@ -278,6 +278,35 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
                     expect.objectContaining({ avgDeviation: 0 }),
                 );
             });
+
+            it('calculates avgDeviationBasedOn using the basedOn average level when a basedOn move exists', async () =>
+            {
+                // Arrange: move at lvl 10, basedOn avg = 4 → diff = +6; mean = 6
+                const moveName = faker.lorem.word();
+                const basedOnMoveName = faker.lorem.word();
+                const fakemon = createPtuFakemonCollectionData();
+                fakemon.moveList.levelUp = [{
+                    move: moveName,
+                    level: 10,
+                    type: PokemonType.Normal,
+                }];
+
+                getLookupMoveSpy
+                    .mockResolvedValueOnce([createPtuMoveData({ name: moveName, basedOn: basedOnMoveName })])
+                    .mockResolvedValueOnce([createPtuMoveData({ name: basedOnMoveName })]);
+
+                getPokemonWithMoveMock
+                    .mockReturnValueOnce({ averageLevel: 10, levelUp: stubPokemonList }) // original: learned, diff = 0
+                    .mockReturnValueOnce({ averageLevel: 4, levelUp: stubPokemonList }); // basedOn: learned, basedOn diff = +6
+
+                // Act
+                await FakemonOverviewManagerService.getLevelUpMoveDistributionEmbed({ strategies, fakemon });
+
+                // Assert
+                expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
+                    expect.objectContaining({ avgDeviationBasedOn: 6 }),
+                );
+            });
         });
     });
 });
