@@ -483,10 +483,12 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
             [PtuMoveListType.ZygardeCubeMoves]: ' as a Zygarde Cube Move',
         };
         let description = `${Text.bold(`Pokemon that can learn ${moveName}${moveListTypeToEndOfTitle[moveListType]}`)}\n`;
+        let hasPokemonWithMove = false;
 
         // Level Up
         if (pokemonWithlevelUp.length > 0 || pokemonOutliersInLevelUpData.length > 0)
         {
+            hasPokemonWithMove = true;
             if (description.length > 0) description += '\n';
             description += Text.bold('Learn as Level-Up Move:') + '\n';
             description += `${averageLevel} Average Level\n`;
@@ -507,6 +509,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         // Egg Move
         if (pokemonWithEggMoves.length > 0)
         {
+            hasPokemonWithMove = true;
             description = pokemonWithEggMoves.reduce(
                 (acc, name) => acc + `${name}\n`,
                 `${description}\n${Text.bold('Learn as Egg Move:')}\n`,
@@ -516,6 +519,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         // TM/HM
         if (pokemonWithTmHm.length > 0)
         {
+            hasPokemonWithMove = true;
             description = pokemonWithTmHm.reduce(
                 (acc, name) => acc + `${name}\n`,
                 `${description}\n${Text.bold('Learn as TM/HM:')}\n`,
@@ -525,6 +529,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         // Tutor Move
         if (pokemonWithTutorMoves.length > 0)
         {
+            hasPokemonWithMove = true;
             description = pokemonWithTutorMoves.reduce(
                 (acc, name) => acc + `${name}\n`,
                 `${description}\n${Text.bold('Learn as Tutor Move:')}\n`,
@@ -534,10 +539,17 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         // Zygarde Cube Move
         if (pokemonWithZygardeCubeMoves.length > 0)
         {
+            hasPokemonWithMove = true;
             description = pokemonWithZygardeCubeMoves.reduce(
                 (acc, name) => acc + `${name}\n`,
                 `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`,
             );
+        }
+
+        // Disregard if no pokemon have a move of this type
+        if (!hasPokemonWithMove)
+        {
+            return outerAcc;
         }
 
         const lines = description.split('\n');
