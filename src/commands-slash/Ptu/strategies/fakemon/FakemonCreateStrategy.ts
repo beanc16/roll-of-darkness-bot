@@ -380,7 +380,7 @@ export class FakemonCreateStrategy
             case FakemonOverviewButtonCustomIds.CheckMoveProgression:
                 try
                 {
-                    const embed = await FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+                    const embed = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
 
                     if (!embed)
                     {

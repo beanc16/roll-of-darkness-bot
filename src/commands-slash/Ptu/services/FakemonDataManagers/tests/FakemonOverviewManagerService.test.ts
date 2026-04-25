@@ -4,6 +4,7 @@
 import { faker } from '@faker-js/faker';
 
 import { FakemonLevelUpMoveDistributionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage';
+import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage';
 import { getPokemonWithMove, type PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { createPtuMoveData } from '../../../fakes/PtuMove.fakes';
@@ -31,8 +32,12 @@ jest.mock('../../../embed-messages/lookup', () => ({
 jest.mock('../../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage', () => ({
     FakemonLevelUpMoveDistributionEmbedMessage: jest.fn(),
 }));
+jest.mock('../../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage', () => ({
+    FakemonLevelUpMoveProgressionEmbedMessage: jest.fn(),
+}));
 
 const MockedFakemonLevelUpMoveDistributionEmbedMessage = FakemonLevelUpMoveDistributionEmbedMessage;
+const MockedFakemonLevelUpMoveProgressionEmbedMessage = FakemonLevelUpMoveProgressionEmbedMessage;
 
 describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 {
@@ -107,7 +112,7 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
 
                     // Assert
                     expect(MockedFakemonLevelUpMoveDistributionEmbedMessage).toHaveBeenCalledWith(
-                    fakemon.name,
+                        fakemon.name,
                         expect.objectContaining({
                             [bucket]: expect.arrayContaining([
                                 expect.objectContaining({
@@ -314,6 +319,91 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
                     expect.objectContaining({ avgDeviationBasedOn: 6 }),
                 );
             });
+        });
+    });
+
+    describe(`method: ${FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed.name}`, () =>
+    {
+        beforeEach(() =>
+        {
+            jest.clearAllMocks();
+        });
+
+        it('returns undefined when levelUp move list is empty', () =>
+        {
+            const fakemon = createPtuFakemonCollectionData();
+            fakemon.moveList.levelUp = [];
+
+            const result = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+            expect(result).toBeUndefined();
+        });
+
+        it('groups moves matching a fakemon type into that type bucket', () =>
+        {
+            const fakemon = createPtuFakemonCollectionData();
+            fakemon.types = ['Fire', 'Water'];
+            const fireMove = {
+                move: 'Ember',
+                level: 1,
+                type: 'Fire',
+            };
+            const waterMove = {
+                move: 'Bubble',
+                level: 5,
+                type: 'Water',
+            };
+            fakemon.moveList.levelUp = [fireMove, waterMove];
+
+            FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+            expect(MockedFakemonLevelUpMoveProgressionEmbedMessage).toHaveBeenCalledWith(
+                fakemon,
+                expect.objectContaining({
+                    Fire: [fireMove],
+                    Water: [waterMove],
+                    Other: [],
+                }),
+            );
+        });
+
+        it('groups moves not matching any fakemon type into the Other bucket', () =>
+        {
+            const fakemon = createPtuFakemonCollectionData();
+            fakemon.types = ['Fire'];
+            const normalMove = {
+                move: 'Tackle',
+                level: 1,
+                type: 'Normal',
+            };
+            fakemon.moveList.levelUp = [normalMove];
+
+            FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+            expect(MockedFakemonLevelUpMoveProgressionEmbedMessage).toHaveBeenCalledWith(
+                fakemon,
+                expect.objectContaining({
+                    Fire: [],
+                    Other: [normalMove],
+                }),
+            );
+        });
+
+        it('returns an EmbedBuilder when levelUp moves are present', () =>
+        {
+            const fakemon = createPtuFakemonCollectionData();
+            fakemon.types = ['Fire'];
+            fakemon.moveList.levelUp = [{
+                move: 'Ember',
+                level: 1,
+                type: 'Fire',
+            }];
+            const mockEmbed = {};
+            MockedFakemonLevelUpMoveProgressionEmbedMessage.mockReturnValue(mockEmbed as never);
+
+            const result = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+            expect(result).toBe(mockEmbed);
         });
     });
 });
