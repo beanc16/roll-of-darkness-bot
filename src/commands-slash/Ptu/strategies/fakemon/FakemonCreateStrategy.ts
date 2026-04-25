@@ -56,6 +56,7 @@ import { FakemonEnvironmentManagerService } from '../../services/FakemonDataMana
 import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
 import { FakemonGeneralInformationManagerService } from '../../services/FakemonDataManagers/FakemonGeneralInformationManagerService.js';
 import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
+import { FakemonOverviewManagerService } from '../../services/FakemonDataManagers/FakemonOverviewManagerService.js';
 import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
@@ -289,6 +290,60 @@ export class FakemonCreateStrategy
                             'Validation succeeded!',
                         ].join('\n'),
                         ephemeral: true,
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveLevels:
+                try
+                {
+                    const embed = await FakemonOverviewManagerService.getLevelUpMoveDistributionEmbed({
+                        fakemon,
+                        strategies,
+                    });
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
                     });
                 }
                 catch (error)

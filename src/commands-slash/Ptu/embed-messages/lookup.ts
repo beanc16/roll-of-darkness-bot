@@ -365,6 +365,74 @@ const parseLookupByPokemonMoveInput = ({
     return acc;
 };
 
+export const getPokemonWithMove = ({
+    pokemon,
+    moveName,
+    moveListType,
+}: {
+    pokemon: PtuPokemonForLookupPokemon[];
+    moveName: string;
+    moveListType: PtuMoveListType;
+}): Omit<ParseLookupByPokemonMoveInputResponse, 'totalLevelUpMoveLearnedValue'> & { averageLevel: number } =>
+{
+    const output = pokemon.reduce<ParseLookupByPokemonMoveInputResponse>((acc, curPokemon) =>
+    {
+        const {
+            name,
+            moveList,
+            groupedVersions,
+        } = curPokemon;
+
+        if (groupedVersions && groupedVersions.length > 0)
+        {
+            groupedVersions.forEach(({
+                versionNames,
+                pokemon: [{ moveList: curMoveList }],
+                type: groupedVersionType,
+            }) =>
+            {
+                parseLookupByPokemonMoveInput({
+                    acc,
+                    moveList: curMoveList,
+                    curPokemonName: `${name} [${versionNames.join(', ')}]`,
+                    moveName,
+                    moveListType,
+                    groupedVersionType: groupedVersionType as PtuMoveListType,
+                });
+            });
+
+            return acc;
+        }
+
+        return parseLookupByPokemonMoveInput({
+            acc,
+            moveList,
+            curPokemonName: name,
+            moveName,
+            moveListType,
+        });
+    }, {
+        [PtuMoveListType.LevelUp]: [],
+        [PtuMoveListType.EggMoves]: [],
+        [PtuMoveListType.TmHm]: [],
+        [PtuMoveListType.TutorMoves]: [],
+        [PtuMoveListType.ZygardeCubeMoves]: [],
+        totalLevelUpMoveLearnedValue: 0,
+        outliersInLevelUpData: [],
+    });
+
+    const {
+        totalLevelUpMoveLearnedValue,
+        ...rest
+    } = output;
+    const averageLevel = (totalLevelUpMoveLearnedValue / output[PtuMoveListType.LevelUp].length) || 0;
+
+    return {
+        ...rest,
+        averageLevel: parseFloat(averageLevel.toFixed(1)),
+    };
+};
+
 export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookupPokemon[], { moveNames = [], moveListType }: {
     moveNames: string[];
     moveListType: PtuMoveListType;
@@ -381,51 +449,11 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
             tutorMoves: pokemonWithTutorMoves,
             zygardeCubeMoves: pokemonWithZygardeCubeMoves,
             outliersInLevelUpData: pokemonOutliersInLevelUpData,
-            totalLevelUpMoveLearnedValue,
-        } = pokemon.reduce<ParseLookupByPokemonMoveInputResponse>((acc, curPokemon) =>
-        {
-            const {
-                name,
-                moveList,
-                groupedVersions,
-            } = curPokemon;
-
-            if (groupedVersions && groupedVersions.length > 0)
-            {
-                groupedVersions.forEach(({
-                    versionNames,
-                    pokemon: [{ moveList: curMoveList }],
-                    type: groupedVersionType,
-                }) =>
-                {
-                    parseLookupByPokemonMoveInput({
-                        acc,
-                        moveList: curMoveList,
-                        curPokemonName: `${name} [${versionNames.join(', ')}]`,
-                        moveName,
-                        moveListType,
-                        groupedVersionType: groupedVersionType as PtuMoveListType,
-                    });
-                });
-
-                return acc;
-            }
-
-            return parseLookupByPokemonMoveInput({
-                acc,
-                moveList,
-                curPokemonName: name,
-                moveName,
-                moveListType,
-            });
-        }, {
-            [PtuMoveListType.LevelUp]: [],
-            [PtuMoveListType.EggMoves]: [],
-            [PtuMoveListType.TmHm]: [],
-            [PtuMoveListType.TutorMoves]: [],
-            [PtuMoveListType.ZygardeCubeMoves]: [],
-            totalLevelUpMoveLearnedValue: 0,
-            outliersInLevelUpData: [],
+            averageLevel,
+        } = getPokemonWithMove({
+            pokemon,
+            moveName,
+            moveListType,
         });
 
         // Sort level up move results by their level
@@ -461,9 +489,7 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         {
             if (description.length > 0) description += '\n';
             description += Text.bold('Learn as Level-Up Move:') + '\n';
-            description += `${
-                ((totalLevelUpMoveLearnedValue / pokemonWithlevelUp.length) || 0).toFixed(1)
-            } Average Level\n`;
+            description += `${averageLevel} Average Level\n`;
 
             description = pokemonOutliersInLevelUpData.reduce(
                 (acc, { level, name }) => acc + `${level} ${name}\n`,
