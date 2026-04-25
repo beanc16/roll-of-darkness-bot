@@ -64,7 +64,7 @@ export interface GetLookupPokemonDataParameters
 {
     names?: (string | null | undefined)[];
     lookupType?: RegexLookupType;
-    moveName?: string | null;
+    moveNames?: (string | null)[];
     moveListType?: PtuMoveListType;
     abilityName?: string | null;
     abilityListType?: PtuAbilityListType;
@@ -78,7 +78,7 @@ export interface GetLookupPokemonDataParameters
 
 interface AddLookupMetadataToPtuPokemonParameters
 {
-    moveName: GetLookupPokemonDataParameters['moveName'];
+    moveNames: GetLookupPokemonDataParameters['moveNames'];
     abilityName: GetLookupPokemonDataParameters['abilityName'];
     capabilityName: GetLookupPokemonDataParameters['capabilityName'];
     curPokemon: PtuPokemonForLookupPokemon;
@@ -167,7 +167,7 @@ export class LookupPokemonStrategy
         const data = await this.getLookupData({
             names,
             lookupType: RegexLookupType.ExactMatchCaseInsensitive,
-            moveName,
+            moveNames: [moveName].filter(Boolean) as string[],
             moveListType,
             abilityName,
             abilityListType,
@@ -180,7 +180,7 @@ export class LookupPokemonStrategy
 
         const embedsInput = await this.getFirstEmbedsInput({
             names,
-            moveName,
+            moveNames: [moveName ?? null],
             moveListType,
             abilityName,
             abilityListType,
@@ -250,7 +250,7 @@ export class LookupPokemonStrategy
     public static async getLookupData({
         names,
         lookupType = RegexLookupType.SubstringCaseInsensitive,
-        moveName,
+        moveNames,
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
@@ -262,14 +262,14 @@ export class LookupPokemonStrategy
         getAll,
     }: GetLookupPokemonDataParameters = {}): Promise<PtuPokemonForLookupPokemon[]>
     {
-        if (!((names && names?.length > 0) || moveName || abilityName || capabilityName || habitatName || dietName || eggGroups || baseStatTotal || getAll))
+        if (!((names && names?.length > 0) || moveNames || abilityName || capabilityName || habitatName || dietName || eggGroups || baseStatTotal || getAll))
         {
             return [];
         }
 
         const searchParams = this.parseSearchParameters({
             names,
-            moveName,
+            moveNames,
             moveListType,
             lookupType,
             abilityName,
@@ -365,7 +365,7 @@ export class LookupPokemonStrategy
 
             // Add lookup metadata
             const resultWithLookupMetadata = this.addLookupMetadataToPtuPokemon({
-                moveName,
+                moveNames,
                 abilityName,
                 capabilityName,
                 curPokemon: result,
@@ -388,13 +388,14 @@ export class LookupPokemonStrategy
     }
 
     private static addLookupMetadataToPtuPokemon({
-        moveName,
+        moveNames,
         abilityName,
         capabilityName,
         curPokemon,
     }: AddLookupMetadataToPtuPokemonParameters): PtuPokemonForLookupPokemon
     {
         // Data setup & deconstruction
+        const moveNamesSet = new Set<string>((moveNames?.filter(Boolean) ?? []) as string[]);
         const output = {
             ...curPokemon,
             groupedVersions: [
@@ -412,7 +413,7 @@ export class LookupPokemonStrategy
         let allInclude = true;
         let someInclude = false;
 
-        if (moveName)
+        if (moveNamesSet.size > 0)
         {
             const moveGroups: {
                 [PtuMoveListType.LevelUp]: Record<PtuPokemonForLookupPokemon['moveList']['levelUp'][0]['level'], NonNullable<PtuPokemonForLookupPokemon['groupedVersions']>[0]>;
@@ -444,11 +445,11 @@ export class LookupPokemonStrategy
                 },
             };
 
-            let levelUpMoveData = (curPokemon.moveList.levelUp ?? []).find(({ move }) => move === moveName);
-            let hasAsEggMove = curPokemon.moveList.eggMoves?.some((name) => name === moveName);
-            let hasAsTmHmMove = curPokemon.moveList.tmHm?.some((name) => name === moveName);
-            let hasAsTutorMove = curPokemon.moveList.tutorMoves?.some((name) => name === moveName);
-            let hasAsZygardeCubeMove = curPokemon.moveList.zygardeCubeMoves?.some((name) => name === moveName);
+            let levelUpMoveData = (curPokemon.moveList.levelUp ?? []).find(({ move }) => moveNamesSet.has(move));
+            let hasAsEggMove = curPokemon.moveList.eggMoves?.some((name) => moveNamesSet.has(name));
+            let hasAsTmHmMove = curPokemon.moveList.tmHm?.some((name) => moveNamesSet.has(name));
+            let hasAsTutorMove = curPokemon.moveList.tutorMoves?.some((name) => moveNamesSet.has(name));
+            let hasAsZygardeCubeMove = curPokemon.moveList.zygardeCubeMoves?.some((name) => moveNamesSet.has(name));
 
             if (levelUpMoveData)
             {
@@ -496,11 +497,11 @@ export class LookupPokemonStrategy
 
             olderVersions.forEach((olderVersion) =>
             {
-                levelUpMoveData = (olderVersion.moveList.levelUp ?? []).find(({ move }) => move === moveName);
-                hasAsEggMove = olderVersion.moveList.eggMoves?.some((name) => name === moveName);
-                hasAsTmHmMove = olderVersion.moveList.tmHm?.some((name) => name === moveName);
-                hasAsTutorMove = olderVersion.moveList.tutorMoves?.some((name) => name === moveName);
-                hasAsZygardeCubeMove = olderVersion.moveList.zygardeCubeMoves?.some((name) => name === moveName);
+                levelUpMoveData = (olderVersion.moveList.levelUp ?? []).find(({ move }) => moveNamesSet.has(move));
+                hasAsEggMove = olderVersion.moveList.eggMoves?.some((name) => moveNamesSet.has(name));
+                hasAsTmHmMove = olderVersion.moveList.tmHm?.some((name) => moveNamesSet.has(name));
+                hasAsTutorMove = olderVersion.moveList.tutorMoves?.some((name) => moveNamesSet.has(name));
+                hasAsZygardeCubeMove = olderVersion.moveList.zygardeCubeMoves?.some((name) => moveNamesSet.has(name));
 
                 if (levelUpMoveData)
                 {
@@ -806,8 +807,10 @@ export class LookupPokemonStrategy
     // Get embeds for the very first message
     private static getFirstEmbeds(options: GetLookupPokemonEmbedsParameters): EmbedBuilder[]
     {
+        const parsedMoveNames = options.moveNames?.filter(Boolean) as string[] | undefined;
+
         // Searching by move name on all move types
-        if (!!options.moveName && options.moveListType === PtuMoveListType.All)
+        if (!!parsedMoveNames && parsedMoveNames.length > 0 && options.moveListType === PtuMoveListType.All)
         {
             // Find the embeds of the first move type in this order
             const moveListTypes: Exclude<PtuMoveListType, PtuMoveListType.All>[] = [
@@ -1034,7 +1037,7 @@ export class LookupPokemonStrategy
                 {
                     const moveListType = value as PtuMoveListType;
                     newEmbeds = this.getLookupPokemonEmbeds({
-                        moveName,
+                        moveNames: [moveName ?? null],
                         moveListType,
                         pokemon,
                     });
@@ -1207,7 +1210,7 @@ export class LookupPokemonStrategy
                 {
                     const moveListType = value as PtuMoveListType;
                     newEmbeds = this.getLookupPokemonEmbeds({
-                        moveName,
+                        moveNames: [moveName ?? null],
                         moveListType,
                         pokemon,
                     });
@@ -1268,7 +1271,7 @@ export class LookupPokemonStrategy
 
     private static parseSearchParameters({
         names,
-        moveName,
+        moveNames,
         moveListType = PtuMoveListType.All,
         lookupType = RegexLookupType.SubstringCaseInsensitive,
         abilityName,
@@ -1327,9 +1330,9 @@ export class LookupPokemonStrategy
             };
         }
 
-        if (moveName)
+        if (moveNames && moveNames.length > 0)
         {
-            output = PokemonController.getMoveListTypeSearchParams([moveName], moveListType);
+            output = PokemonController.getMoveListTypeSearchParams(moveNames as string[], moveListType);
         }
 
         if (abilityName)
@@ -1420,7 +1423,7 @@ export class LookupPokemonStrategy
 
     private static getLookupPokemonEmbeds({
         names,
-        moveName,
+        moveNames,
         moveListType = PtuMoveListType.All,
         abilityName,
         abilityListType = PtuAbilityListType.All,
@@ -1438,10 +1441,11 @@ export class LookupPokemonStrategy
             return getLookupPokemonEmbedMessages(pokemon, moveNameToMovesRecord ?? {});
         }
 
-        if (moveName)
+        const parsedMoveNames = moveNames?.filter(Boolean) as string[] | undefined;
+        if (parsedMoveNames && parsedMoveNames.length > 0)
         {
             return getLookupPokemonByMoveEmbedMessages(pokemon, {
-                moveName,
+                moveNames: parsedMoveNames,
                 moveListType,
             });
         }
