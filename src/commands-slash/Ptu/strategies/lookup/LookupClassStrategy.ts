@@ -127,6 +127,7 @@ export enum PtuClassName
     BugElementalist = 'Bug Elementalist: Swarmlord',
     DarkElementalist = 'Dark Elementalist: Shade Caller',
     DragonElementalist = 'Dragon Elementalist: Herald of Pride',
+    DragonElementalistHomebrew = 'Dragon Elementalist: Herald of Pride [HB]', // Homebrew
     ElectricElementalist = 'Electric Elementalist: Spark Master',
     FairyElementalist = 'Fairy Elementalist: Glamour Weaver',
     FireElementalist = 'Fire Elementalist: Fire Bringer',
@@ -519,6 +520,9 @@ export class LookupClassStrategy
         [PtuClassName.DragonElementalist]: {
             [PtuClassRole.TrainerCombat]: 5,
         },
+        [PtuClassName.DragonElementalistHomebrew]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
         [PtuClassName.ElectricElementalist]: {
             [PtuClassRole.TrainerCombat]: 4,
             [PtuClassRole.TravelAndInvestigation]: 1,
@@ -787,6 +791,7 @@ export class LookupClassStrategy
             case PtuClassName.BugElementalist:
             case PtuClassName.DarkElementalist:
             case PtuClassName.DragonElementalist:
+            case PtuClassName.DragonElementalistHomebrew:
             case PtuClassName.ElectricElementalist:
             case PtuClassName.FairyElementalist:
             case PtuClassName.FireElementalist:
@@ -1860,6 +1865,15 @@ export class LookupClassStrategy
                 `Call the Dragon's Rage`,
                 `Rouse the Dragon's Blood`,
                 'Sovereignty',
+            ],
+            [PtuClassName.DragonElementalistHomebrew]: [
+                ...this.convertFeatureNames([PtuClassName.DragonElementalistHomebrew]),
+                `Rouse the Dragon's Blood [HB]`,
+                `Bare the Dragon's Claws [HB]`,
+                `Call the Dragon's Rage [HB]`,
+                `Sovereign's Wrath [HB]`,
+                'Noblese Oblige [HB]',
+                'Draconic Transformation [HB]',
             ],
             [PtuClassName.ElectricElementalist]: [
                 ...this.convertFeatureNames([PtuClassName.ElectricElementalist]),
