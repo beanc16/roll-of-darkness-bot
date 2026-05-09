@@ -40,6 +40,7 @@ interface ParseLookupByPokemonAbilityInputResponse
     [PtuAbilityListType.Basic]: string[];
     [PtuAbilityListType.Advanced]: string[];
     [PtuAbilityListType.High]: string[];
+    [PtuAbilityListType.Mega]: string[];
 }
 
 interface ParseLookupByPokemonMoveInputResponse
@@ -584,6 +585,7 @@ const parseLookupByPokemonAbilityInput = ({
     curPokemonName,
     abilityName,
     abilityListType,
+    megaEvolutions = [],
     groupedVersionType,
 }: {
     acc: ParseLookupByPokemonAbilityInputResponse;
@@ -591,6 +593,7 @@ const parseLookupByPokemonAbilityInput = ({
     curPokemonName: string;
     abilityName: string;
     abilityListType: PtuAbilityListType;
+    megaEvolutions: PtuPokemonForLookupPokemon['megaEvolutions'];
     groupedVersionType?: PtuAbilityListType;
 }): ParseLookupByPokemonAbilityInputResponse =>
 {
@@ -623,6 +626,12 @@ const parseLookupByPokemonAbilityInput = ({
         return acc;
     }
 
+    if (megaEvolutions.some(({ ability }) => ability === abilityName) && (!groupedVersionType || groupedVersionType === PtuAbilityListType.Mega))
+    {
+        acc[PtuAbilityListType.Mega].push(curPokemonName);
+        return acc;
+    }
+
     return acc;
 };
 
@@ -637,11 +646,13 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         basicAbilities: pokemonWithBasic,
         advancedAbilities: pokemonWithAdvanced,
         highAbility: pokemonWithHigh,
+        megaAbility: pokemonWithMega,
     } = pokemon.reduce((acc, curPokemon) =>
     {
         const {
             name,
             abilities,
+            megaEvolutions = [],
             groupedVersions,
         } = curPokemon;
 
@@ -649,7 +660,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         {
             groupedVersions.forEach(({
                 versionNames,
-                pokemon: [{ abilities: curAbilities }],
+                pokemon: [{ abilities: curAbilities, megaEvolutions: curMegaEvolutions = [] }],
                 type: groupedVersionType,
             }) =>
             {
@@ -659,6 +670,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
                     curPokemonName: `${name} [${versionNames.join(', ')}]`,
                     abilityName,
                     abilityListType,
+                    megaEvolutions: curMegaEvolutions,
                     groupedVersionType: groupedVersionType as PtuAbilityListType,
                 });
             });
@@ -672,11 +684,13 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
             curPokemonName: name,
             abilityName,
             abilityListType,
+            megaEvolutions,
         });
     }, {
         [PtuAbilityListType.Basic]: [] as string[],
         [PtuAbilityListType.Advanced]: [] as string[],
         [PtuAbilityListType.High]: [] as string[],
+        [PtuAbilityListType.Mega]: [] as string[],
     });
 
     const abilityListTypeToEndOfTitle: Record<PtuAbilityListType, string> = {
@@ -684,6 +698,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         [PtuAbilityListType.Basic]: ' as a Basic Ability',
         [PtuAbilityListType.Advanced]: ' as an Advanced Ability',
         [PtuAbilityListType.High]: ' as a High Ability',
+        [PtuAbilityListType.Mega]: ' as a Mega Ability',
     };
     let description = `${Text.bold(`Pokemon that can learn ${abilityName}${abilityListTypeToEndOfTitle[abilityListType]}`)}\n`;
 
@@ -705,12 +720,21 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         );
     }
 
-    // Tutor Move
+    // High Ability
     if (pokemonWithHigh.length > 0)
     {
         description = pokemonWithHigh.reduce(
             (acc, name) => acc + `${name}\n`,
             `${description}\n${Text.bold('Learn as High Ability:')}\n`,
+        );
+    }
+
+    // Mega Ability
+    if (pokemonWithMega.length > 0)
+    {
+        description = pokemonWithMega.reduce(
+            (acc, name) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Mega Ability:')}\n`,
         );
     }
 

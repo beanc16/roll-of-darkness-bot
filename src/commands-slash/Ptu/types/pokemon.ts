@@ -204,6 +204,7 @@ export enum PtuAbilityListType
     Basic = 'basicAbilities',
     Advanced = 'advancedAbilities',
     High = 'highAbility',
+    Mega = 'megaAbility',
 }
 
 export enum PtuMoveListType

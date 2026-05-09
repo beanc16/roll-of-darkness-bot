@@ -627,6 +627,11 @@ export class LookupPokemonStrategy
                     pokemon: [],
                     type: PtuAbilityListType.High,
                 },
+                [PtuAbilityListType.Mega]: {
+                    versionNames: [],
+                    pokemon: [],
+                    type: PtuAbilityListType.Mega,
+                },
             };
 
             if (curPokemon.abilities.basicAbilities?.some(ability => ability === abilityName))
@@ -645,6 +650,12 @@ export class LookupPokemonStrategy
             {
                 abilityGroups[PtuAbilityListType.High].versionNames.push(curPokemon.versionName);
                 abilityGroups[PtuAbilityListType.High].pokemon.push(curPokemon);
+                someInclude = true;
+            }
+            else if (curPokemon.megaEvolutions?.some(({ ability }) => ability === abilityName))
+            {
+                abilityGroups[PtuAbilityListType.Mega].versionNames.push(curPokemon.versionName);
+                abilityGroups[PtuAbilityListType.Mega].pokemon.push(curPokemon);
                 someInclude = true;
             }
             else
@@ -672,6 +683,12 @@ export class LookupPokemonStrategy
                     abilityGroups[PtuAbilityListType.High].pokemon.push(olderVersion);
                     someInclude = true;
                 }
+                else if (olderVersion.megaEvolutions?.some(({ ability }) => ability === abilityName))
+                {
+                    abilityGroups[PtuAbilityListType.Mega].versionNames.push(olderVersion.versionName);
+                    abilityGroups[PtuAbilityListType.Mega].pokemon.push(olderVersion);
+                    someInclude = true;
+                }
                 else
                 {
                     allInclude = false;
@@ -682,6 +699,7 @@ export class LookupPokemonStrategy
                 ...(abilityGroups[PtuAbilityListType.Basic].pokemon.length > 0 ? [PtuAbilityListType.Basic] : []),
                 ...(abilityGroups[PtuAbilityListType.Advanced].pokemon.length > 0 ? [PtuAbilityListType.Advanced] : []),
                 ...(abilityGroups[PtuAbilityListType.High].pokemon.length > 0 ? [PtuAbilityListType.High] : []),
+                ...(abilityGroups[PtuAbilityListType.Mega].pokemon.length > 0 ? [PtuAbilityListType.Mega] : []),
             ] as Exclude<PtuAbilityListType, PtuAbilityListType.All>[];
 
             // Only group if there's some included and some not (no grouping is necessary if it's always or never included)
@@ -1349,6 +1367,12 @@ export class LookupPokemonStrategy
                         [key]: abilityName,
                     };
                     break;
+                case PtuAbilityListType.Mega:
+                    key = 'megaEvolutions.ability';
+                    output = {
+                        [key]: abilityName,
+                    };
+                    break;
                 case PtuAbilityListType.All:
                     // eslint-disable-next-line no-case-declarations
                     const searchParams: object[] = [
@@ -1361,6 +1385,9 @@ export class LookupPokemonStrategy
                         return {
                             [key]: abilityName,
                         };
+                    });
+                    searchParams.push({
+                        'megaEvolutions.ability': abilityName,
                     });
 
                     output = {
