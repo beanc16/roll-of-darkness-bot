@@ -865,22 +865,14 @@ export class LookupClassStrategy
         const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
         const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
         const names = [name1, name2, name3, name4].filter(element => element !== null);
-        const category = interaction.options.getString('category') as PtuClassCategory | null;
-        const sortByClassRole = interaction.options.getString('sort_by_class_role') as PtuClassRole | null;
+        const category = interaction.options.getString(PtuAutocompleteParameterName.ClassCategory) as PtuClassCategory | null;
+        const sortByClassRole = interaction.options.getString(PtuAutocompleteParameterName.ClassRole) as PtuClassRole | null;
         const tag = interaction.options.getString(PtuAutocompleteParameterName.FeatureTag) as PtuFeatureTag | null;
 
         // Return list of all classes if no name is given
         if (names.length === 0)
         {
             let classNames = Object.values(PtuClassName);
-
-            // Filter if category is given
-            if (category)
-            {
-                classNames = classNames.filter(element =>
-                    this.ptuClassNameToMetadata[element].category === category,
-                );
-            }
 
             // Filter by tag
             if (tag)
@@ -898,6 +890,14 @@ export class LookupClassStrategy
                     }
                     return acc;
                 }, []);
+            }
+
+            // Filter if category is given
+            if (category)
+            {
+                classNames = classNames.filter(element =>
+                    this.ptuClassNameToMetadata[element].category === category,
+                );
             }
 
             // Sort if class role is given
