@@ -1395,6 +1395,8 @@ export class FakemonCreateStrategy
             editors: coEditorUserId
                 ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
                 : [...new Set([...this.basePokemon.editors, userId])],
+            status: PtuFakemonStatus.DRAFT,
+            deletedAt: undefined,
         });
     }
 
