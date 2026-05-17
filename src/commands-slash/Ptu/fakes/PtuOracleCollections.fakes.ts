@@ -41,6 +41,11 @@ export const createPtuOracleCardCollectionData = ({
         defaultReverseProphecy,
     });
 
+export const bulkCreatePtuOracleCardCollectionData = (numOfCards: number) =>
+    Array.from({ length: numOfCards }, (_, index) =>
+        createPtuOracleCardCollectionData({ cardNumber: index + 1 }),
+    );
+
 export const createPtuOracleCardDrawData = ({
     cardNumber = faker.number.int({ min: 1, max: 100 }),
     prophecy = faker.lorem.sentence(),

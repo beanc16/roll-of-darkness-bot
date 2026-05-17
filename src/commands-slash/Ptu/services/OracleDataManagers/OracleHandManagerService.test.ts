@@ -9,6 +9,7 @@ import {
 } from '../../dal/models/PtuOracleGameCollection.js';
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
 import {
+    bulkCreatePtuOracleCardCollectionData,
     createPtuOracleCardCollectionData,
     createPtuOracleCardDrawData,
     createPtuOracleGameCollectionData,
@@ -1341,6 +1342,70 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                 game.id,
                 { status: PtuOracleGameStatus.Complete },
             );
+        });
+    });
+
+    describe(`method: ${OracleHandManagerService['drawCards'].name}`, () =>
+    {
+        const allCards = bulkCreatePtuOracleCardCollectionData(53);
+
+        it('draws the requested number of cards', () =>
+        {
+            // Arrange
+            [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+
+            // Act
+            const result = OracleHandManagerService['drawCards'](allCards, 3);
+
+            // Assert
+            expect(result.length).toEqual(3);
+            expect(result).toEqual([
+                {
+                    card: allCards[5],
+                    face: PtuOracleCardProphecyFace.Normal,
+                },
+                {
+                    card: allCards[3],
+                    face: PtuOracleCardProphecyFace.Reverse,
+                },
+                {
+                    card: allCards[1],
+                    face: PtuOracleCardProphecyFace.Normal,
+                },
+            ]);
+        });
+
+        it('draws zero cards when no cards are requested', () =>
+        {
+            // Act
+            const result = OracleHandManagerService['drawCards'](allCards, 0);
+
+            // Assert
+            expect(result.length).toEqual(0);
+            expect(result).toEqual([]);
+        });
+
+        it('draws zero cards when negative cards are requested', () =>
+        {
+            // Act
+            const result = OracleHandManagerService['drawCards'](allCards, -3);
+
+            // Assert
+            expect(result.length).toEqual(0);
+            expect(result).toEqual([]);
+        });
+
+        it('does not modify input cards param', () =>
+        {
+            // Arrange
+            [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+            const allCardsClone = [...allCards];
+
+            // Act
+            OracleHandManagerService['drawCards'](allCards, 3);
+
+            // Assert
+            expect(allCards).toEqual(allCardsClone);
         });
     });
 });
