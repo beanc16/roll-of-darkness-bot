@@ -631,6 +631,7 @@ export class OracleHandManagerService
             // Reset deck when there's no more cards left to draw
             if (cardsClone.length <= 0)
             {
+                // eslint-disable-next-line no-await-in-loop -- Should only trigger once
                 cardsClone = [...(await PtuOraclePseudoCache.getAllCards())];
             }
             const [roll] = new DiceLiteService({ count: 1, sides: cardsClone.length }).roll();

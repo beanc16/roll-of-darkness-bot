@@ -1284,15 +1284,18 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             // Arrange
             const card1 = createPtuOracleCardCollectionData({ cardNumber: 1 });
             const card2 = createPtuOracleCardCollectionData({ cardNumber: 2 });
+            const card3 = createPtuOracleCardCollectionData({ cardNumber: 3 });
 
             const draw1 = createPtuOracleCardDrawData({ cardNumber: 1 });
             const draw2 = createPtuOracleCardDrawData({ cardNumber: 2 });
+            const draw3 = createPtuOracleCardDrawData({ cardNumber: 3 });
 
             const hand1 = createPtuOraclePlayerHandData({ past: [draw1] });
             const hand2 = createPtuOraclePlayerHandData({ present: [draw2] });
+            const hand3 = createPtuOraclePlayerHandData({ future: [draw3] });
 
-            const game = createPtuOracleGameCollectionData({ hands: [hand1, hand2] });
-            getAllCardsMock.mockResolvedValue([card1, card2]);
+            const game = createPtuOracleGameCollectionData({ hands: [hand1, hand2, hand3] });
+            getAllCardsMock.mockResolvedValue([card1, card2, card3]);
 
             // Act
             const result = await OracleHandManagerService.getHandsDetailed({ hands: game.hands });
@@ -1301,6 +1304,7 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             expect(result).toEqual([
                 expect.objectContaining({ past: [{ ...draw1, card: card1 }] }),
                 expect.objectContaining({ present: [{ ...draw2, card: card2 }] }),
+                expect.objectContaining({ future: [{ ...draw3, card: card3 }] }),
             ]);
         });
 
