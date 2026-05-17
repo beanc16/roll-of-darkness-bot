@@ -88,7 +88,7 @@ export class OracleEditNotesModal extends BaseCustomModal
             .setStyle(this.styleMap[OracleEditNotesCustomId.Past])
             .setMinLength(1)
             .setMaxLength(200)
-            .setRequired(true);
+            .setRequired(false);
 
         const presentInput = new TextInputBuilder()
             .setCustomId(OracleEditNotesCustomId.Present)
