@@ -11,7 +11,10 @@ import { OracleStringSelectCustomId } from './types.js';
 
 export enum OracleDealerStringSelectElementOption
 {
-    DealCards = 'Deal Cards',
+    Deal3Cards = 'Deal 3 Cards',
+    Deal1PastCard = 'Deal 1 Past Card',
+    Deal1PresentCard = 'Deal 1 Present Card',
+    Deal1FutureCard = 'Deal 1 Future Card',
     PeakAtCards = 'Peak At Cards',
     RevealNextCard = 'Reveal Next Card',
     EditNotes = 'Edit Notes (optional)',
@@ -66,7 +69,12 @@ export class OracleDealerStringSelectActionRowBuilder extends ActionRowBuilder<S
             && currentHand[PtuOracleGameTime.Future].length === 0
         )
         {
-            return [OracleDealerStringSelectElementOption.DealCards];
+            return [
+                OracleDealerStringSelectElementOption.Deal3Cards,
+                OracleDealerStringSelectElementOption.Deal1PastCard,
+                OracleDealerStringSelectElementOption.Deal1PresentCard,
+                OracleDealerStringSelectElementOption.Deal1FutureCard,
+            ];
         }
 
         if (currentHand.isCompleted)

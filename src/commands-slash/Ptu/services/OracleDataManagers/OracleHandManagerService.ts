@@ -137,6 +137,66 @@ export class OracleHandManagerService
         });
     }
 
+    public static async dealSingleCardForCurrentHand({
+        id,
+        deckCardNumbers,
+        hands,
+    }: Pick<PtuOracleGameCollection, 'id' | 'deckCardNumbers' | 'hands'>, time: PtuOracleGameTime): Promise<PtuOracleGameCollection>
+    {
+        // Get data
+        const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
+
+        const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
+
+        if (!currentHand)
+        {
+            throw new Error('Current hand not found');
+        }
+
+        if (!(
+            currentHand[PtuOracleGameTime.Past].length === 0
+            && currentHand[PtuOracleGameTime.Present].length === 0
+            && currentHand[PtuOracleGameTime.Future].length === 0
+        ))
+        {
+            throw new Error('Cannot deal cards for a hand that is not empty');
+        }
+
+        // Draw cards
+        const [drawnCard] = this.drawCards(cards, 1);
+
+        // Set update data
+        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
+        {
+            if (drawnCard.card.cardNumber !== cur.cardNumber)
+            {
+                acc.push(cur.cardNumber);
+            }
+            return acc;
+        }, []);
+
+        // Update
+        return await PtuOraclePseudoCache.updateGame(id.toString(), {
+            deckCardNumbers: updatedDeckCardNumbers,
+            // Keep prior hands and add a new hand
+            hands: [
+                ...priorHands,
+                {
+                    ...currentHand,
+                    past: [],
+                    present: [],
+                    future: [],
+                    [time]: [{
+                        action: PtuOracleCardAction.FaceDown,
+                        cardNumber: drawnCard.card.cardNumber,
+                        face: drawnCard.face,
+                        prophecy: this.getCardDefaultProphecy(drawnCard.card, drawnCard.face),
+                    }],
+                },
+            ],
+        });
+    }
+
     public static async acceptFate({ id, hands }: Pick<PtuOracleGameCollection, 'id' | 'hands'>): Promise<PtuOracleGameCollection>
     {
         // Get data

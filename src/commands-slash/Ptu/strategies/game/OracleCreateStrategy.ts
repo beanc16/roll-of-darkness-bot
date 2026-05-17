@@ -131,8 +131,17 @@ export class OracleCreateStrategy
                     hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
                     switch (value1)
                     {
-                        case OracleDealerStringSelectElementOption.DealCards:
+                        case OracleDealerStringSelectElementOption.Deal3Cards:
                             updateGameCallback = () => OracleHandManagerService.dealCardsForCurrentHand(game!);
+                            break;
+                        case OracleDealerStringSelectElementOption.Deal1PastCard:
+                            updateGameCallback = () => OracleHandManagerService.dealSingleCardForCurrentHand(game!, PtuOracleGameTime.Past);
+                            break;
+                        case OracleDealerStringSelectElementOption.Deal1PresentCard:
+                            updateGameCallback = () => OracleHandManagerService.dealSingleCardForCurrentHand(game!, PtuOracleGameTime.Present);
+                            break;
+                        case OracleDealerStringSelectElementOption.Deal1FutureCard:
+                            updateGameCallback = () => OracleHandManagerService.dealSingleCardForCurrentHand(game!, PtuOracleGameTime.Future);
                             break;
                         case OracleDealerStringSelectElementOption.PeakAtCards:
                             // Defer for database update
