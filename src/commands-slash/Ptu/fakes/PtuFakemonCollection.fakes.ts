@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
+import { getFakeDiscordId, getFakeDiscordIds } from '../../../fakes/discord/ids.js';
 import {
     PtuFakemonCollection,
     PtuFakemonDexType,
@@ -8,23 +9,6 @@ import {
 } from '../dal/models/PtuFakemonCollection';
 import { PtuPokemon } from '../types/pokemon';
 import { createPtuPokemonCollectionData } from './PtuPokemonCollection.fakes';
-
-const getFakeDiscordId = (): string =>
-{
-    // Discord user ids are 18 character numeric strings
-    return faker.helpers.multiple(
-        () => faker.number.int({ min: 0, max: 9 }),
-        { count: 18 },
-    ).map(element => element.toString()).join('');
-};
-
-const getFakeDiscordIds = (): string[] =>
-{
-    return faker.helpers.multiple(
-        () => getFakeDiscordId(),
-        { count: 10 },
-    );
-};
 
 export const createPtuFakemonCollectionData = (
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- This is incorrectly believing this is of type any
