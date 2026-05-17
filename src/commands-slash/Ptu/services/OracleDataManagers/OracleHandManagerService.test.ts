@@ -1358,8 +1358,8 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             const result = OracleHandManagerService['drawCards'](allCards, 3);
 
             // Assert
-            expect(result.length).toEqual(3);
-            expect(result).toEqual([
+            expect(result.drawnCards.length).toEqual(3);
+            expect(result.drawnCards).toEqual([
                 {
                     card: allCards[5],
                     face: PtuOracleCardProphecyFace.Normal,
@@ -1375,14 +1375,36 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             ]);
         });
 
+        it('returns the updated deck of card numbers', () =>
+        {
+            // Arrange
+            [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+
+            // Act
+            const result = OracleHandManagerService['drawCards'](allCards, 3);
+
+            // Assert
+            expect(result.updatedDeckCardNumbers.length).toEqual(allCards.length - 3);
+            expect(result.updatedDeckCardNumbers).toEqual(
+                allCards.reduce<number[]>((acc, cur, index) =>
+                {
+                    if (index !== 5 && index !== 3 && index !== 1)
+                    {
+                        acc.push(cur.cardNumber);
+                    }
+                    return acc;
+                }, []),
+            );
+        });
+
         it('draws zero cards when no cards are requested', () =>
         {
             // Act
             const result = OracleHandManagerService['drawCards'](allCards, 0);
 
             // Assert
-            expect(result.length).toEqual(0);
-            expect(result).toEqual([]);
+            expect(result.drawnCards.length).toEqual(0);
+            expect(result.drawnCards).toEqual([]);
         });
 
         it('draws zero cards when negative cards are requested', () =>
@@ -1391,8 +1413,8 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             const result = OracleHandManagerService['drawCards'](allCards, -3);
 
             // Assert
-            expect(result.length).toEqual(0);
-            expect(result).toEqual([]);
+            expect(result.drawnCards.length).toEqual(0);
+            expect(result.drawnCards).toEqual([]);
         });
 
         it('does not modify input cards param', () =>

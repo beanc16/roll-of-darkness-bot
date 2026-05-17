@@ -92,19 +92,8 @@ export class OracleHandManagerService
         }
 
         // Draw cards
-        const drawnCards = this.drawCards(cards, 3);
-        const drawnCardNumbers = drawnCards.map(({ card }) => card.cardNumber);
+        const { drawnCards, updatedDeckCardNumbers } = this.drawCards(cards, 3);
         const [pastCard, presentCard, futureCard] = drawnCards;
-
-        // Set update data
-        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
-        {
-            if (!drawnCardNumbers.includes(cur.cardNumber))
-            {
-                acc.push(cur.cardNumber);
-            }
-            return acc;
-        }, []);
 
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
@@ -163,17 +152,7 @@ export class OracleHandManagerService
         }
 
         // Draw cards
-        const [drawnCard] = this.drawCards(cards, 1);
-
-        // Set update data
-        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
-        {
-            if (drawnCard.card.cardNumber !== cur.cardNumber)
-            {
-                acc.push(cur.cardNumber);
-            }
-            return acc;
-        }, []);
+        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = this.drawCards(cards, 1);
 
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
@@ -254,17 +233,9 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const [drawnCard] = this.drawCards(cards, 1);
+        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = this.drawCards(cards, 1);
 
         // Set update data
-        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
-        {
-            if (drawnCard.card.cardNumber !== cur.cardNumber)
-            {
-                acc.push(cur.cardNumber);
-            }
-            return acc;
-        }, []);
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
 
         if (!currentHand)
@@ -326,17 +297,9 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const [drawnCard] = this.drawCards(cards, 1);
+        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = this.drawCards(cards, 1);
 
         // Set update data
-        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
-        {
-            if (drawnCard.card.cardNumber !== cur.cardNumber)
-            {
-                acc.push(cur.cardNumber);
-            }
-            return acc;
-        }, []);
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
 
         if (!currentHand)
@@ -452,7 +415,7 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const [drawnCard] = this.drawCards(cards, 1);
+        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = this.drawCards(cards, 1);
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
 
         if (!currentHand)
@@ -474,14 +437,6 @@ export class OracleHandManagerService
         }
 
         // Update cards
-        const updatedDeckCardNumbers = cards.reduce<number[]>((acc, cur) =>
-        {
-            if (drawnCard.card.cardNumber !== cur.cardNumber)
-            {
-                acc.push(cur.cardNumber);
-            }
-            return acc;
-        }, []);
         updatedDeckCardNumbers.push(currentHandsTime.cardNumber);
         updatedDeckCardNumbers.sort((a, b) => a - b);
 
@@ -658,9 +613,12 @@ export class OracleHandManagerService
     }
 
     private static drawCards(cards: PtuOracleCardCollection[], numOfCards: number): {
-        card: PtuOracleCardCollection;
-        face: PtuOracleCardProphecyFace;
-    }[]
+        drawnCards: {
+            card: PtuOracleCardCollection;
+            face: PtuOracleCardProphecyFace;
+        }[];
+        updatedDeckCardNumbers: number[];
+    }
     {
         const cardsClone = [...cards];
         const drawnCards: {
@@ -668,7 +626,7 @@ export class OracleHandManagerService
             face: PtuOracleCardProphecyFace;
         }[] = [];
 
-        // TODO: Handle case for when numOfCards > cards.length to shuffle cards
+        // TODO: Handle case for when numOfCards > cards.length to shuffle cards (and return shuffled cards)
 
         for (let index = 0; index < numOfCards; index += 1)
         {
@@ -683,7 +641,10 @@ export class OracleHandManagerService
             });
         }
 
-        return drawnCards;
+        return {
+            drawnCards,
+            updatedDeckCardNumbers: cardsClone.map(card => card.cardNumber),
+        };
     }
 
     private static getCurrentAndPriorElementsFromArray<T>(array: T[]): { current: T | undefined; prior: T[] }
