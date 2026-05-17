@@ -1349,13 +1349,13 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
     {
         const allCards = bulkCreatePtuOracleCardCollectionData(53);
 
-        it('draws the requested number of cards', () =>
+        it('draws the requested number of cards', async () =>
         {
             // Arrange
             [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
 
             // Act
-            const result = OracleHandManagerService['drawCards'](allCards, 3);
+            const result = await OracleHandManagerService['drawCards'](allCards, 3);
 
             // Assert
             expect(result.drawnCards.length).toEqual(3);
@@ -1375,13 +1375,13 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             ]);
         });
 
-        it('returns the updated deck of card numbers', () =>
+        it('returns the updated deck of card numbers', async () =>
         {
             // Arrange
             [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
 
             // Act
-            const result = OracleHandManagerService['drawCards'](allCards, 3);
+            const result = await OracleHandManagerService['drawCards'](allCards, 3);
 
             // Assert
             expect(result.updatedDeckCardNumbers.length).toEqual(allCards.length - 3);
@@ -1397,37 +1397,84 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             );
         });
 
-        it('draws zero cards when no cards are requested', () =>
+        it(`resets the deck when there's no more cards to draw`, async () =>
+        {
+            // Arrange
+            const curCards = bulkCreatePtuOracleCardCollectionData(3);
+            getAllCardsMock.mockResolvedValue(curCards);
+            [3, 1, 2, 2, 1, 1, 3, 2].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+
+            // Act
+            const result = await OracleHandManagerService['drawCards'](curCards, 4);
+
+            // Assert
+            expect(result.drawnCards.length).toEqual(4);
+            expect(result.drawnCards).toEqual([
+                {
+                    card: curCards[2],
+                    face: PtuOracleCardProphecyFace.Normal,
+                },
+                {
+                    card: curCards[1],
+                    face: PtuOracleCardProphecyFace.Reverse,
+                },
+                {
+                    card: curCards[0],
+                    face: PtuOracleCardProphecyFace.Normal,
+                },
+                {
+                    card: curCards[2],
+                    face: PtuOracleCardProphecyFace.Reverse,
+                },
+            ]);
+        });
+
+        it('draws zero cards when no cards are requested', async () =>
         {
             // Act
-            const result = OracleHandManagerService['drawCards'](allCards, 0);
+            const result = await OracleHandManagerService['drawCards'](allCards, 0);
 
             // Assert
             expect(result.drawnCards.length).toEqual(0);
             expect(result.drawnCards).toEqual([]);
         });
 
-        it('draws zero cards when negative cards are requested', () =>
+        it('draws zero cards when negative cards are requested', async () =>
         {
             // Act
-            const result = OracleHandManagerService['drawCards'](allCards, -3);
+            const result = await OracleHandManagerService['drawCards'](allCards, -3);
 
             // Assert
             expect(result.drawnCards.length).toEqual(0);
             expect(result.drawnCards).toEqual([]);
         });
 
-        it('does not modify input cards param', () =>
+        it('does not mutate input cards param', async () =>
         {
             // Arrange
             [6, 1, 4, 2, 2, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
             const allCardsClone = [...allCards];
 
             // Act
-            OracleHandManagerService['drawCards'](allCards, 3);
+            await OracleHandManagerService['drawCards'](allCards, 3);
 
             // Assert
             expect(allCards).toEqual(allCardsClone);
+        });
+
+        it(`does not mutate the reset deck when there's no more cards to draw`, async () =>
+        {
+            // Arrange
+            const curCards = bulkCreatePtuOracleCardCollectionData(3);
+            getAllCardsMock.mockResolvedValue(curCards);
+            [3, 1, 2, 2, 1, 1, 3, 2].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+            const curCardsClone = [...curCards];
+
+            // Act
+            await OracleHandManagerService['drawCards'](curCards, 4);
+
+            // Assert
+            expect(curCards).toEqual(curCardsClone);
         });
     });
 });
