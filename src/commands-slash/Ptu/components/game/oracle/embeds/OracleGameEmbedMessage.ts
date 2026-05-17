@@ -29,13 +29,11 @@ export class OracleGameEmbedMessage extends OracleEmbedMessage
             deckCardNumbers,
             discardCardNumbers,
             dealerDiscordUserId,
-            topic,
         } = args;
 
         super({
             title: `Oracle Reading - ${args.name}`,
             descriptionLines: OracleGameEmbedMessage.constructDescriptionLines(
-                topic,
                 currentHand,
                 dealerDiscordUserId,
                 options,
@@ -52,14 +50,13 @@ export class OracleGameEmbedMessage extends OracleEmbedMessage
     }
 
     private static constructDescriptionLines(
-        topic: string | undefined,
         currentHand: PtuOraclePlayerHandDetailed | undefined,
         dealerDiscordUserId: string,
         options: OracleGameEmbedMessageOptions,
     ): string[]
     {
         const dealerAndCurrentTurn = [
-            ...(topic ? [`Topic: ${topic}`] : []),
+            ...(currentHand?.topic ? [`Topic: ${currentHand.topic}`] : []),
             `Dealer: ${Text.Ping.user(dealerDiscordUserId)}`,
             ...(currentHand
                 ? [`Current Turn: ${Text.Ping.user(currentHand.playerDiscordUserId)}`]

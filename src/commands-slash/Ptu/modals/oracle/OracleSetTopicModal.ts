@@ -120,8 +120,7 @@ export class OracleSetTopicModal extends BaseCustomModal
             updatedGame = await OracleHandManagerService.createNewHand({
                 ...game,
                 id: game.id.toString(),
-                topic,
-            } as typeof game, interaction.user.id);
+            } as typeof game, { topic, playerDiscordUserId: interaction.user.id });
         }
         catch (error)
         {
