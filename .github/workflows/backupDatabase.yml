@@ -24,8 +24,8 @@ jobs:
           node-version: ${{ matrix.node }}
       - name: Install MongoDB Database Tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mongodb-database-tools
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.15.0.deb
+          sudo apt install ./mongodb-database-tools-*-100.15.0.deb
       - name: Install
         env:
           GITHUB_PRIVATE_PACKAGES_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
