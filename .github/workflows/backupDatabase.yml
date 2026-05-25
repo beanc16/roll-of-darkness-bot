@@ -1,7 +1,6 @@
 name: Backup Database
 
 on:
-  workflow_dispatch: # TODO: DELETE AFTER TESTING
   schedule:
     - cron: '0 11 1 * *'
 
