@@ -40,6 +40,9 @@ jobs:
           LOGGING_DISCORD_WEBHOOK: ${{ secrets.LOGGING_DISCORD_WEBHOOK }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
           MONGO_DB_NAME: ${{ secrets.MONGO_DB_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           APP_ID: ${{ secrets.APP_ID }}
           DBS_TO_BACKUP_CSV: ${{ secrets.DBS_TO_BACKUP_CSV }}
         run: npm run backup-database
