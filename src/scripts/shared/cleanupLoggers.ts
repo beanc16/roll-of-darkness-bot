@@ -1,4 +1,5 @@
 import { discordLogger as DiscordLogger, logger as Logger } from '@beanc16/logger';
+
 import { Timer } from '../../services/Timer/Timer.js';
 
 export async function cleanupLoggers(

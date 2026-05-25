@@ -18,13 +18,13 @@ function getFormattedTimestamp(): string
     const formatted = [
         now.getFullYear(),
         String(now.getMonth() + 1).padStart(2, '0'),
-        String(now.getDate()).padStart(2, '0')
+        String(now.getDate()).padStart(2, '0'),
     ].join('-') + '_' + [
         String(now.getHours()).padStart(2, '0'),
         String(now.getMinutes()).padStart(2, '0'),
-        String(now.getSeconds()).padStart(2, '0')
+        String(now.getSeconds()).padStart(2, '0'),
     ].join('-');
-    
+
     return formatted;
 }
 
@@ -44,7 +44,7 @@ function runCliCommand(command: string, args: string[]): Promise<void>
         {
             if (error)
             {
-                reject('An unknown error occurred while running mongodump to backup database');
+                reject(new Error('An unknown error occurred while running mongodump to backup database'));
             }
             else
             {
@@ -66,8 +66,8 @@ async function createMongodbDatabaseBackups(folderName: string): Promise<void>
         throw new Error('process.env.MONGO_URI must be defined');
     }
 
-    const index = process.env.MONGO_URI.lastIndexOf('/');
-    const BACKUP_MONGO_URI = process.env.MONGO_URI.substring(0, index);
+    const uriIndex = process.env.MONGO_URI.lastIndexOf('/');
+    const BACKUP_MONGO_URI = process.env.MONGO_URI.substring(0, uriIndex);
 
     if (BACKUP_MONGO_URI.length === 0)
     {
@@ -89,11 +89,12 @@ async function createMongodbDatabaseBackups(folderName: string): Promise<void>
             '--db', databases[index],
         ];
 
+        // eslint-disable-next-line no-await-in-loop -- We want to dump multiple databases, one at a time
         await runCliCommand('mongodump', commandArgs);
     }
 }
 
-async function zipBackupFolderAndDeleteUnzippedFolder(folderName: string): Promise<string>
+function zipBackupFolderAndDeleteUnzippedFolder(folderName: string): string
 {
     const zip = new AdmZip();
 
@@ -105,7 +106,10 @@ async function zipBackupFolderAndDeleteUnzippedFolder(folderName: string): Promi
     return zipFolderName;
 }
 
-async function uploadBackup({ folderName, zipFolderName }: { folderName: string; zipFolderName: string })
+async function uploadBackup({ folderName, zipFolderName }: {
+    folderName: string;
+    zipFolderName: string;
+}): Promise<void>
 {
     // Validate the necessary env vars
     if (!process.env.APP_ID || process.env.APP_ID.length === 0)
@@ -114,7 +118,7 @@ async function uploadBackup({ folderName, zipFolderName }: { folderName: string;
     }
 
     await FileStorageService.upload({
-        appId: process.env.APP_ID as string,
+        appId: process.env.APP_ID,
         file: {
             fileName: folderName,
             url: zipFolderName,
@@ -140,7 +144,7 @@ async function backupDatabase(): Promise<void>
         await createMongodbDatabaseBackups(folderName);
 
         // Zip the backups and delete the unzipped folder
-        zipFolderName = await zipBackupFolderAndDeleteUnzippedFolder(folderName);
+        zipFolderName = zipBackupFolderAndDeleteUnzippedFolder(folderName);
 
         // Upload the backup
         await uploadBackup({ folderName, zipFolderName });
@@ -173,6 +177,7 @@ async function backupDatabase(): Promise<void>
 
         for (let index = 0; index < filesOrFoldersToDelete.length; index += 1)
         {
+            // eslint-disable-next-line no-await-in-loop -- We want to delete them one at a time
             await recursivelyDeleteFileOrFolder(filesOrFoldersToDelete[index]);
         }
 
