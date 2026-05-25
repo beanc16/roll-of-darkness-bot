@@ -1,13 +1,18 @@
 import { InteractionManager, InteractionManagerNavigateToOptions } from '../../../../services/InteractionManager/InteractionManager.js';
 import { InteractionManagerPage } from '../../../../services/InteractionManager/InteractionManagerPage.js';
 import { OracleGamePage } from '../../components/game/oracle/pages/OracleGamePage.js';
-import { PtuOracleGameCollection } from '../../dal/models/PtuOracleGameCollection.js';
+import { PtuOracleCardCollection } from '../../dal/models/PtuOracleCardCollection.js';
+import { PtuOracleGameCollection, PtuOracleGameTime } from '../../dal/models/PtuOracleGameCollection.js';
 import { OracleHandManagerService } from '../OracleDataManagers/OracleHandManagerService.js';
 import { OracleInteractionManagerPage } from './types.js';
 
 type OracleInteractionManagerNavigateToOptions = InteractionManagerNavigateToOptions<OracleInteractionManagerPage, {
     game: PtuOracleGameCollection;
     displayOptions?: ConstructorParameters<typeof OracleGamePage>[2];
+    additionalParams?: {
+        selectedGameTime?: PtuOracleGameTime;
+        cards?: PtuOracleCardCollection[];
+    };
 }>;
 
 /**
@@ -27,6 +32,7 @@ export class OracleInteractionManagerService extends InteractionManager
                 ...(options.displayOptions || {}),
                 isFollowup: options.interactionType === 'followUp',
             },
+            additionalParams: options.additionalParams,
         });
         await this.sendMessage<
             OracleInteractionManagerPage,
@@ -39,7 +45,8 @@ export class OracleInteractionManagerService extends InteractionManager
             game,
             page,
             displayOptions,
-        }: Pick<OracleInteractionManagerNavigateToOptions, 'page'> & {
+            additionalParams,
+        }: Pick<OracleInteractionManagerNavigateToOptions, 'page' | 'additionalParams'> & {
             game: PtuOracleGameCollection;
             displayOptions: ConstructorParameters<typeof OracleGamePage>[2];
         },
@@ -50,7 +57,7 @@ export class OracleInteractionManagerService extends InteractionManager
         switch (page)
         {
             case OracleInteractionManagerPage.Game:
-                return new OracleGamePage(game, currentHand, displayOptions);
+                return new OracleGamePage(game, currentHand, displayOptions, additionalParams);
 
             default:
                 const typeGuard: never = page;

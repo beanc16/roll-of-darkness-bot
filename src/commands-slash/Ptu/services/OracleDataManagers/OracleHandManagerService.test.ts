@@ -23,6 +23,7 @@ jest.mock('../../dal/PtuOraclePseudoCache.js', () => ({
     PtuOraclePseudoCache: {
         updateGame: jest.fn(),
         getCards: jest.fn(),
+        getCardByCardNumber: jest.fn(),
         getAllCards: jest.fn(),
     },
 }));
@@ -35,6 +36,7 @@ jest.mock('../../../../services/Dice/DiceLiteService.js', () => ({
 
 const updateGameMock = PtuOraclePseudoCache.updateGame as jest.MockedFunction<typeof PtuOraclePseudoCache.updateGame>;
 const getCardsMock = PtuOraclePseudoCache.getCards as jest.MockedFunction<typeof PtuOraclePseudoCache.getCards>;
+const getCardByCardNumberMock = PtuOraclePseudoCache.getCardByCardNumber as jest.MockedFunction<typeof PtuOraclePseudoCache.getCardByCardNumber>;
 const getAllCardsMock = PtuOraclePseudoCache.getAllCards as jest.MockedFunction<typeof PtuOraclePseudoCache.getAllCards>;
 
 const getExistingHands = (): PtuOraclePlayerHand[] => [
@@ -1047,6 +1049,170 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                                         prophecy: expectedFace === PtuOracleCardProphecyFace.Normal
                                             ? drawnCard.defaultProphecy
                                             : drawnCard.defaultReverseProphecy,
+                                    },
+                                ],
+                            }),
+                        ],
+                    }),
+                );
+            },
+        );
+    });
+
+    describe(`method: ${OracleHandManagerService.replaceCard.name}`, () =>
+    {
+        const replaceDeckCards = [
+            createPtuOracleCardCollectionData({ cardNumber: 10 }),
+            createPtuOracleCardCollectionData({ cardNumber: 20 }),
+            createPtuOracleCardCollectionData({ cardNumber: 30 }),
+        ];
+
+        it('throws when no current hand is found', async () =>
+        {
+            // Arrange
+            const game = createPtuOracleGameCollectionData({ hands: [] });
+            getCardByCardNumberMock.mockResolvedValue(replaceDeckCards[0]);
+
+            // Act & Assert
+            await expect(
+                OracleHandManagerService.replaceCard(
+                    {
+                        id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                    },
+                    PtuOracleGameTime.Past,
+                    { deckCardNumber: 10, face: PtuOracleCardProphecyFace.Normal },
+                ),
+            ).rejects.toThrow('Current hand not found');
+        });
+
+        it('throws when the time period has no cards', async () =>
+        {
+            // Arrange
+            const hand = createPtuOraclePlayerHandData({ past: [] });
+            const game = createPtuOracleGameCollectionData({ hands: [hand] });
+            getCardByCardNumberMock.mockResolvedValue(replaceDeckCards[0]);
+
+            // Act & Assert
+            await expect(
+                OracleHandManagerService.replaceCard(
+                    {
+                        id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                    },
+                    PtuOracleGameTime.Past,
+                    { deckCardNumber: 10, face: PtuOracleCardProphecyFace.Normal },
+                ),
+            ).rejects.toThrow('Current card not found');
+        });
+
+        it('throws when the last card in the time period is not face down', async () =>
+        {
+            // Arrange
+            const hand = createPtuOraclePlayerHandData({
+                past: [createPtuOracleCardDrawData({ action: PtuOracleCardAction.FaceUp })],
+            });
+            const game = createPtuOracleGameCollectionData({ hands: [hand] });
+            getCardByCardNumberMock.mockResolvedValue(replaceDeckCards[0]);
+
+            // Act & Assert
+            await expect(
+                OracleHandManagerService.replaceCard(
+                    {
+                        id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                    },
+                    PtuOracleGameTime.Past,
+                    { deckCardNumber: 10, face: PtuOracleCardProphecyFace.Normal },
+                ),
+            ).rejects.toThrow('Card is not face down');
+        });
+
+        const cases = [
+            {
+                face: PtuOracleCardProphecyFace.Normal, deckCardNumber: 10, time: PtuOracleGameTime.Past,
+            },
+            {
+                face: PtuOracleCardProphecyFace.Reverse, deckCardNumber: 30, time: PtuOracleGameTime.Past,
+            },
+            {
+                face: PtuOracleCardProphecyFace.Normal, deckCardNumber: 20, time: PtuOracleGameTime.Present,
+            },
+            {
+                face: PtuOracleCardProphecyFace.Reverse, deckCardNumber: 20, time: PtuOracleGameTime.Present,
+            },
+            {
+                face: PtuOracleCardProphecyFace.Reverse, deckCardNumber: 10, time: PtuOracleGameTime.Future,
+            },
+            {
+                face: PtuOracleCardProphecyFace.Normal, deckCardNumber: 30, time: PtuOracleGameTime.Future,
+            },
+        ];
+
+        it.each([
+            ...cases.map(args => ({
+                ...args, existingHands: [], numOfExistingHands: 0,
+            })),
+            ...cases.map(args => ({
+                ...args, existingHands: getExistingHands(), numOfExistingHands: 2,
+            })),
+        ])(
+            'replaces the $time card with deckCardNumber $deckCardNumber using $face face with $numOfExistingHands existing hands',
+            async ({
+                face,
+                deckCardNumber,
+                time,
+                existingHands,
+            }) =>
+            {
+                // Arrange
+                const oldCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceDown });
+                const hand = createPtuOraclePlayerHandData({
+                    past: time === PtuOracleGameTime.Past ? [oldCard] : [],
+                    present: time === PtuOracleGameTime.Present ? [oldCard] : [],
+                    future: time === PtuOracleGameTime.Future ? [oldCard] : [],
+                });
+                const game = createPtuOracleGameCollectionData({
+                    hands: [...existingHands, hand],
+                    deckCardNumbers: [10, 20, 30],
+                });
+                const replacementCard = replaceDeckCards.find(c => c.cardNumber === deckCardNumber)!;
+                getCardByCardNumberMock.mockResolvedValue(replacementCard);
+                updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+
+                const expectedDeckCardNumbers = [10, 20, 30]
+                    .reduce<number[]>((acc, cur) =>
+                    {
+                        if (cur !== deckCardNumber)
+                        {
+                            acc.push(cur);
+                        }
+                        return acc;
+                    }, [oldCard.cardNumber])
+                    .sort((a, b) => a - b);
+
+                // Act
+                await OracleHandManagerService.replaceCard(
+                    {
+                        id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                    },
+                    time,
+                    { deckCardNumber, face },
+                );
+
+                // Assert
+                expect(updateGameMock).toHaveBeenCalledWith(
+                    game.id,
+                    expect.objectContaining({
+                        deckCardNumbers: expectedDeckCardNumbers,
+                        hands: [
+                            ...existingHands,
+                            expect.objectContaining({
+                                [time]: [
+                                    {
+                                        action: PtuOracleCardAction.FaceDown,
+                                        cardNumber: replacementCard.cardNumber,
+                                        face,
+                                        prophecy: face === PtuOracleCardProphecyFace.Normal
+                                            ? replacementCard.defaultProphecy
+                                            : replacementCard.defaultReverseProphecy,
                                     },
                                 ],
                             }),

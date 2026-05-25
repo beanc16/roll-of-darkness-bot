@@ -13,6 +13,7 @@ import { OracleDealerStringSelectElementOption } from '../../components/game/ora
 import { OraclePlayerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OraclePlayerStringSelectActionRowBuilder.js';
 import { OracleStringSelectCustomId } from '../../components/game/oracle/actionRowBuilders/types.js';
 import { deconstructOracleGameCustomId, OracleGameCustomId } from '../../components/game/oracle/utils/oracleCustomIdUtils.js';
+import { PtuOracleCardProphecyFace } from '../../dal/models/PtuOracleCardCollection.js';
 import {
     PtuOracleGameCollection,
     PtuOracleGameStatus,
@@ -74,11 +75,16 @@ export class OracleCreateStrategy
             customId: OracleGameCustomId;
             values: OraclePlayerStringSelectElementOption[]
                 | OracleDealerStringSelectElementOption[]
-                | PtuOracleGameTime[];
+                | PtuOracleGameTime[]
+                | PtuOracleCardProphecyFace[];
         };
 
         // Get game and custom id
-        const { oracleGameId, componentCustomId } = deconstructOracleGameCustomId(customId);
+        const {
+            oracleGameId,
+            componentCustomId,
+            restOfCustomId,
+        } = deconstructOracleGameCustomId(customId);
 
         // General callback to run if game is updated (rather than returning something specific)
         let updateGameCallback: (() => Promise<PtuOracleGameCollection>) | undefined;
@@ -188,7 +194,7 @@ export class OracleCreateStrategy
                     break;
 
                 case OracleStringSelectCustomId.SecretlyRerollCard:
-                    const [time] = values as PtuOracleGameTime[];
+                    const [rerollTime] = values as PtuOracleGameTime[];
                     hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
 
                     // Defer for database update
@@ -203,17 +209,104 @@ export class OracleCreateStrategy
                         });
                         return true;
                     }
-                    if (!Object.values(PtuOracleGameTime).includes(time))
+                    if (!Object.values(PtuOracleGameTime).includes(rerollTime))
                     {
-                        throw new Error(`Unknown secret dealer reroll string select value: ${time}`);
+                        throw new Error(`Unknown secret dealer reroll string select value: ${rerollTime}`);
                     }
 
-                    const updatedGame = await OracleHandManagerService.rerollCard(game, time);
+                    const rerolledGame = await OracleHandManagerService.rerollCard(game, rerollTime);
                     await OracleInteractionManagerService.navigateTo({
                         interaction,
                         page: OracleInteractionManagerPage.Game,
                         interactionType: 'editReply',
-                        game: updatedGame,
+                        game: rerolledGame,
+                        displayOptions: {
+                            ephemeral: true,
+                            showFaceDownCards: true,
+                        },
+                    });
+                    break;
+
+                case OracleStringSelectCustomId.SecretlyReplaceCard:
+                    const [selectedGameTime] = values as PtuOracleGameTime[];
+                    hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
+
+                    // Defer for database update
+                    await interaction.deferUpdate();
+
+                    // Check permission and safety rails
+                    if (!hasPermissionToRun)
+                    {
+                        await interaction.followUp({
+                            content: 'You do not have permission to run that action',
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    // Update current hand with new card
+                    const card = OracleHandManagerService.getCurrentCard(game);
+
+                    const cards = await PtuOraclePseudoCache.getCards({
+                        including: [...new Set([...game.deckCardNumbers, card.cardNumber])],
+                    });
+                    // Duplicate cards so each card shows up twice - one will be normal prophecy, one will be reverse
+                    const duplicatedCards = [...cards, ...cards].sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Show cards only to dealer
+                    await OracleInteractionManagerService.navigateTo({
+                        interaction,
+                        page: OracleInteractionManagerPage.Game,
+                        interactionType: 'editReply',
+                        game,
+                        displayOptions: {
+                            ephemeral: true,
+                            showFaceDownCards: true,
+                            showSelectReplacementCardDropdowns: true,
+                        },
+                        additionalParams: {
+                            selectedGameTime,
+                            cards: duplicatedCards,
+                        },
+                    });
+                    break;
+
+                case OracleStringSelectCustomId.SelectReplacementCard1:
+                case OracleStringSelectCustomId.SelectReplacementCard2:
+                case OracleStringSelectCustomId.SelectReplacementCard3:
+                case OracleStringSelectCustomId.SelectReplacementCard4:
+                case OracleStringSelectCustomId.SelectReplacementCard5:
+                    const [time] = restOfCustomId as PtuOracleGameTime[];
+                    const [value] = values;
+                    const [deckCardNumberStr, selectedFace] = value.split(':') as [string, PtuOracleCardProphecyFace];
+                    const selectedDeckCardNumber = parseInt(deckCardNumberStr, 10);
+                    hasPermissionToRun = interaction.user.id === game.dealerDiscordUserId;
+
+                    // Defer for database update
+                    await interaction.deferUpdate();
+
+                    // Check permission and safety rails
+                    if (!hasPermissionToRun)
+                    {
+                        await interaction.followUp({
+                            content: 'You do not have permission to run that action',
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    // Replace card
+                    const replacedGame = await OracleHandManagerService.replaceCard(game, time, {
+                        deckCardNumber: selectedDeckCardNumber,
+                        face: selectedFace,
+                    });
+
+                    // Show cards only to dealer
+                    await OracleInteractionManagerService.navigateTo({
+                        interaction,
+                        page: OracleInteractionManagerPage.Game,
+                        interactionType: 'editReply',
+                        game: replacedGame,
                         displayOptions: {
                             ephemeral: true,
                             showFaceDownCards: true,

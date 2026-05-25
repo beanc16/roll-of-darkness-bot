@@ -463,6 +463,80 @@ export class OracleHandManagerService
         });
     }
 
+    public static async replaceCard(
+        {
+            id,
+            deckCardNumbers,
+            hands,
+        }: Pick<PtuOracleGameCollection, 'id' | 'deckCardNumbers' | 'hands'>,
+        time: PtuOracleGameTime,
+        deckCardToReplaceWith: {
+            deckCardNumber: number;
+            face: PtuOracleCardProphecyFace;
+        },
+    ): Promise<PtuOracleGameCollection>
+    {
+        // Get data
+        const cardToReplaceWith = await PtuOraclePseudoCache.getCardByCardNumber(deckCardToReplaceWith.deckCardNumber);
+
+        // Draw cards
+        const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
+
+        if (!currentHand)
+        {
+            throw new Error('Current hand not found');
+        }
+
+        // Update current hand with new card
+        const handsTime = currentHand[time];
+        const { current: currentHandsTime, prior: remainingCardsInHandsTime } = this.getCurrentAndPriorElementsFromArray(handsTime);
+
+        if (!currentHandsTime)
+        {
+            throw new Error('Current card not found');
+        }
+        if (currentHandsTime.action !== PtuOracleCardAction.FaceDown)
+        {
+            throw new Error('Card is not face down');
+        }
+
+        const { cardNumber: previousCardNumber } = currentHandsTime;
+
+        // Update cards
+        const updatedDeckCardNumbers = deckCardNumbers.reduce<number[]>((acc, cur) =>
+        {
+            // Don't include the number to replace with
+            if (cur !== deckCardToReplaceWith.deckCardNumber)
+            {
+                acc.push(cur);
+            }
+            return acc;
+        }, [previousCardNumber]);
+        updatedDeckCardNumbers.sort((a, b) => a - b);
+
+        // Update
+        return await PtuOraclePseudoCache.updateGame(id.toString(), {
+            deckCardNumbers: updatedDeckCardNumbers,
+            // Keep prior hands and edit the current hand to replace the
+            // current past/present/future with the rerolled card
+            hands: [
+                ...priorHands,
+                {
+                    ...currentHand,
+                    [time]: [
+                        ...remainingCardsInHandsTime,
+                        {
+                            action: PtuOracleCardAction.FaceDown,
+                            cardNumber: cardToReplaceWith.cardNumber,
+                            face: deckCardToReplaceWith.face,
+                            prophecy: this.getCardDefaultProphecy(cardToReplaceWith, deckCardToReplaceWith.face),
+                        },
+                    ],
+                },
+            ],
+        });
+    }
+
     public static async editCurrentHandsProphecies(
         { id, hands }: Pick<PtuOracleGameCollection, 'id' | 'hands'>,
         prophecies: {
@@ -610,6 +684,27 @@ export class OracleHandManagerService
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             status,
         });
+    }
+
+    public static getCurrentCard({ hands }: Pick<PtuOracleGameCollection, 'hands'>): PtuOracleCardDraw
+    {
+        const { current: currentHand } = this.getCurrentAndPriorElementsFromArray(hands);
+
+        if (!currentHand)
+        {
+            throw new Error('Current hand not found');
+        }
+
+        // Update current hand with new card
+        const { cards: handsTime } = this.getHandsTime(currentHand, PtuOracleCardAction.FaceDown);
+        const { current: currentHandsTime } = this.getCurrentAndPriorElementsFromArray(handsTime);
+
+        if (!currentHandsTime)
+        {
+            throw new Error('Current card not found');
+        }
+
+        return currentHandsTime;
     }
 
     private static async drawCards(cards: PtuOracleCardCollection[], numOfCards: number): Promise<{

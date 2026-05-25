@@ -12,6 +12,9 @@ import { OracleEmbedMessage } from './OracleEmbedMessage.js';
 
 interface OracleGameEmbedMessageOptions
 {
+    /** Takes priority over standard dealer-only dropdowns if `showFaceDownCards` is `true` */
+    showSelectReplacementCardDropdowns?: boolean;
+    /** Shows dealer-only dropdowns and facedown cards */
     showFaceDownCards?: boolean;
 }
 
