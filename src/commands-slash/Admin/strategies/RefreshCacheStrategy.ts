@@ -49,13 +49,16 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.ClassCategory
     | PtuAutocompleteParameterName.ClassName2
     | PtuAutocompleteParameterName.ClassName3
     | PtuAutocompleteParameterName.ClassName4
+    | PtuAutocompleteParameterName.ClassRole
     | PtuAutocompleteParameterName.DietName
     | PtuAutocompleteParameterName.EggGroup1
     | PtuAutocompleteParameterName.EggGroup2
     | PtuAutocompleteParameterName.FakemonSpeciesName
+    | PtuAutocompleteParameterName.FeatureTag
     | PtuAutocompleteParameterName.FemaleSpecies
     | PtuAutocompleteParameterName.GiftBlessingPatron
     | PtuAutocompleteParameterName.HabitatName

@@ -29,6 +29,11 @@ export enum PtuFakemonDexType
     Magalam = 'Magalam',
     MagalamParadox = 'Magalam Paradox',
     MagalamLegendary = 'Magalam Legendary',
+
+    // Distira
+    Distira = 'Distira',
+    DistiraParadox = 'Distira Paradox',
+    DistiraLegendary = 'Distira Legendary',
 }
 
 interface PtuFakemonFeedback extends Partial<Omit<PtuPokemon, 'name' | 'olderVersions'>>

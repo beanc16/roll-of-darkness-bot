@@ -42,6 +42,11 @@ export class HomebrewPokeApi
             case PtuFakemonDexType.MagalamLegendary:
                 suffix = 'magalam-dex';
                 break;
+            case PtuFakemonDexType.Distira:
+            case PtuFakemonDexType.DistiraParadox:
+            case PtuFakemonDexType.DistiraLegendary:
+                suffix = 'distira-dex';
+                break;
             default:
                 const typeGuard: never = dexType;
                 throw new Error(`Unsupported dex type for fetching images: ${typeGuard}`);
@@ -208,6 +213,7 @@ export class HomebrewPokeApi
         edenNames?: string[];
         meridiaNames?: string[];
         magalamNames?: string[];
+        distiraNames?: string[];
     }): Promise<HomebrewGetImageUrlResponse[] | undefined>
     {
         // Flatten all arrays into one
@@ -227,6 +233,7 @@ export class HomebrewPokeApi
             edenNames,
             meridiaNames,
             magalamNames,
+            distiraNames,
         } = input;
 
         // Construct array of promises
@@ -241,6 +248,9 @@ export class HomebrewPokeApi
         );
         magalamNames?.forEach(name =>
             promises.push(this.getPokemonUrl(name, PtuFakemonDexType.Magalam)),
+        );
+        distiraNames?.forEach(name =>
+            promises.push(this.getPokemonUrl(name, PtuFakemonDexType.Distira)),
         );
 
         // Get all urls

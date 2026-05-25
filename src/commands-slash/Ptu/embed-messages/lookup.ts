@@ -40,6 +40,7 @@ interface ParseLookupByPokemonAbilityInputResponse
     [PtuAbilityListType.Basic]: string[];
     [PtuAbilityListType.Advanced]: string[];
     [PtuAbilityListType.High]: string[];
+    [PtuAbilityListType.Mega]: string[];
 }
 
 interface ParseLookupByPokemonMoveInputResponse
@@ -365,22 +366,17 @@ const parseLookupByPokemonMoveInput = ({
     return acc;
 };
 
-export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookupPokemon[], { moveName, moveListType }: {
+export const getPokemonWithMove = ({
+    pokemon,
+    moveName,
+    moveListType,
+}: {
+    pokemon: PtuPokemonForLookupPokemon[];
     moveName: string;
     moveListType: PtuMoveListType;
-}): EmbedBuilder[] =>
+}): Omit<ParseLookupByPokemonMoveInputResponse, 'totalLevelUpMoveLearnedValue'> & { averageLevel: number } =>
 {
-    if (pokemon.length === 0) return [];
-
-    const {
-        levelUp: pokemonWithlevelUp,
-        eggMoves: pokemonWithEggMoves,
-        tmHm: pokemonWithTmHm,
-        tutorMoves: pokemonWithTutorMoves,
-        zygardeCubeMoves: pokemonWithZygardeCubeMoves,
-        outliersInLevelUpData: pokemonOutliersInLevelUpData,
-        totalLevelUpMoveLearnedValue,
-    } = pokemon.reduce<ParseLookupByPokemonMoveInputResponse>((acc, curPokemon) =>
+    const output = pokemon.reduce<ParseLookupByPokemonMoveInputResponse>((acc, curPokemon) =>
     {
         const {
             name,
@@ -426,112 +422,161 @@ export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookup
         outliersInLevelUpData: [],
     });
 
-    // Sort level up move results by their level
-    pokemonWithlevelUp.sort((a, b) =>
-    {
-        const aLevel = parseInt(a.level as string, 10);
-        if (Number.isNaN(aLevel))
-        {
-            return 1;
-        }
+    const {
+        totalLevelUpMoveLearnedValue,
+        ...rest
+    } = output;
+    const averageLevel = (totalLevelUpMoveLearnedValue / output[PtuMoveListType.LevelUp].length) || 0;
 
-        const bLevel = parseInt(b.level as string, 10);
-        if (Number.isNaN(bLevel))
-        {
-            return -1;
-        }
-
-        return aLevel - bLevel;
-    });
-
-    const moveListTypeToEndOfTitle: Record<PtuMoveListType, string> = {
-        [PtuMoveListType.All]: '',
-        [PtuMoveListType.LevelUp]: ' as a Level-Up Move',
-        [PtuMoveListType.EggMoves]: ' as an Egg Move',
-        [PtuMoveListType.TmHm]: ' as a TM/HM',
-        [PtuMoveListType.TutorMoves]: ' as a Tutor Move',
-        [PtuMoveListType.ZygardeCubeMoves]: ' as a Zygarde Cube Move',
+    return {
+        ...rest,
+        averageLevel: parseFloat(averageLevel.toFixed(1)),
     };
-    let description = `${Text.bold(`Pokemon that can learn ${moveName}${moveListTypeToEndOfTitle[moveListType]}`)}\n`;
+};
 
-    // Level Up
-    if (pokemonWithlevelUp.length > 0 || pokemonOutliersInLevelUpData.length > 0)
+export const getLookupPokemonByMoveEmbedMessages = (pokemon: PtuPokemonForLookupPokemon[], { moveNames = [], moveListType }: {
+    moveNames: string[];
+    moveListType: PtuMoveListType;
+}): EmbedBuilder[] =>
+{
+    if (pokemon.length === 0) return [];
+
+    return moveNames.reduce<EmbedBuilder[]>((outerAcc, moveName) =>
     {
-        if (description.length > 0) description += '\n';
-        description += Text.bold('Learn as Level-Up Move:') + '\n';
-        description += `${
-            ((totalLevelUpMoveLearnedValue / pokemonWithlevelUp.length) || 0).toFixed(1)
-        } Average Level\n`;
+        const {
+            levelUp: pokemonWithlevelUp,
+            eggMoves: pokemonWithEggMoves,
+            tmHm: pokemonWithTmHm,
+            tutorMoves: pokemonWithTutorMoves,
+            zygardeCubeMoves: pokemonWithZygardeCubeMoves,
+            outliersInLevelUpData: pokemonOutliersInLevelUpData,
+            averageLevel,
+        } = getPokemonWithMove({
+            pokemon,
+            moveName,
+            moveListType,
+        });
 
-        description = pokemonOutliersInLevelUpData.reduce(
-            (acc, { level, name }) => acc + `${level} ${name}\n`,
-            description,
-        );
-
-        description = pokemonWithlevelUp.reduce(
-            (acc, { level, name }) => (
-                acc + `${level} ${name}\n`
-            ),
-            description,
-        );
-    }
-
-    // Egg Move
-    if (pokemonWithEggMoves.length > 0)
-    {
-        description = pokemonWithEggMoves.reduce(
-            (acc, name) => acc + `${name}\n`,
-            `${description}\n${Text.bold('Learn as Egg Move:')}\n`,
-        );
-    }
-
-    // TM/HM
-    if (pokemonWithTmHm.length > 0)
-    {
-        description = pokemonWithTmHm.reduce(
-            (acc, name) => acc + `${name}\n`,
-            `${description}\n${Text.bold('Learn as TM/HM:')}\n`,
-        );
-    }
-
-    // Tutor Move
-    if (pokemonWithTutorMoves.length > 0)
-    {
-        description = pokemonWithTutorMoves.reduce(
-            (acc, name) => acc + `${name}\n`,
-            `${description}\n${Text.bold('Learn as Tutor Move:')}\n`,
-        );
-    }
-
-    // Zygarde Cube Move
-    if (pokemonWithZygardeCubeMoves.length > 0)
-    {
-        description = pokemonWithZygardeCubeMoves.reduce(
-            (acc, name) => acc + `${name}\n`,
-            `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`,
-        );
-    }
-
-    const lines = description.split('\n');
-    const { pages } = lines.reduce((acc, line) =>
-    {
-        if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+        // Sort level up move results by their level
+        pokemonWithlevelUp.sort((a, b) =>
         {
-            acc.curPageIndex += 1;
+            const aLevel = parseInt(a.level as string, 10);
+            if (Number.isNaN(aLevel))
+            {
+                return 1;
+            }
+
+            const bLevel = parseInt(b.level as string, 10);
+            if (Number.isNaN(bLevel))
+            {
+                return -1;
+            }
+
+            return aLevel - bLevel;
+        });
+
+        const moveListTypeToEndOfTitle: Record<PtuMoveListType, string> = {
+            [PtuMoveListType.All]: '',
+            [PtuMoveListType.LevelUp]: ' as a Level-Up Move',
+            [PtuMoveListType.EggMoves]: ' as an Egg Move',
+            [PtuMoveListType.TmHm]: ' as a TM/HM',
+            [PtuMoveListType.TutorMoves]: ' as a Tutor Move',
+            [PtuMoveListType.ZygardeCubeMoves]: ' as a Zygarde Cube Move',
+        };
+        let description = `${Text.bold(`Pokemon that can learn ${moveName}${moveListTypeToEndOfTitle[moveListType]}`)}\n`;
+        let hasPokemonWithMove = false;
+
+        // Level Up
+        if (pokemonWithlevelUp.length > 0 || pokemonOutliersInLevelUpData.length > 0)
+        {
+            hasPokemonWithMove = true;
+            if (description.length > 0) description += '\n';
+            description += Text.bold('Learn as Level-Up Move:') + '\n';
+            description += `${averageLevel} Average Level\n`;
+
+            description = pokemonOutliersInLevelUpData.reduce(
+                (acc, { level, name }) => acc + `${level} ${name}\n`,
+                description,
+            );
+
+            description = pokemonWithlevelUp.reduce(
+                (acc, { level, name }) => (
+                    acc + `${level} ${name}\n`
+                ),
+                description,
+            );
         }
 
-        acc.pages[acc.curPageIndex] += `${line}\n`;
+        // Egg Move
+        if (pokemonWithEggMoves.length > 0)
+        {
+            hasPokemonWithMove = true;
+            description = pokemonWithEggMoves.reduce(
+                (acc, name) => acc + `${name}\n`,
+                `${description}\n${Text.bold('Learn as Egg Move:')}\n`,
+            );
+        }
 
-        return acc;
-    }, {
-        pages: [''] as string[],
-        curPageIndex: 0,
-    });
+        // TM/HM
+        if (pokemonWithTmHm.length > 0)
+        {
+            hasPokemonWithMove = true;
+            description = pokemonWithTmHm.reduce(
+                (acc, name) => acc + `${name}\n`,
+                `${description}\n${Text.bold('Learn as TM/HM:')}\n`,
+            );
+        }
 
-    return getPagedEmbedBuilders({
-        title: 'Pokemon',
-        pages,
-    });
+        // Tutor Move
+        if (pokemonWithTutorMoves.length > 0)
+        {
+            hasPokemonWithMove = true;
+            description = pokemonWithTutorMoves.reduce(
+                (acc, name) => acc + `${name}\n`,
+                `${description}\n${Text.bold('Learn as Tutor Move:')}\n`,
+            );
+        }
+
+        // Zygarde Cube Move
+        if (pokemonWithZygardeCubeMoves.length > 0)
+        {
+            hasPokemonWithMove = true;
+            description = pokemonWithZygardeCubeMoves.reduce(
+                (acc, name) => acc + `${name}\n`,
+                `${description}\n${Text.bold('Learn as Zygarde Cube Move:')}\n`,
+            );
+        }
+
+        // Disregard if no pokemon have a move of this type
+        if (!hasPokemonWithMove)
+        {
+            return outerAcc;
+        }
+
+        const lines = description.split('\n');
+        const { pages } = lines.reduce((acc, line) =>
+        {
+            if (acc.pages[acc.curPageIndex].length + line.length >= MAX_EMBED_DESCRIPTION_LENGTH)
+            {
+                acc.curPageIndex += 1;
+            }
+
+            acc.pages[acc.curPageIndex] += `${line}\n`;
+
+            return acc;
+        }, {
+            pages: [''] as string[],
+            curPageIndex: 0,
+        });
+
+        const embedMessages = getPagedEmbedBuilders({
+            title: 'Pokemon',
+            pages,
+        });
+        outerAcc.push(...embedMessages);
+
+        return outerAcc;
+    }, []);
 };
 
 const parseLookupByPokemonAbilityInput = ({
@@ -540,6 +585,7 @@ const parseLookupByPokemonAbilityInput = ({
     curPokemonName,
     abilityName,
     abilityListType,
+    megaEvolutions = [],
     groupedVersionType,
 }: {
     acc: ParseLookupByPokemonAbilityInputResponse;
@@ -547,6 +593,7 @@ const parseLookupByPokemonAbilityInput = ({
     curPokemonName: string;
     abilityName: string;
     abilityListType: PtuAbilityListType;
+    megaEvolutions: PtuPokemonForLookupPokemon['megaEvolutions'];
     groupedVersionType?: PtuAbilityListType;
 }): ParseLookupByPokemonAbilityInputResponse =>
 {
@@ -579,6 +626,12 @@ const parseLookupByPokemonAbilityInput = ({
         return acc;
     }
 
+    if (megaEvolutions.some(({ ability }) => ability === abilityName) && (!groupedVersionType || groupedVersionType === PtuAbilityListType.Mega))
+    {
+        acc[PtuAbilityListType.Mega].push(curPokemonName);
+        return acc;
+    }
+
     return acc;
 };
 
@@ -593,11 +646,13 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         basicAbilities: pokemonWithBasic,
         advancedAbilities: pokemonWithAdvanced,
         highAbility: pokemonWithHigh,
+        megaAbility: pokemonWithMega,
     } = pokemon.reduce((acc, curPokemon) =>
     {
         const {
             name,
             abilities,
+            megaEvolutions = [],
             groupedVersions,
         } = curPokemon;
 
@@ -605,7 +660,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         {
             groupedVersions.forEach(({
                 versionNames,
-                pokemon: [{ abilities: curAbilities }],
+                pokemon: [{ abilities: curAbilities, megaEvolutions: curMegaEvolutions = [] }],
                 type: groupedVersionType,
             }) =>
             {
@@ -615,6 +670,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
                     curPokemonName: `${name} [${versionNames.join(', ')}]`,
                     abilityName,
                     abilityListType,
+                    megaEvolutions: curMegaEvolutions,
                     groupedVersionType: groupedVersionType as PtuAbilityListType,
                 });
             });
@@ -628,11 +684,13 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
             curPokemonName: name,
             abilityName,
             abilityListType,
+            megaEvolutions,
         });
     }, {
         [PtuAbilityListType.Basic]: [] as string[],
         [PtuAbilityListType.Advanced]: [] as string[],
         [PtuAbilityListType.High]: [] as string[],
+        [PtuAbilityListType.Mega]: [] as string[],
     });
 
     const abilityListTypeToEndOfTitle: Record<PtuAbilityListType, string> = {
@@ -640,6 +698,7 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         [PtuAbilityListType.Basic]: ' as a Basic Ability',
         [PtuAbilityListType.Advanced]: ' as an Advanced Ability',
         [PtuAbilityListType.High]: ' as a High Ability',
+        [PtuAbilityListType.Mega]: ' as a Mega Ability',
     };
     let description = `${Text.bold(`Pokemon that can learn ${abilityName}${abilityListTypeToEndOfTitle[abilityListType]}`)}\n`;
 
@@ -661,12 +720,21 @@ export const getLookupPokemonByAbilityEmbedMessages = (pokemon: PtuPokemonForLoo
         );
     }
 
-    // Tutor Move
+    // High Ability
     if (pokemonWithHigh.length > 0)
     {
         description = pokemonWithHigh.reduce(
             (acc, name) => acc + `${name}\n`,
             `${description}\n${Text.bold('Learn as High Ability:')}\n`,
+        );
+    }
+
+    // Mega Ability
+    if (pokemonWithMega.length > 0)
+    {
+        description = pokemonWithMega.reduce(
+            (acc, name) => acc + `${name}\n`,
+            `${description}\n${Text.bold('Learn as Mega Ability:')}\n`,
         );
     }
 

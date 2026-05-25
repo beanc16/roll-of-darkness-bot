@@ -275,6 +275,12 @@ export class PtuMove
             }
         }
 
+        // Keyword Name
+        if (input.keywordName && !this.range?.includes(input.keywordName))
+        {
+            return false;
+        }
+
         // Contest Stats
         if (
             (input.contestStatType && this.contestStatType && input.contestStatType !== this.contestStatType.toString())

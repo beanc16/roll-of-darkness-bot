@@ -226,8 +226,23 @@ class Counter extends BaseSlashCommand
                     discordCreator: { channelId, messageId },
                 } = counter;
 
+                // Exit early if the bot isn't in the server with this channel
+                const channel = await bot.channels.fetch(channelId).catch((err) =>
+                {
+                    // Bot is missing access to the channel
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    if (typeof err === 'object' && 'code' in err && err.code === 50001)
+                    {
+                        return null;
+                    }
+                    throw err;
+                }) as TextChannel | null;
+                if (!channel)
+                {
+                    return;
+                }
+
                 // Get the message that the counter belongs to
-                const channel = await bot.channels.fetch(channelId) as TextChannel;
                 const message = await channel.messages.fetch(messageId);
 
                 // Overwrite the count from the database with whatever's in the message

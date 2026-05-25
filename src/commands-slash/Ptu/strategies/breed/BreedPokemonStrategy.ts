@@ -175,6 +175,7 @@ export class BreedPokemonStrategy
         const { data = [] } = await CachedGoogleSheetsApiService.getRange({
             spreadsheetId: rollOfDarknessPtuSpreadsheetId,
             range: PtuLookupRange.Pokemon,
+            shouldNotCache: true,
         });
 
         const output = data.reduce<PtuPokemonMinimal[]>((acc, cur) =>

@@ -303,6 +303,7 @@ export class LookupMoveStrategy
         const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
         const ac = interaction.options.getInteger('ac');
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+        const keywordName = interaction.options.getString(PtuAutocompleteParameterName.KeywordName);
         const moveListType = interaction.options.getString('move_list_type') as PtuMoveListType | null;
         const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
         const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
@@ -321,6 +322,7 @@ export class LookupMoveStrategy
             frequency,
             ac,
             acEquality,
+            keywordName,
             moveListType,
             contestStatType,
             contestStatEffect,

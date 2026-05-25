@@ -242,8 +242,8 @@ export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     {
         option.setName('misc_modifier');
         option.setDescription('Miscellaneous other modifiers.');
-        option.setMinValue(-5);
-        option.setMaxValue(5);
+        option.setMinValue(-10);
+        option.setMaxValue(10);
         return option;
     });
 

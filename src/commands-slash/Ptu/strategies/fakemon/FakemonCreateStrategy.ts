@@ -20,6 +20,7 @@ import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStri
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewEditStatusStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
@@ -53,7 +54,9 @@ import { FakemonBreedingInformationManagerService } from '../../services/Fakemon
 import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
 import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
 import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
+import { FakemonGeneralInformationManagerService } from '../../services/FakemonDataManagers/FakemonGeneralInformationManagerService.js';
 import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
+import { FakemonOverviewManagerService } from '../../services/FakemonDataManagers/FakemonOverviewManagerService.js';
 import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
 import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
 import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
@@ -320,6 +323,111 @@ export class FakemonCreateStrategy
                 }
                 break;
 
+            case FakemonOverviewButtonCustomIds.CheckMoveLevels:
+                try
+                {
+                    const embed = await FakemonOverviewManagerService.getLevelUpMoveDistributionEmbed({
+                        fakemon,
+                        strategies,
+                    });
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveProgression:
+                try
+                {
+                    const embed = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
             case FakemonMovesButtonCustomIds.AddLevelUpMoves:
                 // Don't defer before showing a modal, as that will throw an error
                 await FakemonMoveLevelUpAddingModal.showModal(interaction, {
@@ -372,6 +480,9 @@ export class FakemonCreateStrategy
         const { customId } = interaction as {
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
+        } | {
+            customId: FakemonOverviewEditStatusStringSelectCustomIds;
+            values: PtuFakemonStatus[];
         } | {
             customId: FakemonStatsStringSelectCustomIds.EditStat;
             values: FakemonStatsEditStringSelectElementOptions[];
@@ -450,6 +561,36 @@ export class FakemonCreateStrategy
                     interaction,
                     page: value1 as FakemonInteractionManagerPage,
                     messageId: message.id,
+                });
+                break;
+
+            // Status selector
+            case FakemonOverviewEditStatusStringSelectCustomIds.EditStatus:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonGeneralInformationManagerService.updateStatus({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        status: value1 as PtuFakemonStatus,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Overview,
+                    messageId: interaction.message.id,
                 });
                 break;
 
@@ -1254,6 +1395,8 @@ export class FakemonCreateStrategy
             editors: coEditorUserId
                 ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
                 : [...new Set([...this.basePokemon.editors, userId])],
+            status: PtuFakemonStatus.DRAFT,
+            deletedAt: undefined,
         });
     }
 

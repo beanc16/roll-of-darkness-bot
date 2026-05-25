@@ -33,6 +33,7 @@ export interface GetLookupMoveDataParameters extends BaseLookupDataOptions
     frequency?: PtuMoveFrequency | null;
     ac?: number | null;
     acEquality?: EqualityOption | null;
+    keywordName?: string | null;
     moveListType?: PtuMoveListType | null;
     contestStatType?: string | null;
     contestStatEffect?: string | null;

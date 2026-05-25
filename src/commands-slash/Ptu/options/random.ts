@@ -270,7 +270,15 @@ export const pickup = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
 {
     subcommand.setName(PtuRandomSubcommand.Pickup);
     subcommand.setDescription('Get a random item using the Pickup ability.');
-    // subcommand.addIntegerOption(numberOfDice);
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('number_of_pickups');
+        option.setDescription('The number of dice to roll (default: 1)');
+        option.setMinValue(1);
+        option.setMaxValue(10);
+        option.setRequired(false);
+        return option;
+    });
     return subcommand;
 };
 

@@ -13,6 +13,7 @@ import { PokemonType } from '../../types/pokemon.js';
 import { PtuClassCategory, PtuClassRole } from '../../types/pokemonTrainers.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
+import { PtuFeatureTag } from '../../types/types.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 
 export interface GetLookupClassDataParameters extends BaseLookupDataOptions
@@ -126,6 +127,7 @@ export enum PtuClassName
     BugElementalist = 'Bug Elementalist: Swarmlord',
     DarkElementalist = 'Dark Elementalist: Shade Caller',
     DragonElementalist = 'Dragon Elementalist: Herald of Pride',
+    DragonElementalistHomebrew = 'Dragon Elementalist: Herald of Pride [HB]', // Homebrew
     ElectricElementalist = 'Electric Elementalist: Spark Master',
     FairyElementalist = 'Fairy Elementalist: Glamour Weaver',
     FireElementalist = 'Fire Elementalist: Fire Bringer',
@@ -518,6 +520,9 @@ export class LookupClassStrategy
         [PtuClassName.DragonElementalist]: {
             [PtuClassRole.TrainerCombat]: 5,
         },
+        [PtuClassName.DragonElementalistHomebrew]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
         [PtuClassName.ElectricElementalist]: {
             [PtuClassRole.TrainerCombat]: 4,
             [PtuClassRole.TravelAndInvestigation]: 1,
@@ -786,6 +791,7 @@ export class LookupClassStrategy
             case PtuClassName.BugElementalist:
             case PtuClassName.DarkElementalist:
             case PtuClassName.DragonElementalist:
+            case PtuClassName.DragonElementalistHomebrew:
             case PtuClassName.ElectricElementalist:
             case PtuClassName.FairyElementalist:
             case PtuClassName.FireElementalist:
@@ -859,13 +865,32 @@ export class LookupClassStrategy
         const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
         const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
         const names = [name1, name2, name3, name4].filter(element => element !== null);
-        const category = interaction.options.getString('category') as PtuClassCategory | null;
-        const sortByClassRole = interaction.options.getString('sort_by_class_role') as PtuClassRole | null;
+        const category = interaction.options.getString(PtuAutocompleteParameterName.ClassCategory) as PtuClassCategory | null;
+        const sortByClassRole = interaction.options.getString(PtuAutocompleteParameterName.ClassRole) as PtuClassRole | null;
+        const tag = interaction.options.getString(PtuAutocompleteParameterName.FeatureTag) as PtuFeatureTag | null;
 
         // Return list of all classes if no name is given
         if (names.length === 0)
         {
             let classNames = Object.values(PtuClassName);
+
+            // Filter by tag
+            if (tag)
+            {
+                const data = await this.getLookupData({
+                    names: classNames,
+                    includeAllIfNoName: false,
+                });
+
+                classNames = data.reduce<typeof classNames>((acc, cur) =>
+                {
+                    if (this.hasTag(cur, tag))
+                    {
+                        acc.push(cur[0].name as PtuClassName);
+                    }
+                    return acc;
+                }, []);
+            }
 
             // Filter if category is given
             if (category)
@@ -903,20 +928,7 @@ export class LookupClassStrategy
             includeAllIfNoName: false,
         });
 
-        // Get message
-        const embeds = this.getEmbedMessages(data);
-
-        for (let i = 0; i < embeds.length; i += 1)
-        {
-            // eslint-disable-next-line no-await-in-loop -- We want to send messages sequentially with followups, so do them one at a time
-            await PaginationStrategy.run({
-                originalInteraction: interaction,
-                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
-                embeds: embeds[i],
-                interactionType: i === 0 ? 'editReply' : 'followUp',
-                includeDeleteButton: true,
-            });
-        }
+        await this.sendNonClassNameMessage(interaction, data);
 
         return true;
     }
@@ -1854,6 +1866,15 @@ export class LookupClassStrategy
                 `Rouse the Dragon's Blood`,
                 'Sovereignty',
             ],
+            [PtuClassName.DragonElementalistHomebrew]: [
+                ...this.convertFeatureNames([PtuClassName.DragonElementalistHomebrew]),
+                `Rouse the Dragon's Blood [HB]`,
+                `Bare the Dragon's Claws [HB]`,
+                `Call the Dragon's Rage [HB]`,
+                `Sovereign's Wrath [HB]`,
+                'Noblese Oblige [HB]',
+                'Draconic Transformation [HB]',
+            ],
             [PtuClassName.ElectricElementalist]: [
                 ...this.convertFeatureNames([PtuClassName.ElectricElementalist]),
                 'Magnetize',
@@ -2144,6 +2165,7 @@ export class LookupClassStrategy
         });
     }
 
+    /* istanbul ignore next */
     public static getEmbedMessages(data: PtuFeature[][]): EmbedBuilder[][]
     {
         return data.map((curData) =>
@@ -2210,6 +2232,7 @@ export class LookupClassStrategy
         });
     }
 
+    /* istanbul ignore next */
     public static getClassListEmbedMessages(classNames: PtuClassName[]): EmbedBuilder[]
     {
         const embeds = getPagedEmbedMessages({
@@ -2251,5 +2274,91 @@ export class LookupClassStrategy
         ))
             ? 'Class'
             : 'Class-Adjacent'; ;
+    }
+
+    private static hasTag(classFeatures: PtuFeature[], tag: PtuFeatureTag): boolean
+    {
+        const tags: PtuFeatureTag[] = [];
+
+        // Set tags to test
+        switch (tag)
+        {
+            // Any stat
+            case PtuFeatureTag.Any:
+            case PtuFeatureTag.Special:
+            case PtuFeatureTag.PatronStat:
+                tags.push(
+                    PtuFeatureTag.Any,
+                    PtuFeatureTag.HP,
+                    PtuFeatureTag.Attack,
+                    PtuFeatureTag.Defense,
+                    PtuFeatureTag.SpecialAttack,
+                    PtuFeatureTag.SpecialDefense,
+                    PtuFeatureTag.Speed,
+                    PtuFeatureTag.Special,
+                    PtuFeatureTag.PatronStat,
+                );
+                break;
+
+            // Specific stat
+            case PtuFeatureTag.HP:
+            case PtuFeatureTag.Attack:
+            case PtuFeatureTag.Defense:
+            case PtuFeatureTag.SpecialAttack:
+            case PtuFeatureTag.SpecialDefense:
+            case PtuFeatureTag.Speed:
+                tags.push(
+                    PtuFeatureTag.Any,
+                    tag,
+                    PtuFeatureTag.Special,
+                    PtuFeatureTag.PatronStat,
+                );
+                break;
+
+            // Other
+            case PtuFeatureTag.Class:
+            case PtuFeatureTag.Branch:
+            case PtuFeatureTag.Ranked:
+            case PtuFeatureTag.Weapon:
+            case PtuFeatureTag.Orders:
+            case PtuFeatureTag.Strategem:
+            case PtuFeatureTag.ResearchField:
+            case PtuFeatureTag.Training:
+                tags.push(tag);
+                break;
+
+            default:
+                const typecheck: never = tag;
+                throw new Error(`Unknown tag: ${typecheck}`);
+        }
+
+        return classFeatures.some(curFeature =>
+            tags.some(curTag => curFeature.tags.includes(`${curTag}]`) && (
+                (curTag === PtuFeatureTag.Special && curFeature.effect.includes(`${tag}]`))
+                || (curTag !== PtuFeatureTag.Special)
+            )),
+        );
+    }
+
+    /* istanbul ignore next */
+    private static async sendNonClassNameMessage(
+        interaction: ChatInputCommandInteraction,
+        data: PtuFeature[][],
+    ): Promise<void>
+    {
+        // Get message
+        const embeds = this.getEmbedMessages(data);
+
+        for (let i = 0; i < embeds.length; i += 1)
+        {
+            // eslint-disable-next-line no-await-in-loop -- We want to send messages sequentially with followups, so do them one at a time
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
+                embeds: embeds[i],
+                interactionType: i === 0 ? 'editReply' : 'followUp',
+                includeDeleteButton: true,
+            });
+        }
     }
 }
