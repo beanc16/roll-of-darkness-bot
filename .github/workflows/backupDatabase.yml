@@ -13,7 +13,7 @@ jobs:
         node: [
           18
         ]
-    
+
     name: Backup Database
     steps:
       - name: Checkout
@@ -22,6 +22,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
+      - name: Install MongoDB Database Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
       - name: Install
         env:
           GITHUB_PRIVATE_PACKAGES_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_ACCESS_TOKEN }}
