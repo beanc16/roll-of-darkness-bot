@@ -3,6 +3,7 @@ import { discordLogger, logger } from '@beanc16/logger';
 import { FileStorageMicroservice } from '@beanc16/microservices-abstraction';
 
 import { Timer } from '../services/Timer/Timer.js';
+import { cleanupLoggers } from './shared/cleanupLoggers.js';
 
 let exitCode = 0;
 
@@ -75,33 +76,5 @@ catch (error: any)
 // Close out the process faster
 finally
 {
-    let loggerIsFlushed = false;
-    let discordLoggerIsFlushed = false;
-
-    // Listen for events for logging being finished
-    logger.on('finish', () =>
-    {
-        loggerIsFlushed = true;
-    });
-
-    discordLogger.on('finish', async () =>
-    {
-        // Add a short delay, otherwise the log won't send via webhook.
-        // This seems to be an underlying issue with the discord webhook transport for winston
-        await Timer.wait({ seconds: 0.5 });
-        discordLoggerIsFlushed = true;
-    });
-
-    // Close loggers
-    discordLogger.end();
-    logger.end();
-
-    // Wait until both loggers are flushed
-    await Timer.waitUntilTrue({
-        seconds: 0.1,
-        callback: () => loggerIsFlushed && discordLoggerIsFlushed,
-    });
-
-    // Exit the process
-    process.exit(exitCode);
+    await cleanupLoggers(logger, discordLogger, exitCode);
 }
