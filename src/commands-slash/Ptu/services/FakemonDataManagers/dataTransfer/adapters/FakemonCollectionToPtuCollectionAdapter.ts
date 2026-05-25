@@ -23,6 +23,11 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
         [PtuFakemonDexType.Magalam]: FakemonDexNumberPrefix.Magalam,
         [PtuFakemonDexType.MagalamParadox]: FakemonDexNumberPrefix.MagalamParadox,
         [PtuFakemonDexType.MagalamLegendary]: FakemonDexNumberPrefix.MagalamLegendary,
+
+        // Distira
+        [PtuFakemonDexType.Distira]: FakemonDexNumberPrefix.Distira,
+        [PtuFakemonDexType.DistiraParadox]: FakemonDexNumberPrefix.DistiraParadox,
+        [PtuFakemonDexType.DistiraLegendary]: FakemonDexNumberPrefix.DistiraLegendary,
     };
 
     public async transform(input: PtuFakemonCollection, index = 0): Promise<PtuPokemonCollection>

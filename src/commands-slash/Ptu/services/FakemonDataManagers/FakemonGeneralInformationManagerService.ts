@@ -31,6 +31,12 @@ export enum FakemonDexNumberPrefix
     MagalamParadox = '#MGP',
     /** Magalam legendary pokedex */
     MagalamLegendary = '#MGL',
+    /** Distira homebrew pokedex */
+    Distira = '#D',
+    /** Distira paradox pokedex */
+    DistiraParadox = '#DP',
+    /** Distira legendary pokedex */
+    DistiraLegendary = '#DL',
 }
 
 /* istanbul ignore next */

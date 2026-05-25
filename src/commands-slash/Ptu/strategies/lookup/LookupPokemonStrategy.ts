@@ -291,11 +291,13 @@ export class LookupPokemonStrategy
             edenNames,
             meridiaNames,
             magalamNames,
+            distiraNames,
         } = results.reduce<{
             speciesNames: string[];
             edenNames: string[];
             meridiaNames: string[];
             magalamNames: string[];
+            distiraNames: string[];
         }>((acc, { name: pokemonName, metadata: { source } }) =>
         {
             if (source === `${PtuFakemonDexType.Eden} Dex`)
@@ -310,6 +312,10 @@ export class LookupPokemonStrategy
             {
                 acc.magalamNames.push(pokemonName);
             }
+            else if (source === `${PtuFakemonDexType.Distira} Dex`)
+            {
+                acc.distiraNames.push(pokemonName);
+            }
             else
             {
                 acc.speciesNames.push(pokemonName);
@@ -321,6 +327,7 @@ export class LookupPokemonStrategy
             edenNames: [],
             meridiaNames: [],
             magalamNames: [],
+            distiraNames: [],
         });
 
         // Don't include images for substring searches
@@ -333,6 +340,7 @@ export class LookupPokemonStrategy
                 edenNames,
                 meridiaNames,
                 magalamNames,
+                distiraNames,
             })
             : undefined;
 

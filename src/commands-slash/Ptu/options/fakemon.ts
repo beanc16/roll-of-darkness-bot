@@ -30,6 +30,7 @@ const regionChoices = [
     PtuFakemonDexType.Eden,
     PtuFakemonDexType.Meridia,
     PtuFakemonDexType.Magalam,
+    PtuFakemonDexType.Distira,
 ].map<APIApplicationCommandOptionChoice<string>>(
     (value) =>
     {
