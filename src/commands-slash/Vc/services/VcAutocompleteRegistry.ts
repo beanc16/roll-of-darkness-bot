@@ -8,6 +8,7 @@ export class VcAutocompleteRegistry extends HandlerRegistry<(discordUserId: stri
 {
     constructor()
     {
+        // TODO: Add satisfies when there's more than just one parameter in VcAutocompleteParameterName that's set below
         super({});
 
         const fileNameParams = [
