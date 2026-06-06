@@ -9,7 +9,7 @@ import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { VcSubcommand } from '../options/index.js';
-import { AutocompleteRegistry } from '../services/AutocompleteRegistry.js';
+import { VcAutocompleteRegistry } from '../services/VcAutocompleteRegistry.js';
 import { VcAutocompleteParameterName } from '../types.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcDeleteFileStrategy } from './VcDeleteFileStrategy.js';
@@ -36,7 +36,7 @@ type VcStrategyMap = StrategyMap<
 
 export class VcStrategyExecutor extends BaseStrategyExecutor
 {
-    private static autoCompleteRegistry = new AutocompleteRegistry();
+    private static autoCompleteRegistry = new VcAutocompleteRegistry();
     private static strategies: VcStrategyMap = [
         VcConnectStrategy,
         VcDeleteFileStrategy,
