@@ -80,6 +80,9 @@ module.exports = {
         '/.*/ImageUpscaleStrategy.ts',
         '/.*/MediaStrategyExecutor.ts',
 
+        // VC
+        '/.*/VcAutocompleteRegistry.ts',
+
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
         '/.*/rollOfDarknessApiHasErrorSingleton.ts',
