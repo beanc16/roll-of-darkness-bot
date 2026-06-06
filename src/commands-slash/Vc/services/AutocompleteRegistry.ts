@@ -8,8 +8,13 @@ export class AutocompleteRegistry extends HandlerRegistry<(discordUserId: string
 {
     constructor()
     {
-        super({
-            [VcAutocompleteParameterName.FileName]: (discordUserId: string) => VcViewFilesStrategy.getUserFiles(discordUserId),
-        });
+        super({});
+
+        const fileNameParams = [
+            VcAutocompleteParameterName.FileName,
+            ...Array.from({ length: 10 }, (_, index) => VcAutocompleteParameterName.FileName + `_${index + 1}`),
+        ];
+
+        this.register(fileNameParams, (discordUserId: string) => VcViewFilesStrategy.getUserFiles(discordUserId));
     }
 }

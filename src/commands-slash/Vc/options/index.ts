@@ -17,12 +17,17 @@ export enum VcSubcommand
     ViewFiles = 'view_files',
 }
 
-const fileNameParameter = (option: SlashCommandStringOption): SlashCommandStringOption =>
+const fileNameParameter = (option: SlashCommandStringOption, index?: number): SlashCommandStringOption =>
 {
-    option.setName(VcAutocompleteParameterName.FileName);
+    const name = VcAutocompleteParameterName.FileName + (index ? `_${index}` : '');
+    option.setName(name);
     option.setDescription('The name of the file.');
     option.setAutocomplete(true);
-    option.setRequired(true);
+
+    if (index === undefined || index === 1)
+    {
+        option.setRequired(true);
+    }
     return option;
 };
 
@@ -57,7 +62,10 @@ export const load = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setName(VcSubcommand.Load);
     subcommand.setDescription('Pre-Buffer audio so it can be played with less delay.');
 
-    subcommand.addStringOption(fileNameParameter);
+    for (let index = 1; index <= 10; index += 1)
+    {
+        subcommand.addStringOption((option) => fileNameParameter(option, index));
+    }
 
     return subcommand;
 };

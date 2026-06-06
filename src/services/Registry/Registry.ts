@@ -7,8 +7,16 @@ export class Registry<T>
         this.registerBulk(registry);
     }
 
-    public register(key: string, value: T): void
+    public register(key: string, value: T): void;
+    public register(key: string[], value: T): void;
+    public register(key: string | string[], value: T): void
     {
+        if (Array.isArray(key))
+        {
+            key.forEach(k => this.register(k, value));
+            return;
+        }
+
         this.registry.set(key, value);
     }
 
