@@ -1,5 +1,6 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
-import { ChatInputCommandInteraction } from 'discord.js';
+import { logger } from '@beanc16/logger';
+import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import * as vcOptions from './Vc/options/index.js';
 import { VcSubcommand } from './Vc/options/index.js';
@@ -53,6 +54,28 @@ class Vc extends BaseSlashCommand
         {
             await interaction.editReply('Subcommand Group or subcommand not yet implemented');
         }
+    }
+
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async autocomplete(interaction: AutocompleteInteraction): Promise<void>
+    {
+        const startTime = Date.now();
+        const focusedValue = interaction.options.getFocused(true);
+
+        const choices = await VcStrategyExecutor.getAutocompleteChoices(focusedValue, interaction.user.id);
+
+        // More than 3 seconds has passed, so we can't respond to the interaction
+        if (Date.now() - startTime >= 3000)
+        {
+            logger.warn('More than 3 seconds has passed to autocomplete in /ptu with the following data:', {
+                lookupOn: focusedValue.name,
+                searchValue: focusedValue.value,
+                results: choices,
+            });
+            return;
+        }
+
+        await interaction.respond(choices);
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

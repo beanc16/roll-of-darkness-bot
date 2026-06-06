@@ -1,5 +1,7 @@
 import type { SlashCommandStringOption, SlashCommandSubcommandBuilder } from 'discord.js';
 
+import { VcAutocompleteParameterName } from '../types.js';
+
 export enum VcSubcommand
 {
     Connect = 'connect',
@@ -17,8 +19,9 @@ export enum VcSubcommand
 
 const fileNameParameter = (option: SlashCommandStringOption): SlashCommandStringOption =>
 {
-    option.setName('file_name');
+    option.setName(VcAutocompleteParameterName.FileName);
     option.setDescription('The name of the file.');
+    option.setAutocomplete(true);
     option.setRequired(true);
     return option;
 };
