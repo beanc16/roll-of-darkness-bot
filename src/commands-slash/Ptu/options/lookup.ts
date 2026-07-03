@@ -938,7 +938,6 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
     {
         option.setName(PtuAutocompleteParameterName.TmName);
         option.setDescription(`The tm's name.`);
-        option.setRequired(true);
         return option.setAutocomplete(true);
     });
 
