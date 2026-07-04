@@ -40,6 +40,7 @@ export class PtuPokemonCollection
     public metadata: PtuPokemon['metadata'];
     public extras: PtuPokemon['extras'];
     public edits?: PtuPokemonEdit[];
+    public typeShifts?: PtuPokemonEdit[];
 
     constructor({
         _id,
@@ -59,7 +60,8 @@ export class PtuPokemonCollection
         metadata,
         extras,
         edits = [],
-    }: PtuPokemon & { _id: ObjectId; edits?: PtuPokemonEdit[] })
+        typeShifts = [],
+    }: PtuPokemon & { _id: ObjectId; edits?: PtuPokemonEdit[]; typeShifts?: PtuPokemonEdit[] })
     {
         if (_id)
         {
@@ -106,6 +108,11 @@ export class PtuPokemonCollection
             this.edits = edits;
         }
 
+        if (typeShifts && typeShifts.length > 0)
+        {
+            this.typeShifts = typeShifts;
+        }
+
         if (megaEvolutions && megaEvolutions.length > 0)
         {
             this.megaEvolutions = megaEvolutions;
@@ -118,9 +125,14 @@ export class PtuPokemonCollection
         const {
             _id,
             edits,
+            typeShifts,
             ...originalPokemonData
         } = this;
-        const originalPokemon: PtuPokemon = { ...originalPokemonData, versionName: 'Original' };
+        const originalPokemon: PtuPokemon = {
+            ...originalPokemonData,
+            versionName: 'Original',
+            typeShifts: [],
+        };
         const {
             name: _name,
             ...originalPokemonDataWithoutName
@@ -183,7 +195,50 @@ export class PtuPokemonCollection
             output.olderVersions = olderVersions;
         }
 
+        // Add type shifts to output
+        typeShifts?.forEach(({
+            editName,
+            ...rest
+        }) =>
+        {
+            output?.typeShifts?.push({
+                name: editName,
+                ...rest,
+            });
+        });
+
         return output;
+    }
+
+    public static toPtuPokemonTypeShift(pokemon: PtuPokemon, typeShiftName: string): PtuPokemon
+    {
+        // Data setup
+        const {
+            name: _name,
+            typeShifts,
+            ...pokemonDataWithoutName
+        } = pokemon;
+
+        // Original does not need a type shift
+        if (typeShiftName === 'Original')
+        {
+            return pokemon;
+        }
+
+        // Get type shift
+        const typeShift = typeShifts.find((curTypeShift) => curTypeShift.name === typeShiftName);
+
+        if (!typeShift)
+        {
+            throw new Error(`Type shift "${typeShiftName}" does not exist for pokemon "${pokemon.name}"`);
+        }
+
+        // Create output with type shift overriding pre-existing fields
+        return {
+            ...pokemonDataWithoutName,
+            ...typeShift,
+            typeShifts,
+        };
     }
 
     private static toPtuPokemonEdit(output: PtuPokemon, edit: PtuPokemonEdit): NonNullable<PtuPokemon['olderVersions']>[0]

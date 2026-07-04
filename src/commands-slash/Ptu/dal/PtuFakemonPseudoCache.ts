@@ -10,7 +10,9 @@ export type PtuFakemonToCreate = Omit<
     | 'olderVersions'
     | 'extras'
     | 'toPtuPokemon'
+    | 'toPtuPokemonTypeShift'
     | 'edits'
+    | 'typeShifts'
     | 'isDeleted'
 >;
 

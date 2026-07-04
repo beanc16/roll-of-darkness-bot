@@ -14,6 +14,7 @@ export class FakemonOverviewEmbedMessage extends EmbedBuilder
                 imageUrl: HomebrewPokeApi.unknownPokemonUrl,
                 ...fakemon.metadata,
             },
+            typeShifts: [],
         }], {});
         super(embed.data);
         this.setFooter({ text: `Status: ${fakemon.status}` });

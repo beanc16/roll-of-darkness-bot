@@ -65,6 +65,7 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
             extras: input.extras,
             edits: input.edits,
             versionName: 'Original',
+            typeShifts: [],
         });
     }
 }
