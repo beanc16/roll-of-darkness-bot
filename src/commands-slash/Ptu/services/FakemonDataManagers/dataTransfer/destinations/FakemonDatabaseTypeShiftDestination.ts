@@ -20,8 +20,6 @@ export class FakemonDatabaseTypeShiftDestination extends DataTransferDestination
             return;
         }
 
-        this.validateInput(input);
-
         if (!source.typeShiftOfPokemonName)
         {
             throw new Error('Name of Pokemon that fakemon is a type shift of is not set');
@@ -36,6 +34,15 @@ export class FakemonDatabaseTypeShiftDestination extends DataTransferDestination
         {
             throw new Error(`Pokemon "${source.typeShiftOfPokemonName}" does not exist`);
         }
+
+        this.validateInput({
+            ...input,
+            metadata: {
+                // Need this or the validation will fail
+                dexNumber: pokemon.metadata.dexNumber,
+                ...input.metadata!,
+            },
+        });
 
         // Wait briefly to avoid database error from re-querying too quickly (bug with mongodb-controller connection handling)
         await Timer.wait({ seconds: 0.15 });
@@ -119,7 +126,7 @@ export class FakemonDatabaseTypeShiftDestination extends DataTransferDestination
                 perception: '',
                 stealth: '',
             },
-            moveList: {
+            moveList: input.moveList ?? {
                 /* Invalid */
                 levelUp: [],
                 tmHm: [''],

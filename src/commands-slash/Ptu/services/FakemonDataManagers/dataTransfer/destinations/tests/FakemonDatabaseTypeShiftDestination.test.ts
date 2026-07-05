@@ -96,7 +96,14 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
             expect(validateInputSpy).toHaveBeenCalledTimes(1);
-            expect(validateInputSpy).toHaveBeenCalledWith(input);
+            expect(validateInputSpy).toHaveBeenCalledWith({
+                ...input,
+                metadata: {
+                    // Need this or the validation will fail
+                    dexNumber: pokemon.metadata.dexNumber,
+                    ...input.metadata!,
+                },
+            });
             expect(getAllSpy).toHaveBeenCalledTimes(1);
             expect(getAllSpy).toHaveBeenCalledWith({ name: source.typeShiftOfPokemonName });
             expect(findOneAndUpdateSpy).toHaveBeenCalledTimes(1);
@@ -124,6 +131,7 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             const { input, pokemon } = createAdapterData();
             input.editName = '';
             const source = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            source.typeShiftOfPokemonName = pokemon.name;
             const wasTransferredSpy = jest.spyOn(destination as unknown as { wasTransferred: jest.Mock }, 'wasTransferred')
                 .mockReturnValue(false);
             const validateInputSpy = jest.spyOn(destination as unknown as { validateInput: jest.Mock }, 'validateInput')
@@ -143,7 +151,8 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
             expect(validateInputSpy).toHaveBeenCalled();
-            expect(getAllSpy).not.toHaveBeenCalled();
+            expect(getAllSpy).toHaveBeenCalledTimes(1);
+            expect(getAllSpy).toHaveBeenCalledWith({ name: source.typeShiftOfPokemonName });
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
             expect(updateTransferredToSpy).not.toHaveBeenCalled();
         });
@@ -195,8 +204,7 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             ).rejects.toThrow('Name of Pokemon that fakemon is a type shift of is not set');
             expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
-            expect(validateInputSpy).toHaveBeenCalledTimes(1);
-            expect(validateInputSpy).toHaveBeenCalledWith(input);
+            expect(validateInputSpy).not.toHaveBeenCalled();
             expect(getAllSpy).not.toHaveBeenCalled();
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
             expect(updateTransferredToSpy).not.toHaveBeenCalled();
@@ -223,8 +231,7 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             ).rejects.toThrow(`Pokemon "${source.typeShiftOfPokemonName}" does not exist`);
             expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
-            expect(validateInputSpy).toHaveBeenCalledTimes(1);
-            expect(validateInputSpy).toHaveBeenCalledWith(input);
+            expect(validateInputSpy).not.toHaveBeenCalled();
             expect(getAllSpy).toHaveBeenCalledTimes(1);
             expect(getAllSpy).toHaveBeenCalledWith({ name: source.typeShiftOfPokemonName });
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
@@ -252,8 +259,7 @@ describe(`class: ${FakemonDatabaseTypeShiftDestination.name}`, () =>
             ).rejects.toThrow(`Pokemon "${source.typeShiftOfPokemonName}" does not exist`);
             expect(wasTransferredSpy).toHaveBeenCalledTimes(1);
             expect(wasTransferredSpy).toHaveBeenCalledWith(input, source);
-            expect(validateInputSpy).toHaveBeenCalledTimes(1);
-            expect(validateInputSpy).toHaveBeenCalledWith(input);
+            expect(validateInputSpy).not.toHaveBeenCalled();
             expect(getAllSpy).toHaveBeenCalledTimes(1);
             expect(getAllSpy).toHaveBeenCalledWith({ name: source.typeShiftOfPokemonName });
             expect(findOneAndUpdateSpy).not.toHaveBeenCalled();
