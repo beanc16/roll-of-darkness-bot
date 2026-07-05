@@ -10,6 +10,10 @@ export class FakemonCollectionToPtuCollectionTypeShiftAdapter extends Adapter<Pt
 {
     public transform(input: PtuFakemonCollection): FakemonCollectionToPtuCollectionTypeShiftAdapterOutput
     {
+        // Image url transferring is handled separately, don't pass the
+        // image url since it will quickly become outdated and unused
+        const { imageUrl: _, ...metadata } = input.metadata;
+
         return {
             editName: input.name,
             types: input.types,
@@ -23,9 +27,9 @@ export class FakemonCollectionToPtuCollectionTypeShiftAdapter extends Adapter<Pt
             capabilities: input.capabilities,
             skills: input.skills,
             moveList: input.moveList,
-            metadata: input.metadata,
-            megaEvolutions: input.megaEvolutions,
-            extras: input.extras,
+            metadata,
+            ...(input.megaEvolutions ? { megaEvolutions: input.megaEvolutions } : {}),
+            ...(input.extras ? { extras: input.extras } : {}),
         };
     }
 }

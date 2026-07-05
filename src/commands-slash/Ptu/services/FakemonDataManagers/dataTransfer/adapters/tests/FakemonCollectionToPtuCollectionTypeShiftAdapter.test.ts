@@ -23,6 +23,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
             // Arrange
             const fakemon = createPtuFakemonCollectionData({ dexType });
             fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = undefined;
             fakemon.moveList.zygardeCubeMoves = undefined;
 
             // Act
@@ -53,6 +54,90 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
                 megaEvolutions: fakemon.megaEvolutions,
                 extras: fakemon.extras,
             });
+        });
+
+        it('should not include imageUrl in output', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = 'https://google.com';
+            fakemon.moveList.zygardeCubeMoves = undefined;
+
+            // Act
+            const result = adapter.transform(fakemon);
+
+            // Assert
+            expect(result).toBeDefined();
+            expect(result!.metadata?.imageUrl).toBeUndefined();
+        });
+
+        it('should include mega evolutions if they are set', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = undefined;
+            fakemon.moveList.zygardeCubeMoves = undefined;
+            fakemon.megaEvolutions = [];
+
+            // Act
+            const result = adapter.transform(fakemon);
+
+            // Assert
+            expect(result).toBeDefined();
+            expect(result!.megaEvolutions).toEqual(fakemon.megaEvolutions);
+        });
+
+        it.each([undefined, null])('should not include mega evolutions if they are %s', (value) =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = undefined;
+            fakemon.moveList.zygardeCubeMoves = undefined;
+            fakemon.megaEvolutions = value;
+
+            // Act
+            const result = adapter.transform(fakemon);
+
+            // Assert
+            expect(result).toBeDefined();
+            expect(result!.megaEvolutions).toBeUndefined();
+        });
+
+        it('should include extras if they are set', () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = undefined;
+            fakemon.moveList.zygardeCubeMoves = undefined;
+            fakemon.extras = [];
+
+            // Act
+            const result = adapter.transform(fakemon);
+
+            // Assert
+            expect(result).toBeDefined();
+            expect(result!.extras).toEqual(fakemon.extras);
+        });
+
+        it.each([undefined, null])('should not include extras if they are %s', (value) =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            fakemon.metadata.dexNumber = undefined;
+            fakemon.metadata.imageUrl = undefined;
+            fakemon.moveList.zygardeCubeMoves = undefined;
+            fakemon.extras = value;
+
+            // Act
+            const result = adapter.transform(fakemon);
+
+            // Assert
+            expect(result).toBeDefined();
+            expect(result!.extras).toBeUndefined();
         });
     });
 });
