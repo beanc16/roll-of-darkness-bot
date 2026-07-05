@@ -21,16 +21,19 @@ async function handler(bot: Client): Promise<void>
 
         // Initialize nWOD and PTU caches
         await Promise.all([
-            LookupCacheInitializer.initialize(),
+            ...(process.env.STARTUP_MODE === 'MINIMAL' ? [] : [LookupCacheInitializer.initialize()]),
             HomebrewPokeApi.initialize(),
         ]);
 
         // Run startup functions
-        const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
-        const startupPromisesToRun = startupCommands.map(command =>
-            command.runOnStartup(bot),
-        );
-        await Promise.all(startupPromisesToRun);
+        if (process.env.STARTUP_MODE === 'MINIMAL')
+        {
+            const startupCommands = await SlashCommandsContainer.getAllStartupCommandsData();
+            const startupPromisesToRun = startupCommands.map(command =>
+                command.runOnStartup(bot),
+            );
+            await Promise.all(startupPromisesToRun);
+        }
 
         // Log success
         logger.info(`Initialized ${process.env.APPLICATION_NAME}.`);
