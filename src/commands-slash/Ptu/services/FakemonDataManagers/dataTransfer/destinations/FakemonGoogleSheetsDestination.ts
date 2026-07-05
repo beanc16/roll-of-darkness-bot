@@ -74,7 +74,7 @@ export class FakemonGoogleSheetsDestination extends DataTransferDestination<Fake
             logger.error('Failed to transfer pokemon skills to Google Sheets', error);
         }
 
-        // Say that the fakemon has been transferred or not
+        // Mark the fakemon as transferred or not
         await FakemonGeneralInformationManagerService.updateTransferredTo({
             fakemon: source,
             transferredTo: {
