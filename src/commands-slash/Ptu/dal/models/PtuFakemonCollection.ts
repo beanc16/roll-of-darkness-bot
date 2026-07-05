@@ -57,6 +57,7 @@ type PtuFakemonCollectionConstructorArgs = ConstructorParameters<typeof PtuPokem
         ptuDatabase: boolean;
         imageStorage: boolean;
     };
+    typeShiftOfPokemonName?: string;
 };
 
 export class PtuFakemonCollection extends PtuPokemonCollection
@@ -77,6 +78,9 @@ export class PtuFakemonCollection extends PtuPokemonCollection
         imageStorage: boolean;
     };
 
+    /** `PtuPokemonCollection.name` */
+    public typeShiftOfPokemonName?: string;
+
     constructor(args: PtuFakemonCollectionConstructorArgs)
     {
         super(args);
@@ -94,6 +98,7 @@ export class PtuFakemonCollection extends PtuPokemonCollection
             ptuDatabase: false,
             imageStorage: false,
         };
+        this.typeShiftOfPokemonName = args.typeShiftOfPokemonName;
     }
 
     get id(): ObjectId
