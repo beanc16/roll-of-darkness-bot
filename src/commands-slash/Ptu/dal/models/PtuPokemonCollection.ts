@@ -215,7 +215,7 @@ export class PtuPokemonCollection
         // Data setup
         const {
             name: _name,
-            megaEvolutions,
+            megaEvolutions: _megaEvolutions,
             typeShifts,
             ...pokemonDataWithoutNameAndMegaEvolutions
         } = pokemon;

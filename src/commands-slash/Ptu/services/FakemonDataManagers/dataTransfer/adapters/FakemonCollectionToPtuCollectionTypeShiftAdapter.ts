@@ -12,7 +12,10 @@ export class FakemonCollectionToPtuCollectionTypeShiftAdapter extends Adapter<Pt
     {
         // Image url transferring is handled separately, don't pass the
         // image url since it will quickly become outdated and unused
-        const { imageUrl: _, ...metadata } = input.metadata;
+        const {
+            imageUrl: _,
+            ...metadata
+        } = input.metadata;
 
         return {
             editName: input.name,

@@ -69,7 +69,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
 
             // Assert
             expect(result).toBeDefined();
-            expect(result!.metadata?.imageUrl).toBeUndefined();
+            expect(result.metadata?.imageUrl).toBeUndefined();
         });
 
         it('should include mega evolutions if they are set', () =>
@@ -86,7 +86,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
 
             // Assert
             expect(result).toBeDefined();
-            expect(result!.megaEvolutions).toEqual(fakemon.megaEvolutions);
+            expect(result.megaEvolutions).toEqual(fakemon.megaEvolutions);
         });
 
         it.each([undefined, null])('should not include mega evolutions if they are %s', (value) =>
@@ -103,7 +103,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
 
             // Assert
             expect(result).toBeDefined();
-            expect(result!.megaEvolutions).toBeUndefined();
+            expect(result.megaEvolutions).toBeUndefined();
         });
 
         it('should include extras if they are set', () =>
@@ -120,7 +120,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
 
             // Assert
             expect(result).toBeDefined();
-            expect(result!.extras).toEqual(fakemon.extras);
+            expect(result.extras).toEqual(fakemon.extras);
         });
 
         it.each([undefined, null])('should not include extras if they are %s', (value) =>
@@ -137,7 +137,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionTypeShiftAdapter.name}`, () =
 
             // Assert
             expect(result).toBeDefined();
-            expect(result!.extras).toBeUndefined();
+            expect(result.extras).toBeUndefined();
         });
     });
 });
