@@ -7,7 +7,7 @@ import { FakemonDexNumberPrefix, FakemonGeneralInformationManagerService } from 
 
 export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonCollection, PtuPokemonCollection>
 {
-    private readonly dexTypeToPrefix: Record<PtuFakemonDexType, FakemonDexNumberPrefix> = {
+    private static readonly dexTypeToPrefix: Record<PtuFakemonDexType, FakemonDexNumberPrefix> = {
         // Eden
         [PtuFakemonDexType.Eden]: FakemonDexNumberPrefix.Eden,
         [PtuFakemonDexType.EdenParadox]: FakemonDexNumberPrefix.EdenParadox,
@@ -32,10 +32,7 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
 
     public async transform(input: PtuFakemonCollection, index = 0): Promise<PtuPokemonCollection>
     {
-        // Get the current max dex number
-        const prefixToMaxDexNumber = await FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers();
-        const dexPrefix = this.dexTypeToPrefix[input.dexType];
-        const maxDexNumber = prefixToMaxDexNumber[dexPrefix];
+        const { dexPrefix, maxDexNumber } = await FakemonCollectionToPtuCollectionAdapter.getDexPrefixAndMaxDexNumber(input.dexType);
         const {
             imageUrl: _,
             ...metadata
@@ -67,5 +64,15 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
             versionName: 'Original',
             typeShifts: [],
         });
+    }
+
+    public static async getDexPrefixAndMaxDexNumber(dexType: PtuFakemonCollection['dexType']): Promise<{ dexPrefix: FakemonDexNumberPrefix; maxDexNumber: number }>
+    {
+        // Get the current max dex number
+        const prefixToMaxDexNumber = await FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers();
+        const dexPrefix = this.dexTypeToPrefix[dexType];
+        const maxDexNumber = prefixToMaxDexNumber[dexPrefix];
+
+        return { dexPrefix, maxDexNumber };
     }
 }
