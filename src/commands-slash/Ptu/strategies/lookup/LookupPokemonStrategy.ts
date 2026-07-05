@@ -1608,23 +1608,26 @@ export class LookupPokemonStrategy
             typeShifts,
         }) =>
         {
-            if (olderVersions.length === 0)
+            if (olderVersions.length === 0 && typeShifts.length === 0)
             {
                 return acc;
             }
 
-            const newestOption = new StringSelectMenuOptionBuilder()
-                .setLabel(newestVersionName)
-                .setValue(newestVersionName)
-                .setDefault(
-                    selectedValue === newestVersionName
-                    || selectedValue === undefined
-                    || (
-                        customId === LookupPokemonStrategy.selectMenuCustomIds.PokemonTypeShiftViewSelect
-                        && selectedValue === 'Original'
-                    ),
-                );
-            acc.editOptions.push(newestOption);
+            if (olderVersions.length > 0)
+            {
+                const newestOption = new StringSelectMenuOptionBuilder()
+                    .setLabel(newestVersionName)
+                    .setValue(newestVersionName)
+                    .setDefault(
+                        selectedValue === newestVersionName
+                        || selectedValue === undefined
+                        || (
+                            customId === LookupPokemonStrategy.selectMenuCustomIds.PokemonTypeShiftViewSelect
+                            && selectedValue === 'Original'
+                        ),
+                    );
+                acc.editOptions.push(newestOption);
+            }
 
             olderVersions.forEach(({ versionName }) =>
             {
