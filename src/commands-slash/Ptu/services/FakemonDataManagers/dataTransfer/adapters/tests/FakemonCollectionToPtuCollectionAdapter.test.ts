@@ -174,10 +174,26 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
     describe(`method: ${FakemonCollectionToPtuCollectionAdapter.getDexPrefixAndMaxDexNumber.name}`, () =>
     {
         it.each([
+            // Eden
             [PtuFakemonDexType.Eden, FakemonDexNumberPrefix.Eden],
             [PtuFakemonDexType.EdenParadox, FakemonDexNumberPrefix.EdenParadox],
             [PtuFakemonDexType.EdenDrained, FakemonDexNumberPrefix.EdenDrained],
             [PtuFakemonDexType.EdenLegendary, FakemonDexNumberPrefix.EdenLegendary],
+
+            // Meridia
+            [PtuFakemonDexType.Meridia, FakemonDexNumberPrefix.Meridia],
+            [PtuFakemonDexType.MeridiaParadox, FakemonDexNumberPrefix.MeridiaParadox],
+            [PtuFakemonDexType.MeridiaLegendary, FakemonDexNumberPrefix.MeridiaLegendary],
+
+            // Magalam
+            [PtuFakemonDexType.Magalam, FakemonDexNumberPrefix.Magalam],
+            [PtuFakemonDexType.MagalamParadox, FakemonDexNumberPrefix.MagalamParadox],
+            [PtuFakemonDexType.MagalamLegendary, FakemonDexNumberPrefix.MagalamLegendary],
+
+            // Distira
+            [PtuFakemonDexType.Distira, FakemonDexNumberPrefix.Distira],
+            [PtuFakemonDexType.DistiraParadox, FakemonDexNumberPrefix.DistiraParadox],
+            [PtuFakemonDexType.DistiraLegendary, FakemonDexNumberPrefix.DistiraLegendary],
         ])('should transform PtuFakemonCollection to PtuPokemonCollection with dexType %s', async (dexType, expectedPrefix) =>
         {
             // Arrange
