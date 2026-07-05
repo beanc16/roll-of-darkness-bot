@@ -32,6 +32,7 @@ import {
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
+import { ptuFakemonDexTypeToRegionSource } from '../../services/FakemonDataManagers/fakemonUtils.js';
 import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 import { PokeApi } from '../../services/PokeApi/PokeApi.js';
 import { removeExtraCharactersFromMoveName } from '../../services/pokemonMoveHelpers/pokemonMoveHelpers.js';
@@ -1205,6 +1206,30 @@ export class LookupPokemonStrategy
         let { selectMenuRows } = getRowsAbovePagination;
         const { rowsAbovePagination, basedOnMoveName } = getRowsAbovePagination;
 
+        /** For dex changes between type shifts and the original version */
+        let speciesOrTypeShiftNameToImageUrl: Record<string, string | undefined> = {};
+
+        // Set known image urls for type shift dropdown handling
+        pokemon.forEach(({
+            name: speciesName,
+            metadata: { imageUrl },
+            typeShifts,
+        }) =>
+        {
+            if (imageUrl)
+            {
+                speciesOrTypeShiftNameToImageUrl[speciesName] = imageUrl;
+            }
+
+            typeShifts?.forEach(({ name: typeShiftName, metadata: { imageUrl: curImageUrl } = {} }) =>
+            {
+                if (curImageUrl)
+                {
+                    speciesOrTypeShiftNameToImageUrl[typeShiftName] = curImageUrl;
+                }
+            });
+        });
+
         // Send messages with pagination
         await PaginationStrategy.run({
             originalInteraction,
@@ -1244,9 +1269,16 @@ export class LookupPokemonStrategy
                         };
                     });
 
+                    // Get updated image url
+                    const updatedImageUrlResult = await this.getUpdatedImageUrlOnDropdown({
+                        pokemon: versionNameToPokemon[value],
+                        speciesOrTypeShiftNameToImageUrl,
+                    });
+                    speciesOrTypeShiftNameToImageUrl = updatedImageUrlResult.speciesOrTypeShiftNameToImageUrl;
+
                     newEmbeds = this.getLookupPokemonEmbeds({
                         names,
-                        pokemon: [versionNameToPokemon[value]],
+                        pokemon: [updatedImageUrlResult.pokemon],
                     });
                     selectMenuRows = this.getLookupPokemonSelectMenu({
                         pokemon,
@@ -1269,9 +1301,16 @@ export class LookupPokemonStrategy
                     const [onlyPokemon] = pokemon;
                     const typeShift = PtuPokemonCollection.toPtuPokemonTypeShift(onlyPokemon, value);
 
+                    // Get updated image url
+                    const updatedImageUrlResult = await this.getUpdatedImageUrlOnDropdown({
+                        pokemon: typeShift,
+                        speciesOrTypeShiftNameToImageUrl,
+                    });
+                    speciesOrTypeShiftNameToImageUrl = updatedImageUrlResult.speciesOrTypeShiftNameToImageUrl;
+
                     newEmbeds = this.getLookupPokemonEmbeds({
                         names,
-                        pokemon: [typeShift],
+                        pokemon: [updatedImageUrlResult.pokemon],
                     });
                     selectMenuRows = this.getLookupPokemonSelectMenu({
                         pokemon,
@@ -1354,6 +1393,56 @@ export class LookupPokemonStrategy
             },
             includeDeleteButton: true,
         });
+    }
+
+    private static async getUpdatedImageUrlOnDropdown({ pokemon, speciesOrTypeShiftNameToImageUrl }: {
+        pokemon: PtuPokemon;
+        /** For dex changes between type shifts and the original version */
+        speciesOrTypeShiftNameToImageUrl: Record<string, string | undefined>;
+    }): Promise<{ pokemon: PtuPokemon; speciesOrTypeShiftNameToImageUrl: Record<string, string | undefined> }>
+    {
+        if (speciesOrTypeShiftNameToImageUrl[pokemon.name])
+        {
+            return {
+                pokemon: {
+                    ...pokemon,
+                    metadata: {
+                        ...pokemon.metadata,
+                        imageUrl: speciesOrTypeShiftNameToImageUrl[pokemon.name],
+                    },
+                },
+                speciesOrTypeShiftNameToImageUrl,
+            };
+        }
+
+        // Get updated image url
+        const { metadata: { source } } = pokemon;
+        const typedSource = ptuFakemonDexTypeToRegionSource(source as PtuFakemonDexType);
+        const [newImageUrlResult] = (typedSource)
+            ? (await HomebrewPokeApi.getPokemonImageUrls({
+                edenNames: typedSource === PtuFakemonDexType.Eden ? [pokemon.name] : [],
+                meridiaNames: typedSource === PtuFakemonDexType.Meridia ? [pokemon.name] : [],
+                magalamNames: typedSource === PtuFakemonDexType.Magalam ? [pokemon.name] : [],
+                distiraNames: typedSource === PtuFakemonDexType.Distira ? [pokemon.name] : [],
+            }) ?? [])
+            : [];
+
+        if (newImageUrlResult)
+        {
+            // eslint-disable-next-line no-param-reassign -- We want to mutate the original
+            speciesOrTypeShiftNameToImageUrl[pokemon.name] = newImageUrlResult.imageUrl;
+        }
+
+        return {
+            pokemon: {
+                ...pokemon,
+                metadata: {
+                    ...pokemon.metadata,
+                    imageUrl: newImageUrlResult?.imageUrl ?? pokemon.metadata.imageUrl,
+                },
+            },
+            speciesOrTypeShiftNameToImageUrl,
+        };
     }
 
     private static parseSearchParameters({
