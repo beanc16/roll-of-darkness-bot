@@ -241,7 +241,7 @@ export class PtuPokemonCollection
         };
     }
 
-    private static toPtuPokemonEdit(output: PtuPokemon, edit: PtuPokemonEdit): NonNullable<PtuPokemon['olderVersions']>[0]
+    private static toPtuPokemonEdit(input: PtuPokemon, edit: PtuPokemonEdit): NonNullable<PtuPokemon['olderVersions']>[0]
     {
         const {
             name: _,
@@ -253,7 +253,7 @@ export class PtuPokemonCollection
             capabilities,
             metadata,
             ...outputData
-        } = output;
+        } = input;
 
         const {
             editName,
@@ -312,7 +312,7 @@ export class PtuPokemonCollection
         };
     }
 
-    public static validate(input: PtuPokemonCollection, options?: { skipDexNumberError: boolean }): asserts input is PtuPokemonCollection
+    public static validate(input: Omit<PtuPokemonCollection, 'toPtuPokemon'>, options?: { skipDexNumberError: boolean }): asserts input is PtuPokemonCollection
     {
         const errors: Error[] = [];
 
