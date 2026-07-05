@@ -215,8 +215,9 @@ export class PtuPokemonCollection
         // Data setup
         const {
             name: _name,
+            megaEvolutions,
             typeShifts,
-            ...pokemonDataWithoutName
+            ...pokemonDataWithoutNameAndMegaEvolutions
         } = pokemon;
 
         // Original does not need a type shift
@@ -235,7 +236,7 @@ export class PtuPokemonCollection
 
         // Create output with type shift overriding pre-existing fields
         return {
-            ...pokemonDataWithoutName,
+            ...pokemonDataWithoutNameAndMegaEvolutions,
             ...typeShift,
             typeShifts,
         };
