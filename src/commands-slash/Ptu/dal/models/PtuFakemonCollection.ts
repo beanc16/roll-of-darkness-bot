@@ -58,6 +58,8 @@ type PtuFakemonCollectionConstructorArgs = ConstructorParameters<typeof PtuPokem
         imageStorage: boolean;
     };
     typeShiftOfPokemonName?: string;
+    editOfPokemonName?: string;
+    editName?: string;
 };
 
 export class PtuFakemonCollection extends PtuPokemonCollection
@@ -78,8 +80,12 @@ export class PtuFakemonCollection extends PtuPokemonCollection
         imageStorage: boolean;
     };
 
-    /** `PtuPokemonCollection.name` */
+    /** `PtuPokemonCollection.name` for the transfer type shift command */
     public typeShiftOfPokemonName?: string;
+    /** `PtuPokemonCollection.name` for the transfer edit command */
+    public editOfPokemonName?: string;
+    /** `PtuPokemonCollection.edits[number].editName` for the transfer edit command */
+    public editName?: string;
 
     constructor(args: PtuFakemonCollectionConstructorArgs)
     {
@@ -99,6 +105,8 @@ export class PtuFakemonCollection extends PtuPokemonCollection
             imageStorage: false,
         };
         this.typeShiftOfPokemonName = args.typeShiftOfPokemonName;
+        this.editOfPokemonName = args.editOfPokemonName;
+        this.editName = args.editName;
     }
 
     get id(): ObjectId
