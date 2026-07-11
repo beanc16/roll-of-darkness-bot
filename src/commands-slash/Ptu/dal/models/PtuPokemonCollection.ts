@@ -681,7 +681,7 @@ export class PtuPokemonCollection
 
         if (errors.length > 0)
         {
-            throw new AggregateError(errors);
+            throw new AggregateError(errors, "Pokemon validation failed");
         }
     }
 }
