@@ -20,7 +20,8 @@ export abstract class DataTransferDestination<Input, Source>
     /**
      * Validates that the input is safe to transfer
      */
-    protected abstract validateInput(input: Input): asserts input is Input;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    protected abstract validateInput(input: Input, ...rest: any[]): asserts input is Input;
 
     /**
      * @returns True if the data has already been transferred
