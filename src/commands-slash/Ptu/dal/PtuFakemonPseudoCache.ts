@@ -108,6 +108,10 @@ export class PtuFakemonPseudoCache
         {
             this.allFakemon[index] = fakemon;
         }
+        else
+        {
+            this.allFakemon.push(fakemon);
+        }
 
         return fakemon;
     }
