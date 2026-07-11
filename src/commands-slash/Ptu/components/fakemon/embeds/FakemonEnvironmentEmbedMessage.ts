@@ -11,11 +11,14 @@ export class FakemonEnvironmentEmbedMessage extends FakemonEmbedMessage
         });
     }
 
-    public static constructDescriptionLines({ diets, habitats }: Pick<PtuPokemon, 'diets' | 'habitats'>): string[]
+    public static constructDescriptionLines({ diets, habitats }: Partial<Pick<PtuPokemon, 'diets' | 'habitats'>>): string[]
     {
         return [
-            `Diet: ${diets.join(', ')}`,
-            `Habitat${habitats.length > 1 ? 's' : ''}: ${habitats.join(', ')}`,
+            ...(diets ? [`Diet: ${diets.join(', ')}`] : []),
+            ...(habitats
+                ? [`Habitat${habitats.length > 1 ? 's' : ''}: ${habitats.join(', ')}`]
+                : []
+            ),
         ];
     }
 }
