@@ -29,23 +29,43 @@ const getFakeSkill = (): string =>
 };
 
 export const createPtuPokemonCollectionData = ({
+    abilities,
     baseStats: {
         bst,
     } = {},
+    breedingInformation,
     capabilities: {
         numOfOtherCapabilities,
     } = {},
+    diets,
+    extras,
+    evolution,
+    habitats,
+    megaEvolutions,
+    moveList,
+    name,
+    types,
 }: {
+    abilities?: PtuPokemonCollection['abilities'];
     baseStats?: {
         bst?: number;
     };
+    breedingInformation?: PtuPokemon['breedingInformation'];
     capabilities?: {
         numOfOtherCapabilities?: number;
     };
+    diets?: PokemonDiet[];
+    extras?: PtuPokemon['extras'];
+    evolution?: PtuPokemon['evolution'];
+    habitats?: PokemonHabitat[];
+    megaEvolutions?: PtuPokemon['megaEvolutions'];
+    moveList?: PtuPokemon['moveList'];
+    name?: string;
+    types?: PokemonType[];
 } = {}): PtuPokemonCollection =>
 {
     const id = new ObjectId(faker.database.mongodbObjectId());
-    const speciesName = faker.person.firstName();
+    const speciesName = name ?? faker.person.firstName();
 
     const numOf = faker.helpers.arrayElement([
         { basicAbilities: 2, advancedAbilities: 2 },
@@ -75,14 +95,14 @@ export const createPtuPokemonCollectionData = ({
     return {
         _id: id,
         name: speciesName,
-        types: getRandomTypes(2),
+        types: types ?? getRandomTypes(2),
         baseStats,
-        abilities: {
+        abilities: abilities ?? {
             basicAbilities: getArrayOfWords({ max: numOf.basicAbilities }),
             advancedAbilities: getArrayOfWords({ max: numOf.advancedAbilities }),
             highAbility: faker.lorem.word(),
         },
-        evolution: [
+        evolution: evolution ?? [
             {
                 name: speciesName, level: 1, stage: 1,
             },
@@ -124,7 +144,7 @@ export const createPtuPokemonCollectionData = ({
                 ptu: faker.number.int({ min: 1, max: 6 }),
             },
         },
-        breedingInformation: {
+        breedingInformation: breedingInformation ?? {
             genderRatio: faker.helpers.arrayElement([
                 { male: 50, female: 50 },
                 { male: 75, female: 25 },
@@ -139,11 +159,11 @@ export const createPtuPokemonCollectionData = ({
             ),
             averageHatchRate: `${faker.number.int({ min: 1, max: 75 })} Days`,
         },
-        diets: faker.helpers.arrayElements(
+        diets: diets ?? faker.helpers.arrayElements(
             Object.values(PokemonDiet),
             faker.number.int({ min: 1, max: 2 }),
         ),
-        habitats: faker.helpers.arrayElements(
+        habitats: habitats ?? faker.helpers.arrayElements(
             Object.values(PokemonHabitat),
             faker.number.int({ min: 1, max: 5 }),
         ),
@@ -155,7 +175,7 @@ export const createPtuPokemonCollectionData = ({
             perception: getFakeSkill(),
             stealth: getFakeSkill(),
         },
-        moveList: {
+        moveList: moveList ?? {
             levelUp: getArrayOfWords({ min: 10, max: 15 }).map((word, index) => ({
                 move: word,
                 level: 1 * (index + 1),
@@ -166,7 +186,7 @@ export const createPtuPokemonCollectionData = ({
             tutorMoves: getArrayOfWords({ min: 0, max: 40 }),
             zygardeCubeMoves: faker.helpers.maybe(() => getArrayOfWords({ min: 0, max: 5 }), { probability: 0.05 }),
         },
-        megaEvolutions: faker.helpers.maybe(() => ([{
+        megaEvolutions: megaEvolutions ?? faker.helpers.maybe(() => ([{
             name: `Mega ${speciesName}`,
             types: faker.helpers.maybe(() => getRandomTypes(2)) || [],
             ability: faker.lorem.word(),
@@ -195,7 +215,7 @@ export const createPtuPokemonCollectionData = ({
             page: faker.helpers.maybe(() => `p.${faker.number.int({ min: 1, max: 1000 })}`),
             imageUrl: faker.helpers.maybe(() => faker.image.url()),
         },
-        extras: faker.helpers.maybe(() => [{
+        extras: extras ?? faker.helpers.maybe(() => [{
             name: faker.lorem.words({ min: 1, max: 2 }),
             value: faker.lorem.sentences({ min: 1, max: 3 }),
         }], { probability: 0.05 }),
