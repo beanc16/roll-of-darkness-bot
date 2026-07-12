@@ -22,7 +22,7 @@ export class FakemonBreedingInformationEmbedMessage extends FakemonEmbedMessage
         return [
             `Gender Ratio: ${!genderRatio.none ? `${genderRatio.male}% M / ${genderRatio.female}% F` : 'No Gender'}`,
             `Egg Group${eggGroups.length > 1 ? 's' : ''}: ${eggGroups.length > 0 ? eggGroups.join(', ') : 'None'}`,
-            ...(averageHatchRate ? [`Average Hatch Rate: ${averageHatchRate}`, ''] : ['']),
+            ...(averageHatchRate ? [`Average Hatch Rate: ${averageHatchRate}`, ''] : []),
         ];
     }
 }
