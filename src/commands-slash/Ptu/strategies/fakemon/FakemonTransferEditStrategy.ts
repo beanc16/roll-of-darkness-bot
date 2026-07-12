@@ -7,8 +7,10 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { FakemonDiffEmbedMessage } from '../../components/fakemon/embeds/FakemonDiffEmbedMessage.js';
+import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
@@ -123,24 +125,40 @@ export class FakemonTransferEditStrategy
         await interaction.deferUpdate();
 
         const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
-        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        if (!fakemon)
+        const untypedFakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        let errorMessages: string[] = [];
+        if (!untypedFakemon)
         {
-            throw new Error('Fakemon not found');
+            errorMessages.push('Fakemon not found');
         }
-        if (!fakemon.editors.includes(interaction.user.id))
+        if (untypedFakemon && !untypedFakemon.editors.includes(interaction.user.id))
         {
-            throw new Error('You do not have permission to edit this fakemon');
+            errorMessages.push('You do not have permission to edit this fakemon');
         }
-        if (!fakemon.editOfPokemonName)
+        if (untypedFakemon && !untypedFakemon.editOfPokemonName)
         {
-            throw new Error('Name of Pokemon that fakemon is an edit of is not set');
+            errorMessages.push('Name of Pokemon that fakemon is an edit of is not set');
         }
-        if (!fakemon.editName)
+        if (untypedFakemon && !untypedFakemon.editName)
         {
-            throw new Error('Name of edit is not set');
+            errorMessages.push('Name of edit is not set');
+        }
+        if (untypedFakemon && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+        {
+            const editors = getEditorOfDex(untypedFakemon.dexType);
+            const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
+            errorMessages.push(`You do not have permission to edit this fakemon. Please ask ${editorPings} for approval.`);
+        }
+        if (errorMessages.length > 0)
+        {
+            await interaction.followUp({
+                content: 'The following errors were found:\n' + errorMessages.join('\n- '),
+                ephemeral: true,
+            });
+            return true;
         }
 
+        const fakemon = untypedFakemon!;
         switch (customId)
         {
             case ConfirmDenyButtonCustomIds.Confirm:
@@ -148,7 +166,7 @@ export class FakemonTransferEditStrategy
                 {
                     // Send first response
                     await interaction.followUp({
-                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName)} named ${Text.Code.oneLine(fakemon.editName)}. Please be patient, this may take a few seconds...`,
+                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName!)} named ${Text.Code.oneLine(fakemon.editName!)}. Please be patient, this may take a few seconds...`,
                     });
 
                     // Transfer fakemon edit
@@ -168,12 +186,12 @@ export class FakemonTransferEditStrategy
                     }
                     await interaction.followUp({
                         content: [
-                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName)} named ${Text.Code.oneLine(fakemon.editName)} to the following locations:`,
+                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName!)} named ${Text.Code.oneLine(fakemon.editName!)} to the following locations:`,
                             this.convertTransferredToForDisplay(updatedFakemon),
                         ].join('\n'),
                     });
                     await interaction.message.edit({
-                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName)} named ${Text.Code.oneLine(fakemon.editName)}.`,
+                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName!)} named ${Text.Code.oneLine(fakemon.editName!)}.`,
                         components: [], // Remove buttons so transfer doesn't occur again
                     });
 
@@ -204,7 +222,7 @@ export class FakemonTransferEditStrategy
             case ConfirmDenyButtonCustomIds.Deny:
                 // Send response
                 await interaction.editReply({
-                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName)} named ${Text.Code.oneLine(fakemon.editName)}.`,
+                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)} as an edit of ${Text.Code.oneLine(fakemon.editOfPokemonName!)} named ${Text.Code.oneLine(fakemon.editName!)}.`,
                     components: [],
                     embeds: [],
                 });

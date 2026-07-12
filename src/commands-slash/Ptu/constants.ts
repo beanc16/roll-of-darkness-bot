@@ -1,8 +1,10 @@
 import type { Entries } from '@beanc16/utility-types';
 
 import { DiscordUserId } from '../../types/discord.js';
+import { PtuFakemonDexType } from './dal/models/PtuFakemonCollection.js';
 import { PtuAbilityForDefensiveTypeEffectiveness, PtuAbilityForOffensiveTypeEffectiveness } from './types/PtuAbilityForTypeEffectiveness.js';
 import { PtuCharacterSheetName, PtuSheetName } from './types/sheets.js';
+import { AllPtuDexTypes, PtuDexType } from './types/types.js';
 
 export interface SpreadsheetInfo
 {
@@ -314,3 +316,69 @@ export const abilitiesForTypeEffectivenessSet = new Set<string>([
     ...Object.values(PtuAbilityForOffensiveTypeEffectiveness),
     ...Object.values(PtuAbilityForDefensiveTypeEffectiveness),
 ]);
+
+export const getEditorOfDex = (dexType: AllPtuDexTypes): DiscordUserId[] =>
+{
+    switch (dexType)
+    {
+        // Canon & Eden
+        case PtuDexType.Playtest: // Canon
+        case PtuDexType.Alola:
+        case PtuDexType.Hisui:
+        case PtuDexType.Galar:
+        case PtuDexType.Paldea:
+        case PtuDexType.ZA:
+        case `${PtuDexType.Playtest} Dex`:
+        case `${PtuDexType.Alola} Dex`:
+        case `${PtuDexType.Hisui} Dex`:
+        case `${PtuDexType.Galar} Dex`:
+        case `${PtuDexType.Paldea} Dex`:
+        case `${PtuDexType.ZA} Dex`:
+        case PtuFakemonDexType.Eden: // Eden
+        case PtuFakemonDexType.EdenParadox:
+        case PtuFakemonDexType.EdenLegendary:
+        case PtuFakemonDexType.EdenDrained:
+        case `${PtuFakemonDexType.Eden} Dex`:
+        case `${PtuFakemonDexType.EdenParadox} Dex`:
+        case `${PtuFakemonDexType.EdenLegendary} Dex`:
+        case `${PtuFakemonDexType.EdenDrained} Dex`:
+            return [DiscordUserId.Bean];
+
+        // Meridia
+        case PtuFakemonDexType.Meridia:
+        case PtuFakemonDexType.MeridiaParadox:
+        case PtuFakemonDexType.MeridiaLegendary:
+        case `${PtuFakemonDexType.Meridia} Dex`:
+        case `${PtuFakemonDexType.MeridiaParadox} Dex`:
+        case `${PtuFakemonDexType.MeridiaLegendary} Dex`:
+            return [DiscordUserId.Avery];
+
+        // Distira
+        case PtuFakemonDexType.Distira:
+        case PtuFakemonDexType.DistiraParadox:
+        case PtuFakemonDexType.DistiraLegendary:
+        case `${PtuFakemonDexType.Distira} Dex`:
+        case `${PtuFakemonDexType.DistiraParadox} Dex`:
+        case `${PtuFakemonDexType.DistiraLegendary} Dex`:
+            return [DiscordUserId.Joel];
+
+        // Magalam
+        case PtuFakemonDexType.Magalam:
+        case PtuFakemonDexType.MagalamParadox:
+        case PtuFakemonDexType.MagalamLegendary:
+        case `${PtuFakemonDexType.Magalam} Dex`:
+        case `${PtuFakemonDexType.MagalamParadox} Dex`:
+        case `${PtuFakemonDexType.MagalamLegendary} Dex`:
+            return [DiscordUserId.Josh];
+
+        default:
+            const typeGuard: never = dexType;
+            throw new Error(`Unsupported dex type: ${typeGuard}`);
+    }
+};
+
+export const isEditorOfDex = (dexType: AllPtuDexTypes, discordUserId: DiscordUserId): boolean =>
+{
+    const editors = getEditorOfDex(dexType);
+    return new Set(editors).has(discordUserId);
+};
