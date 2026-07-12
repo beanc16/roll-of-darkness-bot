@@ -64,8 +64,9 @@ export const createPtuPokemonCollectionData = ({
     types?: PokemonType[];
 } = {}): PtuPokemonCollection =>
 {
+    const uniqueFirstNames = faker.helpers.uniqueArray(faker.person.firstName, 3);
     const id = new ObjectId(faker.database.mongodbObjectId());
-    const speciesName = name ?? faker.person.firstName();
+    const speciesName = name ?? uniqueFirstNames[0];
 
     const numOf = faker.helpers.arrayElement([
         { basicAbilities: 2, advancedAbilities: 2 },
@@ -107,10 +108,10 @@ export const createPtuPokemonCollectionData = ({
                 name: speciesName, level: 1, stage: 1,
             },
             {
-                name: faker.person.firstName(), level: 20, stage: 2,
+                name: uniqueFirstNames[1], level: 20, stage: 2,
             },
             {
-                name: faker.person.firstName(), level: 40, stage: 3,
+                name: uniqueFirstNames[2], level: 40, stage: 3,
             },
         ],
         capabilities: {
