@@ -13,6 +13,7 @@ import { FakemonDiffEmbedMessage } from '../../components/fakemon/embeds/Fakemon
 import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
@@ -25,6 +26,7 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
+import { AllPtuDexTypes } from '../../types/types.js';
 import type { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 import type { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 
@@ -69,10 +71,7 @@ export class FakemonTransferEditStrategy
         }
 
         // Get base species
-        // eslint-disable-next-line no-unsafe-optional-chaining
-        const [baseSpecies] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.getLookupData({
-            names: [editOfSpeciesName],
-        });
+        const baseSpecies = await this.getBaseSpecies(strategies, editOfSpeciesName);
         if (!baseSpecies)
         {
             await interaction.editReply({
@@ -126,7 +125,12 @@ export class FakemonTransferEditStrategy
 
         const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
         const untypedFakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        let errorMessages: string[] = [];
+        const canFetchBaseSpecies = untypedFakemon !== undefined && untypedFakemon.editOfPokemonName;
+        const baseSpecies = canFetchBaseSpecies
+            ? await this.getBaseSpecies(strategies, untypedFakemon.editOfPokemonName!)
+            : undefined;
+
+        const errorMessages: string[] = [];
         if (!untypedFakemon)
         {
             errorMessages.push('Fakemon not found');
@@ -143,11 +147,15 @@ export class FakemonTransferEditStrategy
         {
             errorMessages.push('Name of edit is not set');
         }
-        if (untypedFakemon && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+        if (canFetchBaseSpecies && !baseSpecies)
         {
-            const editors = getEditorOfDex(untypedFakemon.dexType);
+            errorMessages.push(`Pokemon titled \`${untypedFakemon.editOfPokemonName}\` does not exist.`);
+        }
+        if (untypedFakemon && baseSpecies?.metadata?.source && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+        {
+            const editors = getEditorOfDex(baseSpecies.metadata.source as AllPtuDexTypes);
             const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
-            errorMessages.push(`You do not have permission to edit this fakemon. Please ask ${editorPings} for approval.`);
+            errorMessages.push(`You do not have permission to transfer an edit to the ${baseSpecies.metadata.source}. Please ask ${editorPings} for approval.`);
         }
         if (errorMessages.length > 0)
         {
@@ -267,5 +275,16 @@ export class FakemonTransferEditStrategy
         return Text.Code.multiLine(
             JSON.stringify(fakemon.transferredTo, null, 2),
         );
+    }
+
+    private static async getBaseSpecies(strategies: PtuStrategyMap, editOfSpeciesName: string): Promise<PtuPokemonForLookupPokemon>
+    {
+        // Get base species
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const [baseSpecies] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.getLookupData({
+            names: [editOfSpeciesName],
+        });
+
+        return baseSpecies;
     }
 }

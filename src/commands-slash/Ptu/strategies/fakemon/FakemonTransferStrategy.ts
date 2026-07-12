@@ -8,7 +8,9 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { RecordSingleton } from '../../../../services/Singleton/RecordSingleton.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
+import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
 import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
@@ -103,16 +105,32 @@ export class FakemonTransferStrategy
         await interaction.deferUpdate();
 
         const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
-        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        if (!fakemon)
+        const untypedFakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        const errorMessages: string[] = [];
+        if (!untypedFakemon)
         {
-            throw new Error('Fakemon not found');
+            errorMessages.push('Fakemon not found');
         }
-        if (!fakemon.editors.includes(interaction.user.id))
+        if (untypedFakemon && !untypedFakemon.editors.includes(interaction.user.id))
         {
-            throw new Error('You do not have permission to edit this fakemon');
+            errorMessages.push('You do not have permission to edit this fakemon');
+        }
+        if (untypedFakemon && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+        {
+            const editors = getEditorOfDex(untypedFakemon.dexType);
+            const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
+            errorMessages.push(`You do not have permission to create a pokemon in the ${untypedFakemon.dexType} Dex. Please ask ${editorPings} for approval.`);
+        }
+        if (errorMessages.length > 0)
+        {
+            await interaction.followUp({
+                content: 'The following errors were found:\n' + errorMessages.join('\n- '),
+                ephemeral: true,
+            });
+            return true;
         }
 
+        const fakemon = untypedFakemon!;
         switch (customId)
         {
             case ConfirmDenyButtonCustomIds.Confirm:

@@ -8,9 +8,12 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { RecordSingleton } from '../../../../services/Singleton/RecordSingleton.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
+import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
 import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
@@ -22,6 +25,7 @@ import type {
     PtuStrategyMap,
     PtuStrategyMetadata,
 } from '../../types/strategies.js';
+import { AllPtuDexTypes } from '../../types/types.js';
 import type { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 import type { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 
@@ -72,10 +76,7 @@ export class FakemonTransferTypeShiftStrategy
         }
 
         // Get base species
-        // eslint-disable-next-line no-unsafe-optional-chaining
-        const [baseSpecies] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.getLookupData({
-            names: [typeShiftOfSpeciesName],
-        });
+        const baseSpecies = await this.getBaseSpecies(strategies, typeShiftOfSpeciesName);
         if (!baseSpecies)
         {
             await interaction.editReply({
@@ -123,20 +124,45 @@ export class FakemonTransferTypeShiftStrategy
         await interaction.deferUpdate();
 
         const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
-        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
-        if (!fakemon)
+        const untypedFakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        const canFetchBaseSpecies = untypedFakemon !== undefined && untypedFakemon.typeShiftOfPokemonName;
+        const baseSpecies = canFetchBaseSpecies
+            ? await this.getBaseSpecies(strategies, untypedFakemon.typeShiftOfPokemonName!)
+            : undefined;
+
+        const errorMessages: string[] = [];
+        if (!untypedFakemon)
         {
-            throw new Error('Fakemon not found');
+            errorMessages.push('Fakemon not found');
         }
-        if (!fakemon.editors.includes(interaction.user.id))
+        if (untypedFakemon && !untypedFakemon.editors.includes(interaction.user.id))
         {
-            throw new Error('You do not have permission to edit this fakemon');
+            errorMessages.push('You do not have permission to edit this fakemon');
         }
-        if (!fakemon.typeShiftOfPokemonName)
+        if (untypedFakemon && !untypedFakemon.typeShiftOfPokemonName)
         {
-            throw new Error('Name of Pokemon that fakemon is a type shift of is not set');
+            errorMessages.push('Name of Pokemon that fakemon is a type shift of is not set');
+        }
+        if (canFetchBaseSpecies && !baseSpecies)
+        {
+            errorMessages.push(`Pokemon titled \`${untypedFakemon.typeShiftOfPokemonName}\` does not exist.`);
+        }
+        if (untypedFakemon && baseSpecies?.metadata?.source && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+        {
+            const editors = getEditorOfDex(baseSpecies.metadata.source as AllPtuDexTypes);
+            const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
+            errorMessages.push(`You do not have permission to transfer a type shift to the ${baseSpecies.metadata.source}. Please ask ${editorPings} for approval.`);
+        }
+        if (errorMessages.length > 0)
+        {
+            await interaction.followUp({
+                content: 'The following errors were found:\n' + errorMessages.join('\n- '),
+                ephemeral: true,
+            });
+            return true;
         }
 
+        const fakemon = untypedFakemon!;
         switch (customId)
         {
             case ConfirmDenyButtonCustomIds.Confirm:
@@ -144,7 +170,7 @@ export class FakemonTransferTypeShiftStrategy
                 {
                     // Send first response
                     await interaction.followUp({
-                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName)}. Please be patient, this may take a few seconds...`,
+                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName!)}. Please be patient, this may take a few seconds...`,
                     });
 
                     // Get destinations
@@ -178,12 +204,12 @@ export class FakemonTransferTypeShiftStrategy
                     }
                     await interaction.followUp({
                         content: [
-                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName)} to the following locations:`,
+                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName!)} to the following locations:`,
                             this.convertTransferredToForDisplay(updatedFakemon),
                         ].join('\n'),
                     });
                     await interaction.message.edit({
-                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName)}.`,
+                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName!)}.`,
                         components: [], // Remove buttons so transfer doesn't occur again
                     });
 
@@ -217,7 +243,7 @@ export class FakemonTransferTypeShiftStrategy
             case ConfirmDenyButtonCustomIds.Deny:
                 // Send response
                 await interaction.editReply({
-                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName)}.`,
+                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)} as a type shift of ${Text.Code.oneLine(fakemon.typeShiftOfPokemonName!)}.`,
                     components: [],
                 });
                 break;
@@ -279,5 +305,16 @@ export class FakemonTransferTypeShiftStrategy
         return Text.Code.multiLine(
             JSON.stringify(fakemon.transferredTo, null, 2),
         );
+    }
+
+    private static async getBaseSpecies(strategies: PtuStrategyMap, typeShiftOfSpeciesName: string): Promise<PtuPokemonForLookupPokemon>
+    {
+        // Get base species
+        // eslint-disable-next-line no-unsafe-optional-chaining
+        const [baseSpecies] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.getLookupData({
+            names: [typeShiftOfSpeciesName],
+        });
+
+        return baseSpecies;
     }
 }
