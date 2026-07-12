@@ -11,6 +11,7 @@ export enum PtuFakemonSubcommand
     Delete = 'delete',
     Edit = 'edit',
     Transfer = 'transfer',
+    TransferEdit = 'transfer_edit',
     TransferTypeShift = 'transfer_type_shift',
     ViewAll = 'view_all',
     View = 'view',
@@ -223,6 +224,39 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
         return option.setChoices(
             ...reportingDestinationChoices,
         );
+    });
+
+    return subcommand;
+};
+
+export const transferEdit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferEdit);
+    subcommand.setDescription('Transfer a custom pokemon edit to database.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon type shift.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonName);
+        option.setDescription(`The name of the Pokémon species the edit is of.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('edit_name');
+        option.setDescription(`The name of the edit.`);
+        option.setMaxLength(3);
+        option.setMaxLength(100);
+        return option.setRequired(true);
     });
 
     return subcommand;
