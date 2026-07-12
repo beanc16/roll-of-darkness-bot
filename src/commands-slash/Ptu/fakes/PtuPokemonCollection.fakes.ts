@@ -64,6 +64,7 @@ export const createPtuPokemonCollectionData = ({
     types?: PokemonType[];
 } = {}): PtuPokemonCollection =>
 {
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const uniqueFirstNames = faker.helpers.uniqueArray(faker.person.firstName, 3);
     const id = new ObjectId(faker.database.mongodbObjectId());
     const speciesName = name ?? uniqueFirstNames[0];
