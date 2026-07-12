@@ -662,6 +662,7 @@ export class PtuPokemonCollection
                 && (
                     megaEvolution?.types?.length === 0
                     || megaEvolution?.types?.every((type) => this.allTypes.has(type as PokemonType))
+                    || (megaEvolution?.types?.length === 1 && megaEvolution?.types[0] === 'Unchanged')
                 )
                 && megaEvolution?.ability?.trim()?.length > 0
                 && (
