@@ -7,3 +7,8 @@ export const generateIntegerArrayAsStrings = (start: number, end: number): [stri
 {
     return generateIntegerArray(start, end).map((num) => num.toString()) as [string, ...string[]];
 };
+
+export const getUniqueSortedArray = <T extends string | number>(array: T[]): T[] =>
+{
+    return [...new Set(array)].sort();
+};
