@@ -12,8 +12,10 @@ export class FakemonDiffEmbedMessage extends EmbedBuilder
         fakemonStatus: PtuFakemonCollection['status'],
     )
     {
+        const { imageUrl: _, ...metadata } = requiredPokemonInfo.metadata;
         const [embed] = getLookupPokemonEmbedMessages([{
             ...requiredPokemonInfo,
+            metadata,
             ...diff,
         }], {});
         super(embed.data);
