@@ -176,11 +176,8 @@ export const getLookupPokemonEmbedMessages = (
                 ? [
                     Text.bold('Environment'),
                     ...FakemonEnvironmentEmbedMessage.constructDescriptionLines({ diets, habitats }),
+                    '',
                 ]
-                : []
-            ),
-            ...(breedingInformation || diets || habitats
-                ? ['']
                 : []
             ),
             ...(capabilities
