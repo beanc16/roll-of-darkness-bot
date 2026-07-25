@@ -8,6 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
+import { getUniqueSortedArray } from '../../../../services/arrayHelpers.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
 import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
@@ -81,7 +82,6 @@ import type {
     PtuStrategyMetadata,
     PtuStringSelectMenuIteractionStrategy,
 } from '../../types/strategies.js';
-import { getUniqueSortedArray } from '../../../../services/arrayHelpers.js';
 
 interface FakemonCreateGetParameterResults
 {
@@ -1339,7 +1339,7 @@ export class FakemonCreateStrategy
             || this.basePokemon.diets;
         const habitats = pokemonToBaseOn.evolutionAndEnvironment?.habitats
             || pokemonToBaseOn.species?.habitats
-            || this.basePokemon.habitats
+            || this.basePokemon.habitats;
 
         // Format height to standardize the removal of special characters
         const originalHeight = pokemonToBaseOn.species?.sizeInformation?.height
@@ -1354,7 +1354,10 @@ export class FakemonCreateStrategy
         const eggGroups = pokemonToBaseOn.species?.breedingInformation?.eggGroups
             || this.basePokemon.breedingInformation.eggGroups;
 
-        const { imageUrl, ...metadata } = this.basePokemon.metadata;
+        const {
+            imageUrl,
+            ...metadata
+        } = this.basePokemon.metadata;
 
         return await PtuFakemonPseudoCache.create(messageId, {
             ...this.basePokemon,
