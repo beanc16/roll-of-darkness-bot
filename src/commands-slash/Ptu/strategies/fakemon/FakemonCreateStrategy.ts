@@ -41,6 +41,7 @@ import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabili
 import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionAddingModal.js';
 import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
 import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
+import { FakemonSpeciesNameEditingModal } from '../../modals/fakemon/FakemonSpeciesNameEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { FakemonMoveLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpAddingModal.js';
 import { FakemonMoveLevelUpEditingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpEditingModal.js';
@@ -282,6 +283,14 @@ export class FakemonCreateStrategy
 
         switch (customId)
         {
+            case FakemonOverviewButtonCustomIds.EditName:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSpeciesNameEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    speciesName: fakemon.name,
+                });
+                break;
+
             case FakemonOverviewButtonCustomIds.Validate:
                 try
                 {

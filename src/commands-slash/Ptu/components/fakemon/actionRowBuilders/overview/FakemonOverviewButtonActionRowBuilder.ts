@@ -7,6 +7,7 @@ import {
 
 export enum FakemonOverviewButtonCustomIds
 {
+    EditName = 'Edit Name',
     Validate = 'Check for Errors',
     CheckMoveLevels = 'Check Move Levels',
     CheckMoveProgression = 'Check Move Progression',
@@ -18,6 +19,12 @@ export class FakemonOverviewButtonActionRowBuilder extends ActionRowBuilder<Stri
     {
         super({
             components: [
+                new ButtonBuilder({
+                    customId: FakemonOverviewButtonCustomIds.EditName,
+                    label: FakemonOverviewButtonCustomIds.EditName,
+                    emoji: '📝',
+                    style: ButtonStyle.Secondary,
+                }),
                 new ButtonBuilder({
                     customId: FakemonOverviewButtonCustomIds.Validate,
                     label: FakemonOverviewButtonCustomIds.Validate,
