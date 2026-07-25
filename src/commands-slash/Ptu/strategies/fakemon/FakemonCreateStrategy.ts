@@ -1317,6 +1317,8 @@ export class FakemonCreateStrategy
             ? PtuSizeAdapterService.adaptHeight(feet, inches)
             : originalHeight;
 
+        const { imageUrl, ...metadata } = this.basePokemon.metadata;
+
         return await PtuFakemonPseudoCache.create(messageId, {
             ...this.basePokemon,
             ...pokemonToBaseOn.species,
@@ -1387,8 +1389,9 @@ export class FakemonCreateStrategy
             skills,
             dexType: region,
             metadata: {
-                ...this.basePokemon.metadata,
+                ...metadata,
                 source: `${region} Dex`,
+                ...(imageUrl ? { imageUrl } : {}),
                 ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
             },
             creationChannelId,
