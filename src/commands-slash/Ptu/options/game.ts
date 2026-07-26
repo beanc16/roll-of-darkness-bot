@@ -8,7 +8,6 @@ export enum PtuGameSubcommand
     Oracle_Create = 'oracle_create',
     Oracle_Continue = 'oracle_continue',
     Oracle_View = 'oracle_view',
-    // Oracle_View_All = 'oracle_view_all',
 }
 
 export const hangmon = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
