@@ -11,3 +11,8 @@ import { AudioPlayer } from '@discordjs/voice';
  * in the type.
  */
 export type AudioPlayerEmitter = AudioPlayer & EventEmitter;
+
+export enum VcAutocompleteParameterName
+{
+    FileName = 'file_name',
+}

@@ -39,6 +39,7 @@ export enum PtuQuickReferenceInfo
 {
     ActionTypes = 'action_types',
     ActionPoints = 'action_points',
+    AlchemyEnchantment = 'alchemy_enchantment',
     BookMechanics = 'book_mechanics',
     CoupDeGrace = 'coup_de_grace',
     DamageCharts = 'damage_charts',

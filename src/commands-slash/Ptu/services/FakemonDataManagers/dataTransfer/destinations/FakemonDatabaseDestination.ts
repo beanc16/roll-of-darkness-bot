@@ -25,10 +25,10 @@ export class FakemonDatabaseDestination extends DataTransferDestination<PtuPokem
             $or: [{ _id: input._id }, { name: input.name }],
         }, input);
 
-        // Wait briefly to avoid database error from re-querying to quickly (bug with mongodb-controller connection handling)
+        // Wait briefly to avoid database error from re-querying too quickly (bug with mongodb-controller connection handling)
         await Timer.wait({ seconds: 0.15 });
 
-        // Say that the fakemon has been transferred
+        // Mark the fakemon as transferred
         await FakemonGeneralInformationManagerService.updateTransferredTo({
             fakemon: source,
             transferredTo: {

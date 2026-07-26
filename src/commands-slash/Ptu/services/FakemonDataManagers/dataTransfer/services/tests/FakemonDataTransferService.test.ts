@@ -3,8 +3,10 @@
 
 import { FakemonCollectionToPtuCollectionAdapter } from '../../adapters/FakemonCollectionToPtuCollectionAdapter.js';
 import { FakemonToGoogleSheetsAdapter } from '../../adapters/FakemonToGoogleSheetsAdapter.js';
+import { FakemonToImageStorageAdapter } from '../../adapters/FakemonToImageStorageAdapter.js';
 import { FakemonDatabaseDestination } from '../../destinations/FakemonDatabaseDestination';
 import { FakemonGoogleSheetsDestination } from '../../destinations/FakemonGoogleSheetsDestination.js';
+import { FakemonImageStorageDestination } from '../../destinations/FakemonImageStorageDestination.js';
 import { FakemonDataTransferService } from '../FakemonDataTransferService.js';
 
 describe(`class: ${FakemonDataTransferService.name}`, () =>
@@ -40,6 +42,18 @@ describe(`class: ${FakemonDataTransferService.name}`, () =>
 
             // Assert
             expect(hasGoogleSheetsPipeline).toBe(true);
+        });
+
+        it('should have pipeline with FakemonToImageStorageAdapter & FakemonImageStorageDestination', () =>
+        {
+            // Arrange
+            const hasImagePipeline = service['pipelines'].some(pipeline =>
+                pipeline['adapter'] instanceof FakemonToImageStorageAdapter
+                && pipeline['destination'] instanceof FakemonImageStorageDestination,
+            );
+
+            // Assert
+            expect(hasImagePipeline).toBe(true);
         });
     });
 });

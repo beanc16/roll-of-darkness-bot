@@ -32,11 +32,17 @@ export class VcViewFilesStrategy
         return true;
     }
 
-    private static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageGetFilesInFolderResponse>
+    public static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageGetFilesInFolderResponse>;
+    public static async getUserFiles(discordUserId: string): Promise<FileStorageGetFilesInFolderResponse>;
+    public static async getUserFiles(interactionOrDiscordUserId: ChatInputCommandInteraction | string): Promise<FileStorageGetFilesInFolderResponse>
     {
+        const discordUserId = typeof interactionOrDiscordUserId === 'string'
+            ? interactionOrDiscordUserId
+            : interactionOrDiscordUserId.user.id;
+
         const files = await FileStorageService.getFilesInFolder({
             appId: process.env.APP_ID as string,
-            nestedFolders: getVcCommandNestedFolderName(interaction.user.id),
+            nestedFolders: getVcCommandNestedFolderName(discordUserId),
             resourceType: FileStorageResourceType.Audio,
         });
 

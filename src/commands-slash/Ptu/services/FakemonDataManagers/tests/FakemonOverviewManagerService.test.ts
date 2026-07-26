@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker';
 
 import { FakemonLevelUpMoveDistributionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage';
 import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage';
+import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { getPokemonWithMove, type PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
 import { createPtuMoveData } from '../../../fakes/PtuMove.fakes';
@@ -35,6 +36,33 @@ jest.mock('../../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbe
 jest.mock('../../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage', () => ({
     FakemonLevelUpMoveProgressionEmbedMessage: jest.fn(),
 }));
+
+jest.mock('../../../dal/PtuController', () =>
+{
+    return {
+        PokemonController: {
+            aggregate: jest.fn(),
+        },
+    };
+});
+
+jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
+{
+    return {
+        PtuFakemonPseudoCache: {
+            update: jest.fn(),
+        },
+    };
+});
+
+jest.mock('../../../dal/PtuFakemonController', () =>
+{
+    return {
+        FakemonController: {
+            findOneAndUpdate: jest.fn(),
+        },
+    };
+});
 
 const MockedFakemonLevelUpMoveDistributionEmbedMessage = FakemonLevelUpMoveDistributionEmbedMessage;
 const MockedFakemonLevelUpMoveProgressionEmbedMessage = FakemonLevelUpMoveProgressionEmbedMessage;
@@ -404,6 +432,115 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
             const result = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
 
             expect(result).toBe(mockEmbed);
+        });
+    });
+
+    describe(`method: ${FakemonOverviewManagerService.setSpeciesName.name}`, () =>
+    {
+        let messageId = '';
+        let fakemon: ReturnType<typeof createPtuFakemonCollectionData>;
+
+        beforeEach(() =>
+        {
+            jest.clearAllMocks();
+            messageId = faker.string.uuid();
+            fakemon = createPtuFakemonCollectionData();
+        });
+
+        it('returns fakemon with updated species name', async () =>
+        {
+            const speciesName = faker.string.alphanumeric(10);
+            const expectedResult = { ...fakemon, name: speciesName };
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const result = await FakemonOverviewManagerService.setSpeciesName({
+                messageId,
+                fakemon,
+                speciesName,
+            });
+
+            expect(result.name).toEqual(speciesName);
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                { name: speciesName },
+            );
+        });
+
+        it('trims whitespace at the start and end of the species name', async () =>
+        {
+            const speciesName = `     ${faker.string.alphanumeric(10)}     `;
+            const trimmedSpeciesName = speciesName.trim();
+            const expectedResult = { ...fakemon, name: trimmedSpeciesName };
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const result = await FakemonOverviewManagerService.setSpeciesName({
+                messageId,
+                fakemon,
+                speciesName,
+            });
+
+            expect(result.name).toEqual(trimmedSpeciesName);
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                { name: trimmedSpeciesName },
+            );
+        });
+
+        it('throws error when species name is 0 characters', async () =>
+        {
+            const speciesName = '';
+            const expectedResult = { ...fakemon, name: speciesName };
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setSpeciesName({
+                    messageId,
+                    fakemon,
+                    speciesName,
+                }),
+            ).rejects.toThrow('Fakemon species name must be between 0-40 characters');
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('throws error when species name is 41 characters', async () =>
+        {
+            const speciesName = faker.string.alphanumeric(41);
+            const expectedResult = { ...fakemon, name: speciesName };
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setSpeciesName({
+                    messageId,
+                    fakemon,
+                    speciesName,
+                }),
+            ).rejects.toThrow('Fakemon species name must be between 0-40 characters');
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not throw error when species name is 40 characters', async () =>
+        {
+            const speciesName = faker.string.alphanumeric(40);
+            const expectedResult = { ...fakemon, name: speciesName };
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setSpeciesName({
+                    messageId,
+                    fakemon,
+                    speciesName,
+                }),
+            ).resolves.not.toThrow('Fakemon species name must be between 0-40 characters');
+            expect(updateSpy).toHaveBeenCalled();
         });
     });
 });

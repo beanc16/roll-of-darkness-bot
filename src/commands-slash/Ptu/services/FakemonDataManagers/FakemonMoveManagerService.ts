@@ -170,11 +170,17 @@ export class FakemonMoveManagerService
             throw new Error(`Fakemon cannot have more than ${this.MAX_TUTOR_AND_TMHM_MOVES} ${label} moves`);
         }
 
+        const movesWithNAddedOrRemoved = this.getNAddedOrRemovedFromTutorMoveNames({
+            fakemon,
+            names: sortedMoves,
+            moveListKey: moveListToAddTo,
+        });
+
         // Update fakemon
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             moveList: {
                 ...fakemon.moveList,
-                [moveListToAddTo as keyof PtuFakemonCollection['moveList']]: sortedMoves,
+                [moveListToAddTo as keyof PtuFakemonCollection['moveList']]: movesWithNAddedOrRemoved,
             },
         });
     }
@@ -246,10 +252,18 @@ export class FakemonMoveManagerService
             throw new Error(`Fakemon does not have ${moveListToRemoveFrom} moves called ${missingMoves.join(', ')}`);
         }
 
+        const movesWithNAddedOrRemoved = (typeof updatedMoveList[0] === 'string')
+            ? this.getNAddedOrRemovedFromTutorMoveNames({
+                fakemon,
+                names: updatedMoveList as string[],
+                moveListKey: moveListToRemoveFrom,
+            })
+            : updatedMoveList;
+
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             moveList: {
                 ...fakemon.moveList,
-                [moveListToRemoveFrom]: updatedMoveList,
+                [moveListToRemoveFrom]: movesWithNAddedOrRemoved,
             },
         });
     }
@@ -373,6 +387,44 @@ export class FakemonMoveManagerService
             }
 
             return a.move.localeCompare(b.move);
+        });
+    }
+
+    // Tutor moves have " (N)" at the end when they are also in the level-up movelist
+    private static getNAddedOrRemovedFromTutorMoveNames({
+        fakemon,
+        names,
+        moveListKey,
+    }: {
+        fakemon: PtuFakemonCollection;
+        names: string[];
+        moveListKey: keyof PtuFakemonCollection['moveList'] | Omit<keyof PtuFakemonCollection['moveList'], 'levelUp'>;
+    }): string[]
+    {
+        // Not tutor moves
+        if (moveListKey !== 'tutorMoves')
+        {
+            return names;
+        }
+
+        // Add/Remove (N) from tutor moves
+        const levelUpMoveNames = new Set(
+            fakemon.moveList.levelUp.map(({ move }) => move),
+        );
+
+        return names.map((name) =>
+        {
+            const nameWithoutN = name.replace('(N)', '').trim();
+            const nameWithN = `${nameWithoutN} (N)`.trim();
+
+            // Not in level up movelist
+            if (!levelUpMoveNames.has(nameWithoutN))
+            {
+                return nameWithoutN;
+            }
+
+            // In level up movelist
+            return nameWithN;
         });
     }
 

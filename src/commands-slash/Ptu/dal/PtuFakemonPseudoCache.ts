@@ -10,7 +10,9 @@ export type PtuFakemonToCreate = Omit<
     | 'olderVersions'
     | 'extras'
     | 'toPtuPokemon'
+    | 'toPtuPokemonTypeShift'
     | 'edits'
+    | 'typeShifts'
     | 'isDeleted'
 >;
 
@@ -105,6 +107,10 @@ export class PtuFakemonPseudoCache
         if (index !== -1)
         {
             this.allFakemon[index] = fakemon;
+        }
+        else
+        {
+            this.allFakemon.push(fakemon);
         }
 
         return fakemon;

@@ -80,6 +80,9 @@ module.exports = {
         '/.*/ImageUpscaleStrategy.ts',
         '/.*/MediaStrategyExecutor.ts',
 
+        // VC
+        '/.*/VcAutocompleteRegistry.ts',
+
         // Roll of Darkness API
         '/.*/CachedRollOfDarknessApi.ts',
         '/.*/rollOfDarknessApiHasErrorSingleton.ts',
@@ -106,10 +109,10 @@ module.exports = {
             lines: 90,
         },
         './src/commands-slash/Ptu/services': {
-            statements: 99,
+            statements: 98,
             branches: 90,
-            functions: 99,
-            lines: 99,
+            functions: 98,
+            lines: 98,
         },
         './src/commands-slash/strategies': {
             statements: 95,

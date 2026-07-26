@@ -594,6 +594,76 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
             );
         });
 
+        it('should add the tutor moves to the fakemon and add/remove " (N)" relative to the level-up movelist', async () =>
+        {
+            // Arrange
+            const expectedResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const levelUp: typeof defaultArgs.fakemon.moveList.levelUp = [
+                {
+                    level: 1,
+                    move: 'Poison Sting',
+                    type: PokemonType.Poison,
+                },
+                {
+                    level: 5,
+                    move: 'Draining Kiss',
+                    type: PokemonType.Fairy,
+                },
+                {
+                    level: 10,
+                    move: 'Focus Energy',
+                    type: PokemonType.Normal,
+                },
+            ];
+
+            // Act
+            const result = await FakemonMoveManagerService['addNonLevelUpMoves']({
+                ...defaultArgs,
+                moveListToAddTo: 'tutorMoves',
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    moveList: {
+                        ...defaultArgs.fakemon.moveList,
+                        levelUp,
+                        tutorMoves: [
+                            'Draining Kiss',
+                            movesMap.ember.move,
+                            'Focus Energy',
+                            'Poison Sting',
+                            movesMap.tackle.move,
+                            movesMap.waterPulse.move,
+                        ],
+                    },
+                } as typeof defaultArgs.fakemon,
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(updateSpy).toHaveBeenCalledWith(
+                defaultArgs.messageId,
+                { id: defaultArgs.fakemon.id },
+                {
+                    moveList: {
+                        ...defaultArgs.fakemon.moveList,
+                        levelUp,
+                        tutorMoves: [
+                            movesMap.aquaJet.move,
+                            'Draining Kiss (N)',
+                            movesMap.ember.move,
+                            'Focus Energy (N)',
+                            'Poison Sting (N)',
+                            movesMap.return.move,
+                            movesMap.tackle.move,
+                            movesMap.waterPulse.move,
+                        ],
+                    },
+                },
+            );
+        });
+
         it('should exit early if moveListToAddTo is invalid', async () =>
         {
             // Arrange
@@ -703,7 +773,7 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                     levelUp: [movesMap.ember, movesMap.return, movesMap.aquaJet, movesMap.waterPulse],
                     eggMoves: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
                     tmHm: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
-                    tutorMoves: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
+                    tutorMoves: [movesMap.fireSpin.move, movesMap.quickAttack.move, movesMap.bubble.move, movesMap.waterGun.move],
                 },
             } as typeof defaultArgs.fakemon,
             moveListToRemoveFrom: 'eggMoves',
@@ -799,9 +869,13 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
             const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
                 .mockResolvedValue(expectedResult);
 
+            const movesToRemove = [movesMap.quickAttack.move, movesMap.bubble.move];
+            const remainingMoves = defaultArgs.fakemon.moveList.tutorMoves.filter(move => !movesToRemove.includes(move));
+
             // Act
             const result = await FakemonMoveManagerService['removeMoves']({
                 ...defaultArgs,
+                names: [movesMap.quickAttack.move, movesMap.bubble.move],
                 moveListToRemoveFrom: 'tutorMoves',
             });
 
@@ -813,7 +887,68 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
                 {
                     moveList: {
                         ...defaultArgs.fakemon.moveList,
-                        tutorMoves: expectedRemainingMoves.map(move => move.move),
+                        tutorMoves: remainingMoves,
+                    },
+                },
+            );
+        });
+
+        it('should remove tutor moves and add/remove " (N)" relative to the level-up movelist', async () =>
+        {
+            // Arrange
+            const expectedResult = createPtuFakemonCollectionData();
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const movesToRemove = [movesMap.quickAttack.move, movesMap.bubble.move];
+            const newTutorMoves = [
+                ...new Set([
+                    ...defaultArgs.fakemon.moveList.levelUp.map(({ move }) => move),
+                    ...defaultArgs.fakemon.moveList.tutorMoves,
+                ]),
+            ];
+            const remainingMoves = newTutorMoves.reduce<string[]>((acc, move) =>
+            {
+                if (movesToRemove.includes(move))
+                {
+                    return acc;
+                }
+
+                if (defaultArgs.fakemon.moveList.tutorMoves.includes(move))
+                {
+                    acc.push(move);
+                }
+                else
+                {
+                    acc.push(`${move} (N)`);
+                }
+
+                return acc;
+            }, []);
+
+            // Act
+            const result = await FakemonMoveManagerService['removeMoves']({
+                ...defaultArgs,
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    moveList: {
+                        ...defaultArgs.fakemon.moveList,
+                        tutorMoves: newTutorMoves,
+                    },
+                } as typeof defaultArgs.fakemon,
+                names: [movesMap.quickAttack.move, movesMap.bubble.move],
+                moveListToRemoveFrom: 'tutorMoves',
+            });
+
+            // Assert
+            expect(result).toEqual(expectedResult);
+            expect(updateSpy).toHaveBeenCalledWith(
+                defaultArgs.messageId,
+                { id: defaultArgs.fakemon.id },
+                {
+                    moveList: {
+                        ...defaultArgs.fakemon.moveList,
+                        tutorMoves: remainingMoves,
                     },
                 },
             );
@@ -1079,6 +1214,144 @@ describe(`class: ${FakemonMoveManagerService.name}`, () =>
 
             // Assert
             expect(result).toEqual([]);
+        });
+    });
+
+    describe(`method: ${FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames'].name}`, () =>
+    {
+        type MoveListKey = Parameters<typeof FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']>[0]['moveListKey'];
+
+        const fakemon = createPtuFakemonCollectionData();
+        const getDefaultArgs = (moveListKey: MoveListKey): Parameters<typeof FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']>[0] => ({
+            fakemon: {
+                ...fakemon,
+                moveList: {
+                    levelUp: [movesMap.ember, movesMap.return, movesMap.aquaJet, movesMap.waterPulse],
+                    eggMoves: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
+                    tmHm: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
+                    tutorMoves: [movesMap.ember.move, movesMap.return.move, movesMap.aquaJet.move, movesMap.waterPulse.move],
+                },
+            } as Parameters<typeof FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']>[0]['fakemon'],
+            moveListKey,
+            names: [movesMap.aquaJet.move, movesMap.return.move],
+        });
+
+        // Non-Tutor move lists
+        describe.each([
+            'levelUp',
+            'tmHm',
+            'eggMoves',
+            'zygardeCubeMoves',
+        ] satisfies MoveListKey[])('moveListKey = %s', (moveListKey) =>
+        {
+            const defaultArgs = getDefaultArgs(moveListKey);
+
+            it('should return the same unmodified names array', () =>
+            {
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                });
+
+                // Assert
+                expect(result).toEqual(defaultArgs.names);
+            });
+
+            it('should return empty array if empty names array is provided', () =>
+            {
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                    names: [],
+                });
+
+                // Assert
+                expect(result).toEqual([]);
+            });
+        });
+
+        // Tutor move list
+        describe('moveListKey = tutorMoves', () =>
+        {
+            const moveListKey = 'tutorMoves';
+            const defaultArgs = getDefaultArgs(moveListKey);
+
+            it('should add " (N)" to names that are also in the level-up movelist', () =>
+            {
+                // Arrange
+                const names = [
+                    defaultArgs.fakemon.moveList.levelUp[0].move,
+                    defaultArgs.fakemon.moveList.levelUp[1].move,
+                    defaultArgs.fakemon.moveList.levelUp[2].move,
+                ];
+
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                    names,
+                });
+
+                // Assert
+                const expectedNames = names.map((name) => `${name} (N)`);
+                expect(result).toEqual(expectedNames);
+            });
+
+            it('should remove "(N)" from names that are not in the level-up movelist', () =>
+            {
+                // Arrange
+                const names = ['FAKE MOVE NAME 1 (N)', 'FAKE MOVE NAME 2 (N)', 'FAKE MOVE NAME 3 (N)'];
+
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                    names,
+                });
+
+                // Assert
+                const expectedNames = names.map((name) => name.replace('(N)', '').trim());
+                expect(result).toEqual(expectedNames);
+            });
+
+            it('should handle mix of adding and remove " (N)" to / from names', () =>
+            {
+                // Arrange
+                const names = [
+                    defaultArgs.fakemon.moveList.levelUp[0].move,
+                    'FAKE MOVE NAME 1 (N)',
+                    'FAKE MOVE NAME 2 (N)',
+                    defaultArgs.fakemon.moveList.levelUp[1].move,
+                    'FAKE MOVE NAME 3 (N)',
+                    defaultArgs.fakemon.moveList.levelUp[2].move,
+                ];
+
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                    names,
+                });
+
+                // Assert
+                expect(result).toEqual([
+                    `${names[0]} (N)`,
+                    names[1].replace('(N)', '').trim(),
+                    names[2].replace('(N)', '').trim(),
+                    `${names[3]} (N)`,
+                    names[4].replace('(N)', '').trim(),
+                    `${names[5]} (N)`,
+                ]);
+            });
+
+            it('should return empty array if empty names array is provided', () =>
+            {
+                // Act
+                const result = FakemonMoveManagerService['getNAddedOrRemovedFromTutorMoveNames']({
+                    ...defaultArgs,
+                    names: [],
+                });
+
+                // Assert
+                expect(result).toEqual([]);
+            });
         });
     });
 

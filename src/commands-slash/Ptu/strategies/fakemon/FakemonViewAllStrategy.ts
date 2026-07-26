@@ -9,7 +9,11 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { chunkArray } from '../../../../services/chunkArray/chunkArray.js';
 import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { FakemonViewAllActionRowBuilder, FakemonViewAllButtonCustomIds } from '../../components/fakemon/actionRowBuilders/viewMode/FakemonViewAllActionRowBuilder.js';
-import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
+import {
+    PtuFakemonCollection,
+    PtuFakemonDexType,
+    PtuFakemonStatus,
+} from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -118,12 +122,41 @@ export class FakemonViewAllStrategy
 
     private static getEmbeds(fakemon: PtuFakemonCollection[]): EmbedBuilder[]
     {
+        const fakemonGroupedByStatus = fakemon.reduce<Record<PtuFakemonStatus, PtuFakemonCollection[]>>((acc, curFakemon) =>
+        {
+            acc[curFakemon.status].push(curFakemon);
+            return acc;
+        }, {
+            [PtuFakemonStatus.DRAFT]: [],
+            [PtuFakemonStatus.READY_FOR_REVIEW]: [],
+            [PtuFakemonStatus.FAILED_REVIEW]: [],
+            [PtuFakemonStatus.PASSED_REVIEW]: [],
+            [PtuFakemonStatus.TRANSFERRED]: [],
+        });
+
+        let currentStatus: PtuFakemonStatus | undefined;
         return getPagedEmbedMessages({
             title: 'Fakemon',
-            input: fakemon,
-            parseElementToLines: element => [
-                `- ${element.name} (${element.status})`,
+            input: [
+                ...fakemonGroupedByStatus[PtuFakemonStatus.DRAFT],
+                ...fakemonGroupedByStatus[PtuFakemonStatus.READY_FOR_REVIEW],
+                ...fakemonGroupedByStatus[PtuFakemonStatus.FAILED_REVIEW],
+                ...fakemonGroupedByStatus[PtuFakemonStatus.PASSED_REVIEW],
+                ...fakemonGroupedByStatus[PtuFakemonStatus.TRANSFERRED],
             ],
+            parseElementToLines: (element) =>
+            {
+                let includeStatus = false;
+                if (element.status !== currentStatus)
+                {
+                    currentStatus = element.status;
+                    includeStatus = true;
+                }
+                return [
+                    ...(includeStatus ? [`## ${element.status}`] : []),
+                    `- ${element.name} (${element.status})`,
+                ];
+            },
         });
     }
 

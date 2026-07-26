@@ -8,6 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
+import { getUniqueSortedArray } from '../../../../services/arrayHelpers.js';
 import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
 import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
 import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
@@ -40,6 +41,7 @@ import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabili
 import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionAddingModal.js';
 import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
 import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
+import { FakemonSpeciesNameEditingModal } from '../../modals/fakemon/FakemonSpeciesNameEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
 import { FakemonMoveLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpAddingModal.js';
 import { FakemonMoveLevelUpEditingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpEditingModal.js';
@@ -281,6 +283,14 @@ export class FakemonCreateStrategy
 
         switch (customId)
         {
+            case FakemonOverviewButtonCustomIds.EditName:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSpeciesNameEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    speciesName: fakemon.name,
+                });
+                break;
+
             case FakemonOverviewButtonCustomIds.Validate:
                 try
                 {
@@ -1307,6 +1317,39 @@ export class FakemonCreateStrategy
             return acc;
         }, {} as PtuFakemonCollection['skills']);
 
+        const moveList = {
+            // Take moves in priority order of:
+            // 1. pokemonToBaseOn.moves
+            // 2. pokemonToBaseOn.species
+            // 3. this.basePokemon
+            eggMoves: pokemonToBaseOn.moves?.moveList.eggMoves
+                || pokemonToBaseOn.species?.moveList.eggMoves
+                || this.basePokemon.moveList.eggMoves,
+            levelUp: pokemonToBaseOn.moves?.moveList.levelUp
+                || pokemonToBaseOn.species?.moveList.levelUp
+                || this.basePokemon.moveList.levelUp,
+            tmHm: pokemonToBaseOn.moves?.moveList.tmHm
+                || pokemonToBaseOn.species?.moveList.tmHm
+                || this.basePokemon.moveList.tmHm,
+            tutorMoves: pokemonToBaseOn.moves?.moveList.tutorMoves
+                || pokemonToBaseOn.species?.moveList.tutorMoves
+                || this.basePokemon.moveList.tutorMoves,
+            zygardeCubeMoves: pokemonToBaseOn.moves?.moveList.zygardeCubeMoves
+                || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
+                || this.basePokemon.moveList.zygardeCubeMoves,
+        };
+
+        const otherCapabilities = pokemonToBaseOn.otherCapabilities?.capabilities.other
+            || pokemonToBaseOn.species?.capabilities.other
+            || this.basePokemon.capabilities.other;
+
+        const diets = pokemonToBaseOn.evolutionAndEnvironment?.diets
+            || pokemonToBaseOn.species?.diets
+            || this.basePokemon.diets;
+        const habitats = pokemonToBaseOn.evolutionAndEnvironment?.habitats
+            || pokemonToBaseOn.species?.habitats
+            || this.basePokemon.habitats;
+
         // Format height to standardize the removal of special characters
         const originalHeight = pokemonToBaseOn.species?.sizeInformation?.height
             || this.basePokemon.sizeInformation.height;
@@ -1316,6 +1359,14 @@ export class FakemonCreateStrategy
         const adaptedHeight = feet !== undefined && inches !== undefined
             ? PtuSizeAdapterService.adaptHeight(feet, inches)
             : originalHeight;
+
+        const eggGroups = pokemonToBaseOn.species?.breedingInformation?.eggGroups
+            || this.basePokemon.breedingInformation.eggGroups;
+
+        const {
+            imageUrl,
+            ...metadata
+        } = this.basePokemon.metadata;
 
         return await PtuFakemonPseudoCache.create(messageId, {
             ...this.basePokemon,
@@ -1344,39 +1395,19 @@ export class FakemonCreateStrategy
                     || this.basePokemon.abilities.highAbility,
             },
             moveList: {
-                // Take moves in priority order of:
-                // 1. pokemonToBaseOn.moves
-                // 2. pokemonToBaseOn.species
-                // 3. this.basePokemon
-                eggMoves: pokemonToBaseOn.moves?.moveList.eggMoves
-                    || pokemonToBaseOn.species?.moveList.eggMoves
-                    || this.basePokemon.moveList.eggMoves,
-                levelUp: pokemonToBaseOn.moves?.moveList.levelUp
-                    || pokemonToBaseOn.species?.moveList.levelUp
-                    || this.basePokemon.moveList.levelUp,
-                tmHm: pokemonToBaseOn.moves?.moveList.tmHm
-                    || pokemonToBaseOn.species?.moveList.tmHm
-                    || this.basePokemon.moveList.tmHm,
-                tutorMoves: pokemonToBaseOn.moves?.moveList.tutorMoves
-                    || pokemonToBaseOn.species?.moveList.tutorMoves
-                    || this.basePokemon.moveList.tutorMoves,
-                zygardeCubeMoves: pokemonToBaseOn.moves?.moveList.zygardeCubeMoves
-                    || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
-                    || this.basePokemon.moveList.zygardeCubeMoves,
+                ...moveList,
+                tmHm: getUniqueSortedArray(moveList.tmHm),
+                eggMoves: getUniqueSortedArray(moveList.eggMoves),
+                tutorMoves: getUniqueSortedArray(moveList.tutorMoves),
+                ...(moveList.zygardeCubeMoves ? { zygardeCubeMoves: getUniqueSortedArray(moveList.zygardeCubeMoves) } : {}),
             },
             capabilities: {
                 ...this.basePokemon.capabilities,
                 ...(pokemonToBaseOn.species?.capabilities || {}),
-                other: pokemonToBaseOn.otherCapabilities?.capabilities.other
-                    || pokemonToBaseOn.species?.capabilities.other
-                    || this.basePokemon.capabilities.other,
+                other: otherCapabilities ? getUniqueSortedArray(otherCapabilities) : undefined,
             },
-            diets: pokemonToBaseOn.evolutionAndEnvironment?.diets
-                || pokemonToBaseOn.species?.diets
-                || this.basePokemon.diets,
-            habitats: pokemonToBaseOn.evolutionAndEnvironment?.habitats
-                || pokemonToBaseOn.species?.habitats
-                || this.basePokemon.habitats,
+            diets: getUniqueSortedArray(diets),
+            habitats: getUniqueSortedArray(habitats),
             sizeInformation: {
                 ...this.basePokemon.sizeInformation,
                 ...(pokemonToBaseOn.species?.sizeInformation || {}),
@@ -1384,11 +1415,17 @@ export class FakemonCreateStrategy
                     ...adaptedHeight,
                 },
             },
+            breedingInformation: {
+                ...this.basePokemon.breedingInformation,
+                ...(pokemonToBaseOn.species?.breedingInformation || {}),
+                eggGroups: getUniqueSortedArray(eggGroups),
+            },
             skills,
             dexType: region,
             metadata: {
-                ...this.basePokemon.metadata,
+                ...metadata,
                 source: `${region} Dex`,
+                ...(imageUrl ? { imageUrl } : {}),
                 ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
             },
             creationChannelId,

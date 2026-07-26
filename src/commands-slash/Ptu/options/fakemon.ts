@@ -10,8 +10,9 @@ export enum PtuFakemonSubcommand
     Create = 'create',
     Delete = 'delete',
     Edit = 'edit',
-    // Review = 'review',
     Transfer = 'transfer',
+    TransferEdit = 'transfer_edit',
+    TransferTypeShift = 'transfer_type_shift',
     ViewAll = 'view_all',
     View = 'view',
 }
@@ -193,6 +194,99 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
     {
         option.setName('dex_type');
         option.setDescription(`The dex type of the custom Pokémon species.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    // Destination
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_1');
+        option.setDescription(`The first destination to transfer to (default: All).`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_2');
+        option.setDescription(`The second destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_3');
+        option.setDescription(`The third destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const transferEdit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferEdit);
+    subcommand.setDescription('Transfer a custom pokemon edit to database.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon type shift.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonName);
+        option.setDescription(`The name of the Pokémon species the edit is of.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('edit_name');
+        option.setDescription(`The name of the edit.`);
+        option.setMaxLength(3);
+        option.setMaxLength(100);
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};
+
+export const transferTypeShift = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferTypeShift);
+    subcommand.setDescription('Transfer a custom pokemon type shift to databases.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon type shift.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonName);
+        option.setDescription(`The name of the Pokémon species to base the type shift on.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon type shift.`);
         option.setChoices(
             ...dexTypeChoices,
         );

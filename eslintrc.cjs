@@ -113,9 +113,6 @@ module.exports = {
         'no-async-promise-executor': 'off',     // Allow async promise executors
 
         // Returns
-        'arrow-body-style': ['error', 'as-needed', {    // Require braces around arrow function bodies...
-            requireReturnForObjectLiteral: true,        // ...especially when returning an object literal
-        }],
         'no-return-await': 'off',               // Allow return await
 
         // Miscellaneous

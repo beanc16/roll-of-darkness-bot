@@ -23,7 +23,7 @@ export class FakemonImageStorageDestination extends DataTransferDestination<stri
         // Move image from fakemon folder to pokedex folder
         await HomebrewPokeApi.transferFakemonImageToPokemon(source.name, source.dexType);
 
-        // Say that the image has been transferred
+        // Mark the image as transferred
         await FakemonGeneralInformationManagerService.updateTransferredTo({
             fakemon: source,
             transferredTo: {

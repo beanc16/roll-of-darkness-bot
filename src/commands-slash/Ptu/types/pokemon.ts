@@ -386,4 +386,5 @@ export interface PtuPokemon extends PtuPokemonMinimalData
     olderVersions?: (Omit<PtuPokemon, 'name' | 'olderVersions'> & {
         versionName: string;
     })[];
+    typeShifts: (Partial<Omit<PtuPokemon, 'olderVersions'>> & { name: string })[];
 }

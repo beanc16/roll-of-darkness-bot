@@ -11,19 +11,22 @@ export class FakemonBasicInformationEmbedMessage extends FakemonEmbedMessage
         });
     }
 
-    public static constructDescriptionLines({ types, abilities }: Pick<PtuPokemon, 'types' | 'abilities'>): string[]
+    public static constructDescriptionLines({ types = [], abilities }: Partial<Pick<PtuPokemon, 'types' | 'abilities'>>): string[]
     {
         const {
-            basicAbilities,
-            advancedAbilities,
+            basicAbilities = [],
+            advancedAbilities = [],
             highAbility,
-        } = abilities;
+        } = abilities || {};
 
         return [
-            `Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`,
+            ...(types.length > 0
+                ? [`Type${types.length > 1 ? 's' : ''}: ${types.join('/')}`]
+                : []
+            ),
             ...basicAbilities.map((ability, index) => `Basic Ability: ${index + 1}: ${ability}`),
             ...advancedAbilities.map((ability, index) => `Advanced Ability: ${index + 1}: ${ability}`),
-            `High Ability: ${highAbility}`,
+            ...(highAbility ? [`High Ability: ${highAbility}`] : []),
         ];
     }
 }

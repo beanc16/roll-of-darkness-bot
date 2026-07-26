@@ -1,3 +1,5 @@
+import type { PtuFakemonDexType } from '../dal/models/PtuFakemonCollection.js';
+
 export enum PtuSkillRank
 {
     Pathetic = 'Pathetic',
@@ -29,3 +31,18 @@ export enum PtuFeatureTag
     ResearchField = 'Research Field',
     Training = 'Training',
 }
+
+export enum PtuDexType
+{
+    Playtest = 'Playtest',
+    Alola = 'Alola',
+    Hisui = 'Hisui',
+    Galar = 'Galar',
+    Paldea = 'Paldea',
+    ZA = 'ZA',
+}
+
+export type AllPtuDexTypes = PtuDexType
+    | PtuFakemonDexType
+    | `${PtuDexType} Dex`
+    | `${PtuFakemonDexType} Dex`;

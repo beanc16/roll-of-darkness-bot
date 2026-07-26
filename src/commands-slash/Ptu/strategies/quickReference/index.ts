@@ -1,5 +1,6 @@
 import { QrActionPointsStrategy } from './QrActionPointsStrategy.js';
 import { QrActionTypesStrategy } from './QrActionTypesStrategy.js';
+import { QrAlchemyEnchantmentStrategy } from './QrAlchemyEnchantmentStrategy.js';
 import { QrBookMechanicsStrategy } from './QrBookMechanicsStrategy.js';
 import { QrCoupDeGraceStrategy } from './QrCoupDeGraceStrategy.js';
 import { QrDamageChartsStrategy } from './QrDamageChartsStrategy.js';
@@ -20,6 +21,7 @@ import { QrTypeChartStrategy } from './QrTypeChartStrategy.js';
 export default {
     [QrActionTypesStrategy.key]: QrActionTypesStrategy,
     [QrActionPointsStrategy.key]: QrActionPointsStrategy,
+    [QrAlchemyEnchantmentStrategy.key]: QrAlchemyEnchantmentStrategy,
     [QrBookMechanicsStrategy.key]: QrBookMechanicsStrategy,
     [QrCoupDeGraceStrategy.key]: QrCoupDeGraceStrategy,
     [QrDamageChartsStrategy.key]: QrDamageChartsStrategy,

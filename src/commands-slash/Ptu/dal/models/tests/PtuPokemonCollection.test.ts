@@ -1544,6 +1544,23 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                 expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
             });
 
+            it('should throw an error if mega evolution has a valid type and "Unchanged" in its types array', () =>
+            {
+                // Arrange
+                const input = createPtuPokemonCollectionData();
+                input.megaEvolutions = [
+                    {
+                        name: 'Mega Charizard',
+                        types: [PokemonType.Fire, 'Unchanged'],
+                        ability: 'Solar Power',
+                        stats: {},
+                    },
+                ];
+
+                // Act & Assert
+                expect(() => PtuPokemonCollection.validate(input)).toThrowAggregateError('Invalid mega evolution(s)');
+            });
+
             it('should throw an error if mega evolution has empty ability', () =>
             {
                 // Arrange
@@ -1701,6 +1718,23 @@ describe(`class: ${PtuPokemonCollection.name}`, () =>
                     {
                         name: 'Mega Charizard',
                         types: [],
+                        ability: 'Solar Power',
+                        stats: { attack: '+2' },
+                    },
+                ];
+
+                // Act & Assert
+                expect(() => PtuPokemonCollection.validate(input)).not.toThrow();
+            });
+
+            it('should not throw an error if mega evolution has "Unchanged" as its only type in its types array', () =>
+            {
+                // Arrange
+                const input = createPtuPokemonCollectionData();
+                input.megaEvolutions = [
+                    {
+                        name: 'Mega Charizard',
+                        types: ['Unchanged'],
                         ability: 'Solar Power',
                         stats: { attack: '+2' },
                     },

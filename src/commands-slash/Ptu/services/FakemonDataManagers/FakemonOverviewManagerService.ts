@@ -3,6 +3,7 @@ import { EmbedBuilder } from 'discord.js';
 import { FakemonLevelUpMoveDistributionEmbedMessage, LevelUpMoveDistribution } from '../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage.js';
 import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage.js';
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { getPokemonWithMove, PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -281,5 +282,26 @@ export class FakemonOverviewManagerService
         });
 
         return new FakemonLevelUpMoveProgressionEmbedMessage(fakemon, typeToLevelUpMoves);
+    }
+
+    public static async setSpeciesName({
+        messageId,
+        fakemon,
+        speciesName,
+    }: {
+        messageId: string;
+        fakemon: Pick<PtuFakemonCollection, 'id'>;
+        speciesName: string;
+    }): Promise<PtuFakemonCollection>
+    {
+        const trimmedSpeciesName = speciesName.trim();
+        if (trimmedSpeciesName.length === 0 || trimmedSpeciesName.length > 40)
+        {
+            throw new Error('Fakemon species name must be between 0-40 characters');
+        }
+
+        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            name: trimmedSpeciesName,
+        });
     }
 }
