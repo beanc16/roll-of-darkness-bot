@@ -1589,12 +1589,19 @@ export class LookupPokemonStrategy
             };
         }
 
-        // Add the same searches for edits
+        // Add the same searches for edits and type shifts
         output = {
             $or: [
                 output,
                 {
                     edits: {
+                        $elemMatch: {
+                            ...output,
+                        },
+                    },
+                },
+                {
+                    typeShifts: {
                         $elemMatch: {
                             ...output,
                         },
