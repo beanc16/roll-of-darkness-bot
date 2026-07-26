@@ -511,7 +511,7 @@ export class OracleHandManagerService
                 acc.push(cur);
             }
             return acc;
-        }, [previousCardNumber]);
+        }, previousCardNumber === deckCardToReplaceWith.deckCardNumber ? [] : [previousCardNumber]);
         updatedDeckCardNumbers.sort((a, b) => a - b);
 
         // Update
