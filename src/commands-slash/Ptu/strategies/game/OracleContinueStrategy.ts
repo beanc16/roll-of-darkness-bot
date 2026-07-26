@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, StringSelectMenuInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 import { PtuOraclePseudoCache } from '../../dal/PtuOraclePseudoCache.js';
 import { PtuGameSubcommand } from '../../options/game.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -30,6 +31,15 @@ export class OracleContinueStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         const { gameName } = this.getOptions(interaction);
+
+        // Check permission
+        if (interaction.user.id !== DiscordUserId.Bean.toString())
+        {
+            await interaction.editReply({
+                content: 'You do not have permission to continue a game.',
+            });
+            return true;
+        }
 
         // Initialize initial game data
         const game = await PtuOraclePseudoCache.getGameByName(gameName);

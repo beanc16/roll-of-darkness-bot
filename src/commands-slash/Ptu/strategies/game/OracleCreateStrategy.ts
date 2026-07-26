@@ -9,6 +9,7 @@ import {
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
 import { Timer } from '../../../../services/Timer/Timer.js';
+import { DiscordUserId } from '../../../../types/discord.js';
 import { OracleDealerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OracleDealerStringSelectActionRowBuilder.js';
 import { OraclePlayerStringSelectElementOption } from '../../components/game/oracle/actionRowBuilders/OraclePlayerStringSelectActionRowBuilder.js';
 import { OracleStringSelectCustomId } from '../../components/game/oracle/actionRowBuilders/types.js';
@@ -46,6 +47,15 @@ export class OracleCreateStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         const { name, players } = this.getOptions(interaction);
+
+        // Check permission
+        if (interaction.user.id !== DiscordUserId.Bean.toString())
+        {
+            await interaction.editReply({
+                content: 'You do not have permission to create a game.',
+            });
+            return true;
+        }
 
         // Initialize initial game data
         const game = await this.initializeGame({
