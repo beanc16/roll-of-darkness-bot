@@ -13,7 +13,7 @@ export class OracleReadonlyGameEmbedMessage extends OracleGameEmbedMessage
         this.setFooter({
             text: [
                 `Status: ${game.status}`,
-                `Turn: ${turn}`,
+                `Turn: ${turn}/${game.hands.length}`,
             ].join(' | '),
         });
     }
