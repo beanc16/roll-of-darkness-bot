@@ -127,7 +127,7 @@ export class OracleGameEmbedMessage extends OracleEmbedMessage
                     : []
                 ),
                 `Face: ${face}`,
-                ...(isCompleted || options.showFaceDownCards
+                ...(isCompleted || options.showFaceDownCards || action !== PtuOracleCardAction.FaceDown
                     ? [`Prophecy: ${prophecy}`]
                     : []
                 ),
