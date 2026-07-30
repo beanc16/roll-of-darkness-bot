@@ -259,6 +259,7 @@ export class OracleCreateStrategy
                     if (!currentHand)
                     {
                         logger.error('Could not find the current hand in PTU oracle SecretlyReplaceCard.', {
+                            /* eslint-disable-next-line no-underscore-dangle */
                             gameId: game._id,
                             triggeredByDiscordUserId: interaction.user.id,
                         });
@@ -274,6 +275,7 @@ export class OracleCreateStrategy
                     if (!currentHandsTime)
                     {
                         logger.error(`Could not find the current hand's cards in PTU oracle SecretlyReplaceCard.`, {
+                            /* eslint-disable-next-line no-underscore-dangle */
                             gameId: game._id,
                             triggeredByDiscordUserId: interaction.user.id,
                         });
