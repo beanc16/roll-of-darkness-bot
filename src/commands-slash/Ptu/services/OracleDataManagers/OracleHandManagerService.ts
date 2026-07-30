@@ -92,12 +92,17 @@ export class OracleHandManagerService
         }
 
         // Draw cards
-        const { drawnCards, updatedDeckCardNumbers } = await this.drawCards(cards, 3);
+        const {
+            drawnCards,
+            updatedDeckCardNumbers,
+            shouldResetDiscards,
+        } = await this.drawCards(cards, 3);
         const [pastCard, presentCard, futureCard] = drawnCards;
 
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             deckCardNumbers: updatedDeckCardNumbers,
+            ...(shouldResetDiscards ? { discardCardNumbers: [] } : {}),
             // Keep prior hands and add a new hand
             hands: [
                 ...priorHands,
@@ -152,11 +157,16 @@ export class OracleHandManagerService
         }
 
         // Draw cards
-        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = await this.drawCards(cards, 1);
+        const {
+            drawnCards: [drawnCard],
+            updatedDeckCardNumbers,
+            shouldResetDiscards,
+        } = await this.drawCards(cards, 1);
 
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             deckCardNumbers: updatedDeckCardNumbers,
+            ...(shouldResetDiscards ? { discardCardNumbers: [] } : {}),
             // Keep prior hands and add a new hand
             hands: [
                 ...priorHands,
@@ -233,7 +243,11 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = await this.drawCards(cards, 1);
+        const {
+            drawnCards: [drawnCard],
+            updatedDeckCardNumbers,
+            shouldResetDiscards,
+        } = await this.drawCards(cards, 1);
 
         // Set update data
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
@@ -260,7 +274,7 @@ export class OracleHandManagerService
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             deckCardNumbers: updatedDeckCardNumbers,
             discardCardNumbers: [
-                ...discardCardNumbers,
+                ...(shouldResetDiscards ? [] : discardCardNumbers),
                 currentHandsTime.cardNumber,
             ],
             // Keep prior hands and edit the current hand to replace the
@@ -297,7 +311,11 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = await this.drawCards(cards, 1);
+        const {
+            drawnCards: [drawnCard],
+            updatedDeckCardNumbers,
+            shouldResetDiscards,
+        } = await this.drawCards(cards, 1);
 
         // Set update data
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
@@ -313,6 +331,7 @@ export class OracleHandManagerService
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             deckCardNumbers: updatedDeckCardNumbers,
+            ...(shouldResetDiscards ? { discardCardNumbers: [] } : {}),
             // Keep prior hands and edit the current hand to add a
             // new past/present/future card
             hands: [
@@ -415,7 +434,11 @@ export class OracleHandManagerService
         const cards = await PtuOraclePseudoCache.getCards({ including: deckCardNumbers });
 
         // Draw cards
-        const { drawnCards: [drawnCard], updatedDeckCardNumbers } = await this.drawCards(cards, 1);
+        const {
+            drawnCards: [drawnCard],
+            updatedDeckCardNumbers,
+            shouldResetDiscards,
+        } = await this.drawCards(cards, 1);
         const { current: currentHand, prior: priorHands } = this.getCurrentAndPriorElementsFromArray(hands);
 
         if (!currentHand)
@@ -443,6 +466,7 @@ export class OracleHandManagerService
         // Update
         return await PtuOraclePseudoCache.updateGame(id.toString(), {
             deckCardNumbers: updatedDeckCardNumbers,
+            ...(shouldResetDiscards ? { discardCardNumbers: [] } : {}),
             // Keep prior hands and edit the current hand to replace the
             // current past/present/future with the rerolled card
             hands: [
@@ -686,33 +710,13 @@ export class OracleHandManagerService
         });
     }
 
-    public static getCurrentCard({ hands }: Pick<PtuOracleGameCollection, 'hands'>): PtuOracleCardDraw
-    {
-        const { current: currentHand } = this.getCurrentAndPriorElementsFromArray(hands);
-
-        if (!currentHand)
-        {
-            throw new Error('Current hand not found');
-        }
-
-        // Update current hand with new card
-        const { cards: handsTime } = this.getHandsTime(currentHand, PtuOracleCardAction.FaceDown);
-        const { current: currentHandsTime } = this.getCurrentAndPriorElementsFromArray(handsTime);
-
-        if (!currentHandsTime)
-        {
-            throw new Error('Current card not found');
-        }
-
-        return currentHandsTime;
-    }
-
     private static async drawCards(cards: PtuOracleCardCollection[], numOfCards: number): Promise<{
         drawnCards: {
             card: PtuOracleCardCollection;
             face: PtuOracleCardProphecyFace;
         }[];
         updatedDeckCardNumbers: number[];
+        shouldResetDiscards: boolean;
     }>
     {
         let cardsClone = [...cards];
@@ -720,6 +724,7 @@ export class OracleHandManagerService
             card: PtuOracleCardCollection;
             face: PtuOracleCardProphecyFace;
         }[] = [];
+        let shouldResetDiscards = false;
 
         for (let index = 0; index < numOfCards; index += 1)
         {
@@ -727,7 +732,10 @@ export class OracleHandManagerService
             if (cardsClone.length <= 0)
             {
                 // eslint-disable-next-line no-await-in-loop -- Should only trigger once
-                cardsClone = [...(await PtuOraclePseudoCache.getAllCards())];
+                cardsClone = [...(await PtuOraclePseudoCache.getAllCards())].filter((cur) =>
+                    drawnCards.every(drawnCard => drawnCard.card.cardNumber !== cur.cardNumber),
+                );
+                shouldResetDiscards = true;
             }
             const [roll] = new DiceLiteService({ count: 1, sides: cardsClone.length }).roll();
             const [face] = new DiceLiteService({ count: 1, sides: 2 }).roll();
@@ -743,10 +751,11 @@ export class OracleHandManagerService
         return {
             drawnCards,
             updatedDeckCardNumbers: cardsClone.map(card => card.cardNumber),
+            shouldResetDiscards,
         };
     }
 
-    private static getCurrentAndPriorElementsFromArray<T>(array: T[]): { current: T | undefined; prior: T[] }
+    public static getCurrentAndPriorElementsFromArray<T>(array: T[]): { current: T | undefined; prior: T[] }
     {
         const current = array[array.length - 1];
         const prior = array.slice(0, array.length - 1);

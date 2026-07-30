@@ -340,6 +340,65 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                 );
             },
         );
+
+        it('resets discardCardNumbers to an empty array when the deck resets during draw', async () =>
+        {
+            // Arrange
+            const hand = createPtuOraclePlayerHandData();
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [],
+                discardCardNumbers: [1, 2, 3],
+            });
+            const resetCards = bulkCreatePtuOracleCardCollectionData(3);
+            getCardsMock.mockResolvedValue([]);
+            getAllCardsMock.mockResolvedValue(resetCards);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            [1, 1, 1, 1, 1, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+
+            // Act
+            await OracleHandManagerService.dealCardsForCurrentHand({
+                id: game.id,
+                deckCardNumbers: game.deckCardNumbers,
+                hands: game.hands,
+            });
+
+            // Assert
+            expect(updateGameMock).toHaveBeenCalledWith(
+                game.id,
+                expect.objectContaining({
+                    discardCardNumbers: [],
+                }),
+            );
+        });
+
+        it('does not include discardCardNumbers in the update when the deck does not reset', async () =>
+        {
+            // Arrange
+            const hand = createPtuOraclePlayerHandData();
+            const curDeckCard1 = createPtuOracleCardCollectionData({ cardNumber: 1 });
+            const curDeckCard2 = createPtuOracleCardCollectionData({ cardNumber: 2 });
+            const curDeckCard3 = createPtuOracleCardCollectionData({ cardNumber: 3 });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [1, 2, 3],
+                discardCardNumbers: [4, 5, 6],
+            });
+            getCardsMock.mockResolvedValue([curDeckCard1, curDeckCard2, curDeckCard3]);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            [1, 1, 1, 1, 1, 1].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
+
+            // Act
+            await OracleHandManagerService.dealCardsForCurrentHand({
+                id: game.id,
+                deckCardNumbers: game.deckCardNumbers,
+                hands: game.hands,
+            });
+
+            // Assert
+            const [, updatePayload] = updateGameMock.mock.calls[0];
+            expect(updatePayload).not.toHaveProperty('discardCardNumbers');
+        });
     });
 
     describe(`method: ${OracleHandManagerService.dealSingleCardForCurrentHand.name}`, () =>
@@ -470,6 +529,63 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                     );
                 },
             );
+
+            it('resets discardCardNumbers to an empty array when the deck resets during draw', async () =>
+            {
+                // Arrange
+                const hand = createPtuOraclePlayerHandData();
+                const game = createPtuOracleGameCollectionData({
+                    hands: [hand],
+                    deckCardNumbers: [],
+                    discardCardNumbers: [1, 2, 3],
+                });
+                const resetCards = bulkCreatePtuOracleCardCollectionData(1);
+                getCardsMock.mockResolvedValue([]);
+                getAllCardsMock.mockResolvedValue(resetCards);
+                updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+                mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+                // Act
+                await OracleHandManagerService.dealSingleCardForCurrentHand({
+                    id: game.id,
+                    deckCardNumbers: game.deckCardNumbers,
+                    hands: game.hands,
+                }, time);
+
+                // Assert
+                expect(updateGameMock).toHaveBeenCalledWith(
+                    game.id,
+                    expect.objectContaining({
+                        discardCardNumbers: [],
+                    }),
+                );
+            });
+
+            it('does not include discardCardNumbers in the update when the deck does not reset', async () =>
+            {
+                // Arrange
+                const hand = createPtuOraclePlayerHandData();
+                const curDeckCard = createPtuOracleCardCollectionData({ cardNumber: 1 });
+                const game = createPtuOracleGameCollectionData({
+                    hands: [hand],
+                    deckCardNumbers: [1],
+                    discardCardNumbers: [4, 5, 6],
+                });
+                getCardsMock.mockResolvedValue([curDeckCard]);
+                updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+                mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+                // Act
+                await OracleHandManagerService.dealSingleCardForCurrentHand({
+                    id: game.id,
+                    deckCardNumbers: game.deckCardNumbers,
+                    hands: game.hands,
+                }, time);
+
+                // Assert
+                const [, updatePayload] = updateGameMock.mock.calls[0];
+                expect(updatePayload).not.toHaveProperty('discardCardNumbers');
+            });
         });
     });
 
@@ -683,6 +799,39 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                 );
             },
         );
+
+        it('discards only the newly denied card, dropping prior discardCardNumbers, when the deck resets during draw', async () =>
+        {
+            // Arrange
+            const faceUpCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceUp });
+            const hand = createPtuOraclePlayerHandData({ past: [faceUpCard] });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [],
+                discardCardNumbers: [1, 2, 3],
+            });
+            const resetCards = bulkCreatePtuOracleCardCollectionData(2);
+            getCardsMock.mockResolvedValue([]);
+            getAllCardsMock.mockResolvedValue(resetCards);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+            // Act
+            await OracleHandManagerService.denyFate({
+                id: game.id,
+                deckCardNumbers: game.deckCardNumbers,
+                discardCardNumbers: game.discardCardNumbers,
+                hands: game.hands,
+            });
+
+            // Assert
+            expect(updateGameMock).toHaveBeenCalledWith(
+                game.id,
+                expect.objectContaining({
+                    discardCardNumbers: [faceUpCard.cardNumber],
+                }),
+            );
+        });
     });
 
     describe(`method: ${OracleHandManagerService.questionFate.name}`, () =>
@@ -792,6 +941,69 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                 );
             },
         );
+
+        it('resets discardCardNumbers to an empty array when the deck resets during draw', async () =>
+        {
+            // Arrange
+            const question = 'What is my fate?';
+            const faceUpCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceUp });
+            const hand = createPtuOraclePlayerHandData({ past: [faceUpCard] });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [],
+                discardCardNumbers: [1, 2, 3],
+            });
+            const resetCards = bulkCreatePtuOracleCardCollectionData(1);
+            getCardsMock.mockResolvedValue([]);
+            getAllCardsMock.mockResolvedValue(resetCards);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+            // Act
+            await OracleHandManagerService.questionFate(
+                {
+                    id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                },
+                question,
+            );
+
+            // Assert
+            expect(updateGameMock).toHaveBeenCalledWith(
+                game.id,
+                expect.objectContaining({
+                    discardCardNumbers: [],
+                }),
+            );
+        });
+
+        it('does not include discardCardNumbers in the update when the deck does not reset', async () =>
+        {
+            // Arrange
+            const question = 'What is my fate?';
+            const faceUpCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceUp });
+            const hand = createPtuOraclePlayerHandData({ past: [faceUpCard] });
+            const deckCard1 = createPtuOracleCardCollectionData({ cardNumber: 10 });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [10],
+                discardCardNumbers: [4, 5, 6],
+            });
+            getCardsMock.mockResolvedValue([deckCard1]);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+            // Act
+            await OracleHandManagerService.questionFate(
+                {
+                    id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                },
+                question,
+            );
+
+            // Assert
+            const [, updatePayload] = updateGameMock.mock.calls[0];
+            expect(updatePayload).not.toHaveProperty('discardCardNumbers');
+        });
     });
 
     describe(`method: ${OracleHandManagerService.revealFullProphecy.name}`, () =>
@@ -1057,6 +1269,67 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                 );
             },
         );
+
+        it('resets discardCardNumbers to an empty array when the deck resets during draw', async () =>
+        {
+            // Arrange
+            const oldCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceDown });
+            const hand = createPtuOraclePlayerHandData({ past: [oldCard] });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [],
+                discardCardNumbers: [1, 2, 3],
+            });
+            const resetCards = bulkCreatePtuOracleCardCollectionData(1);
+            getCardsMock.mockResolvedValue([]);
+            getAllCardsMock.mockResolvedValue(resetCards);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+            // Act
+            await OracleHandManagerService.rerollCard(
+                {
+                    id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                },
+                PtuOracleGameTime.Past,
+            );
+
+            // Assert
+            expect(updateGameMock).toHaveBeenCalledWith(
+                game.id,
+                expect.objectContaining({
+                    discardCardNumbers: [],
+                }),
+            );
+        });
+
+        it('does not include discardCardNumbers in the update when the deck does not reset', async () =>
+        {
+            // Arrange
+            const oldCard = createPtuOracleCardDrawData({ cardNumber: 99, action: PtuOracleCardAction.FaceDown });
+            const hand = createPtuOraclePlayerHandData({ past: [oldCard] });
+            const deckCard1 = createPtuOracleCardCollectionData({ cardNumber: 10 });
+            const game = createPtuOracleGameCollectionData({
+                hands: [hand],
+                deckCardNumbers: [10],
+                discardCardNumbers: [4, 5, 6],
+            });
+            getCardsMock.mockResolvedValue([deckCard1]);
+            updateGameMock.mockResolvedValue(createPtuOracleGameCollectionData());
+            mockRoll.mockReturnValueOnce([1]).mockReturnValueOnce([1]);
+
+            // Act
+            await OracleHandManagerService.rerollCard(
+                {
+                    id: game.id, deckCardNumbers: game.deckCardNumbers, hands: game.hands,
+                },
+                PtuOracleGameTime.Past,
+            );
+
+            // Assert
+            const [, updatePayload] = updateGameMock.mock.calls[0];
+            expect(updatePayload).not.toHaveProperty('discardCardNumbers');
+        });
     });
 
     describe(`method: ${OracleHandManagerService.replaceCard.name}`, () =>
@@ -1543,6 +1816,7 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                     face: PtuOracleCardProphecyFace.Normal,
                 },
             ]);
+            expect(result.shouldResetDiscards).toEqual(false);
         });
 
         it('returns the updated deck of card numbers', async () =>
@@ -1565,38 +1839,42 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
                     return acc;
                 }, []),
             );
+            expect(result.shouldResetDiscards).toEqual(false);
         });
 
         it(`resets the deck when there's no more cards to draw`, async () =>
         {
-            // Arrange
-            const curCards = bulkCreatePtuOracleCardCollectionData(3);
-            getAllCardsMock.mockResolvedValue(curCards);
+            // Arrange - 5 unique cards total exist; only the first 3 are passed in
+            // as the starting pool, so a reset is required to satisfy all 4 draws
+            const curAllCards = bulkCreatePtuOracleCardCollectionData(5);
+            const startingCards = curAllCards.slice(0, 3);
+            getAllCardsMock.mockResolvedValue(curAllCards);
             [3, 1, 2, 2, 1, 1, 3, 2].forEach(roll => mockRoll.mockReturnValueOnce([roll]));
 
             // Act
-            const result = await OracleHandManagerService['drawCards'](curCards, 4);
+            const result = await OracleHandManagerService['drawCards'](startingCards, 4);
 
             // Assert
             expect(result.drawnCards.length).toEqual(4);
             expect(result.drawnCards).toEqual([
                 {
-                    card: curCards[2],
+                    card: curAllCards[2],
                     face: PtuOracleCardProphecyFace.Normal,
                 },
                 {
-                    card: curCards[1],
+                    card: curAllCards[1],
                     face: PtuOracleCardProphecyFace.Reverse,
                 },
                 {
-                    card: curCards[0],
+                    card: curAllCards[0],
                     face: PtuOracleCardProphecyFace.Normal,
                 },
                 {
-                    card: curCards[2],
+                    card: curAllCards[5],
                     face: PtuOracleCardProphecyFace.Reverse,
                 },
             ]);
+            expect(result.shouldResetDiscards).toEqual(true);
         });
 
         it('draws zero cards when no cards are requested', async () =>
@@ -1607,6 +1885,7 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             // Assert
             expect(result.drawnCards.length).toEqual(0);
             expect(result.drawnCards).toEqual([]);
+            expect(result.shouldResetDiscards).toEqual(false);
         });
 
         it('draws zero cards when negative cards are requested', async () =>
@@ -1617,6 +1896,7 @@ describe(`class: ${OracleHandManagerService.name}`, () =>
             // Assert
             expect(result.drawnCards.length).toEqual(0);
             expect(result.drawnCards).toEqual([]);
+            expect(result.shouldResetDiscards).toEqual(false);
         });
 
         it('does not mutate input cards param', async () =>
