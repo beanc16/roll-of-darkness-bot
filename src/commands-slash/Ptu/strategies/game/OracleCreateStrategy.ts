@@ -254,11 +254,39 @@ export class OracleCreateStrategy
                         return true;
                     }
 
-                    // Update current hand with new card
-                    const card = OracleHandManagerService.getCurrentCard(game);
+                    // Get current hand
+                    const { current: currentHand } = OracleHandManagerService.getCurrentAndPriorElementsFromArray(game.hands);
+                    if (!currentHand)
+                    {
+                        logger.error('Could not find the current hand in PTU oracle SecretlyReplaceCard.', {
+                            gameId: game._id,
+                            triggeredByDiscordUserId: interaction.user.id,
+                        });
+                        await interaction.followUp({
+                            content: 'Could not find the current hand. This is a bug, please report it to the developer.',
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
 
+                    // Get the current card in the current hand
+                    const { current: currentHandsTime } = OracleHandManagerService.getCurrentAndPriorElementsFromArray(currentHand[selectedGameTime]);
+                    if (!currentHandsTime)
+                    {
+                        logger.error(`Could not find the current hand's cards in PTU oracle SecretlyReplaceCard.`, {
+                            gameId: game._id,
+                            triggeredByDiscordUserId: interaction.user.id,
+                        });
+                        await interaction.followUp({
+                            content: `Could not find the current hand's cards. This is a bug, please report it to the developer.`,
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    // Get cards remaining in deck
                     const cards = await PtuOraclePseudoCache.getCards({
-                        including: [...new Set([...game.deckCardNumbers, card.cardNumber])],
+                        including: [...new Set([...game.deckCardNumbers, currentHandsTime.cardNumber])],
                     });
                     // Duplicate cards so each card shows up twice - one will be normal prophecy, one will be reverse
                     const duplicatedCards = [...cards, ...cards].sort((a, b) => a.name.localeCompare(b.name));
