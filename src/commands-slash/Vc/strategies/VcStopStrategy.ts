@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
-import { getAudioPlayerData, getVoiceConnectionData } from '../helpers.js';
+import { getAudioPlayerData, getQueue, getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
 
@@ -44,15 +44,16 @@ export class VcStopStrategy
             return true;
         }
 
-        await this.stop(interaction);
+        await this.stop(interaction, voiceChannel.id);
 
         return true;
     }
 
-    private static async stop(interaction: ChatInputCommandInteraction): Promise<void>
+    public static async stop(interaction: ChatInputCommandInteraction, channelId: string): Promise<void>
     {
         return await new Promise<void>(async (resolve) =>
         {
+            const queue = getQueue(channelId);
             const audioPlayer = getAudioPlayerData();
 
             if (
@@ -77,6 +78,9 @@ export class VcStopStrategy
                     VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
                     resolve();
                 });
+
+                // Disable queue so no more audio is played and events don't skip to the end of the queue
+                queue.setIsEnabled(false);
 
                 // Stop audio
                 audioPlayer.stop(true); // true stops even if the audio is paused, rather than playing
