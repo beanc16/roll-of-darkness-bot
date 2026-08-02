@@ -39,11 +39,40 @@ describe('Queue', () =>
             expect(queue.elements).toEqual(['a', 'b']);
         });
 
-        it('enqueue to NEXT adds after current index', () =>
+        it('enqueue to NEXT adds to index 1 when current index = 0', () =>
         {
             queue.enqueue('a', QueuePosition.Last);
             queue.enqueue('b', QueuePosition.Last);
             queue.enqueue('c', QueuePosition.Next);
+
+            expect(queue.elements).toEqual(['a', 'c', 'b']);
+        });
+
+        it('enqueue to NEXT adds to index 2 when current index = 1', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue['currentIndex'] = 1;
+            queue.enqueue('c', QueuePosition.Next);
+
+            expect(queue.elements).toEqual(['a', 'b', 'c']);
+        });
+
+        it('enqueue to PREVIOUS adds to index 0 when current index = 0', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Previous);
+
+            expect(queue.elements).toEqual(['c', 'a', 'b']);
+        });
+
+        it('enqueue to PREVIOUS adds to index 1 when current index = 1', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue['currentIndex'] = 1;
+            queue.enqueue('c', QueuePosition.Previous);
 
             expect(queue.elements).toEqual(['a', 'c', 'b']);
         });

@@ -5,6 +5,7 @@ interface QueueSettings
 
 export enum QueuePosition
 {
+    Previous = 'Previous',
     Next = 'Next',
     Last = 'Last',
 }
@@ -42,14 +43,20 @@ export class Queue<Element>
 
     public enqueue(item: Element, position: QueuePosition): void
     {
-        if (position === QueuePosition.Next)
+        switch (position)
         {
-            this.queue.splice(this.currentIndex + 1, 0, item);
-        }
-
-        else
-        {
-            this.queue.push(item);
+            case QueuePosition.Previous:
+                this.queue.splice(this.currentIndex, 0, item);
+                return;
+            case QueuePosition.Next:
+                this.queue.splice(this.currentIndex + 1, 0, item);
+                return;
+            case QueuePosition.Last:
+                this.queue.push(item);
+                return;
+            default:
+                const typeCheck: never = position;
+                throw new Error(`Invalid QueuePosition: ${typeCheck}`);
         }
     }
 
@@ -114,15 +121,26 @@ export class Queue<Element>
         this.queue[index] = newItem;
 
         // Update the position if one is given
-        if (position === QueuePosition.Next)
+        switch (position)
         {
-            this.enqueue(this.queue[index], QueuePosition.Next);
-            this.remove(index + 1);
-        }
-        else if (position === QueuePosition.Last)
-        {
-            this.enqueue(this.queue[index], QueuePosition.Last);
-            this.remove(index);
+            case QueuePosition.Previous:
+                this.enqueue(this.queue[index], QueuePosition.Previous);
+                this.remove(index);
+                break;
+            case QueuePosition.Next:
+                this.enqueue(this.queue[index], QueuePosition.Next);
+                this.remove(index + 1);
+                break;
+            case QueuePosition.Last:
+                this.enqueue(this.queue[index], QueuePosition.Last);
+                this.remove(index);
+                break;
+            case null:
+            case undefined:
+                break;
+            default:
+                const typeCheck: never = position;
+                throw new Error(`Invalid QueuePosition: ${typeCheck}`);
         }
 
         return true;
@@ -142,15 +160,26 @@ export class Queue<Element>
         this.queue[index] = newItem;
 
         // Update the position if one is given
-        if (position === QueuePosition.Next)
+        switch (position)
         {
-            this.enqueue(this.queue[index], QueuePosition.Next);
-            this.remove(index + 1);
-        }
-        else if (position === QueuePosition.Last)
-        {
-            this.enqueue(this.queue[index], QueuePosition.Last);
-            this.remove(index);
+            case QueuePosition.Previous:
+                this.enqueue(this.queue[index], QueuePosition.Previous);
+                this.remove(index);
+                break;
+            case QueuePosition.Next:
+                this.enqueue(this.queue[index], QueuePosition.Next);
+                this.remove(index + 1);
+                break;
+            case QueuePosition.Last:
+                this.enqueue(this.queue[index], QueuePosition.Last);
+                this.remove(index);
+                break;
+            case null:
+            case undefined:
+                break;
+            default:
+                const typeCheck: never = position;
+                throw new Error(`Invalid QueuePosition: ${typeCheck}`);
         }
 
         return true;
