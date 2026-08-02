@@ -44,12 +44,21 @@ export class VcNextStrategy
         const { connection, voiceChannel } = connectionDataOrErrorMessage;
 
         const queue = getQueue(voiceChannel.id);
-        queue.next();
+        if (queue.hasNext())
+        {
+            queue.next();
 
-        await VcPlayStrategy.play({
-            interaction,
-            connection,
-            channelId: voiceChannel.id,
-        });
+            await VcPlayStrategy.play({
+                interaction,
+                connection,
+                channelId: voiceChannel.id,
+            });
+        }
+        else
+        {
+            await interaction.editReply({
+                content: 'There is no next audio in the queue to play.',
+            });
+        }
     }
 }

@@ -44,12 +44,21 @@ export class VcPreviousStrategy
         const { connection, voiceChannel } = connectionDataOrErrorMessage;
 
         const queue = getQueue(voiceChannel.id);
-        queue.previous();
+        if (queue.hasPrevious())
+        {
+            queue.previous();
 
-        await VcPlayStrategy.play({
-            interaction,
-            connection,
-            channelId: voiceChannel.id,
-        });
+            await VcPlayStrategy.play({
+                interaction,
+                connection,
+                channelId: voiceChannel.id,
+            });
+        }
+        else
+        {
+            await interaction.editReply({
+                content: 'There is no previous audio in the queue to play.',
+            });
+        }
     }
 }
