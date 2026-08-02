@@ -61,7 +61,7 @@ export class VcDisconnectStrategy
             // Send message to show the command was received
             connection.on(VoiceConnectionStatus.Destroyed, async () =>
             {
-                QueueClearStrategy.clearQueue({ channelId });
+                QueueClearStrategy.clearQueue({ interaction, channelId });
                 await interaction.editReply({
                     content: 'Disconnected from your voice channel successfully.',
                 });

@@ -5,6 +5,7 @@ import type { ChatIteractionStrategy } from '../../../strategies/types/ChatItera
 import { getQueue, getVoiceConnectionData } from '../../helpers.js';
 import { VcQueueSubcommand } from '../../options/queue.js';
 import { QueueViewStrategy } from './QueueViewStrategy.js';
+import { VcStopStrategy } from '../VcStopStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class QueueClearStrategy
@@ -23,7 +24,7 @@ export class QueueClearStrategy
             return true;
         }
 
-        this.clearQueue({ channelId: voiceChannel.id });
+        this.clearQueue({ interaction, channelId: voiceChannel.id });
 
         const queueFilesList = QueueViewStrategy.getQueueDataMessage(voiceChannel.id);
         await interaction.editReply({
@@ -33,11 +34,14 @@ export class QueueClearStrategy
         return true;
     }
 
-    public static clearQueue({ channelId }: {
+    public static async clearQueue({ interaction, channelId }: {
+        interaction: ChatInputCommandInteraction;
         channelId: string;
-    }): void
+    }): Promise<void>
     {
         const queue = getQueue(channelId);
         queue.clear();
+
+        await VcStopStrategy.stop(interaction, channelId);
     }
 }
