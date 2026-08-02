@@ -85,7 +85,11 @@ export const play = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setName(VcSubcommand.Play);
     subcommand.setDescription('Play audio in your voice channel.');
 
-    subcommand.addStringOption(fileNameParameter);
+    subcommand.addStringOption((option) =>
+    {
+        const fileNameOption = fileNameParameter(option);
+        return fileNameOption.setRequired(false); // We want to allow the queue to take precedence if no file is provided
+    });
     subcommand.addBooleanOption(shouldLoop);
 
     return subcommand;
