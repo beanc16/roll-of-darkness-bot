@@ -11,7 +11,7 @@ export const fileNameParameter = (option: SlashCommandStringOption, index?: numb
     option.setName(
         index !== undefined
             ? `file_name_${index}`
-            : 'file_name'
+            : 'file_name',
     );
     option.setDescription('The name of the file.');
     option.setAutocomplete(true);
