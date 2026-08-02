@@ -50,9 +50,11 @@ export class VcPlayStrategy
             await QueueAddStrategy.addToQueue({
                 interaction,
                 channelId: voiceChannel.id,
-                fileName,
-                position: QueuePosition.Next,
-                shouldLoop: shouldLoop ?? false,
+                files: [{
+                    fileName,
+                    queuePosition: QueuePosition.Next,
+                    shouldLoop: shouldLoop ?? false,
+                }],
             });
         }
 

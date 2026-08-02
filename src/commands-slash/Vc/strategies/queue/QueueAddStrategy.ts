@@ -14,6 +14,13 @@ import { VcLoadStrategy } from '../VcLoadStrategy.js';
 import { VcViewFilesStrategy } from '../VcViewFilesStrategy.js';
 import { QueueViewStrategy } from './QueueViewStrategy.js';
 
+export interface QueueAddGetParameterResults
+{
+    files: (VcQueueData & {
+        queuePosition: QueuePosition;
+    })[];
+}
+
 @staticImplements<ChatIteractionStrategy>()
 export class QueueAddStrategy
 {
@@ -21,9 +28,7 @@ export class QueueAddStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const fileName = interaction.options.getString('file_name', true);
-        const shouldLoop = interaction.options.getBoolean('should_loop') || false;
-        const queuePosition = interaction.options.getString('queue_position') as QueuePosition || QueuePosition.Last;
+        const { files } = this.getOptions(interaction);
 
         const { voiceChannel } = getVoiceConnectionData(interaction);
 
@@ -35,26 +40,38 @@ export class QueueAddStrategy
             return true;
         }
 
-        const { wasSuccess } = await this.addToQueue({
+        const {
+            wasSuccess,
+            successfulFileNames,
+            failedFileNames,
+        } = await this.addToQueue({
             interaction,
             channelId: voiceChannel.id,
-            fileName,
-            position: queuePosition,
-            shouldLoop,
+            files,
         });
+
+        const successfulFileNamesStr = successfulFileNames.length === 0
+            ? ''
+            : `\`${successfulFileNames.join('`, `')}\``;
+        const failedFileNamesStr = failedFileNames.length === 0
+            ? ''
+            : `\`${failedFileNames.join('`, `')}\``;
+        const failedFileNamesMessage = failedFileNamesStr.length > 0
+            ? `File${failedFileNames.length > 1 ? 's' : ''} named ${failedFileNamesStr} do${failedFileNames.length > 1 ? '' : 'es'} not exist. `
+            : '';
 
         if (wasSuccess)
         {
             const queueFilesList = QueueViewStrategy.getQueueDataMessage(voiceChannel.id);
             await interaction.editReply({
-                content: `Successfully added \`${fileName}\` to the queue. ${queueFilesList}`,
+                content: `Successfully added ${successfulFileNamesStr} to the queue. ${failedFileNamesMessage}${queueFilesList}`,
             });
         }
         else
         {
             const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
             await interaction.followUp({
-                content: `A file named \`${fileName}\` does not exist.`,
+                content: failedFileNamesMessage.trim(),
                 embeds: fileNamesEmbeds,
                 ephemeral: true,
             });
@@ -66,28 +83,69 @@ export class QueueAddStrategy
     public static async addToQueue({
         interaction,
         channelId,
-        fileName,
-        position,
-        shouldLoop,
+        files,
     }: {
         interaction: ChatInputCommandInteraction;
         channelId: string;
-        position: QueuePosition;
-    } & VcQueueData): Promise<{ wasSuccess: boolean }>
+        files: QueueAddGetParameterResults['files'];
+    }): Promise<{
+        wasSuccess: boolean;
+        successfulFileNames: string[];
+        failedFileNames: string[];
+    }>
     {
-        if (!(await isValidFileName({ discordUserId: interaction.user.id, fileName })))
+        const queue = getQueue(channelId);
+        const response: {
+            wasSuccess: boolean;
+            successfulFileNames: string[];
+            failedFileNames: string[];
+        } = {
+            wasSuccess: true,
+            successfulFileNames: [],
+            failedFileNames: [],
+        };
+
+        for (let index = 0; index < files.length; index += 1)
         {
-            return { wasSuccess: false };
+            const { fileName, shouldLoop, queuePosition: position } = files[index];
+
+            if (await isValidFileName({ discordUserId: interaction.user.id, fileName }))
+            {
+                response.successfulFileNames.push(fileName);
+                queue.enqueue({ fileName, shouldLoop }, position);
+            }
+            else
+            {
+                response.failedFileNames.push(fileName);
+            }
         }
 
-        const queue = getQueue(channelId);
-        queue.enqueue({ fileName, shouldLoop }, position);
-
+        const fileNames = files.map(({ fileName }) => fileName);
         await VcLoadStrategy.load({
             interaction,
-            fileNames: [fileName],
+            fileNames,
         });
 
-        return { wasSuccess: true };
+        return response;
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction): QueueAddGetParameterResults
+    {
+        const files: QueueAddGetParameterResults['files'] = [];
+
+        for (let index = 1; index <= 3; index += 1)
+        {
+            const fileName = interaction.options.getString(`file_name_${index}`);
+            if (fileName)
+            {
+                files.push({
+                    fileName,
+                    shouldLoop: interaction.options.getBoolean(`should_loop_${index}`) || false,
+                    queuePosition: interaction.options.getString(`queue_position_${index}`) as QueuePosition || QueuePosition.Last,
+                });
+            }
+        }
+
+        return { files };
     }
 }

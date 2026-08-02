@@ -23,9 +23,13 @@ export const fileNameParameter = (option: SlashCommandStringOption, index?: numb
     return option;
 };
 
-export const queuePosition = (option: SlashCommandStringOption): SlashCommandStringOption =>
+export const queuePosition = (option: SlashCommandStringOption, index?: number): SlashCommandStringOption =>
 {
-    option.setName('queue_position');
+    option.setName(
+        index !== undefined
+            ? `queue_position_${index}`
+            : 'queue_position',
+    );
     option.setDescription(`The position of the file in the queue (default: ${QueuePosition.Last}).`);
 
     const choices = Object.values(QueuePosition).map<APIApplicationCommandOptionChoice<string>>(
@@ -40,8 +44,12 @@ export const queuePosition = (option: SlashCommandStringOption): SlashCommandStr
     return option.addChoices(...choices);
 };
 
-export const shouldLoop = (option: SlashCommandBooleanOption): SlashCommandBooleanOption =>
+export const shouldLoop = (option: SlashCommandBooleanOption, index?: number): SlashCommandBooleanOption =>
 {
-    option.setName('should_loop');
+    option.setName(
+        index !== undefined
+            ? `should_loop_${index}`
+            : 'should_loop',
+    );
     return option.setDescription('Should loop the audio (default: False).');
 };

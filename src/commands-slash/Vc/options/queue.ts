@@ -21,9 +21,12 @@ export const add = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubc
     subcommand.setName(VcQueueSubcommand.Add);
     subcommand.setDescription('Add an audio file to the queue.');
 
-    subcommand.addStringOption(fileNameParameter);
-    subcommand.addBooleanOption(shouldLoop);
-    subcommand.addStringOption(queuePosition);
+    for (let index = 1; index <= 3; index += 1)
+    {
+        subcommand.addStringOption((option) => fileNameParameter(option, index));
+        subcommand.addBooleanOption((option) => shouldLoop(option, index));
+        subcommand.addStringOption((option) => queuePosition(option, index));
+    }
 
     return subcommand;
 };
