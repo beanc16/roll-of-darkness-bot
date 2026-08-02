@@ -3,15 +3,17 @@ import { AudioPlayerStatus, type VoiceConnection } from '@discordjs/voice';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { QueuePosition } from '../../../services/Queue/Queue.js';
 import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import {
     getAudioPlayerData,
     getAudioResource,
-    getVoiceConnectionData,
+    getQueue,
 } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
+import { QueueAddStrategy } from './queue/QueueAddStrategy.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
 
@@ -22,70 +24,77 @@ export class VcPlayStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const fileName = interaction.options.getString('file_name', true);
+        const fileName = interaction.options.getString('file_name', false);
         const shouldLoop = interaction.options.getBoolean('should_loop');
 
-        const {
-            existingConnection,
-            inSameVoiceChannelAsUser,
-            voiceChannel,
-        } = getVoiceConnectionData(interaction);
+        const connectionDataOrErrorMessage = await VcConnectStrategy.getNewOrExistingConnection(interaction);
 
-        if (!voiceChannel)
+        if ('errorMessage' in connectionDataOrErrorMessage)
         {
             await interaction.editReply({
-                content: 'You are not in a voice channel, so I cannot play audio.',
+                content: connectionDataOrErrorMessage.errorMessage,
             });
             return true;
         }
 
-        let newConnection: VoiceConnection | undefined;
-        if (!(existingConnection && inSameVoiceChannelAsUser))
-        {
-            newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
-
-            // If the bot can't connect to the voice channel, it can't play audio
-            if (newConnection === undefined)
-            {
-                return true;
-            }
-        }
+        const { connection, voiceChannel } = connectionDataOrErrorMessage;
 
         await interaction.followUp({
             content: `Loading audio...`,
             ephemeral: true,
         });
 
+        // Add given file to the queue as next
+        if (fileName)
+        {
+            await QueueAddStrategy.addToQueue({
+                interaction,
+                channelId: voiceChannel.id,
+                fileName,
+                position: QueuePosition.Next,
+                shouldLoop: shouldLoop ?? false,
+            });
+        }
+
         await this.play({
             interaction,
-            connection: newConnection ?? existingConnection as VoiceConnection,
-            fileName,
-            shouldLoop,
+            connection,
+            channelId: voiceChannel.id,
         });
 
         return true;
     }
 
-    private static async play({
+    public static async play({
         interaction,
         connection,
-        fileName,
-        shouldLoop,
+        channelId,
     }: {
         interaction: ChatInputCommandInteraction;
         connection: VoiceConnection;
-        fileName: string;
-        shouldLoop: boolean | null;
+        channelId: string;
     }): Promise<void>
     {
         // eslint-disable-next-line no-async-promise-executor
         return await new Promise<void>(async (resolve) =>
         {
+            const queue = getQueue(channelId);
             const audioPlayer = getAudioPlayerData();
+
+            const { current: currentFile } = queue;
+            if (!currentFile)
+            {
+                await interaction.followUp({
+                    content: 'There is no audio in the queue to play.',
+                    ephemeral: true,
+                });
+                return;
+            }
+
             const audioResource = await getAudioResource({
                 discordUserId: interaction.user.id,
-                fileName,
-                shouldLoop: shouldLoop ?? false,
+                fileName: currentFile.fileName,
+                shouldLoop: currentFile.shouldLoop,
             });
 
             if (!audioResource)
@@ -96,7 +105,7 @@ export class VcPlayStrategy
                 PaginationStrategy.run({
                     originalInteraction: interaction,
                     commandName: `/vc play`,
-                    content: `A file named \`${fileName}\` does not exist.`,
+                    content: `A file named \`${currentFile.fileName}\` does not exist.`,
                     embeds: fileNamesEmbeds,
                     interactionType: 'followUp',
                     ephemeral: true,
@@ -113,8 +122,13 @@ export class VcPlayStrategy
             // Send message to show the command was received
             audioPlayer.once(AudioPlayerStatus.Playing, async () =>
             {
+                const nextFile = queue.getNext();
+                const nextMessage = nextFile
+                    ? ` Next: \`${nextFile.fileName}\`.`
+                    : '';
+
                 await interaction.followUp({
-                    content: `Playing audio.`,
+                    content: `Playing \`${currentFile.fileName}\`.${nextMessage}`,
                     ephemeral: true,
                 });
                 VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
@@ -127,14 +141,27 @@ export class VcPlayStrategy
             // Subscribe the connection to the audio player (will play audio on the voice connection)
             const subscription = connection.subscribe(audioPlayer);
 
-            if (subscription) // could be undefined if the connection is destroyed
+            audioPlayer.on(AudioPlayerStatus.Idle, async () =>
             {
-                // When the audio player is idle, unsubscribe from the voice connection
-                audioPlayer.on(AudioPlayerStatus.Idle, () =>
+                // Unsubscribe when idle
+                if (subscription && !queue.hasNext()) // subscription could be undefined if the connection is destroyed
                 {
                     subscription.unsubscribe();
-                });
-            }
+                }
+
+                // Play next track in queue when the prior one stops
+                if (queue.hasNext())
+                {
+                    queue.next();
+                    await this.play({
+                        interaction,
+                        connection,
+                        channelId,
+                    });
+                }
+
+                resolve();
+            });
         });
     }
 }

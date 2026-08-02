@@ -46,6 +46,37 @@ export class VcConnectStrategy
         return true;
     }
 
+    public static async getNewOrExistingConnection(interaction: ChatInputCommandInteraction): Promise<{ connection: VoiceConnection; voiceChannel: VoiceBasedChannel } | { errorMessage: string }>
+    {
+        const {
+            existingConnection,
+            inSameVoiceChannelAsUser,
+            voiceChannel,
+        } = getVoiceConnectionData(interaction);
+
+        if (!voiceChannel)
+        {
+            return { errorMessage: 'You are not in a voice channel, so I cannot play audio.' };
+        }
+
+        let newConnection: VoiceConnection | undefined;
+        if (!(existingConnection && inSameVoiceChannelAsUser))
+        {
+            newConnection = await VcConnectStrategy.connect(interaction, voiceChannel, '');
+
+            // If the bot can't connect to the voice channel, it can't play audio
+            if (newConnection === undefined)
+            {
+                return { errorMessage: 'I cannot connect to your voice channel, so I cannot play audio.' };
+            }
+        }
+
+        return {
+            connection: newConnection ?? existingConnection as VoiceConnection,
+            voiceChannel,
+        };
+    }
+
     public static async connect(
         interaction: ChatInputCommandInteraction,
         voiceChannel: VoiceBasedChannel,

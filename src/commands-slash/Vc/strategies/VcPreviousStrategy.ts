@@ -4,6 +4,8 @@ import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getQueue, getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
+import { VcConnectStrategy } from './VcConnectStrategy.js';
+import { VcPlayStrategy } from './VcPlayStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcPreviousStrategy
@@ -22,19 +24,32 @@ export class VcPreviousStrategy
             return true;
         }
 
-        this.previous(interaction.channelId);
-        await interaction.editReply({
-            // TODO: Update message later
-            content: 'Successfully went to the previous audio in the queue.',
-        });
+        await this.previous(interaction);
 
         return true;
     }
 
-    private static previous(channelId: string): void
+    private static async previous(interaction: ChatInputCommandInteraction): Promise<void>
     {
-        // TODO: Call play later
-        const queue = getQueue(channelId);
+        const connectionDataOrErrorMessage = await VcConnectStrategy.getNewOrExistingConnection(interaction);
+
+        if ('errorMessage' in connectionDataOrErrorMessage)
+        {
+            await interaction.editReply({
+                content: connectionDataOrErrorMessage.errorMessage,
+            });
+            return;
+        }
+
+        const { connection, voiceChannel } = connectionDataOrErrorMessage;
+
+        const queue = getQueue(voiceChannel.id);
         queue.previous();
+
+        await VcPlayStrategy.play({
+            interaction,
+            connection,
+            channelId: voiceChannel.id,
+        });
     }
 }

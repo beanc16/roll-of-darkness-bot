@@ -13,6 +13,7 @@ export class Queue<Element>
 {
     private queue: Element[] = [];
     private currentIndex: number = 0;
+    /** The entire queue should loop when the last track is complete */
     private shouldLoop: boolean = false;
 
     constructor({ shouldLoop }: QueueSettings)
@@ -198,6 +199,32 @@ export class Queue<Element>
     get current(): Element | undefined
     {
         return this.queue[this.currentIndex];
+    }
+
+    public hasNext(): boolean
+    {
+        return this.currentIndex < this.queue.length - 1
+            || (this.shouldLoop && this.queue.length > 0);
+    }
+
+    public getNext(): Element | undefined
+    {
+        let index = this.currentIndex;
+
+        if (this.currentIndex < this.queue.length - 1)
+        {
+            index = this.currentIndex + 1;
+        }
+        else if (this.shouldLoop)
+        {
+            index = 0;
+        }
+        else
+        {
+            return undefined;
+        }
+
+        return this.queue[index];
     }
 
     public next(): Element | undefined

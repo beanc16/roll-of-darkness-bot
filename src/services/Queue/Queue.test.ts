@@ -243,6 +243,88 @@ describe('Queue', () =>
         });
     });
 
+    describe('method: hasNext', () =>
+    {
+        it.each([
+            [true, false],
+            [true, true],
+        ])('returns %s if queue is not empty, current index is less than queue length, and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 0;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasNext()).toEqual(result);
+        });
+
+        it.each([
+            [false, false],
+            [true, true],
+        ])('returns %s if queue is not empty, current index is equal to one less than queue length, and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 2;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasNext()).toEqual(result);
+        });
+
+        it.each([
+            [false, false],
+            [false, true],
+        ])('returns %s if queue is empty and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = [];
+            queue['currentIndex'] = 0;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasNext()).toEqual(result);
+        });
+    });
+
+    describe('method: getNext', () =>
+    {
+        it('gets the next element', () =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 0;
+
+            expect(queue.getNext()).toEqual('b');
+        });
+
+        it('always gets the next element and returns undefined if it would be out of bounds', () =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+
+            queue['currentIndex'] = 0;
+            expect(queue.current).toEqual('a');
+            expect(queue.getNext()).toEqual('b');
+
+            queue['currentIndex'] = 1;
+            expect(queue.current).toEqual('b');
+            expect(queue.getNext()).toEqual('c');
+
+            queue['currentIndex'] = 2;
+            expect(queue.current).toEqual('c');
+            expect(queue.getNext()).toEqual(undefined); // out of bounds
+        });
+
+        it('gets the first element if shouldLoop is true and currentIndex is on the last element', () =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 2;
+            queue['shouldLoop'] = true;
+
+            expect(queue.getNext()).toEqual('a');
+        });
+
+        it('returns undefined if queue is empty', () =>
+        {
+            expect(queue['currentIndex']).toEqual(0);
+            expect(queue.getNext()).toBeUndefined();
+        });
+    });
+
     describe('method: next', () =>
     {
         it('next moves to next element', () =>
@@ -278,6 +360,7 @@ describe('Queue', () =>
             queue.enqueue('b', QueuePosition.Last);
             queue.next(); // move to b
 
+            expect(queue.current).toEqual('b');
             expect(queue.previous()).toEqual('a');
             expect(queue.previous()).toEqual('a'); // stays at start
         });
