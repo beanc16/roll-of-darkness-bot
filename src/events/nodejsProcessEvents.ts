@@ -4,7 +4,7 @@ import process from 'node:process';
 import { logger } from '@beanc16/logger';
 import { Client } from 'discord.js';
 
-import { VoiceConnectionTimeoutManager } from '../commands-slash/Vc/services/VoiceConnectionTimeoutManager.js';
+import { VoiceConnectionTimeoutManager } from '../commands-slash/Vc/services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
 
 export const handleError = (event: string, errorOrReason: unknown): void =>
 {

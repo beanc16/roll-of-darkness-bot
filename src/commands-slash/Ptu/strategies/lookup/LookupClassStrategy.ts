@@ -1,22 +1,27 @@
-import { ChatInputCommandInteraction } from 'discord.js';
+import { Text } from '@beanc16/discordjs-helpers';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
+import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import { PokemonType } from '../../types/pokemon.js';
+import { PtuClassCategory, PtuClassRole } from '../../types/pokemonTrainers.js';
 import { PtuFeature } from '../../types/PtuFeature.js';
 import { PtuLookupIteractionStrategy } from '../../types/strategies.js';
+import { PtuFeatureTag } from '../../types/types.js';
 import { LookupFeatureStrategy } from './LookupFeatureStrategy.js';
 
 export interface GetLookupClassDataParameters extends BaseLookupDataOptions
 {
-    name: PtuClassName;
+    names: PtuClassName[];
 }
 
-enum PtuClassName
+export enum PtuClassName
 {
     // Introductory Classes
     AceTrainer = 'Ace Trainer',
@@ -28,6 +33,7 @@ enum PtuClassName
 
     // Battling Style Classes
     Cheerleader = 'Cheerleader',
+    CheerleaderPlaytest = 'Cheerleader [Playtest]', // September 2015 Playtest Class
     Duelist = 'Duelist',
     EnduringSoul = 'Enduring Soul',
     Juggler = 'Juggler',
@@ -74,6 +80,7 @@ enum PtuClassName
     Fashionista = 'Fashionista',
     Researcher = 'Researcher',
     GeneralResearcher = 'General Researcher',
+    GeneralResearcherPlaytest = 'General Researcher [Playtest]', // May 2015 Playtest Class
     ApothecaryResearcher = 'Apothecary Researcher',
     ArtificerResearcher = 'Artificer Researcher',
     BotanyResearcher = 'Botany Researcher',
@@ -82,6 +89,10 @@ enum PtuClassName
     OccultismResearcher = 'Occultism Researcher',
     PaleontologyResearcher = 'Paleontology Researcher',
     PokemonCaretakingResearcher = 'Pokemon Caretaking Researcher',
+    GadgeteerResearcher = 'Gadgeteer Researcher', // May 2015 Playtest Class
+    EngineerResearcher = 'Engineer Researcher', // Do Porygon Dream of Mareep Class
+    JailbreakerResearcher = 'Jailbreaker Researcher', // Do Porygon Dream of Mareep Class
+    UpgraderResearcher = 'Upgrader Researcher', // Do Porygon Dream of Mareep Class
     Survivalist = 'Survivalist',
 
     // Fighter Classes
@@ -116,6 +127,7 @@ enum PtuClassName
     BugElementalist = 'Bug Elementalist: Swarmlord',
     DarkElementalist = 'Dark Elementalist: Shade Caller',
     DragonElementalist = 'Dragon Elementalist: Herald of Pride',
+    DragonElementalistHomebrew = 'Dragon Elementalist: Herald of Pride [HB]', // Homebrew
     ElectricElementalist = 'Electric Elementalist: Spark Master',
     FairyElementalist = 'Fairy Elementalist: Glamour Weaver',
     FireElementalist = 'Fire Elementalist: Fire Bringer',
@@ -131,19 +143,13 @@ enum PtuClassName
     WaterElementalist = 'Water Elementalist: Maelstrom',
 
     // Do Porygon Dream of Mareep Classes
-    EngineerResearcher = 'Engineer Researcher',
-    JailbreakerResearcher = 'Jailbreaker Researcher',
-    UpgraderResearcher = 'Upgrader Researcher',
     Glitchbender = 'Glitch Bender',
 
     // September 2015 Playtest Classes
-    CheerleaderPlaytest = 'Cheerleader [Playtest]',
     Medic = 'Medic',
 
     // May 2015 Playtest Classes
     Backpacker = 'Backpacker',
-    GadgeteerResearcher = 'Gadgeteer Researcher',
-    GeneralResearcherPlaytest = 'General Researcher [Playtest]',
 
     // Homebrew Book of Divines & Divine Homebrew
     Signer = 'Signer',
@@ -161,44 +167,776 @@ enum PtuClassName
 export class LookupClassStrategy
 {
     public static key: PtuLookupSubcommand.Class = PtuLookupSubcommand.Class;
+    private static ptuClassNameToClassRole: Record<PtuClassName, Partial<Record<PtuClassRole, number>>> = Object.entries({
+        [PtuClassName.AceTrainer]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.CaptureSpecialist]: {
+            [PtuClassRole.TravelAndInvestigation]: 4,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Commander]: {
+            [PtuClassRole.ActivePokemonSupport]: 5,
+        },
+        [PtuClassName.Coordinator]: {
+            [PtuClassRole.ActivePokemonSupport]: 3,
+            [PtuClassRole.PassivePokemonSupport]: 2,
+        },
+        [PtuClassName.Hobbyist]: {
+            [PtuClassRole.ActivePokemonSupport]: 1,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.Crafting]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Mentor]: {
+            [PtuClassRole.PassivePokemonSupport]: 5,
+        },
+        [PtuClassName.Cheerleader]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.Duelist]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.EnduringSoul]: {
+            [PtuClassRole.PassivePokemonSupport]: 5,
+        },
+        [PtuClassName.Juggler]: {
+            [PtuClassRole.ActivePokemonSupport]: 5,
+        },
+        [PtuClassName.Rider]: {
+            [PtuClassRole.PassivePokemonSupport]: 2,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Taskmaster]: {
+            [PtuClassRole.ActivePokemonSupport]: 3,
+            [PtuClassRole.PassivePokemonSupport]: 2,
+        },
+        [PtuClassName.Trickster]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.StatAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.AttackAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.DefenseAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.SpecialAttackAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.SpecialDefenseAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.SpeedAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 4,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.StyleExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.BeautyExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.CoolExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.CuteExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.SmartExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.ToughExpert]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.TypeAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.BugAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.DarkAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.DragonAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.ElectricAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.FairyAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.FightingAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.FireAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.FlyingAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.GhostAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.GrassAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.GroundAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.IceAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.NormalAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.PoisonAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.PsychicAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.RockAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.SteelAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.WaterAce]: {
+            [PtuClassRole.PassivePokemonSupport]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.Chef]: {
+            [PtuClassRole.Crafting]: 5,
+        },
+        [PtuClassName.Chronicler]: {
+            [PtuClassRole.PassivePokemonSupport]: 2,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.Fashionista]: {
+            [PtuClassRole.Crafting]: 3,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+        },
+        [PtuClassName.Researcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.GeneralResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.ApothecaryResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.ArtificerResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.BotanyResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.ChemistryResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.ClimatologyResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.OccultismResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.PaleontologyResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.PokemonCaretakingResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Survivalist]: {
+            [PtuClassRole.TravelAndInvestigation]: 2,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Athlete]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.Dancer]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.Hunter]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 1,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.MartialArtist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Musician]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.Provocateur]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Rogue]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Roughneck]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Tumbler]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.AuraGuardian]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Channeler]: {
+            [PtuClassRole.ActivePokemonSupport]: 3,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+        },
+        [PtuClassName.HexManiac]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Ninja]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.Crafting]: 1,
+        },
+        [PtuClassName.Oracle]: {
+            [PtuClassRole.TravelAndInvestigation]: 3,
+            [PtuClassRole.TrainerCombat]: 2,
+        },
+        [PtuClassName.Sage]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Telekinetic]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Telepath]: {
+            [PtuClassRole.TravelAndInvestigation]: 3,
+            [PtuClassRole.TrainerCombat]: 2,
+        },
+        [PtuClassName.Warper]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+        },
+        [PtuClassName.Berserker]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.RuneMaster]: {
+            [PtuClassRole.TravelAndInvestigation]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 2,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Arcanist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Fortress]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Marksman]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Skirmisher]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.BugElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.DarkElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.DragonElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.DragonElementalistHomebrew]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.ElectricElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.FairyElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.FireElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.FlyingElementalist]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+        },
+        [PtuClassName.GhostElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.GrassElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.GroundElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.IceElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.NormalElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.PoisonElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.RockElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.SteelElementalist]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.WaterElementalist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.EngineerResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.JailbreakerResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.UpgraderResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Glitchbender]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.CheerleaderPlaytest]: {
+            [PtuClassRole.ActivePokemonSupport]: 4,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+        },
+        [PtuClassName.Medic]: {
+            [PtuClassRole.TravelAndInvestigation]: 3,
+            [PtuClassRole.ActivePokemonSupport]: 2,
+        },
+        [PtuClassName.Backpacker]: {
+            [PtuClassRole.TravelAndInvestigation]: 3,
+            [PtuClassRole.TrainerCombat]: 2,
+        },
+        [PtuClassName.GadgeteerResearcher]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.GeneralResearcherPlaytest]: {
+            [PtuClassRole.Crafting]: 2,
+            [PtuClassRole.PassivePokemonSupport]: 1,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+            [PtuClassRole.TrainerCombat]: 1,
+        },
+        [PtuClassName.Signer]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+        },
+        [PtuClassName.Messiah]: {
+            [PtuClassRole.TrainerCombat]: 3,
+            [PtuClassRole.TravelAndInvestigation]: 2,
+        },
+        [PtuClassName.Branded]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Usurper]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Inquisitor]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Scion]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Cultist]: {
+            [PtuClassRole.TrainerCombat]: 4,
+            [PtuClassRole.TravelAndInvestigation]: 1,
+        },
+        [PtuClassName.Scorned]: {
+            [PtuClassRole.TrainerCombat]: 5,
+        },
+        [PtuClassName.Disciple]: {
+            [PtuClassRole.TravelAndInvestigation]: 5,
+        },
+    }).reduce((acc, element) =>
+    {
+        const [key, value] = element;
+        const [convertedKey] = LookupClassStrategy.convertFeatureNames([key]);
+        acc[convertedKey as PtuClassName] = value;
+        if (convertedKey !== key)
+        {
+            // Use the original class name too so raw feature name -> value works too
+            acc[key as PtuClassName] = value;
+        }
+        return acc;
+    }, {} as Record<PtuClassName, Partial<Record<PtuClassRole, number>>>);
+
+    private static ptuClassNameToMetadata = Object.values(PtuClassName).reduce((acc, cur) =>
+    {
+        let category: PtuClassCategory;
+        let source: string;
+
+        switch (cur)
+        {
+            case PtuClassName.AceTrainer:
+            case PtuClassName.CaptureSpecialist:
+            case PtuClassName.Commander:
+            case PtuClassName.Coordinator:
+            case PtuClassName.Hobbyist:
+            case PtuClassName.Mentor:
+                category = PtuClassCategory.Introductory;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Cheerleader:
+            case PtuClassName.Duelist:
+            case PtuClassName.EnduringSoul:
+            case PtuClassName.Juggler:
+            case PtuClassName.Rider:
+            case PtuClassName.Taskmaster:
+            case PtuClassName.Trickster:
+            case PtuClassName.CheerleaderPlaytest:
+                category = PtuClassCategory.BattlingStyle;
+                source = 'Core Rulebook';
+                if (cur === PtuClassName.CheerleaderPlaytest) source = 'September 2015 Playtest';
+                break;
+            case PtuClassName.StatAce:
+            case PtuClassName.AttackAce:
+            case PtuClassName.DefenseAce:
+            case PtuClassName.SpecialAttackAce:
+            case PtuClassName.SpecialDefenseAce:
+            case PtuClassName.SpeedAce:
+            case PtuClassName.StyleExpert:
+            case PtuClassName.BeautyExpert:
+            case PtuClassName.CoolExpert:
+            case PtuClassName.CuteExpert:
+            case PtuClassName.SmartExpert:
+            case PtuClassName.ToughExpert:
+            case PtuClassName.TypeAce:
+            case PtuClassName.BugAce:
+            case PtuClassName.DarkAce:
+            case PtuClassName.DragonAce:
+            case PtuClassName.ElectricAce:
+            case PtuClassName.FairyAce:
+            case PtuClassName.FightingAce:
+            case PtuClassName.FireAce:
+            case PtuClassName.FlyingAce:
+            case PtuClassName.GhostAce:
+            case PtuClassName.GrassAce:
+            case PtuClassName.GroundAce:
+            case PtuClassName.IceAce:
+            case PtuClassName.NormalAce:
+            case PtuClassName.PoisonAce:
+            case PtuClassName.PsychicAce:
+            case PtuClassName.RockAce:
+            case PtuClassName.SteelAce:
+            case PtuClassName.WaterAce:
+                category = PtuClassCategory.SpecialistTeam;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Chef:
+            case PtuClassName.Chronicler:
+            case PtuClassName.Fashionista:
+            case PtuClassName.Researcher:
+            case PtuClassName.GeneralResearcher:
+            case PtuClassName.ApothecaryResearcher:
+            case PtuClassName.ArtificerResearcher:
+            case PtuClassName.BotanyResearcher:
+            case PtuClassName.ChemistryResearcher:
+            case PtuClassName.ClimatologyResearcher:
+            case PtuClassName.OccultismResearcher:
+            case PtuClassName.PaleontologyResearcher:
+            case PtuClassName.PokemonCaretakingResearcher:
+            case PtuClassName.Survivalist:
+            case PtuClassName.EngineerResearcher:
+            case PtuClassName.JailbreakerResearcher:
+            case PtuClassName.UpgraderResearcher:
+            case PtuClassName.Backpacker:
+            case PtuClassName.GadgeteerResearcher:
+            case PtuClassName.GeneralResearcherPlaytest:
+            case PtuClassName.Medic:
+                category = PtuClassCategory.Professional;
+                source = 'Core Rulebook';
+                if (
+                    cur === PtuClassName.EngineerResearcher
+                    || cur === PtuClassName.JailbreakerResearcher
+                    || cur === PtuClassName.UpgraderResearcher
+                ) source = 'Do Porygon Dream of Mareep';
+                if (
+                    cur === PtuClassName.Backpacker
+                    || cur === PtuClassName.GadgeteerResearcher
+                    || cur === PtuClassName.GeneralResearcherPlaytest
+                ) source = 'May 2015 Playtest';
+                if (cur === PtuClassName.Medic) source = 'September 2015 Playtest';
+                break;
+            case PtuClassName.Athlete:
+            case PtuClassName.Dancer:
+            case PtuClassName.Hunter:
+            case PtuClassName.MartialArtist:
+            case PtuClassName.Musician:
+            case PtuClassName.Provocateur:
+            case PtuClassName.Rogue:
+            case PtuClassName.Roughneck:
+            case PtuClassName.Tumbler:
+                category = PtuClassCategory.Fighter;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.AuraGuardian:
+            case PtuClassName.Channeler:
+            case PtuClassName.HexManiac:
+            case PtuClassName.Ninja:
+            case PtuClassName.Oracle:
+            case PtuClassName.Sage:
+            case PtuClassName.Telekinetic:
+            case PtuClassName.Telepath:
+            case PtuClassName.Warper:
+                category = PtuClassCategory.Supernatural;
+                source = 'Core Rulebook';
+                break;
+            case PtuClassName.Berserker:
+            case PtuClassName.RuneMaster:
+            case PtuClassName.Arcanist:
+            case PtuClassName.Fortress:
+            case PtuClassName.Marksman:
+            case PtuClassName.Skirmisher:
+            case PtuClassName.BugElementalist:
+            case PtuClassName.DarkElementalist:
+            case PtuClassName.DragonElementalist:
+            case PtuClassName.DragonElementalistHomebrew:
+            case PtuClassName.ElectricElementalist:
+            case PtuClassName.FairyElementalist:
+            case PtuClassName.FireElementalist:
+            case PtuClassName.FlyingElementalist:
+            case PtuClassName.GhostElementalist:
+            case PtuClassName.GrassElementalist:
+            case PtuClassName.GroundElementalist:
+            case PtuClassName.IceElementalist:
+            case PtuClassName.NormalElementalist:
+            case PtuClassName.PoisonElementalist:
+            case PtuClassName.RockElementalist:
+            case PtuClassName.SteelElementalist:
+            case PtuClassName.WaterElementalist:
+            case PtuClassName.Glitchbender:
+                category = PtuClassCategory.Fighter;
+                source = 'Game of Throhs';
+                if (cur === PtuClassName.RuneMaster) category = PtuClassCategory.Supernatural;
+                if (cur === PtuClassName.Glitchbender) source = 'Do Porygon Dream of Mareep';
+                break;
+            case PtuClassName.Signer:
+            case PtuClassName.Messiah:
+            case PtuClassName.Branded:
+            case PtuClassName.Usurper:
+            case PtuClassName.Inquisitor:
+            case PtuClassName.Scion:
+            case PtuClassName.Cultist:
+            case PtuClassName.Scorned:
+            case PtuClassName.Disciple:
+                category = PtuClassCategory.Mythological;
+                source = 'Blessed and the Damned';
+                if (
+                    cur === PtuClassName.Inquisitor
+                    || cur === PtuClassName.Scion
+                    || cur === PtuClassName.Cultist
+                    || cur === PtuClassName.Scorned
+                    || cur === PtuClassName.Disciple
+                ) source = 'Homebrew';
+                break;
+            default:
+                const typeCheck: never = cur;
+                throw new Error(`Unknown class: ${typeCheck}`);
+        }
+
+        const isHomebrew = new Set<PtuClassName>([
+            PtuClassName.Inquisitor,
+            PtuClassName.Scion,
+            PtuClassName.Cultist,
+            PtuClassName.Scorned,
+            PtuClassName.Disciple,
+        ]).has(cur);
+
+        const [convertedKey] = LookupClassStrategy.convertFeatureNames([cur]);
+        acc[convertedKey as PtuClassName] = {
+            category,
+            source,
+            isHomebrew,
+        };
+        acc[cur] = {
+            category,
+            source,
+            isHomebrew,
+        };
+        return acc;
+    }, {} as Record<PtuClassName, { category: PtuClassCategory; source: string; isHomebrew: boolean }>);
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.ClassName, true) as PtuClassName;
+        const name1 = interaction.options.getString(PtuAutocompleteParameterName.ClassName1) as PtuClassName | null;
+        const name2 = interaction.options.getString(PtuAutocompleteParameterName.ClassName2) as PtuClassName | null;
+        const name3 = interaction.options.getString(PtuAutocompleteParameterName.ClassName3) as PtuClassName | null;
+        const name4 = interaction.options.getString(PtuAutocompleteParameterName.ClassName4) as PtuClassName | null;
+        const names = [name1, name2, name3, name4].filter(element => element !== null);
+        const category = interaction.options.getString(PtuAutocompleteParameterName.ClassCategory) as PtuClassCategory | null;
+        const sortByClassRole = interaction.options.getString(PtuAutocompleteParameterName.ClassRole) as PtuClassRole | null;
+        const tag = interaction.options.getString(PtuAutocompleteParameterName.FeatureTag) as PtuFeatureTag | null;
+
+        // Return list of all classes if no name is given
+        if (names.length === 0)
+        {
+            let classNames = Object.values(PtuClassName);
+
+            // Filter by tag
+            if (tag)
+            {
+                const data = await this.getLookupData({
+                    names: classNames,
+                    includeAllIfNoName: false,
+                });
+
+                classNames = data.reduce<typeof classNames>((acc, cur) =>
+                {
+                    if (this.hasTag(cur, tag))
+                    {
+                        acc.push(cur[0].name as PtuClassName);
+                    }
+                    return acc;
+                }, []);
+            }
+
+            // Filter if category is given
+            if (category)
+            {
+                classNames = classNames.filter(element =>
+                    this.ptuClassNameToMetadata[element].category === category,
+                );
+            }
+
+            // Sort if class role is given
+            if (sortByClassRole)
+            {
+                classNames.sort((a, b) =>
+                {
+                    const aRoleMap = this.ptuClassNameToClassRole[a];
+                    const bRoleMap = this.ptuClassNameToClassRole[b];
+
+                    const aRoleValue = aRoleMap[sortByClassRole] || 0;
+                    const bRoleValue = bRoleMap[sortByClassRole] || 0;
+
+                    return bRoleValue - aRoleValue;
+                });
+            }
+
+            // Send message
+            const embeds = this.getClassListEmbedMessages(classNames);
+            return await LookupStrategy.run(interaction, embeds, {
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
+                noEmbedsErrorMessage: 'No classes were found.',
+            });
+        }
 
         const data = await this.getLookupData({
-            name,
+            names,
             includeAllIfNoName: false,
         });
 
-        // Get message
-        const messageTitle = (!(
-            PtuClassName.Signer === name
-            || PtuClassName.Messiah === name
-            || PtuClassName.Branded === name
-            || PtuClassName.Usurper === name
-            || PtuClassName.Inquisitor === name
-            || PtuClassName.Scion === name
-            || PtuClassName.Cultist === name
-            || PtuClassName.Scorned === name
-            || PtuClassName.Disciple === name
-        ))
-            ? 'Class'
-            : 'Class-Adjacent';
+        await this.sendNonClassNameMessage(interaction, data);
 
-        const embeds = LookupFeatureStrategy.getEmbedMessages(data, messageTitle);
-
-        return await LookupStrategy.run(interaction, embeds, {
-            commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
-            noEmbedsErrorMessage: 'No classes were found.',
-        });
+        return true;
     }
 
-    public static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[]>
+    public static async getLookupData(input: GetLookupClassDataParameters): Promise<PtuFeature[][]>
     {
         // For autocomplete
-        if (input?.name === undefined)
+        if (input?.names === undefined || input?.names?.length === 0)
         {
             const classNames = Object.values(PtuClassName);
 
@@ -207,7 +945,7 @@ export class LookupClassStrategy
                 sortByName: true,
             });
 
-            return [
+            return [[
                 ...classFeatures,
                 ...classNames.reduce<PtuFeature[]>((acc, cur) =>
                 {
@@ -223,7 +961,7 @@ export class LookupClassStrategy
 
                     return acc;
                 }, []),
-            ];
+            ]];
         }
 
         // Create base lists for type ace and elementalist
@@ -1128,6 +1866,15 @@ export class LookupClassStrategy
                 `Rouse the Dragon's Blood`,
                 'Sovereignty',
             ],
+            [PtuClassName.DragonElementalistHomebrew]: [
+                ...this.convertFeatureNames([PtuClassName.DragonElementalistHomebrew]),
+                `Rouse the Dragon's Blood [HB]`,
+                `Bare the Dragon's Claws [HB]`,
+                `Call the Dragon's Rage [HB]`,
+                `Sovereign's Wrath [HB]`,
+                'Noblese Oblige [HB]',
+                'Draconic Transformation [HB]',
+            ],
             [PtuClassName.ElectricElementalist]: [
                 ...this.convertFeatureNames([PtuClassName.ElectricElementalist]),
                 'Magnetize',
@@ -1333,6 +2080,8 @@ export class LookupClassStrategy
                 'Shared Strengths Rank 3',
                 'True Power',
                 'Gift of Power',
+                'Create Vassal Rank 1',
+                'Create Vassal Rank 2',
             ],
             [PtuClassName.Inquisitor]: [
                 PtuClassName.Inquisitor,
@@ -1361,16 +2110,21 @@ export class LookupClassStrategy
             ],
         };
 
-        const featureNames = this.convertFeatureNames(classToFeaturesMap[input.name]);
+        const featureNames = input.names.reduce<string[]>((acc, name) =>
+        {
+            acc.push(...classToFeaturesMap[name]);
+            return acc;
+        }, []);
+        const convertedFeatureNames = this.convertFeatureNames(featureNames);
 
         const {
-            name: _,
+            names: _,
             ...parsedInput
         } = input;
 
         const features = await LookupFeatureStrategy.getLookupData({
             ...parsedInput,
-            names: featureNames,
+            names: convertedFeatureNames,
             sortByName: false,
         });
 
@@ -1381,13 +2135,17 @@ export class LookupClassStrategy
             return acc;
         }, {});
 
-        return featureNames.reduce<PtuFeature[]>((acc, featureName) =>
+        return convertedFeatureNames.reduce<PtuFeature[][]>((acc, featureName) =>
         {
             const feature = featureNameToFeature[featureName];
 
             if (feature)
             {
-                acc.push(feature);
+                if (input.names.includes(feature.name as PtuClassName) || !acc[Math.max(acc.length - 1, 0)])
+                {
+                    acc.push([] as PtuFeature[]);
+                }
+                acc[Math.max(acc.length - 1, 0)].push(feature);
             }
 
             return acc;
@@ -1405,5 +2163,202 @@ export class LookupClassStrategy
 
             return name;
         });
+    }
+
+    /* istanbul ignore next */
+    public static getEmbedMessages(data: PtuFeature[][]): EmbedBuilder[][]
+    {
+        return data.map((curData) =>
+        {
+            let metadata: string = '';
+
+            const embeds = getPagedEmbedMessages({
+                input: curData,
+                title: this.getEmbedMessageTitle(curData[0].name as PtuClassName),
+                parseElementToLines: (element, index) =>
+                {
+                    if (index === 0)
+                    {
+                        const classRoleMetadata = this.ptuClassNameToClassRole[element.name as PtuClassName];
+                        metadata = this.formatClassRoleMetadata(classRoleMetadata);
+                    }
+
+                    return [
+                        Text.bold(element.name),
+                        ...(element.tags !== undefined && element.tags !== '-'
+                            ? [
+                                `Tags: ${element.tags}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.prerequisites !== undefined && element.prerequisites !== '-'
+                            ? [
+                                `Prerequisites: ${element.prerequisites}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.frequencyAndAction !== undefined && element.frequencyAndAction !== '-'
+                            ? [
+                                `Frequency / Action: ${element.frequencyAndAction}`,
+                            ]
+                            : []
+                        ),
+                        ...(element.effect !== undefined && element.effect !== '--'
+                            ? [
+                                `Effect:\n\`\`\`\n${element.effect}\`\`\``,
+                            ]
+                            : []
+                        ),
+
+                        // Add roles after the last element
+                        ...(index === curData.length - 1 && metadata.length > 0
+                            ? [
+                                Text.underline('Roles'),
+                                metadata,
+                                '',
+                            ]
+                            : []),
+                    ];
+                },
+            });
+
+            return embeds.map(embed =>
+            {
+                const feature = curData[0];
+                const { category, source } = this.ptuClassNameToMetadata[feature.name as PtuClassName];
+                embed.setFooter({ text: `Category: ${category} | Source: ${source}` });
+                return embed;
+            });
+        });
+    }
+
+    /* istanbul ignore next */
+    public static getClassListEmbedMessages(classNames: PtuClassName[]): EmbedBuilder[]
+    {
+        const embeds = getPagedEmbedMessages({
+            input: classNames,
+            title: 'Classes',
+            parseElementToLines: (element) => [
+                Text.bold(`${element}${this.ptuClassNameToMetadata[element].isHomebrew ? ' [Homebrew]' : ''}`),
+                this.formatClassRoleMetadata(this.ptuClassNameToClassRole[element]),
+                '',
+            ],
+        });
+
+        return embeds;
+    }
+
+    private static formatClassRoleMetadata(classRoleToMetadata: Partial<Record<PtuClassRole, number>>): string
+    {
+        return Object.entries(classRoleToMetadata).reduce((acc, [key, value]) =>
+        {
+            return [
+                ...(acc === '' ? [] : [acc]),
+                `${key}: ${value}`,
+            ].join('\n');
+        }, '');
+    }
+
+    private static getEmbedMessageTitle(className: PtuClassName): 'Class' | 'Class-Adjacent'
+    {
+        return (!(
+            PtuClassName.Signer === className
+            || PtuClassName.Messiah === className
+            || PtuClassName.Branded === className
+            || PtuClassName.Usurper === className
+            || PtuClassName.Inquisitor === className
+            || PtuClassName.Scion === className
+            || PtuClassName.Cultist === className
+            || PtuClassName.Scorned === className
+            || PtuClassName.Disciple === className
+        ))
+            ? 'Class'
+            : 'Class-Adjacent'; ;
+    }
+
+    private static hasTag(classFeatures: PtuFeature[], tag: PtuFeatureTag): boolean
+    {
+        const tags: PtuFeatureTag[] = [];
+
+        // Set tags to test
+        switch (tag)
+        {
+            // Any stat
+            case PtuFeatureTag.Any:
+            case PtuFeatureTag.Special:
+            case PtuFeatureTag.PatronStat:
+                tags.push(
+                    PtuFeatureTag.Any,
+                    PtuFeatureTag.HP,
+                    PtuFeatureTag.Attack,
+                    PtuFeatureTag.Defense,
+                    PtuFeatureTag.SpecialAttack,
+                    PtuFeatureTag.SpecialDefense,
+                    PtuFeatureTag.Speed,
+                    PtuFeatureTag.Special,
+                    PtuFeatureTag.PatronStat,
+                );
+                break;
+
+            // Specific stat
+            case PtuFeatureTag.HP:
+            case PtuFeatureTag.Attack:
+            case PtuFeatureTag.Defense:
+            case PtuFeatureTag.SpecialAttack:
+            case PtuFeatureTag.SpecialDefense:
+            case PtuFeatureTag.Speed:
+                tags.push(
+                    PtuFeatureTag.Any,
+                    tag,
+                    PtuFeatureTag.Special,
+                    PtuFeatureTag.PatronStat,
+                );
+                break;
+
+            // Other
+            case PtuFeatureTag.Class:
+            case PtuFeatureTag.Branch:
+            case PtuFeatureTag.Ranked:
+            case PtuFeatureTag.Weapon:
+            case PtuFeatureTag.Orders:
+            case PtuFeatureTag.Strategem:
+            case PtuFeatureTag.ResearchField:
+            case PtuFeatureTag.Training:
+                tags.push(tag);
+                break;
+
+            default:
+                const typecheck: never = tag;
+                throw new Error(`Unknown tag: ${typecheck}`);
+        }
+
+        return classFeatures.some(curFeature =>
+            tags.some(curTag => curFeature.tags.includes(`${curTag}]`) && (
+                (curTag === PtuFeatureTag.Special && curFeature.effect.includes(`${tag}]`))
+                || (curTag !== PtuFeatureTag.Special)
+            )),
+        );
+    }
+
+    /* istanbul ignore next */
+    private static async sendNonClassNameMessage(
+        interaction: ChatInputCommandInteraction,
+        data: PtuFeature[][],
+    ): Promise<void>
+    {
+        // Get message
+        const embeds = this.getEmbedMessages(data);
+
+        for (let i = 0; i < embeds.length; i += 1)
+        {
+            // eslint-disable-next-line no-await-in-loop -- We want to send messages sequentially with followups, so do them one at a time
+            await PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/ptu ${PtuSubcommandGroup.Lookup} ${PtuLookupSubcommand.Class}`,
+                embeds: embeds[i],
+                interactionType: i === 0 ? 'editReply' : 'followUp',
+                includeDeleteButton: true,
+            });
+        }
     }
 }

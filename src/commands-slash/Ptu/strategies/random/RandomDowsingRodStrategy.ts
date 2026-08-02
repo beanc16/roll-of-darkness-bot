@@ -6,9 +6,9 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { DiceLiteService } from '../../../../services/Dice/DiceLiteService.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomDowsingRodEmbedMessage } from '../../embed-messages/random.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -195,15 +195,22 @@ export class RandomDowsingRodStrategy
             });
 
             // Parse data
-            const parsedData = data.reduce<RandomResult[]>((acc, [name, cost, description]) =>
+            const { parsedData, colorToArrayOrder } = data.reduce<{
+                parsedData: RandomResult[];
+                colorToArrayOrder: Record<string, number>;
+            }>((acc, [name, cost, description], index) =>
             {
-                acc.push({
+                acc.parsedData.push({
                     name,
                     cost,
                     description,
                 });
+                acc.colorToArrayOrder[name] = index;
                 return acc;
-            }, []);
+            }, {
+                parsedData: [],
+                colorToArrayOrder: {},
+            });
 
             // Get random numbers
             const shardColorRollResults = groupsOfShardsToRoll.map((numOfShardsToRoll) =>
@@ -250,6 +257,10 @@ export class RandomDowsingRodStrategy
                     ...parsedData[result - 1],
                     numOfTimesRolled,
                 };
+            }).sort((a, b) =>
+            {
+                // Sort by order the colors were in in the spreadsheet
+                return colorToArrayOrder[a.name] - colorToArrayOrder[b.name];
             });
 
             // Get embed message

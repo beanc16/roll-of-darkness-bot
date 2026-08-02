@@ -1,13 +1,13 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import rollConstants from '../../../constants/roll.js';
-import { DiceService } from '../../../services/DiceService.js';
+import { DiceService } from '../../../services/Dice/DiceService.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 import { CommandName, DiscordInteractionCallbackType } from '../../../types/discord.js';
 import {
     type OnRerollCallbackOptions,
     type RerollButtonRowComponentOptions,
     RerollStrategy,
-} from '../../strategies/RerollStrategy.js';
+} from '../../strategies/RerollStrategy/RerollStrategy.js';
 import RollResponseFormatterService from '../services/RollResponseFormatterService.js';
 
 export class BaseRollStrategy

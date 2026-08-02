@@ -3,7 +3,7 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
@@ -26,7 +26,7 @@ export class LookupTmStrategy
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(PtuAutocompleteParameterName.TmName, true);
+        const name = interaction.options.getString(PtuAutocompleteParameterName.TmName);
 
         const data = await this.getLookupData({
             name,
@@ -44,7 +44,7 @@ export class LookupTmStrategy
                     ? [
                         `Description:\n\`\`\`\n${element.description}\`\`\``,
                     ]
-                    : []
+                    : ['']
                 ),
             ],
         });
@@ -68,8 +68,15 @@ export class LookupTmStrategy
         {
             const element = new PtuTm(cur);
 
-            // cur[0] === name in spreadsheet
-            if (!(input.name && input.name === element.name) && !input.includeAllIfNoName)
+            // Filter out empty rows (necessary since this data sheet
+            // uses formulas and thus has some empty rows)
+            if (element.name === '')
+            {
+                return acc;
+            }
+
+            // Name
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }

@@ -2,12 +2,12 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { DiceStringParser } from '../services/DiceStringParser.js';
+import { DiceStringParser } from '../services/Dice/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
 import * as rollOptions from './Nwod/options/roll.js';
 import { rollLite } from './options/index.js';
-import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy/RerollStrategy.js';
 
 class Roll extends BaseSlashCommand
 {

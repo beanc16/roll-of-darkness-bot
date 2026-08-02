@@ -1,9 +1,10 @@
-import { EqualityOption } from '../../options/shared.js';
+import { EqualityOption } from '../../shared/options/shared.js';
 import { BaseLookupDataOptions } from '../../strategies/types/types.js';
 import {
     PokemonMoveCategory,
     PokemonType,
     PtuMoveFrequency,
+    PtuMoveListType,
 } from './pokemon.js';
 
 export interface GetLookupAbilityDataParameters
@@ -32,6 +33,8 @@ export interface GetLookupMoveDataParameters extends BaseLookupDataOptions
     frequency?: PtuMoveFrequency | null;
     ac?: number | null;
     acEquality?: EqualityOption | null;
+    keywordName?: string | null;
+    moveListType?: PtuMoveListType | null;
     contestStatType?: string | null;
     contestStatEffect?: string | null;
     basedOn?: string | null;

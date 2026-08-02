@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { QueuePosition } from '../../../../services/Queue.js';
+import { QueuePosition } from '../../../../services/Queue/Queue.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getQueue, getVoiceConnectionData } from '../../helpers.js';
 import { VcQueueSubcommand } from '../../options/queue.js';

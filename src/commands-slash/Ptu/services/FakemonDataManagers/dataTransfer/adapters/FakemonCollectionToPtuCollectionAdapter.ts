@@ -1,0 +1,78 @@
+/* eslint-disable class-methods-use-this */
+
+import { Adapter } from '../../../../../../services/DataTransfer/Adapter.js';
+import { PtuFakemonCollection, PtuFakemonDexType } from '../../../../dal/models/PtuFakemonCollection.js';
+import { PtuPokemonCollection } from '../../../../dal/models/PtuPokemonCollection.js';
+import { FakemonDexNumberPrefix, FakemonGeneralInformationManagerService } from '../../FakemonGeneralInformationManagerService.js';
+
+export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonCollection, PtuPokemonCollection>
+{
+    private static readonly dexTypeToPrefix: Record<PtuFakemonDexType, FakemonDexNumberPrefix> = {
+        // Eden
+        [PtuFakemonDexType.Eden]: FakemonDexNumberPrefix.Eden,
+        [PtuFakemonDexType.EdenParadox]: FakemonDexNumberPrefix.EdenParadox,
+        [PtuFakemonDexType.EdenDrained]: FakemonDexNumberPrefix.EdenDrained,
+        [PtuFakemonDexType.EdenLegendary]: FakemonDexNumberPrefix.EdenLegendary,
+
+        // Meridia
+        [PtuFakemonDexType.Meridia]: FakemonDexNumberPrefix.Meridia,
+        [PtuFakemonDexType.MeridiaParadox]: FakemonDexNumberPrefix.MeridiaParadox,
+        [PtuFakemonDexType.MeridiaLegendary]: FakemonDexNumberPrefix.MeridiaLegendary,
+
+        // Magalam
+        [PtuFakemonDexType.Magalam]: FakemonDexNumberPrefix.Magalam,
+        [PtuFakemonDexType.MagalamParadox]: FakemonDexNumberPrefix.MagalamParadox,
+        [PtuFakemonDexType.MagalamLegendary]: FakemonDexNumberPrefix.MagalamLegendary,
+
+        // Distira
+        [PtuFakemonDexType.Distira]: FakemonDexNumberPrefix.Distira,
+        [PtuFakemonDexType.DistiraParadox]: FakemonDexNumberPrefix.DistiraParadox,
+        [PtuFakemonDexType.DistiraLegendary]: FakemonDexNumberPrefix.DistiraLegendary,
+    };
+
+    public async transform(input: PtuFakemonCollection, index = 0): Promise<PtuPokemonCollection>
+    {
+        const { dexPrefix, maxDexNumber } = await FakemonCollectionToPtuCollectionAdapter.getDexPrefixAndMaxDexNumber(input.dexType);
+        const {
+            imageUrl: _,
+            ...metadata
+        } = input.metadata;
+
+        return new PtuPokemonCollection({
+            _id: input.id,
+            name: input.name,
+            types: input.types,
+            baseStats: input.baseStats,
+            abilities: input.abilities,
+            evolution: input.evolution,
+            sizeInformation: input.sizeInformation,
+            breedingInformation: input.breedingInformation,
+            diets: input.diets,
+            habitats: input.habitats,
+            capabilities: input.capabilities,
+            skills: input.skills,
+            moveList: input.moveList,
+            megaEvolutions: input.megaEvolutions,
+            metadata: {
+                ...metadata,
+                // Set the dex number as the same category, but 1 more than the current highest
+                // Reference the index as well in case this is a bulk transform where writes will be happening concurrently
+                dexNumber: `${dexPrefix}${maxDexNumber + index + 1}`,
+            },
+            extras: input.extras,
+            edits: input.edits,
+            versionName: 'Original',
+            typeShifts: [],
+        });
+    }
+
+    public static async getDexPrefixAndMaxDexNumber(dexType: PtuFakemonCollection['dexType']): Promise<{ dexPrefix: FakemonDexNumberPrefix; maxDexNumber: number }>
+    {
+        // Get the current max dex number
+        const prefixToMaxDexNumber = await FakemonGeneralInformationManagerService.getCurrentMaxDexNumbers();
+        const dexPrefix = this.dexTypeToPrefix[dexType];
+        const maxDexNumber = prefixToMaxDexNumber[dexPrefix];
+
+        return { dexPrefix, maxDexNumber };
+    }
+}

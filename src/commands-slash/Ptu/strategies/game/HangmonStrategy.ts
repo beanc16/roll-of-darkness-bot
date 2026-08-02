@@ -12,11 +12,11 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { RandomService } from '../../../../services/RandomService.js';
-import { RegexLookupType } from '../../../../services/stringHelpers.js';
+import { RandomService } from '../../../../services/RandomService/RandomService.js';
+import { RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
 import { CommandName } from '../../../../types/discord.js';
 import { BaseGenerateStrategy } from '../../../strategies/BaseGenerateStrategy/BaseGenerateStrategy.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy/InteractionStrategy.js';
 import { PaginationStrategy } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { HangmonActionRowBuilder, HangmonCustomIds } from '../../components/game/HangmonActionRowBuilder.js';
 import { type HangmonEmbedField, HangmonEmbedMessage } from '../../components/game/HangmonEmbedMessage.js';
@@ -201,7 +201,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
         {
             // Get the correct pokemon's data with image url
             const [fullPokemonData] = await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
-                name: state.correct.pokemon.name,
+                names: [state.correct.pokemon.name],
                 lookupType: RegexLookupType.ExactMatchCaseInsensitive,
             }) as PtuPokemonForLookupPokemon[];
 
@@ -263,7 +263,7 @@ export class HangmonStrategy extends BaseGenerateStrategy
                             commandName,
                         }),
                         [HangmonGameOverCustomIds.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(newReceivedInteraction as ButtonInteraction, strategies, {
-                            name: state.correct.pokemon.name,
+                            names: [state.correct.pokemon.name],
                         }),
                         [HangmonGameOverCustomIds.GuessHistory]: async () => await this.sendGuessHistory({
                             receivedInteraction: newReceivedInteraction as ButtonInteraction,

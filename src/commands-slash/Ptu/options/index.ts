@@ -4,15 +4,17 @@ import {
     SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
-import { chunkArray } from '../../../services/chunkArray.js';
-import { capitalizeFirstLetter } from '../../../services/stringHelpers.js';
-import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService.js';
+import { chunkArray } from '../../../services/chunkArray/chunkArray.js';
+import { capitalizeFirstLetter } from '../../../services/stringHelpers/stringHelpers.js';
+import { TypeEffectivenessRole } from '../services/PokemonTypeEffectivenessService/PokemonTypeEffectivenessService.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokemonTypeAndNone } from '../types/pokemon.js';
 import { PtuCharacterSheetName } from '../types/sheets.js';
 import * as calculateSubcommands from './calculate.js';
+import * as fakemonSubcommands from './fakemon.js';
 import * as gameSubcommands from './game.js';
 import * as generateSubcommands from './generate.js';
+import * as generateDevSubcommands from './generate_dev.js';
 import * as lookupSubcommands from './lookup.js';
 import * as randomSubcommands from './random.js';
 import * as rollSubcommands from './roll.js';
@@ -21,9 +23,11 @@ export enum PtuSubcommandGroup
 {
     Breed = 'breed',
     Calculate = 'calculate',
+    Fakemon = 'fakemon',
     Game = 'game',
     Generate = 'generate',
     Lookup = 'lookup',
+    Metadata = 'metadata',
     QuickReference = 'quick_reference',
     Random = 'random',
     Roll = 'roll',
@@ -35,17 +39,22 @@ export enum PtuQuickReferenceInfo
 {
     ActionTypes = 'action_types',
     ActionPoints = 'action_points',
+    AlchemyEnchantment = 'alchemy_enchantment',
     BookMechanics = 'book_mechanics',
     CoupDeGrace = 'coup_de_grace',
     DamageCharts = 'damage_charts',
     DamageFormula = 'damage_formula',
+    Disposition = 'disposition_chart',
+    EggGroups = 'egg_groups',
     HowToKillLegendaryPokemon = 'how_to_kill_legendary_pokemon',
     LegendaryAuras = 'legendary_auras',
+    MoveRanges = 'move_range',
     PokemonExperienceChart = 'pokemon_experience_chart',
     PowerChart = 'power_chart',
+    SizeChart = 'size_chart',
     SwitchingPokemon = 'switching_pokemon',
+    TempHp = 'temp_hp',
     TrainingPokemon = 'training_pokemon',
-    WeightClassChart = 'weight_class_chart',
     TypeChart = 'type_chart',
 }
 
@@ -103,6 +112,20 @@ export const calculate = (subcommandGroup: SlashCommandSubcommandGroupBuilder): 
     return subcommandGroup;
 };
 
+export const fakemon = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
+{
+    subcommandGroup.setName(PtuSubcommandGroup.Fakemon);
+    subcommandGroup.setDescription('Run PTU fakemon commands.');
+    Object.values(fakemonSubcommands).forEach((subcommand) =>
+    {
+        if (typeof subcommand === 'function')
+        {
+            subcommandGroup.addSubcommand(subcommand);
+        }
+    });
+    return subcommandGroup;
+};
+
 export const game = (subcommandGroup: SlashCommandSubcommandGroupBuilder): SlashCommandSubcommandGroupBuilder =>
 {
     subcommandGroup.setName(PtuSubcommandGroup.Game);
@@ -135,7 +158,7 @@ export const generateDev = (subcommandGroup: SlashCommandSubcommandGroupBuilder)
 {
     subcommandGroup.setName(PtuSubcommandGroup.Generate);
     subcommandGroup.setDescription('Run PTU generative AI commands.');
-    Object.values(generateSubcommands).forEach((subcommand) =>
+    Object.values(generateDevSubcommands).forEach((subcommand) =>
     {
         if (typeof subcommand === 'function')
         {
@@ -164,6 +187,33 @@ export const lookup = (subcommandGroup: SlashCommandSubcommandGroupBuilder, inde
         }
     });
     return subcommandGroup;
+};
+
+export const metadata = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuSubcommandGroup.Metadata);
+    subcommand.setDescription(`Get metadata about a character sheet's Pokemon.`);
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('character_name');
+        option.setDescription('The name of the character to train pokemon on.');
+
+        const choices = Object.values(PtuCharacterSheetName).map<APIApplicationCommandOptionChoice<string>>(
+            (name) =>
+            {
+                return {
+                    name,
+                    value: name,
+                };
+            },
+        );
+        option.addChoices(...choices);
+
+        return option.setRequired(true);
+    });
+
+    return subcommand;
 };
 
 export const quickReference = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
@@ -312,7 +362,7 @@ export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): Sl
             };
         },
     );
-    for (let index = 1; index <= 3; index += 1)
+    for (let index = 1; index <= 5; index += 1)
     {
         subcommand.addStringOption((option) =>
         {
@@ -334,7 +384,6 @@ export const typeEffectiveness = (subcommand: SlashCommandSubcommandBuilder): Sl
         PtuAutocompleteParameterName.Ability1,
         PtuAutocompleteParameterName.Ability2,
         PtuAutocompleteParameterName.Ability3,
-        PtuAutocompleteParameterName.Ability4,
     ].forEach((name) =>
     {
         subcommand.addStringOption((option) =>

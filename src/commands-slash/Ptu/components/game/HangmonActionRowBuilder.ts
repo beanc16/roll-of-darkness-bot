@@ -5,7 +5,7 @@ import {
 } from 'discord.js';
 
 import { CommandName } from '../../../../types/discord.js';
-import { type HandleInteractionsOptions, PaginatedStringSelectMenu } from '../../../components/PaginatedStringSelectMenu.js';
+import { type HandleInteractionsOptions, PaginatedStringSelectMenu } from '../../../shared/components/PaginatedStringSelectMenu.js';
 import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { HangmonState } from '../../types/hangmon.js';
 import { HangmonEmbedMessage } from './HangmonEmbedMessage.js';

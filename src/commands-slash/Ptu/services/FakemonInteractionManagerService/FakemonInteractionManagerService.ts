@@ -1,0 +1,179 @@
+import { InteractionEditReplyOptions, InteractionUpdateOptions } from 'discord.js';
+
+import { InteractionManager, InteractionManagerNavigateToOptions } from '../../../../services/InteractionManager/InteractionManager.js';
+import { InteractionManagerPage } from '../../../../services/InteractionManager/InteractionManagerPage.js';
+import {
+    getFakemonBasicInformationComponents,
+    getFakemonBreedingInformationComponents,
+    getFakemonCapabilitiesComponents,
+    getFakemonEggMovesComponents,
+    getFakemonEnvironmentComponents,
+    getFakemonEvolutionsComponents,
+    getFakemonLevelUpMovesComponents,
+    getFakemonOverviewComponents,
+    getFakemonSizeInformationComponents,
+    getFakemonSkillsComponents,
+    getFakemonStatsComponents,
+    getFakemonTmHmMovesComponents,
+    getFakemonTutorMovesComponents,
+} from '../../components/fakemon/actionRowData/index.js';
+import { FakemonBasicInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBasicInformationEmbedMessage.js';
+import { FakemonBreedingInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonBreedingInformationEmbedMessage.js';
+import { FakemonCapabilitiesEmbedMessage } from '../../components/fakemon/embeds/FakemonCapabilitiesEmbedMessage.js';
+import { FakemonEggMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonEggMovesEmbedMessage.js';
+import { FakemonEnvironmentEmbedMessage } from '../../components/fakemon/embeds/FakemonEnvironmentEmbedMessage.js';
+import { FakemonEvolutionsEmbedMessage } from '../../components/fakemon/embeds/FakemonEvolutionsEmbedMessage.js';
+import { FakemonLevelUpMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonLevelUpMovesEmbedMessage.js';
+import { FakemonOverviewEmbedMessage } from '../../components/fakemon/embeds/FakemonOverviewEmbedMessage.js';
+import { FakemonSizeInformationEmbedMessage } from '../../components/fakemon/embeds/FakemonSizeInformationEmbedMessage.js';
+import { FakemonSkillsEmbedMessage } from '../../components/fakemon/embeds/FakemonSkillsEmbedMessage.js';
+import { FakemonStatsEmbedMessage } from '../../components/fakemon/embeds/FakemonStatsEmbedMessage.js';
+import { FakemonTmHmMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonTmHmMovesEmbedMessage.js';
+import { FakemonTutorMovesEmbedMessage } from '../../components/fakemon/embeds/FakemonTutorMovesEmbedMessage.js';
+import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { FakemonInteractionManagerPage } from './types.js';
+
+export type FakemonInteractionManagerInteractionType = 'editReply' | 'update';
+
+type FakemonInteractionManagerNavigateToOptions = InteractionManagerNavigateToOptions<FakemonInteractionManagerPage, {
+    messageId: string;
+}>;
+
+/**
+ * Service for handling interaction updates for the fakemon
+ * subcommand group. This consolidates the navigation logic
+ * so that the embeds and components for each possible
+ * navigation action remain consistent.
+ */
+export class FakemonInteractionManagerService extends InteractionManager
+{
+    public static async navigateTo(options: FakemonInteractionManagerNavigateToOptions): Promise<void>
+    {
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(options.messageId);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+
+        const interactionOptions = this.getInteractionOptions({ page: options.page, fakemon });
+        await this.sendMessage<
+            FakemonInteractionManagerPage,
+            { messageId: string }
+        >(options, new InteractionManagerPage(interactionOptions));
+    }
+
+    private static getInteractionOptions({ page, fakemon }: Pick<FakemonInteractionManagerNavigateToOptions, 'page'> & { fakemon: PtuFakemonCollection }): Pick<InteractionEditReplyOptions | InteractionUpdateOptions, 'embeds' | 'components'>
+    {
+        switch (page)
+        {
+            case FakemonInteractionManagerPage.Overview:
+                return {
+                    embeds: [
+                        new FakemonOverviewEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonOverviewComponents(),
+                };
+
+            case FakemonInteractionManagerPage.Stats:
+                return {
+                    embeds: [
+                        new FakemonStatsEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonStatsComponents(),
+                };
+
+            case FakemonInteractionManagerPage.BasicInformation:
+                return {
+                    embeds: [
+                        new FakemonBasicInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonBasicInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Evolutions:
+                return {
+                    embeds: [
+                        new FakemonEvolutionsEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEvolutionsComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.SizeInformation:
+                return {
+                    embeds: [
+                        new FakemonSizeInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonSizeInformationComponents(),
+                };
+
+            case FakemonInteractionManagerPage.BreedingInformation:
+                return {
+                    embeds: [
+                        new FakemonBreedingInformationEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonBreedingInformationComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Environment:
+                return {
+                    embeds: [
+                        new FakemonEnvironmentEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEnvironmentComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Capabilities:
+                return {
+                    embeds: [
+                        new FakemonCapabilitiesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonCapabilitiesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.Skills:
+                return {
+                    embeds: [
+                        new FakemonSkillsEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonSkillsComponents(),
+                };
+
+            case FakemonInteractionManagerPage.LevelUpMoves:
+                return {
+                    embeds: [
+                        new FakemonLevelUpMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonLevelUpMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.EggMoves:
+                return {
+                    embeds: [
+                        new FakemonEggMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonEggMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.TmHmMoves:
+                return {
+                    embeds: [
+                        new FakemonTmHmMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonTmHmMovesComponents(fakemon),
+                };
+
+            case FakemonInteractionManagerPage.TutorMoves:
+                return {
+                    embeds: [
+                        new FakemonTutorMovesEmbedMessage(fakemon),
+                    ],
+                    components: getFakemonTutorMovesComponents(fakemon),
+                };
+
+            default:
+                const typeGuard: never = page;
+                throw new Error(`Unhandled page: ${typeGuard}`);
+        }
+    }
+}

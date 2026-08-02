@@ -7,8 +7,7 @@ import type {
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
 import { BaseGetLookupSearchMatchType, BaseLookupStrategy } from '../../strategies/BaseLookupStrategy.js';
-import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
-import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import {
     CurseborneAllNestedSubcommands,
@@ -16,7 +15,20 @@ import {
     CurseborneSubcommandGroup,
 } from '../options/index.js';
 import { CurseborneLookupSubcommand } from '../options/lookup.js';
+import { CurseborneEquipment } from '../types/CurseborneEquipment.js';
+import { CurseborneSpell } from '../types/CurseborneSpell.js';
+import { CurseborneTrick } from '../types/CurseborneTrick.js';
+import { CurseborneChatIteractionStrategy, CurseborneStrategyMap } from '../types/strategies.js';
 import { CurseborneAutocompleteParameterName } from '../types/types.js';
+import { GetLookupAreaEffectDataParameters, LookupAreaEffectStrategy } from './lookup/LookupAreaEffectStrategy.js';
+import { GetLookupArtifactDataParameters, LookupArtifactStrategy } from './lookup/LookupArtifactStrategy.js';
+import { GetLookupEdgeDataParameters, LookupEdgeStrategy } from './lookup/LookupEdgeStrategy.js';
+import { GetLookupEquipmentDataParameters, LookupEquipmentStrategy } from './lookup/LookupEquipmentStrategy.js';
+import { GetLookupMotifDataParameters, LookupMotifStrategy } from './lookup/LookupMotifStrategy.js';
+import { GetLookupSpellAdvanceDataParameters, LookupSpellAdvanceStrategy } from './lookup/LookupSpellAdvanceStrategy.js';
+import { GetLookupSpellDataParameters, LookupSpellStrategy } from './lookup/LookupSpellStrategy.js';
+import { GetLookupStatusDataParameters, LookupStatusStrategy } from './lookup/LookupStatusStrategy.js';
+import { GetLookupTagDataParameters, LookupTagStrategy } from './lookup/LookupTagStrategy.js';
 import { GetLookupTrickDataParameters, LookupTrickStrategy } from './lookup/LookupTrickStrategy.js';
 import { RollStrategy } from './RollStrategy.js';
 
@@ -27,17 +39,30 @@ interface CursebourneStrategyExecutorRunParameters
     interaction: ChatInputCommandInteraction;
 }
 
-type AllLookupParams = GetLookupTrickDataParameters;
-
-type CurseborneStrategyMap = StrategyMap<
-    CurseborneSubcommandGroup,
-    CurseborneSubcommand | CurseborneLookupSubcommand
->;
+type AllLookupParams = GetLookupAreaEffectDataParameters
+    | GetLookupArtifactDataParameters
+    | GetLookupEdgeDataParameters
+    | GetLookupEquipmentDataParameters
+    | GetLookupMotifDataParameters
+    | GetLookupSpellDataParameters
+    | GetLookupSpellAdvanceDataParameters
+    | GetLookupStatusDataParameters
+    | GetLookupTagDataParameters
+    | GetLookupTrickDataParameters;
 
 export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 {
     protected static strategies: CurseborneStrategyMap = {
         [CurseborneSubcommandGroup.Lookup]: {
+            [LookupAreaEffectStrategy.key]: LookupAreaEffectStrategy,
+            [LookupArtifactStrategy.key]: LookupArtifactStrategy,
+            [LookupEdgeStrategy.key]: LookupEdgeStrategy,
+            [LookupEquipmentStrategy.key]: LookupEquipmentStrategy,
+            [LookupMotifStrategy.key]: LookupMotifStrategy,
+            [LookupSpellAdvanceStrategy.key]: LookupSpellAdvanceStrategy,
+            [LookupSpellStrategy.key]: LookupSpellStrategy,
+            [LookupStatusStrategy.key]: LookupStatusStrategy,
+            [LookupTagStrategy.key]: LookupTagStrategy,
             [LookupTrickStrategy.key]: LookupTrickStrategy,
         },
         [RollStrategy.key]: RollStrategy,
@@ -50,15 +75,14 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: CursebourneStrategyExecutorRunParameters): Promise<boolean>
     {
-        const Strategy = this.getStrategy({
-            strategies: this.strategies,
+        const Strategy = this.getCurseborneStrategy({
             subcommandGroup,
             subcommand,
         });
 
         if (Strategy)
         {
-            return await Strategy.run(interaction);
+            return await Strategy.run(interaction, this.strategies);
         }
 
         return false;
@@ -70,6 +94,200 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
 
         // Get data based on the autocompleteName
         const handlerMap: AutocompleteHandlerMap<CurseborneAutocompleteParameterName> = {
+            [CurseborneAutocompleteParameterName.AreaEffect]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.AreaEffect,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.Artifact]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Artifact,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.EdgeName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Edge,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.EquipmentName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Equipment,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.EquipmentTag]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneEquipment>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Equipment,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { tags = [] }) =>
+                {
+                    tags.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
+            [CurseborneAutocompleteParameterName.MotifName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Motif,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.SpellName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Spell,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.SpellAvailableTo]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneSpell>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Spell,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { availableTo = [] }) =>
+                {
+                    availableTo.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
+            [CurseborneAutocompleteParameterName.SpellType]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneSpell>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Spell,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { types = [] }) =>
+                {
+                    types.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
+            [CurseborneAutocompleteParameterName.SpellAttunement]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneSpell>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Spell,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { attunements = [] }) =>
+                {
+                    attunements.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
+            [CurseborneAutocompleteParameterName.SpellAdvanceName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.SpellAdvance,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { names: [focusedValue.value] } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.StatusName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Status,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
+            [CurseborneAutocompleteParameterName.TagName]: () => CurseborneStrategyExecutor.getLookupData({
+                subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                subcommand: CurseborneLookupSubcommand.Tag,
+                lookupParams: {
+                    ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                    options: {
+                        matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                    },
+                },
+            }),
             [CurseborneAutocompleteParameterName.TrickName]: () => CurseborneStrategyExecutor.getLookupData({
                 subcommandGroup: CurseborneSubcommandGroup.Lookup,
                 subcommand: CurseborneLookupSubcommand.Trick,
@@ -80,6 +298,32 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
                     },
                 },
             }),
+            [CurseborneAutocompleteParameterName.TrickTag]: async () =>
+            {
+                const data = await CurseborneStrategyExecutor.getLookupData<CurseborneTrick>({
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand: CurseborneLookupSubcommand.Trick,
+                    lookupParams: {
+                        ...(focusedValue.value.length > 0 ? { name: focusedValue.value } : {}),
+                        options: {
+                            matchType: BaseGetLookupSearchMatchType.SubstringMatch,
+                        },
+                    },
+                });
+
+                // Set unique values
+                const set = data.reduce<Set<string>>((acc, { tags = [] }) =>
+                {
+                    tags.forEach(element => acc.add(element));
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
         };
 
         const data = await handlerMap[autocompleteName]();
@@ -117,7 +361,8 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
     }: Pick<CursebourneStrategyExecutorRunParameters, 'subcommandGroup' | 'subcommand'> & { lookupParams: AllLookupParams }): Promise<ClassInstance[]>
     {
         const Strategy = this.getStrategy({
-            strategies: this.strategies,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+            strategies: this.strategies as any,
             subcommandGroup,
             subcommand,
         }) as BaseLookupStrategy<AllLookupParams, ClassInstance>;
@@ -128,5 +373,38 @@ export class CurseborneStrategyExecutor extends BaseStrategyExecutor
         }
 
         return [];
+    }
+
+    /* istanbul ignore next */
+    private static getCurseborneStrategy({ subcommandGroup, subcommand }: {
+        subcommandGroup: CurseborneSubcommandGroup | undefined;
+        subcommand: CurseborneLookupSubcommand | CurseborneSubcommand;
+    }): CurseborneChatIteractionStrategy | undefined
+    {
+        let Strategy: CurseborneChatIteractionStrategy | undefined;
+
+        if (subcommandGroup?.includes(CurseborneSubcommandGroup.Lookup))
+        {
+            for (let index = 1; index <= 2; index += 1)
+            {
+                Strategy = super.getStrategy({
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                    strategies: this.strategies as any,
+                    subcommandGroup: CurseborneSubcommandGroup.Lookup,
+                    subcommand,
+                });
+            }
+        }
+        else
+        {
+            Strategy = super.getStrategy({
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- This is an extended-ish version of the original, but TS doesn't recognize it as such
+                strategies: this.strategies as any,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+
+        return Strategy;
     }
 }

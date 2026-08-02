@@ -15,12 +15,14 @@ export enum NwodLookupSubcommand
 {
     Condition = 'condition',
     Contract = 'contract',
+    DreadPower = 'dread_power',
     GoblinFruit = 'goblin_fruit',
     Haunt = 'haunt',
     Kith = 'kith',
     Memento = 'memento',
     Merit = 'merit',
     Needle = 'needle',
+    Numina = 'numina',
     RootAndBloom = 'root_bloom',
     Thread = 'thread',
     Tilt = 'tilt',
@@ -41,11 +43,19 @@ export const condition = (subcommand: SlashCommandSubcommandBuilder): SlashComma
         return option.setAutocomplete(true);
     });
 
-    // Name
+    // Clarity Condition Tags
     subcommand.addStringOption((option) =>
     {
         option.setName(NwodAutocompleteParameterName.ClarityConditionTag);
         option.setDescription(`The condition's clarity tags.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Types
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.ConditionType);
+        option.setDescription(`The condition's type(s).`);
         return option.setAutocomplete(true);
     });
 
@@ -87,6 +97,30 @@ export const contract = (subcommand: SlashCommandSubcommandBuilder): SlashComman
             );
         });
     }
+
+    return subcommand;
+};
+
+export const dreadPower = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.DreadPower);
+    subcommand.setDescription('Get a list of dread powers based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.DreadPowerName);
+        option.setDescription(`The dread power's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.DreadPowerType);
+        option.setDescription(`The dread power's type.`);
+        return option.setAutocomplete(true);
+    });
 
     return subcommand;
 };
@@ -265,6 +299,30 @@ export const needle = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
         option.setName(NwodAutocompleteParameterName.NeedleName);
         option.setDescription(`The needle's name.`);
         option.setRequired(true);
+        return option.setAutocomplete(true);
+    });
+
+    return subcommand;
+};
+
+export const numina = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(NwodLookupSubcommand.Numina);
+    subcommand.setDescription('Get a list of numina based on the given parameters.');
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.NuminaName);
+        option.setDescription(`The numina's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(NwodAutocompleteParameterName.NuminaType);
+        option.setDescription(`The numina's type.`);
         return option.setAutocomplete(true);
     });
 

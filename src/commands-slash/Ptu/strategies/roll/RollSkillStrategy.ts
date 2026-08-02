@@ -2,10 +2,10 @@ import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { DiceLiteService } from '../../../../services/Dice/DiceLiteService.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy/RerollStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
 import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';

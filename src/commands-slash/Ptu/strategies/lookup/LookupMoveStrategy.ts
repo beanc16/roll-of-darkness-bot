@@ -1,13 +1,17 @@
+/* eslint-disable max-classes-per-file */ // Necessary for in-line aggregate class
+
 import { logger } from '@beanc16/logger';
 import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { EqualityOption } from '../../../options/shared.js';
+import { parseRegexByType, RegexLookupType } from '../../../../services/stringHelpers/stringHelpers.js';
+import { EqualityOption } from '../../../shared/options/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import type { OnRowAbovePaginationButtonPressResponse } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { LookupMoveActionRowBuilder, LookupMoveCustomId } from '../../components/lookup/LookupMoveActionRowBuilder.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
+import { PokemonController } from '../../dal/PtuController.js';
 import { getLookupMovesEmbedMessages } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -21,6 +25,7 @@ import {
     PtuContestStatEffect,
     PtuContestStatType,
     PtuMoveFrequency,
+    PtuMoveListType,
 } from '../../types/pokemon.js';
 import { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 
@@ -63,10 +68,10 @@ export class LookupMoveStrategy
             ...(data.length === 1
                 ? {
                     rowsAbovePagination: [
-                        new LookupMoveActionRowBuilder(),
+                        new LookupMoveActionRowBuilder({ basedOn: data[0].basedOn }),
                     ],
                     onRowAbovePaginationButtonPress: async (buttonInteraction) =>
-                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name),
+                        await this.handleButtons(buttonInteraction as ButtonInteraction, strategies, data[0].name, data[0].basedOn),
                 }
                 : {}
             ),
@@ -138,7 +143,7 @@ export class LookupMoveStrategy
 
                 const results = PtuMovesSearchService.search(output, parsedInput);
 
-                const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
+                const resultNames = new Set(results.filter(Boolean).map((element) => element.name.toLowerCase()));
                 const manualResults = output.filter((element) =>
                 {
                     // Only add items not already in the list
@@ -171,32 +176,49 @@ export class LookupMoveStrategy
                 ];
             }
 
-            output.sort((a, b) =>
+            // Filter out those not in the given movelist
+            if (input.moveListType)
             {
-                if (parsedInput.sortBy === 'name')
-                {
-                    return a.name.localeCompare(b.name);
-                }
+                // Get query params
+                const moveNames = output.map(({ name }) => name);
+                const moveFindParams = PokemonController.getMoveListTypeSearchParams(moveNames, input.moveListType);
+                const {
+                    unwindPath,
+                    matchStage,
+                    groupField,
+                } = this.getMoveListTypeAggregationConfig(moveNames, input.moveListType);
 
-                if (parsedInput.sortBy === 'type')
-                {
-                    const result = a.type?.localeCompare(b.type ?? '');
-
-                    if (result)
+                // Get moves that are in the given movelist type
+                const { results: [{ matchedMoves = [] }] = [{}] } = await PokemonController.aggregate([
+                    // 1. Only look at pokemon that have at least one of the target moves
+                    { $match: moveFindParams },
+                    // 2. Flatten the array so each move becomes its own document
+                    { $unwind: unwindPath },
+                    // 3. Keep only the moves that are in the original input list
+                    { $match: matchStage },
+                    // 4. Collect the distinct matched move names
+                    { $group: { _id: null, matchedMoves: { $addToSet: groupField } } },
+                    // 5. (Optional) Remove null _id from the output
+                    { $project: { _id: 0, matchedMoves: 1 } },
+                ], {
+                    // Custom mapping class for the aggregation
+                    // (without this, it will attempt to map to PokemonController's default Model class)
+                    Model: class
                     {
-                        return result;
-                    }
-                }
+                        public matchedMoves: number;
+                        constructor(params: { matchedMoves: number })
+                        {
+                            this.matchedMoves = params.matchedMoves;
+                        }
+                    },
+                }) as { results: [{ matchedMoves: string[] }] };
+                const matchedMovesSet = new Set(matchedMoves); // Set.has is faster than Array.includes
 
-                /*
-                * Sort by:
-                * 1) Type
-                * 2) Name
-                */
-                return a.type?.localeCompare(b.type ?? '')
-                    || a.name.localeCompare(b.name);
-            });
-            return output;
+                // Only keep moves that are in the given movelist type
+                output = output.filter((move) => matchedMovesSet.has(move.name));
+            }
+
+            return this.sortMoves(output, parsedInput);
         }
 
         catch (error)
@@ -206,15 +228,48 @@ export class LookupMoveStrategy
         }
     }
 
+    public static sortMoves(moves: PtuMove[], { sortBy }: Pick<GetLookupMoveDataParameters, 'sortBy'> = {}): PtuMove[]
+    {
+        return moves.sort((a, b) =>
+        {
+            if (sortBy === 'name')
+            {
+                return a.name.localeCompare(b.name);
+            }
+
+            if (sortBy === 'type')
+            {
+                const result = a.type?.localeCompare(b.type ?? '');
+
+                if (result)
+                {
+                    return result;
+                }
+            }
+
+            /*
+            * Sort by:
+            * 1) Type
+            * 2) Name
+            */
+            return a.type?.localeCompare(b.type ?? '')
+                || a.name.localeCompare(b.name);
+        });
+    }
+
     private static async handleButtons(
         buttonInteraction: ButtonInteraction,
         strategies: PtuStrategyMap,
         moveName: string,
+        basedOnMoveName: string | undefined,
     ): Promise<Pick<OnRowAbovePaginationButtonPressResponse, 'shouldUpdateMessage'>>
     {
         const handlerMap: Record<LookupMoveCustomId, () => Promise<boolean | undefined>> = {
             [LookupMoveCustomId.LookupPokemon]: async () => await strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.run(buttonInteraction, strategies, {
                 moveName,
+            }),
+            [LookupMoveCustomId.LookupBasedOnMove]: async () => await this.run(buttonInteraction, strategies, {
+                names: [...(basedOnMoveName ? [basedOnMoveName] : [])],
             }),
         };
 
@@ -248,6 +303,8 @@ export class LookupMoveStrategy
         const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
         const ac = interaction.options.getInteger('ac');
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
+        const keywordName = interaction.options.getString(PtuAutocompleteParameterName.KeywordName);
+        const moveListType = interaction.options.getString('move_list_type') as PtuMoveListType | null;
         const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
         const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
         const includeContestStats = interaction.options.getBoolean('include_contest_stats');
@@ -265,6 +322,8 @@ export class LookupMoveStrategy
             frequency,
             ac,
             acEquality,
+            keywordName,
+            moveListType,
             contestStatType,
             contestStatEffect,
             includeContestStats,
@@ -273,5 +332,48 @@ export class LookupMoveStrategy
             rangeSearch,
             effectSearch,
         };
+    }
+
+    public static getMoveListTypeAggregationConfig(moveNames: string[], moveListType: PtuMoveListType): {
+        unwindPath: string;
+        matchStage: Record<string, unknown>;
+        groupField: string;
+    }
+    {
+        const key = `moveList.${moveListType}`;
+        let output: {
+            unwindPath: string;
+            matchStage: Record<string, unknown>;
+            groupField: string;
+        } = {
+            unwindPath: `$${key}`,
+            matchStage: {},
+            groupField: `$${key}`,
+        };
+
+        switch (moveListType)
+        {
+            case PtuMoveListType.EggMoves:
+            case PtuMoveListType.TutorMoves:
+            case PtuMoveListType.ZygardeCubeMoves:
+                output.matchStage = { [key]: { $in: moveNames } };
+                break;
+            case PtuMoveListType.TmHm:
+                output.matchStage = {
+                    [key]: parseRegexByType(moveNames, RegexLookupType.SubstringCaseInsensitive),
+                };
+                break;
+            case PtuMoveListType.LevelUp:
+                output = {
+                    ...output,
+                    matchStage: { [`${key}.move`]: { $in: moveNames } },
+                    groupField: `$${key}.move`,
+                };
+                break;
+            default:
+                throw new Error(`Unknown move list type: ${moveListType}`);
+        }
+
+        return output;
     }
 }

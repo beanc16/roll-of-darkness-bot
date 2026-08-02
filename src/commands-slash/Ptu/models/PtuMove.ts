@@ -1,7 +1,7 @@
 import { logger } from '@beanc16/logger';
 
-import { EnumParserService } from '../../../services/EnumParserService.js';
-import { EqualityOption } from '../../options/shared.js';
+import { EnumParserService } from '../../../services/EnumParserService/EnumParserService.js';
+import { EqualityOption } from '../../shared/options/shared.js';
 import { GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {
     PokemonMoveCategory,
@@ -221,24 +221,24 @@ export class PtuMove
             if (this.damageBase === undefined) return false;
             switch (input.dbEquality)
             {
-            case EqualityOption.GreaterThanOrEqualTo:
-                if (!(this.damageBase >= input.db)) return false;
-                break;
-            case EqualityOption.GreaterThan:
-                if (!(this.damageBase > input.db)) return false;
-                break;
-            case EqualityOption.LessThanOrEqualTo:
-                if (!(this.damageBase <= input.db)) return false;
-                break;
-            case EqualityOption.LessThan:
-                if (!(this.damageBase < input.db)) return false;
-                break;
-            case EqualityOption.NotEqualTo:
-                if (!(this.damageBase !== input.db)) return false;
-                break;
-            case EqualityOption.Equal:
-            default:
-                if (!(this.damageBase === input.db)) return false;
+                case EqualityOption.GreaterThanOrEqualTo:
+                    if (!(this.damageBase >= input.db)) return false;
+                    break;
+                case EqualityOption.GreaterThan:
+                    if (!(this.damageBase > input.db)) return false;
+                    break;
+                case EqualityOption.LessThanOrEqualTo:
+                    if (!(this.damageBase <= input.db)) return false;
+                    break;
+                case EqualityOption.LessThan:
+                    if (!(this.damageBase < input.db)) return false;
+                    break;
+                case EqualityOption.NotEqualTo:
+                    if (!(this.damageBase !== input.db)) return false;
+                    break;
+                case EqualityOption.Equal:
+                default:
+                    if (!(this.damageBase === input.db)) return false;
             }
         }
 
@@ -254,25 +254,31 @@ export class PtuMove
             if (this.ac === undefined) return false;
             switch (input.acEquality)
             {
-            case EqualityOption.GreaterThanOrEqualTo:
-                if (!(this.ac >= input.ac)) return false;
-                break;
-            case EqualityOption.GreaterThan:
-                if (!(this.ac > input.ac)) return false;
-                break;
-            case EqualityOption.LessThanOrEqualTo:
-                if (!(this.ac <= input.ac)) return false;
-                break;
-            case EqualityOption.LessThan:
-                if (!(this.ac < input.ac)) return false;
-                break;
-            case EqualityOption.NotEqualTo:
-                if (!(this.ac !== input.ac)) return false;
-                break;
-            case EqualityOption.Equal:
-            default:
-                if (!(this.ac === input.ac)) return false;
+                case EqualityOption.GreaterThanOrEqualTo:
+                    if (!(this.ac >= input.ac)) return false;
+                    break;
+                case EqualityOption.GreaterThan:
+                    if (!(this.ac > input.ac)) return false;
+                    break;
+                case EqualityOption.LessThanOrEqualTo:
+                    if (!(this.ac <= input.ac)) return false;
+                    break;
+                case EqualityOption.LessThan:
+                    if (!(this.ac < input.ac)) return false;
+                    break;
+                case EqualityOption.NotEqualTo:
+                    if (!(this.ac !== input.ac)) return false;
+                    break;
+                case EqualityOption.Equal:
+                default:
+                    if (!(this.ac === input.ac)) return false;
             }
+        }
+
+        // Keyword Name
+        if (input.keywordName && !this.range?.includes(input.keywordName))
+        {
+            return false;
         }
 
         // Contest Stats

@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
-import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { ChatIteractionStrategy, StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AutocompleteHandlerMap, BaseLookupDataOptions } from '../../strategies/types/types.js';
 import { NwodSubcommand, NwodSubcommandGroup } from '../options/index.js';
@@ -19,7 +19,9 @@ import { ChangelingToken } from '../types/ChangelingToken.js';
 import { GeistHaunt } from '../types/GeistHaunt.js';
 import { NwodAutocompleteParameterName } from '../types/lookup.js';
 import { NwodCondition } from '../types/NwodCondition.js';
+import { NwodDreadPower } from '../types/NwodDreadPower.js';
 import { NwodMerit } from '../types/NwodMerit.js';
+import { NwodNumina } from '../types/NwodNumina.js';
 import { NwodTilt } from '../types/NwodTilt.js';
 import { NwodWeapon } from '../types/NwodWeapon.js';
 import calculateStrategies from './calculate/index.js';
@@ -121,11 +123,64 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 output.sort((a, b) => a.name.localeCompare(b.name));
                 return output;
             },
+            [NwodAutocompleteParameterName.ConditionType]: async () =>
+            {
+                const conditions = await NwodStrategyExecutor.getLookupData<NwodCondition>({
+                    subcommandGroup: NwodSubcommandGroup.Lookup,
+                    subcommand: NwodLookupSubcommand.Condition,
+                    options: { includeAllIfNoName: true, sortBy: 'name' },
+                });
+
+                const set = conditions.reduce<Set<string>>((acc, cur) =>
+                {
+                    if (cur.types)
+                    {
+                        cur.types.forEach(tag => acc.add(tag));
+                    }
+
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [NwodAutocompleteParameterName.ContractName]: () => NwodStrategyExecutor.getLookupData<ChangelingContract>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.Contract,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.DreadPowerName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.DreadPower,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.DreadPowerType]: async () =>
+            {
+                const dreadPowers = await NwodStrategyExecutor.getLookupData<NwodDreadPower>({
+                    subcommandGroup: NwodSubcommandGroup.Lookup,
+                    subcommand: NwodLookupSubcommand.DreadPower,
+                    options: { includeAllIfNoName: true, sortBy: 'name' },
+                });
+
+                const set = dreadPowers.reduce<Set<string>>((acc, cur) =>
+                {
+                    if (cur.types)
+                    {
+                        cur.types.forEach(type => acc.add(type));
+                    }
+
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [NwodAutocompleteParameterName.GoblinFruitName]: () => NwodStrategyExecutor.getLookupData<ChangelingGoblinFruit>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.GoblinFruit,
@@ -156,6 +211,35 @@ export class NwodStrategyExecutor extends BaseStrategyExecutor
                 subcommand: NwodLookupSubcommand.Needle,
                 options: { includeAllIfNoName: true, sortBy: 'name' },
             }),
+            [NwodAutocompleteParameterName.NuminaName]: () => NwodStrategyExecutor.getLookupData<NwodCondition>({
+                subcommandGroup: NwodSubcommandGroup.Lookup,
+                subcommand: NwodLookupSubcommand.Numina,
+                options: { includeAllIfNoName: true, sortBy: 'name' },
+            }),
+            [NwodAutocompleteParameterName.NuminaType]: async () =>
+            {
+                const numina = await NwodStrategyExecutor.getLookupData<NwodNumina>({
+                    subcommandGroup: NwodSubcommandGroup.Lookup,
+                    subcommand: NwodLookupSubcommand.Numina,
+                    options: { includeAllIfNoName: true, sortBy: 'name' },
+                });
+
+                const set = numina.reduce<Set<string>>((acc, cur) =>
+                {
+                    if (cur.types)
+                    {
+                        cur.types.forEach(type => acc.add(type));
+                    }
+
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(element => output.push({ name: element }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [NwodAutocompleteParameterName.RootAndBloomName]: () => NwodStrategyExecutor.getLookupData<ChangelingNeedle>({
                 subcommandGroup: NwodSubcommandGroup.Lookup,
                 subcommand: NwodLookupSubcommand.RootAndBloom,

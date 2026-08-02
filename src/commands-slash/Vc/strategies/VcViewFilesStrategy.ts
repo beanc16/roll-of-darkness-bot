@@ -1,12 +1,13 @@
-import { Text } from '@beanc16/discordjs-helpers';
 import {
-    FileStorageMicroservice,
-    FileStorageMicroserviceGetFilesResponseV1,
-    FileStorageMicroserviceResourceType,
-} from '@beanc16/microservices-abstraction';
-import { ChatInputCommandInteraction } from 'discord.js';
+    FileStorageGetFilesInFolderResponse,
+    FileStorageResourceType,
+    FileStorageService,
+} from '@beanc16/file-storage';
+import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../shared/embed-messages/shared.js';
+import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { getVcCommandNestedFolderName } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
@@ -18,45 +19,57 @@ export class VcViewFilesStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const messageContent = await this.getFileNamesMessage(interaction);
+        const embeds = await this.getFileNamesEmbeds(interaction);
 
-        await interaction.editReply({
-            content: messageContent,
+        // Send messages with pagination (fire and forget)
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+        PaginationStrategy.run({
+            originalInteraction: interaction,
+            commandName: `/vc view_files`,
+            embeds,
         });
 
         return true;
     }
 
-    private static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageMicroserviceGetFilesResponseV1['data']['files']>
+    public static async getUserFiles(interaction: ChatInputCommandInteraction): Promise<FileStorageGetFilesInFolderResponse>;
+    public static async getUserFiles(discordUserId: string): Promise<FileStorageGetFilesInFolderResponse>;
+    public static async getUserFiles(interactionOrDiscordUserId: ChatInputCommandInteraction | string): Promise<FileStorageGetFilesInFolderResponse>
     {
-        const {
-            data: {
-                files,
-            },
-        } = await FileStorageMicroservice.v1.getFiles({
+        const discordUserId = typeof interactionOrDiscordUserId === 'string'
+            ? interactionOrDiscordUserId
+            : interactionOrDiscordUserId.user.id;
+
+        const files = await FileStorageService.getFilesInFolder({
             appId: process.env.APP_ID as string,
-            nestedFolders: getVcCommandNestedFolderName(interaction.user.id),
-            resourceType: FileStorageMicroserviceResourceType.Audio,
+            nestedFolders: getVcCommandNestedFolderName(discordUserId),
+            resourceType: FileStorageResourceType.Audio,
         });
 
         return files;
     }
 
-    public static async getFileNamesMessage(interaction: ChatInputCommandInteraction): Promise<string>
+    public static async getFileNamesEmbeds(interaction: ChatInputCommandInteraction): Promise<EmbedBuilder[]>
     {
         const files = await this.getUserFiles(interaction);
 
         if (files.length === 0)
         {
-            return 'You have no uploaded files.';
+            return [
+                new EmbedBuilder({
+                    title: 'File Names',
+                    description: 'No files found.',
+                    color: 0xCDCDCD,
+                }),
+            ];
         }
 
-        const fileNamesList = files.reduce<string>((acc, { fileName }, index) =>
-        {
-            const lineBreak = (index !== 0) ? '\n' : '';
-            return `${acc}${lineBreak}- ${fileName}`;
-        }, '');
-
-        return `File Names:\n${Text.Code.multiLine(fileNamesList)}`;
+        return getPagedEmbedMessages<typeof files[number]>({
+            title: 'File Names',
+            input: files,
+            parseElementToLines: element => [
+                `- ${element.fileName}`,
+            ],
+        });
     }
 }

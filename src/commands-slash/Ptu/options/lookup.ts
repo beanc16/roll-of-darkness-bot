@@ -1,6 +1,6 @@
 import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
 
-import { equalityOption } from '../../options/shared.js';
+import { equalityOption } from '../../shared/options/shared.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { PokeballType } from '../types/pokeballType.js';
 import {
@@ -53,6 +53,16 @@ export enum PtuLookupSubcommand
     Weather = 'weather',
     XItem = 'x_item',
 }
+
+const moveListTypeChoices = Object.entries(PtuMoveListType).map<APIApplicationCommandOptionChoice<string>>(
+    ([key, value]) =>
+    {
+        return {
+            name: key,
+            value,
+        };
+    },
+);
 
 export const ability = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
@@ -176,12 +186,43 @@ export const classCommand = (subcommand: SlashCommandSubcommandBuilder): SlashCo
     subcommand.setName(PtuLookupSubcommand.Class);
     subcommand.setDescription('Get the features of a class based on the given parameters.');
 
-    // Name
+    // Names
+    [
+        PtuAutocompleteParameterName.ClassName1,
+        PtuAutocompleteParameterName.ClassName2,
+        PtuAutocompleteParameterName.ClassName3,
+        PtuAutocompleteParameterName.ClassName4,
+    ].forEach((paramName) =>
+    {
+        subcommand.addStringOption((option) =>
+        {
+            option.setName(paramName);
+            option.setDescription(`The class' name.`);
+            return option.setAutocomplete(true);
+        });
+    });
+
+    // Class Role
     subcommand.addStringOption((option) =>
     {
-        option.setName(PtuAutocompleteParameterName.ClassName);
-        option.setDescription(`The class' name.`);
-        option.setRequired(true);
+        option.setName(PtuAutocompleteParameterName.ClassRole);
+        option.setDescription(`Show all classes, but with the given class role sorted highest in the list.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Class Category
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.ClassCategory);
+        option.setDescription(`The category of classes to look up.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Tags
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FeatureTag);
+        option.setDescription(`The tag of classes to look up.`);
         return option.setAutocomplete(true);
     });
 
@@ -349,11 +390,11 @@ export const healingItem = (subcommand: SlashCommandSubcommandBuilder): SlashCom
     });
 
     // Type
-    const typeChoices = Object.entries(HealingItemType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
+    const typeChoices = Object.values(HealingItemType).map<APIApplicationCommandOptionChoice<string>>(
+        (value) =>
         {
             return {
-                name: key,
+                name: value,
                 value,
             };
         },
@@ -530,6 +571,27 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
         return newOption;
     });
 
+    // Keyword Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.KeywordName);
+        option.setDescription(`The keyword of moves to look up.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Move list type
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('move_list_type');
+        option.setDescription('The move list in which a move appears in.');
+        option.addChoices(
+            ...moveListTypeChoices.filter(
+                choice => choice.value !== PtuMoveListType.All.toString() && choice.value !== PtuMoveListType.ZygardeCubeMoves.toString(),
+            ),
+        );
+        return option;
+    });
+
     // Contest Stats
     const contestStatTypeChoices = Object.values(PtuContestStatType).map<APIApplicationCommandOptionChoice<string>>(
         (value) =>
@@ -702,15 +764,6 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Move search type
-    const moveListTypeChoices = Object.entries(PtuMoveListType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
-        {
-            return {
-                name: key,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
         option.setName('move_list_type');
@@ -754,6 +807,36 @@ export const pokemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     {
         option.setName(PtuAutocompleteParameterName.CapabilityName);
         option.setDescription(`The capability's name.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Habitat
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.HabitatName);
+        option.setDescription('The habitat of the Pokémon to search.');
+        return option.setAutocomplete(true);
+    });
+
+    // Diet
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.DietName);
+        option.setDescription('The diet of the Pokémon to search.');
+        return option.setAutocomplete(true);
+    });
+
+    // Egg Groups
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EggGroup1);
+        option.setDescription(`The egg group's name.`);
+        return option.setAutocomplete(true);
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.EggGroup2);
+        option.setDescription(`The egg group's name.`);
         return option.setAutocomplete(true);
     });
 
@@ -855,7 +938,6 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
     {
         option.setName(PtuAutocompleteParameterName.TmName);
         option.setDescription(`The tm's name.`);
-        option.setRequired(true);
         return option.setAutocomplete(true);
     });
 

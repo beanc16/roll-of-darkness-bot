@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 
 import { BaseCustomModal, InputValuesMap } from '../../../../modals/BaseCustomModal.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy/InteractionStrategy.js';
 import { NwodCalculateSubcommand } from '../../options/calculate.js';
 import { NwodSubcommandGroup } from '../../options/index.js';
 

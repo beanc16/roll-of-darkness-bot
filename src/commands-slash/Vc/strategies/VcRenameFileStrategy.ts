@@ -1,8 +1,9 @@
+import { FileStorageResourceType, FileStorageService } from '@beanc16/file-storage';
 import { logger } from '@beanc16/logger';
-import { FileStorageMicroservice, FileStorageMicroserviceResourceType } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import { PaginationStrategy } from '../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { VcSubcommand } from '../options/index.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
@@ -27,9 +28,14 @@ export class VcRenameFileStrategy
         }
         else
         {
-            const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
-            await interaction.editReply({
-                content: `Failed to rename file from \`${oldFileName}\` to \`${newFileName}\`. ${fileNamesList}`,
+            const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
+            // Send messages with pagination (fire and forget)
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
+            PaginationStrategy.run({
+                originalInteraction: interaction,
+                commandName: `/vc rename`,
+                content: `Failed to rename file from \`${oldFileName}\` to \`${newFileName}\`.`,
+                embeds: fileNamesEmbeds,
             });
         }
 
@@ -45,10 +51,8 @@ export class VcRenameFileStrategy
         try
         {
             const nestedFolders = `vc-commands/${interaction.user.id}`;
-            await FileStorageMicroservice.v1.rename({
-                app: {
-                    id: process.env.APP_ID as string,
-                },
+            await FileStorageService.rename({
+                appId: process.env.APP_ID as string,
                 old: {
                     fileName: oldFileName,
                     nestedFolders,
@@ -57,7 +61,7 @@ export class VcRenameFileStrategy
                     fileName: newFileName,
                     nestedFolders,
                 },
-                resourceType: FileStorageMicroserviceResourceType.Audio,
+                resourceType: FileStorageResourceType.Audio,
             });
             return true;
         }

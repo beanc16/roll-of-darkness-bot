@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { QueuePosition } from '../../../../services/Queue.js';
+import { QueuePosition } from '../../../../services/Queue/Queue.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import {
     getQueue,
@@ -51,9 +51,10 @@ export class QueueAddStrategy
         }
         else
         {
-            const fileNamesList = await VcViewFilesStrategy.getFileNamesMessage(interaction);
+            const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
             await interaction.followUp({
-                content: `A file named \`${fileName}\` does not exist. ${fileNamesList}`,
+                content: `A file named \`${fileName}\` does not exist.`,
+                embeds: fileNamesEmbeds,
                 ephemeral: true,
             });
         }

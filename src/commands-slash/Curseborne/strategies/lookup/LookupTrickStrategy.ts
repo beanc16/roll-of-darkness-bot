@@ -1,6 +1,8 @@
+import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import {
     BaseGetLookupDataParams,
     BaseGetLookupSearchMatchType,
@@ -17,10 +19,11 @@ import { BaseCurseborneLookupStrategy } from './BaseCurseborneLookupStrategy.js'
 export interface GetLookupTrickDataParameters extends BaseGetLookupDataParams
 {
     name?: string | null;
+    tag?: string | null;
 }
 
 @staticImplements<BaseLookupStrategy<GetLookupTrickDataParameters, CurseborneTrick>>()
-export class LookupTrickStrategy
+export class LookupTrickStrategy extends BaseCurseborneLookupStrategy
 {
     public static key: CurseborneLookupSubcommand.Trick = CurseborneLookupSubcommand.Trick;
 
@@ -29,59 +32,48 @@ export class LookupTrickStrategy
     ): Promise<boolean>
     {
         // Get parameter results
-        const name = interaction.options.getString(CurseborneAutocompleteParameterName.TrickName, true);
+        const name = interaction.options.getString(CurseborneAutocompleteParameterName.TrickName);
+        const tag = interaction.options.getString(CurseborneAutocompleteParameterName.TrickTag);
 
         // Get data
         const data = await this.getLookupData({
             name,
+            tag,
             options: {
                 matchType: BaseGetLookupSearchMatchType.ExactMatch,
             },
         });
 
         // Send message
-        return await BaseCurseborneLookupStrategy.run({
-            interaction,
-            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${CurseborneLookupSubcommand.Trick}`,
-            data,
-            embedTitle: 'Tricks',
+        const embeds = getPagedEmbedMessages({
+            input: data,
+            title: 'Tricks',
+            parseElementToLines: (element) => [
+                `${Text.bold(element.name)} (${element.hits} ${element.hits === '1' ? 'Hit' : 'Hits'})`,
+                ...(element.tags !== undefined
+                    ? [
+                        `Tags: ${element.tags.join(', ')}`,
+                    ]
+                    : []
+                ),
+                ...(element.description !== undefined
+                    ? [
+                        `Description:\n\`\`\`\n${element.description}\`\`\``,
+                    ]
+                    : []
+                ),
+            ],
+        });
+
+        return await LookupStrategy.run(interaction, embeds, {
+            commandName: `/cb ${CurseborneSubcommandGroup.Lookup} ${this.key}`,
+            noEmbedsErrorMessage: `No tricks were found.`,
         });
     }
 
     public static async getLookupData(input: GetLookupTrickDataParameters): Promise<CurseborneTrick[]>
     {
-        const {
-            options: _options,
-            ...remainingProperties
-        } = input;
-        const numOfKeys = Object.keys(remainingProperties).length;
-
-        const {
-            options: {
-                matchType,
-            },
-        } = input;
-
-        const hasMatch = ({ inputValue, elementValue }: {
-            inputValue?: string | null | undefined;
-            elementValue: string;
-        }): boolean =>
-        {
-            const map: Record<BaseGetLookupSearchMatchType, boolean> = {
-                [BaseGetLookupSearchMatchType.ExactMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && inputValue === elementValue
-                ),
-                [BaseGetLookupSearchMatchType.SubstringMatch]: (
-                    inputValue !== undefined
-                    && inputValue !== null
-                    && elementValue.toLowerCase().includes(inputValue.toLowerCase())
-                ),
-            };
-
-            return map[matchType];
-        };
+        const numOfDefinedLookupProperties = this.getNumOfDefinedLookupProperties(input);
 
         return await LookupStrategy.getLookupData({
             Class: CurseborneTrick,
@@ -92,10 +84,14 @@ export class LookupTrickStrategy
                 const element = new CurseborneTrick(cur);
 
                 if (
-                    numOfKeys === 0
-                    || hasMatch({
+                    numOfDefinedLookupProperties === 0
+                    || this.hasMatch(input, {
                         inputValue: input.name,
                         elementValue: element.name,
+                    })
+                    || this.hasArrayMatch(input, {
+                        inputValue: input.tag,
+                        elementValue: element.tags,
                     })
                 )
                 {

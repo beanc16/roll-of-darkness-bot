@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 
-import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../embed-messages/shared.js';
+import { createEmbedMessageDescriptionAndPage, getPagedEmbedBuilders } from '../../shared/embed-messages/shared.js';
 
 export const getQrBookMechanicsEmbedMessages = (lines: string[]): EmbedBuilder[] =>
 {

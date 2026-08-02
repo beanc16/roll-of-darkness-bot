@@ -1,4 +1,4 @@
-import { FileStorageMicroserviceImageBackground } from '@beanc16/microservices-abstraction';
+import { FileStorageServiceImageBackground } from '@beanc16/file-storage';
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
@@ -13,7 +13,7 @@ export class ImageBackgroundStrategy
 
     public static async run(interaction: ChatInputCommandInteraction): Promise<boolean>
     {
-        const backgroundColor = interaction.options.getString('color') as FileStorageMicroserviceImageBackground | null;
+        const backgroundColor = interaction.options.getString('color') as FileStorageServiceImageBackground | null;
         const rgbHexCode = interaction.options.getString('hex_code');
 
         const background = backgroundColor ?? rgbHexCode;

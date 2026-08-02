@@ -10,7 +10,6 @@ export enum VcSubcommandGroup
 
 export enum VcSubcommand
 {
-    // TODO: Add the commented out subcommands later
     Connect = 'connect',
     DeleteFile = 'delete_file',
     Disconnect = 'disconnect',
@@ -57,7 +56,10 @@ export const load = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     subcommand.setName(VcSubcommand.Load);
     subcommand.setDescription('Pre-Buffer audio so it can be played with less delay.');
 
-    subcommand.addStringOption(fileNameParameter);
+    for (let index = 1; index <= 10; index += 1)
+    {
+        subcommand.addStringOption((option) => fileNameParameter(option, index));
+    }
 
     return subcommand;
 };
@@ -153,7 +155,11 @@ export const upload = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     subcommand.setName(VcSubcommand.Upload);
     subcommand.setDescription(`Upload an audio file.`);
 
-    subcommand.addStringOption(fileNameParameter);
+    subcommand.addStringOption((option) =>
+    {
+        const fileNameOption = fileNameParameter(option);
+        return fileNameOption.setAutocomplete(false); // We don't want to use existing file names
+    });
     subcommand.addAttachmentOption((option) =>
     {
         option.setName('file');

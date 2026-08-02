@@ -4,13 +4,22 @@ import type {
     SlashCommandStringOption,
 } from 'discord.js';
 
-import { QueuePosition } from '../../../services/Queue.js';
+import { QueuePosition } from '../../../services/Queue/Queue.js';
 
-export const fileNameParameter = (option: SlashCommandStringOption): SlashCommandStringOption =>
+export const fileNameParameter = (option: SlashCommandStringOption, index?: number): SlashCommandStringOption =>
 {
-    option.setName('file_name');
+    option.setName(
+        index !== undefined
+            ? `file_name_${index}`
+            : 'file_name'
+    );
     option.setDescription('The name of the file.');
-    option.setRequired(true);
+    option.setAutocomplete(true);
+
+    if (index === undefined || index === 1)
+    {
+        option.setRequired(true);
+    }
     return option;
 };
 

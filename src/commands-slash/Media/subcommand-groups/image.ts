@@ -1,28 +1,17 @@
 import { FileStorageMicroserviceImageBackground } from '@beanc16/microservices-abstraction';
 import {
     APIApplicationCommandOptionChoice,
-    SlashCommandAttachmentOption,
     SlashCommandStringOption,
     SlashCommandSubcommandBuilder,
 } from 'discord.js';
+
+import { imageOption, imageUrlOption } from '../../shared/options/image.js';
 
 export enum MediaImageSubcommand
 {
     Background = 'background',
     Upscale = 'upscale',
 }
-
-const imageOption = (option: SlashCommandAttachmentOption): SlashCommandAttachmentOption =>
-{
-    option.setName('image');
-    return option.setDescription('An image. This will take precedence over image_url.');
-};
-
-const imageUrlOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
-{
-    option.setName('image_url');
-    return option.setDescription('The URL of an image.');
-};
 
 const fileNameOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
 {

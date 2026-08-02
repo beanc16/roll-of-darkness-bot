@@ -31,13 +31,39 @@ import {
 type NwodAutocompleteParameterNameToCache = Exclude<
     NwodAutocompleteParameterName,
     NwodAutocompleteParameterName.ClarityConditionTag
+    | NwodAutocompleteParameterName.ConditionType
+    | NwodAutocompleteParameterName.DreadPowerType
+    | NwodAutocompleteParameterName.NuminaType
 >;
 
 type PtuAutocompleteParameterNameToCache = Exclude<
     PtuAutocompleteParameterName,
     PtuAutocompleteParameterName.AuraUserName
+    | PtuAutocompleteParameterName.Ability1
+    | PtuAutocompleteParameterName.Ability2
+    | PtuAutocompleteParameterName.Ability3
+    | PtuAutocompleteParameterName.BaseAbilitiesOn
+    | PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn
+    | PtuAutocompleteParameterName.BaseMovesOn
+    | PtuAutocompleteParameterName.BaseOtherCapabilitiesOn
+    | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.ClassCategory
+    | PtuAutocompleteParameterName.ClassName2
+    | PtuAutocompleteParameterName.ClassName3
+    | PtuAutocompleteParameterName.ClassName4
+    | PtuAutocompleteParameterName.ClassRole
+    | PtuAutocompleteParameterName.DietName
+    | PtuAutocompleteParameterName.EggGroup1
+    | PtuAutocompleteParameterName.EggGroup2
+    | PtuAutocompleteParameterName.FakemonSpeciesName
+    | PtuAutocompleteParameterName.FeatureTag
+    | PtuAutocompleteParameterName.FemaleSpecies
+    | PtuAutocompleteParameterName.GiftBlessingPatron
+    | PtuAutocompleteParameterName.HabitatName
+    | PtuAutocompleteParameterName.MaleSpecies
+    | PtuAutocompleteParameterName.OracleGameName
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
 >;
@@ -95,6 +121,10 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Contract],
                 lookupSubcommand: NwodLookupSubcommand.Contract,
             },
+            [NwodAutocompleteParameterName.DreadPowerName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.DreadPower],
+                lookupSubcommand: NwodLookupSubcommand.DreadPower,
+            },
             [NwodAutocompleteParameterName.GoblinFruitName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.GoblinFruit],
                 lookupSubcommand: NwodLookupSubcommand.GoblinFruit,
@@ -118,6 +148,10 @@ export class RefreshCacheStrategy
             [NwodAutocompleteParameterName.NeedleName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Needle],
                 lookupSubcommand: NwodLookupSubcommand.Needle,
+            },
+            [NwodAutocompleteParameterName.NuminaName]: {
+                keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.Numina],
+                lookupSubcommand: NwodLookupSubcommand.Numina,
             },
             [NwodAutocompleteParameterName.RootAndBloomName]: {
                 keys: [rollOfDarknessNwodSpreadsheetId, NwodLookupRange.RootAndBloom],
@@ -145,22 +179,6 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
                 lookupSubcommand: PtuLookupSubcommand.Ability,
             },
-            [PtuAutocompleteParameterName.Ability1]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
-                lookupSubcommand: PtuLookupSubcommand.Ability,
-            },
-            [PtuAutocompleteParameterName.Ability2]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
-                lookupSubcommand: PtuLookupSubcommand.Ability,
-            },
-            [PtuAutocompleteParameterName.Ability3]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
-                lookupSubcommand: PtuLookupSubcommand.Ability,
-            },
-            [PtuAutocompleteParameterName.Ability4]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Ability],
-                lookupSubcommand: PtuLookupSubcommand.Ability,
-            },
             [PtuAutocompleteParameterName.AuraName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Aura],
                 lookupSubcommand: PtuLookupSubcommand.Aura,
@@ -173,7 +191,7 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Capability],
                 lookupSubcommand: PtuLookupSubcommand.Capability,
             },
-            [PtuAutocompleteParameterName.ClassName]: {
+            [PtuAutocompleteParameterName.ClassName1]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Class,
             },
@@ -193,15 +211,7 @@ export class RefreshCacheStrategy
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Feature],
                 lookupSubcommand: PtuLookupSubcommand.Feature,
             },
-            [PtuAutocompleteParameterName.FemaleSpecies]: { // This is part of the breeding command, but uses Pokemon data from the PTU spreadsheet
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.PokemonSkills],
-                lookupSubcommand: PtuLookupSubcommand.Pokemon,
-            },
             [PtuAutocompleteParameterName.GiftBlessingName]: {
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.GiftBlessing],
-                lookupSubcommand: PtuLookupSubcommand.GiftBlessing,
-            },
-            [PtuAutocompleteParameterName.GiftBlessingPatron]: { // This is already covered by GiftBlessingName, just including for posterity
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.GiftBlessing],
                 lookupSubcommand: PtuLookupSubcommand.GiftBlessing,
             },
@@ -224,10 +234,6 @@ export class RefreshCacheStrategy
             [PtuAutocompleteParameterName.KeywordName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Keyword],
                 lookupSubcommand: PtuLookupSubcommand.Keyword,
-            },
-            [PtuAutocompleteParameterName.MaleSpecies]: { // This is part of the breeding command, but uses Pokemon data from the PTU spreadsheet
-                keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Pokemon],
-                lookupSubcommand: PtuLookupSubcommand.Pokemon,
             },
             [PtuAutocompleteParameterName.MoveName]: {
                 keys: [rollOfDarknessPtuSpreadsheetId, PtuLookupRange.Move],
@@ -381,6 +387,7 @@ export class RefreshCacheStrategy
             ],
             [RefreshCacheCommand.Ptu]: [
                 DiscordUserId.Bean,
+                DiscordUserId.Avery,
                 DiscordUserId.Josh,
             ],
         };

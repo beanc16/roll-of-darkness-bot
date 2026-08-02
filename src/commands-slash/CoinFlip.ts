@@ -2,11 +2,11 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { Text } from '@beanc16/discordjs-helpers';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { DiceService } from '../services/DiceService.js';
+import { DiceService } from '../services/Dice/DiceService.js';
 import { DiscordInteractionCallbackType } from '../types/discord.js';
 import * as rollOptions from './Nwod/options/roll.js';
 import * as options from './options/index.js';
-import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from './strategies/RerollStrategy/RerollStrategy.js';
 
 enum CoinFlipResult
 {

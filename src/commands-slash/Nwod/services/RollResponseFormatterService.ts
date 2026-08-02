@@ -1,7 +1,7 @@
 import { Text } from '@beanc16/discordjs-helpers';
 
-import rollConstants from '../../../constants/roll.js';
-import { DicePoolGroup } from '../../../services/DicePoolGroup.js';
+import { DicePoolGroup } from '../../../services/Dice/DicePoolGroup.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 import { ResponseFormatterService } from '../../../services/ResponseFormatterService.js';
 
 export default class RollResponseFormatterService extends ResponseFormatterService

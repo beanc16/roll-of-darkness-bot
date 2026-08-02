@@ -7,15 +7,23 @@ import {
 export enum LookupPokemonCustomId
 {
     LookupAbility = 'Lookup Ability',
+    LookupBasedOnAbility = 'Lookup "Based On" Ability',
+    LookupPokemonByBasedOnAbility = 'Lookup Pokemon by "Based On" Ability',
     LookupCapability = 'Lookup Capability',
+    LookupEggGroups = 'Lookup Egg Groups',
     LookupMove = 'Lookup Move',
+    LookupBasedOnMove = 'Lookup "Based On" Move',
+    LookupPokemonByBasedOnMove = 'Lookup Pokemon by "Based On" Move',
 }
 
 interface LookupPokemonActionRowBuilderOptions
 {
     abilityName?: string;
+    basedOnAbilityName?: string;
     capabilityName?: string;
+    eggGroups?: string[];
     moveName?: string;
+    basedOnMoveName?: string;
 }
 
 export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
@@ -26,54 +34,80 @@ export class LookupPokemonActionRowBuilder extends ActionRowBuilder<ButtonBuilde
 
         const labelAndId = LookupPokemonActionRowBuilder.getLabelAndId(options);
 
-        if (labelAndId)
+        if (labelAndId.length > 0)
         {
-            this.setComponents([
-                new ButtonBuilder({
-                    customId: labelAndId.customId,
-                    label: labelAndId.label,
+            this.setComponents(
+                labelAndId.map(({ customId, label }) => new ButtonBuilder({
+                    customId,
+                    label,
                     emoji: '🔎',
                     style: ButtonStyle.Secondary,
-                }),
-            ]);
+                })),
+            );
         }
     }
 
-    private static getLabelAndId(options: LookupPokemonActionRowBuilderOptions = {}): undefined | {
+    private static getLabelAndId(options: LookupPokemonActionRowBuilderOptions = {}): {
         customId: LookupPokemonCustomId;
         label: string;
-    }
+    }[]
     {
-        const labelMap: Record<LookupPokemonCustomId, string> = {
-            [LookupPokemonCustomId.LookupAbility]: 'Lookup Ability',
-            [LookupPokemonCustomId.LookupCapability]: 'Lookup Capability',
-            [LookupPokemonCustomId.LookupMove]: 'Lookup Move',
-        };
-
         if (options.abilityName)
         {
-            return {
-                customId: LookupPokemonCustomId.LookupAbility,
-                label: labelMap[LookupPokemonCustomId.LookupAbility],
-            };
+            return [
+                {
+                    customId: LookupPokemonCustomId.LookupAbility,
+                    label: LookupPokemonCustomId.LookupAbility,
+                },
+                ...(options.basedOnAbilityName
+                    ? [{
+                        customId: LookupPokemonCustomId.LookupBasedOnAbility,
+                        label: LookupPokemonCustomId.LookupBasedOnAbility,
+                    }, {
+                        customId: LookupPokemonCustomId.LookupPokemonByBasedOnAbility,
+                        label: LookupPokemonCustomId.LookupPokemonByBasedOnAbility,
+                    }]
+                    : []
+                ),
+            ];
         }
 
         if (options.capabilityName)
         {
-            return {
+            return [{
                 customId: LookupPokemonCustomId.LookupCapability,
-                label: labelMap[LookupPokemonCustomId.LookupCapability],
-            };
+                label: LookupPokemonCustomId.LookupCapability,
+            }];
+        }
+
+        if (options.eggGroups)
+        {
+            return [{
+                customId: LookupPokemonCustomId.LookupEggGroups,
+                label: LookupPokemonCustomId.LookupEggGroups,
+            }];
         }
 
         if (options.moveName)
         {
-            return {
-                customId: LookupPokemonCustomId.LookupMove,
-                label: labelMap[LookupPokemonCustomId.LookupMove],
-            };
+            return [
+                {
+                    customId: LookupPokemonCustomId.LookupMove,
+                    label: LookupPokemonCustomId.LookupMove,
+                },
+                ...(options.basedOnMoveName
+                    ? [{
+                        customId: LookupPokemonCustomId.LookupBasedOnMove,
+                        label: LookupPokemonCustomId.LookupBasedOnMove,
+                    }, {
+                        customId: LookupPokemonCustomId.LookupPokemonByBasedOnMove,
+                        label: LookupPokemonCustomId.LookupPokemonByBasedOnMove,
+                    }]
+                    : []
+                ),
+            ];
         }
 
-        return undefined;
+        return [];
     }
 }

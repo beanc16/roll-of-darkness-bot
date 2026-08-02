@@ -1,6 +1,6 @@
 import { Text } from '@beanc16/discordjs-helpers';
 
-import { DicePoolGroup } from './DicePoolGroup.js';
+import { DicePoolGroup } from './Dice/DicePoolGroup.js';
 import { ResponseFormatterService } from './ResponseFormatterService.js';
 
 // TODO: This logic can be move to InitiativeStrategy

@@ -2,7 +2,25 @@ import { BreedPokemonUpdateAbilityModal } from './breed/BreedPokemonUpdateAbilit
 import { BreedPokemonUpdateGenderModal } from './breed/BreedPokemonUpdateGenderModal.js';
 import { BreedPokemonUpdateInheritanceMovesModal } from './breed/BreedPokemonUpdateInheritanceMovesModal.js';
 import { BreedPokemonUpdateNatureModal } from './breed/BreedPokemonUpdateNatureModal.js';
+import { FakemonAbilityEditingModal1 } from './fakemon/abilities/FakemonAbilityEditingModal1.js';
+import { FakemonAbilityEditingModal2 } from './fakemon/abilities/FakemonAbilityEditingModal2.js';
+import { FakemonNonOtherCapabilityEditingModal1 } from './fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
+import { FakemonNonOtherCapabilityEditingModal2 } from './fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
+import { FakemonOtherCapabilityAddingModal } from './fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
+import { FakemonEvolutionAddingModal } from './fakemon/evolutions/FakemonEvolutionAddingModal.js';
+import { FakemonEvolutionEditingModal } from './fakemon/evolutions/FakemonEvolutionEditingModal.js';
+import { FakemonSkillEditingModal } from './fakemon/FakemonSkillEditingModal.js';
+import { FakemonSpeciesNameEditingModal } from './fakemon/FakemonSpeciesNameEditingModal.js';
+import { FakemonStatEditingModal } from './fakemon/FakemonStatEditingModal.js';
+import { FakemonMoveLevelUpAddingModal } from './fakemon/moves/FakemonMoveLevelUpAddingModal.js';
+import { FakemonMoveLevelUpEditingModal } from './fakemon/moves/FakemonMoveLevelUpEditingModal.js';
+import { FakemonMoveNonLevelUpAddingModal } from './fakemon/moves/FakemonMoveNonLevelUpAddingModal.js';
+import { FakemonSIHeightEditingModal } from './fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
+import { FakemonSIWeightEditingModal } from './fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
 import { GenerateSkillBackgroundModal } from './generate/GenerateSkillBackgroundModal.js';
+import { OracleEditNotesModal } from './oracle/OracleEditNotesModal.js';
+import { OracleQuestionFateModal } from './oracle/OracleQuestionFateModal.js';
+import { OracleSetTopicModal } from './oracle/OracleSetTopicModal.js';
 
 export const ptuModals = [
     // Breed
@@ -11,6 +29,28 @@ export const ptuModals = [
     BreedPokemonUpdateGenderModal,
     BreedPokemonUpdateNatureModal,
 
+    // Fakemon
+    FakemonAbilityEditingModal1,
+    FakemonAbilityEditingModal2,
+    FakemonEvolutionAddingModal,
+    FakemonEvolutionEditingModal,
+    FakemonMoveLevelUpAddingModal,
+    FakemonMoveLevelUpEditingModal,
+    FakemonMoveNonLevelUpAddingModal,
+    FakemonNonOtherCapabilityEditingModal1,
+    FakemonNonOtherCapabilityEditingModal2,
+    FakemonOtherCapabilityAddingModal,
+    FakemonSIHeightEditingModal,
+    FakemonSIWeightEditingModal,
+    FakemonSkillEditingModal,
+    FakemonSpeciesNameEditingModal,
+    FakemonStatEditingModal,
+
     // Generate
     GenerateSkillBackgroundModal,
+
+    // Oracle
+    OracleEditNotesModal,
+    OracleQuestionFateModal,
+    OracleSetTopicModal,
 ];

@@ -1,0 +1,367 @@
+import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
+
+import { imageOption, imageUrlOption } from '../../shared/options/image.js';
+import { PtuFakemonDexType } from '../dal/models/PtuFakemonCollection.js';
+import { FakemonDataTransferPipelineKey } from '../services/FakemonDataManagers/dataTransfer/services/FakemonDataTransferService.js';
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+
+export enum PtuFakemonSubcommand
+{
+    Create = 'create',
+    Delete = 'delete',
+    Edit = 'edit',
+    Transfer = 'transfer',
+    TransferEdit = 'transfer_edit',
+    TransferTypeShift = 'transfer_type_shift',
+    ViewAll = 'view_all',
+    View = 'view',
+}
+
+const reportingDestinationChoices = Object.values(FakemonDataTransferPipelineKey).map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+const regionChoices = [
+    PtuFakemonDexType.Eden,
+    PtuFakemonDexType.Meridia,
+    PtuFakemonDexType.Magalam,
+    PtuFakemonDexType.Distira,
+].map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+const dexTypeChoices = Object.values(PtuFakemonDexType).map<APIApplicationCommandOptionChoice<string>>(
+    (value) =>
+    {
+        return {
+            name: value,
+            value,
+        };
+    },
+);
+
+export const create = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Create);
+    subcommand.setDescription('Create a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('species_name');
+        option.setDescription(`The name of the custom Pokémon species.`);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        option.setChoices(
+            ...regionChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseSpeciesOn);
+        option.setDescription(`The species to base the custom Pokémon on.`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseMovesOn);
+        option.setDescription(`The species to base the custom Pokémon's moveset on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseAbilitiesOn);
+        option.setDescription(`The species to base the custom Pokémon's abilities on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseOtherCapabilitiesOn);
+        option.setDescription(`The species to base the custom Pokémon's other capabilities on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn);
+        option.setDescription(`The species to base the custom Pokémon's evolution & environment on (overrides ${PtuAutocompleteParameterName.BaseSpeciesOn}).`);
+        return option.setAutocomplete(true);
+    });
+
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor');
+        return option.setDescription('A co-editor of the custom Pokémon.');
+    });
+
+    return subcommand;
+};
+
+export const deleteFakemon = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Delete);
+    subcommand.setDescription('Delete a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};
+
+export const edit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Edit);
+    subcommand.setDescription('Edit a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
+
+    subcommand.addAttachmentOption((option) => imageOption(option, 'A picture of the custom Pokémon species. This will take precedence over image_url.'));
+    subcommand.addStringOption((option) => imageUrlOption(option, 'The URL of an image of the custom Pokémon species.'));
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor_to_add');
+        return option.setDescription('A co-editor of the custom Pokémon to add.');
+    });
+
+    subcommand.addUserOption((option) =>
+    {
+        option.setName('co_editor_to_remove');
+        return option.setDescription('A co-editor of the custom Pokémon to remove (will include users that are not editors).');
+    });
+
+    return subcommand;
+};
+
+export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.Transfer);
+    subcommand.setDescription('Transfer a custom pokemon to databases.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon species.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    // Destination
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_1');
+        option.setDescription(`The first destination to transfer to (default: All).`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_2');
+        option.setDescription(`The second destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_3');
+        option.setDescription(`The third destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const transferEdit = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferEdit);
+    subcommand.setDescription('Transfer a custom pokemon edit to database.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon type shift.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonName);
+        option.setDescription(`The name of the Pokémon species the edit is of.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('edit_name');
+        option.setDescription(`The name of the edit.`);
+        option.setMaxLength(3);
+        option.setMaxLength(100);
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};
+
+export const transferTypeShift = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferTypeShift);
+    subcommand.setDescription('Transfer a custom pokemon type shift to databases.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon type shift.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.PokemonName);
+        option.setDescription(`The name of the Pokémon species to base the type shift on.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon type shift.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    // Destination
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_1');
+        option.setDescription(`The first destination to transfer to (default: All).`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_2');
+        option.setDescription(`The second destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_3');
+        option.setDescription(`The third destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const viewAll = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.ViewAll);
+    subcommand.setDescription('View all custom pokemon.');
+
+    // Region
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('region');
+        option.setDescription(`The campaign region of the custom Pokémon species.`);
+        return option.setChoices(
+            ...regionChoices,
+        );
+    });
+
+    // Not Transferred To
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('not_transferred_to');
+        option.setDescription(`The destination that fakemon have not been transferred to yet.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const view = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.View);
+    subcommand.setDescription('View a custom pokemon.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    return subcommand;
+};

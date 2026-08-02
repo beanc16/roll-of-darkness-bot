@@ -2,11 +2,11 @@ import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { RollOfDarknessProbabiltityDiceGetParameters } from '@beanc16/microservices-abstraction';
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import DiceProbabilityService from '../../services/DiceProbabilityService.js';
+import DiceProbabilityService from '../../services/Dice/DiceProbabilityService.js';
 import ProbabilityResponseFormatterService from '../../services/ProbabilityResponseFormatterService.js';
 import * as rollOptions from '../Nwod/options/roll.js';
 import * as probabilityOptions from '../options/probability.js';
-import { numberOfDice as numberOfDiceOption } from '../options/shared.js';
+import { numberOfDice as numberOfDiceOption } from '../shared/options/shared.js';
 
 class Probability extends BaseSlashCommand
 {

@@ -1,0 +1,1530 @@
+import { Text } from '@beanc16/discordjs-helpers';
+import {
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    StringSelectMenuInteraction,
+    User,
+} from 'discord.js';
+
+import { staticImplements } from '../../../../decorators/staticImplements.js';
+import { BaseCustomModal } from '../../../../modals/BaseCustomModal.js';
+import { getUniqueSortedArray } from '../../../../services/arrayHelpers.js';
+import { FakemonBIEditAbilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/basicInformation/FakemonBIEditAbilitiesStringSelectActionRowBuilder.js';
+import { FakemonBasicInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/basicInformation/types.js';
+import { FakemonBreedingInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/breedingInformation/types.js';
+import { FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/capabilities/FakemonCapabilitiesEditCapabilitiesStringSelectActionRowBuilder.js';
+import { FakemonCapabilitiesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/capabilities/types.js';
+import { FakemonEnvironmentStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/environment/types.js';
+import { FakemonEvolutionsEditEvolutionStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/evolutions/FakemonEvolutionsEditEvolutionStringSelectActionRowBuilder.js';
+import { FakemonEvolutionsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/evolutions/types.js';
+import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSIEditSizeStringSelectActionRowBuilder.js';
+import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
+import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
+import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewEditStatusStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
+import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
+import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
+import { FakemonStatsSwapStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
+import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/stats/types.js';
+import {
+    PtuFakemonCollection,
+    PtuFakemonDexType,
+    PtuFakemonStatus,
+} from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
+import { PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
+import { FakemonAbilityEditingModal1 } from '../../modals/fakemon/abilities/FakemonAbilityEditingModal1.js';
+import { FakemonAbilityEditingModal2 } from '../../modals/fakemon/abilities/FakemonAbilityEditingModal2.js';
+import { FakemonNonOtherCapabilityEditingModal1 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal1.js';
+import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/capabilities/FakemonNonOtherCapabilityEditingModal2.js';
+import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
+import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionAddingModal.js';
+import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
+import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
+import { FakemonSpeciesNameEditingModal } from '../../modals/fakemon/FakemonSpeciesNameEditingModal.js';
+import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
+import { FakemonMoveLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpAddingModal.js';
+import { FakemonMoveLevelUpEditingModal } from '../../modals/fakemon/moves/FakemonMoveLevelUpEditingModal.js';
+import { FakemonMoveNonLevelUpAddingModal } from '../../modals/fakemon/moves/FakemonMoveNonLevelUpAddingModal.js';
+import { FakemonSIHeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIHeightEditingModal.js';
+import { FakemonSIWeightEditingModal } from '../../modals/fakemon/sizeInformation/FakemonSIWeightEditingModal.js';
+import { PtuFakemonSubcommand } from '../../options/fakemon.js';
+import { PtuSubcommandGroup } from '../../options/index.js';
+import { PtuLookupSubcommand } from '../../options/lookup.js';
+import { FakemonBasicInformationManagerService } from '../../services/FakemonDataManagers/FakemonBasicInformationManagerService.js';
+import { FakemonBreedingInformationManagerService } from '../../services/FakemonDataManagers/FakemonBreedingInformationManagerService.js';
+import { FakemonCapabilityManagerService } from '../../services/FakemonDataManagers/FakemonCapabilityManagerService.js';
+import { FakemonEnvironmentManagerService } from '../../services/FakemonDataManagers/FakemonEnvironmentManagerService.js';
+import { FakemonEvolutionManagerService } from '../../services/FakemonDataManagers/FakemonEvolutionManagerService.js';
+import { FakemonGeneralInformationManagerService } from '../../services/FakemonDataManagers/FakemonGeneralInformationManagerService.js';
+import { FakemonMoveManagerService } from '../../services/FakemonDataManagers/FakemonMoveManagerService.js';
+import { FakemonOverviewManagerService } from '../../services/FakemonDataManagers/FakemonOverviewManagerService.js';
+import { FakemonSizeManagerService } from '../../services/FakemonDataManagers/FakemonSizeManagerService.js';
+import { FakemonSkillManagerService } from '../../services/FakemonDataManagers/FakemonSkillManagerService.js';
+import { FakemonStatManagerService } from '../../services/FakemonDataManagers/FakemonStatManagerService.js';
+import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
+import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
+import { PtuSizeAdapterService } from '../../services/PtuSizeAdapterService/PtuSizeAdapterService.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
+import {
+    PokemonDiet,
+    PokemonEggGroup,
+    PokemonGenderRatio,
+    PokemonHabitat,
+    PokemonType,
+    PtuAverageHatchRate,
+    PtuNaturewalk,
+} from '../../types/pokemon.js';
+import type {
+    PtuButtonIteractionStrategy,
+    PtuChatIteractionStrategy,
+    PtuStrategyMap,
+    PtuStrategyMetadata,
+    PtuStringSelectMenuIteractionStrategy,
+} from '../../types/strategies.js';
+
+interface FakemonCreateGetParameterResults
+{
+    speciesName: string;
+    region: PtuFakemonDexType;
+    baseSpeciesOn: string | null;
+    baseMovesOn: string | null;
+    baseAbilitiesOn: string | null;
+    baseOtherCapabilitiesOn: string | null;
+    baseEvolutionAndEnvironmentOn: string | null;
+    processedImageUrl: string | null;
+    coEditor: User | null;
+}
+
+interface GetBasedOnPokemonSpeciesResponse
+{
+    species: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    moves: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    abilities: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    otherCapabilities: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+    evolutionAndEnvironment: PtuFakemonCollection | PtuPokemonForLookupPokemon | null;
+}
+
+@staticImplements<
+    PtuChatIteractionStrategy
+    & PtuButtonIteractionStrategy
+    & PtuStringSelectMenuIteractionStrategy
+>()
+export class FakemonCreateStrategy
+{
+    public static key = PtuFakemonSubcommand.Create;
+
+    private static basePokemon: Omit<PtuFakemonToCreate, 'creationChannelId'> = {
+        name: '',
+        types: [],
+        baseStats: {
+            hp: 0,
+            attack: 0,
+            defense: 0,
+            specialAttack: 0,
+            specialDefense: 0,
+            speed: 0,
+        },
+        moveList: {
+            levelUp: [],
+            tmHm: [],
+            eggMoves: [],
+            tutorMoves: [],
+        },
+        abilities: {
+            basicAbilities: ['PLACEHOLDER', 'PLACEHOLDER'],
+            advancedAbilities: ['PLACEHOLDER', 'PLACEHOLDER'],
+            highAbility: 'PLACEHOLDER',
+        },
+        evolution: [{
+            level: 1,
+            name: '',
+            stage: 1,
+        }],
+        capabilities: {
+            overland: 0,
+            swim: 0,
+            sky: 0,
+            levitate: 0,
+            burrow: 0,
+            highJump: 0,
+            lowJump: 0,
+            power: 0,
+            other: [],
+        },
+        sizeInformation: {
+            height: {
+                freedom: `0'0"`,
+                metric: '0m',
+                ptu: '0',
+            },
+            weight: {
+                freedom: '0lbs',
+                metric: '0kg',
+                ptu: 0,
+            },
+        },
+        breedingInformation: {
+            genderRatio: { none: true },
+            eggGroups: [PokemonEggGroup.None],
+            averageHatchRate: PtuAverageHatchRate.SevenDays,
+        },
+        diets: ['PLACEHOLDER'],
+        habitats: ['PLACEHOLDER'],
+        skills: {
+            acrobatics: '2d6+0',
+            athletics: '2d6+0',
+            combat: '2d6+0',
+            stealth: '2d6+0',
+            perception: '2d6+0',
+            focus: '2d6+0',
+        },
+        metadata: {
+            source: 'Eden Dex',
+            imageUrl: HomebrewPokeApi.unknownPokemonUrl,
+        },
+        megaEvolutions: [],
+        editors: [],
+        status: PtuFakemonStatus.DRAFT,
+        dexType: PtuFakemonDexType.Eden,
+        feedbacks: [],
+        transferredTo: {
+            googleSheets: {
+                pokemonData: false,
+                pokemonSkills: false,
+            },
+            ptuDatabase: false,
+            imageStorage: false,
+        },
+    };
+
+    public static async run(
+        interaction: ChatInputCommandInteraction,
+        strategies: PtuStrategyMap,
+    ): Promise<boolean>
+    {
+        const {
+            speciesName,
+            region,
+            baseSpeciesOn,
+            baseMovesOn,
+            baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
+            processedImageUrl,
+            coEditor,
+        } = this.getOptions(interaction);
+
+        // Get pokemon to base this fakemon on
+        const pokemonToBaseOn = await this.getBasedOnPokemonSpecies({
+            strategies,
+            baseSpeciesOn,
+            baseMovesOn,
+            baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
+            userId: interaction.user.id,
+        });
+
+        // Initialize initial fakemon data
+        const message = await interaction.fetchReply();
+        const uploadedImageUrl = await this.initializeFakemonImage(speciesName, processedImageUrl);
+        await this.initializeFakemon({
+            speciesName,
+            region,
+            messageId: message.id,
+            creationChannelId: interaction.channelId,
+            userId: interaction.user.id,
+            coEditorUserId: coEditor?.id,
+            pokemonToBaseOn,
+            uploadedImageUrl,
+        });
+
+        // Send response
+        await FakemonInteractionManagerService.navigateTo({
+            interaction,
+            page: FakemonInteractionManagerPage.Overview,
+            messageId: message.id,
+            interactionType: 'editReply',
+        });
+
+        // If there was an error uploading the image, send a follow up
+        if (processedImageUrl && !uploadedImageUrl)
+        {
+            await interaction.followUp({
+                content: 'An error occurred while uploading the image. Please try again with the edit command.',
+                ephemeral: true,
+            });
+        }
+
+        return true;
+    }
+
+    public static async runButton(
+        interaction: ButtonInteraction,
+        strategies: PtuStrategyMap,
+        { message }: PtuStrategyMetadata,
+    ): Promise<boolean>
+    {
+        const { customId } = interaction as {
+            customId: FakemonOverviewButtonCustomIds | FakemonMovesButtonCustomIds;
+        };
+
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
+        }
+
+        switch (customId)
+        {
+            case FakemonOverviewButtonCustomIds.EditName:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSpeciesNameEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    speciesName: fakemon.name,
+                });
+                break;
+
+            case FakemonOverviewButtonCustomIds.Validate:
+                try
+                {
+                    PtuFakemonCollection.validate(fakemon, { skipDexNumberError: true });
+                    await interaction.reply({
+                        content: [
+                            'Validation succeeded!',
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveLevels:
+                try
+                {
+                    const embed = await FakemonOverviewManagerService.getLevelUpMoveDistributionEmbed({
+                        fakemon,
+                        strategies,
+                    });
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonOverviewButtonCustomIds.CheckMoveProgression:
+                try
+                {
+                    const embed = FakemonOverviewManagerService.getLevelUpMoveProgressionEmbed(fakemon);
+
+                    if (!embed)
+                    {
+                        await interaction.reply({
+                            content: [
+                                'Level up moves not found',
+                            ].join('\n'),
+                            ephemeral: true,
+                        });
+                        return true;
+                    }
+
+                    await interaction.reply({
+                        embeds: [embed],
+                    });
+                }
+                catch (error)
+                {
+                    let errorMessage = '';
+                    let isMultipleErrors = false;
+                    if (error instanceof AggregateError)
+                    {
+                        isMultipleErrors = true;
+                        errorMessage = error.errors.reduce<string>((acc, cur) =>
+                        {
+                            const curErrorMessage = (cur as Error)?.message;
+                            if (curErrorMessage)
+                            {
+                                return acc + `- ${curErrorMessage}\n`;
+                            }
+                            return acc;
+                        }, '').trim();
+                    }
+                    else if (error instanceof Error)
+                    {
+                        errorMessage = error?.message;
+                    }
+                    await interaction.reply({
+                        content: [
+                            `Validation failed${errorMessage ? ` with error${isMultipleErrors ? 's' : ''}:` : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                }
+                break;
+
+            case FakemonMovesButtonCustomIds.AddLevelUpMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    strategies,
+                });
+                break;
+
+            case FakemonMovesButtonCustomIds.AddEggMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'eggMoves',
+                    strategies,
+                });
+                break;
+
+            case FakemonMovesButtonCustomIds.AddTmHmMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'tmHm',
+                    strategies,
+                });
+                break;
+
+            case FakemonMovesButtonCustomIds.AddTutorMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonMoveNonLevelUpAddingModal.showModal(interaction, {
+                    messageId: message.id,
+                    moveListToAddTo: 'tutorMoves',
+                    strategies,
+                });
+                break;
+
+            default:
+                const typeGuard: never = customId;
+                throw new Error(`Unhandled customId: ${typeGuard}`);
+        }
+
+        return true;
+    }
+
+    public static async runStringSelect(
+        interaction: StringSelectMenuInteraction,
+        strategies: PtuStrategyMap,
+        { message }: PtuStrategyMetadata,
+    ): Promise<boolean>
+    {
+        const { customId } = interaction as {
+            customId: FakemonOverviewStringSelectCustomIds.Navigation;
+            values: FakemonInteractionManagerPage[];
+        } | {
+            customId: FakemonOverviewEditStatusStringSelectCustomIds;
+            values: PtuFakemonStatus[];
+        } | {
+            customId: FakemonStatsStringSelectCustomIds.EditStat;
+            values: FakemonStatsEditStringSelectElementOptions[];
+        } | {
+            customId: FakemonStatsStringSelectCustomIds.SwapStats;
+            values: FakemonStatsSwapStringSelectElementOptions[];
+        } | {
+            customId: FakemonBasicInformationStringSelectCustomIds.EditTypes;
+            values: PokemonType[];
+        } | {
+            customId: FakemonBasicInformationStringSelectCustomIds.EditAbilities;
+            values: FakemonBIEditAbilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonEvolutionsStringSelectCustomIds;
+            values: string[];
+        } | {
+            customId: FakemonSizeInformationStringSelectCustomIds.EditHeightOrWeight;
+            values: FakemonSIEditSizeStringSelectElementOptions[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditGenderRatio;
+            values: PokemonGenderRatio[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditEggGroups;
+            values: PokemonEggGroup[];
+        } | {
+            customId: FakemonBreedingInformationStringSelectCustomIds.EditAverageHatchRate;
+            values: PtuAverageHatchRate[];
+        } | {
+            customId: FakemonEnvironmentStringSelectCustomIds.EditDiets;
+            values: PokemonDiet[];
+        } | {
+            customId: FakemonEnvironmentStringSelectCustomIds.EditHabitats;
+            values: PokemonHabitat[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.EditCapabilities;
+            values: FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.EditNaturewalk;
+            values: PtuNaturewalk[];
+        } | {
+            customId: FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities;
+            values: string[];
+        } | {
+            customId: FakemonSkillsStringSelectCustomIds.EditSkill;
+            values: FakemonSkillsEditStringSelectElementOptions[];
+        } | {
+            customId: FakemonMovesStringSelectCustomIds.EditLevelUpMoves | FakemonMovesStringSelectCustomIds.RemoveLevelUpMoves;
+            values: string[];
+        } | {
+            customId: `${FakemonMovesStringSelectCustomIds.RemoveEggMoves
+            | FakemonMovesStringSelectCustomIds.RemoveTmHmMoves
+            | FakemonMovesStringSelectCustomIds.RemoveTutorMoves}${0 | 1 | 2}`;
+            values: string[];
+        };
+        const values = (interaction.values || []).filter(Boolean);
+        const [value1, value2] = values;
+        const fakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        if (!fakemon)
+        {
+            throw new Error('Fakemon not found');
+        }
+        if (!fakemon.editors.includes(interaction.user.id))
+        {
+            throw new Error('You do not have permission to edit this fakemon');
+        }
+
+        // Used by some cases to determine which modal to show
+        let modalToShow: typeof BaseCustomModal;
+
+        switch (customId)
+        {
+            // Navigation selector
+            case FakemonOverviewStringSelectCustomIds.Navigation:
+                await interaction.deferUpdate(); // Defer for navigation
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: value1 as FakemonInteractionManagerPage,
+                    messageId: message.id,
+                });
+                break;
+
+            // Status selector
+            case FakemonOverviewEditStatusStringSelectCustomIds.EditStatus:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonGeneralInformationManagerService.updateStatus({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        status: value1 as PtuFakemonStatus,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Overview,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Stat selector
+            case FakemonStatsStringSelectCustomIds.EditStat:
+                const statKey = FakemonStatManagerService.getStatKey(value1 as FakemonStatsEditStringSelectElementOptions);
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonStatEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    statToEdit: value1 as FakemonStatsEditStringSelectElementOptions,
+                    // Add default value if stat is not 0
+                    stat: fakemon.baseStats[statKey],
+                });
+                break;
+
+            // Swapping stats
+            case FakemonStatsStringSelectCustomIds.SwapStats:
+                await interaction.deferUpdate(); // Defer for database update
+                // Get input for stats to swap
+                const swapStatsValue = value1 as FakemonStatsSwapStringSelectElementOptions;
+                let statsToSwap: [FakemonStatsEditStringSelectElementOptions, FakemonStatsEditStringSelectElementOptions];
+                switch (swapStatsValue)
+                {
+                    case FakemonStatsSwapStringSelectElementOptions.AttackStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Attack,
+                            FakemonStatsEditStringSelectElementOptions.SpecialAttack,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.DefenseStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Defense,
+                            FakemonStatsEditStringSelectElementOptions.SpecialDefense,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.PhysicalStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.Attack,
+                            FakemonStatsEditStringSelectElementOptions.Defense,
+                        ];
+                        break;
+                    case FakemonStatsSwapStringSelectElementOptions.SpecialStats:
+                        statsToSwap = [
+                            FakemonStatsEditStringSelectElementOptions.SpecialAttack,
+                            FakemonStatsEditStringSelectElementOptions.SpecialDefense,
+                        ];
+                        break;
+                    default:
+                        const typeCheck: never = swapStatsValue;
+                        throw new Error(`Unhandled swapStatsValue: ${typeCheck}`);
+                }
+
+                // Swap stats & update message
+                try
+                {
+                    await FakemonStatManagerService.swapStats({
+                        fakemon,
+                        messageId: interaction.message.id,
+                        statsToSwap,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Stats,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Types selector
+            case FakemonBasicInformationStringSelectCustomIds.EditTypes:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBasicInformationManagerService.setTypes({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        types: [value1, value2].filter(Boolean) as PokemonType[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BasicInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Edit abilities model
+            case FakemonBasicInformationStringSelectCustomIds.EditAbilities:
+                // Don't defer before showing a modal, as that will throw an error
+
+                // Get which modal to show
+                const editAbilitiesValue = value1 as FakemonBIEditAbilitiesStringSelectElementOptions;
+                switch (editAbilitiesValue)
+                {
+                    case FakemonBIEditAbilitiesStringSelectElementOptions.TwoBasicTwoAdvancedOneHigh:
+                        modalToShow = FakemonAbilityEditingModal1;
+                        break;
+
+                    case FakemonBIEditAbilitiesStringSelectElementOptions.OneBasicThreeAdvancedOneHigh:
+                        modalToShow = FakemonAbilityEditingModal2;
+                        break;
+
+                    default:
+                        const typeCheck: never = editAbilitiesValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                });
+                break;
+
+            // Edit size modals
+            case FakemonSizeInformationStringSelectCustomIds.EditHeightOrWeight:
+                // Don't defer before showing a modal, as that will throw an error
+
+                // Get which modal to show
+                const editSizeValue = value1 as FakemonSIEditSizeStringSelectElementOptions;
+                switch (editSizeValue)
+                {
+                    case FakemonSIEditSizeStringSelectElementOptions.Height:
+                        modalToShow = FakemonSIHeightEditingModal;
+                        break;
+
+                    case FakemonSIEditSizeStringSelectElementOptions.Weight:
+                        modalToShow = FakemonSIWeightEditingModal;
+                        break;
+
+                    default:
+                        const typeCheck: never = editSizeValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                });
+                break;
+
+            // Edit evolution stage modal
+            case FakemonEvolutionsStringSelectCustomIds.EditEvolution:
+                // Don't defer before showing a modal, as that will throw an error
+
+                let isEdit = true;
+                switch (value1)
+                {
+                    case FakemonEvolutionsEditEvolutionStringSelectElementOptions.AddEvolution.toString():
+                        modalToShow = FakemonEvolutionAddingModal;
+                        isEdit = false;
+                        break;
+
+                    default:
+                        modalToShow = FakemonEvolutionEditingModal;
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                    ...(isEdit && { previousName: value1 }),
+                });
+                break;
+
+            // Remove evolution stage selector
+            case FakemonEvolutionsStringSelectCustomIds.RemoveEvolution:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.evolution.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur.name))
+                        {
+                            acc.push(cur.name);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonEvolutionManagerService.removeEvolutionStage({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        names: namesToRemove,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Evolutions,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Gender ratio selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditGenderRatio:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setGenderRatio({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        genderRatio: value1 as PokemonGenderRatio,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Egg groups selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditEggGroups:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setEggGroups({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        eggGroups: [value1, value2].filter(Boolean) as PokemonEggGroup[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Gender ratio selector
+            case FakemonBreedingInformationStringSelectCustomIds.EditAverageHatchRate:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonBreedingInformationManagerService.setAverageHatchHate({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        averageHatchRate: value1 as PtuAverageHatchRate,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.BreedingInformation,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Diets selector
+            case FakemonEnvironmentStringSelectCustomIds.EditDiets:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonEnvironmentManagerService.setDiets({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        diets: values as PokemonDiet[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Environment,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Habitats selector
+            case FakemonEnvironmentStringSelectCustomIds.EditHabitats:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonEnvironmentManagerService.setHabitats({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        habitats: values as PokemonHabitat[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Environment,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Capability-editing modals
+            case FakemonCapabilitiesStringSelectCustomIds.EditCapabilities:
+                // Don't defer before showing a modal, as that will throw an error
+
+                // // Get which modal to show
+                const editCapabilitiesValue = value1 as FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions;
+                switch (editCapabilitiesValue)
+                {
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.MovementCapabilities:
+                        modalToShow = FakemonNonOtherCapabilityEditingModal1;
+                        break;
+
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.NonMovementCapabilities:
+                        modalToShow = FakemonNonOtherCapabilityEditingModal2;
+                        break;
+
+                    case FakemonCapabilitiesEditCapabilitiesStringSelectElementOptions.AddOtherCapabilities:
+                        modalToShow = FakemonOtherCapabilityAddingModal;
+                        break;
+
+                    default:
+                        const typeCheck: never = editCapabilitiesValue;
+                        throw new Error(`Unhandled value: ${typeCheck}`);
+                }
+
+                await modalToShow.showModal(interaction, {
+                    messageId: message.id,
+                });
+                break;
+
+            // Naturewalk selector
+            case FakemonCapabilitiesStringSelectCustomIds.EditNaturewalk:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonCapabilityManagerService.setNaturewalk({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        naturewalks: values as PtuNaturewalk[],
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Capabilities,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove other capabilities selector
+            case FakemonCapabilitiesStringSelectCustomIds.RemoveOtherCapabilities:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    await FakemonCapabilityManagerService.setOtherCapabilities({
+                        messageId: interaction.message.id,
+                        fakemon,
+                        other: values,
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.Capabilities,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Skill selector
+            case FakemonSkillsStringSelectCustomIds.EditSkill:
+                const { skillDice, skillModifier } = FakemonSkillManagerService.getSkillDiceAndModifier(
+                    message.id,
+                    value1 as FakemonSkillsEditStringSelectElementOptions,
+                );
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSkillEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    skillToEdit: value1 as FakemonStatsEditStringSelectElementOptions,
+                    // Add default values
+                    skillDice,
+                    skillModifier,
+                });
+                break;
+
+            // Edit level up move modal
+            case FakemonMovesStringSelectCustomIds.EditLevelUpMoves:
+                // Don't defer before showing a modal, as that will throw an error
+                const oldMove = fakemon.moveList.levelUp.find((move) => move.move === value1);
+                await FakemonMoveLevelUpEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    previousName: value1,
+                    oldMove,
+                    strategies,
+                });
+                break;
+
+            // Remove level up moves selector
+            case FakemonMovesStringSelectCustomIds.RemoveLevelUpMoves:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = fakemon.moveList.levelUp.reduce<string[]>((acc, cur) =>
+                    {
+                        if (!values.includes(cur.move))
+                        {
+                            acc.push(cur.move);
+                        }
+                        return acc;
+                    }, []);
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'levelUp',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.LevelUpMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove egg moves selector
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveEggMoves}2`:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'eggMoves',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.EggMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove tm/hm moves selector
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTmHmMoves}2`:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the current selector are the ones to remove
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'tmHm',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.TmHmMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            // Remove tutor moves selector
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}0`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}1`:
+            case `${FakemonMovesStringSelectCustomIds.RemoveTutorMoves}2`:
+                await interaction.deferUpdate(); // Defer for database update
+                try
+                {
+                    // The names not in the selector are the ones to remove
+                    const namesToRemove = FakemonMoveManagerService.getRemovedMovesFromStringSelectOptions({
+                        interaction,
+                        values,
+                        customId,
+                    });
+                    await FakemonMoveManagerService.removeMoves({
+                        messageId: message.id,
+                        fakemon,
+                        names: namesToRemove,
+                        moveListToRemoveFrom: 'tutorMoves',
+                    });
+                }
+                catch (error)
+                {
+                    const errorMessage = (error as Error)?.message;
+                    await interaction.followUp({
+                        content: [
+                            `Failed to update fakemon${errorMessage ? ' with error:' : ''}`,
+                            ...(errorMessage ? [Text.Code.multiLine(errorMessage)] : []),
+                        ].join('\n'),
+                        ephemeral: true,
+                    });
+                    break;
+                }
+                await FakemonInteractionManagerService.navigateTo({
+                    interaction,
+                    page: FakemonInteractionManagerPage.TutorMoves,
+                    messageId: interaction.message.id,
+                });
+                break;
+
+            default:
+                const typeGuard: never = customId;
+                throw new Error(`Unhandled customId: ${typeGuard}`);
+        }
+
+        return true;
+    }
+
+    private static getOptions(interaction: ChatInputCommandInteraction): FakemonCreateGetParameterResults
+    {
+        const speciesName = interaction.options.getString('species_name', true);
+        const region = interaction.options.getString('region', true) as PtuFakemonDexType;
+        const baseSpeciesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseSpeciesOn);
+        const baseMovesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseMovesOn);
+        const baseAbilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseAbilitiesOn);
+        const baseOtherCapabilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseOtherCapabilitiesOn);
+        const baseEvolutionAndEnvironmentOn = interaction.options.getString(PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn);
+        const image = interaction.options.getAttachment('image');
+        const imageUrl = interaction.options.getString('image_url');
+        const coEditor = interaction.options.getUser('co_editor');
+
+        const processedImageUrl = image?.url ?? imageUrl;
+
+        return {
+            speciesName,
+            region,
+            baseSpeciesOn,
+            baseMovesOn,
+            baseAbilitiesOn,
+            baseOtherCapabilitiesOn,
+            baseEvolutionAndEnvironmentOn,
+            processedImageUrl,
+            coEditor,
+        };
+    }
+
+    private static async initializeFakemon({
+        speciesName,
+        region,
+        messageId,
+        creationChannelId,
+        userId,
+        coEditorUserId,
+        pokemonToBaseOn,
+        uploadedImageUrl,
+    }: {
+        speciesName: string;
+        region: PtuFakemonDexType;
+        messageId: string;
+        creationChannelId: string;
+        userId: string;
+        coEditorUserId?: string;
+        pokemonToBaseOn: GetBasedOnPokemonSpeciesResponse;
+        uploadedImageUrl?: string;
+    }): Promise<PtuFakemonCollection>
+    {
+        // Format skills to standardize the removal of special characters
+        const skills = Object.entries({
+            ...this.basePokemon.skills,
+            ...(pokemonToBaseOn.species?.skills || {}),
+        }).reduce((acc, cur) =>
+        {
+            const [key, value] = cur as [keyof PtuFakemonCollection['skills'], string];
+            const { skillDice, skillModifier } = FakemonSkillManagerService.deconstructSkillString(value);
+            acc[key] = FakemonSkillManagerService.formatSkill({ skillDice, skillModifier });
+            return acc;
+        }, {} as PtuFakemonCollection['skills']);
+
+        const moveList = {
+            // Take moves in priority order of:
+            // 1. pokemonToBaseOn.moves
+            // 2. pokemonToBaseOn.species
+            // 3. this.basePokemon
+            eggMoves: pokemonToBaseOn.moves?.moveList.eggMoves
+                || pokemonToBaseOn.species?.moveList.eggMoves
+                || this.basePokemon.moveList.eggMoves,
+            levelUp: pokemonToBaseOn.moves?.moveList.levelUp
+                || pokemonToBaseOn.species?.moveList.levelUp
+                || this.basePokemon.moveList.levelUp,
+            tmHm: pokemonToBaseOn.moves?.moveList.tmHm
+                || pokemonToBaseOn.species?.moveList.tmHm
+                || this.basePokemon.moveList.tmHm,
+            tutorMoves: pokemonToBaseOn.moves?.moveList.tutorMoves
+                || pokemonToBaseOn.species?.moveList.tutorMoves
+                || this.basePokemon.moveList.tutorMoves,
+            zygardeCubeMoves: pokemonToBaseOn.moves?.moveList.zygardeCubeMoves
+                || pokemonToBaseOn.species?.moveList.zygardeCubeMoves
+                || this.basePokemon.moveList.zygardeCubeMoves,
+        };
+
+        const otherCapabilities = pokemonToBaseOn.otherCapabilities?.capabilities.other
+            || pokemonToBaseOn.species?.capabilities.other
+            || this.basePokemon.capabilities.other;
+
+        const diets = pokemonToBaseOn.evolutionAndEnvironment?.diets
+            || pokemonToBaseOn.species?.diets
+            || this.basePokemon.diets;
+        const habitats = pokemonToBaseOn.evolutionAndEnvironment?.habitats
+            || pokemonToBaseOn.species?.habitats
+            || this.basePokemon.habitats;
+
+        // Format height to standardize the removal of special characters
+        const originalHeight = pokemonToBaseOn.species?.sizeInformation?.height
+            || this.basePokemon.sizeInformation.height;
+        const { feet, inches } = FakemonSizeManagerService.getHeightFromString(
+            pokemonToBaseOn.species?.sizeInformation?.height?.freedom || this.basePokemon.sizeInformation.height.freedom,
+        );
+        const adaptedHeight = feet !== undefined && inches !== undefined
+            ? PtuSizeAdapterService.adaptHeight(feet, inches)
+            : originalHeight;
+
+        const eggGroups = pokemonToBaseOn.species?.breedingInformation?.eggGroups
+            || this.basePokemon.breedingInformation.eggGroups;
+
+        const {
+            imageUrl,
+            ...metadata
+        } = this.basePokemon.metadata;
+
+        return await PtuFakemonPseudoCache.create(messageId, {
+            ...this.basePokemon,
+            ...pokemonToBaseOn.species,
+            name: speciesName,
+            evolution: pokemonToBaseOn.evolutionAndEnvironment?.evolution
+                || pokemonToBaseOn.species?.evolution
+                || [{
+                    level: 1,
+                    name: speciesName,
+                    stage: 1,
+                }],
+            abilities: {
+                // Take abilities in priority order of:
+                // 1. pokemonToBaseOn.abilities
+                // 2. pokemonToBaseOn.species
+                // 3. this.basePokemon
+                basicAbilities: pokemonToBaseOn.abilities?.abilities.basicAbilities
+                    || pokemonToBaseOn.species?.abilities.basicAbilities
+                    || this.basePokemon.abilities.basicAbilities,
+                advancedAbilities: pokemonToBaseOn.abilities?.abilities.advancedAbilities
+                    || pokemonToBaseOn.species?.abilities.advancedAbilities
+                    || this.basePokemon.abilities.advancedAbilities,
+                highAbility: pokemonToBaseOn.abilities?.abilities.highAbility
+                    || pokemonToBaseOn.species?.abilities.highAbility
+                    || this.basePokemon.abilities.highAbility,
+            },
+            moveList: {
+                ...moveList,
+                tmHm: getUniqueSortedArray(moveList.tmHm),
+                eggMoves: getUniqueSortedArray(moveList.eggMoves),
+                tutorMoves: getUniqueSortedArray(moveList.tutorMoves),
+                ...(moveList.zygardeCubeMoves ? { zygardeCubeMoves: getUniqueSortedArray(moveList.zygardeCubeMoves) } : {}),
+            },
+            capabilities: {
+                ...this.basePokemon.capabilities,
+                ...(pokemonToBaseOn.species?.capabilities || {}),
+                other: otherCapabilities ? getUniqueSortedArray(otherCapabilities) : undefined,
+            },
+            diets: getUniqueSortedArray(diets),
+            habitats: getUniqueSortedArray(habitats),
+            sizeInformation: {
+                ...this.basePokemon.sizeInformation,
+                ...(pokemonToBaseOn.species?.sizeInformation || {}),
+                height: {
+                    ...adaptedHeight,
+                },
+            },
+            breedingInformation: {
+                ...this.basePokemon.breedingInformation,
+                ...(pokemonToBaseOn.species?.breedingInformation || {}),
+                eggGroups: getUniqueSortedArray(eggGroups),
+            },
+            skills,
+            dexType: region,
+            metadata: {
+                ...metadata,
+                source: `${region} Dex`,
+                ...(imageUrl ? { imageUrl } : {}),
+                ...(uploadedImageUrl ? { imageUrl: uploadedImageUrl } : {}),
+            },
+            creationChannelId,
+            editors: coEditorUserId
+                ? [...new Set([...this.basePokemon.editors, userId, coEditorUserId])]
+                : [...new Set([...this.basePokemon.editors, userId])],
+            status: PtuFakemonStatus.DRAFT,
+            deletedAt: undefined,
+        });
+    }
+
+    private static async initializeFakemonImage(speciesName: string, imageUrl: string | null): Promise<string | undefined>
+    {
+        if (!imageUrl)
+        {
+            return undefined;
+        }
+
+        return await HomebrewPokeApi.uploadFakemonImage({
+            speciesName,
+            imageUrl,
+            isCreate: true,
+        });
+    }
+
+    private static async getBasedOnPokemonSpecies({
+        strategies,
+        baseSpeciesOn,
+        baseMovesOn,
+        baseAbilitiesOn,
+        baseOtherCapabilitiesOn,
+        baseEvolutionAndEnvironmentOn,
+        userId,
+    }: {
+        strategies: PtuStrategyMap;
+        baseSpeciesOn: string | null;
+        baseMovesOn: string | null;
+        baseAbilitiesOn: string | null;
+        baseOtherCapabilitiesOn: string | null;
+        baseEvolutionAndEnvironmentOn: string | null;
+        userId: string;
+    }): Promise<GetBasedOnPokemonSpeciesResponse>
+    {
+        const namesToSearch = [
+            ...new Set([
+                baseSpeciesOn,
+                baseMovesOn,
+                baseAbilitiesOn,
+                baseOtherCapabilitiesOn,
+                baseEvolutionAndEnvironmentOn,
+            ].filter(Boolean)),
+        ] as string[];
+
+        const [pokemon, fakemon] = await Promise.all([
+            strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon]?.getLookupData({
+                names: namesToSearch,
+            }) as Promise<PtuPokemonForLookupPokemon[]>,
+            PtuFakemonPseudoCache.getByNames(namesToSearch, userId),
+        ]);
+
+        return [...pokemon, ...fakemon].reduce<GetBasedOnPokemonSpeciesResponse>((acc, curPokemon) =>
+        {
+            const {
+                _id,
+                id: _1,
+                editors: _2,
+                status: _3,
+                creationChannelId: _4,
+                feedbacks: _5,
+                ...curPokemonWithoutFakemonData
+            } = curPokemon as PtuFakemonCollection;
+
+            if (curPokemon.name === baseSpeciesOn)
+            {
+                acc.species = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            if (curPokemon.name === baseMovesOn)
+            {
+                acc.moves = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            if (curPokemon.name === baseAbilitiesOn)
+            {
+                acc.abilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            if (curPokemon.name === baseOtherCapabilitiesOn)
+            {
+                acc.otherCapabilities = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            if (curPokemon.name === baseEvolutionAndEnvironmentOn)
+            {
+                acc.evolutionAndEnvironment = curPokemonWithoutFakemonData as PtuFakemonCollection;
+            }
+            return acc;
+        }, {
+            species: null,
+            moves: null,
+            abilities: null,
+            otherCapabilities: null,
+            evolutionAndEnvironment: null,
+        });
+    }
+}

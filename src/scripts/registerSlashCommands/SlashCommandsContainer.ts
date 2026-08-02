@@ -11,7 +11,7 @@ import fs from 'fs';
 import path from 'path';
 
 import { BaseContextMenuCommand } from '../../context-menus/base-commands/BaseContextMenuCommand.js';
-import { Timer } from '../../services/Timer.js';
+import { Timer } from '../../services/Timer/Timer.js';
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN as string);
 

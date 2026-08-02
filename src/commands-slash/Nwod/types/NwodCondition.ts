@@ -7,6 +7,7 @@ export class NwodCondition
     public possibleSources: string | undefined;
     public pageNumber: string;
     public clarityConditionTags: string[] | undefined;
+    public types: string[] | undefined;
 
     constructor(input: string[])
     {
@@ -18,6 +19,7 @@ export class NwodCondition
             possibleSources,
             pageNumber,
             clarityCondition,
+            type,
         ] = input;
 
         // Base values
@@ -31,6 +33,9 @@ export class NwodCondition
         this.pageNumber = pageNumber.trim();
         this.clarityConditionTags = (clarityCondition)
             ? clarityCondition.split(',').map(value => value.trim())
+            : undefined;
+        this.types = (type)
+            ? type.split(',').map(value => value.trim())
             : undefined;
     }
 }

@@ -12,7 +12,6 @@ const ptuAutocompleteParameterNamesToIgnore = new Set([
     PtuAutocompleteParameterName.Ability1,
     PtuAutocompleteParameterName.Ability2,
     PtuAutocompleteParameterName.Ability3,
-    PtuAutocompleteParameterName.Ability4,
 ]);
 
 const nwodSubcommandsForRefreshCache = Object.values(NwodAutocompleteParameterName)

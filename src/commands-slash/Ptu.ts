@@ -1,35 +1,37 @@
 import { BaseSlashCommand } from '@beanc16/discordjs-common-commands';
 import { logger } from '@beanc16/logger';
-import { AutocompleteInteraction, ChatInputCommandInteraction } from 'discord.js';
-
 import {
-    breed,
+    AutocompleteInteraction,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
+    Message,
+    StringSelectMenuInteraction,
+} from 'discord.js';
+
+import { PtuFakemonSubcommand } from './Ptu/options/fakemon.js';
+import {
     calculate,
-    game,
     PtuSubcommandGroup,
     random,
     roll,
-    train,
-    typeEffectiveness,
 } from './Ptu/options/index.js';
 import { PtuLookupSubcommand } from './Ptu/options/lookup.js';
 import { PtuRandomSubcommand } from './Ptu/options/random.js';
 import { PtuStrategyExecutor } from './Ptu/strategies/index.js';
 
-class Ptu extends BaseSlashCommand
+export class Ptu extends BaseSlashCommand
 {
-    constructor()
+    constructor(initializeSlashCommandData = true)
     {
         super();
-        // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
-        this._slashCommandData
-            .addSubcommand(breed)
-            .addSubcommandGroup(calculate)
-            .addSubcommandGroup(game)
-            .addSubcommandGroup(random)
-            .addSubcommandGroup(roll)
-            .addSubcommand(train)
-            .addSubcommand(typeEffectiveness);
+        if (initializeSlashCommandData)
+        {
+            // eslint-disable-next-line no-underscore-dangle -- TODO: Update this in downstream package later
+            this._slashCommandData
+                .addSubcommandGroup(calculate)
+                .addSubcommandGroup(random)
+                .addSubcommandGroup(roll);
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
@@ -64,7 +66,7 @@ class Ptu extends BaseSlashCommand
         const startTime = Date.now();
         const focusedValue = interaction.options.getFocused(true);
 
-        const choices = await PtuStrategyExecutor.getAutocompleteChoices(focusedValue);
+        const choices = await PtuStrategyExecutor.getAutocompleteChoices(focusedValue, interaction.user.id);
 
         // More than 3 seconds has passed, so we can't respond to the interaction
         if (Date.now() - startTime >= 3000)
@@ -78,6 +80,70 @@ class Ptu extends BaseSlashCommand
         }
 
         await interaction.respond(choices);
+    }
+
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async runStringSelect(
+        interaction: StringSelectMenuInteraction,
+        {
+            commandName,
+            subcommandGroup,
+            subcommand,
+            message,
+        }: {
+            commandName: string;
+            subcommandGroup: PtuSubcommandGroup;
+            subcommand: PtuFakemonSubcommand;
+            message: Message;
+        },
+    ): Promise<void>
+    {
+        // Run subcommand
+        const response = await PtuStrategyExecutor.runStringSelect({
+            interaction,
+            message,
+            commandName,
+            subcommandGroup,
+            subcommand,
+        });
+
+        // Send response if the handler failed or was undefined
+        if (!response)
+        {
+            await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+        }
+    }
+
+    // eslint-disable-next-line class-methods-use-this -- Leave as non-static
+    public async runButton(
+        interaction: ButtonInteraction,
+        {
+            commandName,
+            subcommandGroup,
+            subcommand,
+            message,
+        }: {
+            message: Message;
+            commandName: string;
+            subcommandGroup: PtuSubcommandGroup;
+            subcommand: PtuFakemonSubcommand;
+        },
+    ): Promise<void>
+    {
+        // Run subcommand
+        const response = await PtuStrategyExecutor.runButton({
+            interaction,
+            message,
+            commandName,
+            subcommandGroup,
+            subcommand,
+        });
+
+        // Send response if the handler failed or was undefined
+        if (!response)
+        {
+            await interaction.editReply('Subcommand Group or subcommand not yet implemented');
+        }
     }
 
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static

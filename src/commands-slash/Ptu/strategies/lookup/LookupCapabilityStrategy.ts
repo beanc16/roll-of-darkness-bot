@@ -3,7 +3,7 @@ import type { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js'
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { getPagedEmbedMessages } from '../../../embed-messages/shared.js';
+import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import type { OnRowAbovePaginationButtonPressResponse } from '../../../strategies/PaginationStrategy/PaginationStrategy.js';
 import { BaseLookupDataOptions } from '../../../strategies/types/types.js';

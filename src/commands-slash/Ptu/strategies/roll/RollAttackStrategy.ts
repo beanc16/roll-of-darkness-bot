@@ -9,12 +9,12 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
-import { DiceStringParser, ParseOptions } from '../../../../services/DiceStringParser.js';
+import { DiceLiteService } from '../../../../services/Dice/DiceLiteService.js';
+import { DiceStringParser, ParseOptions } from '../../../../services/Dice/DiceStringParser.js';
 import { AddAndSubtractMathParser } from '../../../../services/MathParser/AddAndSubtractMathParser.js';
 import { DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { InteractionListenerRestartStyle, InteractionStrategy } from '../../../strategies/InteractionStrategy/InteractionStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy/RerollStrategy.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuRollSubcommand } from '../../options/roll.js';
 import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';

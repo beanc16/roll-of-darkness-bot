@@ -13,6 +13,7 @@ import { RandomNatureStrategy } from './RandomNatureStrategy.js';
 import { RandomPickupStrategy } from './RandomPickupStrategy.js';
 import { RandomPokeballStrategy } from './RandomPokeballStrategy.js';
 import { RandomTmStrategy } from './RandomTmStrategy.js';
+import { RandomUnownStrategy } from './RandomUnownStrategy.js';
 import { RandomVitaminStrategy } from './RandomVitaminStrategy.js';
 import { RandomXItemStrategy } from './RandomXItemStrategy.js';
 
@@ -32,6 +33,7 @@ export default {
     [RandomPickupStrategy.key]: RandomPickupStrategy,
     [RandomPokeballStrategy.key]: RandomPokeballStrategy,
     [RandomTmStrategy.key]: RandomTmStrategy,
+    [RandomUnownStrategy.key]: RandomUnownStrategy,
     [RandomVitaminStrategy.key]: RandomVitaminStrategy,
     [RandomXItemStrategy.key]: RandomXItemStrategy,
 };

@@ -63,6 +63,116 @@ export enum FullPokemonStat
     Speed = 'Speed',
 }
 
+export enum PokemonEggGroup
+{
+    /** Once known as Indeterminate */
+    Amorphous = 'Amorphous',
+    Bug = 'Bug',
+    Ditto = 'Ditto',
+    Dragon = 'Dragon',
+    Fairy = 'Fairy',
+    /** Once known as Ground */
+    Field = 'Field',
+    Flying = 'Flying',
+    /** Once known as Plant */
+    Grass = 'Grass',
+    /** Also known as Human-Like */
+    Humanshape = 'Humanshape',
+    Mineral = 'Mineral',
+    Monster = 'Monster',
+    None = 'None',
+    Water1 = 'Water 1',
+    Water2 = 'Water 2',
+    Water3 = 'Water 3',
+}
+
+export enum PokemonDiet
+{
+    Candyvore = 'Candyvore',
+    Carnivore = 'Carnivore',
+    DietCanChangeWithForm = 'Diet can change with its form',
+    Ergovore = 'Ergovore',
+    FilterFeeder = 'Filter Feeder',
+    Herbivore = 'Herbivore',
+    Illumivore = 'Illumivore',
+    Insectivore = 'Insectivore',
+    Nullivore = 'Nullivore',
+    Omnivore = 'Omnivore',
+    Phototroph = 'Phototroph',
+    Terravore = 'Terravore',
+}
+
+export enum PokemonHabitat
+{
+    Arctic = 'Arctic',
+    Beach = 'Beach',
+    Cave = 'Cave',
+    Desert = 'Desert',
+    Forest = 'Forest',
+    Freshwater = 'Freshwater',
+    Grasslands = 'Grasslands',
+    Marsh = 'Marsh',
+    Mountain = 'Mountain',
+    NonSpace = 'Non-Space',
+    Oceans = 'Oceans',
+    Plains = 'Plains',
+    Rainforest = 'Rainforest',
+    River = 'River',
+    Ruins = 'Ruins',
+    Space = 'Space',
+    Taiga = 'Taiga',
+    Tundra = 'Tundra',
+    UltraSpace = 'Ultra Space',
+    Underground = 'Underground',
+    Urban = 'Urban',
+    Wetlands = 'Wetlands',
+    Unknown = '???',
+}
+
+export enum PtuNaturewalk
+{
+    Beach = PokemonHabitat.Beach,
+    Cave = PokemonHabitat.Cave,
+    Desert = PokemonHabitat.Desert,
+    Forest = PokemonHabitat.Forest,
+    Freshwater = PokemonHabitat.Freshwater,
+    Grasslands = PokemonHabitat.Grasslands,
+    Mountain = PokemonHabitat.Mountain,
+    Oceans = PokemonHabitat.Oceans,
+    Taiga = PokemonHabitat.Taiga,
+    Tundra = PokemonHabitat.Tundra,
+    Urban = PokemonHabitat.Urban,
+    Wetlands = PokemonHabitat.Wetlands,
+}
+
+export enum PokemonGenderRatio
+{
+    Male50Female50 = '50% M / 50% F',
+    NoGender = 'No Gender',
+    Male100Female0 = '100% M / 0% F',
+    Male0Female100 = '0% M / 100% F',
+    Male75Female25 = '75% M / 25% F',
+    Male25Female75 = '25% M / 75% F',
+    Male875Female125 = '87.5% M / 12.5% F',
+    Male125Female875 = '12.5% M / 87.5% F',
+}
+
+export enum PtuAverageHatchRate
+{
+    TwoDays = '2 Days',
+    FourDays = '4 Days',
+    SevenDays = '7 Days',
+    TenDays = '10 Days',
+    ThirteenDays = '13 Days',
+    SixteenDays = '16 Days',
+    TwentyDays = '20 Days',
+    TwentyFiveDays = '25 Days',
+    ThirtyDays = '30 Days',
+    FourtyDays = '40 Days',
+    SeventyFiveDays = '75 Days',
+    None = 'None',
+}
+
 export enum PokemonMoveCategory
 {
     Physical = 'Physical',
@@ -94,6 +204,7 @@ export enum PtuAbilityListType
     Basic = 'basicAbilities',
     Advanced = 'advancedAbilities',
     High = 'highAbility',
+    Mega = 'megaAbility',
 }
 
 export enum PtuMoveListType
@@ -146,6 +257,15 @@ export enum PokemonStatusType
     Persistent = 'Persistent',
     Volatile = 'Volatile',
     Other = 'Other',
+}
+
+export enum PtuHeight
+{
+    Small = 'Small',
+    Medium = 'Medium',
+    Large = 'Large',
+    Huge = 'Huge',
+    Gigantic = 'Gigantic',
 }
 
 // For pokemon data from google sheets
@@ -266,4 +386,5 @@ export interface PtuPokemon extends PtuPokemonMinimalData
     olderVersions?: (Omit<PtuPokemon, 'name' | 'olderVersions'> & {
         versionName: string;
     })[];
+    typeShifts: (Partial<Omit<PtuPokemon, 'olderVersions'>> & { name: string })[];
 }

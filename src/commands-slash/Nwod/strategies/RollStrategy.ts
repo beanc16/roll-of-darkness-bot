@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import rollConstants from '../../../constants/roll.js';
 import { staticImplements } from '../../../decorators/staticImplements.js';
+import rollConstants from '../../../services/Dice/rollConstants.js';
 import { AddAndSubtractMathParser } from '../../../services/MathParser/AddAndSubtractMathParser.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
 import { NwodSubcommand } from '../options/index.js';

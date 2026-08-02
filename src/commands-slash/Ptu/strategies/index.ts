@@ -2,25 +2,36 @@ import { logger } from '@beanc16/logger';
 import {
     ApplicationCommandOptionChoiceData,
     AutocompleteFocusedOption,
+    ButtonInteraction,
     ChatInputCommandInteraction,
+    Message,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { MAX_AUTOCOMPLETE_CHOICES } from '../../../constants/discord.js';
-import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { AutocompleteHandlerMap } from '../../strategies/types/types.js';
 import { abilitiesForTypeEffectivenessSet } from '../constants.js';
+import { PtuFakemonPseudoCache } from '../dal/PtuFakemonPseudoCache.js';
+import { PtuOraclePseudoCache } from '../dal/PtuOraclePseudoCache.js';
 import { PtuAbility } from '../models/PtuAbility.js';
 import { PtuAura } from '../models/PtuAura.js';
 import { PtuMove } from '../models/PtuMove.js';
 import { PtuBreedSubcommand } from '../options/breed.js';
 import { PtuCalculateSubcommand } from '../options/calculate.js';
+import { PtuFakemonSubcommand } from '../options/fakemon.js';
 import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
-import { PtuPokemon } from '../types/pokemon.js';
+import {
+    PokemonDiet,
+    PokemonHabitat,
+    PtuPokemon,
+} from '../types/pokemon.js';
+import { PtuClassCategory, PtuClassRole } from '../types/pokemonTrainers.js';
 import { PtuBerry } from '../types/PtuBerry.js';
 import { PtuCapability } from '../types/PtuCapability.js';
 import { PtuEdge } from '../types/PtuEdge.js';
@@ -36,9 +47,16 @@ import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
 import { PtuVitamin } from '../types/PtuVitamin.js';
-import { PtuChatIteractionStrategy, PtuStrategyMap } from '../types/strategies.js';
+import {
+    PtuButtonIteractionStrategy,
+    PtuChatIteractionStrategy,
+    PtuStrategyMap,
+    PtuStringSelectMenuIteractionStrategy,
+} from '../types/strategies.js';
+import { PtuFeatureTag } from '../types/types.js';
 import { BreedPokemonStrategy } from './breed/BreedPokemonStrategy.js';
 import calculateStrategies from './calculate/index.js';
+import fakemonStrategies from './fakemon/index.js';
 import gameStrategies from './game/index.js';
 import generateStrategies from './generate/index.js';
 import lookupStrategies from './lookup/index.js';
@@ -55,6 +73,7 @@ import { GetLookupPokeballDataParameters } from './lookup/LookupPokeballStrategy
 import { GetLookupPokemonDataParameters } from './lookup/LookupPokemonStrategy.js';
 import { GetLookupStatusDataParameters } from './lookup/LookupStatusStrategy.js';
 import { GetLookupTmDataParameters } from './lookup/LookupTmStrategy.js';
+import { MetadataPokemonStrategy } from './metadata/MetadataPokemonStrategy.js';
 import quickReferenceStrategies from './quickReference/index.js';
 import randomStrategies from './random/index.js';
 import rollStrategies from './roll/index.js';
@@ -133,9 +152,11 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
     private static strategies: PtuStrategyMap = {
         [PtuSubcommandGroup.Breed]: BreedPokemonStrategy,
         [PtuSubcommandGroup.Calculate]: calculateStrategies,
+        [PtuSubcommandGroup.Fakemon]: fakemonStrategies,
         [PtuSubcommandGroup.Game]: gameStrategies,
         [PtuSubcommandGroup.Generate]: generateStrategies,
         [PtuSubcommandGroup.Lookup]: lookupStrategies,
+        [PtuSubcommandGroup.Metadata]: MetadataPokemonStrategy,
         [PtuSubcommandGroup.QuickReference]: quickReferenceStrategies,
         [PtuSubcommandGroup.Random]: randomStrategies,
         [PtuSubcommandGroup.Roll]: rollStrategies,
@@ -168,7 +189,90 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return false;
     }
 
-    public static async getAutocompleteChoices(focusedValue: AutocompleteFocusedOption): Promise<ApplicationCommandOptionChoiceData<string>[]>
+    /* istanbul ignore next */
+    public static async runStringSelect({
+        interaction,
+        message,
+        commandName,
+        subcommandGroup,
+        subcommand,
+    }: {
+        interaction: StringSelectMenuInteraction;
+        message: Message;
+        commandName: string;
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuFakemonSubcommand;
+    }): Promise<boolean>
+    {
+        const Strategy = this.getPtuStrategy({
+            subcommandGroup,
+            subcommand,
+            interaction,
+        });
+
+        if (Strategy && Strategy.runStringSelect)
+        {
+            return await Strategy.runStringSelect(interaction, this.strategies, {
+                message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+        if (Strategy && !Strategy.runStringSelect)
+        {
+            // Treat this as that strategy not having runStringSelect implemented
+            // due to in-line event handling
+            return true;
+        }
+
+        return false;
+    }
+
+    /* istanbul ignore next */
+    public static async runButton({
+        interaction,
+        message,
+        commandName,
+        subcommandGroup,
+        subcommand,
+    }: {
+        interaction: ButtonInteraction;
+        message: Message;
+        commandName: string;
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuFakemonSubcommand;
+    }): Promise<boolean>
+    {
+        const Strategy = this.getPtuStrategy({
+            subcommandGroup,
+            subcommand,
+            interaction,
+        });
+
+        if (Strategy && Strategy.runButton)
+        {
+            return await Strategy.runButton(interaction, this.strategies, {
+                message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+        if (Strategy && !Strategy.runButton)
+        {
+            // Treat this as that strategy not having runButton implemented
+            // due to in-line event handling
+            return true;
+        }
+
+        return false;
+    }
+
+    public static async getAutocompleteChoices(
+        focusedValue: AutocompleteFocusedOption,
+        userId: string,
+    ): Promise<ApplicationCommandOptionChoiceData<string>[]>
     {
         const autocompleteName = focusedValue.name as PtuAutocompleteParameterName;
 
@@ -184,7 +288,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             );
         };
 
-        let propertyToExtract: 'name' | 'patron' = 'name';
+        let propertyToExtract: 'name' | 'patron' | 'breedingInformation.eggGroups' = 'name';
 
         // Get data based on the autocompleteName
         const handlerMap: AutocompleteHandlerMap<PtuAutocompleteParameterName> = {
@@ -195,7 +299,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.Ability1]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
-            [PtuAutocompleteParameterName.Ability4]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.AuraName]: () => PtuStrategyExecutor.getLookupData<PtuAura>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Aura,
@@ -205,6 +308,96 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: PtuLookupSubcommand.Aura,
                 options: { includeAllIfNoName: true, returnLegendaryNames: true },
             }),
+            [PtuAutocompleteParameterName.BaseAbilitiesOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
+            [PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
+            [PtuAutocompleteParameterName.BaseOtherCapabilitiesOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
+            [PtuAutocompleteParameterName.BaseMovesOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
+            [PtuAutocompleteParameterName.BaseSpeciesOn]: async () =>
+            {
+                const [pokemon, fakemon] = await Promise.all([
+                    PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                        subcommandGroup: PtuSubcommandGroup.Lookup,
+                        subcommand: PtuLookupSubcommand.Pokemon,
+                        options: {
+                            names: [focusedValue.value],
+                        },
+                    }),
+                    PtuFakemonPseudoCache.getAll(userId),
+                ]);
+
+                return [
+                    ...pokemon,
+                    ...fakemon,
+                ];
+            },
             [PtuAutocompleteParameterName.BasedOnAbility]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Ability,
@@ -223,14 +416,87 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             }),
-            [PtuAutocompleteParameterName.ClassName]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
-                subcommandGroup: PtuSubcommandGroup.Lookup,
-                subcommand: PtuLookupSubcommand.Class,
-            }),
+            [PtuAutocompleteParameterName.ClassCategory]: () => Promise.resolve(
+                Object.values(PtuClassCategory).map(element => ({ name: element })),
+            ),
+            [PtuAutocompleteParameterName.ClassName1]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName2]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName3]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassName4]: async () =>
+            {
+                const nestedFeatures = await PtuStrategyExecutor.getLookupData<PtuFeature>({
+                    subcommandGroup: PtuSubcommandGroup.Lookup,
+                    subcommand: PtuLookupSubcommand.Class,
+                }) as unknown as PtuFeature[][];
+
+                return nestedFeatures.reduce((acc, features) =>
+                {
+                    features.forEach(feature => acc.push(feature));
+                    return acc;
+                }, []);
+            },
+            [PtuAutocompleteParameterName.ClassRole]: () => Promise.resolve(
+                Object.values(PtuClassRole).map(element => ({ name: element })),
+            ),
+            [PtuAutocompleteParameterName.DietName]: () => Promise.resolve(
+                Object.values(PokemonDiet).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.EdgeName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Edge,
             }),
+            [PtuAutocompleteParameterName.EggGroup1]: () =>
+            {
+                propertyToExtract = 'breedingInformation.eggGroups';
+                return PtuStrategyExecutor.getLookupData({
+                    subcommandGroup: PtuSubcommandGroup.Breed,
+                    subcommand: PtuBreedSubcommand.Breed,
+                });
+            },
+            [PtuAutocompleteParameterName.EggGroup2]: () =>
+            {
+                propertyToExtract = 'breedingInformation.eggGroups';
+                return PtuStrategyExecutor.getLookupData({
+                    subcommandGroup: PtuSubcommandGroup.Breed,
+                    subcommand: PtuBreedSubcommand.Breed,
+                });
+            },
             [PtuAutocompleteParameterName.EquipmentName]: () => PtuStrategyExecutor.getLookupData<PtuEdge>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Equipment,
@@ -239,11 +505,15 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.EvolutionaryStone,
             }),
+            [PtuAutocompleteParameterName.FakemonSpeciesName]: () => PtuFakemonPseudoCache.getAll(userId),
             [PtuAutocompleteParameterName.FeatureName]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Feature,
             }),
-            [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData<PtuFeature>({
+            [PtuAutocompleteParameterName.FeatureTag]: () => Promise.resolve(
+                Object.values(PtuFeatureTag).map(element => ({ name: element })),
+            ),
+            [PtuAutocompleteParameterName.FemaleSpecies]: () => PtuStrategyExecutor.getLookupData({
                 subcommandGroup: PtuSubcommandGroup.Breed,
                 subcommand: PtuBreedSubcommand.Breed,
             }),
@@ -259,6 +529,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                     subcommand: PtuLookupSubcommand.GiftBlessing,
                 });
             },
+            [PtuAutocompleteParameterName.HabitatName]: () => Promise.resolve(
+                Object.values(PokemonHabitat).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.HazardName]: () => PtuStrategyExecutor.getLookupData<PtuHazard>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Hazard,
@@ -292,9 +565,36 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Nature,
             }),
+            [PtuAutocompleteParameterName.OracleGameName]: async () =>
+            {
+                const games = await PtuOraclePseudoCache.getGamesByDiscordUserId(userId);
+
+                // Set the unique names of the pokemon that can evolve
+                const set = games.reduce<Set<string>>((
+                    acc,
+                    { name },
+                ) =>
+                {
+                    acc.add(name);
+                    return acc;
+                }, new Set());
+
+                // Convert to the desired output
+                const output: { name: string }[] = [];
+                set.forEach(pokemonName => output.push({ name: pokemonName }));
+                output.sort((a, b) => a.name.localeCompare(b.name));
+                return output;
+            },
             [PtuAutocompleteParameterName.PokeballName]: () => PtuStrategyExecutor.getLookupData<PtuPokeball>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Pokeball,
+            }),
+            [PtuAutocompleteParameterName.PokemonName]: () => PtuStrategyExecutor.getLookupData<PtuPokemon>({
+                subcommandGroup: PtuSubcommandGroup.Lookup,
+                subcommand: PtuLookupSubcommand.Pokemon,
+                options: {
+                    names: [focusedValue.value],
+                },
             }),
             [PtuAutocompleteParameterName.PokemonToEvolve]: async () =>
             {
@@ -349,18 +649,6 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.XItem,
             }),
-            [PtuAutocompleteParameterName.PokemonName]: async () =>
-            {
-                const output = await PtuStrategyExecutor.getLookupData<PtuPokemon>({
-                    subcommandGroup: PtuSubcommandGroup.Lookup,
-                    subcommand: PtuLookupSubcommand.Pokemon,
-                    options: {
-                        name: focusedValue.value,
-                    },
-                });
-
-                return output;
-            },
         };
 
         const data = await handlerMap[autocompleteName]();
@@ -375,8 +663,44 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         // Get only unique values
         const choiceValues = data.reduce<Set<string>>((acc, element) =>
         {
-            acc.add(element[propertyToExtract] ?? element.name);
+            /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
+            if (propertyToExtract.includes('.'))
+            {
+                const properties = propertyToExtract.split('.');
+
+                // Traverse the object down to the expected value
+                let currentElement = element;
+                // eslint-disable-next-line no-restricted-syntax
+                for (const property of properties)
+                {
+                    // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
+                    currentElement = currentElement[property];
+                }
+
+                if (Array.isArray(currentElement))
+                {
+                    currentElement.forEach(value => acc.add(value as string));
+                    return acc;
+                }
+
+                // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
+                acc.add(currentElement ?? element.name);
+                return acc;
+            }
+
+            // @ts-expect-error -- TypeScript doesn't recognize the deep object traversal
+            const value = element[propertyToExtract] ?? element.name;
+
+            // Skip empty strings
+            if (value === '')
+            {
+                return acc;
+            }
+
+            acc.add(value);
             return acc;
+
+            /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
         }, new Set());
 
         // Parse data to discord's format
@@ -423,6 +747,33 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         return [];
     }
 
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ChatInputCommandInteraction;
+    }): PtuChatIteractionStrategy | undefined;
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: StringSelectMenuInteraction;
+    }): PtuStringSelectMenuIteractionStrategy | undefined;
+    private static getPtuStrategy({
+        subcommandGroup,
+        subcommand,
+        interaction,
+    }: {
+        subcommandGroup: PtuSubcommandGroup;
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ButtonInteraction;
+    }): PtuButtonIteractionStrategy | undefined;
     /* istanbul ignore next */
     private static getPtuStrategy({
         subcommandGroup,
@@ -430,13 +781,13 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
         interaction,
     }: {
         subcommandGroup: PtuSubcommandGroup;
-        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train;
-        interaction: ChatInputCommandInteraction;
-    }): PtuChatIteractionStrategy | undefined
+        subcommand: PtuLookupSubcommand | PtuRandomSubcommand | PtuCalculateSubcommand | PtuGenerateSubcommand | PtuSubcommandGroup.QuickReference | PtuSubcommandGroup.Train | PtuFakemonSubcommand;
+        interaction: ChatInputCommandInteraction | StringSelectMenuInteraction | ButtonInteraction;
+    }): PtuChatIteractionStrategy | PtuStringSelectMenuIteractionStrategy | PtuButtonIteractionStrategy | undefined
     {
         let Strategy: PtuChatIteractionStrategy | undefined;
 
-        if (subcommand === PtuSubcommandGroup.QuickReference)
+        if (subcommand === PtuSubcommandGroup.QuickReference && 'options' in interaction)
         {
             const referenceInfo = interaction.options.getString('reference_info', true) as PtuQuickReferenceInfo;
 
@@ -447,7 +798,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommand: referenceInfo,
             });
         }
-        else if (subcommandGroup.includes(PtuSubcommandGroup.Lookup))
+        else if (subcommandGroup?.includes(PtuSubcommandGroup.Lookup))
         {
             for (let index = 1; index <= 2; index += 1)
             {

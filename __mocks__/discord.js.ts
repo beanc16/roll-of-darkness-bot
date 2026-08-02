@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import { randomUUID } from 'node:crypto';
 
 import type { ComponentEmojiResolvable } from 'discord.js';

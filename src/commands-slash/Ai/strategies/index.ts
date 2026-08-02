@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
-import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor.js';
+import { BaseStrategyExecutor } from '../../strategies/BaseStrategyExecutor/BaseStrategyExecutor.js';
 import { StrategyMap } from '../../strategies/types/ChatIteractionStrategy.js';
 import { AiGenerateSubcommand } from '../options/generate.js';
 import { AiDevGenerateSubcommand } from '../options/generate_dev.js';

@@ -1,16 +1,26 @@
 import { logger } from '@beanc16/logger';
 import {
     AutocompleteInteraction,
+    ButtonInteraction,
     Client,
     CommandInteraction,
     Events,
+    MessageInteraction,
     ModalSubmitInteraction,
+    StringSelectMenuInteraction,
 } from 'discord.js';
 
 import { modalMap } from '../modals/index.js';
+import commandMetadataSingleton from '../models/commandMetadataSingleton.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 
-async function handler(bot: Client, interaction: CommandInteraction | AutocompleteInteraction): Promise<void>
+async function handler(
+    bot: Client,
+    interaction: CommandInteraction
+        | AutocompleteInteraction
+        | StringSelectMenuInteraction
+        | ButtonInteraction,
+): Promise<void>
 {
     if (interaction.isChatInputCommand())
     {
@@ -96,6 +106,115 @@ async function handler(bot: Client, interaction: CommandInteraction | Autocomple
             logger.error(`An unknown error occurred while submitting the modal with id: ${Modal.id}, and title: ${Modal.title}`, err);
             await modalSubmitInteraction.followUp({
                 content: 'An unknown error occurred while submitting this modal',
+                ephemeral: true,
+            });
+        }
+    }
+    else if (interaction.isStringSelectMenu())
+    {
+        let commandInteraction: MessageInteraction | null = null;
+
+        if (interaction.message.interaction)
+        {
+            commandInteraction = interaction.message.interaction;
+        }
+        else if (interaction.message.reference?.messageId)
+        {
+            const referencedMessage = await interaction.message.channel.messages.fetch(interaction.message.reference.messageId);
+            commandInteraction = referencedMessage.interaction;
+        }
+
+        const [
+            commandName = '',
+            subcommandGroup = '',
+            subcommand = '',
+        ] = commandInteraction?.commandName?.split(' ')
+            ?? commandMetadataSingleton.get(interaction.message.id)
+            ?? [];
+
+        const slashCommand = SlashCommandsContainer.getCommand(commandName)
+            || SlashCommandsContainer.getGuildCommand(commandName);
+
+        if (!slashCommand)
+        {
+            // Only certain subcommand groups and subcommands support this style
+            // right now. Thus, we should only log errors for the supported interactions.
+            const substringsToTestFor = ['fakemon'];
+            if (substringsToTestFor.some((substring) => commandName.includes(substring)))
+            {
+                logger.error(`No command named ${commandName} was found.`);
+            }
+            return;
+        }
+
+        try
+        {
+            await slashCommand.runStringSelect(interaction, {
+                message: interaction.message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+        catch (err)
+        {
+            logger.error(`An unknown error occurred while executing string select for /${slashCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
+                ephemeral: true,
+            });
+        }
+    }
+    else if (interaction.isButton())
+    {
+        let commandInteraction: MessageInteraction | null = null;
+
+        if (interaction.message.interaction)
+        {
+            commandInteraction = interaction.message.interaction;
+        }
+        else if (interaction.message.reference?.messageId)
+        {
+            const referencedMessage = await interaction.message.channel.messages.fetch(interaction.message.reference.messageId);
+            commandInteraction = referencedMessage.interaction;
+        }
+
+        const [
+            commandName = '',
+            subcommandGroup = '',
+            subcommand = '',
+        ] = commandInteraction?.commandName?.split(' ')
+            ?? commandMetadataSingleton.get(interaction.message.id)
+            ?? [];
+
+        const slashCommand = SlashCommandsContainer.getCommand(commandName)
+            || SlashCommandsContainer.getGuildCommand(commandName);
+        if (!slashCommand)
+        {
+            // Only certain subcommand groups and subcommands support this style
+            // right now. Thus, we should only log errors for the supported interactions.
+            const substringsToTestFor = ['fakemon'];
+            if (substringsToTestFor.some((substring) => commandName.includes(substring)))
+            {
+                logger.error(`No command named ${commandName} was found.`);
+            }
+            return;
+        }
+
+        try
+        {
+            await slashCommand.runButton(interaction, {
+                message: interaction.message,
+                commandName,
+                subcommandGroup,
+                subcommand,
+            });
+        }
+        catch (err)
+        {
+            logger.error(`An unknown error occurred while executing button for /${slashCommand.commandName}`, err);
+            await interaction.followUp({
+                content: 'An unknown error occurred while executing this command',
                 ephemeral: true,
             });
         }

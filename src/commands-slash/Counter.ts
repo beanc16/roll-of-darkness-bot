@@ -17,13 +17,13 @@ import { Counter as CounterForDb } from './Counter/dal/models/Counter.js';
 import { CounterContainer } from './Counter/dal/models/CounterContainer.js';
 import counterSingleton from './Counter/services/CounterSingleton.js';
 import { upsertCounterCountainerWithDbUpdate } from './Counter/services/upsertCounterCountainer.js';
-import { getPagedEmbedBuilders } from './embed-messages/shared.js';
 import * as options from './options/counter.js';
+import { getPagedEmbedBuilders } from './shared/embed-messages/shared.js';
 import {
     GetMessageDataResponse,
     InteractionListenerRestartStyle,
     InteractionStrategy,
-} from './strategies/InteractionStrategy.js';
+} from './strategies/InteractionStrategy/InteractionStrategy.js';
 import { PaginationStrategy } from './strategies/PaginationStrategy/PaginationStrategy.js';
 
 enum CounterButtonName
@@ -226,8 +226,23 @@ class Counter extends BaseSlashCommand
                     discordCreator: { channelId, messageId },
                 } = counter;
 
+                // Exit early if the bot isn't in the server with this channel
+                const channel = await bot.channels.fetch(channelId).catch((err) =>
+                {
+                    // Bot is missing access to the channel
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    if (typeof err === 'object' && 'code' in err && err.code === 50001)
+                    {
+                        return null;
+                    }
+                    throw err;
+                }) as TextChannel | null;
+                if (!channel)
+                {
+                    return;
+                }
+
                 // Get the message that the counter belongs to
-                const channel = await bot.channels.fetch(channelId) as TextChannel;
                 const message = await channel.messages.fetch(messageId);
 
                 // Overwrite the count from the database with whatever's in the message

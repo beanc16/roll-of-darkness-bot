@@ -1,9 +1,9 @@
 import { ChatInputCommandInteraction } from 'discord.js';
 
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
-import { DiceLiteService } from '../../../../services/DiceLiteService.js';
+import { DiceLiteService } from '../../../../services/Dice/DiceLiteService.js';
 import { CommandName, DiscordInteractionCallbackType } from '../../../../types/discord.js';
-import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy.js';
+import { OnRerollCallbackOptions, RerollStrategy } from '../../../strategies/RerollStrategy/RerollStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { getRandomResultEmbedMessage } from '../../embed-messages/random.js';
 import { PtuRandomSubcommand } from '../../options/random.js';
@@ -17,7 +17,7 @@ interface BaseRandomStrategyOptions
     parsedData?: RandomResult[];
 }
 
-type BaseRandomSubcommands = Exclude<PtuRandomSubcommand, PtuRandomSubcommand.Gumdrop | PtuRandomSubcommand.HiddenPower>;
+type BaseRandomSubcommands = Exclude<PtuRandomSubcommand, PtuRandomSubcommand.Gumdrop | PtuRandomSubcommand.HiddenPower | PtuRandomSubcommand.Unown>;
 
 export class BaseRandomStrategy
 {
@@ -204,13 +204,16 @@ export class BaseRandomStrategy
         });
 
         // Parse data
-        return data.reduce<RandomResult[]>((acc, [name, cost, description]) =>
+        return data.reduce<RandomResult[]>((acc, [name, cost, description, excludeFromRandomRolls]) =>
         {
-            acc.push({
-                name,
-                cost,
-                description,
-            });
+            if (excludeFromRandomRolls !== 'TRUE' && name?.trim())
+            {
+                acc.push({
+                    name,
+                    cost,
+                    description,
+                });
+            }
             return acc;
         }, []);
     }

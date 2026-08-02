@@ -1,0 +1,31 @@
+export abstract class DataTransferDestination<Input, Source>
+{
+    /**
+     * Creates the initial data at the transfer destination
+     */
+    public abstract create(input: Input, source: Source): void | Promise<void>;
+
+    /**
+     * Bulk creates the initial data at the transfer destination
+     */
+    public async createBulk(bulkInput: {
+        input: Input;
+        source: Source;
+    }[]): Promise<void>
+    {
+        const promises = bulkInput.map(({ input, source }) => this.create(input, source));
+        await Promise.all(promises);
+    }
+
+    /**
+     * Validates that the input is safe to transfer
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    protected abstract validateInput(input: Input, ...rest: any[]): asserts input is Input;
+
+    /**
+     * @returns True if the data has already been transferred
+     * @returns False if the data has not yet been transferred
+     */
+    public abstract wasTransferred(input: Input, source: Source): boolean | Promise<boolean>;
+}

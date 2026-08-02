@@ -18,3 +18,23 @@ export enum PtuSkill
     Stealth = 'Stealth',
     Survival = 'Survival',
 }
+
+export enum PtuClassRole
+{
+    PassivePokemonSupport = 'Passive Pokemon Support',
+    ActivePokemonSupport = 'Active Pokemon Support',
+    TravelAndInvestigation = 'Travel and Investigation',
+    TrainerCombat = 'Trainer Combat',
+    Crafting = 'Crafting',
+}
+
+export enum PtuClassCategory
+{
+    Introductory = 'Introductory',
+    BattlingStyle = 'Battling Style',
+    SpecialistTeam = 'Specialist Team',
+    Professional = 'Professional',
+    Fighter = 'Fighter',
+    Supernatural = 'Supernatural',
+    Mythological = 'Mythological',
+}

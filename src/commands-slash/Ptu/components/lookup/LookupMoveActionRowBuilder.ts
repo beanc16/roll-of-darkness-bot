@@ -7,11 +7,17 @@ import {
 export enum LookupMoveCustomId
 {
     LookupPokemon = 'Lookup Pokemon that Know This Move',
+    LookupBasedOnMove = 'Lookup "Based On" Move',
+}
+
+interface LookupMoveActionRowBuilderOptions
+{
+    basedOn?: string;
 }
 
 export class LookupMoveActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
 {
-    constructor()
+    constructor(options: LookupMoveActionRowBuilderOptions = {})
     {
         super({
             components: [
@@ -21,6 +27,17 @@ export class LookupMoveActionRowBuilder extends ActionRowBuilder<ButtonBuilder>
                     emoji: '🔎',
                     style: ButtonStyle.Secondary,
                 }),
+                ...(options.basedOn
+                    ? [
+                        new ButtonBuilder({
+                            customId: LookupMoveCustomId.LookupBasedOnMove,
+                            label: LookupMoveCustomId.LookupBasedOnMove,
+                            emoji: '🔎',
+                            style: ButtonStyle.Secondary,
+                        }),
+                    ]
+                    : []
+                ),
             ],
         });
     }

@@ -1,7 +1,7 @@
 import { logger } from '@beanc16/logger';
+import { ChatAnthropic } from '@langchain/anthropic';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { ChatOpenAI } from '@langchain/openai';
 import {
     type AttachmentPayload,
     type ButtonInteraction,
@@ -72,13 +72,14 @@ export class BaseGenerateStrategy
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type -- Allow TS to infer
     private static getLlm<Schema extends BaseSchema>(schema?: Schema)
     {
-        const llm = new ChatOpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
-            model: 'gpt-4o-mini',
+        const llm = new ChatAnthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY,
+            model: 'claude-sonnet-4-5-20250929',
         });
 
         if (schema)
         {
+            // @ts-expect-error -- TypeScript complains about an infinitely recursive initiation, even though this is the correct way to do it
             return llm.withStructuredOutput(schema);
         }
 
