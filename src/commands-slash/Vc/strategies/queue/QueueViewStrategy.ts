@@ -49,11 +49,16 @@ export class QueueViewStrategy
             return 'Queue is empty.';
         }
 
+        const { current: currentFile } = queue;
         const trackNamesList = queueData.reduce<string>((acc, { fileName, shouldLoop }, index) =>
         {
             const lineBreak = (index !== 0) ? '\n' : '';
             const loopingText = (shouldLoop) ? 'Looping' : 'Not Looping';
-            return `${acc}${lineBreak}- ${fileName} (${loopingText})`;
+
+            const isCurrentTrack = (fileName === currentFile?.fileName);
+            const currentTrackMarker = (isCurrentTrack) ? `> ` : ``;
+
+            return `${acc}${lineBreak}${currentTrackMarker}${index + 1}. ${fileName} (${loopingText})`;
         }, '');
 
         const queueLoopingText = (queue.settings.shouldLoop) ? 'Looping' : 'Not Looping';
