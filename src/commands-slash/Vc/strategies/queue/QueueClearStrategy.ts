@@ -33,7 +33,7 @@ export class QueueClearStrategy
         return true;
     }
 
-    private static clearQueue({ channelId }: {
+    public static clearQueue({ channelId }: {
         channelId: string;
     }): void
     {

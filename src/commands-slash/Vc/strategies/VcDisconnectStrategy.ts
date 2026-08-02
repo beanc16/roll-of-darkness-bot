@@ -6,6 +6,7 @@ import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStr
 import { getVoiceConnectionData } from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
+import { QueueClearStrategy } from './queue/QueueClearStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcDisconnectStrategy
@@ -44,7 +45,7 @@ export class VcDisconnectStrategy
             return true;
         }
 
-        await this.disconnect(interaction, existingConnection);
+        await this.disconnect(interaction, existingConnection, voiceChannel.id);
 
         return true;
     }
@@ -52,6 +53,7 @@ export class VcDisconnectStrategy
     private static async disconnect(
         interaction: ChatInputCommandInteraction,
         connection: VoiceConnection,
+        channelId: string,
     ): Promise<void>
     {
         return await new Promise<void>((resolve) =>
@@ -59,6 +61,7 @@ export class VcDisconnectStrategy
             // Send message to show the command was received
             connection.on(VoiceConnectionStatus.Destroyed, async () =>
             {
+                QueueClearStrategy.clearQueue({ channelId });
                 await interaction.editReply({
                     content: 'Disconnected from your voice channel successfully.',
                 });
