@@ -14,7 +14,9 @@ export class Queue<Element>
     private queue: Element[] = [];
     private currentIndex: number = 0;
     /** The entire queue should loop when the last track is complete */
-    private shouldLoop: boolean = false;
+    private shouldLoop = false;
+    /** Whether the queue should respect requests to move to next/previous or not */
+    private isEnabled = true;
 
     constructor({ shouldLoop }: QueueSettings)
     {
@@ -229,6 +231,12 @@ export class Queue<Element>
 
     public next(): Element | undefined
     {
+        // Do nothing if queue is disabled
+        if (!this.isEnabled)
+        {
+            return undefined;
+        }
+
         if (this.currentIndex < this.queue.length - 1)
         {
             this.currentIndex += 1;
@@ -241,8 +249,20 @@ export class Queue<Element>
         return this.current;
     }
 
+    public hasPrevious(): boolean
+    {
+        return this.currentIndex > 0
+            || (this.shouldLoop && this.queue.length > 0);
+    }
+
     public previous(): Element | undefined
     {
+        // Do nothing if queue is disabled
+        if (!this.isEnabled)
+        {
+            return undefined;
+        }
+
         if (this.currentIndex > 0)
         {
             this.currentIndex -= 1;
@@ -259,6 +279,16 @@ export class Queue<Element>
     {
         this.queue = [];
         this.currentIndex = 0;
+    }
+
+    public getIsEnabled(): boolean
+    {
+        return this.isEnabled;
+    }
+
+    public setIsEnabled(isEnabled: boolean): void
+    {
+        this.isEnabled = isEnabled;
     }
 
     public updateSettings({ shouldLoop }: QueueSettings): void

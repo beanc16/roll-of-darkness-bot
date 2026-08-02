@@ -248,7 +248,7 @@ describe('Queue', () =>
         it.each([
             [true, false],
             [true, true],
-        ])('returns %s if queue is not empty, current index is less than queue length, and shouldLoop is %s', (result, shouldLoop) =>
+        ])('returns %s if queue is not empty, current index is at its minimum value, and shouldLoop is %s', (result, shouldLoop) =>
         {
             queue['queue'] = ['a', 'b', 'c'];
             queue['currentIndex'] = 0;
@@ -260,7 +260,7 @@ describe('Queue', () =>
         it.each([
             [false, false],
             [true, true],
-        ])('returns %s if queue is not empty, current index is equal to one less than queue length, and shouldLoop is %s', (result, shouldLoop) =>
+        ])('returns %s if queue is not empty, current index is its max value, and shouldLoop is %s', (result, shouldLoop) =>
         {
             queue['queue'] = ['a', 'b', 'c'];
             queue['currentIndex'] = 2;
@@ -350,6 +350,54 @@ describe('Queue', () =>
             expect(queue.next()).toBeUndefined();
             expect(queue['currentIndex']).toEqual(0);
         });
+
+        it('next does nothing if isEnabled is false', () =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue.setIsEnabled(false);
+
+            expect(queue.current).toEqual('a');
+            expect(queue.next()).toBeUndefined();
+        });
+    });
+
+    describe('method: hasPrevious', () =>
+    {
+        it.each([
+            [true, false],
+            [true, true],
+        ])('returns %s if queue is not empty, current index is its max value, and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 2;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasPrevious()).toEqual(result);
+        });
+
+        it.each([
+            [false, false],
+            [true, true],
+        ])('returns %s if queue is not empty, current index is its minimum value, and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue['currentIndex'] = 0;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasPrevious()).toEqual(result);
+        });
+
+        it.each([
+            [false, false],
+            [false, true],
+        ])('returns %s if queue is empty and shouldLoop is %s', (result, shouldLoop) =>
+        {
+            queue['queue'] = [];
+            queue['currentIndex'] = 0;
+            queue['shouldLoop'] = shouldLoop;
+
+            expect(queue.hasPrevious()).toEqual(result);
+        });
     });
 
     describe('method: previous', () =>
@@ -385,6 +433,15 @@ describe('Queue', () =>
             expect(queue.previous()).toBeUndefined();
             expect(queue['currentIndex']).toEqual(0);
         });
+
+        it('previous does nothing if isEnabled is false', () =>
+        {
+            queue['queue'] = ['a', 'b', 'c'];
+            queue.setIsEnabled(false);
+
+            expect(queue.current).toEqual('a');
+            expect(queue.previous()).toBeUndefined();
+        });
     });
 
     describe('method: clear', () =>
@@ -407,6 +464,26 @@ describe('Queue', () =>
             queue.clear();
             expect(queue.elements).toEqual([]);
             expect(queue.current).toBeUndefined();
+        });
+    });
+
+    describe('method: getIsEnabled', () =>
+    {
+        it.each([true, false])('returns isEnabled when isEnabled = %s', (isEnabled) =>
+        {
+            queue['isEnabled'] = isEnabled;
+
+            expect(queue.getIsEnabled()).toEqual(isEnabled);
+        });
+    });
+
+    describe('method: setIsEnabled', () =>
+    {
+        it.each([true, false])('sets isEnabled to %s', (isEnabled) =>
+        {
+            queue.setIsEnabled(isEnabled);
+
+            expect(queue['isEnabled']).toEqual(isEnabled);
         });
     });
 
