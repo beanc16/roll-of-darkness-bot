@@ -57,6 +57,7 @@ export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction)
     };
 };
 
+// TODO: This should be a record by channel id in the future
 let cachedAudioPlayer: AudioPlayerEmitter | undefined;
 export const getAudioPlayerData = (): AudioPlayerEmitter =>
 {
