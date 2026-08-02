@@ -35,7 +35,7 @@ export class VcLoadStrategy
         return true;
     }
 
-    private static async load({ interaction, fileNames }: {
+    public static async load({ interaction, fileNames }: {
         interaction: ChatInputCommandInteraction;
         fileNames: string[];
     }): Promise<void>

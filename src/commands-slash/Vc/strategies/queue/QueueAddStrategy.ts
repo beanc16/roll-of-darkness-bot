@@ -10,6 +10,7 @@ import {
 } from '../../helpers.js';
 import { VcQueueSubcommand } from '../../options/queue.js';
 import { VcQueueData } from '../../types.js';
+import { VcLoadStrategy } from '../VcLoadStrategy.js';
 import { VcViewFilesStrategy } from '../VcViewFilesStrategy.js';
 import { QueueViewStrategy } from './QueueViewStrategy.js';
 
@@ -35,8 +36,8 @@ export class QueueAddStrategy
         }
 
         const { wasSuccess } = await this.addToQueue({
+            interaction,
             channelId: voiceChannel.id,
-            discordUserId: interaction.user.id,
             fileName,
             position: queuePosition,
             shouldLoop,
@@ -62,25 +63,31 @@ export class QueueAddStrategy
         return true;
     }
 
-    private static async addToQueue({
+    public static async addToQueue({
+        interaction,
         channelId,
-        discordUserId,
         fileName,
         position,
         shouldLoop,
     }: {
+        interaction: ChatInputCommandInteraction;
         channelId: string;
-        discordUserId: string;
         position: QueuePosition;
     } & VcQueueData): Promise<{ wasSuccess: boolean }>
     {
-        if (!(await isValidFileName({ discordUserId, fileName })))
+        if (!(await isValidFileName({ discordUserId: interaction.user.id, fileName })))
         {
             return { wasSuccess: false };
         }
 
         const queue = getQueue(channelId);
         queue.enqueue({ fileName, shouldLoop }, position);
+
+        await VcLoadStrategy.load({
+            interaction,
+            fileNames: [fileName],
+        });
+
         return { wasSuccess: true };
     }
 }
