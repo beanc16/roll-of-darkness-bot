@@ -135,7 +135,11 @@ export const upload = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
     subcommand.setName(VcSubcommand.Upload);
     subcommand.setDescription(`Upload an audio file.`);
 
-    subcommand.addStringOption(fileNameParameter);
+    subcommand.addStringOption((option) =>
+    {
+        const fileNameOption = fileNameParameter(option);
+        return fileNameOption.setAutocomplete(false); // We don't want to use existing file names
+    });
     subcommand.addAttachmentOption((option) =>
     {
         option.setName('file');
