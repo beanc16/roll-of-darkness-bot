@@ -251,6 +251,48 @@ describe('Queue', () =>
             expect(queue['currentIndex']).toEqual(0);
         });
 
+        it('remove by index removes the correct item and does not shift the index if it is less than the currentIndex', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+            queue['currentIndex'] = 0;
+
+            const removed = queue.remove(1);
+            expect(removed).toEqual('b');
+            expect(queue.elements).toEqual(['a', 'c']);
+            expect(queue['currentIndex']).toEqual(0);
+            expect(queue.current).toEqual('a');
+        });
+
+        it('remove by index removes the correct item and does not shift the index if it is equal to the currentIndex', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+            queue['currentIndex'] = 1;
+
+            const removed = queue.remove(1);
+            expect(removed).toEqual('b');
+            expect(queue.elements).toEqual(['a', 'c']);
+            expect(queue['currentIndex']).toEqual(1);
+            expect(queue.current).toEqual('c');
+        });
+
+        it('remove by index removes the correct item and shifts index if it is greater than the currentIndex', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+            queue['currentIndex'] = 2;
+
+            const removed = queue.remove(2);
+            expect(removed).toEqual('c');
+            expect(queue.elements).toEqual(['a', 'b']);
+            expect(queue['currentIndex']).toEqual(1);
+            expect(queue.current).toEqual('b');
+        });
+
         it('remove by index removes nothing if index is out of bounds', () =>
         {
             queue.enqueue('a', QueuePosition.Last);

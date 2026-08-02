@@ -211,6 +211,10 @@ export class Queue<Element>
         {
             this.currentIndex = Math.max(0, this.queue.length - 1);
         }
+        else if (index < this.currentIndex)
+        {
+            this.currentIndex -= 1;
+        }
 
         return removedElement;
     }
