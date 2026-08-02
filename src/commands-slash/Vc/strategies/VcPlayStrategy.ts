@@ -16,6 +16,7 @@ import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeou
 import { QueueAddStrategy } from './queue/QueueAddStrategy.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
+import { QueueViewStrategy } from './queue/QueueViewStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcPlayStrategy
@@ -71,10 +72,12 @@ export class VcPlayStrategy
         interaction,
         connection,
         channelId,
+        shouldCreateEvents = true,
     }: {
         interaction: ChatInputCommandInteraction;
         connection: VoiceConnection;
         channelId: string;
+        shouldCreateEvents?: boolean;
     }): Promise<void>
     {
         // eslint-disable-next-line no-async-promise-executor
@@ -102,12 +105,13 @@ export class VcPlayStrategy
             if (!audioResource)
             {
                 const fileNamesEmbeds = await VcViewFilesStrategy.getFileNamesEmbeds(interaction);
+                const queueDataStr = QueueViewStrategy.getQueueDataMessage(channelId);
                 // Send messages with pagination (fire and forget)
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises -- Leave this hanging to free up memory in the node.js event loop.
                 PaginationStrategy.run({
                     originalInteraction: interaction,
                     commandName: `/vc play`,
-                    content: `A file named \`${currentFile.fileName}\` does not exist.`,
+                    content: `A file named \`${currentFile.fileName}\` does not exist. ${queueDataStr}`,
                     embeds: fileNamesEmbeds,
                     interactionType: 'followUp',
                     ephemeral: true,
@@ -116,21 +120,25 @@ export class VcPlayStrategy
             }
 
             // Log errors
-            audioPlayer.on('error', (error) =>
+            if (shouldCreateEvents)
             {
-                logger.error(`Error playing audio in a voice channel with /vc ${this.key}`, error);
-            });
+                audioPlayer.on('error', (error) =>
+                {
+                    logger.error(`Error playing audio in a voice channel with /vc ${this.key}`, error);
+                });
+            }
 
             // Send message to show the command was received
             audioPlayer.once(AudioPlayerStatus.Playing, async () =>
             {
+                const queueDataStr = QueueViewStrategy.getQueueDataMessage(channelId);
                 const nextFile = queue.getNext();
                 const nextMessage = nextFile
-                    ? ` Next: \`${nextFile.fileName}\`.`
+                    ? `Next: \`${nextFile.fileName}\`. `
                     : '';
 
                 await interaction.followUp({
-                    content: `Playing \`${currentFile.fileName}\`.${nextMessage}`,
+                    content: `Playing \`${currentFile.fileName}\`. ${nextMessage}${queueDataStr}`,
                     ephemeral: true,
                 });
                 VoiceConnectionTimeoutManager.upsert(interaction.guildId!);
@@ -138,32 +146,37 @@ export class VcPlayStrategy
             });
 
             // Play audio
+            queue.setIsEnabled(true);
             audioPlayer.play(audioResource);
 
             // Subscribe the connection to the audio player (will play audio on the voice connection)
             const subscription = connection.subscribe(audioPlayer);
 
-            audioPlayer.on(AudioPlayerStatus.Idle, async () =>
+            if (shouldCreateEvents)
             {
-                // Unsubscribe when idle
-                if (subscription && !queue.hasNext()) // subscription could be undefined if the connection is destroyed
+                audioPlayer.on(AudioPlayerStatus.Idle, async () =>
                 {
-                    subscription.unsubscribe();
-                }
+                    // Unsubscribe when idle
+                    if (subscription && !queue.hasNext()) // subscription could be undefined if the connection is destroyed
+                    {
+                        subscription.unsubscribe();
+                    }
 
-                // Play next track in queue when the prior one stops
-                if (queue.hasNext())
-                {
-                    queue.next();
-                    await this.play({
-                        interaction,
-                        connection,
-                        channelId,
-                    });
-                }
+                    // Play next track in queue when the prior one stops if the queue is enabled
+                    if (queue.getIsEnabled() && queue.hasNext())
+                    {
+                        queue.next();
+                        await this.play({
+                            interaction,
+                            connection,
+                            channelId,
+                            shouldCreateEvents: false,
+                        });
+                    }
 
-                resolve();
-            });
+                    resolve();
+                });
+            }
         });
     }
 }
