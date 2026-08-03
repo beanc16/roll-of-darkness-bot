@@ -48,7 +48,7 @@ export class VcPlayStrategy
         // Add given file to the queue as next
         if (fileName)
         {
-            const audioPlayer = getAudioPlayerData();
+            const audioPlayer = getAudioPlayerData(voiceChannel.id);
             const shouldPlayNext = audioPlayer.state.status !== AudioPlayerStatus.Idle;
             await QueueAddStrategy.addToQueue({
                 interaction,
@@ -89,11 +89,54 @@ export class VcPlayStrategy
         channelId: string;
     }): Promise<void>
     {
+        const audioPlayer = getAudioPlayerData(channelId);
+
+        // Log errors
+        audioPlayer.removeAllListeners('error');
+        audioPlayer.on('error', (error) =>
+        {
+            logger.error(`Error playing audio in a voice channel with /vc ${this.key}`, error);
+        });
+
+        // Ensure idle event handling only happens one-at-a-time
+        audioPlayer.removeAllListeners(AudioPlayerStatus.Idle);
+        audioPlayer.on(AudioPlayerStatus.Idle, async () =>
+        {
+            const queue = getQueue(channelId);
+
+            if (queue.getIsEnabled() && queue.hasNext())
+            {
+                queue.next();
+                await this.playTrack({
+                    interaction,
+                    connection,
+                    channelId,
+                });
+            }
+        });
+
+        await this.playTrack({
+            interaction,
+            connection,
+            channelId,
+        });
+    }
+
+    private static async playTrack({
+        interaction,
+        connection,
+        channelId,
+    }: {
+        interaction: ChatInputCommandInteraction;
+        connection: VoiceConnection;
+        channelId: string;
+    }): Promise<void>
+    {
         // eslint-disable-next-line no-async-promise-executor
         return await new Promise<void>(async (resolve) =>
         {
             const queue = getQueue(channelId);
-            const audioPlayer = getAudioPlayerData();
+            const audioPlayer = getAudioPlayerData(channelId);
 
             const { current: currentFile } = queue;
             if (!currentFile)
@@ -102,6 +145,7 @@ export class VcPlayStrategy
                     content: 'There is no audio in the queue to play.',
                     ephemeral: true,
                 });
+                resolve();
                 return;
             }
 
@@ -125,16 +169,8 @@ export class VcPlayStrategy
                     interactionType: 'followUp',
                     ephemeral: true,
                 });
+                resolve();
                 return;
-            }
-
-            // Log errors
-            if (audioPlayer.listenerCount('error') === 0)
-            {
-                audioPlayer.on('error', (error) =>
-                {
-                    logger.error(`Error playing audio in a voice channel with /vc ${this.key}`, error);
-                });
             }
 
             // Send message to show the command was received
@@ -157,34 +193,8 @@ export class VcPlayStrategy
             // Play audio
             queue.setIsEnabled(true);
             audioPlayer.play(audioResource);
-
             // Subscribe the connection to the audio player (will play audio on the voice connection)
-            const subscription = connection.subscribe(audioPlayer);
-
-            if (audioPlayer.listenerCount(AudioPlayerStatus.Idle) === 0)
-            {
-                audioPlayer.on(AudioPlayerStatus.Idle, async () =>
-                {
-                    // Unsubscribe when idle
-                    if (subscription && !queue.hasNext()) // subscription could be undefined if the connection is destroyed
-                    {
-                        subscription.unsubscribe();
-                    }
-
-                    // Play next track in queue when the prior one stops if the queue is enabled
-                    if (queue.getIsEnabled() && queue.hasNext())
-                    {
-                        queue.next();
-                        await this.play({
-                            interaction,
-                            connection,
-                            channelId,
-                        });
-                    }
-
-                    resolve();
-                });
-            }
+            connection.subscribe(audioPlayer);
         });
     }
 }

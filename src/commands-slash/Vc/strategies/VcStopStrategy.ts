@@ -58,7 +58,7 @@ export class VcStopStrategy
         return await new Promise<void>(async (resolve) =>
         {
             const queue = getQueue(channelId);
-            const audioPlayer = getAudioPlayerData();
+            const audioPlayer = getAudioPlayerData(channelId);
 
             if (
                 audioPlayer.state.status === AudioPlayerStatus.Idle

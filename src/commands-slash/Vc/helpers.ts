@@ -57,13 +57,12 @@ export const getVoiceConnectionData = (interaction: ChatInputCommandInteraction)
     };
 };
 
-// TODO: This should be a record by channel id in the future
-let cachedAudioPlayer: AudioPlayerEmitter | undefined;
-export const getAudioPlayerData = (): AudioPlayerEmitter =>
+const cachedAudioPlayerByChannelId: Record<string, AudioPlayerEmitter> = {};
+export const getAudioPlayerData = (channelId: string): AudioPlayerEmitter =>
 {
-    if (!cachedAudioPlayer)
+    if (!cachedAudioPlayerByChannelId[channelId])
     {
-        cachedAudioPlayer = createAudioPlayer({
+        cachedAudioPlayerByChannelId[channelId] = createAudioPlayer({
             behaviors: {
                 // Pause the player if there is no subscriber
                 noSubscriber: NoSubscriberBehavior.Pause,
@@ -71,7 +70,7 @@ export const getAudioPlayerData = (): AudioPlayerEmitter =>
         }) as AudioPlayerEmitter;
     }
 
-    return cachedAudioPlayer;
+    return cachedAudioPlayerByChannelId[channelId];
 };
 
 const convertRemoteFileToBuffer = async (fileUrl: string): Promise<Buffer> =>

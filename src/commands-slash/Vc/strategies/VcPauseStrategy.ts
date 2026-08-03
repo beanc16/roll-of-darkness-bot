@@ -44,14 +44,14 @@ export class VcPauseStrategy
             return true;
         }
 
-        await this.pause(interaction);
+        await this.pause(interaction, voiceChannel.id);
 
         return true;
     }
 
-    private static async pause(interaction: ChatInputCommandInteraction): Promise<void>
+    private static async pause(interaction: ChatInputCommandInteraction, channelId: string): Promise<void>
     {
-        const audioPlayer = getAudioPlayerData();
+        const audioPlayer = getAudioPlayerData(channelId);
 
         let success = false;
         if (audioPlayer.state.status === AudioPlayerStatus.Playing)
