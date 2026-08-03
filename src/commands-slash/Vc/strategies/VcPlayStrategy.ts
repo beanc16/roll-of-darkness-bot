@@ -48,15 +48,26 @@ export class VcPlayStrategy
         // Add given file to the queue as next
         if (fileName)
         {
+            const audioPlayer = getAudioPlayerData();
+            const shouldPlayNext = audioPlayer.state.status !== AudioPlayerStatus.Idle;
             await QueueAddStrategy.addToQueue({
                 interaction,
                 channelId: voiceChannel.id,
                 files: [{
                     fileName,
-                    queuePosition: QueuePosition.Next,
+                    queuePosition: shouldPlayNext
+                        ? QueuePosition.Next      // Add as next if currently playing
+                        : QueuePosition.Previous, // Add as previous if not currently playing
                     shouldLoop: shouldLoop ?? false,
                 }],
             });
+
+            // Go to next so it plays next
+            if (shouldPlayNext)
+            {
+                const queue = getQueue(voiceChannel.id);
+                queue.next();
+            }
         }
 
         await this.play({
@@ -72,12 +83,10 @@ export class VcPlayStrategy
         interaction,
         connection,
         channelId,
-        shouldCreateEvents = true,
     }: {
         interaction: ChatInputCommandInteraction;
         connection: VoiceConnection;
         channelId: string;
-        shouldCreateEvents?: boolean;
     }): Promise<void>
     {
         // eslint-disable-next-line no-async-promise-executor
@@ -120,7 +129,7 @@ export class VcPlayStrategy
             }
 
             // Log errors
-            if (shouldCreateEvents)
+            if (audioPlayer.listenerCount('error') === 0)
             {
                 audioPlayer.on('error', (error) =>
                 {
@@ -152,7 +161,7 @@ export class VcPlayStrategy
             // Subscribe the connection to the audio player (will play audio on the voice connection)
             const subscription = connection.subscribe(audioPlayer);
 
-            if (shouldCreateEvents)
+            if (audioPlayer.listenerCount(AudioPlayerStatus.Idle) === 0)
             {
                 audioPlayer.on(AudioPlayerStatus.Idle, async () =>
                 {
@@ -170,7 +179,6 @@ export class VcPlayStrategy
                             interaction,
                             connection,
                             channelId,
-                            shouldCreateEvents: false,
                         });
                     }
 
