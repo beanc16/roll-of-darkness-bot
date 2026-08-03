@@ -76,6 +76,17 @@ describe('Queue', () =>
 
             expect(queue.elements).toEqual(['a', 'c', 'b']);
         });
+
+        it('throws error for invalid QueuePosition', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+
+            expect(() =>
+            {
+                queue.enqueue('c', 'INVALID' as QueuePosition);
+            }).toThrow('Invalid QueuePosition: INVALID');
+        });
     });
 
     describe('method: dequeue', () =>
@@ -147,6 +158,16 @@ describe('Queue', () =>
             expect(queue.elements).toEqual(['a', 'newB']);
         });
 
+        it.each([null, undefined])('update by index modifies the correct item with %s QueuePosition', (queuePosition) =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+
+            const result = queue.update(1, 'newB', queuePosition);
+            expect(result).toEqual(true);
+            expect(queue.elements).toEqual(['a', 'newB']);
+        });
+
         it('update by predicate modifies the correct item', () =>
         {
             queue.enqueue('a', QueuePosition.Last);
@@ -157,9 +178,42 @@ describe('Queue', () =>
             expect(queue.elements).toEqual(['a', 'newB']);
         });
 
+        it.each([null, undefined])('update by predicate modifies the correct item with %s QueuePosition', (queuePosition) =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+
+            const result = queue.update((item) => item === 'b', 'newB', queuePosition);
+            expect(result).toEqual(true);
+            expect(queue.elements).toEqual(['a', 'newB']);
+        });
+
+        it('update by index throws an error when it is provided with an invalid QueuePosition', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+
+            expect(() =>
+            {
+                queue.update(1, 'newB', 'INVALID' as QueuePosition);
+            }).toThrow('Invalid QueuePosition: INVALID');
+        });
+
+        it('update by predicate throws an error when it is provided with an invalid QueuePosition', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+
+            expect(() =>
+            {
+                queue.update((item) => item === 'b', 'newB', 'INVALID' as QueuePosition);
+            }).toThrow('Invalid QueuePosition: INVALID');
+        });
+
         it.each([
             [0, QueuePosition.Last, ['b', 'c', 'a']],
             [2, QueuePosition.Next, ['a', 'c', 'b']],
+            [2, QueuePosition.Previous, ['c', 'a', 'c']],
         ])(`update by index modifies the item at index %s to the "%s" position in the queue`, (index, queuePosition, expectedResult) =>
         {
             queue.enqueue('a', QueuePosition.Last);
@@ -174,6 +228,7 @@ describe('Queue', () =>
         it.each([
             ['a', QueuePosition.Last, ['b', 'c', 'a']],
             ['c', QueuePosition.Next, ['a', 'c', 'b']],
+            ['c', QueuePosition.Previous, ['c', 'a', 'c']],
         ])(`update by predicate modifies the item equal to "%s" to the "%s" position in the queue`, (element, queuePosition, expectedResult) =>
         {
             queue.enqueue('a', QueuePosition.Last);
@@ -251,7 +306,7 @@ describe('Queue', () =>
             expect(queue['currentIndex']).toEqual(0);
         });
 
-        it('remove by index removes the correct item and does not shift the index if it is less than the currentIndex', () =>
+        it('remove by index removes the correct item and does not shift the index if it is greater than the currentIndex', () =>
         {
             queue.enqueue('a', QueuePosition.Last);
             queue.enqueue('b', QueuePosition.Last);
@@ -277,6 +332,20 @@ describe('Queue', () =>
             expect(queue.elements).toEqual(['a', 'c']);
             expect(queue['currentIndex']).toEqual(1);
             expect(queue.current).toEqual('c');
+        });
+
+        it('remove by index removes the correct item and shifts the index if it is less than the currentIndex', () =>
+        {
+            queue.enqueue('a', QueuePosition.Last);
+            queue.enqueue('b', QueuePosition.Last);
+            queue.enqueue('c', QueuePosition.Last);
+            queue['currentIndex'] = 1;
+
+            const removed = queue.remove(0);
+            expect(removed).toEqual('a');
+            expect(queue.elements).toEqual(['b', 'c']);
+            expect(queue['currentIndex']).toEqual(0);
+            expect(queue.current).toEqual('b');
         });
 
         it('remove by index removes the correct item and shifts index if it is greater than the currentIndex', () =>
