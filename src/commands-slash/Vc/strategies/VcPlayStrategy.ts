@@ -14,9 +14,9 @@ import {
 import { VcSubcommand } from '../options/index.js';
 import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
 import { QueueAddStrategy } from './queue/QueueAddStrategy.js';
+import { QueueViewStrategy } from './queue/QueueViewStrategy.js';
 import { VcConnectStrategy } from './VcConnectStrategy.js';
 import { VcViewFilesStrategy } from './VcViewFilesStrategy.js';
-import { QueueViewStrategy } from './queue/QueueViewStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class VcPlayStrategy

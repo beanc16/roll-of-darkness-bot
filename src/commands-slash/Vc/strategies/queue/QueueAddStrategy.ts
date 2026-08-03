@@ -89,10 +89,10 @@ export class QueueAddStrategy
         channelId: string;
         files: QueueAddGetParameterResults['files'];
     }): Promise<{
-        wasSuccess: boolean;
-        successfulFileNames: string[];
-        failedFileNames: string[];
-    }>
+            wasSuccess: boolean;
+            successfulFileNames: string[];
+            failedFileNames: string[];
+        }>
     {
         const queue = getQueue(channelId);
         const response: {
@@ -107,8 +107,13 @@ export class QueueAddStrategy
 
         for (let index = 0; index < files.length; index += 1)
         {
-            const { fileName, shouldLoop, queuePosition: position } = files[index];
+            const {
+                fileName,
+                shouldLoop,
+                queuePosition: position,
+            } = files[index];
 
+            /* eslint-disable-next-line no-await-in-loop */
             if (await isValidFileName({ discordUserId: interaction.user.id, fileName }))
             {
                 response.successfulFileNames.push(fileName);

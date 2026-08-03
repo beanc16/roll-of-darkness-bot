@@ -3,7 +3,11 @@ import { ChatInputCommandInteraction } from 'discord.js';
 
 import { staticImplements } from '../../../decorators/staticImplements.js';
 import { ChatIteractionStrategy } from '../../strategies/types/ChatIteractionStrategy.js';
-import { getAudioPlayerData, getQueue, getVoiceConnectionData } from '../helpers.js';
+import {
+    getAudioPlayerData,
+    getQueue,
+    getVoiceConnectionData,
+} from '../helpers.js';
 import { VcSubcommand } from '../options/index.js';
 import { VoiceConnectionTimeoutManager } from '../services/VoiceConnectionTimeoutManager/VoiceConnectionTimeoutManager.js';
 

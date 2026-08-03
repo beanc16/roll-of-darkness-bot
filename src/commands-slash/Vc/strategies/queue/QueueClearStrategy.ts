@@ -4,8 +4,8 @@ import { staticImplements } from '../../../../decorators/staticImplements.js';
 import type { ChatIteractionStrategy } from '../../../strategies/types/ChatIteractionStrategy.js';
 import { getQueue, getVoiceConnectionData } from '../../helpers.js';
 import { VcQueueSubcommand } from '../../options/queue.js';
-import { QueueViewStrategy } from './QueueViewStrategy.js';
 import { VcStopStrategy } from '../VcStopStrategy.js';
+import { QueueViewStrategy } from './QueueViewStrategy.js';
 
 @staticImplements<ChatIteractionStrategy>()
 export class QueueClearStrategy
@@ -24,7 +24,7 @@ export class QueueClearStrategy
             return true;
         }
 
-        this.clearQueue({ interaction, channelId: voiceChannel.id });
+        await this.clearQueue({ interaction, channelId: voiceChannel.id });
 
         const queueFilesList = QueueViewStrategy.getQueueDataMessage(voiceChannel.id);
         await interaction.editReply({
