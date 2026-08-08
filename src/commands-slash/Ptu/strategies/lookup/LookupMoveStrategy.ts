@@ -296,17 +296,17 @@ export class LookupMoveStrategy
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
         const name = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
-        const type = interaction.options.getString('type') as PokemonType | null;
-        const category = interaction.options.getString('category') as PokemonMoveCategory | null;
+        const type = interaction.options.getString(PtuAutocompleteParameterName.PokemonType) as PokemonType | null;
+        const category = interaction.options.getString(PtuAutocompleteParameterName.MoveCategory) as PokemonMoveCategory | null;
         const db = interaction.options.getInteger('damage_base');
         const dbEquality = interaction.options.getString('damage_base_equality') as EqualityOption;
-        const frequency = interaction.options.getString('frequency') as PtuMoveFrequency | null;
+        const frequency = interaction.options.getString(PtuAutocompleteParameterName.MoveFrequency) as PtuMoveFrequency | null;
         const ac = interaction.options.getInteger('ac');
         const acEquality = interaction.options.getString('ac_equality') as EqualityOption;
         const keywordName = interaction.options.getString(PtuAutocompleteParameterName.KeywordName);
         const moveListType = interaction.options.getString('move_list_type') as PtuMoveListType | null;
-        const contestStatType = interaction.options.getString('contest_stat_type') as PtuContestStatType | null;
-        const contestStatEffect = interaction.options.getString('contest_stat_effect') as PtuContestStatEffect | null;
+        const contestStatType = interaction.options.getString(PtuAutocompleteParameterName.ContestStatType) as PtuContestStatType | null;
+        const contestStatEffect = interaction.options.getString(PtuAutocompleteParameterName.ContestStatEffect) as PtuContestStatEffect | null;
         const includeContestStats = interaction.options.getBoolean('include_contest_stats');
         const basedOn = interaction.options.getString(PtuAutocompleteParameterName.BasedOnMove);
         const nameSearch = interaction.options.getString('name_search');

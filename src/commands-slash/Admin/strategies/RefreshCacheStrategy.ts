@@ -54,6 +54,8 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.ClassName3
     | PtuAutocompleteParameterName.ClassName4
     | PtuAutocompleteParameterName.ClassRole
+    | PtuAutocompleteParameterName.ContestStatEffect
+    | PtuAutocompleteParameterName.ContestStatType
     | PtuAutocompleteParameterName.DietName
     | PtuAutocompleteParameterName.EggGroup1
     | PtuAutocompleteParameterName.EggGroup2
@@ -63,9 +65,13 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.GiftBlessingPatron
     | PtuAutocompleteParameterName.HabitatName
     | PtuAutocompleteParameterName.MaleSpecies
+    | PtuAutocompleteParameterName.MoveCategory
+    | PtuAutocompleteParameterName.MoveFrequency
     | PtuAutocompleteParameterName.OracleGameName
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
+    | PtuAutocompleteParameterName.PokemonType
+    | PtuAutocompleteParameterName.VitaminEnhancedStat
 >;
 
 interface GetHandlerResultResponse

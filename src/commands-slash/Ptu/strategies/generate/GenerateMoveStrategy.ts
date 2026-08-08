@@ -61,8 +61,8 @@ export class GenerateMoveStrategy extends BaseGenerateStrategy
         // Get parameter results
         const prompt = interaction.options.getString('prompt', true);
         // const moveName = interaction.options.getString(PtuAutocompleteParameterName.MoveName);
-        // const type = interaction.options.getString('type') as PokemonType | null;
-        // const category = interaction.options.getString('category') as PokemonMoveCategory | null;
+        // const type = interaction.options.getString(PtuAutocompleteParameterName.PokemonType) as PokemonType | null;
+        // const category = interaction.options.getString(PtuAutocompleteParameterName.MoveCategory) as PokemonMoveCategory | null;
 
         // Initialize necessary data
         await this.initializeData();

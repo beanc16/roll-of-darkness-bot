@@ -29,6 +29,11 @@ import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../
 import {
     PokemonDiet,
     PokemonHabitat,
+    PokemonMoveCategory,
+    PokemonType,
+    PtuContestStatEffect,
+    PtuContestStatType,
+    PtuMoveFrequency,
     PtuPokemon,
 } from '../types/pokemon.js';
 import { PtuClassCategory, PtuClassRole } from '../types/pokemonTrainers.js';
@@ -46,7 +51,7 @@ import { PtuPokeball } from '../types/PtuPokeball.js';
 import { PtuStatus } from '../types/PtuStatus.js';
 import { PtuTerrain } from '../types/PtuTerrain.js';
 import { PtuTm } from '../types/PtuTm.js';
-import { PtuVitamin } from '../types/PtuVitamin.js';
+import { PtuVitamin, PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
 import {
     PtuButtonIteractionStrategy,
     PtuChatIteractionStrategy,
@@ -474,6 +479,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.ClassRole]: () => Promise.resolve(
                 Object.values(PtuClassRole).map(element => ({ name: element })),
             ),
+            [PtuAutocompleteParameterName.ContestStatEffect]: () => Promise.resolve(
+                Object.values(PtuContestStatEffect).map(element => ({ name: element })),
+            ),
+            [PtuAutocompleteParameterName.ContestStatType]: () => Promise.resolve(
+                Object.values(PtuContestStatType).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.DietName]: () => Promise.resolve(
                 Object.values(PokemonDiet).map(element => ({ name: element })),
             ),
@@ -556,6 +567,12 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Breed,
                 subcommand: PtuBreedSubcommand.Breed,
             }),
+            [PtuAutocompleteParameterName.MoveCategory]: () => Promise.resolve(
+                Object.values(PokemonMoveCategory).map(element => ({ name: element })),
+            ),
+            [PtuAutocompleteParameterName.MoveFrequency]: () => Promise.resolve(
+                Object.values(PtuMoveFrequency).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.MoveName]: () => PtuStrategyExecutor.getLookupData<PtuMove>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Move,
@@ -621,6 +638,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 output.sort((a, b) => a.name.localeCompare(b.name));
                 return output;
             },
+            [PtuAutocompleteParameterName.PokemonType]: () => Promise.resolve(
+                Object.values(PokemonType).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.StatusName]: () => PtuStrategyExecutor.getLookupData<PtuStatus>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
@@ -633,10 +653,13 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Terrain,
             }),
-            [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
+            [PtuAutocompleteParameterName.TmName]: () => (PtuStrategyExecutor.getLookupData<PtuTm>)({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,
             }),
+            [PtuAutocompleteParameterName.VitaminEnhancedStat]: () => Promise.resolve(
+                Object.values(PtuVitaminEnhancedStat).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.VitaminName]: () => PtuStrategyExecutor.getLookupData<PtuVitamin>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Vitamin,
@@ -741,7 +764,7 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
 
         if (Strategy)
         {
-            return await Strategy.getLookupData(options);
+            return await Strategy.getLookupData({ ...options, strategies: this.strategies });
         }
 
         return [];

@@ -28,7 +28,7 @@ export class LookupVitaminStrategy
     {
         // Get parameter results
         const name = interaction.options.getString(PtuAutocompleteParameterName.VitaminName);
-        const enhancedStat = interaction.options.getString('enhanced_stat') as PtuVitaminEnhancedStat | null;
+        const enhancedStat = interaction.options.getString(PtuAutocompleteParameterName.VitaminEnhancedStat) as PtuVitaminEnhancedStat | null;
 
         const data = await this.getLookupData({
             name,

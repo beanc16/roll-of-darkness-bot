@@ -1,7 +1,6 @@
-import type { APIApplicationCommandOptionChoice, SlashCommandStringOption } from 'discord.js';
+import type { SlashCommandStringOption } from 'discord.js';
 
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
-import { PokemonMoveCategory, PokemonType } from '../types/pokemon.js';
 
 export const pokemonMoveNameOption = (option: SlashCommandStringOption, description: string): SlashCommandStringOption =>
 {
@@ -12,38 +11,14 @@ export const pokemonMoveNameOption = (option: SlashCommandStringOption, descript
 
 export const pokemonTypeOption = (option: SlashCommandStringOption, description: string): SlashCommandStringOption =>
 {
-    const choices = Object.entries(PokemonType).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
-        {
-            return {
-                name: key,
-                value,
-            };
-        },
-    );
-
-    option.setName('type');
+    option.setName(PtuAutocompleteParameterName.PokemonType);
     option.setDescription(description);
-    return option.setChoices(
-        ...choices,
-    );
+    return option.setAutocomplete(true);
 };
 
 export const pokemonMoveCategoryOption = (option: SlashCommandStringOption, description: string): SlashCommandStringOption =>
 {
-    const choices = Object.entries(PokemonMoveCategory).map<APIApplicationCommandOptionChoice<string>>(
-        ([key, value]) =>
-        {
-            return {
-                name: key,
-                value,
-            };
-        },
-    );
-
-    option.setName('category');
+    option.setName(PtuAutocompleteParameterName.MoveCategory);
     option.setDescription(description);
-    return option.setChoices(
-        ...choices,
-    );
+    return option.setAutocomplete(true);
 };

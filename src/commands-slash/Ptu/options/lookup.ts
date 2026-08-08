@@ -7,9 +7,6 @@ import {
     PokemonStat,
     PokemonStatusType,
     PtuAbilityListType,
-    PtuContestStatEffect,
-    PtuContestStatType,
-    PtuMoveFrequency,
     PtuMoveListType,
 } from '../types/pokemon.js';
 import { BerryTier } from '../types/PtuBerry.js';
@@ -17,7 +14,6 @@ import { PtuEquipmentSlot } from '../types/PtuEquipment.js';
 import { HealingItemType } from '../types/PtuHealingItem.js';
 import { HeldItemType } from '../types/PtuHeldItem.js';
 import { PtuKeyItemType } from '../types/PtuKeyItem.js';
-import { PtuVitaminEnhancedStat } from '../types/PtuVitamin.js';
 import {
     pokemonMoveCategoryOption,
     pokemonMoveNameOption,
@@ -536,22 +532,11 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
             .setDescription('The provided DB should be ??? to the moves DB (default: Equals)'));
 
     // Frequency
-    const frequencyChoices = Object.values(PtuMoveFrequency).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('frequency');
+        option.setName(PtuAutocompleteParameterName.MoveFrequency);
         option.setDescription('The frequency of moves to look up.');
-        return option.setChoices(
-            ...frequencyChoices,
-        );
+        return option.setAutocomplete(true);
     });
 
     // AC
@@ -593,39 +578,17 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
     });
 
     // Contest Stats
-    const contestStatTypeChoices = Object.values(PtuContestStatType).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
-    const contestStatEffectChoices = Object.values(PtuContestStatEffect).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('contest_stat_type');
+        option.setName(PtuAutocompleteParameterName.ContestStatType);
         option.setDescription('The contest stat type of moves to look up.');
-        return option.setChoices(
-            ...contestStatTypeChoices,
-        );
+        return option.setAutocomplete(true);
     });
     subcommand.addStringOption((option) =>
     {
-        option.setName('contest_stat_effect');
+        option.setName(PtuAutocompleteParameterName.ContestStatEffect);
         option.setDescription('The contest stat effect of moves to look up.');
-        return option.setChoices(
-            ...contestStatEffectChoices,
-        );
+        return option.setAutocomplete(true);
     });
     subcommand.addBooleanOption((option) =>
     {
@@ -941,6 +904,118 @@ export const tm = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubco
         return option.setAutocomplete(true);
     });
 
+    // Type
+    subcommand.addStringOption((option) =>
+    {
+        return pokemonTypeOption(option, 'The type of tms to look up.');
+    });
+
+    // Move Category
+    subcommand.addStringOption((option) =>
+    {
+        return pokemonMoveCategoryOption(option, 'The category of tms to look up.');
+    });
+
+    // Damage Base
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('damage_base');
+        option.setDescription('The damage base of tms to look up.');
+        option.setMinValue(1);
+        option.setMaxValue(28);
+        return option;
+    });
+    subcommand.addStringOption(option =>
+        equalityOption(option)
+            .setName('damage_base_equality')
+            .setDescription('The provided DB should be ??? to the tms DB (default: Equals)'));
+
+    // Frequency
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.MoveFrequency);
+        option.setDescription('The frequency of tms to look up.');
+        return option.setAutocomplete(true);
+    });
+
+    // AC
+    subcommand.addIntegerOption((option) =>
+    {
+        option.setName('ac');
+        option.setDescription('The AC of tms to look up.');
+        option.setMinValue(0);
+        option.setMaxValue(10);
+        return option;
+    });
+    subcommand.addStringOption((option) =>
+    {
+        const newOption = equalityOption(option);
+        newOption.setName('ac_equality');
+        newOption.setDescription('The provided AC should be ??? to the tms AC (default: Equals)');
+        return newOption;
+    });
+
+    // Keyword Name
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.KeywordName);
+        option.setDescription(`The keyword of tms to look up.`);
+        return option.setAutocomplete(true);
+    });
+
+    // Move list type
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('move_list_type');
+        option.setDescription('The move list in which a tm appears in.');
+        option.addChoices(
+            ...moveListTypeChoices.filter(
+                choice => choice.value !== PtuMoveListType.All.toString() && choice.value !== PtuMoveListType.ZygardeCubeMoves.toString(),
+            ),
+        );
+        return option;
+    });
+
+    // Contest Stats
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.ContestStatType);
+        option.setDescription('The contest stat type of moves to look up.');
+        return option.setAutocomplete(true);
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.ContestStatEffect);
+        option.setDescription('The contest stat effect of tms to look up.');
+        return option.setAutocomplete(true);
+    });
+
+    // Based On
+    subcommand.addStringOption((option) =>
+    {
+        const newOption = pokemonMoveNameOption(option, `TMs based on the given name.`);
+        return newOption.setName(PtuAutocompleteParameterName.BasedOnMove);
+    });
+
+    // Searches
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('name_search');
+        return option.setDescription(`A search on the tm's name.`);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('range_search');
+        return option.setDescription(`A search on the tm's range.`);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('effect_search');
+        return option.setDescription(`A search on the tm's effect.`);
+    });
+
     return subcommand;
 };
 
@@ -958,22 +1033,11 @@ export const vitamin = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Enhanced Stat
-    const enhancedStatChoices = Object.values(PtuVitaminEnhancedStat).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('enhanced_stat');
+        option.setName(PtuAutocompleteParameterName.VitaminEnhancedStat);
         option.setDescription(`The stat the vitamin enhances.`);
-        return option.setChoices(
-            ...enhancedStatChoices,
-        );
+        return option.setAutocomplete(true);
     });
 
     return subcommand;
