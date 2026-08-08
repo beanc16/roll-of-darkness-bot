@@ -214,6 +214,7 @@ describe('class: HomebrewPokeApi', () =>
                 edenNames: [],
                 meridiaNames: [],
                 magalamNames: [],
+                distiraNames: [],
             });
             expect(result).toBeUndefined();
         });
@@ -265,12 +266,15 @@ describe('class: HomebrewPokeApi', () =>
                 // @ts-expect-error -- Only include the necessary data for testing
                 .mockResolvedValueOnce({ url: 'https://example.com/charizard.png' })
                 // @ts-expect-error -- Only include the necessary data for testing
-                .mockResolvedValueOnce({ url: 'https://example.com/blastoise.png' });
+                .mockResolvedValueOnce({ url: 'https://example.com/blastoise.png' })
+                // @ts-expect-error -- Only include the necessary data for testing
+                .mockResolvedValueOnce({ url: 'https://example.com/venasaur.png' });
 
             const result = await HomebrewPokeApi.getPokemonImageUrls({
                 edenNames: ['Pikachu'],
                 meridiaNames: ['Charizard'],
                 magalamNames: ['Blastoise'],
+                distiraNames: ['Venasaur'],
             });
 
             expect(result).toEqual([
@@ -285,6 +289,10 @@ describe('class: HomebrewPokeApi', () =>
                 {
                     name: 'Blastoise',
                     imageUrl: 'https://example.com/blastoise.png',
+                },
+                {
+                    name: 'Venasaur',
+                    imageUrl: 'https://example.com/venasaur.png',
                 },
             ]);
         });
