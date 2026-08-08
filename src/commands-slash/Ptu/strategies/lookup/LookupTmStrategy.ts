@@ -4,17 +4,24 @@ import { ChatInputCommandInteraction } from 'discord.js';
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { CachedGoogleSheetsApiService } from '../../../../services/CachedGoogleSheetsApiService/CachedGoogleSheetsApiService.js';
 import { getPagedEmbedMessages } from '../../../shared/embed-messages/shared.js';
+import { EqualityOption } from '../../../shared/options/shared.js';
 import { LookupStrategy } from '../../../strategies/BaseLookupStrategy.js';
 import { rollOfDarknessPtuSpreadsheetId } from '../../constants.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
 import { PtuLookupSubcommand } from '../../options/lookup.js';
 import { PtuAutocompleteParameterName, PtuLookupRange } from '../../types/autocomplete.js';
 import type { GetLookupMoveDataParameters } from '../../types/modelParameters.js';
+import {
+    PokemonMoveCategory,
+    PokemonType,
+    PtuContestStatEffect,
+    PtuContestStatType,
+    PtuMoveFrequency,
+    PtuMoveListType,
+} from '../../types/pokemon.js';
 import { PtuTm } from '../../types/PtuTm.js';
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
-import { EqualityOption } from '../../../shared/options/shared.js';
-import { PokemonMoveCategory, PokemonType, PtuContestStatEffect, PtuContestStatType, PtuMoveFrequency, PtuMoveListType } from '../../types/pokemon.js';
 
 export interface GetLookupTmDataParameters extends Omit<GetLookupMoveDataParameters, 'names'>
 {
@@ -69,7 +76,11 @@ export class LookupTmStrategy
 
         // Should also look up moves
         const moveNamesSet = new Set<string>();
-        const { name: _, strategies, ...rest } = input || {};
+        const {
+            name: _,
+            strategies,
+            ...rest
+        } = input || {};
         if (Object.keys(rest).length > 0)
         {
             const moves = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy)?.getLookupData(rest);
