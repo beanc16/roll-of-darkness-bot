@@ -8,12 +8,14 @@ import {
 import { name, numberOfDice } from '../../Nwod/options/roll.js';
 import { dicePool } from '../../options/roll_lite.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
+import { pokemonMoveDbOption, pokemonMoveNameOption } from './shared.js';
 
 export enum PtuRollSubcommand
 {
     Alchemy = 'alchemy',
     Attack = 'attack',
     Capture = 'capture',
+    FiveStrike = 'five_strike',
     Skill = 'skill',
 }
 
@@ -289,6 +291,43 @@ export const capture = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
         option.setName('accuracy_modifier');
         return option.setDescription('A math formula of extra accuracy modifiers (only addition and subtraction are supported; IE: 5 - 10)');
     });
+
+    return subcommand;
+};
+
+export const fiveStrike = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuRollSubcommand.FiveStrike);
+    subcommand.setDescription('Roll to attack with five strike damage.');
+
+    // Move name
+    subcommand.addStringOption((option) =>
+    {
+        const newOption = pokemonMoveNameOption(option, `The name of the move to attack with.`);
+        return newOption.setRequired(true);
+    });
+
+    // STAB
+    subcommand.addBooleanOption((option) =>
+    {
+        option.setName('has_stab');
+        option.setDescription('Whether the user has STAB on the move.');
+        return option.setRequired(true);
+    });
+
+    // Bonuses
+    subcommand.addIntegerOption((option) =>
+        pokemonMoveDbOption(option, 'Additional damage base to add to the move\'s damage base.', 'damage_base_bonus'),
+    );
+    subcommand.addStringOption(accuracyModifierOption);
+    subcommand.addStringOption((oldOption) =>
+    {
+        const option = dicePool(oldOption);
+        option.setName('bonus_damage_dice_pool');
+        return option.setRequired(false);
+    });
+
+    subcommand.addBooleanOption(shouldUseMaxCritRollOption);
 
     return subcommand;
 };

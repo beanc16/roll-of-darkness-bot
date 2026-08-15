@@ -1,4 +1,4 @@
-import type { SlashCommandStringOption } from 'discord.js';
+import type { SlashCommandIntegerOption, SlashCommandStringOption } from 'discord.js';
 
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 
@@ -21,4 +21,13 @@ export const pokemonMoveCategoryOption = (option: SlashCommandStringOption, desc
     option.setName(PtuAutocompleteParameterName.MoveCategory);
     option.setDescription(description);
     return option.setAutocomplete(true);
+};
+
+export const pokemonMoveDbOption = (option: SlashCommandIntegerOption, description: string, name?: string): SlashCommandIntegerOption =>
+{
+    option.setName(name ?? 'damage_base');
+    option.setDescription(description);
+    option.setMinValue(1);
+    option.setMaxValue(28);
+    return option;
 };
