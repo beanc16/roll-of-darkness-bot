@@ -42,6 +42,7 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.Ability1
     | PtuAutocompleteParameterName.Ability2
     | PtuAutocompleteParameterName.Ability3
+    | PtuAutocompleteParameterName.ActivityAndRest
     | PtuAutocompleteParameterName.AlchemyLocation
     | PtuAutocompleteParameterName.BaseAbilitiesOn
     | PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn
@@ -50,6 +51,7 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.Breaks
     | PtuAutocompleteParameterName.CatalystsAndExtras
     | PtuAutocompleteParameterName.ClassCategory
     | PtuAutocompleteParameterName.ClassName2
@@ -73,6 +75,9 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.PokemonName
     | PtuAutocompleteParameterName.PokemonToEvolve
     | PtuAutocompleteParameterName.PokemonType
+    | PtuAutocompleteParameterName.Practice
+    | PtuAutocompleteParameterName.Sustenance
+    | PtuAutocompleteParameterName.TimeOfDay
     | PtuAutocompleteParameterName.VitaminEnhancedStat
 >;
 

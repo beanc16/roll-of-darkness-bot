@@ -24,7 +24,7 @@ import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
-import { PtuAlchemyCatalystsAndExtras, PtuAlchemyLocation } from '../options/roll.js';
+import { PtuAlchemyActivityAndRest, PtuAlchemyBreaks, PtuAlchemyCatalystsAndExtras, PtuAlchemyLocation, PtuAlchemyPractice, PtuAlchemySustenance, PtuAlchemyTimeOfDay } from '../options/roll.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {
@@ -305,6 +305,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.Ability1]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.ActivityAndRest]: () => Promise.resolve(
+                Object.values(PtuAlchemyActivityAndRest).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.AlchemyLocation]: () => Promise.resolve(
                 Object.values(PtuAlchemyLocation).map(element => ({ name: element })),
             ),
@@ -421,6 +424,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Berry,
             }),
+            [PtuAutocompleteParameterName.Breaks]: () => Promise.resolve(
+                Object.values(PtuAlchemyBreaks).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.CapabilityName]: () => PtuStrategyExecutor.getLookupData<PtuCapability>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
@@ -648,10 +654,16 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.PokemonType]: () => Promise.resolve(
                 Object.values(PokemonType).map(element => ({ name: element })),
             ),
+            [PtuAutocompleteParameterName.Practice]: () => Promise.resolve(
+                Object.values(PtuAlchemyPractice).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.StatusName]: () => PtuStrategyExecutor.getLookupData<PtuStatus>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Status,
             }),
+            [PtuAutocompleteParameterName.Sustenance]: () => Promise.resolve(
+                Object.values(PtuAlchemySustenance).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.TagName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tag,
@@ -660,6 +672,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Terrain,
             }),
+            [PtuAutocompleteParameterName.TimeOfDay]: () => Promise.resolve(
+                Object.values(PtuAlchemyTimeOfDay).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.TmName]: () => PtuStrategyExecutor.getLookupData<PtuTm>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Tm,

@@ -117,82 +117,38 @@ export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Activity & Rest
-    const activityAndRestChoices = Object.values(PtuAlchemyActivityAndRest).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('activity_and_rest');
+        option.setName(PtuAutocompleteParameterName.ActivityAndRest);
         option.setDescription(`The amount of activity and rest while working on the item.`);
-        option.setChoices(
-            ...activityAndRestChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
     // Sustenance
-    const sustenanceChoices = Object.values(PtuAlchemySustenance).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('sustenance');
+        option.setName(PtuAutocompleteParameterName.Sustenance);
         option.setDescription(`The amount of sustenance while working on the item.`);
-        option.setChoices(
-            ...sustenanceChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
     // Time of Day
-    const timeOfDayChoices = Object.values(PtuAlchemyTimeOfDay).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('time_of_day');
+        option.setName(PtuAutocompleteParameterName.TimeOfDay);
         option.setDescription(`The time of day while the item is being worked on.`);
-        option.setChoices(
-            ...timeOfDayChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
     // Breaks
-    const breakChoices = Object.values(PtuAlchemyBreaks).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('breaks');
+        option.setName(PtuAutocompleteParameterName.Breaks);
         option.setDescription(`The length and frequency of breaks throughout working on the item.`);
-        option.setChoices(
-            ...breakChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
@@ -206,22 +162,11 @@ export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Practice
-    const practiceChoices = Object.values(PtuAlchemyPractice).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('practice');
+        option.setName(PtuAutocompleteParameterName.Practice);
         option.setDescription(`The amount of experience working on an item of this alchemical difficulty.`);
-        option.setChoices(
-            ...practiceChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
