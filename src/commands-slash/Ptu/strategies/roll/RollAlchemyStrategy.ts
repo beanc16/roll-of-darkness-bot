@@ -17,6 +17,7 @@ import {
     PtuRollSubcommand,
 } from '../../options/roll.js';
 import { PtuSkillRankService } from '../../services/PtuSkillRankService/PtuSkillRankService.js';
+import { PtuAutocompleteParameterName } from '../../types/autocomplete.js';
 import type { PtuChatIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import { PtuSkillRank } from '../../types/types.js';
 
@@ -35,12 +36,12 @@ export class RollAlchemyStrategy
     {
         // Get parameter results
         const numberOfDice = interaction.options.getInteger('occult_education_rank', true);
-        const catalystsAndExtras = interaction.options.getString('catalysts_and_extras', true) as PtuAlchemyCatalystsAndExtras;
+        const catalystsAndExtras = interaction.options.getString(PtuAutocompleteParameterName.CatalystsAndExtras, true) as PtuAlchemyCatalystsAndExtras;
         const activityAndRest = interaction.options.getString('activity_and_rest', true) as PtuAlchemyActivityAndRest;
         const sustenance = interaction.options.getString('sustenance', true) as PtuAlchemySustenance;
         const timeOfDay = interaction.options.getString('time_of_day', true) as PtuAlchemyTimeOfDay;
         const breaks = interaction.options.getString('breaks', true) as PtuAlchemyBreaks;
-        const location = interaction.options.getString('location', true) as PtuAlchemyLocation;
+        const location = interaction.options.getString(PtuAutocompleteParameterName.AlchemyLocation, true) as PtuAlchemyLocation;
         const practice = interaction.options.getString('practice', true) as PtuAlchemyPractice;
         const itemName = interaction.options.getString('item_name', true);
         const miscModifier = interaction.options.getInteger('misc_modifier') ?? 0;

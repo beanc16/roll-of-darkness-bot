@@ -16,6 +16,7 @@ import { HeldItemType } from '../types/PtuHeldItem.js';
 import { PtuKeyItemType } from '../types/PtuKeyItem.js';
 import {
     pokemonMoveCategoryOption,
+    pokemonMoveDbOption,
     pokemonMoveNameOption,
     pokemonTypeOption,
 } from './shared.js';
@@ -519,13 +520,8 @@ export const move = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSub
 
     // Damage Base
     subcommand.addIntegerOption((option) =>
-    {
-        option.setName('damage_base');
-        option.setDescription('The damage base of moves to look up.');
-        option.setMinValue(1);
-        option.setMaxValue(28);
-        return option;
-    });
+        pokemonMoveDbOption(option, 'The damage base of moves to look up.'),
+    );
     subcommand.addStringOption(option =>
         equalityOption(option)
             .setName('damage_base_equality')

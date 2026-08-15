@@ -42,6 +42,7 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.Ability1
     | PtuAutocompleteParameterName.Ability2
     | PtuAutocompleteParameterName.Ability3
+    | PtuAutocompleteParameterName.AlchemyLocation
     | PtuAutocompleteParameterName.BaseAbilitiesOn
     | PtuAutocompleteParameterName.BaseEvolutionAndEnvironmentOn
     | PtuAutocompleteParameterName.BaseMovesOn
@@ -49,6 +50,7 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.BaseSpeciesOn
     | PtuAutocompleteParameterName.BasedOnAbility
     | PtuAutocompleteParameterName.BasedOnMove
+    | PtuAutocompleteParameterName.CatalystsAndExtras
     | PtuAutocompleteParameterName.ClassCategory
     | PtuAutocompleteParameterName.ClassName2
     | PtuAutocompleteParameterName.ClassName3

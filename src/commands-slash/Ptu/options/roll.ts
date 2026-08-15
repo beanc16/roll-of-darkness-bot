@@ -1,7 +1,13 @@
-import { APIApplicationCommandOptionChoice, SlashCommandSubcommandBuilder } from 'discord.js';
+import {
+    APIApplicationCommandOptionChoice,
+    SlashCommandBooleanOption,
+    SlashCommandStringOption,
+    SlashCommandSubcommandBuilder,
+} from 'discord.js';
 
 import { name, numberOfDice } from '../../Nwod/options/roll.js';
 import { dicePool } from '../../options/roll_lite.js';
+import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 
 export enum PtuRollSubcommand
 {
@@ -71,6 +77,18 @@ export enum PtuAlchemyPractice
     NotFirstTime = 'Not the first time working on an item with at least this number of catalysts & extras',
 }
 
+const accuracyModifierOption = (option: SlashCommandStringOption): SlashCommandStringOption =>
+{
+    option.setName('accuracy_modifier');
+    return option.setDescription('A mathematical formula of extra modifiers (only addition and subtraction are supported; IE: 5 - 10).');
+};
+
+const shouldUseMaxCritRollOption = (option: SlashCommandBooleanOption): SlashCommandBooleanOption =>
+{
+    option.setName('should_use_max_crit_roll');
+    return option.setDescription('Should automatically take the max possible critical hit bonus when auto-criting (default: true).');
+};
+
 export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
 {
     subcommand.setName(PtuRollSubcommand.Alchemy);
@@ -88,22 +106,11 @@ export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Catalysts & Extras
-    const catalystsAndExtrasChoices = Object.values(PtuAlchemyCatalystsAndExtras).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('catalysts_and_extras');
+        option.setName(PtuAutocompleteParameterName.CatalystsAndExtras);
         option.setDescription(`The amount of catalysts and extras that the item has.`);
-        option.setChoices(
-            ...catalystsAndExtrasChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
@@ -188,22 +195,11 @@ export const alchemy = (subcommand: SlashCommandSubcommandBuilder): SlashCommand
     });
 
     // Location
-    const locationChoices = Object.values(PtuAlchemyLocation).map<APIApplicationCommandOptionChoice<string>>(
-        (value) =>
-        {
-            return {
-                name: value,
-                value,
-            };
-        },
-    );
     subcommand.addStringOption((option) =>
     {
-        option.setName('location');
+        option.setName(PtuAutocompleteParameterName.AlchemyLocation);
         option.setDescription(`The location used throughout working on the item.`);
-        option.setChoices(
-            ...locationChoices,
-        );
+        option.setAutocomplete(true);
         return option.setRequired(true);
     });
 
@@ -263,17 +259,9 @@ export const attack = (subcommand: SlashCommandSubcommandBuilder): SlashCommandS
 
     subcommand.addStringOption(name);
 
-    subcommand.addStringOption((option) =>
-    {
-        option.setName('accuracy_modifier');
-        return option.setDescription('A mathematical formula of extra modifiers (only addition and subtraction are supported; IE: 5 - 10).');
-    });
+    subcommand.addStringOption(accuracyModifierOption);
 
-    subcommand.addBooleanOption((option) =>
-    {
-        option.setName('should_use_max_crit_roll');
-        return option.setDescription('Should automatically take the max possible critical hit bonus when auto-criting (default: true).');
-    });
+    subcommand.addBooleanOption(shouldUseMaxCritRollOption);
 
     return subcommand;
 };

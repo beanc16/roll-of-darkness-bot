@@ -24,6 +24,7 @@ import { PtuGenerateSubcommand } from '../options/generate.js';
 import { PtuQuickReferenceInfo, PtuSubcommandGroup } from '../options/index.js';
 import { PtuLookupSubcommand } from '../options/lookup.js';
 import { PtuRandomSubcommand } from '../options/random.js';
+import { PtuAlchemyCatalystsAndExtras, PtuAlchemyLocation } from '../options/roll.js';
 import { PtuAutocompleteParameterName } from '../types/autocomplete.js';
 import { GetLookupAbilityDataParameters, GetLookupMoveDataParameters } from '../types/modelParameters.js';
 import {
@@ -304,6 +305,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             [PtuAutocompleteParameterName.Ability1]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability2]: abilityForTypeEffectivenessHandler,
             [PtuAutocompleteParameterName.Ability3]: abilityForTypeEffectivenessHandler,
+            [PtuAutocompleteParameterName.AlchemyLocation]: () => Promise.resolve(
+                Object.values(PtuAlchemyLocation).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.AuraName]: () => PtuStrategyExecutor.getLookupData<PtuAura>({
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Aura,
@@ -421,6 +425,9 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
                 subcommandGroup: PtuSubcommandGroup.Lookup,
                 subcommand: PtuLookupSubcommand.Capability,
             }),
+            [PtuAutocompleteParameterName.CatalystsAndExtras]: () => Promise.resolve(
+                Object.values(PtuAlchemyCatalystsAndExtras).map(element => ({ name: element })),
+            ),
             [PtuAutocompleteParameterName.ClassCategory]: () => Promise.resolve(
                 Object.values(PtuClassCategory).map(element => ({ name: element })),
             ),
