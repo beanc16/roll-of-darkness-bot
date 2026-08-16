@@ -68,7 +68,7 @@ export class LookupXItemStrategy
         {
             const element = new PtuXItem(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;

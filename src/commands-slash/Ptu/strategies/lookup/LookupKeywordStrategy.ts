@@ -73,8 +73,8 @@ export class LookupKeywordStrategy
                 return acc;
             }
 
-            // cur[0] === name in spreadsheet
-            if (!(input.name && input.name.toLowerCase() === element.name.toLowerCase()) && !input.includeAllIfNoName)
+            // Name
+            if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;
             }

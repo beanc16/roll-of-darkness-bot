@@ -85,7 +85,7 @@ export class LookupHazardStrategy
         {
             const element = new PtuHazard(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;

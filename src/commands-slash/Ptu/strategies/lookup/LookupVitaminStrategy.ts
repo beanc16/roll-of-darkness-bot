@@ -71,7 +71,7 @@ export class LookupVitaminStrategy
         {
             const element = new PtuVitamin(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;

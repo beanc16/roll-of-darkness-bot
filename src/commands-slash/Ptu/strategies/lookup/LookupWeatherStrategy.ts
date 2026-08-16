@@ -67,7 +67,7 @@ export class LookupWeatherStrategy
         {
             const element = new PtuWeather(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;

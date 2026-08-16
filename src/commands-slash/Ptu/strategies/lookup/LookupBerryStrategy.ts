@@ -72,7 +72,7 @@ export class LookupBerryStrategy
         {
             const element = new PtuBerry(cur);
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (input.name && input.name.toLowerCase() !== element.name.toLowerCase() && !input.includeAllIfNoName)
             {
                 return acc;

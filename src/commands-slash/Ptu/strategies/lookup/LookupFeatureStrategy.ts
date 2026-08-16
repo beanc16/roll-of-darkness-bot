@@ -77,7 +77,7 @@ export class LookupFeatureStrategy
                 return acc;
             }
 
-            // cur[0] === name in spreadsheet
+            // Name
             if (parsedInput.names && parsedInput.names.size > 0 && !parsedInput.names.has(element.name.toLowerCase()) && !parsedInput.includeAllIfNoName)
             {
                 return acc;
