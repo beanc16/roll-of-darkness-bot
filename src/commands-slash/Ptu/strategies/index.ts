@@ -194,6 +194,8 @@ export class PtuStrategyExecutor extends BaseStrategyExecutor
             subcommand,
             interaction,
         });
+        logger.debug('this.strategies', this.strategies);
+        logger.debug('Strategy', { key: Strategy?.key });
 
         if (Strategy)
         {
