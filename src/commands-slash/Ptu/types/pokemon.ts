@@ -196,6 +196,7 @@ export enum PtuMoveFrequency
     Shift = 'Shift',
     Standard = 'Standard',
     FullActionInterupt = 'Full Action, Interrupt',
+    SeeEffect = 'See Effect',
 }
 
 export enum PtuAbilityListType
