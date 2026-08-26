@@ -67,7 +67,7 @@ export class SearchService<T>
     {
         return results.reduce((acc, { item, score }) =>
         {
-            if (score && score <= this.MAX_ALLOWED_SCORE)
+            if (score !== undefined && score <= this.MAX_ALLOWED_SCORE)
             {
                 acc.push(item);
             }

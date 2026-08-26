@@ -141,9 +141,9 @@ export class LookupMoveStrategy
                     effectSearch,
                 } = parsedInput;
 
-                const results = PtuMovesSearchService.search(output, parsedInput);
+                const results = PtuMovesSearchService.search(output, parsedInput).filter(Boolean);
 
-                const resultNames = new Set(results.filter(Boolean).map((element) => element.name.toLowerCase()));
+                const resultNames = new Set(results.map((element) => element.name.toLowerCase()));
                 const manualResults = output.filter((element) =>
                 {
                     // Only add items not already in the list
