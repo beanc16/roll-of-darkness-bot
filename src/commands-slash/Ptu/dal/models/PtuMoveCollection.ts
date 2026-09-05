@@ -8,7 +8,7 @@ import type {
 } from '../../types/pokemon.js';
 import { PtuMoveFrequency } from '../../types/pokemon.js';
 
-export enum PtuFakemonStatus
+export enum PtuMoveStatus
 {
     DRAFT = 'Draft',
     READY_FOR_REVIEW = 'Ready for Review',
@@ -167,7 +167,7 @@ export class PtuMoveCollection
     public frequency?: PtuCustomMoveFrequency;
     public damageBase: PtuCustomMoveDamageBase;
     public ac: PtuCustomMoveArmorClass;
-    public keywords: [string?, string?, string?, string?][];
+    public keywords: [string?, string?, string?, string?];
     public rangeOptions: PtuCustomMoveRangeOptions[];
     public effects?: string;
     public contestStatEffect?: PtuContestStatEffect;
@@ -175,7 +175,7 @@ export class PtuMoveCollection
     public basedOn?: string;
 
     // State Management
-    public status: PtuFakemonStatus;
+    public status: PtuMoveStatus;
     public editorDiscordUserIds: string[];
     public isTransferred?: boolean = false;
     public isDeleted?: boolean = false;
@@ -195,7 +195,7 @@ export class PtuMoveCollection
         contestStatEffect,
         contestStatType,
         basedOn,
-        status = PtuFakemonStatus.DRAFT,
+        status = PtuMoveStatus.DRAFT,
         editorDiscordUserIds,
     }: {
         _id?: ObjectId;
@@ -205,13 +205,13 @@ export class PtuMoveCollection
         frequency: PtuCustomMoveFrequency;
         damageBase: PtuCustomMoveDamageBase;
         ac: PtuCustomMoveArmorClass;
-        keywords?: [string?, string?, string?, string?][];
+        keywords?: [string?, string?, string?, string?];
         rangeOptions: PtuCustomMoveRangeOptions[];
         effects: string;
         contestStatEffect?: PtuContestStatEffect;
         contestStatType?: PtuContestStatType;
         basedOn?: string;
-        status?: PtuFakemonStatus;
+        status?: PtuMoveStatus;
         editorDiscordUserIds: string[];
     })
     {

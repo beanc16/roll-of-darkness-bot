@@ -11,14 +11,7 @@ import {
     PtuHeight,
     PtuPokemon,
 } from '../types/pokemon.js';
-
-const getRandomTypes = (numOfTypes: number): string[] =>
-{
-    return faker.helpers.arrayElements(
-        Object.values(PokemonType),
-        faker.number.int({ min: 1, max: numOfTypes }),
-    );
-};
+import { getRandomTypes } from './ptu.fakes.js';
 
 const getFakeSkill = (): string =>
 {
