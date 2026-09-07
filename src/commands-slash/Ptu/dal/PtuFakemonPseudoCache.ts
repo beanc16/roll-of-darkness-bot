@@ -63,6 +63,11 @@ export class PtuFakemonPseudoCache
         return ptuFakemonSingleton.get(messageId);
     }
 
+    public static getByMessageIdBulk(messageId: string): PtuFakemonCollection[] | undefined
+    {
+        return ptuFakemonSingleton.getBulk(messageId);
+    }
+
     public static async create(messageId: string, input: PtuFakemonToCreate): Promise<PtuFakemonCollection>
     {
         const {
@@ -150,6 +155,21 @@ export class PtuFakemonPseudoCache
         {
             this.allFakemon.push(fakemon);
         }
+    }
+
+    public static addToCacheBulk(messageId: string, fakemons: PtuFakemonCollection[]): void
+    {
+        // Add to cache
+        ptuFakemonSingleton.upsertBulk(messageId, fakemons);
+
+        // Add to allFakemon if not already there
+        fakemons.forEach((fakemon) =>
+        {
+            if (!this.allFakemon.every(element => element.id !== fakemon.id))
+            {
+                this.allFakemon.push(fakemon);
+            }
+        });
     }
 
     public static removeFromCache(messageId: string): void

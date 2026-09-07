@@ -1,6 +1,7 @@
 import { FakemonCreateStrategy } from './FakemonCreateStrategy.js';
 import { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 import { FakemonEditStrategy } from './FakemonEditStrategy.js';
+import { FakemonTransferBulkStrategy } from './FakemonTransferBulkStrategy.js';
 import { FakemonTransferEditStrategy } from './FakemonTransferEditStrategy.js';
 import { FakemonTransferStrategy } from './FakemonTransferStrategy.js';
 import { FakemonTransferTypeShiftStrategy } from './FakemonTransferTypeShiftStrategy.js';
@@ -12,6 +13,7 @@ export default {
     [FakemonDeleteStrategy.key]: FakemonDeleteStrategy,
     [FakemonEditStrategy.key]: FakemonEditStrategy,
     [FakemonTransferStrategy.key]: FakemonTransferStrategy,
+    [FakemonTransferBulkStrategy.key]: FakemonTransferBulkStrategy,
     [FakemonTransferEditStrategy.key]: FakemonTransferEditStrategy,
     [FakemonTransferTypeShiftStrategy.key]: FakemonTransferTypeShiftStrategy,
     [FakemonViewAllStrategy.key]: FakemonViewAllStrategy,

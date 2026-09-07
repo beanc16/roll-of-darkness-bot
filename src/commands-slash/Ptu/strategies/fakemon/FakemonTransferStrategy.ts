@@ -27,9 +27,9 @@ import type {
 import { LookupPokemonStrategy } from '../lookup/LookupPokemonStrategy.js';
 import type { FakemonDeleteStrategy } from './FakemonDeleteStrategy.js';
 
-interface FakemonTransferGetParameterResults
+export interface FakemonTransferGetParameterResults
 {
-    speciesName: string;
+    speciesNames: string[];
     dexType: PtuFakemonDexType;
     destinations: string[];
 }
@@ -56,29 +56,34 @@ export class FakemonTransferStrategy
     ): Promise<boolean>
     {
         const {
-            speciesName,
+            speciesNames,
             dexType,
             destinations,
         } = this.getOptions(interaction as ButtonInteraction, options);
 
         // Get fakemon
-        const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
-        if (!fakemon)
+        const fakemons = await this.getFakemons(speciesNames, interaction.user.id);
+        if (fakemons.length !== speciesNames.length)
         {
+            const missingNames = speciesNames
+                .filter((name) => !fakemons.find((fakemon) => fakemon.name === name))
+                .join('`, `');
             await interaction.editReply({
-                content: `Fakemon titled \`${speciesName}\` does not exist or you are not an editor of it.`,
+                content: `Fakemon titled \`${missingNames}\` does not exist or you are not an editor of ${missingNames.length === 1 ? 'it' : 'them'}.`,
             });
             return true;
         }
 
         // Send transfer confirmation message
         const message = await interaction.fetchReply();
+        const speciesNamesStr = Text.Code.oneLine(speciesNames.join('`, `'));
         await interaction.followUp({
             content: [
-                `Are you sure that you want to transfer ${Text.Code.oneLine(speciesName)}${
+                `Are you sure that you want to transfer ${speciesNamesStr}${
                     destinations.length > 0 ? ` to ${Text.Code.oneLine(destinations.join(', '))}` : ''
                 }?`,
-                this.convertTransferredToForDisplay(fakemon),
+                '',
+                this.convertTransferredToForDisplay(fakemons),
             ].join('\n'),
             components: [
                 new ConfirmDenyButtonActionRowBuilder(),
@@ -86,7 +91,7 @@ export class FakemonTransferStrategy
         });
 
         // Add to cache
-        PtuFakemonPseudoCache.addToCache(message.id, fakemon);
+        PtuFakemonPseudoCache.addToCacheBulk(message.id, fakemons);
         this.destinationCache.upsert(message.id, {
             dexType,
             destinations,
@@ -105,22 +110,44 @@ export class FakemonTransferStrategy
         await interaction.deferUpdate();
 
         const { customId } = interaction as { customId: ConfirmDenyButtonCustomIds };
-        const untypedFakemon = PtuFakemonPseudoCache.getByMessageId(interaction.message.id);
+        const untypedFakemons = PtuFakemonPseudoCache.getByMessageIdBulk(interaction.message.id);
         const errorMessages: string[] = [];
-        if (!untypedFakemon)
+
+        // Not found error
+        if (!untypedFakemons || untypedFakemons.length === 0)
         {
             errorMessages.push('Fakemon not found');
         }
-        if (untypedFakemon && !untypedFakemon.editors.includes(interaction.user.id))
+
+        // Do not have permission error
+        const fakemonWithoutEditingPermission = untypedFakemons?.filter((fakemon) => !fakemon.editors.includes(interaction.user.id)) ?? [];
+        if (fakemonWithoutEditingPermission.length > 0)
         {
-            errorMessages.push('You do not have permission to edit this fakemon');
+            errorMessages.push(`You do not have permission to edit ${fakemonWithoutEditingPermission.map(({ name }) => name).join(', ')}`);
         }
-        if (untypedFakemon && !isEditorOfDex(untypedFakemon.dexType, interaction.user.id as DiscordUserId))
+
+        // Cannot edit dex error
+        const dexTypesSet = new Set<PtuFakemonDexType>();
+        const fakemonWithoutDexPermission = untypedFakemons?.reduce<PtuFakemonCollection[]>((acc, fakemon) =>
         {
-            const editors = getEditorOfDex(untypedFakemon.dexType);
-            const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
-            errorMessages.push(`You do not have permission to create a pokemon in the ${untypedFakemon.dexType} Dex. Please ask ${editorPings} for approval.`);
+            if (!dexTypesSet.has(fakemon.dexType) && !isEditorOfDex(fakemon.dexType, interaction.user.id as DiscordUserId))
+            {
+                dexTypesSet.add(fakemon.dexType);
+                acc.push(fakemon);
+            }
+            return acc;
+        }, []) ?? [];
+        if (fakemonWithoutDexPermission.length > 0)
+        {
+            fakemonWithoutDexPermission.forEach(({ dexType }) =>
+            {
+                const editors = getEditorOfDex(dexType);
+                const editorPings = editors.map((editor) => Text.Ping.user(editor)).join(', ');
+                errorMessages.push(`You do not have permission to create a pokemon in the ${dexType} Dex. Please ask ${editorPings} for approval.`);
+            });
         }
+
+        // Send error(s)
         if (errorMessages.length > 0)
         {
             await interaction.followUp({
@@ -130,7 +157,10 @@ export class FakemonTransferStrategy
             return true;
         }
 
-        const fakemon = untypedFakemon!;
+        const fakemons = untypedFakemons!;
+        const fakemonNames = fakemons.map(({ name }) => name);
+        const fakemonNamesCode = Text.Code.oneLine(fakemonNames.join('`, `'));
+
         switch (customId)
         {
             case ConfirmDenyButtonCustomIds.Confirm:
@@ -138,7 +168,7 @@ export class FakemonTransferStrategy
                 {
                     // Send first response
                     await interaction.followUp({
-                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemon.name)}. Please be patient, this may take a few seconds...`,
+                        content: `Beginning data transfer for ${Text.Code.oneLine(fakemons.map(({ name }) => name).join('`, `'))}. Please be patient, this may take a few seconds...`,
                     });
 
                     // Get destinations
@@ -154,44 +184,57 @@ export class FakemonTransferStrategy
 
                     // Transfer fakemon
                     const service = new FakemonDataTransferService();
-                    await service.transfer({
+                    await service.transferBulk(fakemons.map((fakemon) => ({
                         ...fakemon,
                         dexType,
-                    } as typeof fakemon, destinations);
+                    } as typeof fakemon)), destinations);
 
                     // Get updated fakemon
-                    const [updatedFakemon] = await PtuFakemonPseudoCache.getByNames([fakemon.name], interaction.user.id);
+                    const updatedFakemons = await this.getFakemons(fakemonNames, interaction.user.id);
 
-                    // Send response
-                    if (updatedFakemon.transferredTo.ptuDatabase)
+                    // Send preview response
+                    for (let index = 0; index < updatedFakemons.length; index += 1)
                     {
-                        await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.run(interaction, strategies, {
-                            names: [updatedFakemon.name],
-                            interactionType: 'followUp',
-                        });
+                        const updatedFakemon = updatedFakemons[index];
+                        if (updatedFakemon.transferredTo.ptuDatabase)
+                        {
+                            /* eslint-disable-next-line no-await-in-loop -- We want this to be sequential */
+                            await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Pokemon] as typeof LookupPokemonStrategy)?.run(interaction, strategies, {
+                                names: [updatedFakemon.name],
+                                interactionType: 'followUp',
+                            });
+                        }
                     }
+
+                    // Send success response
                     await interaction.followUp({
                         content: [
-                            `Fakemon ${Text.Code.oneLine(updatedFakemon.name)} transferred to the following locations:`,
-                            this.convertTransferredToForDisplay(updatedFakemon),
+                            `Fakemon ${fakemonNamesCode} transferred to the following locations:`,
+                            this.convertTransferredToForDisplay(updatedFakemons),
                         ].join('\n'),
                     });
                     await interaction.message.edit({
-                        content: `Successfully transferred ${Text.Code.oneLine(updatedFakemon.name)}.`,
+                        content: `Successfully transferred ${fakemonNamesCode}.`,
                         components: [], // Remove buttons so transfer doesn't occur again
                     });
 
-                    // Delete the fakemon if it's transferred to all locations
-                    if (
-                        updatedFakemon.transferredTo.ptuDatabase
-                        && updatedFakemon.transferredTo.googleSheets.pokemonData
-                        && updatedFakemon.transferredTo.googleSheets.pokemonSkills
-                        && updatedFakemon.transferredTo.imageStorage
-                    )
+                    // Send delete response
+                    for (let index = 0; index < updatedFakemons.length; index += 1)
                     {
-                        await (strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Delete] as typeof FakemonDeleteStrategy)?.run(interaction, strategies, {
-                            speciesName: updatedFakemon.name,
-                        });
+                        const updatedFakemon = updatedFakemons[index];
+                        // Delete the fakemon if it's transferred to all locations
+                        if (
+                            updatedFakemon.transferredTo.ptuDatabase
+                            && updatedFakemon.transferredTo.googleSheets.pokemonData
+                            && updatedFakemon.transferredTo.googleSheets.pokemonSkills
+                            && updatedFakemon.transferredTo.imageStorage
+                        )
+                        {
+                            /* eslint-disable-next-line no-await-in-loop -- We want this to be sequential */
+                            await (strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Delete] as typeof FakemonDeleteStrategy)?.run(interaction, strategies, {
+                                speciesName: updatedFakemon.name,
+                            });
+                        }
                     }
                 }
                 catch (error)
@@ -211,7 +254,7 @@ export class FakemonTransferStrategy
             case ConfirmDenyButtonCustomIds.Deny:
                 // Send response
                 await interaction.editReply({
-                    content: `Canceled transferring ${Text.Code.oneLine(fakemon.name)}.`,
+                    content: `Canceled transferring ${fakemonNamesCode}.`,
                     components: [],
                 });
                 break;
@@ -239,7 +282,20 @@ export class FakemonTransferStrategy
 
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
-        const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
+        const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName);
+        const speciesName1 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName1);
+        const speciesName2 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName2);
+        const speciesName3 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName3);
+        const speciesName4 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName4);
+        const speciesName5 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName5);
+        const speciesName6 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName6);
+        const speciesName7 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName7);
+        const speciesName8 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName8);
+        const speciesName9 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName9);
+        const speciesName10 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName10);
+        const speciesName11 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName11);
+        const speciesName12 = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName12);
+
         const dexType = interaction.options.getString('dex_type', true) as PtuFakemonDexType;
         const destination1 = interaction.options.getString('destination_1');
         const destination2 = interaction.options.getString('destination_2');
@@ -260,16 +316,52 @@ export class FakemonTransferStrategy
         });
 
         return {
-            speciesName,
+            speciesNames: [
+                speciesName,
+                speciesName1,
+                speciesName2,
+                speciesName3,
+                speciesName4,
+                speciesName5,
+                speciesName6,
+                speciesName7,
+                speciesName8,
+                speciesName9,
+                speciesName10,
+                speciesName11,
+                speciesName12,
+            ].filter(Boolean) as string[],
             dexType,
             destinations: [...destinationsSet],
         };
     }
 
-    private static convertTransferredToForDisplay(fakemon: Pick<PtuFakemonCollection, 'transferredTo'>): string
+    private static convertTransferredToForDisplay(fakemon: Pick<PtuFakemonCollection, 'name' | 'transferredTo'>[]): string
     {
-        return Text.Code.multiLine(
-            JSON.stringify(fakemon.transferredTo, null, 2),
-        );
+        return fakemon.reduce<string[]>((acc, { name, transferredTo }) =>
+            acc.concat([
+                `${Text.Code.oneLine(name)}:`,
+                Text.Code.multiLine(JSON.stringify(transferredTo, null, 2)),
+            ].join('\n')), [],
+        ).join('\n');
+    }
+
+    /**
+     * The database auto-alphabetizes fakemon due to an index.
+     * We *do not* want that - we want to transfer fakemon in a
+     * very specific order. Thus, we retrieve the alphabetized
+     * fakemon and put them back in the order `speciesNames` is in.
+     */
+    private static async getFakemons(speciesNames: string[], interactionUserId: string): Promise<PtuFakemonCollection[]>
+    {
+        const alphabetizedFakemons = await PtuFakemonPseudoCache.getByNames(speciesNames, interactionUserId);
+
+        const nameToFakemon = alphabetizedFakemons.reduce<Record<string, PtuFakemonCollection>>((acc, cur) =>
+        {
+            acc[cur.name] = cur;
+            return acc;
+        }, {});
+
+        return speciesNames.map(name => nameToFakemon[name]);
     }
 }

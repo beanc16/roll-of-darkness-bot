@@ -64,6 +64,18 @@ type PtuAutocompleteParameterNameToCache = Exclude<
     | PtuAutocompleteParameterName.EggGroup1
     | PtuAutocompleteParameterName.EggGroup2
     | PtuAutocompleteParameterName.FakemonSpeciesName
+    | PtuAutocompleteParameterName.FakemonSpeciesName1
+    | PtuAutocompleteParameterName.FakemonSpeciesName2
+    | PtuAutocompleteParameterName.FakemonSpeciesName3
+    | PtuAutocompleteParameterName.FakemonSpeciesName4
+    | PtuAutocompleteParameterName.FakemonSpeciesName5
+    | PtuAutocompleteParameterName.FakemonSpeciesName6
+    | PtuAutocompleteParameterName.FakemonSpeciesName7
+    | PtuAutocompleteParameterName.FakemonSpeciesName8
+    | PtuAutocompleteParameterName.FakemonSpeciesName9
+    | PtuAutocompleteParameterName.FakemonSpeciesName10
+    | PtuAutocompleteParameterName.FakemonSpeciesName11
+    | PtuAutocompleteParameterName.FakemonSpeciesName12
     | PtuAutocompleteParameterName.FeatureTag
     | PtuAutocompleteParameterName.FemaleSpecies
     | PtuAutocompleteParameterName.GiftBlessingPatron
