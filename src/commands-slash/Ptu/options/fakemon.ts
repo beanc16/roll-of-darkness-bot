@@ -11,6 +11,7 @@ export enum PtuFakemonSubcommand
     Delete = 'delete',
     Edit = 'edit',
     Transfer = 'transfer',
+    TransferBulk = 'transfer_bulk',
     TransferEdit = 'transfer_edit',
     TransferTypeShift = 'transfer_type_shift',
     ViewAll = 'view_all',
@@ -198,6 +199,146 @@ export const transfer = (subcommand: SlashCommandSubcommandBuilder): SlashComman
             ...dexTypeChoices,
         );
         return option.setRequired(true);
+    });
+
+    // Destination
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_1');
+        option.setDescription(`The first destination to transfer to (default: All).`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_2');
+        option.setDescription(`The second destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('destination_3');
+        option.setDescription(`The third destination to transfer to.`);
+        return option.setChoices(
+            ...reportingDestinationChoices,
+        );
+    });
+
+    return subcommand;
+};
+
+export const transferBulk = (subcommand: SlashCommandSubcommandBuilder): SlashCommandSubcommandBuilder =>
+{
+    subcommand.setName(PtuFakemonSubcommand.TransferBulk);
+    subcommand.setDescription('Transfer multiple custom pokemon to databases.');
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName1);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName('dex_type');
+        option.setDescription(`The dex type of the custom Pokémon species.`);
+        option.setChoices(
+            ...dexTypeChoices,
+        );
+        return option.setRequired(true);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName2);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName3);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName4);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName5);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName6);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName7);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName8);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName9);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName10);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName11);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
+    });
+
+    subcommand.addStringOption((option) =>
+    {
+        option.setName(PtuAutocompleteParameterName.FakemonSpeciesName12);
+        option.setDescription(`The name of the custom Pokémon species.`);
+        option.setAutocomplete(true);
+        return option.setRequired(false);
     });
 
     // Destination
