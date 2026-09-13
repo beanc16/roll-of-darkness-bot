@@ -9,18 +9,15 @@ import {
 } from '../../../dal/models/PtuMoveCollection.js';
 import { PtuMoveController } from '../../../dal/PtuMoveController.js';
 import { PtuMovePseudoCache } from '../../../dal/PtuMovePseudoCache.js';
-import { getRandomKeywords } from '../../../fakes/ptu.fakes.js';
 import { createPtuMoveCollectionData } from '../../../fakes/PtuMoveCollection.fakes.js';
-import { LookupKeywordStrategy } from '../../../strategies/lookup/LookupKeywordStrategy.js';
-import { LookupMoveStrategy } from '../../../strategies/lookup/LookupMoveStrategy.js';
 import {
     PokemonMoveCategory,
     PokemonType,
     PtuContestStatEffect,
     PtuContestStatType,
 } from '../../../types/pokemon.js';
-import { PtuKeywordType } from '../../../types/PtuKeyword.js';
 import { MoveGeneralInformationManagerService } from '../MoveGeneralInformationManagerService.js';
+import { PtuValidationService } from '../PtuValidationService.js';
 
 jest.mock('../../../dal/PtuMoveController', () =>
 {
@@ -37,24 +34,6 @@ jest.mock('../../../dal/PtuMovePseudoCache', () =>
     return {
         PtuMovePseudoCache: {
             update: jest.fn(),
-        },
-    };
-});
-
-jest.mock('../../../strategies/lookup/LookupKeywordStrategy', () =>
-{
-    return {
-        LookupKeywordStrategy: {
-            getLookupData: jest.fn(),
-        },
-    };
-});
-
-jest.mock('../../../strategies/lookup/LookupMoveStrategy', () =>
-{
-    return {
-        LookupMoveStrategy: {
-            getLookupData: jest.fn(),
         },
     };
 });
@@ -693,7 +672,7 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
     {
         beforeEach(() =>
         {
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set<string>();
+            PtuValidationService['allKeywordNames'] = new Set<string>();
         });
 
         it.each([
@@ -704,7 +683,7 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
         ])('should update move keywords with %s', async (_, keywords) =>
         {
             // Arrange
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set(keywords);
+            PtuValidationService['allKeywordNames'] = new Set(keywords);
             const move = createPtuMoveCollectionData();
             const expectedResult = createPtuMoveCollectionData();
             const updateSpy = jest.spyOn(PtuMovePseudoCache, 'update')
@@ -732,7 +711,7 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
             // Arrange
             const keywords = ['  Keyword1  ', ' Keyword2'] as [string?, string?, string?, string?];
             const trimmedKeywords = ['Keyword1', 'Keyword2'];
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set(trimmedKeywords);
+            PtuValidationService['allKeywordNames'] = new Set(trimmedKeywords);
             const move = createPtuMoveCollectionData();
             const expectedResult = createPtuMoveCollectionData();
             const updateSpy = jest.spyOn(PtuMovePseudoCache, 'update')
@@ -815,7 +794,7 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
             // Arrange
             const move = createPtuMoveCollectionData();
             const keywords = ['ValidKeyword', 'InvalidKeyword1', 'InvalidKeyword2'] as [string?, string?, string?, string?];
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set(['ValidKeyword']);
+            PtuValidationService['allKeywordNames'] = new Set(['ValidKeyword']);
             const updateSpy = jest.spyOn(PtuMovePseudoCache, 'update');
 
             // Act & Assert
@@ -829,16 +808,16 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
-        it('should call getValidKeywordNames with returnType set', async () =>
+        it('should call validateKeywords with the given keywords', async () =>
         {
             // Arrange
             const move = createPtuMoveCollectionData();
             const expectedResult = createPtuMoveCollectionData();
             const keywords = ['Keyword1'] as [string?, string?, string?, string?];
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set(keywords);
+            PtuValidationService['allKeywordNames'] = new Set(keywords as string[]);
             jest.spyOn(PtuMovePseudoCache, 'update')
                 .mockResolvedValue(expectedResult);
-            const getValidKeywordNamesSpy = jest.spyOn(MoveGeneralInformationManagerService, 'getValidKeywordNames');
+            const validateKeywordsSpy = jest.spyOn(PtuValidationService, 'validateKeywords');
 
             // Act
             await MoveGeneralInformationManagerService.updateKeywords({
@@ -848,8 +827,8 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
             });
 
             // Assert
-            expect(getValidKeywordNamesSpy).toHaveBeenCalledTimes(1);
-            expect(getValidKeywordNamesSpy).toHaveBeenCalledWith({ returnType: 'set' });
+            expect(validateKeywordsSpy).toHaveBeenCalledTimes(1);
+            expect(validateKeywordsSpy).toHaveBeenCalledWith(keywords);
         });
     });
 
@@ -857,7 +836,7 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
     {
         beforeEach(() =>
         {
-            MoveGeneralInformationManagerService['allMoveNames'] = new Set<string>();
+            PtuValidationService['allMoveNames'] = new Set<string>();
         });
 
         const moveNames = Array.from(
@@ -877,11 +856,9 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
         )(`should update move's based on move name to %s`, async (basedOnMoveName) =>
         {
             // Arrange
-            MoveGeneralInformationManagerService['allMoveNames'] = new Set(moveNames);
+            PtuValidationService['allMoveNames'] = new Set(moveNames);
             const move = createPtuMoveCollectionData();
             const expectedResult = createPtuMoveCollectionData();
-            const getLookupDataSpy = jest.spyOn(LookupMoveStrategy, 'getLookupData')
-                .mockResolvedValue(moveNames.map(name => ({ name })));
             const updateSpy = jest.spyOn(PtuMovePseudoCache, 'update')
                 .mockResolvedValue(expectedResult);
 
@@ -894,7 +871,6 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
 
             // Assert
             expect(result).toEqual(expectedResult);
-            expect(getLookupDataSpy).toHaveBeenCalledTimes(0);
             expect(updateSpy).toHaveBeenCalledTimes(1);
             expect(updateSpy).toHaveBeenCalledWith(
                 { id: move.id },
@@ -910,10 +886,8 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
         ])('should throw an error if based on move name is %s', async (_, basedOnMoveName) =>
         {
             // Arrange
-            MoveGeneralInformationManagerService['allMoveNames'] = new Set(moveNames);
+            PtuValidationService['allMoveNames'] = new Set(moveNames);
             const move = createPtuMoveCollectionData();
-            const getLookupDataSpy = jest.spyOn(LookupMoveStrategy, 'getLookupData')
-                .mockResolvedValue(moveNames.map(name => ({ name })));
             const updateSpy = jest.spyOn(PtuMovePseudoCache, 'update');
 
             // Act & Assert
@@ -924,133 +898,24 @@ describe(`class: ${MoveGeneralInformationManagerService.name}`, () =>
                     basedOnMoveName,
                 }),
             ).rejects.toThrow(`Invalid based on move name: ${basedOnMoveName}`);
-            expect(getLookupDataSpy).toHaveBeenCalledTimes(0);
             expect(updateSpy).not.toHaveBeenCalled();
         });
 
-        it('should update private allMoveNames if it is not yet set', async () =>
+        it('should throw an error if allMoveNames has not been initialized', async () =>
         {
             // Arrange
-            MoveGeneralInformationManagerService['allMoveNames'] = new Set<string>([]);
+            PtuValidationService['allMoveNames'] = new Set<string>([]);
             const move = createPtuMoveCollectionData();
             const expectedResult = createPtuMoveCollectionData();
-            const getLookupDataSpy = jest.spyOn(LookupMoveStrategy, 'getLookupData')
-                .mockResolvedValue(moveNames.map(name => ({ name })));
             jest.spyOn(PtuMovePseudoCache, 'update')
                 .mockResolvedValue(expectedResult);
 
-            // Act
-            await MoveGeneralInformationManagerService.updateBasedOn({
+            // Act & Assert
+            await expect(() => MoveGeneralInformationManagerService.updateBasedOn({
                 userId,
                 move,
                 basedOnMoveName: moveNames[0],
-            });
-
-            // Assert
-            expect(getLookupDataSpy).toHaveBeenCalledTimes(1);
-            expect(getLookupDataSpy).toHaveBeenCalledWith({ includeAllIfNoName: true });
-            expect(MoveGeneralInformationManagerService['allMoveNames']).toEqual(new Set(moveNames));
-        });
-    });
-
-    describe(`method: ${MoveGeneralInformationManagerService.getValidKeywordNames.name}`, () =>
-    {
-        beforeEach(() =>
-        {
-            MoveGeneralInformationManagerService['allKeywordNames'] = new Set<string>();
-        });
-
-        const keywordNames = getRandomKeywords(50);
-
-        describe.each([
-            ['set', 'set'],
-            ['array', 'array'],
-            ['empty', ''],
-            ['undefined', undefined],
-        ])(`return type: %s`, (_, returnType) =>
-        {
-            it('should return allKeywordNames if it is already set', async () =>
-            {
-                // Arrange
-                MoveGeneralInformationManagerService['allKeywordNames'] = new Set<string>(keywordNames);
-                const expectedResult = returnType === 'set'
-                    ? new Set(keywordNames)
-                    : keywordNames;
-                const getLookupDataSpy = jest.spyOn(LookupKeywordStrategy, 'getLookupData')
-                    .mockResolvedValue(keywordNames.map(name => ({
-                        name,
-                        type: PtuKeywordType.Move,
-                    })));
-
-                // Act
-                const result = await MoveGeneralInformationManagerService.getValidKeywordNames({
-                    returnType,
-                });
-
-                // Assert
-                expect(getLookupDataSpy).toHaveBeenCalledTimes(0);
-                expect(result).toEqual(expectedResult);
-            });
-
-            it('should only add Move keywords to allKeywordNames', async () =>
-            {
-                // Arrange
-                MoveGeneralInformationManagerService['allKeywordNames'] = new Set<string>([]);
-                const getLookupDataSpy = jest.spyOn(LookupKeywordStrategy, 'getLookupData')
-                    .mockResolvedValue([
-                        {
-                            name: 'Keyword1',
-                            type: PtuKeywordType.Ability,
-                        },
-                        {
-                            name: 'Keyword2',
-                            type: PtuKeywordType.Move,
-                        },
-                        {
-                            name: 'Keyword3',
-                            type: PtuKeywordType.Ability,
-                        },
-                        {
-                            name: 'Keyword4',
-                            type: PtuKeywordType.Move,
-                        },
-                        {
-                            name: 'Keyword5',
-                            type: PtuKeywordType.Ability,
-                        },
-                    ]);
-
-                // Act
-                await MoveGeneralInformationManagerService.getValidKeywordNames({
-                    returnType,
-                });
-
-                // Assert
-                expect(getLookupDataSpy).toHaveBeenCalledTimes(1);
-                expect(getLookupDataSpy).toHaveBeenCalledWith({ includeAllIfNoName: true });
-                expect(MoveGeneralInformationManagerService['allKeywordNames']).toEqual(new Set(['Keyword2', 'Keyword4']));
-            });
-
-            it('should update private allKeywordNames if it is not yet set for returnType', async () =>
-            {
-                // Arrange
-                MoveGeneralInformationManagerService['allKeywordNames'] = new Set<string>([]);
-                const getLookupDataSpy = jest.spyOn(LookupKeywordStrategy, 'getLookupData')
-                    .mockResolvedValue(keywordNames.map(name => ({
-                        name,
-                        type: PtuKeywordType.Move,
-                    })));
-
-                // Act
-                await MoveGeneralInformationManagerService.getValidKeywordNames({
-                    returnType,
-                });
-
-                // Assert
-                expect(getLookupDataSpy).toHaveBeenCalledTimes(1);
-                expect(getLookupDataSpy).toHaveBeenCalledWith({ includeAllIfNoName: true });
-                expect(MoveGeneralInformationManagerService['allKeywordNames']).toEqual(new Set(keywordNames));
-            });
+            })).rejects.toThrow('Move names not initialized');
         });
     });
 });
