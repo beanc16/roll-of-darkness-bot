@@ -10,6 +10,7 @@ import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { FakemonOverviewManagerService } from '../../services/FakemonDataManagers/FakemonOverviewManagerService.js';
 import { FakemonInteractionManagerService } from '../../services/FakemonInteractionManagerService/FakemonInteractionManagerService.js';
 import { FakemonInteractionManagerPage } from '../../services/FakemonInteractionManagerService/types.js';
+import { HomebrewPokeApi } from '../../services/HomebrewPokeApi/HomebrewPokeApi.js';
 
 enum FakemonSpeciesNameEditingCustomId
 {
@@ -83,14 +84,18 @@ export class FakemonSpeciesNameEditingModal extends BaseCustomModal
         // Defer update to allow for database transaction
         await interaction.deferUpdate();
 
-        // Update database
         try
         {
-            await FakemonOverviewManagerService.setSpeciesName({
-                messageId,
-                fakemon,
-                speciesName,
-            });
+            await Promise.all([
+                // Update database
+                FakemonOverviewManagerService.setSpeciesName({
+                    messageId,
+                    fakemon,
+                    speciesName,
+                }),
+                // Update image
+                HomebrewPokeApi.renameFakemonImage(fakemon.name, speciesName),
+            ]);
         }
         catch (error)
         {

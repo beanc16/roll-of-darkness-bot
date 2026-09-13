@@ -465,7 +465,13 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
             expect(updateSpy).toHaveBeenCalledWith(
                 messageId,
                 { id: fakemon.id },
-                { name: speciesName },
+                {
+                    name: speciesName,
+                    metadata: {
+                        ...fakemon.metadata,
+                        imageUrl: fakemon.metadata.imageUrl?.replace(fakemon.name, speciesName.trim()),
+                    },
+                },
             );
         });
 

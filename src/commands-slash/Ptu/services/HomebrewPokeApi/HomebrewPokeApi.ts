@@ -140,6 +140,40 @@ export class HomebrewPokeApi
     }
 
     /* istanbul ignore next */
+    public static async renameFakemonImage(oldSpeciesName: string, newSpeciesName: string): Promise<string>
+    {
+        try
+        {
+            // Exit early if the image has already been renamed
+            return await this.getFakemonUrl(newSpeciesName);
+        }
+        catch
+        {
+            // No-op, image still needs transferred
+        }
+
+        const response = await FileStorageService.rename({
+            appId: process.env.APP_ID as string,
+            old: {
+                fileName: oldSpeciesName,
+                nestedFolders: this.fakemonNestedFolders,
+            },
+            new: {
+                fileName: newSpeciesName,
+                nestedFolders: this.fakemonNestedFolders,
+            },
+            resourceType: FileStorageResourceType.Image,
+        });
+
+        if (!response)
+        {
+            throw new Error('Failed to rename fakemon image');
+        }
+
+        return response.url;
+    }
+
+    /* istanbul ignore next */
     public static async transferFakemonImageToPokemon(speciesName: string, dexType: PtuFakemonDexType): Promise<string>
     {
         try

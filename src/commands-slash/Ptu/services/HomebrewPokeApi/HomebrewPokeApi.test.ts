@@ -321,4 +321,84 @@ describe('class: HomebrewPokeApi', () =>
             ]);
         });
     });
+
+    describe('method: renameFakemonImage', () =>
+    {
+        const mockAppId = 'test-app-id';
+
+        beforeEach(() =>
+        {
+            process.env.APP_ID = mockAppId;
+        });
+
+        it('should exit early if the image has already been renamed', async () =>
+        {
+            // Arrange
+            const url = 'https://example.com/Fakemon1.png';
+            const oldSpeciesName = 'Fakemon1';
+            const newSpeciesName = 'Fakemon2';
+            const getFakemonUrlSpy = jest.spyOn(HomebrewPokeApi, 'getFakemonUrl')
+                .mockResolvedValueOnce(url);
+            const renameSpy = jest.spyOn(FileStorageService, 'rename');
+
+            // Act
+            const result = await HomebrewPokeApi.renameFakemonImage(oldSpeciesName, newSpeciesName);
+
+            // Assert
+            expect(result).toEqual(url);
+            expect(getFakemonUrlSpy).toHaveBeenCalledWith(newSpeciesName);
+            expect(renameSpy).not.toHaveBeenCalled();
+        });
+
+        it('should rename the image', async () =>
+        {
+            // Arrange
+            const url = 'https://example.com/Fakemon1.png';
+            const oldSpeciesName = 'Fakemon1';
+            const newSpeciesName = 'Fakemon2';
+            const getFakemonUrlSpy = jest.spyOn(HomebrewPokeApi, 'getFakemonUrl')
+                .mockRejectedValueOnce(new Error('Fakemon image not found'));
+            const renameSpy = jest.spyOn(FileStorageService, 'rename')
+                .mockResolvedValueOnce({ url });
+
+            // Act
+            const result = await HomebrewPokeApi.renameFakemonImage(oldSpeciesName, newSpeciesName);
+
+            // Assert
+            expect(result).toEqual(url);
+            expect(getFakemonUrlSpy).toHaveBeenCalledWith(newSpeciesName);
+            expect(renameSpy).toHaveBeenCalledWith({
+                appId: mockAppId,
+                old: {
+                    fileName: oldSpeciesName,
+                    nestedFolders: HomebrewPokeApi['fakemonNestedFolders'],
+                },
+                new: {
+                    fileName: newSpeciesName,
+                    nestedFolders: HomebrewPokeApi['fakemonNestedFolders'],
+                },
+                resourceType: FileStorageResourceType.Image,
+            });
+        });
+
+        it('should throw error if rename returns undefined', async () =>
+        {
+            // Arrange
+            const oldSpeciesName = 'Fakemon1';
+            const newSpeciesName = 'Fakemon2';
+            const getFakemonUrlSpy = jest.spyOn(HomebrewPokeApi, 'getFakemonUrl')
+                .mockRejectedValueOnce(new Error('Fakemon image not found'));
+            const renameSpy = jest.spyOn(FileStorageService, 'rename')
+                .mockResolvedValueOnce(undefined);
+
+            // Act & Assert
+            await expect(() =>
+                HomebrewPokeApi.renameFakemonImage(oldSpeciesName, newSpeciesName),
+            ).rejects.toThrow('Failed to rename fakemon image');
+
+            // Assert
+            expect(getFakemonUrlSpy).toHaveBeenCalledWith(newSpeciesName);
+            expect(renameSpy).toHaveBeenCalled();
+        });
+    });
 });
