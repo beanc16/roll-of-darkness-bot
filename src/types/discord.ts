@@ -19,3 +19,11 @@ export enum DiscordUserId
 export type CommandName = `/${string}`;
 
 export const STRING_SELECT_ACTION_ROW_MAX_OPTIONS = 25;
+
+export enum InteractionReplyType
+{
+    EditReply = 'editReply',
+    FollowUp = 'followUp',
+    Update = 'update',
+    ChannelSend = 'channel.send',
+}

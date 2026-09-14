@@ -7,7 +7,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { DiscordUserId } from '../../../../types/discord.js';
+import { DiscordUserId, InteractionReplyType } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { FakemonDiffEmbedMessage } from '../../components/fakemon/embeds/FakemonDiffEmbedMessage.js';
 import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
@@ -208,6 +208,7 @@ export class FakemonTransferEditStrategy
                     {
                         await (strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Delete] as typeof FakemonDeleteStrategy)?.run(interaction, strategies, {
                             speciesName: updatedFakemon.name,
+                            interactionType: InteractionReplyType.ChannelSend,
                         });
                     }
                 }
