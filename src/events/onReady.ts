@@ -2,6 +2,7 @@ import { logger } from '@beanc16/logger';
 import { Client, Events } from 'discord.js';
 
 import { HomebrewPokeApi } from '../commands-slash/Ptu/services/HomebrewPokeApi/HomebrewPokeApi.js';
+import { PtuValidationService } from '../commands-slash/Ptu/services/MoveDataManagers/PtuValidationService.js';
 import { SlashCommandsContainer } from '../scripts/registerSlashCommands/SlashCommandsContainer.js';
 import { CachedAuthTokenService } from '../services/CachedAuthTokenService.js';
 import { LookupCacheInitializer } from '../services/LookupCacheInitializer.js';
@@ -21,7 +22,10 @@ async function handler(bot: Client): Promise<void>
 
         // Initialize nWOD and PTU caches
         await Promise.all([
-            ...(process.env.STARTUP_MODE === 'MINIMAL' ? [] : [LookupCacheInitializer.initialize()]),
+            ...(process.env.STARTUP_MODE === 'MINIMAL'
+                ? [PtuValidationService.initialize()] // PtuValidationService.initialize() depends on LookupCacheInitializer
+                : [LookupCacheInitializer.initialize().then(() => PtuValidationService.initialize())]
+            ),
             HomebrewPokeApi.initialize(),
         ]);
 

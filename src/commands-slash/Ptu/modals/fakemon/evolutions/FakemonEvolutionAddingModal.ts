@@ -147,14 +147,23 @@ export class FakemonEvolutionAddingModal extends BaseCustomModal
         // Update database
         try
         {
-            await FakemonEvolutionManagerService.addEvolutionStage({
+            const { warning } = await FakemonEvolutionManagerService.addEvolutionStage({
                 messageId,
+                userId: interaction.user.id,
                 fakemon,
                 name: name.trim(),
                 level,
                 stage,
                 evolutionCondition: evolutionCondition?.trim(),
             });
+
+            if (warning)
+            {
+                await interaction.followUp({
+                    content: warning,
+                    ephemeral: true,
+                });
+            }
         }
         catch (error)
         {

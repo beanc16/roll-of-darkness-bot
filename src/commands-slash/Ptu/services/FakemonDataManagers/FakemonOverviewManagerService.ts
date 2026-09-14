@@ -290,7 +290,7 @@ export class FakemonOverviewManagerService
         speciesName,
     }: {
         messageId: string;
-        fakemon: Pick<PtuFakemonCollection, 'id'>;
+        fakemon: Pick<PtuFakemonCollection, 'id' | 'name' | 'metadata'>;
         speciesName: string;
     }): Promise<PtuFakemonCollection>
     {
@@ -300,8 +300,26 @@ export class FakemonOverviewManagerService
             throw new Error('Fakemon species name must be between 0-40 characters');
         }
 
+        const { metadata } = fakemon;
+        const { imageUrl } = metadata;
+
+        const newImageUrl = imageUrl
+            ? imageUrl.replace(
+                encodeURIComponent(fakemon.name),
+                encodeURIComponent(trimmedSpeciesName),
+            )
+            : imageUrl;
+
         return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             name: trimmedSpeciesName,
+            ...(newImageUrl
+                ? {
+                    metadata: {
+                        ...metadata,
+                        imageUrl: newImageUrl,
+                    },
+                }
+                : {}),
         });
     }
 }

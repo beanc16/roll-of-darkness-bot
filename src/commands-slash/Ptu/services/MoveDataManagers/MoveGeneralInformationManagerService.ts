@@ -11,15 +11,13 @@ import {
 } from '../../dal/models/PtuMoveCollection.js';
 import { PtuMoveController } from '../../dal/PtuMoveController.js';
 import { PtuMovePseudoCache } from '../../dal/PtuMovePseudoCache.js';
-import { LookupKeywordStrategy } from '../../strategies/lookup/LookupKeywordStrategy.js';
-import { LookupMoveStrategy } from '../../strategies/lookup/LookupMoveStrategy.js';
 import {
     PokemonMoveCategory,
     PokemonType,
     PtuContestStatEffect,
     PtuContestStatType,
 } from '../../types/pokemon.js';
-import { PtuKeywordType } from '../../types/PtuKeyword.js';
+import { PtuValidationService } from './PtuValidationService.js';
 
 type PtuMoveCollectionOnlyId = AtLeastOne<PtuMoveCollection, 'id'>;
 
@@ -31,21 +29,6 @@ interface BaseMoveGeneralInformationManagerServiceParameters
 
 export class MoveGeneralInformationManagerService
 {
-    private static allStatuses = new Set(Object.values(PtuMoveStatus));
-    private static allTypes = new Set(Object.values(PokemonType));
-    private static allCategories = new Set(Object.values(PokemonMoveCategory));
-    private static allFrequencies = new Set(Object.values(PtuCustomMoveFrequency));
-    private static allDamageBases = new Set(Object.values(PtuCustomMoveDamageBase));
-    private static allAcs = new Set(Object.values(PtuCustomMoveArmorClass));
-    private static allContestStatEffects = new Set(Object.values(PtuContestStatEffect));
-    private static allContestStatTypes = new Set(Object.values(PtuContestStatType));
-
-    // From lookups
-    private static allMoveNames = new Set<string>();
-    private static allKeywordNames = new Set<string>();
-    /** Exclude action type keywords, those are part of range instead */
-    private static keywordNameBlacklist = new Set<string>(['Interrupt', 'Priority', 'Reaction', 'Trigger']);
-
     public static async updateName({
         userId,
         move,
@@ -54,10 +37,7 @@ export class MoveGeneralInformationManagerService
         name: string;
     }): Promise<PtuMoveCollection>
     {
-        if (name.trim().length === 0)
-        {
-            throw new Error('Move name cannot be empty');
-        }
+        PtuValidationService.validateName(name);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             name,
@@ -74,10 +54,7 @@ export class MoveGeneralInformationManagerService
         status: PtuMoveStatus;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allStatuses.has(status))
-        {
-            throw new Error(`Invalid status: ${status}`);
-        }
+        PtuValidationService.validateStatus(status);
 
         if (userId)
         {
@@ -106,6 +83,7 @@ export class MoveGeneralInformationManagerService
         isTransferred: boolean;
     }): Promise<PtuMoveCollection>
     {
+        PtuValidationService.validateIsTransferred(isTransferred);
         const updateData: Record<string, boolean> = { isTransferred };
 
         const {
@@ -131,10 +109,7 @@ export class MoveGeneralInformationManagerService
         type: PokemonType;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allTypes.has(type))
-        {
-            throw new Error(`Invalid type: ${type}`);
-        }
+        PtuValidationService.validateType(type);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             type,
@@ -149,10 +124,7 @@ export class MoveGeneralInformationManagerService
         category: PokemonMoveCategory;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allCategories.has(category))
-        {
-            throw new Error(`Invalid category: ${category}`);
-        }
+        PtuValidationService.validateCategory(category);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             category,
@@ -167,10 +139,7 @@ export class MoveGeneralInformationManagerService
         frequency: PtuCustomMoveFrequency;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allFrequencies.has(frequency))
-        {
-            throw new Error(`Invalid frequency: ${frequency}`);
-        }
+        PtuValidationService.validateFrequency(frequency);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             frequency,
@@ -185,10 +154,7 @@ export class MoveGeneralInformationManagerService
         damageBase: PtuCustomMoveDamageBase;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allDamageBases.has(damageBase))
-        {
-            throw new Error(`Invalid damageBase: ${damageBase}`);
-        }
+        PtuValidationService.validateDamageBase(damageBase);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             damageBase,
@@ -203,10 +169,7 @@ export class MoveGeneralInformationManagerService
         ac: PtuCustomMoveArmorClass;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allAcs.has(ac))
-        {
-            throw new Error(`Invalid ac: ${ac}`);
-        }
+        PtuValidationService.validateArmorClass(ac);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             ac,
@@ -221,10 +184,7 @@ export class MoveGeneralInformationManagerService
         contestStatEffect: PtuContestStatEffect;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allContestStatEffects.has(contestStatEffect))
-        {
-            throw new Error(`Invalid contest stat effect: ${contestStatEffect}`);
-        }
+        PtuValidationService.validateContestStatEffect(contestStatEffect);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             contestStatEffect,
@@ -239,10 +199,7 @@ export class MoveGeneralInformationManagerService
         contestStatType: PtuContestStatType;
     }): Promise<PtuMoveCollection>
     {
-        if (!this.allContestStatTypes.has(contestStatType))
-        {
-            throw new Error(`Invalid contest stat type: ${contestStatType}`);
-        }
+        PtuValidationService.validateContestStatType(contestStatType);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             contestStatType,
@@ -257,10 +214,7 @@ export class MoveGeneralInformationManagerService
         effects: string;
     }): Promise<PtuMoveCollection>
     {
-        if (effects.trim().length === 0)
-        {
-            throw new Error('Move effects cannot be empty');
-        }
+        PtuValidationService.validateEffects(effects);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             effects,
@@ -275,39 +229,7 @@ export class MoveGeneralInformationManagerService
         keywords: [string?, string?, string?, string?];
     }): Promise<PtuMoveCollection>
     {
-        const { truthyKeywords, falseyKeywords } = keywords.reduce<{
-            truthyKeywords: [string?, string?, string?, string?];
-            falseyKeywords: [string?, string?, string?, string?];
-        }>((acc, keyword) =>
-        {
-            if (keyword?.trim())
-            {
-                acc.truthyKeywords.push(keyword.trim());
-            }
-            else
-            {
-                acc.falseyKeywords.push(keyword);
-            }
-            return acc;
-        }, { truthyKeywords: [], falseyKeywords: [] });
-
-        if (falseyKeywords.length > 0)
-        {
-            throw new Error('Move cannot have empty keywords');
-        }
-
-        if (truthyKeywords.length === 0 || truthyKeywords.length > 4)
-        {
-            throw new Error('Move must have 1-4 keywords');
-        }
-
-        const allKeywordNames = await this.getValidKeywordNames({ returnType: 'set' });
-
-        const invalidKeywords = truthyKeywords.filter((keyword) => keyword && !allKeywordNames.has(keyword));
-        if (invalidKeywords.length > 0)
-        {
-            throw new Error(`Invalid keywords: ${invalidKeywords.join(', ')}`);
-        }
+        const truthyKeywords = PtuValidationService.validateKeywords(keywords);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             keywords: truthyKeywords,
@@ -322,48 +244,10 @@ export class MoveGeneralInformationManagerService
         basedOnMoveName: string;
     }): Promise<PtuMoveCollection>
     {
-        // Initialize if not set
-        if (this.allMoveNames.size === 0)
-        {
-            const allMoves = await LookupMoveStrategy.getLookupData({ includeAllIfNoName: true });
-            allMoves.forEach((curMove) => this.allMoveNames.add(curMove.name));
-        }
-
-        if (!this.allMoveNames.has(basedOnMoveName))
-        {
-            throw new Error(`Invalid based on move name: ${basedOnMoveName}`);
-        }
+        PtuValidationService.validateBasedOn(basedOnMoveName);
 
         return await PtuMovePseudoCache.update({ id: move.id }, {
             basedOn: basedOnMoveName,
         }, userId);
-    }
-
-    // Getters
-    public static async getValidKeywordNames({ returnType }: { returnType: 'set' }): Promise<Set<string>>;
-    public static async getValidKeywordNames({ returnType }: { returnType: 'array' }): Promise<string[]>;
-    public static async getValidKeywordNames({ returnType = 'array' }: { returnType: 'set' | 'array' }): Promise<Set<string> | string[]>
-    {
-        // Initialize if not set
-        if (this.allKeywordNames.size === 0)
-        {
-            const allKeywords = await LookupKeywordStrategy.getLookupData({ includeAllIfNoName: true });
-            allKeywords.forEach((keyword) =>
-            {
-                if (keyword.type === PtuKeywordType.Move && !this.keywordNameBlacklist.has(keyword.name))
-                {
-                    this.allKeywordNames.add(keyword.name);
-                }
-            });
-        }
-
-        // Set
-        if (returnType === 'set')
-        {
-            return this.allKeywordNames;
-        }
-
-        // Array
-        return [...this.allKeywordNames];
     }
 }

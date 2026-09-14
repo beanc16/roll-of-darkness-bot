@@ -179,8 +179,9 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
         // Update database
         try
         {
-            await FakemonEvolutionManagerService.editEvolutionStage({
+            const { warning } = await FakemonEvolutionManagerService.editEvolutionStage({
                 messageId,
+                userId: interaction.user.id,
                 fakemon,
                 previousName,
                 new: {
@@ -190,6 +191,14 @@ export class FakemonEvolutionEditingModal extends BaseCustomModal
                     evolutionCondition: evolutionCondition?.trim(),
                 },
             });
+
+            if (warning)
+            {
+                await interaction.followUp({
+                    content: warning,
+                    ephemeral: true,
+                });
+            }
         }
         catch (error)
         {

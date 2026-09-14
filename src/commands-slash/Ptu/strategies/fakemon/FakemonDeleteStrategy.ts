@@ -7,6 +7,8 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import commandMetadataSingleton from '../../../../models/commandMetadataSingleton.js';
+import { getInteractionHandler } from '../../../../services/DiscordUtils/discordUtils.js';
+import { InteractionReplyType } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
@@ -22,6 +24,7 @@ import type {
 interface FakemonDeleteGetParameterResults
 {
     speciesName: string;
+    interactionType: InteractionReplyType.FollowUp | InteractionReplyType.ChannelSend;
 }
 
 @staticImplements<
@@ -33,15 +36,15 @@ export class FakemonDeleteStrategy
     public static key = PtuFakemonSubcommand.Delete;
 
     public static async run(interaction: ChatInputCommandInteraction, strategies: PtuStrategyMap, options?: never): Promise<boolean>;
-    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonDeleteGetParameterResults>): Promise<boolean>;
-    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: Partial<FakemonDeleteGetParameterResults>): Promise<boolean>;
+    public static async run(interaction: ButtonInteraction, strategies: PtuStrategyMap, options?: FakemonDeleteGetParameterResults): Promise<boolean>;
+    public static async run(interaction: StringSelectMenuInteraction, strategies: PtuStrategyMap, options?: FakemonDeleteGetParameterResults): Promise<boolean>;
     public static async run(
         interaction: ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction,
         _strategies: PtuStrategyMap,
-        options?: Partial<FakemonDeleteGetParameterResults>,
+        options?: FakemonDeleteGetParameterResults,
     ): Promise<boolean>
     {
-        const { speciesName } = this.getOptions(interaction, options);
+        const { speciesName, interactionType } = this.getOptions(interaction, options);
 
         // Get fakemon
         const [fakemon] = await PtuFakemonPseudoCache.getByNames([speciesName], interaction.user.id);
@@ -55,7 +58,8 @@ export class FakemonDeleteStrategy
 
         // Send response
         const message = await interaction.fetchReply();
-        const newMessage = await interaction.followUp({
+        const handler = getInteractionHandler(interaction, interactionType);
+        const newMessage = await handler({
             content: `Are you sure that you want to delete ${Text.Code.oneLine(speciesName)}?`,
             components: [
                 new ConfirmDenyButtonActionRowBuilder(),
@@ -145,6 +149,6 @@ export class FakemonDeleteStrategy
 
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
 
-        return { speciesName };
+        return { speciesName, interactionType: InteractionReplyType.FollowUp };
     }
 }

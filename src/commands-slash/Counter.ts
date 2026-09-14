@@ -212,6 +212,12 @@ class Counter extends BaseSlashCommand
     // eslint-disable-next-line class-methods-use-this -- Leave as non-static
     public async runOnStartup(bot: Client): Promise<void>
     {
+        if (process.env.STARTUP_MODE === 'MINIMAL')
+        {
+            logger.debug(`In 'MINIMAL' statup mode, skipping counter initialization...`);
+            return;
+        }
+
         try
         {
             logger.debug('Initializing counters...');

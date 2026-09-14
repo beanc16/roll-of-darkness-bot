@@ -1,10 +1,12 @@
 import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
+import { LookupPokemonStrategy } from '../../strategies/lookup/LookupPokemonStrategy.js';
 
 export class FakemonEvolutionManagerService
 {
     public static async addEvolutionStage({
         messageId,
+        userId,
         fakemon,
         name,
         level,
@@ -12,12 +14,13 @@ export class FakemonEvolutionManagerService
         evolutionCondition,
     }: {
         messageId: string;
+        userId: string;
         fakemon: PtuFakemonCollection;
         name: string;
         level: number;
         stage: number;
         evolutionCondition?: string;
-    }): Promise<PtuFakemonCollection>
+    }): Promise<{ fakemon: PtuFakemonCollection; warning: string | undefined }>
     {
         if (name.trim().length === 0)
         {
@@ -58,14 +61,20 @@ export class FakemonEvolutionManagerService
             throw new Error('Fakemon cannot have more than 10 evolutions');
         }
 
+        // Check if species names exist
+        const warning = await this.getMissingEvolutionStagesWarning(sortedEvolution, userId);
+
         // Update fakemon
-        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+        const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             evolution: sortedEvolution,
         });
+
+        return { fakemon: updatedFakemon, warning };
     }
 
     public static async editEvolutionStage({
         messageId,
+        userId,
         fakemon,
         previousName,
         new: {
@@ -76,6 +85,7 @@ export class FakemonEvolutionManagerService
         },
     }: {
         messageId: string;
+        userId: string;
         fakemon: PtuFakemonCollection;
         previousName: string;
         new: {
@@ -84,7 +94,7 @@ export class FakemonEvolutionManagerService
             stage: number;
             evolutionCondition?: string;
         };
-    }): Promise<PtuFakemonCollection>
+    }): Promise<{ fakemon: PtuFakemonCollection; warning: string | undefined }>
     {
         if (previousName.trim().length === 0)
         {
@@ -139,21 +149,28 @@ export class FakemonEvolutionManagerService
             throw new Error('Fakemon cannot have more than 10 evolutions');
         }
 
+        // Check if species names exist
+        const warning = await this.getMissingEvolutionStagesWarning(sortedEvolution, userId);
+
         // Update fakemon
-        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+        const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             evolution: sortedEvolution,
         });
+
+        return { fakemon: updatedFakemon, warning };
     }
 
     public static async removeEvolutionStage({
         messageId,
+        userId,
         fakemon,
         names,
     }: {
         messageId: string;
+        userId: string;
         fakemon: PtuFakemonCollection;
         names: string[];
-    }): Promise<PtuFakemonCollection>
+    }): Promise<{ fakemon: PtuFakemonCollection; warning: string | undefined }>
     {
         const { removed, updatedEvolution } = fakemon.evolution.reduce<{ removed: PtuFakemonCollection['evolution']; updatedEvolution: PtuFakemonCollection['evolution'] }>(
             (acc, cur) =>
@@ -175,9 +192,13 @@ export class FakemonEvolutionManagerService
             throw new Error(`Fakemon does not have evolutions named ${missing.join(', ')}`);
         }
 
-        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+        const warning = await this.getMissingEvolutionStagesWarning(updatedEvolution, userId);
+
+        const updatedFakemon = await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
             evolution: updatedEvolution,
         });
+
+        return { fakemon: updatedFakemon, warning };
     }
 
     public static extractEvolutionConditionFromName(
@@ -235,5 +256,36 @@ export class FakemonEvolutionManagerService
             // Sort by name
             return a.name.localeCompare(b.name);
         });
+    }
+
+    private static async getMissingEvolutionStagesWarning(
+        evolution: PtuFakemonCollection['evolution'],
+        userId: string,
+    ): Promise<string | undefined>
+    {
+        const pokemonNames = evolution.map(({ name: evolutionName }) => evolutionName);
+
+        const [pokemon, fakemon] = await Promise.all([
+            LookupPokemonStrategy.getLookupData({
+                names: pokemonNames,
+            }),
+            PtuFakemonPseudoCache.getByNames(pokemonNames, userId),
+        ]);
+
+        const pokemonNamesSet = new Set([
+            ...pokemon.map(({ name: pokemonName }) => pokemonName),
+            ...fakemon.map(({ name: fakemonName }) => fakemonName),
+        ]);
+        const missingPokemonNames = pokemonNames.filter((pokemonName) => !pokemonNamesSet.has(pokemonName));
+
+        if (missingPokemonNames.length > 0)
+        {
+            return [
+                `The below evolution stages don't match any pokemon or fakemon.`,
+                'Please ensure that there are no typos or that they get created later, this warning will not stop the fakemon from being transferred.',
+            ].join(' ') + `\n\`\`\`\n- ${missingPokemonNames.join('\n- ')}\n\`\`\``;
+        }
+
+        return undefined;
     }
 }

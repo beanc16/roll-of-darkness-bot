@@ -8,7 +8,7 @@ import {
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
 import { RecordSingleton } from '../../../../services/Singleton/RecordSingleton.js';
-import { DiscordUserId } from '../../../../types/discord.js';
+import { DiscordUserId, InteractionReplyType } from '../../../../types/discord.js';
 import { ConfirmDenyButtonActionRowBuilder, ConfirmDenyButtonCustomIds } from '../../../shared/components/ConfirmDenyButtonActionRowBuilder.js';
 import { getEditorOfDex, isEditorOfDex } from '../../constants.js';
 import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
@@ -233,6 +233,7 @@ export class FakemonTransferStrategy
                             /* eslint-disable-next-line no-await-in-loop -- We want this to be sequential */
                             await (strategies[PtuSubcommandGroup.Fakemon][PtuFakemonSubcommand.Delete] as typeof FakemonDeleteStrategy)?.run(interaction, strategies, {
                                 speciesName: updatedFakemon.name,
+                                interactionType: InteractionReplyType.ChannelSend,
                             });
                         }
                     }
