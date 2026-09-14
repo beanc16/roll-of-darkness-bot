@@ -58,6 +58,8 @@ module.exports = {
         '/.*/PtuCacheInitializer.ts',
         '/.*/PtuDamageChartService.ts',
         '/.*/ptuFakemonSingleton.ts',
+        '/.*/MoveInteractionManagerService.ts',
+        '/.*/OracleInteractionManagerService.ts',
 
         // NWOD
         '/.*/BaseRollStrategy.ts',
