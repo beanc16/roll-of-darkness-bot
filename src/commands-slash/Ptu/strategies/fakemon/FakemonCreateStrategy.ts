@@ -168,7 +168,6 @@ export class FakemonCreateStrategy
         breedingInformation: {
             genderRatio: { none: true },
             eggGroups: [PokemonEggGroup.None],
-            averageHatchRate: PtuAverageHatchRate.SevenDays,
         },
         diets: ['PLACEHOLDER'],
         habitats: ['PLACEHOLDER'],
