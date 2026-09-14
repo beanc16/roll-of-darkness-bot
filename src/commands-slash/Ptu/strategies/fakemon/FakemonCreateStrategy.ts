@@ -798,11 +798,20 @@ export class FakemonCreateStrategy
                         }
                         return acc;
                     }, []);
-                    await FakemonEvolutionManagerService.removeEvolutionStage({
+                    const { warning } = await FakemonEvolutionManagerService.removeEvolutionStage({
                         messageId: interaction.message.id,
+                        userId: interaction.user.id,
                         fakemon,
                         names: namesToRemove,
                     });
+
+                    if (warning)
+                    {
+                        await interaction.followUp({
+                            content: warning,
+                            ephemeral: true,
+                        });
+                    }
                 }
                 catch (error)
                 {

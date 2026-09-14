@@ -4,6 +4,7 @@
 import { PtuFakemonCollection } from '../../../dal/models/PtuFakemonCollection';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
+import { LookupPokemonStrategy } from '../../../strategies/lookup/LookupPokemonStrategy';
 import { FakemonEvolutionManagerService } from '../FakemonEvolutionManagerService';
 import { shuffleArrayTimes } from './util';
 
@@ -12,16 +13,35 @@ jest.mock('../../../dal/PtuFakemonPseudoCache', () =>
 {
     return {
         PtuFakemonPseudoCache: {
+            getByNames: jest.fn(),
             update: jest.fn(),
+        },
+    };
+});
+
+jest.mock('../../../strategies/lookup/LookupPokemonStrategy', () =>
+{
+    return {
+        LookupPokemonStrategy: {
+            getLookupData: jest.fn(),
         },
     };
 });
 
 describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
 {
+    let warningPrefix: string;
+
     beforeEach(() =>
     {
         jest.clearAllMocks();
+        jest.spyOn(LookupPokemonStrategy, 'getLookupData').mockResolvedValue([]);
+        jest.spyOn(PtuFakemonPseudoCache, 'getByNames').mockResolvedValue([]);
+
+        warningPrefix = [
+            `The below evolution stages don't match any pokemon or fakemon.`,
+            'Please ensure that there are no typos or that they get created later, this warning will not stop the fakemon from being transferred.',
+        ].join(' ');
     });
 
     describe(`method: ${FakemonEvolutionManagerService.addEvolutionStage.name}`, () =>
@@ -32,6 +52,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
         {
             defaultArgs = {
                 messageId: 'messageid',
+                userId: 'userid',
                 fakemon: createPtuFakemonCollectionData(),
                 name: 'Bulbasaur',
                 level: 1,
@@ -64,7 +85,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.addEvolutionStage({
+            const { fakemon } = await FakemonEvolutionManagerService.addEvolutionStage({
                 ...defaultArgs,
                 name: expectedEvolution[2].name,
                 level: expectedEvolution[2].level,
@@ -79,7 +100,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
 
             // Assert
-            expect(result).toEqual(expectedResult);
+            expect(fakemon).toEqual(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
@@ -107,7 +128,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.addEvolutionStage({
+            const { fakemon } = await FakemonEvolutionManagerService.addEvolutionStage({
                 ...defaultArgs,
                 name: 'Flareon',
                 level: expectedEvolution[1].level,
@@ -120,7 +141,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
 
             // Assert
-            expect(result).toEqual(expectedResult);
+            expect(fakemon).toEqual(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
@@ -173,6 +194,124 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 { id: defaultArgs.fakemon.id },
                 { evolution: expectedEvolution },
             );
+        });
+
+        it('should return undefined warning if all evolutions are found', async () =>
+        {
+            // Arrange
+            const expectedEvolution = [
+                {
+                    level: 1,
+                    name: 'Bulbasaur',
+                    stage: 1,
+                },
+                {
+                    name: 'Ivysaur',
+                    level: 15,
+                    stage: 2,
+                },
+                {
+                    name: 'Venusaur',
+                    level: 30,
+                    stage: 3,
+                },
+            ];
+            const expectedResult = createPtuFakemonCollectionData({ evolution: expectedEvolution });
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue(expectedEvolution);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.addEvolutionStage({
+                ...defaultArgs,
+                name: expectedEvolution[2].name,
+                level: expectedEvolution[2].level,
+                stage: expectedEvolution[2].stage,
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: [
+                        expectedEvolution[0],
+                        expectedEvolution[1],
+                    ],
+                } as typeof defaultArgs.fakemon,
+            });
+
+            // Assert
+            expect(warning).toEqual(undefined);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[0].name,
+                    expectedEvolution[1].name,
+                    expectedEvolution[2].name,
+                ],
+            });
+        });
+
+        it('should return warning listing all evolutions not found', async () =>
+        {
+            // Arrange
+            const expectedEvolution = [
+                {
+                    level: 1,
+                    name: 'Espurr',
+                    stage: 1,
+                },
+                {
+                    name: 'Meowstic', // "(Female)" intentionally excluded
+                    level: 25,
+                    stage: 2,
+                },
+                {
+                    name: 'Fake Entry',
+                    level: 100,
+                    stage: 3,
+                },
+            ];
+            const expectedResult = createPtuFakemonCollectionData({
+                name: 'Meowstic (Female)',
+                evolution: expectedEvolution,
+            });
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue([
+                    { name: 'Espurr' },
+                ]);
+            const getByNamesSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByNames')
+                .mockResolvedValue([
+                    { name: 'Meowstic (Female)' },
+                ]);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.addEvolutionStage({
+                ...defaultArgs,
+                name: expectedEvolution[1].name,
+                level: expectedEvolution[1].level,
+                stage: expectedEvolution[1].stage,
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: [
+                        expectedEvolution[0],
+                        expectedEvolution[2],
+                    ],
+                } as typeof defaultArgs.fakemon,
+            });
+
+            // Assert
+            expect(warning).toEqual(`${warningPrefix}\n\`\`\`\n- Meowstic\n- Fake Entry\n\`\`\``);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[0].name,
+                    expectedEvolution[1].name,
+                    expectedEvolution[2].name,
+                ],
+            });
+            expect(getByNamesSpy).toHaveBeenCalledWith([
+                expectedEvolution[0].name,
+                expectedEvolution[1].name,
+                expectedEvolution[2].name,
+            ], defaultArgs.userId);
         });
 
         it('should throw an error if name is empty', async () =>
@@ -357,6 +496,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
         {
             defaultArgs = {
                 messageId: 'messageid',
+                userId: 'userid',
                 fakemon: createPtuFakemonCollectionData(),
                 previousName: 'Bulbosaur',
                 new: {
@@ -393,7 +533,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.editEvolutionStage({
+            const { fakemon } = await FakemonEvolutionManagerService.editEvolutionStage({
                 ...defaultArgs,
                 previousName,
                 new: {
@@ -411,7 +551,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
 
             // Assert
-            expect(result).toEqual(expectedResult);
+            expect(fakemon).toEqual(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
@@ -440,7 +580,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.editEvolutionStage({
+            const { fakemon } = await FakemonEvolutionManagerService.editEvolutionStage({
                 ...defaultArgs,
                 previousName,
                 new: {
@@ -459,7 +599,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
 
             // Assert
-            expect(result).toEqual(expectedResult);
+            expect(fakemon).toEqual(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
@@ -493,7 +633,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             ];
 
             // Act
-            const result = await FakemonEvolutionManagerService.editEvolutionStage({
+            const { fakemon } = await FakemonEvolutionManagerService.editEvolutionStage({
                 ...defaultArgs,
                 previousName,
                 new: {
@@ -512,12 +652,139 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             });
 
             // Assert
-            expect(result).toEqual(expectedResult);
+            expect(fakemon).toEqual(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
                 { evolution: expectedEvolution },
             );
+        });
+
+        it('should return undefined warning if all evolutions are found', async () =>
+        {
+            // Arrange
+            const previousName = 'Bulbosaur';
+            const expectedResult = createPtuFakemonCollectionData();
+            const expectedEvolution = [
+                {
+                    level: 1,
+                    name: 'Bulbasaur',
+                    stage: 1,
+                },
+                {
+                    name: 'Ivysaur',
+                    level: 15,
+                    stage: 2,
+                },
+                {
+                    name: 'Venusaur',
+                    level: 30,
+                    stage: 3,
+                },
+            ];
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue(expectedEvolution);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.editEvolutionStage({
+                ...defaultArgs,
+                previousName,
+                new: {
+                    name: expectedEvolution[0].name,
+                    level: expectedEvolution[0].level,
+                    stage: expectedEvolution[0].stage,
+                },
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: [
+                        { ...expectedEvolution[0], name: previousName },
+                        ...expectedEvolution.slice(1),
+                    ],
+                } as typeof defaultArgs.fakemon,
+            });
+
+            // Assert
+            expect(warning).toEqual(undefined);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[0].name,
+                    expectedEvolution[1].name,
+                    expectedEvolution[2].name,
+                ],
+            });
+        });
+
+        it('should return warning listing all evolutions not found', async () =>
+        {
+            // Arrange
+            const expectedEvolution = [
+                {
+                    level: 1,
+                    name: 'Espurr',
+                    stage: 1,
+                },
+                {
+                    name: 'Meowstic', // "(Female)" intentionally excluded
+                    level: 25,
+                    stage: 2,
+                },
+                {
+                    name: 'Fake Entry',
+                    level: 100,
+                    stage: 3,
+                },
+            ];
+            const previousName = 'Bulbosaur';
+            const expectedResult = createPtuFakemonCollectionData({
+                name: 'Meowstic (Female)',
+                evolution: expectedEvolution,
+            });
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue([
+                    { name: 'Espurr' },
+                ]);
+            const getByNamesSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByNames')
+                .mockResolvedValue([
+                    { name: 'Meowstic (Female)' },
+                ]);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.editEvolutionStage({
+                ...defaultArgs,
+                previousName,
+                new: {
+                    name: expectedEvolution[0].name,
+                    level: expectedEvolution[0].level,
+                    stage: expectedEvolution[0].stage,
+                },
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: [
+                        { ...expectedEvolution[0], name: previousName },
+                        expectedEvolution[1],
+                        expectedEvolution[2],
+                    ],
+                } as typeof defaultArgs.fakemon,
+            });
+
+            // Assert
+            expect(warning).toEqual(`${warningPrefix}\n\`\`\`\n- Meowstic\n- Fake Entry\n\`\`\``);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[0].name,
+                    expectedEvolution[1].name,
+                    expectedEvolution[2].name,
+                ],
+            });
+            expect(getByNamesSpy).toHaveBeenCalledWith([
+                expectedEvolution[0].name,
+                expectedEvolution[1].name,
+                expectedEvolution[2].name,
+            ], defaultArgs.userId);
         });
 
         it('should throw an error if previous name is empty', async () =>
@@ -750,6 +1017,7 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
             const fakemon = createPtuFakemonCollectionData();
             defaultArgs = {
                 messageId: 'messageid',
+                userId: 'userid',
                 fakemon: {
                     ...fakemon,
                     evolution: [
@@ -783,15 +1051,95 @@ describe(`class: ${FakemonEvolutionManagerService.name}`, () =>
                 .mockResolvedValue(expectedResult);
 
             // Act
-            const result = await FakemonEvolutionManagerService.removeEvolutionStage(defaultArgs);
+            const { fakemon } = await FakemonEvolutionManagerService.removeEvolutionStage(defaultArgs);
 
             // Act & Assert
-            expect(result).toBe(expectedResult);
+            expect(fakemon).toBe(expectedResult);
             expect(updateSpy).toHaveBeenCalledWith(
                 defaultArgs.messageId,
                 { id: defaultArgs.fakemon.id },
                 { evolution: expectedEvolution },
             );
+        });
+
+        it('should return undefined warning if all evolutions are found', async () =>
+        {
+            // Arrange
+            const expectedResult = createPtuFakemonCollectionData();
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue(expectedEvolution);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.removeEvolutionStage(defaultArgs);
+
+            // Act & Assert
+            expect(warning).toEqual(undefined);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[0].name,
+                ],
+            });
+        });
+
+        it('should return warning listing all evolutions not found', async () =>
+        {
+            // Arrange
+            expectedEvolution = [
+                {
+                    level: 1,
+                    name: 'Espurr',
+                    stage: 1,
+                },
+                {
+                    name: 'Meowstic',
+                    level: 25,
+                    stage: 2,
+                },
+                {
+                    name: 'Fake Entry',
+                    level: 100,
+                    stage: 3,
+                },
+            ];
+            const expectedResult = createPtuFakemonCollectionData({
+                name: 'Meowstic (Female)',
+                evolution: expectedEvolution,
+            });
+            jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+            const getLookupPokemonSpy = jest.spyOn(LookupPokemonStrategy, 'getLookupData')
+                .mockResolvedValue([
+                    { name: 'Espurr' },
+                ]);
+            const getByNamesSpy = jest.spyOn(PtuFakemonPseudoCache, 'getByNames')
+                .mockResolvedValue([
+                    { name: 'Meowstic (Female)' },
+                ]);
+
+            // Act
+            const { warning } = await FakemonEvolutionManagerService.removeEvolutionStage({
+                ...defaultArgs,
+                fakemon: {
+                    ...defaultArgs.fakemon,
+                    evolution: expectedEvolution,
+                } as typeof defaultArgs.fakemon,
+                names: [expectedEvolution[0].name],
+            });
+
+            // Act & Assert
+            expect(warning).toEqual(`${warningPrefix}\n\`\`\`\n- Meowstic\n- Fake Entry\n\`\`\``);
+            expect(getLookupPokemonSpy).toHaveBeenCalledWith({
+                names: [
+                    expectedEvolution[1].name,
+                    expectedEvolution[2].name,
+                ],
+            });
+            expect(getByNamesSpy).toHaveBeenCalledWith([
+                expectedEvolution[1].name,
+                expectedEvolution[2].name,
+            ], defaultArgs.userId);
         });
 
         it('should throw error if there is no evolution stage with one of the given names', async () =>
