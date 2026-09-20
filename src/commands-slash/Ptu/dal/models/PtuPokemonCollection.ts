@@ -142,17 +142,19 @@ export class PtuPokemonCollection
         const editsReversed = edits?.toReversed() ?? [];
         const [mostRecentEdit, ...remainingEdits] = editsReversed;
 
-        // Create output that has all possible edits
+        // Create output that has all possible edits in chronological order, so
+        // that the most recent edit always wins field conflicts instead of
+        // getting overwritten by an older edit that happens to have the same field
         let output: PtuPokemon = {
             ...originalPokemon,
             ...(mostRecentEdit
-                ? PtuPokemonCollection.toPtuPokemonEdit(originalPokemon, mostRecentEdit)
+                ? { versionName: mostRecentEdit.editName }
                 : {}
             ),
         };
 
         // Update output with remaining edits so it has the most up-to-date data
-        remainingEdits?.forEach((edit) =>
+        edits?.forEach((edit) =>
         {
             const {
                 versionName: _,
@@ -160,8 +162,7 @@ export class PtuPokemonCollection
             } = PtuPokemonCollection.toPtuPokemonEdit(output, edit);
 
             output = {
-                name: output.name,
-                versionName: output.versionName,
+                ...output,
                 ...editData,
             };
         });
