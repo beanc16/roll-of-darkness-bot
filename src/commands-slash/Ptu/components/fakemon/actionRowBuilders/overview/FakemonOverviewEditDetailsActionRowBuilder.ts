@@ -4,24 +4,24 @@ import {
     StringSelectMenuBuilder,
 } from 'discord.js';
 
-export enum FakemonOverviewEditDetailsStringSelectCustomIds
+import { PtuFakemonCollection } from '../../../../dal/models/PtuFakemonCollection.js';
+import { regionToDexType } from '../../../../services/FakemonDataManagers/fakemonUtils.js';
+
+export enum FakemonOverviewEditDexNumberStringSelectCustomIds
 {
-    EditDetails = 'fakemon-overview-edit-details-selector',
+    EditDetails = 'fakemon-overview-edit-dex-number-selector',
 }
 
-export enum FakemonOverviewEditDetailsStringSelectElementOptions
+export class FakemonOverviewEditDexNumberActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
 {
-    EditName = 'Edit Name',
-}
-
-export class FakemonOverviewEditDetailsActionRowBuilder extends ActionRowBuilder<StringSelectMenuBuilder>
-{
-    constructor()
+    constructor({ dexType: regionType }: Pick<PtuFakemonCollection, 'dexType'>)
     {
+        const dexTypes = regionToDexType[regionType];
+
         const stringSelectMenu = new StringSelectMenuBuilder({
-            customId: FakemonOverviewEditDetailsStringSelectCustomIds.EditDetails,
-            placeholder: 'Edit Details',
-            options: Object.values(FakemonOverviewEditDetailsStringSelectElementOptions)
+            customId: FakemonOverviewEditDexNumberStringSelectCustomIds.EditDetails,
+            placeholder: 'Edit Dex Number',
+            options: Object.values(dexTypes)
                 .reduce<APISelectMenuOption[]>((acc, cur) =>
                 {
                     acc.push({ label: cur, value: cur });

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import { faker } from '@faker-js/faker';
 import { ObjectId } from 'mongodb';
 
@@ -5,6 +7,7 @@ import { getFakeDiscordId, getFakeDiscordIds } from '../../../fakes/discord/ids.
 import {
     PtuFakemonCollection,
     PtuFakemonDexType,
+    PtuFakemonRegionType,
     PtuFakemonStatus,
 } from '../dal/models/PtuFakemonCollection';
 import { PtuPokemonCollection } from '../dal/models/PtuPokemonCollection';
@@ -14,13 +17,19 @@ import { createPtuPokemonCollectionData } from './PtuPokemonCollection.fakes';
 export const createPtuFakemonCollectionData = (
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- This is incorrectly believing this is of type any
     args: Parameters<typeof createPtuPokemonCollectionData>[0] & {
-        dexType?: PtuFakemonDexType;
+        dexType?: PtuFakemonRegionType;
+        dexNumber?: string | null;
         editName?: string;
     } = {},
 ): PtuFakemonCollection =>
 {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const pokemon = createPtuPokemonCollectionData(args);
+
+    if (args.dexNumber === null)
+    {
+        pokemon.metadata.dexNumber = undefined;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
@@ -33,8 +42,13 @@ export const createPtuFakemonCollectionData = (
         ),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
         status: faker.helpers.arrayElement(Object.values(PtuFakemonStatus)),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-        dexType: args?.dexType ?? faker.helpers.arrayElement(Object.values(PtuFakemonDexType)),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+        dexType: args?.dexType ?? faker.helpers.arrayElement([
+            PtuFakemonDexType.Eden,
+            PtuFakemonDexType.Meridia,
+            PtuFakemonDexType.Magalam,
+            PtuFakemonDexType.Distira,
+        ]),
         creationChannelId: getFakeDiscordId(),
         feedbacks: [],
         transferredTo: {
@@ -47,7 +61,7 @@ export const createPtuFakemonCollectionData = (
         },
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         toPtuPokemon: () => ({} as PtuPokemon),
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- It thinks this is an error when it's not
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         editName: args?.editName,
     };
 };
@@ -55,7 +69,7 @@ export const createPtuFakemonCollectionData = (
 export const createPtuFakemonAndPokemonCollectionData = (
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- This is incorrectly believing this is of type any
     args: Parameters<typeof createPtuPokemonCollectionData>[0] & {
-        dexType?: PtuFakemonDexType;
+        dexType?: PtuFakemonRegionType;
         editName?: string;
     } = {},
 ): { pokemon: PtuPokemonCollection; fakemon: PtuFakemonCollection } =>
@@ -78,8 +92,13 @@ export const createPtuFakemonAndPokemonCollectionData = (
             ),
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
             status: faker.helpers.arrayElement(Object.values(PtuFakemonStatus)),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-            dexType: args?.dexType ?? faker.helpers.arrayElement(Object.values(PtuFakemonDexType)),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+            dexType: args?.dexType ?? faker.helpers.arrayElement([
+                PtuFakemonDexType.Eden,
+                PtuFakemonDexType.Meridia,
+                PtuFakemonDexType.Magalam,
+                PtuFakemonDexType.Distira,
+            ]),
             creationChannelId: getFakeDiscordId(),
             feedbacks: [],
             transferredTo: {
@@ -92,7 +111,7 @@ export const createPtuFakemonAndPokemonCollectionData = (
             },
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             toPtuPokemon: () => ({} as PtuPokemon),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- It thinks this is an error when it's not
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             editName: args?.editName,
         },
     };

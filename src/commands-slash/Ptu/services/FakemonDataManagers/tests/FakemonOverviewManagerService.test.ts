@@ -5,6 +5,9 @@ import { faker } from '@faker-js/faker';
 
 import { FakemonLevelUpMoveDistributionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage';
 import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage';
+import { PtuFakemonDexType } from '../../../dal/models/PtuFakemonCollection';
+import { PokemonController } from '../../../dal/PtuController';
+import { FakemonController } from '../../../dal/PtuFakemonController';
 import { PtuFakemonPseudoCache } from '../../../dal/PtuFakemonPseudoCache';
 import { getPokemonWithMove, type PtuPokemonForLookupPokemon } from '../../../embed-messages/lookup';
 import { createPtuFakemonCollectionData } from '../../../fakes/PtuFakemonCollection.fakes';
@@ -42,6 +45,7 @@ jest.mock('../../../dal/PtuController', () =>
     return {
         PokemonController: {
             aggregate: jest.fn(),
+            count: jest.fn(),
         },
     };
 });
@@ -59,6 +63,7 @@ jest.mock('../../../dal/PtuFakemonController', () =>
 {
     return {
         FakemonController: {
+            count: jest.fn(),
             findOneAndUpdate: jest.fn(),
         },
     };
@@ -467,10 +472,15 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
                 { id: fakemon.id },
                 {
                     name: speciesName,
-                    metadata: {
-                        ...fakemon.metadata,
-                        imageUrl: fakemon.metadata.imageUrl?.replace(fakemon.name, speciesName.trim()),
-                    },
+                    ...(fakemon.metadata.imageUrl
+                        ? {
+                            metadata: {
+                                ...fakemon.metadata,
+                                imageUrl: fakemon.metadata.imageUrl?.replace(fakemon.name, speciesName.trim()),
+                            },
+                        }
+                        : {}
+                    ),
                 },
             );
         });
@@ -558,6 +568,255 @@ describe(`class: ${FakemonOverviewManagerService.name}`, () =>
                 }),
             ).resolves.not.toThrow('Fakemon species name must be between 0-40 characters');
             expect(updateSpy).toHaveBeenCalled();
+        });
+    });
+
+    describe(`method: ${FakemonOverviewManagerService.setDexNumber.name}`, () =>
+    {
+        let messageId = '';
+        let fakemon: ReturnType<typeof createPtuFakemonCollectionData>;
+
+        beforeEach(() =>
+        {
+            jest.clearAllMocks();
+            messageId = faker.string.uuid();
+            fakemon = createPtuFakemonCollectionData();
+        });
+
+        it('returns fakemon with updated dex number', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = faker.string.numeric(10);
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const result = await FakemonOverviewManagerService.setDexNumber({
+                messageId,
+                fakemon,
+                dexType,
+                dexNumber,
+            });
+
+            expect(result.metadata.dexNumber).toEqual(expectedResult.metadata.dexNumber);
+            expect(pokemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(pokemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(fakemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(fakemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                {
+                    metadata: {
+                        ...fakemon.metadata,
+                        dexNumber: expectedResult.metadata.dexNumber,
+                    },
+                },
+            );
+        });
+
+        it('trims whitespace at the start and end of the dex number', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = `     ${faker.string.numeric(10)}     `;
+            const trimmedDexNumber = dexNumber.trim();
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${trimmedDexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            const result = await FakemonOverviewManagerService.setDexNumber({
+                messageId,
+                fakemon,
+                dexType,
+                dexNumber,
+            });
+
+            expect(result.metadata.dexNumber).toEqual(expectedResult.metadata.dexNumber);
+            expect(pokemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(pokemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(fakemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(fakemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(updateSpy).toHaveBeenCalledTimes(1);
+            expect(updateSpy).toHaveBeenCalledWith(
+                messageId,
+                { id: fakemon.id },
+                {
+                    metadata: {
+                        ...fakemon.metadata,
+                        dexNumber: expectedResult.metadata.dexNumber,
+                    },
+                },
+            );
+        });
+
+        it('throws error when dex number is 0 characters', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = '';
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setDexNumber({
+                    messageId,
+                    fakemon,
+                    dexType,
+                    dexNumber,
+                }),
+            ).rejects.toThrow('Fakemon dex number must be between 0-20 characters');
+            expect(pokemonCountSpy).not.toHaveBeenCalled();
+            expect(fakemonCountSpy).not.toHaveBeenCalled();
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('throws error when dex number is 21 characters', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = faker.string.numeric(21);
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setDexNumber({
+                    messageId,
+                    fakemon,
+                    dexType,
+                    dexNumber,
+                }),
+            ).rejects.toThrow('Fakemon dex number must be between 0-20 characters');
+            expect(pokemonCountSpy).not.toHaveBeenCalled();
+            expect(fakemonCountSpy).not.toHaveBeenCalled();
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('does not throw error when dex number is 20 characters', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = faker.string.numeric(20);
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setDexNumber({
+                    messageId,
+                    fakemon,
+                    dexType,
+                    dexNumber,
+                }),
+            ).resolves.not.toThrow('Fakemon dex number must be between 0-20 characters');
+            expect(pokemonCountSpy).toHaveBeenCalled();
+            expect(fakemonCountSpy).toHaveBeenCalled();
+            expect(updateSpy).toHaveBeenCalled();
+        });
+
+        it('throws error when a pokemon has the given dex number already', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = faker.string.numeric(10);
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(1);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(0);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setDexNumber({
+                    messageId,
+                    fakemon,
+                    dexType,
+                    dexNumber,
+                }),
+            ).rejects.toThrow('Dex number already exists for a pokemon');
+            expect(pokemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(pokemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(fakemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(fakemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it('throws error when a fakemon has the given dex number already', async () =>
+        {
+            const dexType = PtuFakemonDexType.Eden;
+            const dexNumber = faker.string.numeric(10);
+            const expectedResult = { ...fakemon, metadata: { ...fakemon.metadata, dexNumber: `#E${dexNumber}` } };
+            const pokemonCountSpy = jest.spyOn(PokemonController, 'count')
+                .mockResolvedValue(0);
+            const fakemonCountSpy = jest.spyOn(FakemonController, 'count')
+                .mockResolvedValue(1);
+            const updateSpy = jest.spyOn(PtuFakemonPseudoCache, 'update')
+                .mockResolvedValue(expectedResult);
+
+            await expect(
+                FakemonOverviewManagerService.setDexNumber({
+                    messageId,
+                    fakemon,
+                    dexType,
+                    dexNumber,
+                }),
+            ).rejects.toThrow('Dex number already exists for a fakemon');
+            expect(pokemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(pokemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(fakemonCountSpy).toHaveBeenCalledTimes(1);
+            expect(fakemonCountSpy).toHaveBeenCalledWith({
+                metadata: {
+                    dexNumber: expectedResult.metadata.dexNumber,
+                },
+            });
+            expect(updateSpy).not.toHaveBeenCalled();
         });
     });
 });

@@ -40,6 +40,12 @@ export enum PtuFakemonDexType
     DistiraLegendary = 'Distira Legendary',
 }
 
+export type PtuFakemonRegionType =
+    | PtuFakemonDexType.Eden
+    | PtuFakemonDexType.Meridia
+    | PtuFakemonDexType.Magalam
+    | PtuFakemonDexType.Distira;
+
 interface PtuFakemonFeedback extends Partial<Omit<PtuPokemon, 'name' | 'olderVersions'>>
 {
     feedback?: string;
@@ -49,7 +55,7 @@ type PtuFakemonCollectionConstructorArgs = ConstructorParameters<typeof PtuPokem
     /** Discord User IDs that always contains at least Bean's User ID */
     editors: string[];
     status: PtuFakemonStatus;
-    dexType: PtuFakemonDexType;
+    dexType: PtuFakemonRegionType;
     /** Discord Text Channel ID that the command to create this fakemon was initially executed in */
     creationChannelId: string;
     feedbacks?: PtuFakemonFeedback[];
@@ -70,7 +76,7 @@ export class PtuFakemonCollection extends PtuPokemonCollection
 {
     public editors: string[];
     public status: PtuFakemonStatus;
-    public dexType: PtuFakemonDexType;
+    public dexType: PtuFakemonRegionType;
     public creationChannelId: string;
     public feedbacks?: PtuFakemonFeedback[];
     public isDeleted?: boolean = false;

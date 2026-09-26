@@ -61,7 +61,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         ])('should transform PtuFakemonCollection to PtuPokemonCollection with dexType %s', async (dexType, expectedPrefix) =>
         {
             // Arrange
-            const fakemon = createPtuFakemonCollectionData({ dexType });
+            const fakemon = createPtuFakemonCollectionData({ dexType, dexNumber: null });
             fakemon.moveList.zygardeCubeMoves = undefined;
             const getCurrentMaxDexNumbersSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
@@ -105,7 +105,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         it('should use index parameter to calculate dex number for bulk transforms', async () =>
         {
             // Arrange
-            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
             const index = 5;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
@@ -120,7 +120,7 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         it('should default index to 0 if not provided', async () =>
         {
             // Arrange
-            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
 
@@ -131,10 +131,40 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
             expect(result.metadata.dexNumber).toBe(`${FakemonDexNumberPrefix.Eden}${maxDexNumber + 1}`);
         });
 
+        // This is used to set the dex number if it is not already set
+        it('should get max dex number if dex number is undefined', async () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
+            const getCurrentMaxDexNumbersSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
+                .mockResolvedValue(defaultMaxDexNumbersMap);
+
+            // Act
+            await adapter.transform(fakemon);
+
+            // Assert
+            expect(getCurrentMaxDexNumbersSpy).toHaveBeenCalled();
+        });
+
+        // This makes it so the dex number is not overwritten if it is already set
+        it('should not get max dex number if dex number is already set', async () =>
+        {
+            // Arrange
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: '#E1' });
+            const getCurrentMaxDexNumbersSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
+                .mockResolvedValue(defaultMaxDexNumbersMap);
+
+            // Act
+            await adapter.transform(fakemon);
+
+            // Assert
+            expect(getCurrentMaxDexNumbersSpy).not.toHaveBeenCalled();
+        });
+
         it('should set edits to undefined if input edits is undefined', async () =>
         {
             // Arrange
-            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const fakemon = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
             fakemon.edits = undefined;
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
@@ -155,9 +185,9 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         it('should use index parameter to calculate dex numbers for bulk transforms', async () =>
         {
             // Arrange
-            const fakemon1 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const fakemon2 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
-            const fakemon3 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden });
+            const fakemon1 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
+            const fakemon2 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
+            const fakemon3 = createPtuFakemonCollectionData({ dexType: PtuFakemonDexType.Eden, dexNumber: null });
             jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
 
@@ -171,42 +201,22 @@ describe(`class: ${FakemonCollectionToPtuCollectionAdapter.name}`, () =>
         });
     });
 
-    describe(`method: ${FakemonCollectionToPtuCollectionAdapter.getDexPrefixAndMaxDexNumber.name}`, () =>
+    describe(`method: ${FakemonCollectionToPtuCollectionAdapter.getMaxDexNumber.name}`, () =>
     {
-        it.each([
-            // Eden
-            [PtuFakemonDexType.Eden, FakemonDexNumberPrefix.Eden],
-            [PtuFakemonDexType.EdenParadox, FakemonDexNumberPrefix.EdenParadox],
-            [PtuFakemonDexType.EdenDrained, FakemonDexNumberPrefix.EdenDrained],
-            [PtuFakemonDexType.EdenLegendary, FakemonDexNumberPrefix.EdenLegendary],
-
-            // Meridia
-            [PtuFakemonDexType.Meridia, FakemonDexNumberPrefix.Meridia],
-            [PtuFakemonDexType.MeridiaParadox, FakemonDexNumberPrefix.MeridiaParadox],
-            [PtuFakemonDexType.MeridiaLegendary, FakemonDexNumberPrefix.MeridiaLegendary],
-
-            // Magalam
-            [PtuFakemonDexType.Magalam, FakemonDexNumberPrefix.Magalam],
-            [PtuFakemonDexType.MagalamParadox, FakemonDexNumberPrefix.MagalamParadox],
-            [PtuFakemonDexType.MagalamLegendary, FakemonDexNumberPrefix.MagalamLegendary],
-
-            // Distira
-            [PtuFakemonDexType.Distira, FakemonDexNumberPrefix.Distira],
-            [PtuFakemonDexType.DistiraParadox, FakemonDexNumberPrefix.DistiraParadox],
-            [PtuFakemonDexType.DistiraLegendary, FakemonDexNumberPrefix.DistiraLegendary],
-        ])('should transform PtuFakemonCollection to PtuPokemonCollection with dexType %s', async (dexType, expectedPrefix) =>
+        it.each(
+            Object.values(PtuFakemonDexType),
+        )('should transform PtuFakemonCollection to PtuPokemonCollection with dexType %s', async (dexType) =>
         {
             // Arrange
             const getCurrentMaxDexNumbersSpy = jest.spyOn(FakemonGeneralInformationManagerService, 'getCurrentMaxDexNumbers')
                 .mockResolvedValue(defaultMaxDexNumbersMap);
 
             // Act
-            const result = await FakemonCollectionToPtuCollectionAdapter.getDexPrefixAndMaxDexNumber(dexType);
+            const result = await FakemonCollectionToPtuCollectionAdapter.getMaxDexNumber(dexType);
 
             // Assert
             expect(getCurrentMaxDexNumbersSpy).toHaveBeenCalledTimes(1);
             expect(result).toEqual({
-                dexPrefix: expectedPrefix,
                 maxDexNumber,
             });
         });

@@ -21,7 +21,7 @@ import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStri
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
-import { FakemonOverviewEditDetailsStringSelectCustomIds, FakemonOverviewEditDetailsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditDetailsActionRowBuilder.js';
+import { FakemonOverviewEditDexNumberStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditDetailsActionRowBuilder.js';
 import { FakemonOverviewEditStatusStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
@@ -30,6 +30,7 @@ import { FakemonStatsStringSelectCustomIds } from '../../components/fakemon/acti
 import {
     PtuFakemonCollection,
     PtuFakemonDexType,
+    PtuFakemonRegionType,
     PtuFakemonStatus,
 } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache, PtuFakemonToCreate } from '../../dal/PtuFakemonPseudoCache.js';
@@ -41,6 +42,7 @@ import { FakemonNonOtherCapabilityEditingModal2 } from '../../modals/fakemon/cap
 import { FakemonOtherCapabilityAddingModal } from '../../modals/fakemon/capabilities/FakemonOtherCapabilityAddingModal.js';
 import { FakemonEvolutionAddingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionAddingModal.js';
 import { FakemonEvolutionEditingModal } from '../../modals/fakemon/evolutions/FakemonEvolutionEditingModal.js';
+import { FakemonDexNumberEditingModal } from '../../modals/fakemon/FakemonDexNumberEditingModal.js';
 import { FakemonSkillEditingModal } from '../../modals/fakemon/FakemonSkillEditingModal.js';
 import { FakemonSpeciesNameEditingModal } from '../../modals/fakemon/FakemonSpeciesNameEditingModal.js';
 import { FakemonStatEditingModal } from '../../modals/fakemon/FakemonStatEditingModal.js';
@@ -88,7 +90,7 @@ import type {
 interface FakemonCreateGetParameterResults
 {
     speciesName: string;
-    region: PtuFakemonDexType;
+    region: PtuFakemonRegionType;
     baseSpeciesOn: string | null;
     baseMovesOn: string | null;
     baseAbilitiesOn: string | null;
@@ -283,6 +285,14 @@ export class FakemonCreateStrategy
 
         switch (customId)
         {
+            case FakemonOverviewButtonCustomIds.EditName:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonSpeciesNameEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    speciesName: fakemon.name,
+                });
+                break;
+
             case FakemonOverviewButtonCustomIds.Validate:
                 try
                 {
@@ -483,8 +493,8 @@ export class FakemonCreateStrategy
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
-            customId: FakemonOverviewEditDetailsStringSelectCustomIds;
-            values: FakemonOverviewEditDetailsStringSelectElementOptions[];
+            customId: FakemonOverviewEditDexNumberStringSelectCustomIds;
+            values: PtuFakemonDexType[];
         } | {
             customId: FakemonOverviewEditStatusStringSelectCustomIds;
             values: PtuFakemonStatus[];
@@ -570,22 +580,13 @@ export class FakemonCreateStrategy
                 break;
 
             // Stat selector
-            case FakemonOverviewEditDetailsStringSelectCustomIds.EditDetails:
-                const typedValue = value1 as FakemonOverviewEditDetailsStringSelectElementOptions;
-                switch (typedValue)
-                {
-                    case FakemonOverviewEditDetailsStringSelectElementOptions.EditName:
-                        // Don't defer before showing a modal, as that will throw an error
-                        await FakemonSpeciesNameEditingModal.showModal(interaction, {
-                            messageId: message.id,
-                            speciesName: fakemon.name,
-                        });
-                        break;
-
-                    default:
-                        const typeGuard: never = typedValue;
-                        throw new Error(`Unhandled fakemon edit details value: ${typeGuard}`);
-                }
+            case FakemonOverviewEditDexNumberStringSelectCustomIds.EditDetails:
+                // Don't defer before showing a modal, as that will throw an error
+                await FakemonDexNumberEditingModal.showModal(interaction, {
+                    messageId: message.id,
+                    dexNumber: fakemon.metadata.dexNumber,
+                    dexType: value1 as PtuFakemonDexType,
+                });
                 break;
 
             // Status selector
@@ -1283,7 +1284,7 @@ export class FakemonCreateStrategy
     private static getOptions(interaction: ChatInputCommandInteraction): FakemonCreateGetParameterResults
     {
         const speciesName = interaction.options.getString('species_name', true);
-        const region = interaction.options.getString('region', true) as PtuFakemonDexType;
+        const region = interaction.options.getString('region', true) as PtuFakemonRegionType;
         const baseSpeciesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseSpeciesOn);
         const baseMovesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseMovesOn);
         const baseAbilitiesOn = interaction.options.getString(PtuAutocompleteParameterName.BaseAbilitiesOn);
@@ -1319,7 +1320,7 @@ export class FakemonCreateStrategy
         uploadedImageUrl,
     }: {
         speciesName: string;
-        region: PtuFakemonDexType;
+        region: PtuFakemonRegionType;
         messageId: string;
         creationChannelId: string;
         userId: string;

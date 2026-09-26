@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 
 import { staticImplements } from '../../../../decorators/staticImplements.js';
-import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonCollection, PtuFakemonRegionType } from '../../dal/models/PtuFakemonCollection.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { PtuFakemonSubcommand } from '../../options/fakemon.js';
 import { PtuSubcommandGroup } from '../../options/index.js';
@@ -25,7 +25,7 @@ import type {
 interface FakemonEditGetParameterResults
 {
     speciesName: string;
-    region: PtuFakemonDexType | null;
+    region: PtuFakemonRegionType | null;
     processedImageUrl: string | null;
     coEditorToAdd: User | null;
     coEditorToRemove: User | null;
@@ -143,7 +143,7 @@ export class FakemonEditStrategy
         const interaction = untypedInteraction as ChatInputCommandInteraction;
 
         const speciesName = interaction.options.getString(PtuAutocompleteParameterName.FakemonSpeciesName, true);
-        const region = interaction.options.getString('region') as PtuFakemonDexType | null;
+        const region = interaction.options.getString('region') as PtuFakemonRegionType | null;
         const image = interaction.options.getAttachment('image');
         const imageUrl = interaction.options.getString('image_url');
         const coEditorToAdd = interaction.options.getUser('co_editor_to_add');
@@ -170,7 +170,7 @@ export class FakemonEditStrategy
     }: {
         fakemon: PtuFakemonCollection;
         messageId: string;
-        region: PtuFakemonDexType | null;
+        region: PtuFakemonRegionType | null;
         coEditorToAdd: User | null;
         coEditorToRemove: User | null;
         updatedImageUrl?: string;

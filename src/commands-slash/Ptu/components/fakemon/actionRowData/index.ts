@@ -24,17 +24,19 @@ import { FakemonMovesRemoveLevelUpMovesStringSelectActionRowBuilder } from '../a
 import { FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder } from '../actionRowBuilders/moves/FakemonMovesRemoveNonLevelUpMovesStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../actionRowBuilders/moves/types.js';
 import { FakemonOverviewButtonActionRowBuilder } from '../actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
-import { FakemonOverviewEditDetailsActionRowBuilder } from '../actionRowBuilders/overview/FakemonOverviewEditDetailsActionRowBuilder.js';
+import { FakemonOverviewEditDexNumberActionRowBuilder } from '../actionRowBuilders/overview/FakemonOverviewEditDetailsActionRowBuilder.js';
 import { FakemonOverviewEditStatusActionRowBuilder } from '../actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
 import { FakemonOverviewNavigationActionRowBuilder } from '../actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
 import { FakemonStatsSwapStringSelectActionRowBuilder } from '../actionRowBuilders/stats/FakemonStatsSwapStringSelectActionRowBuilder.js';
 
-export function getFakemonOverviewComponents(): BaseMessageOptions['components']
+export function getFakemonOverviewComponents(
+    args: ConstructorParameters<typeof FakemonOverviewEditDexNumberActionRowBuilder>[0],
+): BaseMessageOptions['components']
 {
     return [
         new FakemonOverviewButtonActionRowBuilder(),
-        new FakemonOverviewEditDetailsActionRowBuilder(),
+        new FakemonOverviewEditDexNumberActionRowBuilder(args),
         new FakemonOverviewEditStatusActionRowBuilder(),
         new FakemonOverviewNavigationActionRowBuilder(FakemonInteractionManagerPage.Overview),
     ];

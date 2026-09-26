@@ -2,7 +2,9 @@ import { EmbedBuilder } from 'discord.js';
 
 import { FakemonLevelUpMoveDistributionEmbedMessage, LevelUpMoveDistribution } from '../../components/fakemon/embeds/FakemonLevelUpMoveDistributionEmbedMessage.js';
 import { FakemonLevelUpMoveProgressionEmbedMessage } from '../../components/fakemon/embeds/FakemonLevelUpMoveProgressionEmbedMessage.js';
-import { PtuFakemonCollection } from '../../dal/models/PtuFakemonCollection.js';
+import { PtuFakemonCollection, PtuFakemonDexType } from '../../dal/models/PtuFakemonCollection.js';
+import { PokemonController } from '../../dal/PtuController.js';
+import { FakemonController } from '../../dal/PtuFakemonController.js';
 import { PtuFakemonPseudoCache } from '../../dal/PtuFakemonPseudoCache.js';
 import { getPokemonWithMove, PtuPokemonForLookupPokemon } from '../../embed-messages/lookup.js';
 import { PtuMove } from '../../models/PtuMove.js';
@@ -12,6 +14,7 @@ import { LookupMoveStrategy } from '../../strategies/lookup/LookupMoveStrategy.j
 import { LookupPokemonStrategy } from '../../strategies/lookup/LookupPokemonStrategy.js';
 import { PtuMoveListType } from '../../types/pokemon.js';
 import { PtuStrategyMap } from '../../types/strategies.js';
+import { dexTypeAndDexNumberToDexEntry } from './fakemonUtils.js';
 
 export class FakemonOverviewManagerService
 {
@@ -320,6 +323,53 @@ export class FakemonOverviewManagerService
                     },
                 }
                 : {}),
+        });
+    }
+
+    public static async setDexNumber({
+        messageId,
+        fakemon,
+        dexType,
+        dexNumber,
+    }: {
+        messageId: string;
+        fakemon: Pick<PtuFakemonCollection, 'id' | 'metadata'>;
+        dexType: PtuFakemonDexType;
+        dexNumber: string;
+    }): Promise<PtuFakemonCollection>
+    {
+        const trimmedDexNumber = dexNumber.trim();
+        if (trimmedDexNumber.length === 0 || trimmedDexNumber.length > 20)
+        {
+            throw new Error('Fakemon dex number must be between 0-20 characters');
+        }
+
+        const newDexNumber = dexTypeAndDexNumberToDexEntry(dexType, trimmedDexNumber);
+
+        // Throw error if a dex number exists for that value
+        const [numOfMatchingPokemon, numOfMatchingFakemon] = await Promise.all([
+            PokemonController.count({
+                metadata: {
+                    dexNumber: newDexNumber,
+                },
+            }),
+            FakemonController.count({
+                metadata: {
+                    dexNumber: newDexNumber,
+                },
+            }),
+        ]);
+        if (numOfMatchingPokemon > 0 || numOfMatchingFakemon > 0)
+        {
+            const pokemonOrFakemon = numOfMatchingPokemon > 0 ? 'pokemon' : 'fakemon';
+            throw new Error(`Dex number already exists for a ${pokemonOrFakemon}`);
+        }
+
+        return await PtuFakemonPseudoCache.update(messageId, { id: fakemon.id }, {
+            metadata: {
+                ...fakemon.metadata,
+                dexNumber: newDexNumber,
+            },
         });
     }
 }

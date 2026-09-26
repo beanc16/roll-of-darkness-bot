@@ -72,7 +72,7 @@ export class FakemonInteractionManagerService extends InteractionManager
                     embeds: [
                         new FakemonOverviewEmbedMessage(fakemon),
                     ],
-                    components: getFakemonOverviewComponents(),
+                    components: getFakemonOverviewComponents(fakemon),
                 };
 
             case FakemonInteractionManagerPage.Stats:
