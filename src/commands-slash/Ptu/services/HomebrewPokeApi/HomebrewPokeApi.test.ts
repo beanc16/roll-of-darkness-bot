@@ -381,7 +381,8 @@ describe('class: HomebrewPokeApi', () =>
             });
         });
 
-        it('should throw error if rename returns undefined', async () =>
+        // This signifies that the initial file could not be found, so a rename did not occur
+        it('should return undefined if rename returns undefined', async () =>
         {
             // Arrange
             const oldSpeciesName = 'Fakemon1';
@@ -391,14 +392,24 @@ describe('class: HomebrewPokeApi', () =>
             const renameSpy = jest.spyOn(FileStorageService, 'rename')
                 .mockResolvedValueOnce(undefined);
 
-            // Act & Assert
-            await expect(() =>
-                HomebrewPokeApi.renameFakemonImage(oldSpeciesName, newSpeciesName),
-            ).rejects.toThrow('Failed to rename fakemon image');
+            // Act
+            const result = await HomebrewPokeApi.renameFakemonImage(oldSpeciesName, newSpeciesName);
 
             // Assert
+            expect(result).toBeUndefined();
             expect(getFakemonUrlSpy).toHaveBeenCalledWith(newSpeciesName);
-            expect(renameSpy).toHaveBeenCalled();
+            expect(renameSpy).toHaveBeenCalledWith({
+                appId: mockAppId,
+                old: {
+                    fileName: oldSpeciesName,
+                    nestedFolders: HomebrewPokeApi['fakemonNestedFolders'],
+                },
+                new: {
+                    fileName: newSpeciesName,
+                    nestedFolders: HomebrewPokeApi['fakemonNestedFolders'],
+                },
+                resourceType: FileStorageResourceType.Image,
+            });
         });
     });
 });
