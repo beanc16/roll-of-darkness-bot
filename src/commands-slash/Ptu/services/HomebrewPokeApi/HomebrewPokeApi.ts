@@ -29,21 +29,25 @@ export class HomebrewPokeApi
             case PtuFakemonDexType.Eden:
             case PtuFakemonDexType.EdenParadox:
             case PtuFakemonDexType.EdenDrained:
+            case PtuFakemonDexType.EdenUltraBeast:
             case PtuFakemonDexType.EdenLegendary:
                 suffix = 'eden-dex';
                 break;
             case PtuFakemonDexType.Meridia:
             case PtuFakemonDexType.MeridiaParadox:
+            case PtuFakemonDexType.MeridiaUltraBeast:
             case PtuFakemonDexType.MeridiaLegendary:
                 suffix = 'meridia-dex';
                 break;
             case PtuFakemonDexType.Magalam:
             case PtuFakemonDexType.MagalamParadox:
+            case PtuFakemonDexType.MagalamUltraBeast:
             case PtuFakemonDexType.MagalamLegendary:
                 suffix = 'magalam-dex';
                 break;
             case PtuFakemonDexType.Distira:
             case PtuFakemonDexType.DistiraParadox:
+            case PtuFakemonDexType.DistiraUltraBeast:
             case PtuFakemonDexType.DistiraLegendary:
                 suffix = 'distira-dex';
                 break;

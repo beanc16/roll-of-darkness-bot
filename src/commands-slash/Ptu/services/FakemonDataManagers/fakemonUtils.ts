@@ -6,21 +6,25 @@ export const dexTypeToPrefix: Record<PtuFakemonDexType, PtuFakemonDexType> = {
     [PtuFakemonDexType.Eden]: PtuFakemonDexType.Eden,
     [PtuFakemonDexType.EdenParadox]: PtuFakemonDexType.Eden,
     [PtuFakemonDexType.EdenDrained]: PtuFakemonDexType.Eden,
+    [PtuFakemonDexType.EdenUltraBeast]: PtuFakemonDexType.Eden,
     [PtuFakemonDexType.EdenLegendary]: PtuFakemonDexType.Eden,
 
     // Meridia
     [PtuFakemonDexType.Meridia]: PtuFakemonDexType.Meridia,
     [PtuFakemonDexType.MeridiaParadox]: PtuFakemonDexType.Meridia,
+    [PtuFakemonDexType.MeridiaUltraBeast]: PtuFakemonDexType.Meridia,
     [PtuFakemonDexType.MeridiaLegendary]: PtuFakemonDexType.Meridia,
 
     // Magalam
     [PtuFakemonDexType.Magalam]: PtuFakemonDexType.Magalam,
     [PtuFakemonDexType.MagalamParadox]: PtuFakemonDexType.Magalam,
+    [PtuFakemonDexType.MagalamUltraBeast]: PtuFakemonDexType.Magalam,
     [PtuFakemonDexType.MagalamLegendary]: PtuFakemonDexType.Magalam,
 
     // Distira
     [PtuFakemonDexType.Distira]: PtuFakemonDexType.Distira,
     [PtuFakemonDexType.DistiraParadox]: PtuFakemonDexType.Distira,
+    [PtuFakemonDexType.DistiraUltraBeast]: PtuFakemonDexType.Distira,
     [PtuFakemonDexType.DistiraLegendary]: PtuFakemonDexType.Distira,
 };
 

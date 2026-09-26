@@ -17,24 +17,32 @@ export enum FakemonDexNumberPrefix
     EdenParadox = '#EP',
     /** Eden drained pokedex */
     EdenDrained = '#ED',
+    /** Eden ultra beast pokedex */
+    EdenUltraBeast = '#EUB',
     /** Eden legendary pokedex */
     EdenLegendary = '#EL',
     /** Meridia homebrew pokedex */
     Meridia = '#MD',
     /** Meridia paradox pokedex */
     MeridiaParadox = '#MDP',
+    /** Meridia ultra beast pokedex */
+    MeridiaUltraBeast = '#MUB',
     /** Meridia legendary pokedex */
     MeridiaLegendary = '#MDL',
     /** Magalam homebrew pokedex */
     Magalam = '#MG',
     /** Magalam paradox pokedex */
     MagalamParadox = '#MGP',
+    /** Magalam ultra beast pokedex */
+    MagalamUltraBeast = '#MGUB',
     /** Magalam legendary pokedex */
     MagalamLegendary = '#MGL',
     /** Distira homebrew pokedex */
     Distira = '#D',
     /** Distira paradox pokedex */
     DistiraParadox = '#DP',
+    /** Distira legendary pokedex */
+    DistiraUltraBeast = '#DUB',
     /** Distira legendary pokedex */
     DistiraLegendary = '#DL',
 }

@@ -12,21 +12,25 @@ export class FakemonCollectionToPtuCollectionAdapter extends Adapter<PtuFakemonC
         [PtuFakemonDexType.Eden]: FakemonDexNumberPrefix.Eden,
         [PtuFakemonDexType.EdenParadox]: FakemonDexNumberPrefix.EdenParadox,
         [PtuFakemonDexType.EdenDrained]: FakemonDexNumberPrefix.EdenDrained,
+        [PtuFakemonDexType.EdenUltraBeast]: FakemonDexNumberPrefix.EdenUltraBeast,
         [PtuFakemonDexType.EdenLegendary]: FakemonDexNumberPrefix.EdenLegendary,
 
         // Meridia
         [PtuFakemonDexType.Meridia]: FakemonDexNumberPrefix.Meridia,
         [PtuFakemonDexType.MeridiaParadox]: FakemonDexNumberPrefix.MeridiaParadox,
+        [PtuFakemonDexType.MeridiaUltraBeast]: FakemonDexNumberPrefix.MeridiaUltraBeast,
         [PtuFakemonDexType.MeridiaLegendary]: FakemonDexNumberPrefix.MeridiaLegendary,
 
         // Magalam
         [PtuFakemonDexType.Magalam]: FakemonDexNumberPrefix.Magalam,
         [PtuFakemonDexType.MagalamParadox]: FakemonDexNumberPrefix.MagalamParadox,
+        [PtuFakemonDexType.MagalamUltraBeast]: FakemonDexNumberPrefix.MagalamUltraBeast,
         [PtuFakemonDexType.MagalamLegendary]: FakemonDexNumberPrefix.MagalamLegendary,
 
         // Distira
         [PtuFakemonDexType.Distira]: FakemonDexNumberPrefix.Distira,
         [PtuFakemonDexType.DistiraParadox]: FakemonDexNumberPrefix.DistiraParadox,
+        [PtuFakemonDexType.DistiraUltraBeast]: FakemonDexNumberPrefix.DistiraUltraBeast,
         [PtuFakemonDexType.DistiraLegendary]: FakemonDexNumberPrefix.DistiraLegendary,
     };
 

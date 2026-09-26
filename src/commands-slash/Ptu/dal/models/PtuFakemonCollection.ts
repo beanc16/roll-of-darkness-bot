@@ -18,21 +18,25 @@ export enum PtuFakemonDexType
     Eden = 'Eden',
     EdenParadox = 'Eden Paradox',
     EdenDrained = 'Eden Drained',
+    EdenUltraBeast = 'Eden Ultra Beast',
     EdenLegendary = 'Eden Legendary',
 
     // Meridia
     Meridia = 'Meridia',
     MeridiaParadox = 'Meridia Paradox',
+    MeridiaUltraBeast = 'Meridia Ultra Beast',
     MeridiaLegendary = 'Meridia Legendary',
 
     // Magalam
     Magalam = 'Magalam',
     MagalamParadox = 'Magalam Paradox',
+    MagalamUltraBeast = 'Magalam Ultra Beast',
     MagalamLegendary = 'Magalam Legendary',
 
     // Distira
     Distira = 'Distira',
     DistiraParadox = 'Distira Paradox',
+    DistiraUltraBeast = 'Distira Ultra Beast',
     DistiraLegendary = 'Distira Legendary',
 }
 

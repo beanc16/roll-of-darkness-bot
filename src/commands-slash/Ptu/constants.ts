@@ -336,10 +336,12 @@ export const getEditorOfDex = (dexType: AllPtuDexTypes): DiscordUserId[] =>
         case `${PtuDexType.ZA} Dex`:
         case PtuFakemonDexType.Eden: // Eden
         case PtuFakemonDexType.EdenParadox:
+        case PtuFakemonDexType.EdenUltraBeast:
         case PtuFakemonDexType.EdenLegendary:
         case PtuFakemonDexType.EdenDrained:
         case `${PtuFakemonDexType.Eden} Dex`:
         case `${PtuFakemonDexType.EdenParadox} Dex`:
+        case `${PtuFakemonDexType.EdenUltraBeast} Dex`:
         case `${PtuFakemonDexType.EdenLegendary} Dex`:
         case `${PtuFakemonDexType.EdenDrained} Dex`:
             return [DiscordUserId.Bean];
@@ -347,27 +349,33 @@ export const getEditorOfDex = (dexType: AllPtuDexTypes): DiscordUserId[] =>
         // Meridia
         case PtuFakemonDexType.Meridia:
         case PtuFakemonDexType.MeridiaParadox:
+        case PtuFakemonDexType.MeridiaUltraBeast:
         case PtuFakemonDexType.MeridiaLegendary:
         case `${PtuFakemonDexType.Meridia} Dex`:
         case `${PtuFakemonDexType.MeridiaParadox} Dex`:
+        case `${PtuFakemonDexType.MeridiaUltraBeast} Dex`:
         case `${PtuFakemonDexType.MeridiaLegendary} Dex`:
             return [DiscordUserId.Avery];
 
         // Distira
         case PtuFakemonDexType.Distira:
         case PtuFakemonDexType.DistiraParadox:
+        case PtuFakemonDexType.DistiraUltraBeast:
         case PtuFakemonDexType.DistiraLegendary:
         case `${PtuFakemonDexType.Distira} Dex`:
         case `${PtuFakemonDexType.DistiraParadox} Dex`:
+        case `${PtuFakemonDexType.DistiraUltraBeast} Dex`:
         case `${PtuFakemonDexType.DistiraLegendary} Dex`:
             return [DiscordUserId.Joel];
 
         // Magalam
         case PtuFakemonDexType.Magalam:
         case PtuFakemonDexType.MagalamParadox:
+        case PtuFakemonDexType.MagalamUltraBeast:
         case PtuFakemonDexType.MagalamLegendary:
         case `${PtuFakemonDexType.Magalam} Dex`:
         case `${PtuFakemonDexType.MagalamParadox} Dex`:
+        case `${PtuFakemonDexType.MagalamUltraBeast} Dex`:
         case `${PtuFakemonDexType.MagalamLegendary} Dex`:
             return [DiscordUserId.Josh];
 
