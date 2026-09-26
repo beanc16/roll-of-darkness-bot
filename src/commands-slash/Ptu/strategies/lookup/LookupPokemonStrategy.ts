@@ -1,3 +1,4 @@
+import { logger } from '@beanc16/logger';
 import type { Entries } from '@beanc16/utility-types';
 import {
     ActionRowBuilder,
@@ -45,7 +46,6 @@ import {
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import type { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
 import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
-import { logger } from '@beanc16/logger';
 
 interface GetOptionsResponse
 {

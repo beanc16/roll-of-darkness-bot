@@ -21,6 +21,7 @@ import { FakemonSIEditSizeStringSelectElementOptions, FakemonSizeInformationStri
 import { FakemonSkillsEditStringSelectElementOptions, FakemonSkillsStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/FakemonSkillsEditStringSelectActionRowBuilder.js';
 import { FakemonMovesButtonCustomIds, FakemonMovesStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/moves/types.js';
 import { FakemonOverviewButtonCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewButtonActionRowBuilder.js';
+import { FakemonOverviewEditDetailsStringSelectCustomIds, FakemonOverviewEditDetailsStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditDetailsActionRowBuilder.js';
 import { FakemonOverviewEditStatusStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewEditStatusActionRowBuilder.js';
 import { FakemonOverviewStringSelectCustomIds } from '../../components/fakemon/actionRowBuilders/overview/FakemonOverviewNavigationActionRowBuilder.js';
 import { FakemonStatsEditStringSelectElementOptions } from '../../components/fakemon/actionRowBuilders/stats/FakemonStatsEditStringSelectActionRowBuilder.js';
@@ -282,14 +283,6 @@ export class FakemonCreateStrategy
 
         switch (customId)
         {
-            case FakemonOverviewButtonCustomIds.EditName:
-                // Don't defer before showing a modal, as that will throw an error
-                await FakemonSpeciesNameEditingModal.showModal(interaction, {
-                    messageId: message.id,
-                    speciesName: fakemon.name,
-                });
-                break;
-
             case FakemonOverviewButtonCustomIds.Validate:
                 try
                 {
@@ -490,6 +483,9 @@ export class FakemonCreateStrategy
             customId: FakemonOverviewStringSelectCustomIds.Navigation;
             values: FakemonInteractionManagerPage[];
         } | {
+            customId: FakemonOverviewEditDetailsStringSelectCustomIds;
+            values: FakemonOverviewEditDetailsStringSelectElementOptions[];
+        } | {
             customId: FakemonOverviewEditStatusStringSelectCustomIds;
             values: PtuFakemonStatus[];
         } | {
@@ -571,6 +567,25 @@ export class FakemonCreateStrategy
                     page: value1 as FakemonInteractionManagerPage,
                     messageId: message.id,
                 });
+                break;
+
+            // Stat selector
+            case FakemonOverviewEditDetailsStringSelectCustomIds.EditDetails:
+                const typedValue = value1 as FakemonOverviewEditDetailsStringSelectElementOptions;
+                switch (typedValue)
+                {
+                    case FakemonOverviewEditDetailsStringSelectElementOptions.EditName:
+                        // Don't defer before showing a modal, as that will throw an error
+                        await FakemonSpeciesNameEditingModal.showModal(interaction, {
+                            messageId: message.id,
+                            speciesName: fakemon.name,
+                        });
+                        break;
+
+                    default:
+                        const typeGuard: never = typedValue;
+                        throw new Error(`Unhandled fakemon edit details value: ${typeGuard}`);
+                }
                 break;
 
             // Status selector
