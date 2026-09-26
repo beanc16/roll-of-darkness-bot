@@ -144,7 +144,7 @@ export class HomebrewPokeApi
     }
 
     /* istanbul ignore next */
-    public static async renameFakemonImage(oldSpeciesName: string, newSpeciesName: string): Promise<string>
+    public static async renameFakemonImage(oldSpeciesName: string, newSpeciesName: string): Promise<string | undefined>
     {
         try
         {
@@ -169,9 +169,10 @@ export class HomebrewPokeApi
             resourceType: FileStorageResourceType.Image,
         });
 
+        // Original file doesn't exist
         if (!response)
         {
-            throw new Error('Failed to rename fakemon image');
+            return undefined;
         }
 
         return response.url;
