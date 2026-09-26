@@ -45,6 +45,7 @@ import {
 import type { PtuLookupIteractionStrategy, PtuStrategyMap } from '../../types/strategies.js';
 import type { LookupAbilityStrategy } from './LookupAbilityStrategy.js';
 import type { LookupMoveStrategy } from './LookupMoveStrategy.js';
+import { logger } from '@beanc16/logger';
 
 interface GetOptionsResponse
 {
@@ -209,6 +210,28 @@ export class LookupPokemonStrategy
         else if (names)
         {
             const [first] = data;
+            // TEMP: A bug occurs below if first is undefined, and the cause is unclear.
+            //       Add logging for triaging.
+            logger.debug('BUG: "first" (from lookup data) is undefined in LookupPokemonStrategy.run:', {
+                selectedValue,
+                names,
+                moveName,
+                pokemonGetLookupDataParameters: {
+                    names,
+                    lookupType: RegexLookupType.ExactMatchCaseInsensitive,
+                    moveNames: [moveName].filter(Boolean) as string[],
+                    moveListType,
+                    abilityName,
+                    abilityListType,
+                    capabilityName,
+                    habitatName,
+                    dietName,
+                    eggGroups,
+                    baseStatTotal,
+                },
+                data,
+                first,
+            });
             selectedValue = first.versionName;
         }
 
@@ -922,6 +945,15 @@ export class LookupPokemonStrategy
             // the move that its based on, if it exists
             const [move] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy).getLookupData({
                 names: [moveName],
+            });
+            // TEMP: A bug occurs below if move is undefined, and the cause is unclear.
+            //       Add logging for triaging.
+            logger.debug('BUG: move is undefined in LookupPokemonStrategy.getRowsAbovePagination:', {
+                selectedValue,
+                isDisabled,
+                moveName,
+                move,
+                pokemon,
             });
             basedOnMoveName = move.basedOn;
 
