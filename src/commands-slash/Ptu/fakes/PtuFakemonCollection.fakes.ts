@@ -30,6 +30,10 @@ export const createPtuFakemonCollectionData = (
     {
         pokemon.metadata.dexNumber = undefined;
     }
+    else if (args.dexNumber !== undefined)
+    {
+        pokemon.metadata.dexNumber = args.dexNumber;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return {
