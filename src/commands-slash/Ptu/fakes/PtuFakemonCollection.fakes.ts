@@ -32,6 +32,7 @@ export const createPtuFakemonCollectionData = (
     }
     else if (args.dexNumber !== undefined)
     {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         pokemon.metadata.dexNumber = args.dexNumber;
     }
 
