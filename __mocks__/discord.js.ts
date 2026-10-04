@@ -365,21 +365,72 @@ export class ButtonBuilder
 }
 /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment */
 
-export const EmbedBuilder = jest.fn<Discord.EmbedBuilder, []>().mockImplementation(() =>
+// Each setter stores its value on `data` in the same shape discord.js uses, so tests can assert on `embed.data`
+export const EmbedBuilder = jest.fn<Discord.EmbedBuilder, [Discord.APIEmbed?]>().mockImplementation((initialData = {}) =>
 {
     const result: Discord.EmbedBuilder = {
-        data: {},
-        addFields: jest.fn().mockImplementation(() => result),
-        setAuthor: jest.fn().mockImplementation(() => result),
-        setColor: jest.fn().mockImplementation(() => result),
-        setDescription: jest.fn().mockImplementation(() => result),
-        setFields: jest.fn().mockImplementation(() => result),
-        setFooter: jest.fn().mockImplementation(() => result),
-        setImage: jest.fn().mockImplementation(() => result),
-        setThumbnail: jest.fn().mockImplementation(() => result),
-        setTimestamp: jest.fn().mockImplementation(() => result),
-        setTitle: jest.fn().mockImplementation(() => result),
-        setURL: jest.fn().mockImplementation(() => result),
+        data: { ...initialData },
+        addFields: jest.fn().mockImplementation((...fields: (Discord.APIEmbedField | Discord.APIEmbedField[])[]) =>
+        {
+            result.data.fields = [...(result.data.fields ?? []), ...fields.flat()];
+            return result;
+        }),
+        setAuthor: jest.fn().mockImplementation((author: { name: string; iconURL?: string; url?: string } | null) =>
+        {
+            result.data.author = author
+                ? {
+                    name: author.name, icon_url: author.iconURL, url: author.url,
+                }
+                : undefined;
+            return result;
+        }),
+        setColor: jest.fn().mockImplementation((color: number | null) =>
+        {
+            result.data.color = color ?? undefined;
+            return result;
+        }),
+        setDescription: jest.fn().mockImplementation((description: string | null) =>
+        {
+            result.data.description = description ?? undefined;
+            return result;
+        }),
+        setFields: jest.fn().mockImplementation((...fields: (Discord.APIEmbedField | Discord.APIEmbedField[])[]) =>
+        {
+            result.data.fields = fields.flat();
+            return result;
+        }),
+        setFooter: jest.fn().mockImplementation((footer: { text: string; iconURL?: string } | null) =>
+        {
+            result.data.footer = footer
+                ? { text: footer.text, icon_url: footer.iconURL }
+                : undefined;
+            return result;
+        }),
+        setImage: jest.fn().mockImplementation((url: string | null) =>
+        {
+            result.data.image = url ? { url } : undefined;
+            return result;
+        }),
+        setThumbnail: jest.fn().mockImplementation((url: string | null) =>
+        {
+            result.data.thumbnail = url ? { url } : undefined;
+            return result;
+        }),
+        setTimestamp: jest.fn().mockImplementation((timestamp: Date | number | null = Date.now()) =>
+        {
+            result.data.timestamp = timestamp ? new Date(timestamp).toISOString() : undefined;
+            return result;
+        }),
+        setTitle: jest.fn().mockImplementation((title: string | null) =>
+        {
+            result.data.title = title ?? undefined;
+            return result;
+        }),
+        setURL: jest.fn().mockImplementation((url: string | null) =>
+        {
+            result.data.url = url ?? undefined;
+            return result;
+        }),
         spliceFields: jest.fn(),
         toJSON: jest.fn(),
     };
