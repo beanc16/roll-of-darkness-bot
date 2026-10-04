@@ -66,8 +66,7 @@ const embedDescribing = (...expectedParts: (string | RegExp)[]): unknown => expe
     }) as unknown,
 });
 
-// eslint-disable-next-line jest/valid-title -- Using `.name` makes a rename fail loudly
-describe(LookupPokemonStrategy.name, () =>
+describe(`${LookupPokemonStrategy.name}`, () =>
 {
     afterEach(() =>
     {
@@ -75,8 +74,8 @@ describe(LookupPokemonStrategy.name, () =>
         jest.restoreAllMocks();
     });
 
-    // eslint-disable-next-line @typescript-eslint/unbound-method, jest/valid-title -- Using `.name` makes a rename fail loudly
-    describe(LookupPokemonStrategy.run.name, () =>
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    describe(`${LookupPokemonStrategy.run.name}`, () =>
     {
         let commandName: CommandName;
         let interaction: FakeChatInputCommandInteraction;
