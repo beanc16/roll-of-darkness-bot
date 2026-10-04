@@ -152,10 +152,9 @@ export class LookupPokemonStrategy
         }
 
         if (
-            // Can only have 1 value if not habitat or diet
-            (numOfTruthyValues > 1 && !(habitatName || dietName))
-            // Can have have habitat and/or diet at the same time
-            || (numOfTruthyValues > 2 && (habitatName || dietName))
+            // Can only have 1 value, except habitat and diet which can be used together (and only together)
+            numOfTruthyValues > 1
+            && !(numOfTruthyValues === 2 && habitatName && dietName)
         )
         {
             await PaginationStrategy.run({
