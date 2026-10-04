@@ -110,15 +110,15 @@ export const createPtuPokemonCollectionData = ({
         ],
         capabilities: {
             overland: faker.number.int({ min: 1, max: 8 }),
-            swim: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 8 })),
-            sky: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 8 })),
-            levitate: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 8 })),
-            burrow: faker.helpers.maybe(() => faker.number.int({ min: 0, max: 8 })),
+            swim: faker.number.int({ min: 0, max: 8 }),
+            sky: faker.number.int({ min: 0, max: 8 }),
+            levitate: faker.number.int({ min: 0, max: 8 }),
+            burrow: faker.number.int({ min: 0, max: 8 }),
             highJump: faker.number.int({ min: 1, max: 3 }),
             lowJump: faker.number.int({ min: 1, max: 3 }),
             power: faker.number.int({ min: 1, max: 8 }),
             other: numOfOtherCapabilities === undefined
-                ? faker.helpers.maybe(() => getArrayOfWords({ min: 0, max: 9 }))
+                ? getArrayOfWords({ min: 0, max: 9 })
                 : getArrayOfWords({ min: numOfOtherCapabilities, max: numOfOtherCapabilities }),
         },
         sizeInformation: {
@@ -179,11 +179,11 @@ export const createPtuPokemonCollectionData = ({
             tmHm: getArrayOfWords({ min: 0, max: 40 }),
             eggMoves: getArrayOfWords({ min: 0, max: 40 }),
             tutorMoves: getArrayOfWords({ min: 0, max: 40 }),
-            zygardeCubeMoves: faker.helpers.maybe(() => getArrayOfWords({ min: 0, max: 5 }), { probability: 0.05 }),
+            zygardeCubeMoves: getArrayOfWords({ min: 0, max: 5 }),
         },
-        megaEvolutions: megaEvolutions ?? faker.helpers.maybe(() => ([{
+        megaEvolutions: megaEvolutions ?? [{
             name: `Mega ${speciesName}`,
-            types: faker.helpers.maybe(() => getRandomTypes(2)) || [],
+            types: getRandomTypes(2),
             ability: faker.lorem.word(),
             stats: faker.helpers.arrayElement([
                 {},
@@ -203,23 +203,23 @@ export const createPtuPokemonCollectionData = ({
                     attack: '+4', defense: '+3', specialDefense: '+3',
                 },
             ]),
-        }]), { probability: 0.1 }),
+        }],
         metadata: {
             source: faker.lorem.word(),
-            dexNumber: faker.helpers.maybe(() => `#${faker.number.int({ min: 1, max: 1000 })}`),
-            page: faker.helpers.maybe(() => `p.${faker.number.int({ min: 1, max: 1000 })}`),
-            imageUrl: faker.helpers.maybe(() => faker.image.url()),
+            dexNumber: `#${faker.number.int({ min: 1, max: 1000 })}`,
+            page: `p.${faker.number.int({ min: 1, max: 1000 })}`,
+            imageUrl: faker.image.url(),
         },
-        extras: extras ?? faker.helpers.maybe(() => [{
+        extras: extras ?? [{
             name: faker.lorem.words({ min: 1, max: 2 }),
             value: faker.lorem.sentences({ min: 1, max: 3 }),
-        }], { probability: 0.05 }),
-        edits: faker.helpers.maybe(() => ([{
+        }],
+        edits: [{
             editName: faker.lorem.words({ min: 1, max: 5 }),
             moveList: {
                 tmHm: getArrayOfWords({ min: 0, max: 40 }),
             } as unknown as PtuPokemonCollection['moveList'],
-        }])),
+        }],
         toPtuPokemon: () => ({} as PtuPokemon),
     };
 };
