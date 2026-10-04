@@ -182,23 +182,25 @@ export class LookupPokemonStrategy
             baseStatTotal,
         });
 
-        const embedsInput = await this.getFirstEmbedsInput({
-            names,
-            moveNames: [moveName ?? null],
-            moveListType,
-            abilityName,
-            abilityListType,
-            capabilityName,
-            habitatName,
-            dietName,
-            eggGroups,
-            baseStatTotal,
-            pokemon: data,
-            moveNameToMovesRecord: {},
-        }, strategies, includeContestInfo);
-
-        // Get message
-        const embeds = this.getFirstEmbeds(embedsInput);
+        // Get message (some embed builders return a header-only embed for empty data)
+        const embeds = data.length > 0
+            ? this.getFirstEmbeds(
+                await this.getFirstEmbedsInput({
+                    names,
+                    moveNames: [moveName as string],
+                    moveListType,
+                    abilityName,
+                    abilityListType,
+                    capabilityName,
+                    habitatName,
+                    dietName,
+                    eggGroups,
+                    baseStatTotal,
+                    pokemon: data,
+                    moveNameToMovesRecord: {},
+                }, strategies, includeContestInfo),
+            )
+            : [];
 
         // Get selected value (in string select menu, if there is one)
         let selectedValue: string | undefined;
@@ -210,8 +212,7 @@ export class LookupPokemonStrategy
         else if (names)
         {
             const [first] = data;
-            // TEMP: A bug occurs below if first is undefined, and the cause is unclear.
-            //       Add logging for triaging.
+            // TEMP: Logs the lookup inputs to triage how `first` can be undefined.
             logger.debug('BUG: "first" (from lookup data) is undefined in LookupPokemonStrategy.run:', {
                 selectedValue,
                 names,
@@ -232,7 +233,7 @@ export class LookupPokemonStrategy
                 data,
                 first,
             });
-            selectedValue = first.versionName;
+            selectedValue = first?.versionName;
         }
 
         // Send no results found
@@ -946,8 +947,7 @@ export class LookupPokemonStrategy
             const [move] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Move] as typeof LookupMoveStrategy).getLookupData({
                 names: [moveName],
             });
-            // TEMP: A bug occurs below if move is undefined, and the cause is unclear.
-            //       Add logging for triaging.
+            // TEMP: Logs the lookup inputs to triage how `move` can be undefined.
             logger.debug('BUG: move is undefined in LookupPokemonStrategy.getRowsAbovePagination:', {
                 selectedValue,
                 isDisabled,
@@ -955,7 +955,7 @@ export class LookupPokemonStrategy
                 move,
                 pokemon,
             });
-            basedOnMoveName = move.basedOn;
+            basedOnMoveName = move?.basedOn;
 
             const selectMenuRow = this.getLookupPokemonByMoveSelectMenu({
                 defaultMoveListType: selectedValue as PtuMoveListType,
@@ -973,7 +973,7 @@ export class LookupPokemonStrategy
             const [ability] = await (strategies[PtuSubcommandGroup.Lookup][PtuLookupSubcommand.Ability] as typeof LookupAbilityStrategy).getLookupData({
                 name: abilityName,
             });
-            basedOnAbilityName = ability.basedOn;
+            basedOnAbilityName = ability?.basedOn;
 
             buttonRow = new LookupPokemonActionRowBuilder({ abilityName, basedOnAbilityName });
         }
